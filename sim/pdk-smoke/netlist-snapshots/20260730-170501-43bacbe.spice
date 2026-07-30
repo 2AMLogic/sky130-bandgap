@@ -1,0 +1,9 @@
+** sch_path: sim/pdk-smoke/testbench/tb_pdk_smoke.sch
+**.subckt tb_pdk_smoke
+V1 VDD 0 'vsup'
+.save i(v1)
+R1 VDD VG 1meg m=1
+XM1 VG VG 0 0 sky130_fd_pr__nfet_g5v0d10v5 L=1 W=2 nf=1 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145 sa=0 sb=0 sd=0 mult=1
++ m=1
+**.ends
+.end
