@@ -1,0 +1,49 @@
+{
+  "slug": "pdk-smoke",
+  "title": "Harness smoke test: sky130 models in ngspice via xschem",
+  "claim": "Harness bring-up only -- NOT a spec claim. Substantiates that the pinned sky130 PDK models load in ngspice, that xschem netlists to a deck the runner can drive, and that the process/voltage/temperature knobs measurably change the result. Spec-line claims live in their own experiment directories once spec/ is ratified (see issue #1).",
+  "provenance": "schematic",
+  "provenance_source": "sim/pdk-smoke/testbench/tb_pdk_smoke.sch",
+  "schematic": "testbench/tb_pdk_smoke.sch",
+  "statistical_convention": "N/A (corner-matrix check, not a distribution claim)",
+  "corners": {
+    "process": ["tt", "ss", "ff", "sf", "fs"],
+    "temperature_c": [-40, 27, 125],
+    "supply_v": [2.97, 3.3, 3.63]
+  },
+  "quick_subset": [
+    ["tt", 27, 3.3],
+    ["ss", -40, 2.97],
+    ["ff", 125, 3.63]
+  ],
+  "deck": {
+    "options": ["wnflag=1"],
+    "params": {},
+    "analyses": ["op"]
+  },
+  "measurements": [
+    {
+      "name": "vgs",
+      "expr": "v(vg)",
+      "unit": "V",
+      "min": 0.4,
+      "max": 1.4,
+      "note": "Gate-source voltage of the diode-connected nfet_g5v0d10v5. Wide window on purpose: this is a harness liveness bound, not a spec limit."
+    },
+    {
+      "name": "isup",
+      "expr": "-i(v1)",
+      "unit": "A",
+      "min": 1e-7,
+      "max": 1e-4,
+      "note": "Supply current, ~(vsup - vgs)/1Mohm. Positive-into-the-circuit sign convention."
+    }
+  ],
+  "spread_checks": [
+    {
+      "measurement": "vgs",
+      "min_spread": 0.05,
+      "note": "Guards against a silently corner-blind harness: if every corner returns the same vgs, the .lib/.temp injection is not taking effect."
+    }
+  ]
+}

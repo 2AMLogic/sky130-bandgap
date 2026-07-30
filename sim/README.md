@@ -1,195 +1,232 @@
-# sim/ — evidence record format
+# sim/ — the simulation harness and its evidence records
 
-This directory holds simulation testbenches and their results. Results are
-**append-only evidence**: once a record is written, it is never edited or
-deleted. A re-run — even one that corrects a mistake — mints a new record
-with a new ID; a correction references the record it supersedes rather than
-overwriting it in place.
+This directory holds the reproducible xschem + ngspice + sky130 harness and the
+results it produces. Two rules from the root `CLAUDE.md` shape everything here:
 
-This convention exists because CLAUDE.md commits this repo to two rules that
-need a concrete schema to be enforceable:
+- **Verification is the product.** No claim without a testbench. Every recorded
+  result carries the PVT corner matrix (−40/27/125 °C, ±10 % supply, process
+  corners) unless the record states why a subset was used — the runner
+  *enforces* that by refusing to write a subset record without a
+  `--subset-reason`.
+- **`sim/` is append-only evidence.** Records are never edited or deleted. A
+  re-run — even one that corrects a mistake — mints a new record id; a
+  correction points at what it replaces via a `Supersedes` field. The runner
+  refuses to start if the record id it would mint already exists on disk.
 
-- **Verification is the product.** No claim without a testbench. Every
-  recorded result carries the full PVT corner matrix (−40/27/125 °C, ±10%
-  supply, process corners) unless the record explicitly states why a subset
-  was used.
-- **`sim/` is append-only evidence.** Re-runs get new records; records are
-  never edited or deleted.
+The directory layout, record-id scheme and summary-record fields follow the
+house convention established in the sibling `gf180-bandgap` repo, so the two
+ports read as one evidence trail. Extensions specific to this harness (PDK
+version pin, tool versions, machine-readable `.json` twin of each record,
+corner-sensitivity check) are documented below.
+
+---
+
+## Quick start (cold machine)
+
+```bash
+# 1. install the pinned PDK (~1 min; see sim/pdk.json for the pin)
+volare enable --pdk sky130 c6d73a35f524070e85faff4a6a9eef49553ebc2b
+
+# 2. sanity-check the toolchain and PDK resolution
+python3 sim/bin/corner-run.py --print-env
+
+# 3. run the harness smoke test over the full PVT matrix (45 points, ~1 min)
+python3 sim/bin/corner-run.py sim/pdk-smoke
+```
+
+Prerequisites, all machine-level (not vendored here): `ngspice`, `xschem`,
+`volare`, `python3` (3.9+, standard library only). Provisioning them on a dev
+box is issue #17's scope; this harness only *verifies* they are present and
+records the versions it used.
+
+### Driving the tools by hand
+
+```bash
+source sim/bin/pdk-env.sh      # exports PDK_ROOT, PDK, SKY130_MODEL_LIB, XSCHEM_RCFILE
+xschem --rcfile "$XSCHEM_RCFILE" sim/pdk-smoke/testbench/tb_pdk_smoke.sch
+cp sim/spiceinit ./.spiceinit  # ngspice needs these settings to read PDK libs
+```
+
+`sim/bin/pdk-env.sh` is a thin wrapper around `corner-run.py --print-env`, so
+interactive sessions and the runner resolve the PDK identically.
+
+---
+
+## How the harness is wired
+
+| Piece | File | Role |
+|---|---|---|
+| PDK pin | `sim/pdk.json` | open_pdks commit, variant, model-library path, the process-corner names that actually exist in the PDK library |
+| ngspice settings | `sim/spiceinit` | `ngbehavior=hsa` etc. required to read the sky130 libs; copied into the scratch run dir as `.spiceinit` |
+| xschem config | `sim/xschemrc` | project-local rc that sources the PDK's own xschemrc (so `sky130_fd_pr/*.sym` resolves) and keeps generated netlists out of the tracked tree |
+| corner runner | `sim/bin/corner-run.py` | netlist → deck → ngspice → parse → record |
+| env helper | `sim/bin/pdk-env.sh` | `source` it for interactive xschem/ngspice work |
+| experiment | `sim/<slug>/experiment.json` | what is being claimed, which corners, which measurements and their limits |
+
+**PDK resolution order**: `$PDK_ROOT` → `volare path` → `default_pdk_root` from
+`sim/pdk.json`; variant from `$PDK` → `variant` in `sim/pdk.json`. The runner
+resolves the PDK directory symlink back to its volare version hash and
+**refuses to run against a version other than the pin** unless
+`--allow-pdk-mismatch` is passed — in which case the record says so. That is
+what makes a record re-runnable months later.
+
+**What the runner injects** (so one testbench serves the whole matrix): the
+`.lib <models> <corner>` include, `.temp`, `.param vsup=<supply>`, `.option`s
+from the manifest, and the `.control` block that runs the analyses, evaluates
+each measurement expression into a `meas_<name>` vector and prints it. The
+testbench schematic therefore contains no corner, no temperature, no numeric
+supply and no analysis block.
+
+**Per-corner artifacts**: each corner's `.log` embeds the exact deck that was
+fed to ngspice (prefixed with `|`) plus raw stdout/stderr, so a record is
+auditable without regenerating anything. Scratch decks and xschem output live
+in the gitignored `sim/build/`; only the netlist snapshot, the per-corner logs
+and the record are committed.
+
+---
 
 ## Directory / naming convention
 
-Each testbench topic gets its own experiment directory:
-
 ```
 sim/
-  <experiment-slug>/                 # e.g. output-voltage-tc, psrr-dc, startup, mc-untrimmed
-    testbench/                       # testbench netlist(s) / xschem export used
+  README.md                          # this file
+  pdk.json                           # PDK version pin
+  spiceinit                          # ngspice init settings
+  xschemrc                           # project-local xschem config
+  bin/
+    corner-run.py                    # PVT corner runner
+    pdk-env.sh                       # `source` for interactive use
+  build/                             # gitignored scratch (decks, xschem netlists)
+  <experiment-slug>/                 # e.g. pdk-smoke, output-voltage-tc, psrr-dc
+    experiment.json                  # manifest: claim, corners, measurements, limits
+    testbench/                       # xschem schematic(s) for this experiment
     netlist-snapshots/
-      <record-id>.spice              # frozen DUT netlist used for this record
+      <record-id>.spice              # frozen netlist used for this record
     corners/
       <record-id>/
-        <corner-id>.log              # raw ngspice output per PVT point
-                                      # e.g. ss_-40c_2.97v.log
+        <corner-id>.log              # deck + raw ngspice output per PVT point
     records/
-      <record-id>.md                 # append-only summary record
+      <record-id>.md                 # append-only summary record (human)
+      <record-id>.json               # same record, machine-readable
 ```
 
-- **`<experiment-slug>`** — short, descriptive, kebab-case name for what is
-  being verified (`output-voltage-tc`, `psrr-dc`, `startup`, `mc-untrimmed`,
-  ...). One directory per distinct claim being tested, not per run.
-- **`<record-id>`** — unique and traceable:
-  `<YYYYMMDD>-<HHMMSS>-<short-git-sha>` (e.g. `20260729-153000-1a7ef75`).
-  Re-runs simply mint a new `<record-id>`; nothing under `records/` is ever
-  edited in place. The same `<record-id>` ties together the netlist snapshot,
-  the raw per-corner logs, and the summary record for one run.
-- **`<corner-id>`** — `<process-corner>_<temp>c_<supply>v.log`, e.g.
-  `ss_-40c_2.97v.log`, `tt_27c_3.3v.log`, `ff_125c_3.63v.log`.
-- **`testbench/`** is not versioned per record — it holds the current
-  testbench netlist(s)/xschem export(s) used to generate records. If the
-  testbench itself changes in a way that could affect comparability across
-  records, note that in the new record's summary (e.g. under Claim or a
-  free-text note).
+- **`<experiment-slug>`** — kebab-case name for the claim under test
+  (`output-voltage-tc`, `psrr-dc`, `startup`, `mc-untrimmed`, …). One directory
+  per distinct claim, not per run.
+- **`<record-id>`** — `<YYYYMMDD>-<HHMMSS>-<short-git-sha>` in UTC, e.g.
+  `20260730-032150-080179e`. The same id ties together the netlist snapshot,
+  the per-corner logs and both record files for one run. Re-runs mint a new id.
+- **`<corner-id>`** — `<process>_<temp>c_<supply>v`, e.g. `ss_-40c_2.97v`,
+  `tt_27c_3.30v`, `ff_125c_3.63v`.
+- **`testbench/`** is not versioned per record. If a testbench change could
+  affect comparability across records, say so in the new record (the frozen
+  netlist snapshot is what actually pins what ran).
 
-## Summary record format
+## Summary record fields
 
-Each run produces one `records/<record-id>.md` file with the following
-fields:
+Each run writes `records/<record-id>.md` (and a `.json` twin with every parsed
+number, limit and verdict, for tooling):
 
-- **Record ID** — the `<record-id>` for this run (matches the filename and
-  the corresponding `netlist-snapshots/` / `corners/` subdirectory).
-- **Claim** — which spec parameter/line this record substantiates (reference
-  the ratified spec, e.g. `spec/<file>.md#<anchor>`, once ratified specs
-  exist — see #1).
-- **Netlist provenance** — `schematic` (`design/...`) or `extracted`
-  (post-layout, `layout/...`). Required so post-layout re-runs (#16) are
-  distinguishable from the original schematic-level record.
-- **Corner matrix run** — explicit list of (process corner, temperature,
-  supply) points actually executed. Must be the full PVT matrix from
-  CLAUDE.md (−40/27/125 °C, ±10% supply, process corners) unless the record
-  states why a subset was used. This is the shape the testbench suite (#11)
-  is expected to emit.
-- **Statistical convention** (when applicable, e.g. Monte Carlo mismatch
-  analysis, #12) — N samples and sigma level reported. Used for distribution
-  claims that are not a per-corner pass/fail (e.g. reporting a spread against
-  the untrimmed spec).
-- **Result** — per-corner pass/fail, plus an overall pass/fail against the
-  ratified spec value.
-- **Links** — paths to the testbench file(s), the frozen netlist snapshot,
-  and the raw per-corner logs used to produce this record.
-- **Timestamp / author** — when the record was created and who (human or
-  agent) created it.
-- **Supersedes** (optional) — the prior `<record-id>` this record supersedes,
-  for corrections or for a post-layout extracted re-run (#16) that reports a
-  schematic-vs-extracted delta against the schematic-level record. Mirrors
-  the status/supersession language proposed for `spec/` decision records
-  (see #6), so both conventions read as one house style.
+| Field | Meaning |
+|---|---|
+| Record ID | matches the filename, the snapshot and the `corners/` subdirectory |
+| Experiment | slug + title from the manifest |
+| Claim | which spec parameter/line this substantiates (`spec/<file>.md#<anchor>` once specs are ratified — see issue #1) |
+| Netlist provenance | `schematic` (`design/…`, `sim/…/testbench/…`) or `extracted` (post-layout, `layout/…`) — required so post-layout re-runs are distinguishable |
+| PDK | variant + open_pdks commit actually used, whether it matches `sim/pdk.json`, and the model library path |
+| Tools | ngspice / xschem / OS / python versions used |
+| Repo state | short sha, branch, and whether the working tree was dirty at run time |
+| Corner matrix run | the (process, temperature, supply) points actually executed; must be the full PVT matrix unless a subset reason is recorded |
+| Statistical convention | N samples and sigma level for distribution claims (e.g. Monte Carlo mismatch); `N/A` for corner-matrix claims |
+| Result | per-corner pass/fail with measured values, plus an overall verdict |
+| Links | testbench, manifest, netlist snapshot, raw logs, json record |
+| Timestamp / author | UTC timestamp and who (human or agent) ran it |
+| Supersedes | prior `<record-id>` this corrects or re-runs (post-layout deltas included); `(none)` otherwise |
 
-## Append-only rule
+### Append-only rule
 
-`records/*.md` files are never edited or deleted after creation. A re-run or
-a correction always creates a new record with a new `<record-id>`. If it
-corrects or replaces a prior result, it references that prior record via
-**Supersedes** rather than overwriting it. This applies even to typo fixes —
-the append-only guarantee is what makes `sim/` usable as an evidence trail;
-"fixing" an existing record in place would defeat that.
+`records/*` files are never edited or deleted after creation — this applies
+even to typo fixes, because the append-only guarantee is the whole point of an
+evidence trail. Corrections mint a new record that references the prior one via
+**Supersedes**. This mirrors the status/supersession language used for `spec/`
+decision records, so both conventions read as one house style.
 
-## Worked example
+---
 
-Directory layout for a temperature-coefficient claim on the output
-reference, followed by a Monte Carlo re-check of the same claim, followed by
-a post-layout extracted re-run. Together these three cases cover the record
-formats needed by the testbench suite (#11), the Monte Carlo mismatch
-analysis (#12), and the post-layout extracted re-run (#16):
+## Writing a new experiment
 
-```
-sim/
-  output-voltage-tc/
-    testbench/
-      tb_output_voltage_tc.spice
-    netlist-snapshots/
-      20260729-153000-1a7ef75.spice
-      20260805-091200-7c2f9de.spice
-    corners/
-      20260729-153000-1a7ef75/
-        tt_27c_3.30v.log
-        ss_-40c_2.97v.log
-        ff_125c_3.63v.log
-        ...
-      20260805-091200-7c2f9de/
-        tt_27c_3.30v.log
-        ss_-40c_2.97v.log
-        ff_125c_3.63v.log
-        ...
-    records/
-      20260729-153000-1a7ef75.md
-      20260805-091200-7c2f9de.md
+1. `mkdir -p sim/<slug>/{testbench,netlist-snapshots,corners,records}`
+2. Draw the testbench in xschem (`--rcfile sim/xschemrc`). Leave out the
+   corner include, `.temp`, the numeric supply (use `'vsup'`) and any
+   `.control` block — the runner owns those. Name the nets you intend to
+   measure; connectivity by `lab_pin` label is fine.
+3. Write `sim/<slug>/experiment.json`:
+
+```json
+{
+  "slug": "output-voltage-tc",
+  "title": "…",
+  "claim": "spec/bandgap.md#output-voltage-tc — …",
+  "provenance": "schematic",
+  "provenance_source": "sim/output-voltage-tc/testbench/tb_vref_tc.sch",
+  "schematic": "testbench/tb_vref_tc.sch",
+  "statistical_convention": "N/A (corner-matrix claim)",
+  "corners": {
+    "process": ["tt", "ss", "ff", "sf", "fs"],
+    "temperature_c": [-40, 27, 125],
+    "supply_v": [2.97, 3.3, 3.63]
+  },
+  "quick_subset": [["tt", 27, 3.3]],
+  "deck": { "options": ["wnflag=1"], "params": {}, "analyses": ["op"] },
+  "measurements": [
+    { "name": "vref", "expr": "v(vref)", "unit": "V", "min": 1.188, "max": 1.212 }
+  ],
+  "spread_checks": []
+}
 ```
 
-`records/20260729-153000-1a7ef75.md` (placeholder values — no ratified spec
-values exist yet, see #1). This is the standard PVT corner-matrix case that
-the testbench suite (#11) is expected to emit:
+   - `analyses` is a list of ngspice `.control` commands (`op`, `dc …`,
+     `tran …`) run before measurements are evaluated.
+   - `measurements[].expr` is any ngspice expression valid after those
+     analyses; `min`/`max` are the pass window (omit either for one-sided).
+   - `spread_checks` assert that a measurement *moves* across the matrix — a
+     cheap guard against a harness that silently stops applying corners.
+   - Process-corner names must appear in `sim/pdk.json` `process_corners`
+     (which lists what the PDK's ngspice library really defines: `tt`, `ss`,
+     `ff`, `sf`, `fs`; resistor/cap skew, `*_mm` mismatch and `mc` sections
+     also exist in the library and can be added there once used).
+4. Run it: `python3 sim/bin/corner-run.py sim/<slug>`
+5. Commit the produced record, netlist snapshot and per-corner logs. (The
+   root `.gitignore` ignores `*.log` globally but un-ignores
+   `sim/*/corners/**/*.log`, which is committed evidence.)
 
-```markdown
-# Record 20260729-153000-1a7ef75
+### Runner options
 
-- **Record ID**: 20260729-153000-1a7ef75
-- **Claim**: `spec/bandgap.md#output-voltage-tc` — temperature coefficient of
-  the output reference over −40…125 °C, TBD ppm/°C target (placeholder;
-  ratified spec pending #1)
-- **Netlist provenance**: schematic (`design/bandgap.sch`)
-- **Corner matrix run**:
-  - Process: tt, ss, ff
-  - Temperature: −40 °C, 27 °C, 125 °C
-  - Supply: 2.97 V, 3.30 V, 3.63 V (±10% of 3.3 V)
-  - (9 corner points total — full process x temp matrix at nominal supply,
-    plus supply sweep at tt/27C; see testbench for exact point list)
-- **Statistical convention**: N/A (corner-matrix claim, not a distribution
-  claim)
-- **Result**:
-  - tt/27C/3.30V: PASS (placeholder value)
-  - ss/-40C/2.97V: PASS (placeholder value)
-  - ff/125C/3.63V: PASS (placeholder value)
-  - ... (remaining corners: PASS, placeholder values)
-  - **Overall: PASS** (placeholder — pending ratified spec, #1)
-- **Links**:
-  - Testbench: `sim/output-voltage-tc/testbench/tb_output_voltage_tc.spice`
-  - Netlist snapshot: `sim/output-voltage-tc/netlist-snapshots/20260729-153000-1a7ef75.spice`
-  - Raw logs: `sim/output-voltage-tc/corners/20260729-153000-1a7ef75/`
-- **Timestamp / author**: 2026-07-29T15:30:00Z, agent-builder
-- **Supersedes**: (none — first record for this claim)
-```
+| Flag | Effect |
+|---|---|
+| `--print-env` | print PDK env exports and exit |
+| `--process tt,ss` / `--temp 27` / `--supply 3.3` | override a matrix axis (marks the run a subset) |
+| `--quick` | run the manifest's `quick_subset` only |
+| `--subset-reason "…"` | **required** for any subset; recorded verbatim |
+| `--supersedes <record-id>` | record which prior record this replaces |
+| `--author`, `--timeout` | record author (default `git config user.email`), per-corner ngspice timeout |
+| `--allow-pdk-mismatch` | run against a non-pinned PDK; the record flags it |
+| `--dry-run` | netlist, print the corner list and one deck, write nothing under `sim/<slug>/` |
 
-`records/20260805-091200-7c2f9de.md` — a later Monte Carlo mismatch check
-(#12) of the same untrimmed claim (illustrates the Statistical convention
-field; this is a distinct claim from the corner-matrix record above, not a
-correction of it, so it does not use Supersedes):
+Exit status: `0` all checks passed, `2` a record was written but something
+failed, `1` harness/setup error (no record written).
 
-```markdown
-# Record 20260805-091200-7c2f9de
+---
 
-- **Record ID**: 20260805-091200-7c2f9de
-- **Claim**: `spec/bandgap.md#output-voltage-untrimmed` — output reference
-  spread under device mismatch, untrimmed (placeholder; ratified spec
-  pending #1)
-- **Netlist provenance**: schematic (`design/bandgap.sch`)
-- **Corner matrix run**: nominal corner (tt/27C/3.30V) only — mismatch
-  distribution is evaluated at nominal PVT; see Statistical convention
-- **Statistical convention**: N = 500 Monte Carlo samples (mismatch only),
-  distribution reported at ±3σ against the untrimmed spec target
-- **Result**: ±3σ spread within untrimmed spec (placeholder value) —
-  **Overall: PASS** (placeholder — pending ratified spec, #1)
-- **Links**:
-  - Testbench: `sim/output-voltage-tc/testbench/tb_output_voltage_mc.spice`
-  - Netlist snapshot: `sim/output-voltage-tc/netlist-snapshots/20260805-091200-7c2f9de.spice`
-  - Raw logs: `sim/output-voltage-tc/corners/20260805-091200-7c2f9de/`
-- **Timestamp / author**: 2026-08-05T09:12:00Z, agent-builder
-- **Supersedes**: (none — distinct claim from 20260729-153000-1a7ef75, not a
-  correction of it)
-```
+## `pdk-smoke` — the harness's own testbench
 
-A later post-layout extracted re-run (#16) of the original corner-matrix
-claim would live under the same `output-voltage-tc/` experiment directory
-with its own `<record-id>`, `Netlist provenance: extracted
-(layout/bandgap.gds -> extracted netlist)`, and a `Supersedes:
-20260729-153000-1a7ef75` field carrying a schematic-vs-extracted delta
-summary in its Result section.
+`sim/pdk-smoke/` is not a spec claim. A 1 MΩ resistor biases a diode-connected
+sky130 `nfet_g5v0d10v5` (the 5 V I/O device family the 3.3 V supply implies)
+and the runner measures `vgs` and the supply current. Both quantities are
+strongly process- and temperature-dependent, so this experiment proves four
+things at once: the PDK models load, xschem netlists headlessly, ngspice parses
+the deck, and the corner/temperature/supply knobs actually reach the
+simulator (asserted by the `vgs` spread check, not just eyeballed).
+
+Keep it green: it is the first thing to run when a testbench misbehaves, to
+tell "my circuit is wrong" apart from "my harness is broken".
