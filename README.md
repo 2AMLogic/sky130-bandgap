@@ -28,6 +28,12 @@ two PDKs is the portability proof.
 Maturity ladder: simulation-complete → layout DRC/LVS-clean → shuttle
 seat → measured silicon over temperature.
 
+## Environment setup
+
+Bootstrapping the open-source flow (xschem + ngspice + sky130 PDK via
+volare) on a dev machine, plus a smoke test proving the toolchain works
+end-to-end: see [`docs/environment-setup.md`](docs/environment-setup.md).
+
 ## Layout
 
 ```
