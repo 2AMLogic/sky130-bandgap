@@ -1,0 +1,122 @@
+{
+  "slug": "resistor-tc-single-length",
+  "title": "Single-length TC of sky130_fd_pr__res_xhigh_po (two-length method re-check)",
+  "claim": "Issue #25 -- re-measures the temperature coefficient of sky130_fd_pr__res_xhigh_po with a SINGLE-length testbench, after the two-length subtraction method in sim/resistor-flavor-characterization/ (record 20260731-044337-a8c4147) returned an essentially flat TC that disagrees with the PDK model card's static tc1 = -1.47e-3. Primary DUT is res_xhigh_po W=1um L=50um biased at 5uA (~106k, ~0.53V drop) -- a representative bias-setting-resistor operating point for this block: 5uA lies inside the 2-20uA per-branch range the <50uA Iq budget implies (design/device-characterization-summary.md sec.3) and ~0.5V is the realistic drop for such a leg off 3.3V. Three companion legs make the diagnosis falsifiable rather than merely different from the two-length run: (a) the same geometry at 10x lower bias (0.5uA) isolates any voltage-coefficient contribution; (b) the same current density (5uA/um) at 10x shorter length (L=5um) isolates both the model's length-dependent Efac voltco term and the fixed head/contact resistance's share of the total; (c) res_high_po at the identical length and bias is a positive control whose TC is already cross-validated against its model card. A fourth, raw-SPICE block probes the simulator itself: three ideal resistors sharing one .model card (tc1=-1.47e-3 tc2=2.7e-6 tnom=25) written as a literal r=1000, a constant expression r='1000*1.0', and a voltage-dependent expression r='1000*(1+1e-12*abs(v(TC_BEH,0)))'. sky130_fd_pr__res_xhigh_po implements its rbody as exactly that last element type, so if literal and constant-expression resistors track .temp while the voltage-dependent one does not, the flat measured TC is an ngspice/model-implementation artifact rather than a two-length-subtraction artifact or real PDK behaviour. Process axis mirrors the sibling experiment: the standard tt/ss/ff/sf/fs corners plus the PDK's dedicated resistor-value skew corners ll/hh, which is where poly-resistor sheet resistance actually varies (see sim/pdk.json process_corners notes). Supply axis intentionally fixed at nominal 3.30V: every DUT is biased by an ideal ground-referenced DC current source with no supply-referenced terminal, so a supply sweep cannot move any measurement here -- same rationale as the sibling experiment. This experiment resolves a measurement-methodology question only; it does not change any resistor-flavor recommendation.",
+  "provenance": "schematic",
+  "provenance_source": "sim/resistor-tc-single-length/testbench/tb_res_tc_single_length.sch",
+  "schematic": "testbench/tb_res_tc_single_length.sch",
+  "statistical_convention": "N/A (corner-matrix claim). No Monte Carlo: every leg here is a single deterministic device or ideal resistor, and device-to-device mismatch is out of scope for a TC question -- the sibling experiment's record already carries the PDK-derived mismatch coefficients.",
+  "corners": {
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs",
+      "ll",
+      "hh"
+    ],
+    "temperature_c": [
+      -40,
+      27,
+      125
+    ],
+    "supply_v": [
+      3.3
+    ]
+  },
+  "quick_subset": [
+    [
+      "tt",
+      -40,
+      3.3
+    ],
+    [
+      "tt",
+      27,
+      3.3
+    ],
+    [
+      "tt",
+      125,
+      3.3
+    ]
+  ],
+  "deck": {
+    "options": [],
+    "params": {},
+    "analyses": [
+      "op"
+    ]
+  },
+  "measurements": [
+    {
+      "name": "r_xh_l50_5u",
+      "expr": "v(R_XH_L50_5U)/5e-6",
+      "unit": "ohm",
+      "min": 60000.0,
+      "max": 160000.0,
+      "note": "PRIMARY DUT. Two-terminal resistance of sky130_fd_pr__res_xhigh_po, W=1um L=50um at Ibias=5uA (R=V/I, ~0.53V drop). TC is read across the temperature axis of this one measurement -- no two-length subtraction. Wide sanity bound spans the ll/hh skew corners and -40..125C."
+    },
+    {
+      "name": "r_xh_l50_0p5u",
+      "expr": "v(R_XH_L50_0P5U)/0.5e-6",
+      "unit": "ohm",
+      "min": 60000.0,
+      "max": 160000.0,
+      "note": "Same geometry as r_xh_l50_5u at 10x lower bias (0.5uA, ~53mV drop). Any difference in TC between this and r_xh_l50_5u is a voltage-coefficient effect; identical TC exonerates the voltco term at this operating point."
+    },
+    {
+      "name": "r_xh_l5_5u",
+      "expr": "v(R_XH_L5_5U)/5e-6",
+      "unit": "ohm",
+      "min": 6000.0,
+      "max": 17000.0,
+      "note": "Same current density (5uA/um of width) as r_xh_l50_5u at 10x shorter length (L=5um, ~53mV drop). Probes the model's length-dependent Efac voltco term, and raises the fixed head/contact resistance to ~10x a larger share of the total -- so a residual TC that scales as 1/L is head resistance, not body."
+    },
+    {
+      "name": "r_high_l50_5u",
+      "expr": "v(R_HIGH_L50_5U)/5e-6",
+      "unit": "ohm",
+      "min": 9000.0,
+      "max": 27000.0,
+      "note": "POSITIVE CONTROL. sky130_fd_pr__res_high_po at the identical length and bias as the primary DUT. Its TC was already cross-validated against its model card in issue #4, so it proves the injected .temp reaches the resistor models in this deck."
+    },
+    {
+      "name": "tc_probe_lit",
+      "expr": "v(TC_LIT)/1e-6",
+      "unit": "ohm",
+      "min": 850.0,
+      "max": 1150.0,
+      "note": "Simulator-mechanism probe: ideal 1k resistor written as a literal r=1000, model card tc1=-1.47e-3 tc2=2.7e-6 tnom=25. Expected to track .temp (about 1107 ohm at -40C, 997 at 27C, 880 at 125C)."
+    },
+    {
+      "name": "tc_probe_expr",
+      "expr": "v(TC_EXPR)/1e-6",
+      "unit": "ohm",
+      "min": 850.0,
+      "max": 1150.0,
+      "note": "Same model card as tc_probe_lit but written as a constant expression r='1000*1.0'. Separates 'expression syntax' from 'voltage dependence' as the cause of any missing temperature scaling."
+    },
+    {
+      "name": "tc_probe_beh",
+      "expr": "v(TC_BEH)/1e-6",
+      "unit": "ohm",
+      "min": 999.0,
+      "max": 1001.0,
+      "note": "ASSERTIVE. Same model card again, but written as a voltage-dependent expression r='1000*(1+1e-12*abs(v(TC_BEH,0)))' -- the element type sky130_fd_pr__res_xhigh_po uses for its rbody. The 1e-12 coefficient makes the voltage term ~1e-15 of the value, so this must read 1000 ohm at 25C. Passing this +/-0.1% window at -40C and 125C -- where tc_probe_lit moves by +/-12% -- is a direct assertion that ngspice does NOT apply .model tc1/tc2 to a voltage-controlled behavioural resistor."
+    }
+  ],
+  "spread_checks": [
+    {
+      "measurement": "r_xh_l50_5u",
+      "min_spread": 20000,
+      "note": "Guards against a corner-blind harness: the primary DUT must move measurably across the tt/ll/hh resistor-skew axis (about +/-15% of ~106k)."
+    },
+    {
+      "measurement": "tc_probe_lit",
+      "min_spread": 200,
+      "note": "Guards against a temperature-blind deck: an ideal resistor carrying the SAME model card as tc_probe_beh must move >=200 ohm across -40..125C. Paired with tc_probe_beh's +/-0.1% window, this is the machine-checked form of the mechanism claim."
+    }
+  ]
+}

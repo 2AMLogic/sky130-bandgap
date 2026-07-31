@@ -1,0 +1,28 @@
+** sch_path: sim/resistor-tc-single-length/testbench/tb_res_tc_single_length.sch
+**.subckt tb_res_tc_single_length
+XRXhL50a R_XH_L50_5U 0 0 sky130_fd_pr__res_xhigh_po W=1 L=50 mult=1 m=1
+IXhL50a 0 R_XH_L50_5U 5u
+XRXhL50b R_XH_L50_0P5U 0 0 sky130_fd_pr__res_xhigh_po W=1 L=50 mult=1 m=1
+IXhL50b 0 R_XH_L50_0P5U 0.5u
+XRXhL5 R_XH_L5_5U 0 0 sky130_fd_pr__res_xhigh_po W=1 L=5 mult=1 m=1
+IXhL5 0 R_XH_L5_5U 5u
+XRHighL50 R_HIGH_L50_5U 0 0 sky130_fd_pr__res_high_po W=1 L=50 mult=1 m=1
+IHighL50 0 R_HIGH_L50_5U 5u
+**** begin user architecture code
+
+
+* --- simulator-mechanism probe: ideal resistors, one shared .model card ---
+* Same tc1/tc2/tnom on all three; they differ only in how r= is written.
+* Each is biased by an ideal 1uA source so R = V/1uA reads out directly.
+Rtclit TC_LIT 0 tcprobe_r r=1000
+Itclit 0 TC_LIT 1u
+Rtcexpr TC_EXPR 0 tcprobe_r r='1000*1.0'
+Itcexpr 0 TC_EXPR 1u
+Rtcbeh TC_BEH 0 tcprobe_r r='1000*(1+1e-12*abs(v(TC_BEH,0)))'
+Itcbeh 0 TC_BEH 1u
+.model tcprobe_r r tc1=-1.47e-3 tc2=2.7e-6 tnom=25
+
+
+**** end user architecture code
+**.ends
+.end
