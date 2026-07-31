@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "worktree:return": "./.loom/scripts/worktree-return.sh",
-    "check:ci": "echo 'No CI checks configured. Customize this script for your project.' && exit 0",
-    "check:all": "echo 'No checks configured. Customize this script for your project.' && exit 0",
-    "test": "echo 'No tests configured. Customize this script for your project.' && exit 0",
-    "lint": "echo 'No linter configured. Customize this script for your project.' && exit 0"
+    "check:ci": "npm run lint && npm run test",
+    "check:all": "npm run check:ci",
+    "test": "python3 -m py_compile sim/bin/corner-run.py",
+    "lint": "find sim -name '*.json' -print0 | xargs -0 -n1 python3 -m json.tool > /dev/null && bash -n sim/bin/pdk-env.sh && bash -n loom.sh"
   }
 }
