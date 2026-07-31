@@ -1,14 +1,24 @@
 # sky130-bandgap
 
-**PRIVATE — 2AM Logic proprietary IP. Canary block (wave 1).**
+A bandgap voltage reference on the [sky130](https://github.com/google/skywater-pdk)
+open PDK, designed end-to-end by AI agents driving
+[klayout-tools](https://github.com/2AMLogic/klayout-tools) and the open-source
+xschem + ngspice analog flow.
 
-Bandgap voltage reference on sky130 (open PDK), designed by agents driving
-[klayout-tools](https://github.com/2AMLogic/klayout-tools) and the
-open-source analog flow. Dual purpose, per the canary model: catalog
-inventory (eventually silicon-measured) and tool forcing-function
-(friction issues go to the public klayout-tools tracker).
+**Status: early-stage.** This project is in active development — simulation
+and device characterization work is underway, layout has not started, and
+nothing here has been taped out or measured in silicon yet. See the
+maturity ladder below for where things currently stand.
 
-Selection rationale: First cross-node port ('every PDK' proof); free sky130 version exists but is sim-only — silicon-measured tier differentiates cheaply (matrix row 5).
+**Built agent-native.** Every schematic, testbench, decision record, and
+line of documentation in this repo was produced by AI agents working from
+a ratified spec and an append-only evidence trail — not human-authored
+work that agents merely assisted with. Verification is the product: every
+claim traces to a testbench result recorded under PVT corners in `sim/`.
+Where the agents hit friction with the open-source tooling — most often
+[klayout-tools](https://github.com/2AMLogic/klayout-tools), the layout /
+DRC / LVS driver — that friction gets filed as a public issue against the
+tool itself, so the fix benefits everyone using sky130, not just this repo.
 
 ## Target specification (DRAFT — engineering to ratify, see issue #1)
 
@@ -43,3 +53,7 @@ sim/           testbenches + PVT corner results (ngspice)
 layout/        GDS + DRC/LVS reports (klayout-tools driven)
 measurements/  silicon characterization (empty until tape-out)
 ```
+
+## License
+
+Apache License 2.0 — see [LICENSE](LICENSE).
