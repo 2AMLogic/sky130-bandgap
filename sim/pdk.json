@@ -29,6 +29,16 @@
     "shows up on the ll/hh axis. hl/lh (res value tied to the *other*",
     "axis's cap corner) and the *_mm / mc mismatch sections also exist and",
     "remain available to experiment manifests that need them but are not",
-    "added to this pinned list until a manifest actually uses them."
+    "added to this pinned list until a manifest actually uses them.",
+    "The *_mm sections are the local-mismatch switch: they differ from the",
+    "plain corners only in setting MC_MM_SWITCH=1, which enables the",
+    "per-instance AGAUSS() terms inside the device subcircuits (mc sets",
+    "MC_PR_SWITCH=1 instead, for global process Monte Carlo). tt_mm is in",
+    "use by sim/pnp-mismatch/, which drives ngspice itself rather than",
+    "going through an experiment.json -- Monte Carlo sampling is not a",
+    "corner axis -- so it is deliberately still absent from the list above:",
+    "corner-run.py validates manifest corners against that list, and a",
+    "manifest asking for a *_mm section would get one unrepeated random",
+    "draw per point rather than a distribution."
   ]
 }
