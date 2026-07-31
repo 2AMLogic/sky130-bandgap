@@ -200,6 +200,34 @@ decision records, so both conventions read as one house style.
    root `.gitignore` ignores `*.log` globally but un-ignores
    `sim/*/corners/**/*.log`, which is committed evidence.)
 
+### Experiments that do not go through the corner runner
+
+`corner-run.py` runs **one deterministic deck per PVT point**. A claim about a
+*distribution* — local mismatch, circuit-level Monte Carlo — needs the same deck
+resampled N times at a single process point, which is a different axis. Those
+experiments ship a bespoke run script next to their testbench instead of an
+`experiment.json`:
+
+| Experiment | Script | Why not the corner runner |
+|---|---|---|
+| `sim/pnp-mismatch/` | `run_pnp_mismatch.py` | N = 300 Monte Carlo samples per point; the PDK's `MC_MM_SWITCH` mismatch terms are re-drawn on each ngspice `reset` |
+
+Such a script still has to behave like the harness:
+
+- reuse `sim/bin/corner-run.py`'s PDK resolution and **pin enforcement**
+  (import it; don't re-implement it), so a record is reproducible the same way;
+- mint the same `<record-id>`, refuse to overwrite anything under
+  `sim/<slug>/`, and write **both** the `.md` and the `.json` twin;
+- commit the netlist snapshot and one raw log per ngspice invocation, with the
+  exact deck embedded in the log;
+- state the process/temperature/supply subset justification **in the record
+  body** — there is no `--subset-reason` flag on this path, and "the runner
+  enforces it" no longer applies, so the justification is a prose obligation;
+- carry a **control point that must fail if the mechanism under test is not
+  actually active** (e.g. `sim/pnp-mismatch/` re-runs its deck on the plain
+  `tt` section, where every σ must come back exactly 0). A Monte Carlo harness
+  that silently sampled nothing would otherwise produce a plausible record.
+
 ### Runner options
 
 | Flag | Effect |

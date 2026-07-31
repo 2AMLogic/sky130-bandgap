@@ -1,6 +1,8 @@
 # Device Characterization Summary — sky130 Bandgap Core (Issue #4)
 
-**Status**: characterization complete, full PVT matrices, all records PASS.
+**Status**: characterization complete, all records PASS — full PVT matrices
+for §§1–3, plus a Monte Carlo local-mismatch experiment in §4 whose
+process/supply-axis subset is justified in its own record.
 This is a summary of measured/simulated results; it does not itself ratify
 spec values (that is #1's job) or the topology (that is #3/#8's job) — it
 gives both of those issues real sky130 device data to cite instead of the
@@ -19,11 +21,16 @@ Evidence backing every number below (append-only, `sim/README.md` format):
 | Substrate PNP | `sim/pnp-characterization/` | `20260731-043353-a8c4147` | 15/15 (tt/ss/ff/sf/fs × −40/27/125 °C @ 3.30 V) — PASS |
 | Poly resistors | `sim/resistor-flavor-characterization/` | `20260731-044337-a8c4147` | 21/21 (tt/ss/ff/sf/fs/ll/hh × −40/27/125 °C @ 3.30 V) — PASS |
 | 5 V MOS mirror devices | `sim/mos-matching-characterization/` | `20260731-045825-a8c4147` | 15/15 (tt/ss/ff/sf/fs × −40/27/125 °C @ 3.30 V) — PASS |
+| Substrate PNP pair, local mismatch (§4, issue #31) | `sim/pnp-mismatch/` | `20260731-232801-ab27f82` | 3 Monte Carlo points (`tt_mm` × −40/27/125 °C, N = 300 each) + 1 MC-off control + 1 second-seed point — PASS |
 
-All three testbenches bias their DUTs with ideal current sources referenced
+All of these testbenches bias their DUTs with ideal current sources referenced
 to ground only (no supply-referenced terminal), so the ±10 % supply axis is
 intentionally fixed at nominal 3.30 V in each `experiment.json` — documented
-per-experiment as the reason a supply sweep would not change any result.
+per-experiment as the reason a supply sweep would not change any result. The
+mismatch experiment (§4) has no supply rail at all and no `experiment.json`:
+Monte Carlo sampling is a different axis than the PVT matrix
+`sim/bin/corner-run.py` drives, so it ships a bespoke run script and states
+its process/supply-axis justification inline in the record.
 
 ---
 
@@ -32,6 +39,15 @@ per-experiment as the reason a supply sweep would not change any result.
 Testbench: `sim/pnp-characterization/testbench/tb_pnp_vbe.sch` — both
 emitter-size variants diode-connected (B=C=0), each swept across 7
 collector currents (100 nA – 100 µA, half-decade steps) at every PVT point.
+
+> ⚠ **Read §4's "terminal-connection discrepancy" note before quoting the
+> absolute VEB / dVBE numbers in this section.** The mismatch experiment
+> (§4) reproduced this experiment's numbers exactly with the *collector*
+> driven and the emitter grounded, which is not the connection a bandgap
+> core has. The §1 numbers below are reported as measured and are not edited
+> here (`sim/` is append-only, and re-running this experiment is out of
+> issue #31's scope) — §4 carries the emitter-driven figures for the same
+> two devices.
 
 ### Ideality factor (n), extracted from consecutive half-decade VEB steps
 
@@ -307,14 +323,144 @@ mismatch has to stay in the low single digits of a percent against a
 
 ---
 
+## 4. Substrate PNP pair **local mismatch** — σ(ΔVBE) by Monte Carlo (issue #31)
+
+Testbench: `sim/pnp-mismatch/testbench/tb_pnp_mismatch.spice`, driven by
+`sim/pnp-mismatch/run_pnp_mismatch.py` (record `20260731-232801-ab27f82`).
+Two pairs — an identical pair (two `W0p68L0p68` units) and the area-ratioed
+PTAT pair (`W0p68L0p68` / `W3p40L3p40`) — each at 1 µA and 10 µA, N = 300
+Monte Carlo samples per temperature at the nominal process point.
+
+**The sky130 mismatch switch, verified against the pinned PDK.** gf180mcu's
+`sw_stat_mismatch` / `mis_is_pnp_*` convention does not exist here. sky130's
+PNP subcircuits carry `MC_MM_SWITCH`-gated `AGAUSS()` terms on `is` and `bf`
+(`libs.tech/combined/continuous/models_bjt.spice`), and `MC_MM_SWITCH` is
+set by the *`.lib` section*: 0 in `tt/ss/ff/sf/fs`, 1 only in the `*_mm`
+sections. The sigmas (`continuous/models_global.spice`) are **1.662 % on Is**
+and **5.537 % on Bf** for the `W0p68L0p68` unit; the `W3p40L3p40` subcircuit
+reuses the same coefficients scaled by 0.13 / 0.45, i.e. the 25× emitter
+area's matching benefit is already inside the PDK model. The model also
+divides by `sqrt(mult)`, so paralleling unit devices is an explicit,
+model-supported lever.
+
+Because a wrong-but-silent switch would produce a plausible-looking record,
+the run carries an **MC-off control point** (same deck on the plain `tt`
+section: every σ came back *exactly* 0) and a **second-seed point** (σ within
+1 – 8 % of the first seed while the individual samples all moved). Measured
+σ also lands 1.05 – 1.26× a first-principles prediction from the PDK's own
+Is coefficient (V_T·σ_Is/Is per leg, added in quadrature), which is the
+expected small excess from the Bf/Ise/Vaf and `xti` terms.
+
+### σ(ΔVBE), 1 µA (10 µA within ±10 % of these — see the record for all rows)
+
+| Pair | T (°C) | mean ΔVBE (mV) | 1 σ (mV) | 3 σ (mV) | worst of 300 (mV) |
+|---|---|---|---|---|---|
+| identical `W0p68L0p68` ×2 | −40 | −0.003 | 0.541 | 1.62 | 1.56 |
+| identical `W0p68L0p68` ×2 | 27 | +0.015 | 0.648 | 1.94 | 1.91 |
+| identical `W0p68L0p68` ×2 | 125 | +0.048 | 0.867 | 2.60 | 2.60 |
+| ratioed `W0p68L0p68` / `W3p40L3p40` | −40 | +49.49 | 0.391 | 1.17 | 50.68 |
+| ratioed `W0p68L0p68` / `W3p40L3p40` | 27 | +63.00 | 0.480 | 1.44 | 64.33 |
+| ratioed `W0p68L0p68` / `W3p40L3p40` | 125 | +82.26 | 0.680 | 2.04 | 84.22 |
+
+Two properties matter more than the absolute numbers:
+
+- **σ(ΔVBE) is essentially bias-current independent** (0.480 mV at 1 µA vs
+  0.472 mV at 10 µA, 27 °C). It is an `Is`-mismatch effect, not a
+  current-density effect — you cannot bias your way out of it. The only
+  levers are device area (`mult`, which the model divides by `sqrt(mult)`)
+  and trim.
+- **σ grows with temperature** (0.39 → 0.48 → 0.68 mV over −40 → 125 °C),
+  roughly with V_T plus the `xti` mismatch term, so the hot corner sets the
+  budget.
+
+### Offset-budget implication for #9 (error amplifier)
+
+Sizing a ~1.2 V reference from this pair at 1 µA/unit and 27 °C: the small
+unit's VBE is 0.7426 V and the pair's ΔVBE is 63.0 mV (both emitter-driven,
+this record), so the PTAT gain a Kuijk/Brokaw-style core needs is
+K = (1.2 − 0.7426)/0.0630 ≈ **7.3**. Every millivolt in series with ΔVBE is
+amplified by that same K, which turns the numbers above into a hard budget:
+
+| Term at 27 °C | value | referred to a 1.2 V output |
+|---|---|---|
+| σ(ΔVBE), PTAT pair | 0.480 mV | 3.5 mV = **0.29 %** (1 σ) |
+| 3σ(ΔVBE), PTAT pair | 1.44 mV | 10.5 mV = **0.87 %** (3 σ) |
+| 3σ(ΔVBE) at 125 °C | 2.04 mV | 14.8 mV = **1.24 %** (3 σ) |
+| amplifier input offset, per 1 mV | 1.00 mV | 7.3 mV = 0.61 % |
+
+Consequences #9 should carry as explicit line items:
+
+1. **PNP-pair mismatch alone consumes essentially all of a ±1 % untrimmed
+   budget at 3 σ** (0.87 % at 27 °C, 1.24 % at 125 °C) — before the
+   amplifier's own offset and before the MOS mirror mismatch §3 already
+   flagged as material (≈ 1.2 % current mismatch at size B / 20 µA). An
+   untrimmed ±1 % output from single unit devices is **not reachable**; the
+   design needs either trim or area.
+2. **Area is the lever, and it is cheap in σ terms.** σ scales as
+   1/√mult, so an 8× paralleled PNP array takes σ(ΔVBE) from 0.480 mV to
+   0.170 mV (3 σ → 0.31 % of 1.2 V). `spec/topology-survey.md` already
+   requires paralleled unit devices because sky130's PNP geometries are
+   fixed; this gives that requirement a number to size against.
+3. **The amplifier offset target follows from row 4 of the table.** To keep
+   the amplifier from dominating the PNP term, its input-referred offset must
+   sit at or below σ(ΔVBE) — i.e. **≲ 0.5 mV 1 σ against un-arrayed unit
+   devices, and ≲ 0.2 mV if the PNPs are arrayed** to the 8× point above.
+   Both are demanding for a plain 5 V MOS input pair given §3's Vth-mismatch
+   coefficients (8.2 mV·µm N / 12.0 mV·µm P), which points at large input
+   devices, chopping/auto-zeroing, or trim as a topology-level decision for
+   #9 rather than a sizing detail.
+
+### Cross-repo comparison (gf180-bandgap)
+
+The sibling repo's equivalent record (`sim/device-pnp-mismatch/`,
+`20260731-040850-187a336`, same N = 300 and same 1/10 µA biases) reports
+σ(ΔVBE) ≈ **0.047 mV** for its identical pair at 27 °C. sky130's
+**0.648 mV is ~14× looser** — not a modelling artifact of this harness but
+the two PDKs' matching models: gf180mcu's PNP Is-mismatch coefficient works
+out near 0.13 %, sky130's is 1.662 %. Any offset-budget intuition carried
+over from the gf180 port is therefore optimistic by an order of magnitude
+and must be re-derived here.
+
+### Terminal-connection discrepancy vs §1 (flagged, not fixed here)
+
+While building this deck the PNP terminal ordering was checked against the
+PDK subcircuit definition (`.subckt sky130_fd_pr__pnp_05v5_W0p68L0p68 c b e`)
+rather than assumed. `sim/pnp-characterization`'s committed netlist snapshot
+instantiates `XQS0 E_small_100n 0 0 sky130_fd_pr__pnp_05v5_W0p68L0p68`, which
+binds the driven node to pin 1 = **`c`**: the collector is biased and the
+emitter is grounded, so that experiment measured the base-collector junction,
+not VEB. Reproduced exactly at tt / 27 °C / 1 µA:
+
+| connection | V at the driven node, small unit | matches |
+|---|---|---|
+| collector-driven (§1's netlist) | 0.545166 V | §1's `veb_small_1u` = 0.545166 V |
+| emitter-driven (this section) | 0.742539 V | this record's `vr1a` mean, 0.742569 V |
+
+The emitter-driven figures are the ones a bandgap core sees, and they change
+the PTAT picture materially: **63.0 mV of ΔVBE at 27 °C / 1 µA rather than
+§1's 15.2 mV**, i.e. an implied Is ratio of ≈ 11.4 rather than ≈ 1.75. §1 is
+left as recorded (`sim/` is append-only and re-running that experiment is
+outside issue #31's scope); a follow-up issue is filed to re-run
+`sim/pnp-characterization` with the corrected connection and supersede its
+record. Until then, **use §4's ΔVBE for any PTAT-gain sizing** and treat §1's
+ideality/dVBE tables as pertaining to the base-collector junction.
+
+---
+
 ## Cross-references
 
 - Confirms/refines `spec/topology-survey.md`'s provisional `res_high_po`
   pick (§ "Poly resistors") — see recommendation above; refines its
   static-`Is`-ratio PTAT assumption for the two PNP unit devices (§1).
 - Input to #8 (schematic entry) for device sizing and #9 (amplifier offset
-  budget) — MOS mirror mismatch and the corrected PNP dVBE figures above
-  should both enter #9's budget as explicit terms.
+  budget) — MOS mirror mismatch, the PNP-pair local mismatch of §4 and the
+  corrected PNP dVBE figures above should all enter #9's budget as explicit
+  terms. §4's "Offset-budget implication" subsection states the three line
+  items in the form #9 can consume directly.
+- §4 mirrors gf180-bandgap's `sim/device-pnp-mismatch/` so the two canary
+  ports' mismatch figures are directly comparable; the divergences (`.json`
+  twin, MC-off control point, second-seed point, terminal connection) are
+  listed in the record.
 - Scope: 3.3 V primary only, per DR-001
   (`spec/decision-records/DR-001-supply-flavor-scope.md`); no 1.8 V-flavor
   device characterization performed.
@@ -335,6 +481,17 @@ mismatch has to stay in the low single digits of a percent against a
    µm² (size B) evaluated here; once #8 fixes actual mirror ratios, a sizing
    sweep extending this experiment's device-size axis would sharpen the
    recommendation.
+3. **Re-run `sim/pnp-characterization` with the emitter driven.** §4's
+   terminal-connection note shows that experiment's schematic binds the
+   driven node to the subcircuit's collector pin, so its VEB ladder,
+   ideality table and dVBE figures describe the base-collector junction. The
+   fix is a new record that supersedes `20260731-043353-a8c4147`, not an
+   edit (`sim/` is append-only). Filed separately; deliberately out of scope
+   for issue #31, whose PR only adds §4.
+4. **Sweep the PNP `mult` axis.** §4 measures unit devices only; the PDK's
+   `1/sqrt(mult)` term predicts the array benefit but the prediction is
+   unmeasured here. Once #8 fixes the array size, one extra Monte Carlo
+   point at that `mult` would confirm it.
 
 ## Evidence
 
@@ -347,3 +504,7 @@ mismatch has to stay in the low single digits of a percent against a
   (+ `.json` twin, netlist snapshot, 21 per-corner logs)
 - MOS: `sim/mos-matching-characterization/records/20260731-045825-a8c4147.md`
   (+ `.json` twin, netlist snapshot, 15 per-corner logs)
+- PNP pair local mismatch (issue #31):
+  `sim/pnp-mismatch/records/20260731-232801-ab27f82.md`
+  (+ `.json` twin, netlist snapshot, 5 per-point logs — 3 Monte Carlo
+  temperatures at N = 300, one MC-off control, one second-seed point)

@@ -1,0 +1,841 @@
+# point: tt_27c_nosupply_mm-off
+# record: 20260731-232801-ab27f82
+# role: control -- control: identical deck on the plain `tt` section (MC_MM_SWITCH=0); every sigma must come back exactly 0, which is what proves the spread above is the mismatch switch and not solver noise
+# section=tt temp=27C supply=n/a seed=20260731 samples=30
+# pdk: sky130A @ open_pdks c6d73a35f524070e85faff4a6a9eef49553ebc2b (/Users/rwalters/.volare/sky130A/libs.tech/combined/sky130.lib.spice)
+# ngspice exit: 0
+# run (UTC): 2026-07-31T23:28:01Z
+
+# ==== .spiceinit (exact) ====
+| * ngspice init settings for the sky130 PDK model libraries.
+| *
+| * The corner runner copies this file into its scratch run directory as
+| * `.spiceinit` before invoking ngspice, so runs do not depend on whatever
+| * happens to be in ~/.spiceinit. To drive ngspice by hand with the same
+| * settings, copy this file to `.spiceinit` in your working directory.
+| *
+| * Derived from the PDK's own libs.tech/ngspice/spinit; kept in-repo so the
+| * settings a record was produced under are versioned with the harness.
+| 
+| set ngbehavior=hsa     ; HSPICE-ish compatibility, required to read PDK libs
+| set skywaterpdk        ; skip some checks for faster lib loading
+| set ng_nomodcheck      ; do not check model parameters
+| option noinit          ; do not dump operating point data into the log
+| option klu             ; KLU direct linear solver
+| 
+| * Monte Carlo controls injected by sim/pnp-mismatch/run_pnp_mismatch.py
+| set mc_seed=20260731
+| set mc_runs=30
+
+# ==== corner.spice (exact) ====
+| * Generated per point by sim/pnp-mismatch/run_pnp_mismatch.py from the
+| * resolved PDK -- scratch only, not committed.
+| .lib "/Users/rwalters/.volare/sky130A/libs.tech/combined/sky130.lib.spice" tt
+| .temp 27
+
+# ==== testbench deck (exact input given to ngspice) ====
+| * tb_pnp_mismatch.spice -- sky130 substrate-PNP local-mismatch Monte Carlo (issue #31)
+| *
+| * Device-level offset-budget input: sigma of dVBE across a matched PNP pair,
+| * the term the untrimmed-accuracy budget for the error amplifier (#9) hangs
+| * on. This is the sky130 counterpart of gf180-bandgap's
+| * sim/device-pnp-mismatch/ and is deliberately NOT run through
+| * sim/bin/corner-run.py: that runner drives one deterministic .op per PVT
+| * point and has no notion of resampling a deck N times, which is exactly what
+| * a local-mismatch claim needs. Driven instead by
+| * sim/pnp-mismatch/run_pnp_mismatch.py.
+| *
+| * ---------------------------------------------------------------------------
+| * sky130 mismatch mechanism (verified against the pinned PDK, not assumed)
+| * ---------------------------------------------------------------------------
+| * gf180mcu's convention (sw_stat_mismatch gating mis_is_pnp_* / mis_bf_pnp_*)
+| * does NOT carry over. In sky130A the per-instance mismatch terms live inside
+| * the device subcircuits in
+| * libs.tech/combined/continuous/models_bjt.spice:
+| *
+| *   .subckt sky130_fd_pr__pnp_05v5_W0p68L0p68 c b e mult=1
+| *   .param mm_bf = {sw_mm_sky130_fd_pr__pnp_05v5_W0p68L0p68_bf
+| *                   * mismatch_factor * MC_MM_SWITCH * AGAUSS(0,1.0,1)/sqrt(mult)}
+| *          mm_is = {sw_mm_sky130_fd_pr__pnp_05v5_W0p68L0p68_is
+| *                   * mismatch_factor * MC_MM_SWITCH * AGAUSS(0,1.0,1)/sqrt(mult)}
+| *   ... is = '1.5075e-018*dkispp / sw_func_rdp*(1+mm_is)'
+| *       bf = '19.35*dkbfpp*sw_nw_rs_mult**0.75*(1+mm_bf)'
+| *       ise = '9.4936e-017*(1-mm_bf)'   vaf = '152.06 / sw_nw_rs_mult*(1-mm_bf)'
+| *       xti = {1.1*(1+mm_is)}
+| *
+| * The sigmas themselves are in continuous/models_global.spice:
+| *   sw_mm_sky130_fd_pr__pnp_05v5_W0p68L0p68_is = 1.662e-02   (1.662 % on Is)
+| *   sw_mm_sky130_fd_pr__pnp_05v5_W0p68L0p68_bf = 5.537e-02   (5.537 % on Bf)
+| * The W3p40L3p40 (large) subcircuit reuses the same two coefficients scaled by
+| * 0.13 (is) and 0.45 (bf) -- the area-matching benefit of the 25x larger
+| * emitter, already in the PDK model.
+| *
+| * The gate is MC_MM_SWITCH, and it is *not* settable from the deck: every
+| * plain corner section of libs.tech/combined/sky130.lib.spice sets
+| * `.param MC_MM_SWITCH=0`, and only the `*_mm` sections (tt_mm, ss_mm, ...)
+| * set it to 1. The section name is therefore the switch. The run script
+| * selects `tt_mm` for the mismatch points and `tt` for the control point
+| * (which must return sigma == 0 exactly -- the falsification check against a
+| * silently no-op mismatch setup).
+| *
+| * MC_PR_SWITCH (global process Monte Carlo, the `mc` section) stays 0: this
+| * record is local mismatch only, see the process-axis note below.
+| *
+| * AGAUSS() is evaluated per subcircuit *instance*, so two instantiations of
+| * the same subcircuit already draw independently -- no per-device parameter
+| * plumbing is needed. ngspice re-draws on `reset`, which is what makes the
+| * control loop below a genuine Monte Carlo; `setseed` makes it reproducible.
+| *
+| * ---------------------------------------------------------------------------
+| * Topology
+| * ---------------------------------------------------------------------------
+| * Every DUT is diode-connected the way a bandgap core uses a sky130 substrate
+| * PNP: collector (the p-substrate) and base (the nwell) grounded, emitter
+| * driven by an ideal current source, so VEB = v(emitter). Subcircuit pin
+| * order is (c b e), hence `X<name> 0 0 <emitter-node>`.
+| *
+| * NOTE, and read this before comparing absolute volts against
+| * sim/pnp-characterization: that experiment's xschem netlist
+| * (`XQS0 E_small_100n 0 0 sky130_fd_pr__pnp_05v5_W0p68L0p68`) lands the driven
+| * node on pin 1 = `c`, i.e. it biases the collector with the emitter grounded,
+| * which measures the base-collector junction rather than the emitter-base one.
+| * Reproduced exactly at tt/27 C/1 uA: collector-driven gives 0.545166 V
+| * (matching that record's `veb_small_1u = 0.545166 V`), emitter-driven gives
+| * 0.742539 V. This testbench uses the emitter-driven connection because that
+| * is the connection a bandgap core actually has. See the record for the full
+| * note; correcting sim/pnp-characterization is out of scope for issue #31.
+| *
+| * Two pairs, each at two bias currents (1 uA and 10 uA -- both are rungs of
+| * sim/pnp-characterization's 100 nA..100 uA half-decade ladder and they
+| * bracket the 2/5/20 uA per-branch range sim/mos-matching-characterization
+| * uses for the < 50 uA total Iq budget; they are also the two biases
+| * gf180-bandgap's mismatch record used, so the two repos compare directly):
+| *   (a) identical pair: two W0p68L0p68 devices at equal emitter current --
+| *       the pair offset any amplifier input or mirror built from this unit
+| *       device sees.
+| *   (b) area-ratioed pair: W0p68L0p68 / W3p40L3p40 at equal emitter current --
+| *       the PTAT pair itself, so sigma(dVBE) here is directly comparable to
+| *       the dVBE *signal* the same legs produce (reported as the sample mean).
+| *
+| * No supply rail exists in this deck: every DUT is referred to its own
+| * emitter node and biased by an ideal current source. The +/-10 % supply axis
+| * of the CLAUDE.md PVT matrix has nothing to sweep -- stated in the record as
+| * the explicit subset justification (same justification
+| * sim/pnp-characterization already records).
+| *
+| * Process axis: nominal only (`tt_mm`), deliberately not stacked on
+| * tt/ss/ff/sf/fs. Local mismatch is intra-die variation; running it on top of
+| * every global corner would double-count the global spread
+| * sim/pnp-characterization's 15-point matrix already records. Also stated
+| * inline in the record (this deck does not go through corner-run.py, so there
+| * is no --subset-reason flag to carry it).
+| *
+| * ---------------------------------------------------------------------------
+| * Inputs supplied by the run script (this deck is not standalone)
+| * ---------------------------------------------------------------------------
+| *   corner.spice  -- generated: `.lib <sky130.lib.spice> <section>` + `.temp`
+| *   $mc_seed      -- ngspice variable, set from the generated .spiceinit
+| *   $mc_runs      -- ngspice variable, set from the generated .spiceinit
+| * The defaults below apply only if the deck is driven by hand.
+| 
+| .include corner.spice
+| 
+| * ---- identical pair: W0p68L0p68 x2, 1 uA ----
+| Ia1a 0 ea1a 1u
+| XA1a 0 0 ea1a sky130_fd_pr__pnp_05v5_W0p68L0p68
+| Ia1b 0 ea1b 1u
+| XA1b 0 0 ea1b sky130_fd_pr__pnp_05v5_W0p68L0p68
+| 
+| * ---- identical pair: W0p68L0p68 x2, 10 uA ----
+| Ia10a 0 ea10a 10u
+| XA10a 0 0 ea10a sky130_fd_pr__pnp_05v5_W0p68L0p68
+| Ia10b 0 ea10b 10u
+| XA10b 0 0 ea10b sky130_fd_pr__pnp_05v5_W0p68L0p68
+| 
+| * ---- area-ratioed pair: W0p68L0p68 / W3p40L3p40, 1 uA ----
+| Ir1a 0 er1a 1u
+| XR1a 0 0 er1a sky130_fd_pr__pnp_05v5_W0p68L0p68
+| Ir1b 0 er1b 1u
+| XR1b 0 0 er1b sky130_fd_pr__pnp_05v5_W3p40L3p40
+| 
+| * ---- area-ratioed pair: W0p68L0p68 / W3p40L3p40, 10 uA ----
+| Ir10a 0 er10a 10u
+| XR10a 0 0 er10a sky130_fd_pr__pnp_05v5_W0p68L0p68
+| Ir10b 0 er10b 10u
+| XR10b 0 0 er10b sky130_fd_pr__pnp_05v5_W3p40L3p40
+| 
+| .control
+| if $?mc_seed
+|   setseed $mc_seed
+| else
+|   setseed 20260731
+| end
+| if $?mc_runs
+|   let nruns = $mc_runs
+| else
+|   let nruns = 300
+| end
+| set width  = 512
+| set height = 100000
+| let run = 0
+| dowhile run < nruns
+|   reset
+|   op
+|   let da1   = v(ea1a)  - v(ea1b)
+|   let da10  = v(ea10a) - v(ea10b)
+|   let dr1   = v(er1a)  - v(er1b)
+|   let dr10  = v(er10a) - v(er10b)
+|   let vr1a  = v(er1a)
+|   let vr1b  = v(er1b)
+|   let vr10a = v(er10a)
+|   let vr10b = v(er10b)
+|   print da1 da10 dr1 dr10 vr1a vr1b vr10a vr10b
+|   let run = run + 1
+| end
+| quit
+| .endc
+| 
+| .end
+
+# ==== ngspice stdout+stderr ====
+
+Note: Compatibility modes selected: hs a
+
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+ Reference value :  0.00000e+00
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+Reset re-loads circuit * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+Circuit: * tb_pnp_mismatch.spice -- sky130 substrate-pnp local-mismatch monte carlo (issue #31)
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 1
+da1 = 0.000000e+00
+da10 = 0.000000e+00
+dr1 = 6.296581e-02
+dr10 = 7.254033e-02
+vr1a = 7.425389e-01
+vr1b = 6.795731e-01
+vr10a = 8.128330e-01
+vr10b = 7.402926e-01
+ngspice-46 done
