@@ -140,26 +140,72 @@ must sweep `ll`/`hh`, not just `tt/ss/ff/sf/fs`.
 | Flavor | TC, −40→27 °C (measured) | TC, 27→125 °C (measured) | TC (PDK model card, `tc1`) |
 |---|---|---|---|
 | `res_high_po` | +426 ppm/°C | +627 ppm/°C | +514 ppm/°C |
-| `res_xhigh_po` | ≈ 0 ppm/°C (two-length method) | ≈ 0 ppm/°C (two-length method) | **−1470 ppm/°C** |
+| `res_xhigh_po` | ≈ +0.6 ppm/°C (single-length, issue #25) | ≈ −2.6 ppm/°C (single-length, issue #25) | **−1470 ppm/°C** |
 
 `res_high_po`'s measured TC is a positive, mildly-accelerating curve
 (steeper hot than cold), same sign and same order of magnitude as the model
 card's static `tc1` — this cross-validates the survey's number.
 
-**Known limitation, flagged rather than papered over**: the two-length
-subtraction method returns an essentially flat TC for `res_xhigh_po`,
-inconsistent with its model card's static `tc1 = −1.47e-3` (−1470 ppm/°C).
-The L=1 µm and L=20 µm legs sit at very different bias voltages at fixed
-1 µA (≈2 mV vs ≈42 mV), and `res_xhigh_po`'s model defines a
-length-dependent (`1/L²`) voltage-coefficient term on top of its `tc1`/`tc2`
-scaling — a plausible interaction that could distort a length-difference
-extraction without invalidating the underlying `tc1`. This needs a
-follow-up testbench (e.g. single-length TC measured directly at matched
-current density, not a two-length subtraction) before a numeric
-`res_xhigh_po` TC figure from simulation can be trusted over the model
-card's static value. **For design purposes, treat the model card's
-`tc1 = −1470 ppm/°C` as authoritative for `res_xhigh_po` until that
-follow-up lands** — see "Follow-up issues" below.
+**`res_xhigh_po` re-measured at a single length (issue #25) — confirmed
+flat; root cause identified as an ngspice/model-implementation limitation,
+not a testbench artifact.** The original two-length subtraction method
+(`sim/resistor-flavor-characterization/`, record
+`20260731-044337-a8c4147`) returned an essentially flat TC and flagged a
+plausible confound: its L=1 µm (≈2 mV drop) and L=20 µm (≈42 mV drop) legs
+sit at very different bias voltages at fixed 1 µA, and `res_xhigh_po`'s
+model defines a length-dependent voltage-coefficient term that could distort
+a length-difference extraction. `sim/resistor-tc-single-length/` (record
+`20260731-073440-3dfe830`, full 21-point PVT matrix, PASS) re-measured with
+four legs designed to falsify that bias-mismatch theory rather than merely
+produce a different number:
+
+- **Primary DUT** (`res_xhigh_po`, W=1 µm, L=50 µm, 5 µA, ≈0.53 V drop — a
+  representative bias-setting-resistor operating point for this block, see
+  §3) is flat: ≈+0.6 ppm/°C (−40→27 °C) / ≈−2.6 ppm/°C (27→125 °C), `tt`
+  corner — same order of magnitude as the two-length figure, at a single
+  length and a realistic bias point.
+- **10× lower bias** (0.5 µA, ≈53 mV drop) at the identical geometry tracks
+  the primary DUT to within ≈0.001 % at every one of the 21 corners —
+  ruling out a voltage-coefficient effect as the explanation; bias-point
+  choice is not moving this measurement.
+- **10× shorter length at matched current density** (L=5 µm, 5 µA) is also
+  flat and stays two orders of magnitude below the model card's TC — ruling
+  out the model's length-dependent voltage-coefficient term and the fixed
+  head/contact resistance's share of the total as the explanation.
+- **`res_high_po` positive control** at the identical length/bias moves
+  strongly and correctly with temperature (16.16 kΩ → 16.62 kΩ → 17.62 kΩ,
+  `tt` corner, −40/27/125 °C) — proving `.temp` reaches the resistor models
+  in this deck; the flatness is specific to `res_xhigh_po`.
+- **Simulator-mechanism probe**: three ideal 1 kΩ resistors sharing one
+  `.model` card (`tc1=-1.47e-3 tc2=2.7e-6`), differing only in how `r=` is
+  written. The literal (`r=1000`) and constant-expression (`r='1000*1.0'`)
+  forms track `.temp` exactly as the model predicts (1106.96 Ω / 997.07 Ω /
+  880 Ω at −40/27/125 °C, every process corner) — but the
+  voltage-dependent-expression form (`r='1000*(1+1e-12*abs(v(...)))'`) reads
+  **exactly** 1000.000 Ω at every one of the 21 PVT points, completely
+  ignoring the shared `tc1`/`tc2`.
+
+Cross-checked against the PDK's own model source
+(`sky130_fd_pr/spice/sky130_fd_pr__res_xhigh_po__base.model.spice`):
+`res_xhigh_po`'s `rbody` element is written in exactly this pattern —
+`rbody ra r2 r = {rbody*(1+abs(v(r1,r2))*vc1_body+...)} tc1 = -1.47e-3 tc2 =
+2.7e-6` — a voltage-dependent behavioral resistor with `tc1`/`tc2` declared
+on the same element. This is a direct, mechanistic match to the simulator
+probe above: **ngspice does not apply `tc1`/`tc2` temperature scaling to a
+resistor whose value is a voltage-dependent expression**, which is exactly
+the element type `res_xhigh_po` uses for its body. The flat simulated TC is
+therefore a genuine ngspice/PDK-model-interaction limitation of this
+simulation path, not a bias-point or two-length-subtraction artifact of the
+original testbench, and not evidence that the physical device lacks the
+model card's TC.
+
+**Design guidance unchanged: continue to treat the model card's
+`tc1 = −1470 ppm/°C` as authoritative for `res_xhigh_po`.** ngspice's
+op-analysis simulation of this device cannot currently reproduce that
+figure (mechanism identified above), so no numeric TC figure for
+`res_xhigh_po` from this harness should be substituted for the model card
+value in a design decision. This methodology question is now closed — see
+"Follow-up issues" below.
 
 ### Mismatch (pulled directly from the PDK's own resistor models, per the acceptance criteria — not simulated Monte Carlo)
 
@@ -275,14 +321,15 @@ mismatch has to stay in the low single digits of a percent against a
 
 ## Follow-up issues suggested (not filed as part of this PR — flagging for triage)
 
-1. **`res_xhigh_po` TC re-measurement.** The two-length subtraction method
-   used here returns ≈0 ppm/°C for `res_xhigh_po`, materially disagreeing
-   with its model card's static `tc1 = −1470 ppm/°C`. A single-length
-   direct-TC testbench (matched current density rather than matched
-   absolute current across two different lengths) would resolve whether
-   this is a real PDK behavior or a testbench-method artifact before any
-   design leg relies on simulated (rather than model-card) `res_xhigh_po`
-   TC.
+1. ~~`res_xhigh_po` TC re-measurement.~~ **Resolved by issue #25** — see §2
+   "Temperature coefficient" above and
+   `sim/resistor-tc-single-length/records/20260731-073440-3dfe830.md`. A
+   single-length testbench with bias/length/positive-control legs plus a
+   raw-SPICE simulator-mechanism probe confirmed the flat measured TC is an
+   ngspice/model-implementation limitation (temperature scaling not applied
+   to voltage-dependent behavioral resistor elements), not a
+   two-length-subtraction bias-point artifact. The model card's
+   `tc1 = −1470 ppm/°C` remains authoritative for `res_xhigh_po` design use.
 2. **MOS mirror sizing beyond size B.** §3's mismatch projection suggests
    the < 1 % mismatch region may require device areas larger than the 16
    µm² (size B) evaluated here; once #8 fixes actual mirror ratios, a sizing
@@ -294,6 +341,9 @@ mismatch has to stay in the low single digits of a percent against a
 - PNP: `sim/pnp-characterization/records/20260731-043353-a8c4147.md`
   (+ `.json` twin, netlist snapshot, 15 per-corner logs)
 - Resistors: `sim/resistor-flavor-characterization/records/20260731-044337-a8c4147.md`
+  (+ `.json` twin, netlist snapshot, 21 per-corner logs)
+- Resistor TC single-length re-check (issue #25):
+  `sim/resistor-tc-single-length/records/20260731-073440-3dfe830.md`
   (+ `.json` twin, netlist snapshot, 21 per-corner logs)
 - MOS: `sim/mos-matching-characterization/records/20260731-045825-a8c4147.md`
   (+ `.json` twin, netlist snapshot, 15 per-corner logs)
