@@ -1,0 +1,3499 @@
+{
+  "author": "robb@2amlogic.com",
+  "corners": [
+    {
+      "corner_id": "tt_-40c_3.30v",
+      "log": "sim/pnp-characterization/corners/20260731-043353-a8c4147/tt_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(E_small_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6386936
+        },
+        {
+          "expr": "v(E_large_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6332402
+        },
+        {
+          "expr": "v(E_small_100n) - v(E_large_100n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.005453382
+        },
+        {
+          "expr": "v(E_small_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6620622
+        },
+        {
+          "expr": "v(E_large_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6563942
+        },
+        {
+          "expr": "v(E_small_316n) - v(E_large_316n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.005667972
+        },
+        {
+          "expr": "v(E_small_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6858561
+        },
+        {
+          "expr": "v(E_large_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6796575
+        },
+        {
+          "expr": "v(E_small_1u) - v(E_large_1u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.006198536
+        },
+        {
+          "expr": "v(E_small_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.710871
+        },
+        {
+          "expr": "v(E_large_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7031434
+        },
+        {
+          "expr": "v(E_small_3p16u) - v(E_large_3p16u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.007727651
+        },
+        {
+          "expr": "v(E_small_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7398784
+        },
+        {
+          "expr": "v(E_large_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7274334
+        },
+        {
+          "expr": "v(E_small_10u) - v(E_large_10u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01244501
+        },
+        {
+          "expr": "v(E_small_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7813531
+        },
+        {
+          "expr": "v(E_large_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7540129
+        },
+        {
+          "expr": "v(E_small_31p6u) - v(E_large_31p6u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.02734024
+        },
+        {
+          "expr": "v(E_small_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8624457
+        },
+        {
+          "expr": "v(E_large_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7874844
+        },
+        {
+          "expr": "v(E_small_100u) - v(E_large_100u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.07496131
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "tt_27c_3.30v",
+      "log": "sim/pnp-characterization/corners/20260731-043353-a8c4147/tt_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(E_small_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4846703
+        },
+        {
+          "expr": "v(E_large_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4702748
+        },
+        {
+          "expr": "v(E_small_100n) - v(E_large_100n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01439554
+        },
+        {
+          "expr": "v(E_small_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5147016
+        },
+        {
+          "expr": "v(E_large_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5000717
+        },
+        {
+          "expr": "v(E_small_316n) - v(E_large_316n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01462996
+        },
+        {
+          "expr": "v(E_small_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5451665
+        },
+        {
+          "expr": "v(E_large_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5299863
+        },
+        {
+          "expr": "v(E_small_1u) - v(E_large_1u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01518019
+        },
+        {
+          "expr": "v(E_small_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5768438
+        },
+        {
+          "expr": "v(E_large_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5601149
+        },
+        {
+          "expr": "v(E_small_3p16u) - v(E_large_3p16u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01672889
+        },
+        {
+          "expr": "v(E_small_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6125211
+        },
+        {
+          "expr": "v(E_large_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5910557
+        },
+        {
+          "expr": "v(E_small_10u) - v(E_large_10u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.02146543
+        },
+        {
+          "expr": "v(E_small_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6606551
+        },
+        {
+          "expr": "v(E_large_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6242768
+        },
+        {
+          "expr": "v(E_small_31p6u) - v(E_large_31p6u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03637822
+        },
+        {
+          "expr": "v(E_small_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7484072
+        },
+        {
+          "expr": "v(E_large_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6643961
+        },
+        {
+          "expr": "v(E_small_100u) - v(E_large_100u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.08401119
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "tt_125c_3.30v",
+      "log": "sim/pnp-characterization/corners/20260731-043353-a8c4147/tt_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(E_small_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2619219
+        },
+        {
+          "expr": "v(E_large_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2244073
+        },
+        {
+          "expr": "v(E_small_100n) - v(E_large_100n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03751466
+        },
+        {
+          "expr": "v(E_small_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3016869
+        },
+        {
+          "expr": "v(E_large_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2638868
+        },
+        {
+          "expr": "v(E_small_316n) - v(E_large_316n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03780006
+        },
+        {
+          "expr": "v(E_small_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3419055
+        },
+        {
+          "expr": "v(E_large_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3035194
+        },
+        {
+          "expr": "v(E_small_1u) - v(E_large_1u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03838606
+        },
+        {
+          "expr": "v(E_small_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3833263
+        },
+        {
+          "expr": "v(E_large_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3433609
+        },
+        {
+          "expr": "v(E_small_3p16u) - v(E_large_3p16u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03996541
+        },
+        {
+          "expr": "v(E_small_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4287586
+        },
+        {
+          "expr": "v(E_large_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3840285
+        },
+        {
+          "expr": "v(E_small_10u) - v(E_large_10u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.04473013
+        },
+        {
+          "expr": "v(E_small_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4866305
+        },
+        {
+          "expr": "v(E_large_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4269634
+        },
+        {
+          "expr": "v(E_small_31p6u) - v(E_large_31p6u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0596671
+        },
+        {
+          "expr": "v(E_small_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.584117
+        },
+        {
+          "expr": "v(E_large_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.476805
+        },
+        {
+          "expr": "v(E_small_100u) - v(E_large_100u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.107312
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ss_-40c_3.30v",
+      "log": "sim/pnp-characterization/corners/20260731-043353-a8c4147/ss_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(E_small_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6386936
+        },
+        {
+          "expr": "v(E_large_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6332402
+        },
+        {
+          "expr": "v(E_small_100n) - v(E_large_100n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.005453321
+        },
+        {
+          "expr": "v(E_small_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6620622
+        },
+        {
+          "expr": "v(E_large_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6563942
+        },
+        {
+          "expr": "v(E_small_316n) - v(E_large_316n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.005667982
+        },
+        {
+          "expr": "v(E_small_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6858561
+        },
+        {
+          "expr": "v(E_large_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6796576
+        },
+        {
+          "expr": "v(E_small_1u) - v(E_large_1u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.006198471
+        },
+        {
+          "expr": "v(E_small_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.710871
+        },
+        {
+          "expr": "v(E_large_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7031434
+        },
+        {
+          "expr": "v(E_small_3p16u) - v(E_large_3p16u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.007727589
+        },
+        {
+          "expr": "v(E_small_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7398784
+        },
+        {
+          "expr": "v(E_large_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7274334
+        },
+        {
+          "expr": "v(E_small_10u) - v(E_large_10u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01244498
+        },
+        {
+          "expr": "v(E_small_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7813532
+        },
+        {
+          "expr": "v(E_large_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.754013
+        },
+        {
+          "expr": "v(E_small_31p6u) - v(E_large_31p6u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.02734022
+        },
+        {
+          "expr": "v(E_small_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8624457
+        },
+        {
+          "expr": "v(E_large_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7874845
+        },
+        {
+          "expr": "v(E_small_100u) - v(E_large_100u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.07496116
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ss_27c_3.30v",
+      "log": "sim/pnp-characterization/corners/20260731-043353-a8c4147/ss_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(E_small_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4846705
+        },
+        {
+          "expr": "v(E_large_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4702749
+        },
+        {
+          "expr": "v(E_small_100n) - v(E_large_100n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01439557
+        },
+        {
+          "expr": "v(E_small_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5147018
+        },
+        {
+          "expr": "v(E_large_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5000718
+        },
+        {
+          "expr": "v(E_small_316n) - v(E_large_316n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01462998
+        },
+        {
+          "expr": "v(E_small_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5451667
+        },
+        {
+          "expr": "v(E_large_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5299865
+        },
+        {
+          "expr": "v(E_small_1u) - v(E_large_1u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0151802
+        },
+        {
+          "expr": "v(E_small_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.576844
+        },
+        {
+          "expr": "v(E_large_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5601151
+        },
+        {
+          "expr": "v(E_small_3p16u) - v(E_large_3p16u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01672891
+        },
+        {
+          "expr": "v(E_small_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6125213
+        },
+        {
+          "expr": "v(E_large_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5910559
+        },
+        {
+          "expr": "v(E_small_10u) - v(E_large_10u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.02146544
+        },
+        {
+          "expr": "v(E_small_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6606552
+        },
+        {
+          "expr": "v(E_large_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.624277
+        },
+        {
+          "expr": "v(E_small_31p6u) - v(E_large_31p6u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03637821
+        },
+        {
+          "expr": "v(E_small_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7484073
+        },
+        {
+          "expr": "v(E_large_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6643962
+        },
+        {
+          "expr": "v(E_small_100u) - v(E_large_100u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.08401103
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ss_125c_3.30v",
+      "log": "sim/pnp-characterization/corners/20260731-043353-a8c4147/ss_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(E_small_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.261922
+        },
+        {
+          "expr": "v(E_large_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2244074
+        },
+        {
+          "expr": "v(E_small_100n) - v(E_large_100n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03751458
+        },
+        {
+          "expr": "v(E_small_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3016869
+        },
+        {
+          "expr": "v(E_large_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.263887
+        },
+        {
+          "expr": "v(E_small_316n) - v(E_large_316n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03779997
+        },
+        {
+          "expr": "v(E_small_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3419055
+        },
+        {
+          "expr": "v(E_large_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3035196
+        },
+        {
+          "expr": "v(E_small_1u) - v(E_large_1u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03838596
+        },
+        {
+          "expr": "v(E_small_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3833264
+        },
+        {
+          "expr": "v(E_large_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3433611
+        },
+        {
+          "expr": "v(E_small_3p16u) - v(E_large_3p16u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03996529
+        },
+        {
+          "expr": "v(E_small_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4287586
+        },
+        {
+          "expr": "v(E_large_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3840287
+        },
+        {
+          "expr": "v(E_small_10u) - v(E_large_10u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.04473
+        },
+        {
+          "expr": "v(E_small_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4866306
+        },
+        {
+          "expr": "v(E_large_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4269636
+        },
+        {
+          "expr": "v(E_small_31p6u) - v(E_large_31p6u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.05966696
+        },
+        {
+          "expr": "v(E_small_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5841171
+        },
+        {
+          "expr": "v(E_large_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4768053
+        },
+        {
+          "expr": "v(E_small_100u) - v(E_large_100u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1073119
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ff_-40c_3.30v",
+      "log": "sim/pnp-characterization/corners/20260731-043353-a8c4147/ff_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(E_small_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6386935
+        },
+        {
+          "expr": "v(E_large_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6332401
+        },
+        {
+          "expr": "v(E_small_100n) - v(E_large_100n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.005453422
+        },
+        {
+          "expr": "v(E_small_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6620621
+        },
+        {
+          "expr": "v(E_large_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6563941
+        },
+        {
+          "expr": "v(E_small_316n) - v(E_large_316n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.005668086
+        },
+        {
+          "expr": "v(E_small_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6858561
+        },
+        {
+          "expr": "v(E_large_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6796576
+        },
+        {
+          "expr": "v(E_small_1u) - v(E_large_1u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.00619848
+        },
+        {
+          "expr": "v(E_small_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.710871
+        },
+        {
+          "expr": "v(E_large_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7031433
+        },
+        {
+          "expr": "v(E_small_3p16u) - v(E_large_3p16u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0077277
+        },
+        {
+          "expr": "v(E_small_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7398784
+        },
+        {
+          "expr": "v(E_large_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7274333
+        },
+        {
+          "expr": "v(E_small_10u) - v(E_large_10u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01244509
+        },
+        {
+          "expr": "v(E_small_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7813532
+        },
+        {
+          "expr": "v(E_large_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7540128
+        },
+        {
+          "expr": "v(E_small_31p6u) - v(E_large_31p6u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.02734034
+        },
+        {
+          "expr": "v(E_small_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8624456
+        },
+        {
+          "expr": "v(E_large_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7874843
+        },
+        {
+          "expr": "v(E_small_100u) - v(E_large_100u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.07496126
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ff_27c_3.30v",
+      "log": "sim/pnp-characterization/corners/20260731-043353-a8c4147/ff_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(E_small_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4846703
+        },
+        {
+          "expr": "v(E_large_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4702747
+        },
+        {
+          "expr": "v(E_small_100n) - v(E_large_100n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0143956
+        },
+        {
+          "expr": "v(E_small_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5147016
+        },
+        {
+          "expr": "v(E_large_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5000716
+        },
+        {
+          "expr": "v(E_small_316n) - v(E_large_316n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01463002
+        },
+        {
+          "expr": "v(E_small_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5451665
+        },
+        {
+          "expr": "v(E_large_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5299862
+        },
+        {
+          "expr": "v(E_small_1u) - v(E_large_1u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01518025
+        },
+        {
+          "expr": "v(E_small_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5768438
+        },
+        {
+          "expr": "v(E_large_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5601149
+        },
+        {
+          "expr": "v(E_small_3p16u) - v(E_large_3p16u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01672896
+        },
+        {
+          "expr": "v(E_small_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6125211
+        },
+        {
+          "expr": "v(E_large_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5910556
+        },
+        {
+          "expr": "v(E_small_10u) - v(E_large_10u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0214655
+        },
+        {
+          "expr": "v(E_small_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.660655
+        },
+        {
+          "expr": "v(E_large_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6242767
+        },
+        {
+          "expr": "v(E_small_31p6u) - v(E_large_31p6u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03637829
+        },
+        {
+          "expr": "v(E_small_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7484072
+        },
+        {
+          "expr": "v(E_large_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6643959
+        },
+        {
+          "expr": "v(E_small_100u) - v(E_large_100u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.08401125
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ff_125c_3.30v",
+      "log": "sim/pnp-characterization/corners/20260731-043353-a8c4147/ff_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(E_small_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2619219
+        },
+        {
+          "expr": "v(E_large_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2244072
+        },
+        {
+          "expr": "v(E_small_100n) - v(E_large_100n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03751471
+        },
+        {
+          "expr": "v(E_small_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3016869
+        },
+        {
+          "expr": "v(E_large_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2638867
+        },
+        {
+          "expr": "v(E_small_316n) - v(E_large_316n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03780012
+        },
+        {
+          "expr": "v(E_small_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3419054
+        },
+        {
+          "expr": "v(E_large_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3035193
+        },
+        {
+          "expr": "v(E_small_1u) - v(E_large_1u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03838613
+        },
+        {
+          "expr": "v(E_small_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3833263
+        },
+        {
+          "expr": "v(E_large_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3433608
+        },
+        {
+          "expr": "v(E_small_3p16u) - v(E_large_3p16u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03996549
+        },
+        {
+          "expr": "v(E_small_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4287585
+        },
+        {
+          "expr": "v(E_large_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3840283
+        },
+        {
+          "expr": "v(E_small_10u) - v(E_large_10u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.04473021
+        },
+        {
+          "expr": "v(E_small_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4866304
+        },
+        {
+          "expr": "v(E_large_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4269632
+        },
+        {
+          "expr": "v(E_small_31p6u) - v(E_large_31p6u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.05966719
+        },
+        {
+          "expr": "v(E_small_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5841169
+        },
+        {
+          "expr": "v(E_large_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4768048
+        },
+        {
+          "expr": "v(E_small_100u) - v(E_large_100u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1073121
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "sf_-40c_3.30v",
+      "log": "sim/pnp-characterization/corners/20260731-043353-a8c4147/sf_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(E_small_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6386935
+        },
+        {
+          "expr": "v(E_large_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.63324
+        },
+        {
+          "expr": "v(E_small_100n) - v(E_large_100n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.005453498
+        },
+        {
+          "expr": "v(E_small_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6620621
+        },
+        {
+          "expr": "v(E_large_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.656394
+        },
+        {
+          "expr": "v(E_small_316n) - v(E_large_316n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.005668166
+        },
+        {
+          "expr": "v(E_small_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.685856
+        },
+        {
+          "expr": "v(E_large_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6796574
+        },
+        {
+          "expr": "v(E_small_1u) - v(E_large_1u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.006198661
+        },
+        {
+          "expr": "v(E_small_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.710871
+        },
+        {
+          "expr": "v(E_large_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7031432
+        },
+        {
+          "expr": "v(E_small_3p16u) - v(E_large_3p16u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.00772778
+        },
+        {
+          "expr": "v(E_small_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7398783
+        },
+        {
+          "expr": "v(E_large_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7274332
+        },
+        {
+          "expr": "v(E_small_10u) - v(E_large_10u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01244514
+        },
+        {
+          "expr": "v(E_small_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7813531
+        },
+        {
+          "expr": "v(E_large_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7540127
+        },
+        {
+          "expr": "v(E_small_31p6u) - v(E_large_31p6u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.02734037
+        },
+        {
+          "expr": "v(E_small_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8624456
+        },
+        {
+          "expr": "v(E_large_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7874842
+        },
+        {
+          "expr": "v(E_small_100u) - v(E_large_100u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.07496143
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "sf_27c_3.30v",
+      "log": "sim/pnp-characterization/corners/20260731-043353-a8c4147/sf_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(E_small_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4846703
+        },
+        {
+          "expr": "v(E_large_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4702746
+        },
+        {
+          "expr": "v(E_small_100n) - v(E_large_100n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01439571
+        },
+        {
+          "expr": "v(E_small_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5147016
+        },
+        {
+          "expr": "v(E_large_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5000714
+        },
+        {
+          "expr": "v(E_small_316n) - v(E_large_316n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01463013
+        },
+        {
+          "expr": "v(E_small_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5451664
+        },
+        {
+          "expr": "v(E_large_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5299861
+        },
+        {
+          "expr": "v(E_small_1u) - v(E_large_1u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01518037
+        },
+        {
+          "expr": "v(E_small_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5768438
+        },
+        {
+          "expr": "v(E_large_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5601147
+        },
+        {
+          "expr": "v(E_small_3p16u) - v(E_large_3p16u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01672908
+        },
+        {
+          "expr": "v(E_small_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6125211
+        },
+        {
+          "expr": "v(E_large_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5910554
+        },
+        {
+          "expr": "v(E_small_10u) - v(E_large_10u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.02146563
+        },
+        {
+          "expr": "v(E_small_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.660655
+        },
+        {
+          "expr": "v(E_large_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6242765
+        },
+        {
+          "expr": "v(E_small_31p6u) - v(E_large_31p6u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03637842
+        },
+        {
+          "expr": "v(E_small_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7484071
+        },
+        {
+          "expr": "v(E_large_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6643957
+        },
+        {
+          "expr": "v(E_small_100u) - v(E_large_100u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.08401137
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "sf_125c_3.30v",
+      "log": "sim/pnp-characterization/corners/20260731-043353-a8c4147/sf_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(E_small_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2619219
+        },
+        {
+          "expr": "v(E_large_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2244071
+        },
+        {
+          "expr": "v(E_small_100n) - v(E_large_100n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03751481
+        },
+        {
+          "expr": "v(E_small_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3016868
+        },
+        {
+          "expr": "v(E_large_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2638866
+        },
+        {
+          "expr": "v(E_small_316n) - v(E_large_316n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03780023
+        },
+        {
+          "expr": "v(E_small_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3419054
+        },
+        {
+          "expr": "v(E_large_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3035191
+        },
+        {
+          "expr": "v(E_small_1u) - v(E_large_1u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03838627
+        },
+        {
+          "expr": "v(E_small_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3833262
+        },
+        {
+          "expr": "v(E_large_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3433606
+        },
+        {
+          "expr": "v(E_small_3p16u) - v(E_large_3p16u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03996564
+        },
+        {
+          "expr": "v(E_small_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4287584
+        },
+        {
+          "expr": "v(E_large_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3840281
+        },
+        {
+          "expr": "v(E_small_10u) - v(E_large_10u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.04473038
+        },
+        {
+          "expr": "v(E_small_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4866303
+        },
+        {
+          "expr": "v(E_large_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4269629
+        },
+        {
+          "expr": "v(E_small_31p6u) - v(E_large_31p6u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.05966737
+        },
+        {
+          "expr": "v(E_small_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5841167
+        },
+        {
+          "expr": "v(E_large_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4768045
+        },
+        {
+          "expr": "v(E_small_100u) - v(E_large_100u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1073122
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "fs_-40c_3.30v",
+      "log": "sim/pnp-characterization/corners/20260731-043353-a8c4147/fs_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(E_small_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6386936
+        },
+        {
+          "expr": "v(E_large_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6332404
+        },
+        {
+          "expr": "v(E_small_100n) - v(E_large_100n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0054532
+        },
+        {
+          "expr": "v(E_small_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6620622
+        },
+        {
+          "expr": "v(E_large_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6563944
+        },
+        {
+          "expr": "v(E_small_316n) - v(E_large_316n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.005667857
+        },
+        {
+          "expr": "v(E_small_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6858561
+        },
+        {
+          "expr": "v(E_large_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6796578
+        },
+        {
+          "expr": "v(E_small_1u) - v(E_large_1u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.006198342
+        },
+        {
+          "expr": "v(E_small_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7108711
+        },
+        {
+          "expr": "v(E_large_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7031436
+        },
+        {
+          "expr": "v(E_small_3p16u) - v(E_large_3p16u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.007727455
+        },
+        {
+          "expr": "v(E_small_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7398785
+        },
+        {
+          "expr": "v(E_large_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7274336
+        },
+        {
+          "expr": "v(E_small_10u) - v(E_large_10u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01244484
+        },
+        {
+          "expr": "v(E_small_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7813533
+        },
+        {
+          "expr": "v(E_large_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7540132
+        },
+        {
+          "expr": "v(E_small_31p6u) - v(E_large_31p6u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.02734009
+        },
+        {
+          "expr": "v(E_small_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8624458
+        },
+        {
+          "expr": "v(E_large_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7874847
+        },
+        {
+          "expr": "v(E_small_100u) - v(E_large_100u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.07496104
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "fs_27c_3.30v",
+      "log": "sim/pnp-characterization/corners/20260731-043353-a8c4147/fs_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(E_small_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4846705
+        },
+        {
+          "expr": "v(E_large_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4702751
+        },
+        {
+          "expr": "v(E_small_100n) - v(E_large_100n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0143954
+        },
+        {
+          "expr": "v(E_small_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5147018
+        },
+        {
+          "expr": "v(E_large_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.500072
+        },
+        {
+          "expr": "v(E_small_316n) - v(E_large_316n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0146298
+        },
+        {
+          "expr": "v(E_small_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5451667
+        },
+        {
+          "expr": "v(E_large_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5299867
+        },
+        {
+          "expr": "v(E_small_1u) - v(E_large_1u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01518002
+        },
+        {
+          "expr": "v(E_small_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5768441
+        },
+        {
+          "expr": "v(E_large_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5601154
+        },
+        {
+          "expr": "v(E_small_3p16u) - v(E_large_3p16u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01672871
+        },
+        {
+          "expr": "v(E_small_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6125214
+        },
+        {
+          "expr": "v(E_large_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5910562
+        },
+        {
+          "expr": "v(E_small_10u) - v(E_large_10u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.02146523
+        },
+        {
+          "expr": "v(E_small_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6606553
+        },
+        {
+          "expr": "v(E_large_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6242773
+        },
+        {
+          "expr": "v(E_small_31p6u) - v(E_large_31p6u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.036378
+        },
+        {
+          "expr": "v(E_small_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7484075
+        },
+        {
+          "expr": "v(E_large_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6643966
+        },
+        {
+          "expr": "v(E_small_100u) - v(E_large_100u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.08401091
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "fs_125c_3.30v",
+      "log": "sim/pnp-characterization/corners/20260731-043353-a8c4147/fs_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(E_small_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2619221
+        },
+        {
+          "expr": "v(E_large_100n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2244076
+        },
+        {
+          "expr": "v(E_small_100n) - v(E_large_100n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03751444
+        },
+        {
+          "expr": "v(E_small_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.301687
+        },
+        {
+          "expr": "v(E_large_316n)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2638872
+        },
+        {
+          "expr": "v(E_small_316n) - v(E_large_316n)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_316n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03779979
+        },
+        {
+          "expr": "v(E_small_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3419056
+        },
+        {
+          "expr": "v(E_large_1u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3035199
+        },
+        {
+          "expr": "v(E_small_1u) - v(E_large_1u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_1u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03838576
+        },
+        {
+          "expr": "v(E_small_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3833265
+        },
+        {
+          "expr": "v(E_large_3p16u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3433614
+        },
+        {
+          "expr": "v(E_small_3p16u) - v(E_large_3p16u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_3p16u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.03996506
+        },
+        {
+          "expr": "v(E_small_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4287588
+        },
+        {
+          "expr": "v(E_large_10u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3840291
+        },
+        {
+          "expr": "v(E_small_10u) - v(E_large_10u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_10u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.04472974
+        },
+        {
+          "expr": "v(E_small_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4866308
+        },
+        {
+          "expr": "v(E_large_31p6u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4269641
+        },
+        {
+          "expr": "v(E_small_31p6u) - v(E_large_31p6u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_31p6u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.05966669
+        },
+        {
+          "expr": "v(E_small_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_small_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5841174
+        },
+        {
+          "expr": "v(E_large_100u)",
+          "max": 0.95,
+          "min": 0.05,
+          "name": "veb_large_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.4768058
+        },
+        {
+          "expr": "v(E_small_100u) - v(E_large_100u)",
+          "max": 0.3,
+          "min": -0.05,
+          "name": "dvbe_100u",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1073116
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    }
+  ],
+  "experiment": {
+    "claim": "Issue #4 -- characterizes sky130_fd_pr__pnp_05v5_W0p68L0p68 (small unit) and sky130_fd_pr__pnp_05v5_W3p40L3p40 (large unit) VEB vs collector current (100nA..100uA, half-decade steps) and vs temperature/process corner, plus the PTAT dVBE between the two emitter sizes at matched current. Informs the usable current-density window / effective ideality factor for spec/topology-survey.md and the amplifier offset budget (#9). Supply axis intentionally fixed at nominal 3.30V: both devices are diode-connected (base=collector=0) and biased by ideal DC current sources with no supply-referenced terminal in the DUT, so sweeping supply would not change any result -- see design/device-characterization-summary.md.",
+    "provenance": "schematic",
+    "provenance_source": "sim/pnp-characterization/testbench/tb_pnp_vbe.sch",
+    "slug": "pnp-characterization",
+    "statistical_convention": "N/A (corner-matrix / bias-ladder characterization, not a distribution claim)",
+    "title": "Substrate PNP (pnp_05v5) VBE / dVBE vs Ic and temperature"
+  },
+  "git": {
+    "branch": "feature/issue-4",
+    "dirty": true,
+    "sha": "a8c4147"
+  },
+  "links": {
+    "corners_dir": "sim/pnp-characterization/corners/20260731-043353-a8c4147/",
+    "json": "sim/pnp-characterization/records/20260731-043353-a8c4147.json",
+    "manifest": "sim/pnp-characterization/experiment.json",
+    "netlist_snapshot": "sim/pnp-characterization/netlist-snapshots/20260731-043353-a8c4147.spice",
+    "record": "sim/pnp-characterization/records/20260731-043353-a8c4147.md",
+    "testbench": "sim/pnp-characterization/testbench/tb_pnp_vbe.sch"
+  },
+  "matrix": {
+    "is_subset": false,
+    "n_points": 15,
+    "point_ids": [
+      "tt_-40c_3.30v",
+      "tt_27c_3.30v",
+      "tt_125c_3.30v",
+      "ss_-40c_3.30v",
+      "ss_27c_3.30v",
+      "ss_125c_3.30v",
+      "ff_-40c_3.30v",
+      "ff_27c_3.30v",
+      "ff_125c_3.30v",
+      "sf_-40c_3.30v",
+      "sf_27c_3.30v",
+      "sf_125c_3.30v",
+      "fs_-40c_3.30v",
+      "fs_27c_3.30v",
+      "fs_125c_3.30v"
+    ],
+    "points": [
+      [
+        "tt",
+        -40.0,
+        3.3
+      ],
+      [
+        "tt",
+        27.0,
+        3.3
+      ],
+      [
+        "tt",
+        125.0,
+        3.3
+      ],
+      [
+        "ss",
+        -40.0,
+        3.3
+      ],
+      [
+        "ss",
+        27.0,
+        3.3
+      ],
+      [
+        "ss",
+        125.0,
+        3.3
+      ],
+      [
+        "ff",
+        -40.0,
+        3.3
+      ],
+      [
+        "ff",
+        27.0,
+        3.3
+      ],
+      [
+        "ff",
+        125.0,
+        3.3
+      ],
+      [
+        "sf",
+        -40.0,
+        3.3
+      ],
+      [
+        "sf",
+        27.0,
+        3.3
+      ],
+      [
+        "sf",
+        125.0,
+        3.3
+      ],
+      [
+        "fs",
+        -40.0,
+        3.3
+      ],
+      [
+        "fs",
+        27.0,
+        3.3
+      ],
+      [
+        "fs",
+        125.0,
+        3.3
+      ]
+    ],
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "subset_reason": "",
+    "supply_v": [
+      3.3
+    ],
+    "temperature_c": [
+      -40.0,
+      27.0,
+      125.0
+    ]
+  },
+  "overall_pass": true,
+  "pdk": {
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "lib_file": "/Users/rwalters/.volare/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "root": "/Users/rwalters/.volare",
+    "variant": "sky130A"
+  },
+  "record_id": "20260731-043353-a8c4147",
+  "spread_checks": [
+    {
+      "measurement": "veb_small_1u",
+      "min_spread": 0.01,
+      "n": 15,
+      "note": "Guards against a corner-blind harness: VEB at 1uA must move across the -40..125C / tt..fs matrix.",
+      "observed_spread": 0.34395069999999994,
+      "pass": true,
+      "reason": ""
+    }
+  ],
+  "supersedes": "",
+  "timestamp": "2026-07-31T04:33:53Z",
+  "tools": {
+    "ngspice": "ngspice-46 : Circuit level simulation program",
+    "platform": "Darwin 25.6.0 arm64",
+    "python": "3.14.6",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}

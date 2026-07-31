@@ -1,0 +1,40 @@
+** sch_path: sim/mos-matching-characterization/testbench/tb_mos_matching.sch
+**.subckt tb_mos_matching
+XMNA2u VD_NA2u VD_NA2u 0 0 sky130_fd_pr__nfet_g5v0d10v5 L=1 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0
++ sb=0 sd=0 mult=1 m=1
+INA2u 0 VD_NA2u 2e-06
+XMPA2u 0 0 VS_PA2u VS_PA2u sky130_fd_pr__pfet_g5v0d10v5 L=1 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0
++ sb=0 sd=0 mult=1 m=1
+IPA2u 0 VS_PA2u 2e-06
+XMNA5u VD_NA5u VD_NA5u 0 0 sky130_fd_pr__nfet_g5v0d10v5 L=1 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0
++ sb=0 sd=0 mult=1 m=1
+INA5u 0 VD_NA5u 5e-06
+XMPA5u 0 0 VS_PA5u VS_PA5u sky130_fd_pr__pfet_g5v0d10v5 L=1 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0
++ sb=0 sd=0 mult=1 m=1
+IPA5u 0 VS_PA5u 5e-06
+XMNA20u VD_NA20u VD_NA20u 0 0 sky130_fd_pr__nfet_g5v0d10v5 L=1 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0
++ sb=0 sd=0 mult=1 m=1
+INA20u 0 VD_NA20u 2e-05
+XMPA20u 0 0 VS_PA20u VS_PA20u sky130_fd_pr__pfet_g5v0d10v5 L=1 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0
++ sb=0 sd=0 mult=1 m=1
+IPA20u 0 VS_PA20u 2e-05
+XMNB2u VD_NB2u VD_NB2u 0 0 sky130_fd_pr__nfet_g5v0d10v5 L=2 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 nrd=0.03625 nrs=0.03625
++ sa=0 sb=0 sd=0 mult=1 m=1
+INB2u 0 VD_NB2u 2e-06
+XMPB2u 0 0 VS_PB2u VS_PB2u sky130_fd_pr__pfet_g5v0d10v5 L=2 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 nrd=0.03625 nrs=0.03625
++ sa=0 sb=0 sd=0 mult=1 m=1
+IPB2u 0 VS_PB2u 2e-06
+XMNB5u VD_NB5u VD_NB5u 0 0 sky130_fd_pr__nfet_g5v0d10v5 L=2 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 nrd=0.03625 nrs=0.03625
++ sa=0 sb=0 sd=0 mult=1 m=1
+INB5u 0 VD_NB5u 5e-06
+XMPB5u 0 0 VS_PB5u VS_PB5u sky130_fd_pr__pfet_g5v0d10v5 L=2 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 nrd=0.03625 nrs=0.03625
++ sa=0 sb=0 sd=0 mult=1 m=1
+IPB5u 0 VS_PB5u 5e-06
+XMNB20u VD_NB20u VD_NB20u 0 0 sky130_fd_pr__nfet_g5v0d10v5 L=2 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 nrd=0.03625 nrs=0.03625
++ sa=0 sb=0 sd=0 mult=1 m=1
+INB20u 0 VD_NB20u 2e-05
+XMPB20u 0 0 VS_PB20u VS_PB20u sky130_fd_pr__pfet_g5v0d10v5 L=2 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 nrd=0.03625 nrs=0.03625
++ sa=0 sb=0 sd=0 mult=1 m=1
+IPB20u 0 VS_PB20u 2e-05
+**.ends
+.end

@@ -1,0 +1,93 @@
+{
+  "slug": "resistor-flavor-characterization",
+  "title": "Poly resistor flavor sheet-Rs / TC (res_high_po, res_xhigh_po)",
+  "claim": "Issue #4 -- characterizes sky130_fd_pr__res_high_po and sky130_fd_pr__res_xhigh_po (the two PDK poly-resistor flavors named in the issue; there is no separate 'precision p+ poly' cell -- res_high_po IS the precision, non-silicided p+ poly flavor, confirmed against the PDK's continuous/models_resistors.spice, no third flavor exists) via the two-length (L=1um, L=20um; W=1um) slope method, which extracts sheet resistance excluding head/contact resistance: Rs = (R(L20)-R(L1))*W/(L20-L1). Process axis covers BOTH the standard tt/ss/ff/sf/fs MOS/BJT corners (confirmed to leave resistor value unchanged -- all five corners include the same continuous/parameters_res_nom.spice) and the PDK's dedicated resistor-value skew corners ll (low) / hh (high), which is where sky130_fd_pr poly-resistor sheet-Rs actually varies (continuous/parameters_res_low.spice / parameters_res_high.spice); see sim/pdk.json's process_corners notes. Informs the resistor-flavor recommendation (PTAT resistor / output ladder / trim network) that spec/topology-survey.md's provisional res_high_po pick should be checked against. Supply axis intentionally fixed at nominal 3.30V: both flavors are biased by an ideal 1uA DC current source with no supply-referenced terminal in the DUT -- see design/device-characterization-summary.md.",
+  "provenance": "schematic",
+  "provenance_source": "sim/resistor-flavor-characterization/testbench/tb_res_flavors.sch",
+  "schematic": "testbench/tb_res_flavors.sch",
+  "statistical_convention": "N/A for the corner-matrix Rs/TC claim above. Device-mismatch sigma is reported separately in the summary record as a PDK-derived (not simulated) coefficient: sw_mm_sky130_fd_pr__res_high_po / __res_xhigh_po from continuous/models_global.spice, applied as sigma_R/R = coefficient / sqrt(W*L*mult).",
+  "corners": {
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs",
+      "ll",
+      "hh"
+    ],
+    "temperature_c": [
+      -40,
+      27,
+      125
+    ],
+    "supply_v": [
+      3.3
+    ]
+  },
+  "quick_subset": [
+    [
+      "tt",
+      27,
+      3.3
+    ],
+    [
+      "ll",
+      -40,
+      3.3
+    ],
+    [
+      "hh",
+      125,
+      3.3
+    ]
+  ],
+  "deck": {
+    "options": [],
+    "params": {},
+    "analyses": [
+      "op"
+    ]
+  },
+  "measurements": [
+    {
+      "name": "r_highl1",
+      "expr": "v(R_HighL1)/1e-6",
+      "unit": "ohm",
+      "min": 210.0,
+      "max": 2100.0,
+      "note": "Two-terminal resistance of sky130_fd_pr__res_high_po, W=1um L=1um at Ibias=1uA (R=V/I; wide sanity bound spans the ll/hh skew corners and -40..125C)."
+    },
+    {
+      "name": "r_highl20",
+      "expr": "v(R_HighL20)/1e-6",
+      "unit": "ohm",
+      "min": 1800.0,
+      "max": 18000.0,
+      "note": "Two-terminal resistance of sky130_fd_pr__res_high_po, W=1um L=20um at Ibias=1uA (R=V/I; wide sanity bound spans the ll/hh skew corners and -40..125C)."
+    },
+    {
+      "name": "r_xhighl1",
+      "expr": "v(R_XhighL1)/1e-6",
+      "unit": "ohm",
+      "min": 540.0,
+      "max": 5400.0,
+      "note": "Two-terminal resistance of sky130_fd_pr__res_xhigh_po, W=1um L=1um at Ibias=1uA (R=V/I; wide sanity bound spans the ll/hh skew corners and -40..125C)."
+    },
+    {
+      "name": "r_xhighl20",
+      "expr": "v(R_XhighL20)/1e-6",
+      "unit": "ohm",
+      "min": 10500.0,
+      "max": 105000.0,
+      "note": "Two-terminal resistance of sky130_fd_pr__res_xhigh_po, W=1um L=20um at Ibias=1uA (R=V/I; wide sanity bound spans the ll/hh skew corners and -40..125C)."
+    }
+  ],
+  "spread_checks": [
+    {
+      "measurement": "r_highl20",
+      "min_spread": 500,
+      "note": "Guards against a corner-blind harness: R(L=20) for res_high_po must move measurably across the tt/ll/hh resistor-skew axis."
+    }
+  ]
+}

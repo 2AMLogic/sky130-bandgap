@@ -1,0 +1,1299 @@
+{
+  "author": "robb@2amlogic.com",
+  "corners": [
+    {
+      "corner_id": "tt_-40c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/tt_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 692.9823
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 6688.716
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2148.805
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 42403.02
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "tt_27c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/tt_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 704.5324
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 6876.25
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2152.972
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 42407.19
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "tt_125c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/tt_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 729.4296
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 7280.496
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2125.456
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 42379.67
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ss_-40c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/ss_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 685.8708
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 6616.304
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2148.805
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 42403.02
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ss_27c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/ss_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 697.2951
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 6801.796
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2152.972
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 42407.19
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ss_125c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/ss_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 721.9212
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 7201.639
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2125.456
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 42379.67
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ff_-40c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/ff_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 700.2435
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 6762.731
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2148.805
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 42403.02
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ff_27c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/ff_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 711.9222
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 6952.353
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2152.972
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 42407.19
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ff_125c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/ff_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 737.0967
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 7361.1
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2125.456
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 42379.67
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "sf_-40c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/sf_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 692.9823
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 6688.716
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2148.805
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 42403.02
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "sf_27c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/sf_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 704.5324
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 6876.25
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2152.972
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 42407.19
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "sf_125c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/sf_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 729.4296
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 7280.496
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2125.456
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 42379.67
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "fs_-40c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/fs_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 692.9823
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 6688.716
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2148.805
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 42403.02
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "fs_27c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/fs_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 704.5324
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 6876.25
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2152.972
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 42407.19
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "fs_125c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/fs_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 729.4296
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 7280.496
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2125.456
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 42379.67
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ll_-40c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/ll_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 597.4298
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 5707.64
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 1830.374
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 36046.46
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ll",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ll_27c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/ll_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 607.2741
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 5867.477
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 1834.02
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 36050.11
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ll",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ll_125c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/ll_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 628.4942
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 6212.018
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 1809.943
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 36026.03
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ll",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "hh_-40c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/hh_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 784.9023
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 7610.814
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2467.236
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 48759.58
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "hh",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "hh_27c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/hh_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 798.0517
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 7824.315
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2471.924
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 48764.27
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "hh",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "hh_125c_3.30v",
+      "log": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/hh_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(R_HighL1)/1e-6",
+          "max": 2100.0,
+          "min": 210.0,
+          "name": "r_highl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 826.3962
+        },
+        {
+          "expr": "v(R_HighL20)/1e-6",
+          "max": 18000.0,
+          "min": 1800.0,
+          "name": "r_highl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 8284.533
+        },
+        {
+          "expr": "v(R_XhighL1)/1e-6",
+          "max": 5400.0,
+          "min": 540.0,
+          "name": "r_xhighl1",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 2440.968
+        },
+        {
+          "expr": "v(R_XhighL20)/1e-6",
+          "max": 105000.0,
+          "min": 10500.0,
+          "name": "r_xhighl20",
+          "pass": true,
+          "reason": "",
+          "unit": "ohm",
+          "value": 48733.31
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "hh",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    }
+  ],
+  "experiment": {
+    "claim": "Issue #4 -- characterizes sky130_fd_pr__res_high_po and sky130_fd_pr__res_xhigh_po (the two PDK poly-resistor flavors named in the issue; there is no separate 'precision p+ poly' cell -- res_high_po IS the precision, non-silicided p+ poly flavor, confirmed against the PDK's continuous/models_resistors.spice, no third flavor exists) via the two-length (L=1um, L=20um; W=1um) slope method, which extracts sheet resistance excluding head/contact resistance: Rs = (R(L20)-R(L1))*W/(L20-L1). Process axis covers BOTH the standard tt/ss/ff/sf/fs MOS/BJT corners (confirmed to leave resistor value unchanged -- all five corners include the same continuous/parameters_res_nom.spice) and the PDK's dedicated resistor-value skew corners ll (low) / hh (high), which is where sky130_fd_pr poly-resistor sheet-Rs actually varies (continuous/parameters_res_low.spice / parameters_res_high.spice); see sim/pdk.json's process_corners notes. Informs the resistor-flavor recommendation (PTAT resistor / output ladder / trim network) that spec/topology-survey.md's provisional res_high_po pick should be checked against. Supply axis intentionally fixed at nominal 3.30V: both flavors are biased by an ideal 1uA DC current source with no supply-referenced terminal in the DUT -- see design/device-characterization-summary.md.",
+    "provenance": "schematic",
+    "provenance_source": "sim/resistor-flavor-characterization/testbench/tb_res_flavors.sch",
+    "slug": "resistor-flavor-characterization",
+    "statistical_convention": "N/A for the corner-matrix Rs/TC claim above. Device-mismatch sigma is reported separately in the summary record as a PDK-derived (not simulated) coefficient: sw_mm_sky130_fd_pr__res_high_po / __res_xhigh_po from continuous/models_global.spice, applied as sigma_R/R = coefficient / sqrt(W*L*mult).",
+    "title": "Poly resistor flavor sheet-Rs / TC (res_high_po, res_xhigh_po)"
+  },
+  "git": {
+    "branch": "feature/issue-4",
+    "dirty": true,
+    "sha": "a8c4147"
+  },
+  "links": {
+    "corners_dir": "sim/resistor-flavor-characterization/corners/20260731-044337-a8c4147/",
+    "json": "sim/resistor-flavor-characterization/records/20260731-044337-a8c4147.json",
+    "manifest": "sim/resistor-flavor-characterization/experiment.json",
+    "netlist_snapshot": "sim/resistor-flavor-characterization/netlist-snapshots/20260731-044337-a8c4147.spice",
+    "record": "sim/resistor-flavor-characterization/records/20260731-044337-a8c4147.md",
+    "testbench": "sim/resistor-flavor-characterization/testbench/tb_res_flavors.sch"
+  },
+  "matrix": {
+    "is_subset": false,
+    "n_points": 21,
+    "point_ids": [
+      "tt_-40c_3.30v",
+      "tt_27c_3.30v",
+      "tt_125c_3.30v",
+      "ss_-40c_3.30v",
+      "ss_27c_3.30v",
+      "ss_125c_3.30v",
+      "ff_-40c_3.30v",
+      "ff_27c_3.30v",
+      "ff_125c_3.30v",
+      "sf_-40c_3.30v",
+      "sf_27c_3.30v",
+      "sf_125c_3.30v",
+      "fs_-40c_3.30v",
+      "fs_27c_3.30v",
+      "fs_125c_3.30v",
+      "ll_-40c_3.30v",
+      "ll_27c_3.30v",
+      "ll_125c_3.30v",
+      "hh_-40c_3.30v",
+      "hh_27c_3.30v",
+      "hh_125c_3.30v"
+    ],
+    "points": [
+      [
+        "tt",
+        -40.0,
+        3.3
+      ],
+      [
+        "tt",
+        27.0,
+        3.3
+      ],
+      [
+        "tt",
+        125.0,
+        3.3
+      ],
+      [
+        "ss",
+        -40.0,
+        3.3
+      ],
+      [
+        "ss",
+        27.0,
+        3.3
+      ],
+      [
+        "ss",
+        125.0,
+        3.3
+      ],
+      [
+        "ff",
+        -40.0,
+        3.3
+      ],
+      [
+        "ff",
+        27.0,
+        3.3
+      ],
+      [
+        "ff",
+        125.0,
+        3.3
+      ],
+      [
+        "sf",
+        -40.0,
+        3.3
+      ],
+      [
+        "sf",
+        27.0,
+        3.3
+      ],
+      [
+        "sf",
+        125.0,
+        3.3
+      ],
+      [
+        "fs",
+        -40.0,
+        3.3
+      ],
+      [
+        "fs",
+        27.0,
+        3.3
+      ],
+      [
+        "fs",
+        125.0,
+        3.3
+      ],
+      [
+        "ll",
+        -40.0,
+        3.3
+      ],
+      [
+        "ll",
+        27.0,
+        3.3
+      ],
+      [
+        "ll",
+        125.0,
+        3.3
+      ],
+      [
+        "hh",
+        -40.0,
+        3.3
+      ],
+      [
+        "hh",
+        27.0,
+        3.3
+      ],
+      [
+        "hh",
+        125.0,
+        3.3
+      ]
+    ],
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs",
+      "ll",
+      "hh"
+    ],
+    "subset_reason": "",
+    "supply_v": [
+      3.3
+    ],
+    "temperature_c": [
+      -40.0,
+      27.0,
+      125.0
+    ]
+  },
+  "overall_pass": true,
+  "pdk": {
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "lib_file": "/Users/rwalters/.volare/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "root": "/Users/rwalters/.volare",
+    "variant": "sky130A"
+  },
+  "record_id": "20260731-044337-a8c4147",
+  "spread_checks": [
+    {
+      "measurement": "r_highl20",
+      "min_spread": 500.0,
+      "n": 21,
+      "note": "Guards against a corner-blind harness: R(L=20) for res_high_po must move measurably across the tt/ll/hh resistor-skew axis.",
+      "observed_spread": 2576.892999999999,
+      "pass": true,
+      "reason": ""
+    }
+  ],
+  "supersedes": "",
+  "timestamp": "2026-07-31T04:43:37Z",
+  "tools": {
+    "ngspice": "ngspice-46 : Circuit level simulation program",
+    "platform": "Darwin 25.6.0 arm64",
+    "python": "3.14.6",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}

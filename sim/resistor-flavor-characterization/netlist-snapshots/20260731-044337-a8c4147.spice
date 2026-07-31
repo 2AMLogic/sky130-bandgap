@@ -1,0 +1,12 @@
+** sch_path: sim/resistor-flavor-characterization/testbench/tb_res_flavors.sch
+**.subckt tb_res_flavors
+XRHighL1 R_HighL1 0 0 sky130_fd_pr__res_high_po W=1 L=1 mult=1 m=1
+IHighL1 0 R_HighL1 1u
+XRHighL20 R_HighL20 0 0 sky130_fd_pr__res_high_po W=1 L=20 mult=1 m=1
+IHighL20 0 R_HighL20 1u
+XRXhighL1 R_XhighL1 0 0 sky130_fd_pr__res_xhigh_po W=1 L=1 mult=1 m=1
+IXhighL1 0 R_XhighL1 1u
+XRXhighL20 R_XhighL20 0 0 sky130_fd_pr__res_xhigh_po W=1 L=20 mult=1 m=1
+IXhighL20 0 R_XhighL20 1u
+**.ends
+.end

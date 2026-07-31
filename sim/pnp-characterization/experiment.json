@@ -1,0 +1,227 @@
+{
+  "slug": "pnp-characterization",
+  "title": "Substrate PNP (pnp_05v5) VBE / dVBE vs Ic and temperature",
+  "claim": "Issue #4 -- characterizes sky130_fd_pr__pnp_05v5_W0p68L0p68 (small unit) and sky130_fd_pr__pnp_05v5_W3p40L3p40 (large unit) VEB vs collector current (100nA..100uA, half-decade steps) and vs temperature/process corner, plus the PTAT dVBE between the two emitter sizes at matched current. Informs the usable current-density window / effective ideality factor for spec/topology-survey.md and the amplifier offset budget (#9). Supply axis intentionally fixed at nominal 3.30V: both devices are diode-connected (base=collector=0) and biased by ideal DC current sources with no supply-referenced terminal in the DUT, so sweeping supply would not change any result -- see design/device-characterization-summary.md.",
+  "provenance": "schematic",
+  "provenance_source": "sim/pnp-characterization/testbench/tb_pnp_vbe.sch",
+  "schematic": "testbench/tb_pnp_vbe.sch",
+  "statistical_convention": "N/A (corner-matrix / bias-ladder characterization, not a distribution claim)",
+  "corners": {
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "temperature_c": [
+      -40,
+      27,
+      125
+    ],
+    "supply_v": [
+      3.3
+    ]
+  },
+  "quick_subset": [
+    [
+      "tt",
+      27,
+      3.3
+    ],
+    [
+      "ss",
+      -40,
+      3.3
+    ],
+    [
+      "ff",
+      125,
+      3.3
+    ]
+  ],
+  "deck": {
+    "options": [],
+    "params": {},
+    "analyses": [
+      "op"
+    ]
+  },
+  "measurements": [
+    {
+      "name": "veb_small_100n",
+      "expr": "v(E_small_100n)",
+      "unit": "V",
+      "min": 0.05,
+      "max": 0.95,
+      "note": "VEB of diode-connected sky130_fd_pr__pnp_05v5_W0p68L0p68 at Ic=1e-07A (B=C=0, so VEB=V(emitter))."
+    },
+    {
+      "name": "veb_large_100n",
+      "expr": "v(E_large_100n)",
+      "unit": "V",
+      "min": 0.05,
+      "max": 0.95,
+      "note": "VEB of diode-connected sky130_fd_pr__pnp_05v5_W3p40L3p40 at Ic=1e-07A."
+    },
+    {
+      "name": "dvbe_100n",
+      "expr": "v(E_small_100n) - v(E_large_100n)",
+      "unit": "V",
+      "min": -0.05,
+      "max": 0.3,
+      "note": "PTAT delta-VBE at matched Ic=1e-07A between the two emitter-size variants (small minus large; small has lower Is so is expected positive)."
+    },
+    {
+      "name": "veb_small_316n",
+      "expr": "v(E_small_316n)",
+      "unit": "V",
+      "min": 0.05,
+      "max": 0.95,
+      "note": "VEB of diode-connected sky130_fd_pr__pnp_05v5_W0p68L0p68 at Ic=3.16e-07A (B=C=0, so VEB=V(emitter))."
+    },
+    {
+      "name": "veb_large_316n",
+      "expr": "v(E_large_316n)",
+      "unit": "V",
+      "min": 0.05,
+      "max": 0.95,
+      "note": "VEB of diode-connected sky130_fd_pr__pnp_05v5_W3p40L3p40 at Ic=3.16e-07A."
+    },
+    {
+      "name": "dvbe_316n",
+      "expr": "v(E_small_316n) - v(E_large_316n)",
+      "unit": "V",
+      "min": -0.05,
+      "max": 0.3,
+      "note": "PTAT delta-VBE at matched Ic=3.16e-07A between the two emitter-size variants (small minus large; small has lower Is so is expected positive)."
+    },
+    {
+      "name": "veb_small_1u",
+      "expr": "v(E_small_1u)",
+      "unit": "V",
+      "min": 0.05,
+      "max": 0.95,
+      "note": "VEB of diode-connected sky130_fd_pr__pnp_05v5_W0p68L0p68 at Ic=1e-06A (B=C=0, so VEB=V(emitter))."
+    },
+    {
+      "name": "veb_large_1u",
+      "expr": "v(E_large_1u)",
+      "unit": "V",
+      "min": 0.05,
+      "max": 0.95,
+      "note": "VEB of diode-connected sky130_fd_pr__pnp_05v5_W3p40L3p40 at Ic=1e-06A."
+    },
+    {
+      "name": "dvbe_1u",
+      "expr": "v(E_small_1u) - v(E_large_1u)",
+      "unit": "V",
+      "min": -0.05,
+      "max": 0.3,
+      "note": "PTAT delta-VBE at matched Ic=1e-06A between the two emitter-size variants (small minus large; small has lower Is so is expected positive)."
+    },
+    {
+      "name": "veb_small_3p16u",
+      "expr": "v(E_small_3p16u)",
+      "unit": "V",
+      "min": 0.05,
+      "max": 0.95,
+      "note": "VEB of diode-connected sky130_fd_pr__pnp_05v5_W0p68L0p68 at Ic=3.16e-06A (B=C=0, so VEB=V(emitter))."
+    },
+    {
+      "name": "veb_large_3p16u",
+      "expr": "v(E_large_3p16u)",
+      "unit": "V",
+      "min": 0.05,
+      "max": 0.95,
+      "note": "VEB of diode-connected sky130_fd_pr__pnp_05v5_W3p40L3p40 at Ic=3.16e-06A."
+    },
+    {
+      "name": "dvbe_3p16u",
+      "expr": "v(E_small_3p16u) - v(E_large_3p16u)",
+      "unit": "V",
+      "min": -0.05,
+      "max": 0.3,
+      "note": "PTAT delta-VBE at matched Ic=3.16e-06A between the two emitter-size variants (small minus large; small has lower Is so is expected positive)."
+    },
+    {
+      "name": "veb_small_10u",
+      "expr": "v(E_small_10u)",
+      "unit": "V",
+      "min": 0.05,
+      "max": 0.95,
+      "note": "VEB of diode-connected sky130_fd_pr__pnp_05v5_W0p68L0p68 at Ic=1e-05A (B=C=0, so VEB=V(emitter))."
+    },
+    {
+      "name": "veb_large_10u",
+      "expr": "v(E_large_10u)",
+      "unit": "V",
+      "min": 0.05,
+      "max": 0.95,
+      "note": "VEB of diode-connected sky130_fd_pr__pnp_05v5_W3p40L3p40 at Ic=1e-05A."
+    },
+    {
+      "name": "dvbe_10u",
+      "expr": "v(E_small_10u) - v(E_large_10u)",
+      "unit": "V",
+      "min": -0.05,
+      "max": 0.3,
+      "note": "PTAT delta-VBE at matched Ic=1e-05A between the two emitter-size variants (small minus large; small has lower Is so is expected positive)."
+    },
+    {
+      "name": "veb_small_31p6u",
+      "expr": "v(E_small_31p6u)",
+      "unit": "V",
+      "min": 0.05,
+      "max": 0.95,
+      "note": "VEB of diode-connected sky130_fd_pr__pnp_05v5_W0p68L0p68 at Ic=3.16e-05A (B=C=0, so VEB=V(emitter))."
+    },
+    {
+      "name": "veb_large_31p6u",
+      "expr": "v(E_large_31p6u)",
+      "unit": "V",
+      "min": 0.05,
+      "max": 0.95,
+      "note": "VEB of diode-connected sky130_fd_pr__pnp_05v5_W3p40L3p40 at Ic=3.16e-05A."
+    },
+    {
+      "name": "dvbe_31p6u",
+      "expr": "v(E_small_31p6u) - v(E_large_31p6u)",
+      "unit": "V",
+      "min": -0.05,
+      "max": 0.3,
+      "note": "PTAT delta-VBE at matched Ic=3.16e-05A between the two emitter-size variants (small minus large; small has lower Is so is expected positive)."
+    },
+    {
+      "name": "veb_small_100u",
+      "expr": "v(E_small_100u)",
+      "unit": "V",
+      "min": 0.05,
+      "max": 0.95,
+      "note": "VEB of diode-connected sky130_fd_pr__pnp_05v5_W0p68L0p68 at Ic=0.0001A (B=C=0, so VEB=V(emitter))."
+    },
+    {
+      "name": "veb_large_100u",
+      "expr": "v(E_large_100u)",
+      "unit": "V",
+      "min": 0.05,
+      "max": 0.95,
+      "note": "VEB of diode-connected sky130_fd_pr__pnp_05v5_W3p40L3p40 at Ic=0.0001A."
+    },
+    {
+      "name": "dvbe_100u",
+      "expr": "v(E_small_100u) - v(E_large_100u)",
+      "unit": "V",
+      "min": -0.05,
+      "max": 0.3,
+      "note": "PTAT delta-VBE at matched Ic=0.0001A between the two emitter-size variants (small minus large; small has lower Is so is expected positive)."
+    }
+  ],
+  "spread_checks": [
+    {
+      "measurement": "veb_small_1u",
+      "min_spread": 0.01,
+      "note": "Guards against a corner-blind harness: VEB at 1uA must move across the -40..125C / tt..fs matrix."
+    }
+  ]
+}

@@ -6,7 +6,7 @@
   "default_pdk_root": "~/.volare",
   "ngspice_lib": "libs.tech/combined/sky130.lib.spice",
   "xschem_pdk_rc": "libs.tech/xschem/xschemrc",
-  "process_corners": ["tt", "ss", "ff", "sf", "fs"],
+  "process_corners": ["tt", "ss", "ff", "sf", "fs", "ll", "hh"],
   "notes": [
     "This file is the reproducibility pin for every record under sim/.",
     "open_pdks_commit is the volare version hash for the sky130 PDK family;",
@@ -15,9 +15,20 @@
     "is passed (in which case the record carries the mismatch).",
     "process_corners are the basic N/P device sections that actually exist in",
     "the PDK ngspice library (verified against the .lib sections of",
-    "libs.tech/combined/sky130.lib.spice). Resistor/capacitor skew sections",
-    "(ll/hh/hl/lh and combinations), mismatch sections (*_mm) and the Monte",
-    "Carlo section (mc) also exist and are available to experiment manifests",
-    "that need them."
+    "libs.tech/combined/sky130.lib.spice). tt/ss/ff/sf/fs are the standard",
+    "MOS/BJT (nonfet.spice-driven) corners -- they also gate PNP Is/Bf/Nf via",
+    "the same corners/<name>/nonfet.spice includes. ll/hh (added for #4's",
+    "resistor-flavor characterization) are the resistor/capacitor-only skew",
+    "corners: they ride on the nominal tt MOS/BJT corner (all ll/hh/hl/lh",
+    "'.lib' sections '.include corners/tt.spice') and instead vary",
+    "parameters_res_low.spice / parameters_res_high.spice, which is where",
+    "sky130_fd_pr__res_high_po / __res_xhigh_po sheet resistance actually",
+    "changes -- confirmed empirically: the standard tt/ss/ff/sf/fs corners",
+    "give byte-identical resistor values (all five include",
+    "parameters_res_nom.spice), so resistor-value process sensitivity only",
+    "shows up on the ll/hh axis. hl/lh (res value tied to the *other*",
+    "axis's cap corner) and the *_mm / mc mismatch sections also exist and",
+    "remain available to experiment manifests that need them but are not",
+    "added to this pinned list until a manifest actually uses them."
   ]
 }

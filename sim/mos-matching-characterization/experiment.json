@@ -1,0 +1,443 @@
+{
+  "slug": "mos-matching-characterization",
+  "title": "5V thick-oxide mirror device operating point (nfet_g5v0d10v5 / pfet_g5v0d10v5)",
+  "claim": "Issue #4 -- sweeps the BSIM operating point (Id, Vth, Vov=Vgs-Vth, gm/Id) of diode-connected sky130_fd_pr__nfet_g5v0d10v5 and sky130_fd_pr__pfet_g5v0d10v5 at two mirror-device sizes (A: W=4/L=1um, area 4um^2; B: W=8/L=2um, area 16um^2, 4x A) and three bias currents (2/5/20 uA, spanning the per-branch range implied by a <50uA total Iq bandgap core) across process/temperature. Combined with the PDK's own static Vth-mismatch (AVT) coefficients (sw_mm_vth0_sky130_fd_pr__nfet_g5v0d10v5 / __pfet_g5v0d10v5 in continuous/models_global.spice -- the PDK models expose no separate beta/mobility mismatch term for this device family, only Vth0), this gives an analytic dId/Id-vs-Vov mismatch projection (dId/Id ~= (gm/Id)*sigma_Vth) reported in design/device-characterization-summary.md, and picks the recommended mirror operating region. Supply axis intentionally fixed at nominal 3.30V: all devices are diode-connected and biased by ideal DC current sources with no supply-referenced terminal in the DUT.",
+  "provenance": "schematic",
+  "provenance_source": "sim/mos-matching-characterization/testbench/tb_mos_matching.sch",
+  "schematic": "testbench/tb_mos_matching.sch",
+  "statistical_convention": "N/A for the corner-matrix operating-point sweep above (deterministic, MC_MM_SWITCH=0). The dId/Id mismatch figure reported in the summary record is an analytic Pelgrom-style projection from the PDK's static AVT coefficient, not a simulated Monte Carlo distribution -- see the summary for the method and its limitations (only Vth mismatch is modeled by the PDK for this device family).",
+  "corners": {
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "temperature_c": [
+      -40,
+      27,
+      125
+    ],
+    "supply_v": [
+      3.3
+    ]
+  },
+  "quick_subset": [
+    [
+      "tt",
+      27,
+      3.3
+    ],
+    [
+      "ss",
+      -40,
+      3.3
+    ],
+    [
+      "ff",
+      125,
+      3.3
+    ]
+  ],
+  "deck": {
+    "options": [],
+    "params": {},
+    "analyses": [
+      "op"
+    ]
+  },
+  "measurements": [
+    {
+      "name": "mna2u_id",
+      "expr": "@m.xmNA2u.msky130_fd_pr__nfet_g5v0d10v5[id]",
+      "unit": "A",
+      "min": 1.8e-06,
+      "max": 2.2e-06,
+      "note": "Forced drain current sanity check, nfet_g5v0d10v5 size A (W=4/L=1um) at Id=2e-06A."
+    },
+    {
+      "name": "mna2u_vth",
+      "expr": "@m.xmNA2u.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.3,
+      "max": 1.3,
+      "note": "BSIM operating-point Vth, nfet_g5v0d10v5 size A (W=4/L=1um) at Id=2e-06A."
+    },
+    {
+      "name": "mna2u_vov",
+      "expr": "@m.xmNA2u.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNA2u.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.0,
+      "max": 1.0,
+      "note": "Overdrive Vgs-Vth (diode-connected, so Vgs is the full gate drive), nfet_g5v0d10v5 size A (W=4/L=1um) at Id=2e-06A."
+    },
+    {
+      "name": "mna2u_gmid",
+      "expr": "@m.xmNA2u.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNA2u.msky130_fd_pr__nfet_g5v0d10v5[id]",
+      "unit": "1/V",
+      "min": 1.0,
+      "max": 30.0,
+      "note": "Transconductance efficiency gm/Id (inversion-level indicator), nfet_g5v0d10v5 size A (W=4/L=1um) at Id=2e-06A."
+    },
+    {
+      "name": "mna5u_id",
+      "expr": "@m.xmNA5u.msky130_fd_pr__nfet_g5v0d10v5[id]",
+      "unit": "A",
+      "min": 4.5e-06,
+      "max": 5.500000000000001e-06,
+      "note": "Forced drain current sanity check, nfet_g5v0d10v5 size A (W=4/L=1um) at Id=5e-06A."
+    },
+    {
+      "name": "mna5u_vth",
+      "expr": "@m.xmNA5u.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.3,
+      "max": 1.3,
+      "note": "BSIM operating-point Vth, nfet_g5v0d10v5 size A (W=4/L=1um) at Id=5e-06A."
+    },
+    {
+      "name": "mna5u_vov",
+      "expr": "@m.xmNA5u.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNA5u.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.0,
+      "max": 1.0,
+      "note": "Overdrive Vgs-Vth (diode-connected, so Vgs is the full gate drive), nfet_g5v0d10v5 size A (W=4/L=1um) at Id=5e-06A."
+    },
+    {
+      "name": "mna5u_gmid",
+      "expr": "@m.xmNA5u.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNA5u.msky130_fd_pr__nfet_g5v0d10v5[id]",
+      "unit": "1/V",
+      "min": 1.0,
+      "max": 30.0,
+      "note": "Transconductance efficiency gm/Id (inversion-level indicator), nfet_g5v0d10v5 size A (W=4/L=1um) at Id=5e-06A."
+    },
+    {
+      "name": "mna20u_id",
+      "expr": "@m.xmNA20u.msky130_fd_pr__nfet_g5v0d10v5[id]",
+      "unit": "A",
+      "min": 1.8e-05,
+      "max": 2.2000000000000003e-05,
+      "note": "Forced drain current sanity check, nfet_g5v0d10v5 size A (W=4/L=1um) at Id=2e-05A."
+    },
+    {
+      "name": "mna20u_vth",
+      "expr": "@m.xmNA20u.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.3,
+      "max": 1.3,
+      "note": "BSIM operating-point Vth, nfet_g5v0d10v5 size A (W=4/L=1um) at Id=2e-05A."
+    },
+    {
+      "name": "mna20u_vov",
+      "expr": "@m.xmNA20u.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNA20u.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.0,
+      "max": 1.0,
+      "note": "Overdrive Vgs-Vth (diode-connected, so Vgs is the full gate drive), nfet_g5v0d10v5 size A (W=4/L=1um) at Id=2e-05A."
+    },
+    {
+      "name": "mna20u_gmid",
+      "expr": "@m.xmNA20u.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNA20u.msky130_fd_pr__nfet_g5v0d10v5[id]",
+      "unit": "1/V",
+      "min": 1.0,
+      "max": 30.0,
+      "note": "Transconductance efficiency gm/Id (inversion-level indicator), nfet_g5v0d10v5 size A (W=4/L=1um) at Id=2e-05A."
+    },
+    {
+      "name": "mnb2u_id",
+      "expr": "@m.xmNB2u.msky130_fd_pr__nfet_g5v0d10v5[id]",
+      "unit": "A",
+      "min": 1.8e-06,
+      "max": 2.2e-06,
+      "note": "Forced drain current sanity check, nfet_g5v0d10v5 size B (W=8/L=2um) at Id=2e-06A."
+    },
+    {
+      "name": "mnb2u_vth",
+      "expr": "@m.xmNB2u.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.3,
+      "max": 1.3,
+      "note": "BSIM operating-point Vth, nfet_g5v0d10v5 size B (W=8/L=2um) at Id=2e-06A."
+    },
+    {
+      "name": "mnb2u_vov",
+      "expr": "@m.xmNB2u.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB2u.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.0,
+      "max": 1.0,
+      "note": "Overdrive Vgs-Vth (diode-connected, so Vgs is the full gate drive), nfet_g5v0d10v5 size B (W=8/L=2um) at Id=2e-06A."
+    },
+    {
+      "name": "mnb2u_gmid",
+      "expr": "@m.xmNB2u.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB2u.msky130_fd_pr__nfet_g5v0d10v5[id]",
+      "unit": "1/V",
+      "min": 1.0,
+      "max": 30.0,
+      "note": "Transconductance efficiency gm/Id (inversion-level indicator), nfet_g5v0d10v5 size B (W=8/L=2um) at Id=2e-06A."
+    },
+    {
+      "name": "mnb5u_id",
+      "expr": "@m.xmNB5u.msky130_fd_pr__nfet_g5v0d10v5[id]",
+      "unit": "A",
+      "min": 4.5e-06,
+      "max": 5.500000000000001e-06,
+      "note": "Forced drain current sanity check, nfet_g5v0d10v5 size B (W=8/L=2um) at Id=5e-06A."
+    },
+    {
+      "name": "mnb5u_vth",
+      "expr": "@m.xmNB5u.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.3,
+      "max": 1.3,
+      "note": "BSIM operating-point Vth, nfet_g5v0d10v5 size B (W=8/L=2um) at Id=5e-06A."
+    },
+    {
+      "name": "mnb5u_vov",
+      "expr": "@m.xmNB5u.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB5u.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.0,
+      "max": 1.0,
+      "note": "Overdrive Vgs-Vth (diode-connected, so Vgs is the full gate drive), nfet_g5v0d10v5 size B (W=8/L=2um) at Id=5e-06A."
+    },
+    {
+      "name": "mnb5u_gmid",
+      "expr": "@m.xmNB5u.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB5u.msky130_fd_pr__nfet_g5v0d10v5[id]",
+      "unit": "1/V",
+      "min": 1.0,
+      "max": 30.0,
+      "note": "Transconductance efficiency gm/Id (inversion-level indicator), nfet_g5v0d10v5 size B (W=8/L=2um) at Id=5e-06A."
+    },
+    {
+      "name": "mnb20u_id",
+      "expr": "@m.xmNB20u.msky130_fd_pr__nfet_g5v0d10v5[id]",
+      "unit": "A",
+      "min": 1.8e-05,
+      "max": 2.2000000000000003e-05,
+      "note": "Forced drain current sanity check, nfet_g5v0d10v5 size B (W=8/L=2um) at Id=2e-05A."
+    },
+    {
+      "name": "mnb20u_vth",
+      "expr": "@m.xmNB20u.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.3,
+      "max": 1.3,
+      "note": "BSIM operating-point Vth, nfet_g5v0d10v5 size B (W=8/L=2um) at Id=2e-05A."
+    },
+    {
+      "name": "mnb20u_vov",
+      "expr": "@m.xmNB20u.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB20u.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.0,
+      "max": 1.0,
+      "note": "Overdrive Vgs-Vth (diode-connected, so Vgs is the full gate drive), nfet_g5v0d10v5 size B (W=8/L=2um) at Id=2e-05A."
+    },
+    {
+      "name": "mnb20u_gmid",
+      "expr": "@m.xmNB20u.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB20u.msky130_fd_pr__nfet_g5v0d10v5[id]",
+      "unit": "1/V",
+      "min": 1.0,
+      "max": 30.0,
+      "note": "Transconductance efficiency gm/Id (inversion-level indicator), nfet_g5v0d10v5 size B (W=8/L=2um) at Id=2e-05A."
+    },
+    {
+      "name": "mpa2u_id",
+      "expr": "@m.xmPA2u.msky130_fd_pr__pfet_g5v0d10v5[id]",
+      "unit": "A",
+      "min": 1.8e-06,
+      "max": 2.2e-06,
+      "note": "Forced drain current sanity check, pfet_g5v0d10v5 size A (W=4/L=1um) at Id=2e-06A."
+    },
+    {
+      "name": "mpa2u_vth",
+      "expr": "@m.xmPA2u.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.3,
+      "max": 1.3,
+      "note": "BSIM operating-point Vth, pfet_g5v0d10v5 size A (W=4/L=1um) at Id=2e-06A."
+    },
+    {
+      "name": "mpa2u_vov",
+      "expr": "@m.xmPA2u.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPA2u.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.0,
+      "max": 1.0,
+      "note": "Overdrive Vgs-Vth (diode-connected, so Vgs is the full gate drive), pfet_g5v0d10v5 size A (W=4/L=1um) at Id=2e-06A."
+    },
+    {
+      "name": "mpa2u_gmid",
+      "expr": "@m.xmPA2u.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPA2u.msky130_fd_pr__pfet_g5v0d10v5[id]",
+      "unit": "1/V",
+      "min": 1.0,
+      "max": 30.0,
+      "note": "Transconductance efficiency gm/Id (inversion-level indicator), pfet_g5v0d10v5 size A (W=4/L=1um) at Id=2e-06A."
+    },
+    {
+      "name": "mpa5u_id",
+      "expr": "@m.xmPA5u.msky130_fd_pr__pfet_g5v0d10v5[id]",
+      "unit": "A",
+      "min": 4.5e-06,
+      "max": 5.500000000000001e-06,
+      "note": "Forced drain current sanity check, pfet_g5v0d10v5 size A (W=4/L=1um) at Id=5e-06A."
+    },
+    {
+      "name": "mpa5u_vth",
+      "expr": "@m.xmPA5u.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.3,
+      "max": 1.3,
+      "note": "BSIM operating-point Vth, pfet_g5v0d10v5 size A (W=4/L=1um) at Id=5e-06A."
+    },
+    {
+      "name": "mpa5u_vov",
+      "expr": "@m.xmPA5u.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPA5u.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.0,
+      "max": 1.0,
+      "note": "Overdrive Vgs-Vth (diode-connected, so Vgs is the full gate drive), pfet_g5v0d10v5 size A (W=4/L=1um) at Id=5e-06A."
+    },
+    {
+      "name": "mpa5u_gmid",
+      "expr": "@m.xmPA5u.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPA5u.msky130_fd_pr__pfet_g5v0d10v5[id]",
+      "unit": "1/V",
+      "min": 1.0,
+      "max": 30.0,
+      "note": "Transconductance efficiency gm/Id (inversion-level indicator), pfet_g5v0d10v5 size A (W=4/L=1um) at Id=5e-06A."
+    },
+    {
+      "name": "mpa20u_id",
+      "expr": "@m.xmPA20u.msky130_fd_pr__pfet_g5v0d10v5[id]",
+      "unit": "A",
+      "min": 1.8e-05,
+      "max": 2.2000000000000003e-05,
+      "note": "Forced drain current sanity check, pfet_g5v0d10v5 size A (W=4/L=1um) at Id=2e-05A."
+    },
+    {
+      "name": "mpa20u_vth",
+      "expr": "@m.xmPA20u.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.3,
+      "max": 1.3,
+      "note": "BSIM operating-point Vth, pfet_g5v0d10v5 size A (W=4/L=1um) at Id=2e-05A."
+    },
+    {
+      "name": "mpa20u_vov",
+      "expr": "@m.xmPA20u.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPA20u.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.0,
+      "max": 1.0,
+      "note": "Overdrive Vgs-Vth (diode-connected, so Vgs is the full gate drive), pfet_g5v0d10v5 size A (W=4/L=1um) at Id=2e-05A."
+    },
+    {
+      "name": "mpa20u_gmid",
+      "expr": "@m.xmPA20u.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPA20u.msky130_fd_pr__pfet_g5v0d10v5[id]",
+      "unit": "1/V",
+      "min": 1.0,
+      "max": 30.0,
+      "note": "Transconductance efficiency gm/Id (inversion-level indicator), pfet_g5v0d10v5 size A (W=4/L=1um) at Id=2e-05A."
+    },
+    {
+      "name": "mpb2u_id",
+      "expr": "@m.xmPB2u.msky130_fd_pr__pfet_g5v0d10v5[id]",
+      "unit": "A",
+      "min": 1.8e-06,
+      "max": 2.2e-06,
+      "note": "Forced drain current sanity check, pfet_g5v0d10v5 size B (W=8/L=2um) at Id=2e-06A."
+    },
+    {
+      "name": "mpb2u_vth",
+      "expr": "@m.xmPB2u.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.3,
+      "max": 1.3,
+      "note": "BSIM operating-point Vth, pfet_g5v0d10v5 size B (W=8/L=2um) at Id=2e-06A."
+    },
+    {
+      "name": "mpb2u_vov",
+      "expr": "@m.xmPB2u.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB2u.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.0,
+      "max": 1.0,
+      "note": "Overdrive Vgs-Vth (diode-connected, so Vgs is the full gate drive), pfet_g5v0d10v5 size B (W=8/L=2um) at Id=2e-06A."
+    },
+    {
+      "name": "mpb2u_gmid",
+      "expr": "@m.xmPB2u.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB2u.msky130_fd_pr__pfet_g5v0d10v5[id]",
+      "unit": "1/V",
+      "min": 1.0,
+      "max": 30.0,
+      "note": "Transconductance efficiency gm/Id (inversion-level indicator), pfet_g5v0d10v5 size B (W=8/L=2um) at Id=2e-06A."
+    },
+    {
+      "name": "mpb5u_id",
+      "expr": "@m.xmPB5u.msky130_fd_pr__pfet_g5v0d10v5[id]",
+      "unit": "A",
+      "min": 4.5e-06,
+      "max": 5.500000000000001e-06,
+      "note": "Forced drain current sanity check, pfet_g5v0d10v5 size B (W=8/L=2um) at Id=5e-06A."
+    },
+    {
+      "name": "mpb5u_vth",
+      "expr": "@m.xmPB5u.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.3,
+      "max": 1.3,
+      "note": "BSIM operating-point Vth, pfet_g5v0d10v5 size B (W=8/L=2um) at Id=5e-06A."
+    },
+    {
+      "name": "mpb5u_vov",
+      "expr": "@m.xmPB5u.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB5u.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.0,
+      "max": 1.0,
+      "note": "Overdrive Vgs-Vth (diode-connected, so Vgs is the full gate drive), pfet_g5v0d10v5 size B (W=8/L=2um) at Id=5e-06A."
+    },
+    {
+      "name": "mpb5u_gmid",
+      "expr": "@m.xmPB5u.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB5u.msky130_fd_pr__pfet_g5v0d10v5[id]",
+      "unit": "1/V",
+      "min": 1.0,
+      "max": 30.0,
+      "note": "Transconductance efficiency gm/Id (inversion-level indicator), pfet_g5v0d10v5 size B (W=8/L=2um) at Id=5e-06A."
+    },
+    {
+      "name": "mpb20u_id",
+      "expr": "@m.xmPB20u.msky130_fd_pr__pfet_g5v0d10v5[id]",
+      "unit": "A",
+      "min": 1.8e-05,
+      "max": 2.2000000000000003e-05,
+      "note": "Forced drain current sanity check, pfet_g5v0d10v5 size B (W=8/L=2um) at Id=2e-05A."
+    },
+    {
+      "name": "mpb20u_vth",
+      "expr": "@m.xmPB20u.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.3,
+      "max": 1.3,
+      "note": "BSIM operating-point Vth, pfet_g5v0d10v5 size B (W=8/L=2um) at Id=2e-05A."
+    },
+    {
+      "name": "mpb20u_vov",
+      "expr": "@m.xmPB20u.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB20u.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+      "unit": "V",
+      "min": 0.0,
+      "max": 1.0,
+      "note": "Overdrive Vgs-Vth (diode-connected, so Vgs is the full gate drive), pfet_g5v0d10v5 size B (W=8/L=2um) at Id=2e-05A."
+    },
+    {
+      "name": "mpb20u_gmid",
+      "expr": "@m.xmPB20u.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB20u.msky130_fd_pr__pfet_g5v0d10v5[id]",
+      "unit": "1/V",
+      "min": 1.0,
+      "max": 30.0,
+      "note": "Transconductance efficiency gm/Id (inversion-level indicator), pfet_g5v0d10v5 size B (W=8/L=2um) at Id=2e-05A."
+    }
+  ],
+  "spread_checks": [
+    {
+      "measurement": "mna5u_vth",
+      "min_spread": 0.03,
+      "note": "Guards against a corner-blind harness: nfet_g5v0d10v5 Vth must move across the tt/ss/ff/sf/fs / -40..125C matrix."
+    }
+  ]
+}
