@@ -1,0 +1,32 @@
+** sch_path: sim/pnp-characterization/testbench/tb_pnp_vbe.sch
+**.subckt tb_pnp_vbe
+XQS0 0 0 E_small_100n sky130_fd_pr__pnp_05v5_W0p68L0p68 m=1 mult=1
+IS0 0 E_small_100n 1e-07
+XQL0 0 0 E_large_100n sky130_fd_pr__pnp_05v5_W3p40L3p40 m=1 mult=1
+IL0 0 E_large_100n 1e-07
+XQS1 0 0 E_small_316n sky130_fd_pr__pnp_05v5_W0p68L0p68 m=1 mult=1
+IS1 0 E_small_316n 3.16e-07
+XQL1 0 0 E_large_316n sky130_fd_pr__pnp_05v5_W3p40L3p40 m=1 mult=1
+IL1 0 E_large_316n 3.16e-07
+XQS2 0 0 E_small_1u sky130_fd_pr__pnp_05v5_W0p68L0p68 m=1 mult=1
+IS2 0 E_small_1u 1e-06
+XQL2 0 0 E_large_1u sky130_fd_pr__pnp_05v5_W3p40L3p40 m=1 mult=1
+IL2 0 E_large_1u 1e-06
+XQS3 0 0 E_small_3p16u sky130_fd_pr__pnp_05v5_W0p68L0p68 m=1 mult=1
+IS3 0 E_small_3p16u 3.16e-06
+XQL3 0 0 E_large_3p16u sky130_fd_pr__pnp_05v5_W3p40L3p40 m=1 mult=1
+IL3 0 E_large_3p16u 3.16e-06
+XQS4 0 0 E_small_10u sky130_fd_pr__pnp_05v5_W0p68L0p68 m=1 mult=1
+IS4 0 E_small_10u 1e-05
+XQL4 0 0 E_large_10u sky130_fd_pr__pnp_05v5_W3p40L3p40 m=1 mult=1
+IL4 0 E_large_10u 1e-05
+XQS5 0 0 E_small_31p6u sky130_fd_pr__pnp_05v5_W0p68L0p68 m=1 mult=1
+IS5 0 E_small_31p6u 3.16e-05
+XQL5 0 0 E_large_31p6u sky130_fd_pr__pnp_05v5_W3p40L3p40 m=1 mult=1
+IL5 0 E_large_31p6u 3.16e-05
+XQS6 0 0 E_small_100u sky130_fd_pr__pnp_05v5_W0p68L0p68 m=1 mult=1
+IS6 0 E_small_100u 0.0001
+XQL6 0 0 E_large_100u sky130_fd_pr__pnp_05v5_W3p40L3p40 m=1 mult=1
+IL6 0 E_large_100u 0.0001
+**.ends
+.end

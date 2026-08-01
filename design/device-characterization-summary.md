@@ -18,7 +18,7 @@ Evidence backing every number below (append-only, `sim/README.md` format):
 
 | Family | Experiment | Record ID | Corners run |
 |---|---|---|---|
-| Substrate PNP | `sim/pnp-characterization/` | `20260801-021248-5b2eb62` (supersedes `20260731-043353-a8c4147`, issue #35) | 15/15 (tt/ss/ff/sf/fs × −40/27/125 °C @ 3.30 V) — PASS |
+| Substrate PNP | `sim/pnp-characterization/` | `20260801-041501-48ac24d` (supersedes `20260731-043353-a8c4147`, issue #35) | 15/15 (tt/ss/ff/sf/fs × −40/27/125 °C @ 3.30 V) — PASS |
 | Poly resistors | `sim/resistor-flavor-characterization/` | `20260731-044337-a8c4147` | 21/21 (tt/ss/ff/sf/fs/ll/hh × −40/27/125 °C @ 3.30 V) — PASS |
 | 5 V MOS mirror devices | `sim/mos-matching-characterization/` | `20260731-045825-a8c4147` | 15/15 (tt/ss/ff/sf/fs × −40/27/125 °C @ 3.30 V) — PASS |
 | Substrate PNP pair, local mismatch (§4, issue #31) | `sim/pnp-mismatch/` | `20260731-232801-ab27f82` | 3 Monte Carlo points (`tt_mm` × −40/27/125 °C, N = 300 each) + 1 MC-off control + 1 second-seed point — PASS |
@@ -42,7 +42,7 @@ the emitter driven** (the connection a bandgap core has, so VEB =
 V(emitter)), each swept across 7 emitter currents (100 nA – 100 µA,
 half-decade steps) at every PVT point.
 
-> **Record `20260801-021248-5b2eb62` supersedes `20260731-043353-a8c4147`
+> **Record `20260801-041501-48ac24d` supersedes `20260731-043353-a8c4147`
 > (issue #35).** The original ladder wired each current source to the
 > subcircuit's **collector** pin with the emitter grounded, so it measured
 > the base-collector junction, not VEB: its ideality table, current-density
@@ -500,7 +500,7 @@ Reproduced exactly at tt / 27 °C / 1 µA:
 | emitter-driven (this section) | 0.742539 V | this record's `vr1a` mean, 0.742569 V |
 
 **Issue #35 fixed §1's schematic and re-ran its full 15-point matrix**
-(record `20260801-021248-5b2eb62`, superseding `20260731-043353-a8c4147`).
+(record `20260801-041501-48ac24d`, superseding `20260731-043353-a8c4147`).
 §1's `veb_small_1u` at tt / 27 °C is now 0.742539 V, agreeing with this
 section's independently written raw-SPICE deck to 30 µV — so the table above
 is retained as a **cross-validation between two independent testbenches**,
@@ -551,7 +551,7 @@ hot corners rather than passing silently.
    recommendation.
 3. ~~Re-run `sim/pnp-characterization` with the emitter driven.~~ **Resolved
    by issue #35** — the schematic now drives the emitter, and record
-   `20260801-021248-5b2eb62` supersedes `20260731-043353-a8c4147` with the
+   `20260801-041501-48ac24d` supersedes `20260731-043353-a8c4147` with the
    full 15-point matrix. §1 has been re-derived from it and §4's
    terminal-connection note is marked resolved above.
 4. **Sweep the PNP `mult` axis.** §4 measures unit devices only; the PDK's
@@ -561,7 +561,7 @@ hot corners rather than passing silently.
 
 ## Evidence
 
-- PNP: `sim/pnp-characterization/records/20260801-021248-5b2eb62.md`
+- PNP: `sim/pnp-characterization/records/20260801-041501-48ac24d.md`
   (+ `.json` twin, netlist snapshot, 15 per-corner logs) — supersedes
   `20260731-043353-a8c4147.md`, which is retained (collector-driven; see §4)
 - Resistors: `sim/resistor-flavor-characterization/records/20260731-044337-a8c4147.md`
