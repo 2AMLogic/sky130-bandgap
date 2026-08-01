@@ -18,7 +18,7 @@ Evidence backing every number below (append-only, `sim/README.md` format):
 
 | Family | Experiment | Record ID | Corners run |
 |---|---|---|---|
-| Substrate PNP | `sim/pnp-characterization/` | `20260731-043353-a8c4147` | 15/15 (tt/ss/ff/sf/fs × −40/27/125 °C @ 3.30 V) — PASS |
+| Substrate PNP | `sim/pnp-characterization/` | `20260801-021248-5b2eb62` (supersedes `20260731-043353-a8c4147`, issue #35) | 15/15 (tt/ss/ff/sf/fs × −40/27/125 °C @ 3.30 V) — PASS |
 | Poly resistors | `sim/resistor-flavor-characterization/` | `20260731-044337-a8c4147` | 21/21 (tt/ss/ff/sf/fs/ll/hh × −40/27/125 °C @ 3.30 V) — PASS |
 | 5 V MOS mirror devices | `sim/mos-matching-characterization/` | `20260731-045825-a8c4147` | 15/15 (tt/ss/ff/sf/fs × −40/27/125 °C @ 3.30 V) — PASS |
 | Substrate PNP pair, local mismatch (§4, issue #31) | `sim/pnp-mismatch/` | `20260731-232801-ab27f82` | 3 Monte Carlo points (`tt_mm` × −40/27/125 °C, N = 300 each) + 1 MC-off control + 1 second-seed point — PASS |
@@ -37,87 +37,149 @@ its process/supply-axis justification inline in the record.
 ## 1. Substrate PNP (`sky130_fd_pr__pnp_05v5_W0p68L0p68` / `_W3p40L3p40`)
 
 Testbench: `sim/pnp-characterization/testbench/tb_pnp_vbe.sch` — both
-emitter-size variants diode-connected (B=C=0), each swept across 7
-collector currents (100 nA – 100 µA, half-decade steps) at every PVT point.
+emitter-size variants diode-connected with **base and collector grounded and
+the emitter driven** (the connection a bandgap core has, so VEB =
+V(emitter)), each swept across 7 emitter currents (100 nA – 100 µA,
+half-decade steps) at every PVT point.
 
-> ⚠ **Read §4's "terminal-connection discrepancy" note before quoting the
-> absolute VEB / dVBE numbers in this section.** The mismatch experiment
-> (§4) reproduced this experiment's numbers exactly with the *collector*
-> driven and the emitter grounded, which is not the connection a bandgap
-> core has. The §1 numbers below are reported as measured and are not edited
-> here (`sim/` is append-only, and re-running this experiment is out of
-> issue #31's scope) — §4 carries the emitter-driven figures for the same
-> two devices.
+> **Record `20260801-021248-5b2eb62` supersedes `20260731-043353-a8c4147`
+> (issue #35).** The original ladder wired each current source to the
+> subcircuit's **collector** pin with the emitter grounded, so it measured
+> the base-collector junction, not VEB: its ideality table, current-density
+> window and dVBE figures did not describe the quantity a bandgap core uses.
+> The superseded record is retained under
+> `sim/pnp-characterization/records/` (`sim/` is append-only); **every
+> number in this section comes from the new, emitter-driven record**, and
+> the two are not interchangeable — VEB at tt / 27 °C / 1 µA moved from
+> 0.545166 V (collector-driven) to 0.742539 V (emitter-driven). §4's
+> independently written raw-SPICE deck measures 0.742569 V for the same
+> device at the same bias, an agreement to 30 µV that is now a genuine
+> cross-validation of both testbenches rather than a discrepancy.
 
 ### Ideality factor (n), extracted from consecutive half-decade VEB steps
 
-n = ΔVEB / (V_T · ln(ΔIc)), evaluated at the `tt` corner (representative —
+n = ΔVEB / (V_T · ln(ΔIe)), evaluated at the `tt` corner (representative —
 see "process-corner sensitivity" below):
 
-| Ic step | n, small (`W0p68L0p68`, area 0.4624 µm²) | n, large (`W3p40L3p40`, area 11.56 µm²) |
+| Ie step | n, small (`W0p68L0p68`, area 0.4624 µm²) | n, large (`W3p40L3p40`, area 11.56 µm²) |
 |---|---|---|
-| 100 nA → 316 nA | 1.01 | 1.00 |
-| 316 nA → 1 µA | 1.02 | 1.00 |
-| 1 µA → 3.16 µA | 1.06 | 1.01 |
-| 3.16 µA → 10 µA | 1.20 | 1.04 |
-| 10 µA → 31.6 µA | 1.62 | 1.12 |
-| 31.6 µA → 100 µA | 2.95 | 1.35 |
+| 100 nA → 316 nA | 1.045 | 1.012 |
+| 316 nA → 1 µA | 1.061 | 1.012 |
+| 1 µA → 3.16 µA | 1.111 | 1.014 |
+| 3.16 µA → 10 µA | 1.249 | 1.025 |
+| 10 µA → 31.6 µA | 1.565 | 1.057 |
+| 31.6 µA → 100 µA | 2.226 | 1.142 |
 
-(values shown at 27 °C; −40/125 °C tell the same qualitative story — see
-the full record for all three temperatures)
+(values shown at 27 °C; the −40/125 °C ladders track these within ±0.06 on
+every step except the last, where n_small is 2.39 at −40 °C and 2.14 at
+125 °C — see the full record for all three temperatures)
+
+Note the floor: the small device never reaches n = 1.00, even at 100 nA.
+That is not a fitting artifact — its model card carries `nf = 1.028` against
+the large device's `nf = 1.000` (`continuous/models_bjt.spice`), and that
+2.8 % emission-coefficient offset turns out to be the single largest term in
+the dVBE figures below.
 
 **Usable current-density window**: ideality stays ≲ 1.1 (near-ideal) up to
-~3 µA on the small unit device (current density J = Ic/area ≈ 6.8 µA/µm²)
-and up to ~10 µA on the large unit (J ≈ 0.87 µA/µm²). Beyond that, series
-resistance / high-injection roll-off sets in and worsens quickly — n
-exceeds 1.6 by 31.6 µA on the small device. Because rolloff tracks current
-density rather than absolute current, the large device (25× area) buys
-roughly the same ideality headroom at ~10× higher absolute current, not the
-full 25× — the two unit devices are not simple current-density clones of
-each other.
+~1 µA on the small unit device (current density J = Ie/area ≈ 2.2 µA/µm²)
+and up to ~10 µA on the large unit (J ≈ 0.87 µA/µm², n ≤ 1.03 there). Beyond
+that the roll-off worsens quickly — n_small is 1.25 by 10 µA and 1.57 by
+31.6 µA, while n_large is still only 1.06 at 31.6 µA.
 
-**Recommendation for sizing**: keep each *unit* PNP's collector current at
-or below ~3 µA (small device) / ~10 µA (large device) if the design wants
-n ≲ 1.1 everywhere in the −40…125 °C range. This comfortably fits inside
-the < 50 µA total Iq budget for a handful of unit devices, but rules out
-running a single small-unit device at 20–50 µA if ideality matters at the
-edge of the temperature range — favor the large unit or a paralleled array
-of small units for any leg carrying tens-of-µA current density.
+The asymmetry is **not** a current-density effect, and the two unit devices
+are emphatically not current-density clones of each other: the small device
+tolerates ~2.5× the *density* of the large one before rolling off. The model
+card says why — the degradation terms scale nothing like the 25× area ratio:
+
+| Parameter | small `W0p68L0p68` | large `W3p40L3p40` | ratio |
+|---|---|---|---|
+| `re` (emitter series R) | 219 Ω | 5.38 Ω | 41× |
+| `rb` (base series R) | 316 Ω | 73.3 Ω | 4.3× |
+| `ikf` (high-injection knee) | 33.1 µA | 386 µA | 11.7× |
+| emitter area | 0.4624 µm² | 11.56 µm² | 25× |
+
+Roll-off on the small device is therefore dominated by its 219 Ω emitter
+resistance and by an `ikf` knee that sits *inside* the swept ladder — neither
+of which a density-normalised argument predicts.
+
+**Recommendation for sizing**: keep each *unit* PNP's emitter current at or
+below ~1 µA (small device) / ~10 µA (large device) if the design wants
+n ≲ 1.1 everywhere in the −40…125 °C range. Both fit inside the < 50 µA
+total Iq budget for a handful of unit devices, but this now rules out running
+a single small-unit device even at 3–10 µA where ideality matters at the edge
+of the temperature range (n_small = 1.13 already at the 1 → 3.16 µA step at
+125 °C) — favor the large unit, or parallel small units, for any leg carrying
+more than about a microamp.
 
 ### Process-corner sensitivity
 
-VEB is effectively **insensitive to process corner** at fixed temperature:
-across tt/ss/ff/sf/fs at 27 °C and 1 µA, VEB varies by < 20 µV (5th
-significant figure) — e.g. `veb_small_1u` = 0.545166–0.545167 V across all
-five corners. Temperature is the dominant — effectively only — sensitivity
-axis for this device family in this PDK. (Confirmed in the full record;
-this matches `sim/pdk.json`'s note that `tt/ss/ff/sf/fs` corners gate
-BJT `Is`/`Bf`/`Nf` only weakly relative to the MOSFET parameters they're
-named for.)
+VEB is **weakly sensitive to process corner** at fixed temperature, and
+**strongly sensitive to temperature**. Across tt/ss/ff/sf/fs at 1 µA the
+small device's VEB spans:
+
+| Temperature | `veb_small_1u` range across the 5 process corners | spread |
+|---|---|---|
+| −40 °C | 0.851572 V (sf) – 0.854474 V (fs) | 2.90 mV (0.34 %) |
+| 27 °C | 0.740969 V (sf) – 0.743224 V (fs) | 2.26 mV (0.30 %) |
+| 125 °C | 0.565701 V (sf) – 0.567341 V (fs) | 1.64 mV (0.29 %) |
+
+against 287 mV of movement over the same −40…125 °C span at `tt`
+(≈ −1.74 mV/°C). The corner ordering is consistent (sf lowest, fs highest)
+at every temperature, so the process axis behaves as a small systematic
+offset rather than noise. This is ≈ 100× larger than the < 20 µV the
+superseded collector-driven record reported — the base-collector junction
+really was nearly corner-blind; the emitter-base junction is not, though
+2–3 mV is still small next to the ±15 % resistor spread of §2. Temperature
+remains the dominant sensitivity axis for this device family. (Consistent
+with `sim/pdk.json`'s note that `tt/ss/ff/sf/fs` gate BJT `Is`/`Bf`/`Nf`
+only weakly relative to the MOSFET parameters they are named for.)
 
 ### dVBE (PTAT term) between the two emitter-size variants — a correction to the topology survey
 
 `spec/topology-survey.md` computed the survey's PTAT-gain expectations from
 the two devices' static model-card `Is` values (`Is_small ≈ 1.51e-18 A`,
 `Is_large ≈ 7.12e-18 A`, ratio ≈ 4.72). **The simulated dVBE at matched
-current implies a materially smaller — and temperature-dependent — Is
-ratio**:
+current is larger than that assumption implies — roughly a 10× effective
+ratio, and nearly temperature-independent**:
 
-| Corner | dVBE @ 100 nA (matched Ic) | Implied `Is_large/Is_small` |
+| Corner | dVBE @ 100 nA (matched Ie) | dVBE @ 1 µA | Implied `Is_large/Is_small` (from the 100 nA column, n = 1) |
+|---|---|---|---|
+| tt, −40 °C | 47.84 mV | 49.45 mV | 10.8 |
+| tt, 27 °C | 60.52 mV | 62.97 mV | 10.4 |
+| tt, 125 °C | 79.14 mV | 82.24 mV | 10.0 |
+
+**This inverts the conclusion the superseded record supported.** That record
+(collector-driven) reported 5.45 / 14.40 / 37.52 mV and an implied ratio
+climbing 1.31 → 2.98 with temperature — i.e. *less* PTAT than the model card
+promised, and strongly temperature-dependent. The emitter-driven measurement
+says the opposite on both counts. Anything sized against those three numbers
+needs re-deriving.
+
+The extra PTAT is real but **it is not extra area ratio**, and the
+distinction matters for sizing. Decomposing the 27 °C figure against the
+model card:
+
+| Term | at 27 °C | mechanism |
 |---|---|---|
-| tt, −40 °C | 5.45 mV | 1.31 |
-| tt, 27 °C | 14.40 mV | 1.75 |
-| tt, 125 °C | 37.52 mV | 2.98 |
+| `V_T · ln(Is_large/Is_small)` | 40.2 mV | the genuine 4.72× `Is` ratio — true PTAT |
+| `(nf_small − 1) · VBE_small` | 18.1 mV | small device's `nf = 1.028` vs large's `1.000` — a fraction of a *CTAT* quantity |
+| `ise` / `re` / `rb` residual | 2.3 mV | series and non-ideal-injection terms |
+| **measured total** | **60.5 mV** | |
 
-This is a genuine, measured correction, not a restatement of the datasheet
-ratio: a Kuijk-style core's `K·V_T·ln(N)` PTAT term, sized against the
-naive static-`Is`-ratio assumption, will get **less** PTAT voltage out of
-these two fixed unit devices than that assumption implies, and the shortfall
-is itself temperature-dependent (worse at cold, better at hot). Any
-schematic-entry sizing (#8) or offset-budget analysis (#9) that leans on a
-`ln(N)` PTAT gain from this device pair should use the measured dVBE
-figures above (or re-derive from a matched-current sweep at its actual bias
-point), not the raw model-card `Is` ratio. Building a larger effective
+Because the second term is a fixed fraction of a CTAT voltage, the measured
+dVBE is **sub-PTAT**: anchored at −40 °C, strict proportionality to absolute
+temperature would predict 61.6 mV at 27 °C and 81.7 mV at 125 °C against the
+measured 60.5 and 79.1 mV — a 1.7 % / 3.1 % shortfall that grows with
+temperature. A `K·ΔVBE` core sized on the assumption that ΔVBE is exactly
+proportional to T will therefore see a residual, systematically-signed
+curvature term from this device pair, on top of the usual VBE curvature.
+
+Practical consequences for #8/#9: use the measured dVBE figures above (or
+re-derive from a matched-current sweep at the actual bias point) rather than
+either the raw model-card `Is` ratio or an `N`-from-geometry argument — the
+pair's *effective* `ln(N)` is ≈ ln(10.4), not ln(4.72), but roughly a third
+of it is `nf`-derived and does not scale when unit devices are paralleled.
+Building a larger effective
 area ratio via a paralleled unit-device array (as `spec/topology-survey.md`
 already requires for other reasons — PNP geometries are fixed, not
 continuously sized) is the mitigation if a topology needs more PTAT gain
@@ -377,7 +439,8 @@ Two properties matter more than the absolute numbers:
 
 Sizing a ~1.2 V reference from this pair at 1 µA/unit and 27 °C: the small
 unit's VBE is 0.7426 V and the pair's ΔVBE is 63.0 mV (both emitter-driven,
-this record), so the PTAT gain a Kuijk/Brokaw-style core needs is
+this record; §1's superseding record independently measures 0.742539 V and
+63.0 mV), so the PTAT gain a Kuijk/Brokaw-style core needs is
 K = (1.2 − 0.7426)/0.0630 ≈ **7.3**. Every millivolt in series with ΔVBE is
 amplified by that same K, which turns the numbers above into a hard budget:
 
@@ -421,29 +484,33 @@ out near 0.13 %, sky130's is 1.662 %. Any offset-budget intuition carried
 over from the gf180 port is therefore optimistic by an order of magnitude
 and must be re-derived here.
 
-### Terminal-connection discrepancy vs §1 (flagged, not fixed here)
+### Terminal-connection discrepancy vs §1 — RESOLVED (issue #35)
 
 While building this deck the PNP terminal ordering was checked against the
 PDK subcircuit definition (`.subckt sky130_fd_pr__pnp_05v5_W0p68L0p68 c b e`)
-rather than assumed. `sim/pnp-characterization`'s committed netlist snapshot
-instantiates `XQS0 E_small_100n 0 0 sky130_fd_pr__pnp_05v5_W0p68L0p68`, which
-binds the driven node to pin 1 = **`c`**: the collector is biased and the
-emitter is grounded, so that experiment measured the base-collector junction,
-not VEB. Reproduced exactly at tt / 27 °C / 1 µA:
+rather than assumed, and §1's then-current netlist snapshot turned out to
+instantiate `XQS0 E_small_100n 0 0 sky130_fd_pr__pnp_05v5_W0p68L0p68` — the
+driven node on pin 1 = **`c`**, so the collector was biased with the emitter
+grounded and that experiment measured the base-collector junction, not VEB.
+Reproduced exactly at tt / 27 °C / 1 µA:
 
 | connection | V at the driven node, small unit | matches |
 |---|---|---|
-| collector-driven (§1's netlist) | 0.545166 V | §1's `veb_small_1u` = 0.545166 V |
+| collector-driven (§1's superseded netlist) | 0.545166 V | superseded record's `veb_small_1u` = 0.545166 V |
 | emitter-driven (this section) | 0.742539 V | this record's `vr1a` mean, 0.742569 V |
 
-The emitter-driven figures are the ones a bandgap core sees, and they change
-the PTAT picture materially: **63.0 mV of ΔVBE at 27 °C / 1 µA rather than
-§1's 15.2 mV**, i.e. an implied Is ratio of ≈ 11.4 rather than ≈ 1.75. §1 is
-left as recorded (`sim/` is append-only and re-running that experiment is
-outside issue #31's scope); a follow-up issue is filed to re-run
-`sim/pnp-characterization` with the corrected connection and supersede its
-record. Until then, **use §4's ΔVBE for any PTAT-gain sizing** and treat §1's
-ideality/dVBE tables as pertaining to the base-collector junction.
+**Issue #35 fixed §1's schematic and re-ran its full 15-point matrix**
+(record `20260801-021248-5b2eb62`, superseding `20260731-043353-a8c4147`).
+§1's `veb_small_1u` at tt / 27 °C is now 0.742539 V, agreeing with this
+section's independently written raw-SPICE deck to 30 µV — so the table above
+is retained as a **cross-validation between two independent testbenches**,
+not as an open discrepancy. §1's ideality table, current-density window and
+dVBE figures have all been re-derived from the new record and are again the
+authoritative numbers for PTAT-gain sizing; the root cause (the `pnp_05v5`
+symbol's `pinnumber` attributes disagreeing with the order xschem actually
+netlists) is documented in `tb_pnp_vbe.sch`'s header, and the experiment's
+`veb_*` sanity window was tightened so a recurrence fails the harness at the
+hot corners rather than passing silently.
 
 ---
 
@@ -459,8 +526,9 @@ ideality/dVBE tables as pertaining to the base-collector junction.
   items in the form #9 can consume directly.
 - §4 mirrors gf180-bandgap's `sim/device-pnp-mismatch/` so the two canary
   ports' mismatch figures are directly comparable; the divergences (`.json`
-  twin, MC-off control point, second-seed point, terminal connection) are
-  listed in the record.
+  twin, MC-off control point, second-seed point) are listed in the record.
+  The terminal-connection divergence that record lists is resolved by issue
+  #35 — §1 and §4 now agree to 30 µV on VEB at tt / 27 °C / 1 µA.
 - Scope: 3.3 V primary only, per DR-001
   (`spec/decision-records/DR-001-supply-flavor-scope.md`); no 1.8 V-flavor
   device characterization performed.
@@ -481,13 +549,11 @@ ideality/dVBE tables as pertaining to the base-collector junction.
    µm² (size B) evaluated here; once #8 fixes actual mirror ratios, a sizing
    sweep extending this experiment's device-size axis would sharpen the
    recommendation.
-3. **Re-run `sim/pnp-characterization` with the emitter driven.** §4's
-   terminal-connection note shows that experiment's schematic binds the
-   driven node to the subcircuit's collector pin, so its VEB ladder,
-   ideality table and dVBE figures describe the base-collector junction. The
-   fix is a new record that supersedes `20260731-043353-a8c4147`, not an
-   edit (`sim/` is append-only). Filed separately; deliberately out of scope
-   for issue #31, whose PR only adds §4.
+3. ~~Re-run `sim/pnp-characterization` with the emitter driven.~~ **Resolved
+   by issue #35** — the schematic now drives the emitter, and record
+   `20260801-021248-5b2eb62` supersedes `20260731-043353-a8c4147` with the
+   full 15-point matrix. §1 has been re-derived from it and §4's
+   terminal-connection note is marked resolved above.
 4. **Sweep the PNP `mult` axis.** §4 measures unit devices only; the PDK's
    `1/sqrt(mult)` term predicts the array benefit but the prediction is
    unmeasured here. Once #8 fixes the array size, one extra Monte Carlo
@@ -495,8 +561,9 @@ ideality/dVBE tables as pertaining to the base-collector junction.
 
 ## Evidence
 
-- PNP: `sim/pnp-characterization/records/20260731-043353-a8c4147.md`
-  (+ `.json` twin, netlist snapshot, 15 per-corner logs)
+- PNP: `sim/pnp-characterization/records/20260801-021248-5b2eb62.md`
+  (+ `.json` twin, netlist snapshot, 15 per-corner logs) — supersedes
+  `20260731-043353-a8c4147.md`, which is retained (collector-driven; see §4)
 - Resistors: `sim/resistor-flavor-characterization/records/20260731-044337-a8c4147.md`
   (+ `.json` twin, netlist snapshot, 21 per-corner logs)
 - Resistor TC single-length re-check (issue #25):
