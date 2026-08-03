@@ -25,8 +25,10 @@ import os
 import platform
 import re
 import shutil
+import signal
 import subprocess
 import sys
+import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -398,6 +400,32 @@ def parse_measurements(log: str) -> dict[str, float]:
     return values
 
 
+def signal_name(signum: int) -> str:
+    """POSIX name for a signal number, e.g. 9 -> 'SIGKILL'."""
+    try:
+        return signal.Signals(signum).name
+    except ValueError:
+        return f"signal {signum}"
+
+
+def exit_note(rc: int, timed_out: bool, killed_by_signal: int | None) -> str:
+    """One-line explanation of *why* a corner produced no measurement.
+
+    The three failure modes are otherwise indistinguishable in the record: the
+    harness's own timeout, a child killed by a signal from outside the harness
+    (OOM killer, an operator, a session reaper), and a clean nonzero exit from
+    ngspice itself. See issue #48.
+    """
+    if timed_out:
+        return " (TIMEOUT — the harness killed ngspice after --timeout expired)"
+    if killed_by_signal is not None:
+        return (
+            f" ({signal_name(killed_by_signal)} — ngspice was killed by a signal from"
+            " OUTSIDE the harness; the harness did not time it out)"
+        )
+    return ""
+
+
 def run_corner(
     exp: Experiment,
     pdk: Pdk,
@@ -411,6 +439,7 @@ def run_corner(
     deck_path = run_dir / f"{corner.id}.deck.spice"
     deck_path.write_text(deck_text)
 
+    started = time.monotonic()
     try:
         proc = subprocess.run(
             ["ngspice", "-b", deck_path.name],
@@ -431,6 +460,12 @@ def run_corner(
             stderr = stderr.decode(errors="replace")
         rc = -1
         timed_out = True
+    elapsed_s = time.monotonic() - started
+
+    # subprocess reports a signal-killed child as a NEGATIVE return code. The
+    # harness's own timeout path above is the only place that sets rc = -1, so
+    # any other negative rc means something outside the harness killed ngspice.
+    killed_by_signal = None if timed_out else (-rc if rc < 0 else None)
 
     values = parse_measurements(stdout + "\n" + stderr)
     checks = []
@@ -464,7 +499,8 @@ def run_corner(
                 f"# corner: {corner.id}",
                 f"# process={corner.process} temp={fmt_temp(corner.temp_c)}C "
                 f"supply={corner.supply_v:.2f}V",
-                f"# ngspice exit: {rc}{' (TIMEOUT)' if timed_out else ''}",
+                f"# ngspice exit: {rc}{exit_note(rc, timed_out, killed_by_signal)}",
+                f"# wall clock: {elapsed_s:.1f}s (--timeout was {timeout}s)",
                 f"# result: {'PASS' if ok else 'FAIL'}",
                 "",
                 "# ==== deck (exact input given to ngspice) ====",
@@ -487,6 +523,12 @@ def run_corner(
         "supply_v": corner.supply_v,
         "ngspice_exit": rc,
         "timed_out": timed_out,
+        "killed_by_signal": killed_by_signal,
+        "killed_by_signal_name": (
+            signal_name(killed_by_signal) if killed_by_signal is not None else None
+        ),
+        "elapsed_s": round(elapsed_s, 3),
+        "timeout_s": timeout,
         "measurements": checks,
         "pass": ok,
         "log": str(log_path.relative_to(REPO_ROOT)),
@@ -598,9 +640,19 @@ def render_record(record: dict) -> str:
         why = ""
         fails = [c["reason"] for c in res["measurements"] if not c["pass"] and c["reason"]]
         if res["timed_out"]:
-            fails.append("ngspice timed out")
+            fails.append(
+                "ngspice TIMED OUT — the harness killed it after "
+                f"--timeout {res.get('timeout_s', '?')}s"
+            )
+        elif res.get("killed_by_signal") is not None:
+            fails.append(
+                f"ngspice was KILLED BY {res['killed_by_signal_name']} "
+                f"(exit {res['ngspice_exit']}) after {res.get('elapsed_s', '?')}s — a signal "
+                "from OUTSIDE the harness, not a harness timeout; investigate the machine "
+                "(OOM killer, session reaper, operator), not --timeout"
+            )
         elif res["ngspice_exit"] != 0:
-            fails.append(f"ngspice exit {res['ngspice_exit']}")
+            fails.append(f"ngspice exit {res['ngspice_exit']} (clean nonzero exit, no signal)")
         if fails:
             why = f" — {'; '.join(fails)}"
         lines.append(f"  - {res['corner_id']}: {verdict} ({detail}){why}")
