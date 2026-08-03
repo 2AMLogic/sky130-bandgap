@@ -91,7 +91,7 @@ C {devices/code_shown.sym} 100 -1350 0 0 {name=TB_SEED only_toplevel=true value=
 * gate settles near 1.97 V, so a 2.2 V guess sits on the wrong side of it;
 * the deterministic runs converge anyway, but under Monte Carlo 12 of 40
 * draws at -40 degC converged instead to the core's other stable solution
-* (VOUT ~ 0.52 V), which would have shown up as a 350 mV "sigma". With 2.0 V
+* (VOUT ~ 0.52 V), which would have shown up as a 350 mV sigma. With 2.0 V
 * the same 40 draws all land on the operating solution. Verified not to be
 * the tail wagging the dog: at 27 degC, where neither guess produces a
 * degenerate sample, the two nodesets give sigma(VOUT) = 5.57 vs 5.67 mV and
