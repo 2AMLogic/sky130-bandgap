@@ -6,7 +6,7 @@
     "worktree:return": "./.loom/scripts/worktree-return.sh",
     "check:ci": "npm run lint && npm run test",
     "check:all": "npm run check:ci",
-    "test": "find sim -name '*.py' -print0 | xargs -0 -n1 python3 -m py_compile",
-    "lint": "find sim -name '*.json' -print0 | xargs -0 -n1 python3 -m json.tool > /dev/null && bash -n sim/bin/pdk-env.sh && bash -n loom.sh"
+    "test": "find sim layout -name '*.py' -print0 | xargs -0 -n1 python3 -m py_compile",
+    "lint": "find sim layout -name '*.json' -not -path 'layout/.venv/*' -print0 | xargs -0 -n1 python3 -m json.tool > /dev/null && bash -n sim/bin/pdk-env.sh && bash -n layout/bin/setup-venv.sh && bash -n layout/bin/run-trivial-cell-flow.sh && bash -n loom.sh"
   }
 }

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "file": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-14/layout/trivial-cell/reports/20260803-133256-69a6ac2/trivial_mos_array.gds",
+  "deck": "sky130",
+  "dbu_um": 0.001,
+  "status": "clean",
+  "violation_count": 0,
+  "rule_counts": {},
+  "violations": [],
+  "coverage": {
+    "deck_layers": [
+      "65/20",
+      "66/20",
+      "66/44",
+      "67/20",
+      "67/44",
+      "68/20"
+    ],
+    "layers_checked": [
+      "65/20",
+      "66/20",
+      "66/44",
+      "67/20"
+    ],
+    "layers_in_stream_without_rules": [],
+    "rules_skipped": [
+      "mcon.space.1",
+      "met1.enclosing.mcon.1",
+      "met1.space.1",
+      "met1.width.1"
+    ]
+  },
+  "provenance": {
+    "klt_version": "0.1.0",
+    "klayout_version": "0.30.10",
+    "pdk": null,
+    "deck": {
+      "name": "sky130",
+      "content_hash": "sha256:2f8bb10b03bb8d96871e48bb994fc11f0489d9055f2eb2a16d63a5fb0ff55599"
+    }
+  }
+}
