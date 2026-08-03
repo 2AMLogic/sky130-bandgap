@@ -1,0 +1,655 @@
+{
+  "record_id": "20260803-151726-69a6ac2",
+  "timestamp": "2026-08-03T15:17:26Z",
+  "author": "robb@2amlogic.com",
+  "supersedes": "",
+  "experiment": {
+    "slug": "monte-carlo-untrimmed",
+    "title": "Untrimmed +/-1% output-accuracy claim by Monte Carlo, with PNP/resistor/MOS contributor breakdown",
+    "claim": "README.md 'Target specification (DRAFT)' row 'Output reference' (1.20 V +/-1% untrimmed) -- the MISMATCH half of that claim. sim/output-voltage-tc/ (issue #11) already shows global process/supply corners move VREF(27 degC) by well under 0.2%; this record measures the local-mismatch spread that corner runs cannot see: PNP pair, PTAT/output res_high_po ratio, and mirror/amp MOS device mismatch, sampled together (the actual untrimmed distribution) and each in isolation (the contributor breakdown #13/#15 need), at nominal process and at both temperature extremes. Records are PROVISIONAL against the draft spec until issue #1 ratifies it, per the same convention #11's records use.",
+    "provenance": "schematic",
+    "provenance_source": "sim/output-voltage-tc/testbench/tb_vref_tc.sch",
+    "statistical_convention": "N = 30 Monte Carlo samples per mismatch point (N = 15 for control points), local mismatch only (section tt_mm: MC_MM_SWITCH=1, MC_PR_SWITCH=0); 1 sigma sample standard deviation (N-1), fixed setseed 20260803 (second-seed point 20260804)"
+  },
+  "mismatch_model": {
+    "switch": "MC_MM_SWITCH (set by the .lib section: 0 in tt/ss/ff/sf/fs, 1 in *_mm)",
+    "sections": {
+      "mismatch": "tt_mm",
+      "control": "tt"
+    },
+    "family_params": {
+      "pnp": [
+        "sw_mm_sky130_fd_pr__pnp_05v5_W0p68L0p68_is",
+        "sw_mm_sky130_fd_pr__pnp_05v5_W0p68L0p68_bf"
+      ],
+      "resistor": [
+        "sw_mm_sky130_fd_pr__res_high_po",
+        "sw_mm_sky130_fd_pr__res_generic_po_head"
+      ],
+      "mos": [
+        "sw_mm_vth0_sky130_fd_pr__nfet_g5v0d10v5",
+        "sw_mm_vth0_sky130_fd_pr__pfet_g5v0d10v5"
+      ]
+    },
+    "isolation_mechanism": "each family's mismatch sigma coefficient is an ordinary top-level .param; redefining it to 0 AFTER the .lib <section> include silences that family's AGAUSS() contribution while MC_MM_SWITCH stays 1 for every other family -- verified empirically against the pinned PDK",
+    "source": "libs.tech/combined/continuous/models_{bjt,fet,resistors,global}.spice"
+  },
+  "spec_window": {
+    "nominal_v": 1.2,
+    "window_v": [
+      1.188,
+      1.212
+    ]
+  },
+  "statistics": {
+    "n_samples": 30,
+    "n_control": 15,
+    "seed_a": 20260803,
+    "seed_b": 20260804
+  },
+  "pdk": {
+    "root": "/Users/rwalters/.volare",
+    "variant": "sky130A",
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "pinned_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "matches_pin": true,
+    "lib_file": "/Users/rwalters/.volare/sky130A/libs.tech/combined/sky130.lib.spice"
+  },
+  "tools": {
+    "ngspice": "ngspice-46 : Circuit level simulation program",
+    "xschem": "XSCHEM V3.4.7",
+    "platform": "Darwin 25.6.0 arm64",
+    "python": "3.14.6"
+  },
+  "git": {
+    "sha": "69a6ac2",
+    "branch": "feature/issue-12",
+    "dirty": true
+  },
+  "points": [
+    {
+      "corner_id": "tt_mm_all_-40c",
+      "role": "mismatch-all",
+      "purpose": "all three mismatch families active -- the untrimmed accuracy distribution this issue's yield claim is read from",
+      "section": "tt_mm",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "zeroed_params": [],
+      "requested_samples": 30,
+      "parsed_samples": 24,
+      "excluded_samples": 6,
+      "excluded_vout_v": [
+        0.5419186,
+        0.5031377,
+        0.4825789,
+        0.6392519,
+        0.5559525,
+        0.5752213
+      ],
+      "stats": {
+        "n": 24,
+        "mean": 1.2088896666666666,
+        "sigma": 0.00412173478321791,
+        "min": 1.201123,
+        "max": 1.216357
+      },
+      "empirical_yield": 0.75,
+      "gaussian_yield": 0.7747605488674403,
+      "convergence": [
+        {
+          "n": 6,
+          "sigma": 0.0041949486488712375,
+          "mean": 1.2099631666666666
+        },
+        {
+          "n": 12,
+          "sigma": 0.003872030471173596,
+          "mean": 1.2085851666666667
+        },
+        {
+          "n": 18,
+          "sigma": 0.004036692315862239,
+          "mean": 1.2083971666666666
+        },
+        {
+          "n": 24,
+          "sigma": 0.00412173478321791,
+          "mean": 1.2088896666666666
+        }
+      ],
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 30 samples, expected 30"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "24/30 draws converged to the operating solution (VOUT in 0.9..1.5 V); 6 landed on the core's other stable branch and are excluded from every statistic. This is a STARTUP observation (issue #10 -- no startup circuit exists), not a mismatch one, and is sensitive to tb_vref_tc.sch's own .nodeset (reused unmodified here per this issue's reference-only note on #11's testbench). Excluded VOUT values: 0.5419 V, 0.5031 V, 0.4826 V, 0.6393 V, 0.5560 V, 0.5752 V"
+        },
+        {
+          "name": "sigma_nonzero",
+          "pass": true,
+          "detail": "sigma(vout) = 4.1217 mV (a zero means the mismatch mechanism never reached the model)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_all_27c",
+      "role": "mismatch-all",
+      "purpose": "all three mismatch families active -- the untrimmed accuracy distribution this issue's yield claim is read from",
+      "section": "tt_mm",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "zeroed_params": [],
+      "requested_samples": 30,
+      "parsed_samples": 30,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "n": 30,
+        "mean": 1.2003385333333334,
+        "sigma": 0.004625142053612183,
+        "min": 1.192097,
+        "max": 1.209051
+      },
+      "empirical_yield": 1.0,
+      "gaussian_yield": 0.9903357208105896,
+      "convergence": [
+        {
+          "n": 7,
+          "sigma": 0.006235433257181269,
+          "mean": 1.2012177142857143
+        },
+        {
+          "n": 15,
+          "sigma": 0.004874737904553971,
+          "mean": 1.2002439333333332
+        },
+        {
+          "n": 22,
+          "sigma": 0.004610583765660603,
+          "mean": 1.1999517727272728
+        },
+        {
+          "n": 30,
+          "sigma": 0.004625142053612183,
+          "mean": 1.2003385333333334
+        }
+      ],
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 30 samples, expected 30"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "30/30 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic. This is a STARTUP observation (issue #10 -- no startup circuit exists), not a mismatch one, and is sensitive to tb_vref_tc.sch's own .nodeset (reused unmodified here per this issue's reference-only note on #11's testbench)."
+        },
+        {
+          "name": "sigma_nonzero",
+          "pass": true,
+          "detail": "sigma(vout) = 4.6251 mV (a zero means the mismatch mechanism never reached the model)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_all_125c",
+      "role": "mismatch-all",
+      "purpose": "all three mismatch families active -- the untrimmed accuracy distribution this issue's yield claim is read from",
+      "section": "tt_mm",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "zeroed_params": [],
+      "requested_samples": 30,
+      "parsed_samples": 30,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "n": 30,
+        "mean": 1.1753465,
+        "sigma": 0.004774915010978629,
+        "min": 1.167847,
+        "max": 1.185256
+      },
+      "empirical_yield": 0.0,
+      "gaussian_yield": 0.004024650360945126,
+      "convergence": [
+        {
+          "n": 7,
+          "sigma": 0.007147230825724761,
+          "mean": 1.1763698571428571
+        },
+        {
+          "n": 15,
+          "sigma": 0.005324700325124499,
+          "mean": 1.1750951333333333
+        },
+        {
+          "n": 22,
+          "sigma": 0.004933252162883776,
+          "mean": 1.1749679545454546
+        },
+        {
+          "n": 30,
+          "sigma": 0.004774915010978629,
+          "mean": 1.1753465
+        }
+      ],
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 30 samples, expected 30"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "30/30 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic. This is a STARTUP observation (issue #10 -- no startup circuit exists), not a mismatch one, and is sensitive to tb_vref_tc.sch's own .nodeset (reused unmodified here per this issue's reference-only note on #11's testbench)."
+        },
+        {
+          "name": "sigma_nonzero",
+          "pass": true,
+          "detail": "sigma(vout) = 4.7749 mV (a zero means the mismatch mechanism never reached the model)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_pnp-only_27c",
+      "role": "mismatch-pnp",
+      "purpose": "contributor isolation: only the pnp family's mismatch coefficient(s) are non-zero (the other two families' coefficients are overridden to 0 after the .lib include); same seed as the 27 degC 'all' point, so this is the SAME underlying random draws with the other two families' contribution silenced, not an independent experiment",
+      "section": "tt_mm",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "zeroed_params": [
+        "sw_mm_sky130_fd_pr__res_high_po",
+        "sw_mm_sky130_fd_pr__res_generic_po_head",
+        "sw_mm_vth0_sky130_fd_pr__nfet_g5v0d10v5",
+        "sw_mm_vth0_sky130_fd_pr__pfet_g5v0d10v5"
+      ],
+      "requested_samples": 30,
+      "parsed_samples": 30,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "n": 30,
+        "mean": 1.2001862,
+        "sigma": 0.0018205424617877854,
+        "min": 1.196117,
+        "max": 1.204645
+      },
+      "empirical_yield": 1.0,
+      "gaussian_yield": 0.9999999999459648,
+      "convergence": [
+        {
+          "n": 7,
+          "sigma": 0.0024951317552767104,
+          "mean": 1.2006191428571429
+        },
+        {
+          "n": 15,
+          "sigma": 0.0021673505177212354,
+          "mean": 1.1999434666666666
+        },
+        {
+          "n": 22,
+          "sigma": 0.0020935062347598172,
+          "mean": 1.2000865454545455
+        },
+        {
+          "n": 30,
+          "sigma": 0.0018205424617877854,
+          "mean": 1.2001862
+        }
+      ],
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 30 samples, expected 30"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "30/30 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic. This is a STARTUP observation (issue #10 -- no startup circuit exists), not a mismatch one, and is sensitive to tb_vref_tc.sch's own .nodeset (reused unmodified here per this issue's reference-only note on #11's testbench)."
+        },
+        {
+          "name": "sigma_nonzero",
+          "pass": true,
+          "detail": "sigma(vout) = 1.8205 mV (a zero means the mismatch mechanism never reached the model)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_resistor-only_27c",
+      "role": "mismatch-resistor",
+      "purpose": "contributor isolation: only the resistor family's mismatch coefficient(s) are non-zero (the other two families' coefficients are overridden to 0 after the .lib include); same seed as the 27 degC 'all' point, so this is the SAME underlying random draws with the other two families' contribution silenced, not an independent experiment",
+      "section": "tt_mm",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "zeroed_params": [
+        "sw_mm_sky130_fd_pr__pnp_05v5_W0p68L0p68_is",
+        "sw_mm_sky130_fd_pr__pnp_05v5_W0p68L0p68_bf",
+        "sw_mm_vth0_sky130_fd_pr__nfet_g5v0d10v5",
+        "sw_mm_vth0_sky130_fd_pr__pfet_g5v0d10v5"
+      ],
+      "requested_samples": 30,
+      "parsed_samples": 30,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "n": 30,
+        "mean": 1.1996925,
+        "sigma": 0.0020787990357498363,
+        "min": 1.196372,
+        "max": 1.203085
+      },
+      "empirical_yield": 1.0,
+      "gaussian_yield": 0.9999999891003755,
+      "convergence": [
+        {
+          "n": 7,
+          "sigma": 0.002690457316410834,
+          "mean": 1.1997652857142858
+        },
+        {
+          "n": 15,
+          "sigma": 0.002216118178471627,
+          "mean": 1.2000057333333334
+        },
+        {
+          "n": 22,
+          "sigma": 0.0020617562093193024,
+          "mean": 1.199984
+        },
+        {
+          "n": 30,
+          "sigma": 0.0020787990357498363,
+          "mean": 1.1996925
+        }
+      ],
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 30 samples, expected 30"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "30/30 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic. This is a STARTUP observation (issue #10 -- no startup circuit exists), not a mismatch one, and is sensitive to tb_vref_tc.sch's own .nodeset (reused unmodified here per this issue's reference-only note on #11's testbench)."
+        },
+        {
+          "name": "sigma_nonzero",
+          "pass": true,
+          "detail": "sigma(vout) = 2.0788 mV (a zero means the mismatch mechanism never reached the model)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_mos-only_27c",
+      "role": "mismatch-mos",
+      "purpose": "contributor isolation: only the mos family's mismatch coefficient(s) are non-zero (the other two families' coefficients are overridden to 0 after the .lib include); same seed as the 27 degC 'all' point, so this is the SAME underlying random draws with the other two families' contribution silenced, not an independent experiment",
+      "section": "tt_mm",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "zeroed_params": [
+        "sw_mm_sky130_fd_pr__pnp_05v5_W0p68L0p68_is",
+        "sw_mm_sky130_fd_pr__pnp_05v5_W0p68L0p68_bf",
+        "sw_mm_sky130_fd_pr__res_high_po",
+        "sw_mm_sky130_fd_pr__res_generic_po_head"
+      ],
+      "requested_samples": 30,
+      "parsed_samples": 30,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "n": 30,
+        "mean": 1.1998931333333334,
+        "sigma": 0.004013130712989586,
+        "min": 1.19308,
+        "max": 1.209642
+      },
+      "empirical_yield": 1.0,
+      "gaussian_yield": 0.997202226262114,
+      "convergence": [
+        {
+          "n": 7,
+          "sigma": 0.00395763738443364,
+          "mean": 1.200243
+        },
+        {
+          "n": 15,
+          "sigma": 0.0037466146217364675,
+          "mean": 1.1997218666666667
+        },
+        {
+          "n": 22,
+          "sigma": 0.0037793612143207055,
+          "mean": 1.1993120454545456
+        },
+        {
+          "n": 30,
+          "sigma": 0.004013130712989586,
+          "mean": 1.1998931333333334
+        }
+      ],
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 30 samples, expected 30"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "30/30 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic. This is a STARTUP observation (issue #10 -- no startup circuit exists), not a mismatch one, and is sensitive to tb_vref_tc.sch's own .nodeset (reused unmodified here per this issue's reference-only note on #11's testbench)."
+        },
+        {
+          "name": "sigma_nonzero",
+          "pass": true,
+          "detail": "sigma(vout) = 4.0131 mV (a zero means the mismatch mechanism never reached the model)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_control_27c",
+      "role": "control-off",
+      "purpose": "control: identical deck on the plain `tt` section (MC_MM_SWITCH=0 globally); sigma(vout) must be exactly 0, which is what proves the spread elsewhere is the mismatch switch and not solver noise or a re-seeded operating point",
+      "section": "tt",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "zeroed_params": [],
+      "requested_samples": 15,
+      "parsed_samples": 15,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "n": 15,
+        "mean": 1.199714,
+        "sigma": 0.0,
+        "min": 1.199714,
+        "max": 1.199714
+      },
+      "empirical_yield": 1.0,
+      "gaussian_yield": 1.0,
+      "convergence": [],
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 15 samples, expected 15"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "15/15 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic. This is a STARTUP observation (issue #10 -- no startup circuit exists), not a mismatch one, and is sensitive to tb_vref_tc.sch's own .nodeset (reused unmodified here per this issue's reference-only note on #11's testbench)."
+        },
+        {
+          "name": "sigma_zero",
+          "pass": true,
+          "detail": "sigma(vout) = 0 V (must be exactly 0: control: identical deck on the plain `tt` section (MC_MM_SWITCH=0 globally); sigma(vout) must be exactly 0, which is what proves the spread elsewhere is the mismatch switch and not solver noise or a re-seeded operating point)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_zero-override_27c",
+      "role": "control-zero-override",
+      "purpose": "completeness control: MC_MM_SWITCH=1 (mismatch nominally on) but all six named family coefficients overridden to 0. sigma(vout) must STILL be exactly 0 -- if it were not, some mismatch-bearing device in this circuit would not be covered by the three named families, which is exactly the failure mode this point exists to catch",
+      "section": "tt_mm",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "zeroed_params": [
+        "sw_mm_sky130_fd_pr__pnp_05v5_W0p68L0p68_is",
+        "sw_mm_sky130_fd_pr__pnp_05v5_W0p68L0p68_bf",
+        "sw_mm_sky130_fd_pr__res_high_po",
+        "sw_mm_sky130_fd_pr__res_generic_po_head",
+        "sw_mm_vth0_sky130_fd_pr__nfet_g5v0d10v5",
+        "sw_mm_vth0_sky130_fd_pr__pfet_g5v0d10v5"
+      ],
+      "requested_samples": 15,
+      "parsed_samples": 15,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "n": 15,
+        "mean": 1.199714,
+        "sigma": 0.0,
+        "min": 1.199714,
+        "max": 1.199714
+      },
+      "empirical_yield": 1.0,
+      "gaussian_yield": 1.0,
+      "convergence": [],
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 15 samples, expected 15"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "15/15 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic. This is a STARTUP observation (issue #10 -- no startup circuit exists), not a mismatch one, and is sensitive to tb_vref_tc.sch's own .nodeset (reused unmodified here per this issue's reference-only note on #11's testbench)."
+        },
+        {
+          "name": "sigma_zero",
+          "pass": true,
+          "detail": "sigma(vout) = 0 V (must be exactly 0: completeness control: MC_MM_SWITCH=1 (mismatch nominally on) but all six named family coefficients overridden to 0. sigma(vout) must STILL be exactly 0 -- if it were not, some mismatch-bearing device in this circuit would not be covered by the three named families, which is exactly the failure mode this point exists to catch)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_all_27c_seed-b",
+      "role": "seed-check",
+      "purpose": "seed-stability: same 'all' point at 27 degC, different setseed -- the samples must change while sigma must not, i.e. the reported spread is a property of the models, not of one lucky draw",
+      "section": "tt_mm",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260804,
+      "zeroed_params": [],
+      "requested_samples": 30,
+      "parsed_samples": 30,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "n": 30,
+        "mean": 1.1991875333333333,
+        "sigma": 0.005735839773968889,
+        "min": 1.190251,
+        "max": 1.21583
+      },
+      "empirical_yield": 0.9666666666666667,
+      "gaussian_yield": 0.961689852254118,
+      "convergence": [
+        {
+          "n": 7,
+          "sigma": 0.005004356092921654,
+          "mean": 1.1984997142857143
+        },
+        {
+          "n": 15,
+          "sigma": 0.004509913392685457,
+          "mean": 1.1999976666666667
+        },
+        {
+          "n": 22,
+          "sigma": 0.0048433929540518525,
+          "mean": 1.1984044545454546
+        },
+        {
+          "n": 30,
+          "sigma": 0.005735839773968889,
+          "mean": 1.1991875333333333
+        }
+      ],
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 30 samples, expected 30"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "30/30 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic. This is a STARTUP observation (issue #10 -- no startup circuit exists), not a mismatch one, and is sensitive to tb_vref_tc.sch's own .nodeset (reused unmodified here per this issue's reference-only note on #11's testbench)."
+        },
+        {
+          "name": "sigma_nonzero",
+          "pass": true,
+          "detail": "sigma(vout) = 5.7358 mV (a zero means the mismatch mechanism never reached the model)"
+        }
+      ],
+      "pass": true
+    }
+  ],
+  "variance_closure": {
+    "sigma_all_v": 0.004625142053612183,
+    "sigma_pnp_v": 0.0018205424617877854,
+    "sigma_resistor_v": 0.0020787990357498363,
+    "sigma_mos_v": 0.004013130712989586,
+    "predicted_sigma_all_v": 0.004872473540794971,
+    "variance_ratio": 0.9010547345352371,
+    "pass": true,
+    "detail": "sigma(all)^2 / [sigma(pnp)^2+sigma(res)^2+sigma(mos)^2] = 0.90 (sigma(all) = 4.6251 mV vs RSS-predicted 4.8725 mV from the three independently-isolated contributors on the SAME seed / common random numbers; band 0.5-1.8, wide because each contributor sigma itself carries ~13% relative standard error at N=30)"
+  },
+  "cross_point_checks": [
+    {
+      "name": "seed_sigma_stable",
+      "pass": true,
+      "detail": "sigma(seed 20260804) / sigma(seed 20260803) = 1.240 (5.7358 mV vs 4.6251 mV; tolerance +/-30%)"
+    },
+    {
+      "name": "seed_sample_differs",
+      "pass": true,
+      "detail": "worst-sample VOUT differs between the two seeds (1.209051 V vs 1.215830 V), i.e. the draw really did change"
+    }
+  ],
+  "overall_pass": true,
+  "links": {
+    "testbench": "sim/output-voltage-tc/testbench/tb_vref_tc.sch (reused unmodified from issue #11)",
+    "runner": "sim/monte-carlo-untrimmed/run_mc_untrimmed.py",
+    "netlist_snapshot": "sim/monte-carlo-untrimmed/netlist-snapshots/20260803-151726-69a6ac2.spice",
+    "logs": "sim/monte-carlo-untrimmed/corners/20260803-151726-69a6ac2",
+    "record_json": "sim/monte-carlo-untrimmed/records/20260803-151726-69a6ac2.json"
+  }
+}
