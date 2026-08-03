@@ -52,8 +52,72 @@ v {xschem version=3.4.7 file_version=1.2
 *     sigma(dVBE) from 0.48 mV to ~0.17 mV via the model's 1/sqrt(mult) term.
 *   - dVBE for this pair at that per-unit current is ~62.3 mV, so
 *     R1 = 62.3 mV / 5.3 uA ~ 11.8 kohm = 7 unit segments (5 um each, W=1 um:
-*     R(L) = 380 + 325*L ohm), and VOUT = VBE(Q1) + (n_r2/n_r1)*dVBE lands
-*     near 1.20 V for n_r2 = 54 (R2 ~ 88 kohm, K ~ 7.5).
+*     R(L) = 380 + 325*L ohm).
+*   - n_r2 (issue #46 investigation -- n_r2 stays 54, see conclusion below):
+*     the original n_r2=54 (K = R2/R1 ~ 7.5, R2 ~ 88 kohm) was sized only to
+*     hit VOUT(27 degC) ~ 1.20 V from the single-point dVBE(27 degC) figure
+*     above -- it never used the *slope* of the measured dVBE, so it
+*     under-compensates Q1's CTAT slope and the core measured
+*     152.9..169.3 ppm/degC untrimmed TC (issue #11 record
+*     20260803-115356-7759435, all 15 corners FAIL vs the draft's < 50).
+*     device-characterization-summary.md section 1 shows *why*: at the
+*     tt corner, VEB(Q1) (the small unit, 1 uA column) runs
+*     0.8535749/0.7425389/0.5668493 V at -40/27/125 degC, a secant slope of
+*     -1.776 mV/degC once interpolated to our ~0.66 uA per-unit current
+*     (log-interpolated between the record's 316 nA and 1 uA columns); the
+*     matching dVBE secant slope at that current is only +0.196 mV/degC
+*     because ~18.1 mV of the 62.3 mV dVBE at 27 degC rides on Q1's
+*     nf = 1.028 vs Q2's nf = 1.000 (section 1's decomposition table) -- a
+*     fraction of a CTAT quantity, not true PTAT, so it under-delivers a
+*     shortfall that grows with T (61.6/81.7 mV predicted by strict
+*     T-proportionality vs 60.5/79.1 mV measured, at the record's 100 nA
+*     column). Full first-order cancellation of the *average* slope over
+*     -40..125 degC needs K = 1.776/0.196 ~ 9.0 (n_r2 ~ 65 at n_r1 = 7) --
+*     confirmed directly in ngspice: n_r2=65 gives VOUT(27 degC) = 1.2947 V
+*     (+7.9 % vs 1.20 V) and still only 85.3 ppm/degC box TC (the residual
+*     curvature in both VBE(T) and the sub-PTAT dVBE(T) isn't a straight
+*     line, so even a perfectly slope-matched K doesn't zero the box
+*     metric). That VOUT is far outside the "+/-1 % untrimmed" spec line
+*     (1.188..1.212 V) that issue #11's testbench also checks, and
+*     CLAUDE.md rules out relaxing the ratified spec to make TC pass.
+*   - The accuracy-constrained ceiling is n_r2 = 55 -- the largest integer
+*     segment count for which sim/output-voltage-tc/testbench/tb_vref_tc.sch
+*     still measures VOUT(27 degC) inside the 1.188..1.212 V window at the
+*     nominal corner (tt/27 degC/3.30 V measures 1.20836 V; n_r2=56 already
+*     measures 1.21699 V, over the 1.212 V ceiling). It raises K from ~7.50
+*     to ~7.64 (R2 ~ 89.4..90 kohm) and cuts the box TC at the nominal
+*     tt/27 degC/3.30 V point from 163.4 to 140.8 ppm/degC -- a real but
+*     partial improvement, EXCEPT that a full 15-corner run at n_r2=55
+*     (sim/output-voltage-tc/ record 20260803-142220-b24b404) found that two
+*     corners (ff/2.97 V, fs/2.97 V) do not merely fail the TC/accuracy
+*     limits -- ngspice's continuous -40..125 degC sweep loses the bandgap
+*     operating point entirely above ~123..124 degC, jumping to ~2.82 V
+*     (VREF pinned near VDD, sanity-band FAIL, not a TC number). A
+*     fine-resolution (1 degC step) diagnostic sweep confirmed this is a
+*     genuine bifurcation between 123 and 124 degC, not a coarse-grid solver
+*     artifact -- and confirmed it is introduced BY the resize: the same
+*     diagnostic at n_r2=54 stays smooth and well-behaved out to 140 degC
+*     (10 degC past the qualified range) at the identical ff/2.97 V corner.
+*     Trading a ~150 ppm/degC TC miss for a corner that stops regulating at
+*     all above ~124 degC is a worse regression than the problem #46 set out
+*     to fix, so **n_r2 stays at 54** -- the record above is kept as
+*     append-only evidence of why the attempted resize was rejected, not as
+*     the shipped design.
+*   - Conclusion (issue #46's floor finding): on this device menu and this
+*     error-amp/core loop, R2/R1 alone cannot close the TC gap. The
+*     accuracy-safe ceiling (n_r2=55) already erodes hot-corner loop margin
+*     at the fast-process/low-supply extreme badly enough to lose regulation
+*     before 125 degC; the TC-cancelling K (~9.0) both breaches +/-1 %
+*     accuracy by 7.9 % AND (untested, but starting from a worse margin
+*     baseline than n_r2=55) would be expected to lose the operating point
+*     at more corners, not fewer. Reaching < 50 ppm/degC untrimmed needs
+*     either curvature correction/trim (#13) or attacking the ideality
+*     mismatch at the source by growing n_pnp_ptat (raises the *true*
+*     V_T*ln(N) term without adding CTAT-tainted gain or R2-driven offset
+*     gain, at the cost of halving Q2's per-unit current and needing R1/R2
+*     to be re-solved together) or widening the error amp's own headroom
+*     margin (#9) so a larger K does not cost hot-corner regulation --
+*     all out of scope here, flagged for follow-up.
 *   - This is *untrimmed* first-pass sizing for a nominal operating point.
 *     The +/-1% spec claim over the full PVT matrix is issue #11's job, trim
 *     is #13, and the offset budget that may re-size the amp is #9.
@@ -94,7 +158,13 @@ C {devices/code_shown.sym} 100 -1250 0 0 {name=CORE_PARAMS only_toplevel=false v
 * res_high_po unit segment: W = r_w um, L = r_lseg um (R ~ 380 + 325*L ohm)
 .param r_w=1
 .param r_lseg=5
-* segment counts. K = R2/R1 is set by the integer ratio n_r2/n_r1.
+* segment counts. K = R2/R1 (each leg has its own 380 ohm head resistance,
+* so K != n_r2/n_r1 exactly -- see the header comment). n_r2 stays 54:
+* issue #46 investigated raising it to 55, the accuracy-constrained
+* ceiling, but a full 15-corner run found it loses the bandgap operating
+* point above ~124 degC at the ff/2.97 V and fs/2.97 V corners -- a worse
+* regression than the TC miss it was meant to fix. See the header comment's
+* "Sizing rationale" section for the full investigation and floor finding.
 .param n_r1=7
 .param n_r2=54
 * PMOS mirror multiplicities (unit device W=8u L=2u)
