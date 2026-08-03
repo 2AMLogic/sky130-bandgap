@@ -1,0 +1,5149 @@
+{
+  "author": "agent-12@2amlogic.com",
+  "corners": [
+    {
+      "corner_id": "tt_-40c_3.30v",
+      "log": "sim/mos-mirror-sizing-extended/corners/20260803-112036-e599e30/tt_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8797948
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1167567
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.44482
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8845232
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1151806
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.55318
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8867983
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1144332
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.60487
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mne_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mne_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8851925
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mne_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1161645
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mne_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.4765
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299976e-06
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.148743
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2069114
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.298402
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.3e-06
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.139549
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2158271
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.283311
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.3e-06
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.135063
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2214818
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.336689
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpe_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpe_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.138387
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpe_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2246261
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpe_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.210685
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "tt_27c_3.30v",
+      "log": "sim/mos-mirror-sizing-extended/corners/20260803-112036-e599e30/tt_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7974171
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1415305
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.84181
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7994576
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1389885
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.93552
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8004422
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.137697
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.98584
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mne_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mne_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7977629
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mne_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1401625
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mne_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.86606
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299982e-06
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.023872
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2431213
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.156609
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.014529
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2584637
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.212321
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.00997
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2679323
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.285138
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpe_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpe_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.012428
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpe_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2704262
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpe_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.205225
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "tt_125c_3.30v",
+      "log": "sim/mos-mirror-sizing-extended/corners/20260803-112036-e599e30/tt_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.300001e-06
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6769243
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1755367
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.478046
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299996e-06
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6750332
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1713451
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.558974
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299986e-06
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6741302
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1691492
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.607197
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mne_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.29995e-06
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mne_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6698808
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mne_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1727595
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mne_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.500884
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299989e-06
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8412254
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2935922
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.191602
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299996e-06
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8316637
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3193612
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.273719
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299995e-06
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8269992
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3344058
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.327198
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpe_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299994e-06
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpe_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8281898
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpe_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3362254
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpe_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.284265
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ss_-40c_3.30v",
+      "log": "sim/mos-mirror-sizing-extended/corners/20260803-112036-e599e30/ss_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9056713
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1175495
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.38482
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9074386
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1157265
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.51159
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9082182
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1148837
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.5704
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mne_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mne_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9057629
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mne_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1165265
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mne_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.44896
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.24954e-06
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.190251
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2086667
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.241477
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.3e-06
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.180475
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2182783
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.204207
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.175799
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2236847
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.26092
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpe_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpe_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.178936
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpe_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2266498
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpe_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.142095
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ss_27c_3.30v",
+      "log": "sim/mos-mirror-sizing-extended/corners/20260803-112036-e599e30/ss_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8232483
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1426416
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.78922
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8223539
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1397765
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.89826
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8218472
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1383669
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.95412
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mne_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mne_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8183239
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mne_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1407196
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mne_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.84005
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.266992e-06
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.065379
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2456219
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.099234
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.055454
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2612291
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.145221
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.050694
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2703365
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.221391
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpe_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpe_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.052969
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpe_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2726554
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpe_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.146595
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ss_125c_3.30v",
+      "log": "sim/mos-mirror-sizing-extended/corners/20260803-112036-e599e30/ss_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299995e-06
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7026892
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1771892
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.432559
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299991e-06
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6979016
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1725558
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.526
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299981e-06
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6955136
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1702067
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.578439
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mne_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299946e-06
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mne_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6904282
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mne_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1736679
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mne_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.476693
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.284881e-06
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8827287
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2970603
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.135029
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299996e-06
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8725871
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3224625
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.219569
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299995e-06
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8677059
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3370011
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.277813
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpe_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299994e-06
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpe_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.86872
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpe_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3386858
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpe_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.237416
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ff_-40c_3.30v",
+      "log": "sim/mos-mirror-sizing-extended/corners/20260803-112036-e599e30/ff_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8539174
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1159779
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.50414
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8616075
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1146437
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.59425
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8653785
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1139898
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.63893
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mne_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mne_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8646221
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mne_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1158087
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mne_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.50366
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.300002e-06
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.107234
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2040262
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.393647
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.300001e-06
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.098623
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2133857
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.363318
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.3e-06
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.094326
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2192813
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.413501
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpe_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.3e-06
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpe_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.097838
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpe_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2226031
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpe_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.280204
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ff_27c_3.30v",
+      "log": "sim/mos-mirror-sizing-extended/corners/20260803-112036-e599e30/ff_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7715855
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.140434
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.89403
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7765611
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1382094
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.9725
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7790373
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1370337
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 11.01734
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mne_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mne_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7772019
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mne_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1396111
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mne_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.89188
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9823663
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2397676
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.236229
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9736042
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2557032
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.280239
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.969246
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2655258
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.349778
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpe_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpe_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9718867
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpe_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2681927
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpe_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.2647
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "ff_125c_3.30v",
+      "log": "sim/mos-mirror-sizing-extended/corners/20260803-112036-e599e30/ff_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.300006e-06
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6511598
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1738983
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.523392
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.300002e-06
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6521649
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1701421
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.591833
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299992e-06
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6527472
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1680968
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.635877
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mne_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299954e-06
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mne_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6493336
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mne_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1718552
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mne_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.525006
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299997e-06
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7997233
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2896723
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.257619
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299996e-06
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7907408
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3162526
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.3286
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299995e-06
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7862924
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3317978
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.377279
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpe_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299994e-06
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpe_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7876595
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpe_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3337494
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpe_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.331841
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "sf_-40c_3.30v",
+      "log": "sim/mos-mirror-sizing-extended/corners/20260803-112036-e599e30/sf_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8217257
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.116815
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.4454
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8330276
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1151894
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.55668
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.838547
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1144176
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.60986
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mne_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mne_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8388734
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mne_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1161489
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mne_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.4814
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299969e-06
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.232127
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.209786
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.199958
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.3e-06
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.221559
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2187706
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.18466
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.216458
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2244437
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.235812
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpe_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpe_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.219436
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpe_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.227526
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpe_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.112776
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "sf_27c_3.30v",
+      "log": "sim/mos-mirror-sizing-extended/corners/20260803-112036-e599e30/sf_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.739348
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1412854
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.85537
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.747962
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1387273
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.94946
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7521909
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1374266
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 11.00008
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mne_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mne_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7514438
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mne_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.139898
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mne_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.87986
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299976e-06
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.107256
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2463117
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.076233
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.096539
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2616579
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.130736
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.091366
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2711166
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.202142
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpe_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpe_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.093477
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpe_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.27359
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpe_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.122858
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "sf_125c_3.30v",
+      "log": "sim/mos-mirror-sizing-extended/corners/20260803-112036-e599e30/sf_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299954e-06
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6188552
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.17465
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.501384
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299932e-06
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6235376
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1705168
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.580658
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.29991e-06
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.625879
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1683459
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.628276
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mne_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299888e-06
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mne_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.6235618
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mne_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1719739
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mne_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.521266
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299985e-06
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9246097
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2970839
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.127701
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299996e-06
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9136742
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3227498
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.211468
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299995e-06
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9083946
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3377508
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.265899
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpe_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299994e-06
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpe_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9092388
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpe_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3396679
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpe_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.220322
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "fs_-40c_3.30v",
+      "log": "sim/mos-mirror-sizing-extended/corners/20260803-112036-e599e30/fs_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.937864
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1167447
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.44083
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9360188
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1152066
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.5471
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9350495
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1144786
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.59769
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mne_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mne_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9315115
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mne_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1162076
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mne_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 13.46961
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299983e-06
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.065358
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2040395
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.398668
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.300001e-06
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.057538
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2128647
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.38451
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.3e-06
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.053667
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2184909
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.440552
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpe_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.3e-06
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpe_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.057338
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpe_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2217
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpe_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.311435
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "fs_27c_3.30v",
+      "log": "sim/mos-mirror-sizing-extended/corners/20260803-112036-e599e30/fs_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8554862
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1418148
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.82638
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8509532
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1392786
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.92019
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8486934
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1379917
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.97043
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mne_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mne_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8440819
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mne_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1404494
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mne_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 10.85122
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299987e-06
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9404877
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.239913
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.23879
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9325182
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2552277
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.296357
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9285749
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2646945
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.370925
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpe_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299999e-06
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpe_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.931379
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpe_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2672114
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpe_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 7.290361
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    },
+    {
+      "corner_id": "fs_125c_3.30v",
+      "log": "sim/mos-mirror-sizing-extended/corners/20260803-112036-e599e30/fs_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299998e-06
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7349934
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1764424
+        },
+        {
+          "expr": "@m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNB.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.454012
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299992e-06
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7265288
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1721859
+        },
+        {
+          "expr": "@m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNC.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.536792
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mnd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299982e-06
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mnd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7223815
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mnd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1699617
+        },
+        {
+          "expr": "@m.xmND.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmND.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mnd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.585727
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mne_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299947e-06
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mne_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7161999
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vgs] - @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mne_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.1735535
+        },
+        {
+          "expr": "@m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[gm] / @m.xmNE.msky130_fd_pr__nfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mne_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 8.480167
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpb_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299992e-06
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpb_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.757841
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpb_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.2900388
+        },
+        {
+          "expr": "@m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPB.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpb_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.257365
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpc_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299996e-06
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpc_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7496532
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpc_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3158834
+        },
+        {
+          "expr": "@m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPC.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpc_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.338282
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpd_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299995e-06
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpd_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7456038
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpd_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3309576
+        },
+        {
+          "expr": "@m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPD.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpd_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.391035
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 5.83e-06,
+          "min": 4.77e-06,
+          "name": "mpe_id",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.299994e-06
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.3,
+          "min": 0.3,
+          "name": "mpe_vth",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7471408
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vgs] - @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[vth]",
+          "max": 1.0,
+          "min": 0.0,
+          "name": "mpe_vov",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.3326809
+        },
+        {
+          "expr": "@m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[gm] / @m.xmPE.msky130_fd_pr__pfet_g5v0d10v5[id]",
+          "max": 30.0,
+          "min": 1.0,
+          "name": "mpe_gmid",
+          "pass": true,
+          "reason": "",
+          "unit": "1/V",
+          "value": 6.35088
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false
+    }
+  ],
+  "experiment": {
+    "claim": "Issue #26 -- follow-up to issue #4's sim/mos-matching-characterization/, run once #8 (PR #40) fixed the core's actual mirror device sizes/node currents. Sweeps the BSIM operating point (Id, Vth, Vov=Vgs-Vth, gm/Id) of diode-connected sky130_fd_pr__nfet_g5v0d10v5 and sky130_fd_pr__pfet_g5v0d10v5 at the schematic's actual mirror size (B: W=8/L=2, 16um^2) plus three larger sizes holding the same W/L=4 aspect ratio (C: W=12/L=3, 36um^2; D: W=16/L=4, 64um^2; E: W=20/L=5, 100um^2), all biased at the single ~5.3uA per-unit node current design/bandgap_core.sch's self-biased mirror chain (MPOUT/MPAMP, both W=8/L=2 mult=2) actually converges on -- not the original experiment's generic 2/5/20uA matrix. Combined with the PDK's static Vth-mismatch (AVT) coefficients (sw_mm_vth0_sky130_fd_pr__nfet_g5v0d10v5 / __pfet_g5v0d10v5 in continuous/models_global.spice), this extends the analytic dId/Id-vs-area mismatch projection (dId/Id ~= (gm/Id)*sigma_Vth) to locate where it crosses below 1% for the leg(s) that need it. Supply axis intentionally fixed at nominal 3.30V: all devices are diode-connected and biased by ideal DC current sources with no supply-referenced terminal in the DUT.",
+    "provenance": "schematic",
+    "provenance_source": "sim/mos-mirror-sizing-extended/testbench/tb_mos_mirror_sizing.sch",
+    "slug": "mos-mirror-sizing-extended",
+    "statistical_convention": "N/A for the corner-matrix operating-point sweep above (deterministic, MC_MM_SWITCH=0). The dId/Id mismatch figure reported in the summary record is an analytic Pelgrom-style projection from the PDK's static AVT coefficient, not a simulated Monte Carlo distribution -- see design/device-characterization-summary.md Sec 3 for the method and its limitations (only Vth mismatch is modeled by the PDK for this device family).",
+    "title": "MOS mirror sizing extension beyond size B (16 um^2) at actual bandgap_core node current (issue #26)"
+  },
+  "git": {
+    "branch": "feature/issue-26",
+    "dirty": true,
+    "sha": "e599e30"
+  },
+  "links": {
+    "corners_dir": "sim/mos-mirror-sizing-extended/corners/20260803-112036-e599e30/",
+    "json": "sim/mos-mirror-sizing-extended/records/20260803-112036-e599e30.json",
+    "manifest": "sim/mos-mirror-sizing-extended/experiment.json",
+    "netlist_snapshot": "sim/mos-mirror-sizing-extended/netlist-snapshots/20260803-112036-e599e30.spice",
+    "record": "sim/mos-mirror-sizing-extended/records/20260803-112036-e599e30.md",
+    "testbench": "sim/mos-mirror-sizing-extended/testbench/tb_mos_mirror_sizing.sch"
+  },
+  "matrix": {
+    "is_subset": false,
+    "n_points": 15,
+    "point_ids": [
+      "tt_-40c_3.30v",
+      "tt_27c_3.30v",
+      "tt_125c_3.30v",
+      "ss_-40c_3.30v",
+      "ss_27c_3.30v",
+      "ss_125c_3.30v",
+      "ff_-40c_3.30v",
+      "ff_27c_3.30v",
+      "ff_125c_3.30v",
+      "sf_-40c_3.30v",
+      "sf_27c_3.30v",
+      "sf_125c_3.30v",
+      "fs_-40c_3.30v",
+      "fs_27c_3.30v",
+      "fs_125c_3.30v"
+    ],
+    "points": [
+      [
+        "tt",
+        -40.0,
+        3.3
+      ],
+      [
+        "tt",
+        27.0,
+        3.3
+      ],
+      [
+        "tt",
+        125.0,
+        3.3
+      ],
+      [
+        "ss",
+        -40.0,
+        3.3
+      ],
+      [
+        "ss",
+        27.0,
+        3.3
+      ],
+      [
+        "ss",
+        125.0,
+        3.3
+      ],
+      [
+        "ff",
+        -40.0,
+        3.3
+      ],
+      [
+        "ff",
+        27.0,
+        3.3
+      ],
+      [
+        "ff",
+        125.0,
+        3.3
+      ],
+      [
+        "sf",
+        -40.0,
+        3.3
+      ],
+      [
+        "sf",
+        27.0,
+        3.3
+      ],
+      [
+        "sf",
+        125.0,
+        3.3
+      ],
+      [
+        "fs",
+        -40.0,
+        3.3
+      ],
+      [
+        "fs",
+        27.0,
+        3.3
+      ],
+      [
+        "fs",
+        125.0,
+        3.3
+      ]
+    ],
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "subset_reason": "",
+    "supply_v": [
+      3.3
+    ],
+    "temperature_c": [
+      -40.0,
+      27.0,
+      125.0
+    ]
+  },
+  "overall_pass": true,
+  "pdk": {
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "lib_file": "/Users/rwalters/.volare/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "root": "/Users/rwalters/.volare",
+    "variant": "sky130A"
+  },
+  "record_id": "20260803-112036-e599e30",
+  "spread_checks": [
+    {
+      "measurement": "mnb_vth",
+      "min_spread": 0.03,
+      "n": 15,
+      "note": "Guards against a corner-blind harness: nfet_g5v0d10v5 Vth must move across the tt/ss/ff/sf/fs / -40..125C matrix.",
+      "observed_spread": 0.3190088,
+      "pass": true,
+      "reason": ""
+    }
+  ],
+  "supersedes": "",
+  "timestamp": "2026-08-03T11:20:36Z",
+  "tools": {
+    "ngspice": "ngspice-46 : Circuit level simulation program",
+    "platform": "Darwin 25.6.0 arm64",
+    "python": "3.14.6",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}
