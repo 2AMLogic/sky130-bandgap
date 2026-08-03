@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "cell_name": "bandgap_core_floorplan",
+  "gds_path": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-15/layout/bandgap-core/reports/20260803-192947-e7a30b4/bandgap_core_floorplan.gds",
+  "pdk": {
+    "name": "sky130A",
+    "variant": "sky130A",
+    "version": "open_pdks c6d73a35f524070e85faff4a6a9eef49553ebc2b"
+  },
+  "bbox_um": {
+    "x0": -10.15,
+    "y0": -10.15,
+    "x1": 299.43,
+    "y1": 105.37
+  },
+  "blocks": [
+    {
+      "id": "pnp_ctat",
+      "generator": "bjt_array",
+      "offset_um": {
+        "x": 123.91000000000003,
+        "y": 0.97
+      },
+      "bbox_um": {
+        "x0": 121.04000000000002,
+        "y0": 0.0,
+        "x1": 133.98000000000002,
+        "y1": 3.7
+      }
+    },
+    {
+      "id": "pnp_ptat",
+      "generator": "bjt_array",
+      "offset_um": {
+        "x": 144.57000000000002,
+        "y": 0.97
+      },
+      "bbox_um": {
+        "x0": 138.98000000000002,
+        "y0": 0.0,
+        "x1": 168.24,
+        "y1": 9.14
+      }
+    },
+    {
+      "id": "res_r2",
+      "generator": "res_array",
+      "offset_um": {
+        "x": 12.68,
+        "y": 17.14
+      },
+      "bbox_um": {
+        "x0": 0.0,
+        "y0": 17.14,
+        "x1": 126.30000000000001,
+        "y1": 18.14
+      }
+    },
+    {
+      "id": "res_r1",
+      "generator": "res_array",
+      "offset_um": {
+        "x": 143.98000000000002,
+        "y": 17.14
+      },
+      "bbox_um": {
+        "x0": 131.3,
+        "y0": 17.14,
+        "x1": 200.54000000000002,
+        "y1": 18.14
+      }
+    },
+    {
+      "id": "res_trim",
+      "generator": "res_array",
+      "offset_um": {
+        "x": 210.22000000000003,
+        "y": 17.14
+      },
+      "bbox_um": {
+        "x0": 205.54000000000002,
+        "y0": 17.14,
+        "x1": 289.28000000000003,
+        "y1": 18.14
+      }
+    },
+    {
+      "id": "amp_input_pair",
+      "generator": "diff_pair",
+      "offset_um": {
+        "x": 9.070000000000029,
+        "y": 27.21
+      },
+      "bbox_um": {
+        "x0": 8.000000000000028,
+        "y0": 26.14,
+        "x1": 189.58,
+        "y1": 68.68
+      }
+    },
+    {
+      "id": "amp_nload",
+      "generator": "diff_pair",
+      "offset_um": {
+        "x": 195.65,
+        "y": 27.21
+      },
+      "bbox_um": {
+        "x0": 194.58,
+        "y0": 26.14,
+        "x1": 281.28,
+        "y1": 44.68
+      }
+    },
+    {
+      "id": "amp_nmirr",
+      "generator": "diff_pair",
+      "offset_um": {
+        "x": 7.420000000000023,
+        "y": 77.75
+      },
+      "bbox_um": {
+        "x0": 6.350000000000023,
+        "y0": 76.68,
+        "x1": 93.05000000000001,
+        "y1": 95.22
+      }
+    },
+    {
+      "id": "amp_pmirr",
+      "generator": "diff_pair",
+      "offset_um": {
+        "x": 99.12,
+        "y": 77.75
+      },
+      "bbox_um": {
+        "x0": 98.05000000000001,
+        "y0": 76.68,
+        "x1": 269.71000000000004,
+        "y1": 91.22
+      }
+    },
+    {
+      "id": "core_mirror",
+      "generator": "diff_pair",
+      "offset_um": {
+        "x": 275.78000000000003,
+        "y": 77.75
+      },
+      "bbox_um": {
+        "x0": 274.71000000000004,
+        "y0": 76.68,
+        "x1": 282.93,
+        "y1": 95.22
+      }
+    },
+    {
+      "id": "guard_ring_outer",
+      "generator": "guard_ring",
+      "offset_um": {
+        "x": -10.0,
+        "y": -10.0
+      },
+      "bbox_um": {
+        "x0": -10.15,
+        "y0": -10.15,
+        "x1": 299.43,
+        "y1": 105.37
+      }
+    }
+  ],
+  "nets": [],
+  "pins": [],
+  "unrouted_nets": [],
+  "drc_hints": {
+    "min_spacing_um": null,
+    "matched_groups": [
+      {
+        "matched_group_id": "bjt_array:2x4:common_centroid:ratio8",
+        "blocks": [
+          "pnp_ctat",
+          "pnp_ptat"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "res_array:16",
+        "blocks": [
+          "res_r2"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "res_array:7",
+        "blocks": [
+          "res_r1"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "res_array:32",
+        "blocks": [
+          "res_trim"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "diff_pair:pair:16",
+        "blocks": [
+          "amp_input_pair"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "diff_pair:mirror:4",
+        "blocks": [
+          "amp_nload",
+          "amp_nmirr"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "diff_pair:mirror:8",
+        "blocks": [
+          "amp_pmirr"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "diff_pair:mirror:2",
+        "blocks": [
+          "core_mirror"
+        ],
+        "placement_symmetric": null
+      }
+    ],
+    "notes": []
+  },
+  "warnings": []
+}

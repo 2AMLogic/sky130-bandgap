@@ -1,0 +1,109 @@
+{
+  "schema": "klt.gen_compose.request/1",
+  "pdk": {
+    "variant": "sky130A"
+  },
+  "blocks": [
+    {
+      "id": "pnp_ctat",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-15/layout/bandgap-core/reports/20260803-192947-e7a30b4/pnp_ctat.gen.json"
+    },
+    {
+      "id": "pnp_ptat",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-15/layout/bandgap-core/reports/20260803-192947-e7a30b4/pnp_ptat.gen.json"
+    },
+    {
+      "id": "res_r2",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-15/layout/bandgap-core/reports/20260803-192947-e7a30b4/res_r2.gen.json"
+    },
+    {
+      "id": "res_r1",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-15/layout/bandgap-core/reports/20260803-192947-e7a30b4/res_r1.gen.json"
+    },
+    {
+      "id": "res_trim",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-15/layout/bandgap-core/reports/20260803-192947-e7a30b4/res_trim.gen.json"
+    },
+    {
+      "id": "amp_input_pair",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-15/layout/bandgap-core/reports/20260803-192947-e7a30b4/amp_input_pair.gen.json"
+    },
+    {
+      "id": "amp_nload",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-15/layout/bandgap-core/reports/20260803-192947-e7a30b4/amp_nload.gen.json"
+    },
+    {
+      "id": "amp_nmirr",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-15/layout/bandgap-core/reports/20260803-192947-e7a30b4/amp_nmirr.gen.json"
+    },
+    {
+      "id": "amp_pmirr",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-15/layout/bandgap-core/reports/20260803-192947-e7a30b4/amp_pmirr.gen.json"
+    },
+    {
+      "id": "core_mirror",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-15/layout/bandgap-core/reports/20260803-192947-e7a30b4/core_mirror.gen.json"
+    }
+  ],
+  "placement": {
+    "strategy": "explicit",
+    "order": [
+      "pnp_ctat",
+      "pnp_ptat",
+      "res_r2",
+      "res_r1",
+      "res_trim",
+      "amp_input_pair",
+      "amp_nload",
+      "amp_nmirr",
+      "amp_pmirr",
+      "core_mirror"
+    ],
+    "origins_um": {
+      "pnp_ctat": {
+        "x": 123.91000000000003,
+        "y": 0.97
+      },
+      "pnp_ptat": {
+        "x": 144.57000000000002,
+        "y": 0.97
+      },
+      "res_r2": {
+        "x": 12.68,
+        "y": 17.14
+      },
+      "res_r1": {
+        "x": 143.98000000000002,
+        "y": 17.14
+      },
+      "res_trim": {
+        "x": 210.22000000000003,
+        "y": 17.14
+      },
+      "amp_input_pair": {
+        "x": 9.070000000000029,
+        "y": 27.21
+      },
+      "amp_nload": {
+        "x": 195.65,
+        "y": 27.21
+      },
+      "amp_nmirr": {
+        "x": 7.420000000000023,
+        "y": 77.75
+      },
+      "amp_pmirr": {
+        "x": 99.12,
+        "y": 77.75
+      },
+      "core_mirror": {
+        "x": 275.78000000000003,
+        "y": 77.75
+      }
+    }
+  },
+  "options": {
+    "cell_name": "bandgap_core_floorplan_inner",
+    "output": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-15/layout/bandgap-core/reports/20260803-192947-e7a30b4/bandgap_core_floorplan_inner.gds"
+  }
+}
