@@ -94,7 +94,7 @@
       "expr": "abs(v_s - v_g) + abs(v_s - v_f)",
       "unit": "V",
       "max": 1e-3,
-      "note": "Asserts the three copies converge to the *same* operating point. A startup circuit that left the core in a different (e.g. over-driven) stable state, or that stayed partly engaged on one profile and not another, would show up as a ramp-rate-dependent output. This is the transient counterpart of sim/startup-stability/'s single-crossing claim."
+      "note": "Asserts the three copies converge to the *same* operating point. A startup circuit that left the core in a different (e.g. over-driven) stable state, or that stayed partly engaged on one profile and not another, would show up as a ramp-rate-dependent output. This is the transient counterpart of sim/startup-stability/'s single-crossing claim. DIAGNOSIS of the two recorded FAILs (1.5 mV at ff/-40 degC/2.97 V and 2.5 mV at ff/-40 degC/3.63 V, record 20260803-124933-e599e30): these are an underdamped settling tail still ringing at the at=2.45e-3 sample point at the cold/fast corner, not divergent operating points -- the spread is exactly 0 V at every 125 degC corner and sub-millivolt at ss/tt cold, i.e. it tracks loop damping rather than ramp profile, and the sibling sim/startup-stability/ sweep reports ncross_su=1 with itrav_min 0.22-0.57 mA at both ff/-40 degC supplies, so there is only one operating point to converge to there. The 1 mV bound is deliberately NOT loosened and the sample point is deliberately NOT moved: until a record with a longer settling window retires it, the 2.5 mV stays charged against issue #11's budget."
     },
     {
       "name": "vref_n",

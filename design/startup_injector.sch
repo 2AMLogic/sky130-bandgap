@@ -67,14 +67,19 @@ v {xschem version=3.4.7 file_version=1.2
 * numbers on both sides of it are recorded per corner in
 * sim/startup-stability/, not asserted here.
 *
-* Known limitation (recorded, not hidden): at the hot/fast/high-supply corner
-* the reference is still in strong inversion once the core is running, so the
+* Known limitation (recorded, not hidden): at the hot/high-supply corners the
+* reference is still in strong inversion once the core is running, so the
 * cell keeps drawing tens of nA out of GDRV. GDRV is a high-impedance
-* amplifier output, so that residual shows up on the reference; the measured
-* output shift at ff/125 degC/3.63 V is the largest number in the record.
-* Removing it needs a reference that is not a MOS threshold (a replica-current
-* comparison), which costs a standing bias branch of its own -- see the record
-* and the follow-up issue rather than a claim here.
+* amplifier output, so that residual shows up on the reference. The largest
+* *measured* output shift in the record is 3.2 mV at tt/125 degC/3.63 V
+* (sim/startup-stability/records/20260803-124600-e599e30.md). The reasoning
+* above predicts ff/125 degC/3.63 V should be worse still, but that corner
+* has NOT been measured -- it is the one point that timed out in that record,
+* so no number exists for it; the re-run is tracked by issue #48. Until then
+* 3.2 mV is the number to carry (issue #11 subtracts the measured worst case,
+* not a prediction). Removing the residual needs a reference that is not a MOS
+* threshold (a replica-current comparison), which costs a standing bias branch
+* of its own -- see the record and the follow-up issue rather than a claim here.
 *
 * Deliberately NOT in this cell: any capacitor or one-shot. Disengagement is
 * *static*, so a supply ramp of any rate is covered by the same argument, and

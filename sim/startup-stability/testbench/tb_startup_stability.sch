@@ -25,8 +25,10 @@ v {xschem version=3.4.7 file_version=1.2
 *
 * The forcing voltage is 'vsup' * v(ALPHA) rather than a plain swept source,
 * so the sweep covers exactly 0..VDD at every supply corner with a fixed
-* 1001-point grid (the sign-change count indexes that grid by literal
-* position, and a supply-dependent point count would break it). It never
+* 251-point grid (`dc valpha 0 1 0.004` in the manifest -- the sign-change
+* count and the degenerate-region windows ifsu[188,250] / ifsu[225,250] index
+* that grid by literal position, and a supply-dependent point count would
+* break them). It never
 * runs GDRV above VDD, which would forward-bias the injector PMOS source-
 * to-nwell junction and manufacture a meaningless equilibrium.
 *
