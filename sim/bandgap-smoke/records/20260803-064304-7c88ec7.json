@@ -1,0 +1,141 @@
+{
+  "author": "robb@2amlogic.com",
+  "corners": [
+    {
+      "corner_id": "tt_27c_3.30v",
+      "log": "sim/bandgap-smoke/corners/20260803-064304-7c88ec7/tt_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(vref)",
+          "max": 1.25,
+          "min": 1.15,
+          "name": "vref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.198553
+        },
+        {
+          "expr": "v(xbg.va)-v(xbg.vb)",
+          "max": 0.001,
+          "min": -0.001,
+          "name": "vos_loop",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 8.680044e-06
+        },
+        {
+          "expr": "v(gdrv)",
+          "max": 3.0,
+          "min": 1.0,
+          "name": "vgdrv",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.036262
+        },
+        {
+          "expr": "v(xbg.va)",
+          "max": 0.9,
+          "min": 0.6,
+          "name": "vbe_ctat",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.7311745
+        },
+        {
+          "expr": "v(xbg.va)-v(xbg.vbq)",
+          "max": 0.085,
+          "min": 0.045,
+          "name": "dvbe",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.06234947
+        },
+        {
+          "expr": "-i(v1)",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.116078e-05
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false
+    }
+  ],
+  "experiment": {
+    "claim": "Schematic-entry bring-up for issue #8 -- NOT the output-accuracy spec claim. Substantiates that design/bandgap_core.sch (Kuijk-style core + design/error_amp.sch) netlists headlessly through this harness, biases up out of its degenerate state, closes its loop (the amplifier's input-referred error at the sense nodes is microvolts, not millivolts), and produces an untrimmed reference in the vicinity of 1.20 V at tt / 27 degC / 3.30 V. The +/-1% output-accuracy claim over the full PVT matrix is issue #11's experiment, not this one; trim is #13 and the offset-budget amplifier is #9.",
+    "provenance": "schematic",
+    "provenance_source": "sim/bandgap-smoke/testbench/tb_bandgap_smoke.sch",
+    "slug": "bandgap-smoke",
+    "statistical_convention": "N/A (single-point operating-point check, not a distribution claim)",
+    "title": "Bandgap core schematic-entry smoke check: untrimmed nominal operating point"
+  },
+  "git": {
+    "branch": "feature/issue-8",
+    "dirty": false,
+    "sha": "7c88ec7"
+  },
+  "links": {
+    "corners_dir": "sim/bandgap-smoke/corners/20260803-064304-7c88ec7/",
+    "json": "sim/bandgap-smoke/records/20260803-064304-7c88ec7.json",
+    "manifest": "sim/bandgap-smoke/experiment.json",
+    "netlist_snapshot": "sim/bandgap-smoke/netlist-snapshots/20260803-064304-7c88ec7.spice",
+    "record": "sim/bandgap-smoke/records/20260803-064304-7c88ec7.md",
+    "testbench": "sim/bandgap-smoke/testbench/tb_bandgap_smoke.sch"
+  },
+  "matrix": {
+    "is_subset": true,
+    "n_points": 1,
+    "point_ids": [
+      "tt_27c_3.30v"
+    ],
+    "points": [
+      [
+        "tt",
+        27.0,
+        3.3
+      ]
+    ],
+    "process": [
+      "tt"
+    ],
+    "subset_reason": "Schematic-entry smoke check for issue #8: a single nominal point (tt / 27 degC / 3.30 V) is sufficient to substantiate that the core netlists headlessly, biases up out of its degenerate state, closes its loop and lands near 1.20 V untrimmed. The full 45-point PVT matrix declared in this manifest -- and the +/-1% output-accuracy claim it supports -- is issue #11's experiment, not this one.",
+    "supply_v": [
+      3.3
+    ],
+    "temperature_c": [
+      27.0
+    ]
+  },
+  "overall_pass": true,
+  "pdk": {
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "lib_file": "/Users/rwalters/.volare/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "root": "/Users/rwalters/.volare",
+    "variant": "sky130A"
+  },
+  "record_id": "20260803-064304-7c88ec7",
+  "spread_checks": [],
+  "supersedes": "",
+  "timestamp": "2026-08-03T06:43:04Z",
+  "tools": {
+    "ngspice": "ngspice-46 : Circuit level simulation program",
+    "platform": "Darwin 25.6.0 arm64",
+    "python": "3.14.6",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}
