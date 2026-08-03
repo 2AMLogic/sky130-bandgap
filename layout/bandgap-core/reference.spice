@@ -1,0 +1,53 @@
+* layout/bandgap-core/reference.spice -- the xschem-derived LVS reference
+* netlist for the bandgap core (issue #8's schematic, issue #62's LVS pair).
+*
+* Transcribed verbatim (modulo `.param` substitution and the klt LVS reader's
+* own device-card conventions) from the xschem netlist this repo already
+* records as evidence:
+*   sim/output-voltage-tc/netlist-snapshots/20260803-142220-b24b404.spice
+* which is `xschem -n design/bandgap_core.sch` with design/error_amp.sch
+* expanded. Parameters come from design/bandgap_core.sch's CORE_PARAMS block
+* and design/error_amp.sch:
+*   n_pnp_ctat = n_pnp_ptat = 8      r_w = 1     r_lseg = 5
+*   n_r1 = 7    n_r2 = 54            n_r2_trim = 0 (untrimmed, code 0)
+*   m_out = m_ampbias = 2
+*   amp_m_in = 16   amp_m_nmirr = 4   amp_m_pmirr = 8   amp_m_cc = 16
+*
+* This file is the *schematic side* of LVS. It is deliberately NOT derived
+* from the layout: the whole point of the comparison is that the two were
+* produced independently. Device multiplicity is carried as `m=` on each
+* card (the layout draws `m` physical instances of each), and R2A/R2B carry
+* their untrimmed length `r_lseg * n_r2 = 270u`; the trim ladder's taps are
+* a metal option (DR-002) that does not change code-0 topology.
+*
+* Terminal orders follow KLayout's SPICE reader defaults for each device
+* class the sky130 extraction deck registers:
+*   M<name> D G S B <model>            (nfet/pfet)
+*   Q<name> C B E <model>              (pnp)
+*   R<name> A B <value> <model>        (res_generic_po)
+
+.subckt bandgap_core VOUT GDRV VDD VSS
+* ---- core PMOS mirror (MPOUT / MPAMP), W=8 L=2, mult=2 each -------------
+MMPOUT VOUT GDRV VDD VDD pfet L=2U W=8U m=2
+MMPAMP TAIL GDRV VDD VDD pfet L=2U W=8U m=2
+* ---- error amplifier (design/error_amp.sch), flattened -----------------
+MMP1  D1   VA   TAIL VDD pfet L=10U W=20U m=16
+MMP2  D2   VB   TAIL VDD pfet L=10U W=20U m=16
+MMN1  D1   D1   VSS  VSS nfet L=20U W=8U  m=4
+MMN2  D2   D2   VSS  VSS nfet L=20U W=8U  m=4
+MMN3  AOUT D1   VSS  VSS nfet L=20U W=8U  m=4
+MMN4  PN   D2   VSS  VSS nfet L=20U W=8U  m=4
+MMP4  AOUT PN   VDD  VDD pfet L=20U W=6U  m=8
+MMP3  PN   PN   VDD  VDD pfet L=20U W=6U  m=8
+MMCC  VDD  AOUT VDD  VDD pfet L=20U W=30U m=16
+* The amp's output is the core's gate-drive node.
+RGDRV AOUT GDRV 0
+* ---- divider legs: R2A/R2B, W=1 L=270 (n_r2=54 x r_lseg=5) -------------
+RR2A VA  VOUT 87750 res_generic_po
+RR2B VB  VOUT 87750 res_generic_po
+* ---- dVBE leg: R1, W=1 L=35 (n_r1=7 x r_lseg=5) ------------------------
+RR1  VBQ VB   11755 res_generic_po
+* ---- PNP pair, diode-connected (base and collector to VSS) -------------
+QQ1 VSS VSS VA  pnp m=8
+QQ2 VSS VSS VBQ pnp m=8
+.ends bandgap_core
