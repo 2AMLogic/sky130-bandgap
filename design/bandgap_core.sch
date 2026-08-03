@@ -138,9 +138,13 @@ v {xschem version=3.4.7 file_version=1.2
 *     to be re-solved together) or widening the error amp's own headroom
 *     margin (#9) so a larger K does not cost hot-corner regulation --
 *     all out of scope here, flagged for follow-up.
-*   - This is *untrimmed* first-pass sizing for a nominal operating point.
-*     The +/-1% spec claim over the full PVT matrix is issue #11's job, trim
-*     is #13, and the offset budget that may re-size the amp is #9.
+*   - This is *untrimmed* (n_r2_trim=0) first-pass sizing for a nominal
+*     operating point. The +/-1% spec claim over the full PVT matrix is
+*     issue #11's job; the offset budget that may re-size the amp is #9.
+*     #12's Monte Carlo mismatch analysis found the untrimmed +/-1% target
+*     NOT met (yield collapses to <1% at 125 degC), so #13 adds the
+*     n_r2_trim ladder-tap trim below -- see spec/decision-records/
+*     DR-002-trim-network-scoping.md.
 *
 * Bias / startup: MPAMP mirrors the amplifier's tail current out of the same
 * GDRV gate that supplies the core branches (self-biased -- no supply-
@@ -149,9 +153,12 @@ v {xschem version=3.4.7 file_version=1.2
 * point, which is exactly what issue #10 exists to break: GDRV is exposed on
 * the symbol as the startup attachment node. No startup circuit here.
 *
-* Deliberately NOT in this cell: trim network (#13), startup circuit (#10),
-* output load/buffer, and any corner/temperature/analysis statement (the
-* corner runner injects those around the testbench that instantiates this).
+* The trim network (#13) is the n_r2_trim/r_lseg_trim length-tap addition on
+* R2A/R2B above -- a metal-option choice, not an active device, so it adds
+* no switch/decode circuitry to this cell. Deliberately NOT in this cell:
+* startup circuit (#10), output load/buffer, and any corner/temperature/
+* analysis statement (the corner runner injects those around the testbench
+* that instantiates this).
 *
 * Connectivity is by net label (lab_pin on every device pin), no wires --
 * the same convention the sim/ testbenches use.
@@ -165,6 +172,9 @@ T {bandgap_core -- Kuijk-style CMOS bandgap core (issue #8)
 VOUT = VBE(Q1) + (n_r2/n_r1) * dVBE(Q1,Q2); amplifier forces VA = VB.
 PNP area ratio is built from paralleled fixed-geometry unit devices.
 All resistors are integer multiples of one res_high_po unit segment.
+R2A/R2B carry a downward-only ladder-tap length trim, n_r2_trim (issue #13,
+metal option, code 0..-16); code 0 is untrimmed and matches #8/#11/#12
+exactly. Positive codes are rejected -- see the CORE_PARAMS block below.
 GDRV is the startup attachment node (issue #10); no startup circuit here.
 Connectivity is by net label; no wires.} 100 -1000 0 0 0.4 0.4 {}
 C {devices/code_shown.sym} 100 -1250 0 0 {name=CORE_PARAMS only_toplevel=false value="
@@ -190,6 +200,19 @@ C {devices/code_shown.sym} 100 -1250 0 0 {name=CORE_PARAMS only_toplevel=false v
 * PMOS mirror multiplicities (unit device W=8u L=2u)
 .param m_out=2
 .param m_ampbias=2
+* ---- Trim network (issue #13), DOWNWARD ONLY -- see DR-002 ----
+* Ladder-tap length added to R2A/R2B equally (metal option, no switches).
+* n_r2_trim: valid range 0..-16 only. r_lseg_trim: 1 um/code (~1.7 mV/code).
+* Positive codes are REJECTED: this is the same R2/R1 ratio issue #46 found
+* causes ff/2.97V, fs/2.97V hot-corner (>~123C) operating-point collapse at
+* even a +5 um increase (n_r2=55). sim/trim-range-monotonicity/ reconfirms
+* it for trim and finds codes +1/+2 ALSO collapse (VOUT -> ~2.8V) while +3/
+* +4 happen not to -- non-monotonic-in-code, i.e. no positive code is a
+* certified-safe point, not a safe zone at +3/+4. Only downward (R2
+* decrease) moves away from that edge; confirmed monotonic, collapse-free
+* to -16 across corners. See DR-002 and the sim record for the full case.
+.param n_r2_trim=0
+.param r_lseg_trim=1
 "}
 C {devices/opin.sym} 100 -830 0 0 {name=p_vout lab=VOUT}
 C {devices/iopin.sym} 100 -790 0 0 {name=p_gdrv lab=GDRV}
@@ -226,7 +249,7 @@ C {devices/lab_pin.sym} 910 -650 0 0 {name=ampvdd lab=VDD}
 C {devices/lab_pin.sym} 900 -550 0 0 {name=ampvss lab=VSS}
 C {sky130_fd_pr/res_high_po.sym} 300 -600 0 0 {name=R2A
 W='r_w'
-L='r_lseg*n_r2'
+L='r_lseg*n_r2+r_lseg_trim*n_r2_trim'
 model=res_high_po
 spiceprefix=X
 mult=1}
@@ -235,7 +258,7 @@ C {devices/lab_pin.sym} 300 -570 0 0 {name=r2am lab=VA}
 C {devices/lab_pin.sym} 280 -600 0 0 {name=r2ab lab=VSS}
 C {sky130_fd_pr/res_high_po.sym} 500 -600 0 0 {name=R2B
 W='r_w'
-L='r_lseg*n_r2'
+L='r_lseg*n_r2+r_lseg_trim*n_r2_trim'
 model=res_high_po
 spiceprefix=X
 mult=1}
