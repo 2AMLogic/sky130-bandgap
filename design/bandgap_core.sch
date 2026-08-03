@@ -73,7 +73,12 @@ v {xschem version=3.4.7 file_version=1.2
 *     T-proportionality vs 60.5/79.1 mV measured, at the record's 100 nA
 *     column). Full first-order cancellation of the *average* slope over
 *     -40..125 degC needs K = 1.776/0.196 ~ 9.0 (n_r2 ~ 65 at n_r1 = 7) --
-*     confirmed directly in ngspice: n_r2=65 gives VOUT(27 degC) = 1.2947 V
+*     EPISTEMIC STATUS (issue #55): the n_r2=65 figure below is an
+*     uncommitted scratch run outside the sim/ harness (tt/27 degC/3.30 V
+*     corner only) -- no testbench/record backs it, so treat it as a single
+*     spot-check, not a corner-matrix claim, and re-measure via
+*     sim/output-voltage-tc/ before relying on it. As measured: n_r2=65
+*     gives VOUT(27 degC) = 1.2947 V
 *     (+7.9 % vs 1.20 V) and still only 85.3 ppm/degC box TC (the residual
 *     curvature in both VBE(T) and the sub-PTAT dVBE(T) isn't a straight
 *     line, so even a perfectly slope-matched K doesn't zero the box
@@ -83,20 +88,35 @@ v {xschem version=3.4.7 file_version=1.2
 *   - The accuracy-constrained ceiling is n_r2 = 55 -- the largest integer
 *     segment count for which sim/output-voltage-tc/testbench/tb_vref_tc.sch
 *     still measures VOUT(27 degC) inside the 1.188..1.212 V window at the
-*     nominal corner (tt/27 degC/3.30 V measures 1.20836 V; n_r2=56 already
-*     measures 1.21699 V, over the 1.212 V ceiling). It raises K from ~7.50
+*     nominal corner (tt/27 degC/3.30 V measures 1.20836 V, from the
+*     committed record 20260803-142220-b24b404; n_r2=56 already
+*     measures 1.21699 V at that same corner -- EPISTEMIC STATUS (issue
+*     #55): the n_r2=56 figure is an uncommitted scratch run outside the
+*     harness, no testbench/record backs it, re-measure before relying on
+*     it), over the 1.212 V ceiling. It raises K from ~7.50
 *     to ~7.64 (R2 ~ 89.4..90 kohm) and cuts the box TC at the nominal
 *     tt/27 degC/3.30 V point from 163.4 to 140.8 ppm/degC -- a real but
 *     partial improvement, EXCEPT that a full 15-corner run at n_r2=55
-*     (sim/output-voltage-tc/ record 20260803-142220-b24b404) found that two
-*     corners (ff/2.97 V, fs/2.97 V) do not merely fail the TC/accuracy
-*     limits -- ngspice's continuous -40..125 degC sweep loses the bandgap
-*     operating point entirely above ~123..124 degC, jumping to ~2.82 V
-*     (VREF pinned near VDD, sanity-band FAIL, not a TC number). A
-*     fine-resolution (1 degC step) diagnostic sweep confirmed this is a
+*     (sim/output-voltage-tc/ record 20260803-142220-b24b404, kept as
+*     append-only evidence of the REJECTED n_r2=55 candidate -- NOT the
+*     shipped design; see sim/output-voltage-tc/README.md's record index,
+*     issue #55) found that two corners (ff/2.97 V, fs/2.97 V) do not
+*     merely fail the TC/accuracy limits -- ngspice's continuous -40..125
+*     degC sweep loses the bandgap operating point somewhere in the
+*     committed grid's (114, 125] degC gap, jumping to ~2.82 V (VREF
+*     pinned near VDD, sanity-band FAIL, not a TC number); that range is
+*     exactly what the committed 11 degC grid supports. EPISTEMIC STATUS
+*     (issue #55): the "123 and 124 degC" localization and the n_r2=54
+*     control both below come from a fine-resolution (1 degC step)
+*     diagnostic sweep run as an uncommitted scratch deck outside the sim/
+*     harness -- no testbench/record/log backs either number, so a reader
+*     should not expect to find one, and should re-measure with a
+*     committed fine-grid deck before treating "genuine bifurcation, not a
+*     solver artifact" as more than a strong prior. As run: a
+*     fine-resolution (1 degC step) diagnostic sweep indicated this is a
 *     genuine bifurcation between 123 and 124 degC, not a coarse-grid solver
-*     artifact -- and confirmed it is introduced BY the resize: the same
-*     diagnostic at n_r2=54 stays smooth and well-behaved out to 140 degC
+*     artifact -- and indicated it is introduced BY the resize: the same
+*     diagnostic at n_r2=54 stayed smooth and well-behaved out to 140 degC
 *     (10 degC past the qualified range) at the identical ff/2.97 V corner.
 *     Trading a ~150 ppm/degC TC miss for a corner that stops regulating at
 *     all above ~124 degC is a worse regression than the problem #46 set out
