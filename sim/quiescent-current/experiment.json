@@ -1,0 +1,58 @@
+{
+  "slug": "quiescent-current",
+  "title": "Total quiescent supply current of the untrimmed core over the full PVT matrix",
+  "claim": "README.md 'Target specification (DRAFT)' row 'Iq' (< 50 uA), for the 3.3 V primary flavor (DR-001). Records are PROVISIONAL against the draft spec until issue #1 ratifies it. Measures the total current out of the single supply source feeding design/bandgap_core.sch (both core branches, the R2A/R2B legs and the error amplifier's mirrored tail), open-circuit at VREF, over the full 45-point PVT matrix.",
+  "provenance": "schematic",
+  "provenance_source": "sim/quiescent-current/testbench/tb_vref_iq.sch",
+  "schematic": "testbench/tb_vref_iq.sch",
+  "statistical_convention": "N/A (corner-matrix claim)",
+  "corners": {
+    "process": ["tt", "ss", "ff", "sf", "fs"],
+    "temperature_c": [-40, 27, 125],
+    "supply_v": [2.97, 3.3, 3.63]
+  },
+  "quick_subset": [
+    ["tt", 27, 3.3]
+  ],
+  "deck": {
+    "options": ["wnflag=1"],
+    "params": {},
+    "analyses": ["op"]
+  },
+  "measurements": [
+    {
+      "name": "iq",
+      "expr": "-i(v1)",
+      "unit": "A",
+      "min": 1e-06,
+      "max": 5e-05,
+      "note": "Total quiescent supply current. Upper limit is the draft spec's < 50 uA target column (the < 20 uA stretch column is out of scope for wave 1 per DR-001's scope note). The 1 uA lower bound is a liveness floor, not a spec line: it is the second half of the degenerate-state guard, because the all-off solution draws essentially nothing and would otherwise pass the upper limit trivially."
+    },
+    {
+      "name": "vref",
+      "expr": "v(vref)",
+      "unit": "V",
+      "min": 1.0,
+      "max": 1.4,
+      "note": "Degenerate-state guard, not the accuracy claim: a deliberately wide band that only asserts the core was up and regulating when Iq was read. The +/-1% output-accuracy claim is sim/output-voltage-tc/'s."
+    },
+    {
+      "name": "vgdrv",
+      "expr": "v(gdrv)",
+      "unit": "V",
+      "min": 1.0,
+      "max": 2.9,
+      "note": "Degenerate-state guard on the PMOS mirror gate. In the all-off solution this node parks at VDD, which is at least 2.97 V anywhere in the supply range, so an upper bound of 2.9 V excludes that state at every corner instead of silently reporting a plausible-looking near-zero current."
+    }
+  ],
+  "spread_checks": [
+    {
+      "measurement": "iq",
+      "min_spread": 1e-06,
+      "note": "Iq must move by at least 1 uA across the 45-point matrix. A dead-flat current would mean the corner/temperature/supply knobs are not reaching the simulator -- the same liveness argument sim/pdk-smoke/ makes for the harness itself."
+    }
+  ],
+  "notes": [
+    "Full 45-point PVT matrix, no subset: an operating point is cheap and Iq is meaningful at every individual corner, unlike the box-TC and line-regulation claims whose benches sweep one axis internally."
+  ]
+}

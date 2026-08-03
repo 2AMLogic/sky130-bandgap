@@ -1,0 +1,89 @@
+{
+  "slug": "line-regulation",
+  "title": "Line regulation: untrimmed output shift across the full 3.3 V +/-10% supply range",
+  "claim": "README.md 'Target specification (DRAFT)' row 'Supply' (3.3 V +/-10%) read as an output-shift requirement, checked against the only bound the draft spec implies without inventing a number: the supply-induced shift must fit inside the entire +/-1% output-accuracy window (24 mV p-p on 1.20 V). NECESSARY, not sufficient -- a real budget gives line regulation a fraction of that window. Setting a dedicated line-regulation line item is issue #1's call; these numbers are its input. Records are PROVISIONAL against the draft spec until #1 ratifies it.",
+  "provenance": "schematic",
+  "provenance_source": "sim/line-regulation/testbench/tb_vref_linereg.sch",
+  "schematic": "testbench/tb_vref_linereg.sch",
+  "statistical_convention": "N/A (corner-matrix claim)",
+  "corners": {
+    "process": ["tt", "ss", "ff", "sf", "fs"],
+    "temperature_c": [-40, 27, 125],
+    "supply_v": [2.97, 3.3, 3.63]
+  },
+  "quick_subset": [
+    ["tt", 27, 3.3]
+  ],
+  "deck": {
+    "options": ["wnflag=1"],
+    "params": {},
+    "analyses": [
+      "dc v1 2.97 3.63 0.022",
+      "meas dc vrefnom FIND v(vref) AT=3.3"
+    ]
+  },
+  "measurements": [
+    {
+      "name": "line_shift_mv",
+      "expr": "(maximum(v(vref))-minimum(v(vref)))*1e3",
+      "unit": "mV",
+      "max": 24.0,
+      "note": "Peak-to-peak VREF excursion across 2.97..3.63 V. Limit is the full +/-1% output-accuracy window (24 mV on 1.20 V) -- see the claim: necessary, not sufficient, and not a ratified line-regulation number."
+    },
+    {
+      "name": "line_reg_pct_per_v",
+      "expr": "(maximum(v(vref))-minimum(v(vref)))/vrefnom/0.66*100",
+      "unit": "%/V",
+      "note": "Informational (no limit): the same excursion expressed as a fractional output change per volt of supply, normalized to VREF at the nominal 3.30 V. The conventional way to quote line regulation."
+    },
+    {
+      "name": "line_psrr_db",
+      "expr": "db(0.66/(maximum(v(vref))-minimum(v(vref))))",
+      "unit": "dB",
+      "note": "Informational (no limit): large-signal DC supply rejection, 20*log10(dVDD/dVREF) over the full range. This is the independent counterpart of sim/psrr-dc/'s small-signal 0.1 Hz psrr_dc; the two should agree within a few dB, and a large disagreement means one of the two benches is wrong."
+    },
+    {
+      "name": "vref_nom",
+      "expr": "vrefnom",
+      "unit": "V",
+      "min": 1.14,
+      "max": 1.26,
+      "note": "VREF at the nominal 3.30 V supply. Loose +/-5% sanity band only -- the +/-1% output-accuracy claim belongs to sim/output-voltage-tc/, not to this bench. Here it is the normalization reference and a check that the core was actually regulating during the sweep."
+    },
+    {
+      "name": "sweep_start_v",
+      "expr": "v(vdd)[0]",
+      "unit": "V",
+      "min": 2.96,
+      "max": 2.98,
+      "note": "Guard: asserts the in-deck supply sweep really started at 2.97 V (-10%)."
+    },
+    {
+      "name": "sweep_end_v",
+      "expr": "v(vdd)[30]",
+      "unit": "V",
+      "min": 3.62,
+      "max": 3.64,
+      "note": "Guard: asserts the in-deck supply sweep really ended at 3.63 V (+10%)."
+    },
+    {
+      "name": "n_supply_points",
+      "expr": "length(v(vref))",
+      "unit": "",
+      "min": 31,
+      "max": 31,
+      "note": "Guard: asserts the supply sweep produced the expected 31 points. If it silently collapsed to a single operating point, line_shift_mv would read 0 mV and look like a perfect pass."
+    }
+  ],
+  "spread_checks": [
+    {
+      "measurement": "line_shift_mv",
+      "min_spread": 0.05,
+      "note": "The supply-induced shift must itself move by at least 0.05 mV across the process/temperature matrix. A dead-flat result would mean the corner include or .temp is not reaching the simulator."
+    }
+  ],
+  "notes": [
+    "Supply is swept INSIDE the deck because the claim is about the shift across a range, not about any single supply point; the runner is therefore invoked with --supply 3.3 --subset-reason. Process and temperature run in full (5 x 3 = 15 points).",
+    "The corner axes above declare the full PVT matrix so the manifest stays the canonical statement of what the claim requires and the subset is visible as a subset in the record."
+  ]
+}
