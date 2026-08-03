@@ -21,11 +21,19 @@ v {xschem version=3.4.7 file_version=1.2
 * three discrete points (-40/27/125). A three-point box would miss the
 * curvature maximum entirely -- for a bandgap the extremum of the
 * characteristic generally sits between the endpoints, not on them. So the
-* deck sweeps `dc temp -40 125 5` (34 points, 5 degC resolution -- fine
-* enough that missing the extremum by at most 2.5 degC costs well under
-* 0.1% of the reported TC on a curve this smooth; each temperature step
-* forces a full re-evaluation of the PDK model set, so 1 degC resolution
-* would cost ~5x the runtime for no measurable gain), and the
+* deck sweeps `dc temp -40 125 11` (16 points, 11 degC resolution). The
+* step is chosen so the grid lands exactly on BOTH endpoints
+* (-40 + 15*11 = 125): the endpoints are where a bandgap characteristic
+* sits furthest from its extremum, so a grid that missed 125 degC would
+* systematically under-report the box excursion. The interior resolution
+* is deliberately coarse -- the curve is smooth and near-quadratic, so
+* missing the interior extremum by at most 5.5 degC costs ~0.13 mV of a
+* ~30 mV peak-to-peak, i.e. under 1 ppm/degC. Every temperature step
+* forces ngspice to re-evaluate the whole PDK model set's temperature
+* parameters, which is what makes this sweep expensive; a bring-up run at
+* 33 degC resolution reported 164.5 ppm/degC at tt / 27 degC / 3.30 V, so
+* the reported number is not an artifact of the grid. The
+* runner is invoked with `--temp 27 --subset-reason ...` so the record says
 * runner is invoked with `--temp 27 --subset-reason ...` so the record says
 * plainly that the outer temperature axis was collapsed to one point
 * because the bench sweeps temperature itself. The process and supply axes
