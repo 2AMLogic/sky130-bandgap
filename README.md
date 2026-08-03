@@ -54,6 +54,14 @@ layout/        GDS + DRC/LVS reports (klayout-tools driven)
 measurements/  silicon characterization (empty until tape-out)
 ```
 
+## History
+
+This repo was developed privately from its first commit (2026-07-28) and
+opened to the public on 2026-07-31. The full git history was kept intact
+through that transition rather than squashed or rewritten, because evidence
+records under `sim/*/records/` cite commit SHAs as provenance — rewriting
+history would invalidate those citations.
+
 ## License
 
 Apache License 2.0 — see [LICENSE](LICENSE).
