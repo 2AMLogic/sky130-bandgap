@@ -292,7 +292,7 @@ documented rather than engineered around silently.
 1.41 % (3 σ) at 27 °C and 1.54 % at 125 °C, against a ±1 % target — and
 that is mismatch **only**, at one process point, with no global process
 shift of V_BE or of the resistor sheet and no temperature curvature. The
-amplifier's own random offset is 77–81 % of that variance, amplified by the
+amplifier's own random offset is 74–90 % of that variance, amplified by the
 core's measured 9.65 offset gain. Meeting the allocation by sizing needs
 3.5 × the amplifier's offset-contributing area for zero margin (§4).
 

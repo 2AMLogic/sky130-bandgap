@@ -211,6 +211,7 @@ experiments ship a bespoke run script next to their testbench instead of an
 | Experiment | Script | Why not the corner runner |
 |---|---|---|
 | `sim/pnp-mismatch/` | `run_pnp_mismatch.py` | N = 300 Monte Carlo samples per point; the PDK's `MC_MM_SWITCH` mismatch terms are re-drawn on each ngspice `reset` |
+| `sim/error-amp-offset-mc/` | `run_amp_offset_mc.py` | N = 300 Monte Carlo samples per point of the error amplifier's input-referred offset; same `MC_MM_SWITCH` resampling-per-`reset` need as `sim/pnp-mismatch/` |
 
 Such a script still has to behave like the harness:
 
