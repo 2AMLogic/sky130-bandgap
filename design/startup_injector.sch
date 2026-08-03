@@ -26,6 +26,9 @@ v {xschem version=3.4.7 file_version=1.2
 *                     |
 *                    VSS
 *
+*   VDD --- MNC  W=4 L=1, gate = VSENSE --- GDRV   (railed-branch clamp,
+*                                                   issue #52; see below)
+*
 * How it works
 * ------------
 * MPC1/MPC2 are a two-high diode-connected PMOS reference *fed from GDRV*,
@@ -67,19 +70,79 @@ v {xschem version=3.4.7 file_version=1.2
 * numbers on both sides of it are recorded per corner in
 * sim/startup-stability/, not asserted here.
 *
+* MNC -- the railed-branch clamp (issue #52)
+* ------------------------------------------
+* Everything above evicts the loop from the wrong state that sits ABOVE the
+* operating point: GDRV at VDD, every branch off. The loop has a second wrong
+* state BELOW the operating point, and no amount of pull-down can reach it.
+* With GDRV driven low, the core's MPAMP over-drives the amplifier tail; the
+* amplifier's folding node PN collapses toward VSS; MN4 drops into deep
+* triode while MN3 does not; and the output current of design/error_amp.sch
+* changes SIGN. The core+amp loop then has a genuine second stable
+* equilibrium at GDRV ~ 0.78 V with VOUT railed at ~3.5 V and ~540 uA of
+* supply current. It is a property of the core+amp loop and not of this
+* cell -- the bare-core CONTROL instance in sim/startup-stability/ shows the
+* same three crossings -- and it appears only with the amplifier sizing
+* design/error_amp.sch has shipped since issue #9 / PR #41. Issue #52.
+*
+* MNC breaks it with one device: an NMOS from VDD to GDRV, gate on VSENSE.
+* Its source is GDRV and its bulk is VSS, so it conducts only when
+*
+*     VOUT > GDRV + Vth_n(Vsb = GDRV)
+*
+* i.e. only when the output has run away ABOVE the mirror gate that is
+* supposed to be holding it down. On the intended branch that inequality is
+* not merely false, it is false by a wide margin in two independent ways:
+* VOUT ~ 1.2 V while GDRV ~ VDD - |Vgs_p| >= 1.5 V, so VOUT - GDRV is
+* NEGATIVE by 0.3..1.3 V, and the body effect at Vsb = GDRV adds ~1 V of
+* threshold on top of that. In the degenerate state it is more negative
+* still (VOUT ~ 0, GDRV = VDD). At the railed state it is satisfied by
+* +2.7 V. So MNC is a switch whose OFF condition is the design intent
+* itself: no reference to trim, no always-on branch, and -- unlike m_ref --
+* no trade against the disengaged residual, because it is not a
+* threshold-referenced current source but a comparison between two node
+* voltages that can only be ordered one way when the loop is healthy.
+*
+* MNC also cannot fight startup: on the traverse from the degenerate state
+* GDRV falls from VDD toward VDD - |Vgs_p| while VOUT rises from 0 to ~1.2 V,
+* so VOUT - GDRV is monotonically negative the whole way. The per-corner
+* evidence for all of this is sim/startup-stability/ (DC: exactly one
+* crossing) and sim/startup-ramp/ (transient: the same settled output on a
+* slow ramp, a fast ramp and a degenerate start).
+*
 * Known limitation (recorded, not hidden): at the hot/high-supply corners the
-* reference is still in strong inversion once the core is running, so the
-* cell keeps drawing tens of nA out of GDRV. GDRV is a high-impedance
-* amplifier output, so that residual shows up on the reference. The largest
-* *measured* output shift in the record is 3.2 mV at tt/125 degC/3.63 V
-* (sim/startup-stability/records/20260803-124600-e599e30.md). The reasoning
-* above predicts ff/125 degC/3.63 V should be worse still, but that corner
-* has NOT been measured -- it is the one point that timed out in that record,
-* so no number exists for it; the re-run is tracked by issue #48. Until then
-* 3.2 mV is the number to carry (issue #11 subtracts the measured worst case,
-* not a prediction). Removing the residual needs a reference that is not a MOS
-* threshold (a replica-current comparison), which costs a standing bias branch
-* of its own -- see the record and the follow-up issue rather than a claim here.
+* MPC1/MPC2 reference is still in strong inversion once the core is running,
+* so the cell keeps drawing tens of nA out of GDRV. GDRV is a high-impedance
+* amplifier output, so that residual shows up on the reference. The measured
+* worst case over the 12-corner matrix is
+*
+*     dvref = +8.70 mV at ff/125 degC/3.63 V
+*     (sim/startup-stability/records/20260803-204236-f41373d.md;
+*      i_su_standing = 72.3 nA at the same corner)
+*
+* and that is the number issue #11 subtracts. dvref is the shift of the
+* whole cell, so it bounds every device in it, MNC included.
+*
+* This RETIRES the 3.2 mV at tt/125 degC/3.63 V that this comment used to
+* name as the number to carry. That figure is not superseded by a larger
+* measurement of the same thing -- it is retired because the circuit it was
+* measured on was replaced: record 20260803-124600-e599e30's netlist
+* snapshot carries .param amp_m_in=2, i.e. the amplifier from before issue
+* #9 / PR #41. On the amplifier the design actually ships, that same corner
+* now reads 1.91 mV. The prediction this comment made -- that
+* ff/125 degC/3.63 V would be worse still -- held: it is 4.6x tt at the same
+* temperature and supply, and it is now measured rather than predicted.
+*
+* None of the residual is MNC's. At that corner MNC sits at
+* Vgs - Vth ~ -2.4 V, and rewiring its gate to VSS leaves v(VREFD), v(GD)
+* and both supply currents identical to 7 significant figures (uncommitted
+* scratch run outside the sim/ harness, both legs seeded onto the intended
+* branch so the railed branch is not what is compared -- per CLAUDE.md that
+* is orientation, not evidence; the committed bound is dvref above).
+*
+* Removing the residual needs a reference that is not a MOS threshold (a
+* replica-current comparison), which costs a standing bias branch of its
+* own -- see the record and issue #11 rather than a claim here.
 *
 * Deliberately NOT in this cell: any capacitor or one-shot. Disengagement is
 * *static*, so a supply ramp of any rate is covered by the same argument, and
@@ -98,11 +161,15 @@ K {}
 V {}
 S {}
 E {}
-T {startup_injector -- degenerate-state breaker for bandgap_core (issue #10)
+T {startup_injector -- wrong-state breaker for bandgap_core (issues #10, #52)
 A two-high diode-connected PMOS reference fed FROM GDRV holds MNI's gate high
 while the core is dead and collapses once the core pulls GDRV down; MNS over a
 diode-connected PNP sets a VBE-referenced release threshold that tracks the
 core's own self-sustaining point over temperature.
+MNC is the mirror-image half (issue #52): an NMOS from VDD to GDRV gated by
+VSENSE, so it conducts only when VOUT has run away ABOVE the mirror gate --
+the signature of the core+amp loop's railed branch, and an ordering that
+cannot occur on the intended branch.
 No always-on bias branch from VDD anywhere in this cell.
 Connectivity is by net label; no wires.} 100 -820 0 0 0.4 0.4 {}
 C {devices/code_shown.sym} 100 -1080 0 0 {name=SU_PARAMS only_toplevel=false value="
@@ -116,10 +183,15 @@ C {devices/code_shown.sym} 100 -1080 0 0 {name=SU_PARAMS only_toplevel=false val
 *          sense current, i.e. lowers the release threshold.
 * m_inj  : units of the (W=10 L=0.5) injector NMOS. Scales the eviction
 *          current and the disengaged residual in the same proportion.
+* m_clamp: units of the (W=4 L=1) railed-branch clamp NMOS MNC. Scales only
+*          how hard the railed branch is evicted; MNC is off by more than a
+*          threshold at every legitimate operating point, so this knob does
+*          NOT trade against the disengaged residual the way m_ref does.
 .param m_ref=1
 .param m_sense=1
 .param m_pnp=8
 .param m_inj=1
+.param m_clamp=1
 "}
 C {devices/iopin.sym} 100 -560 0 0 {name=p_gdrv lab=GDRV}
 C {devices/ipin.sym} 100 -520 0 0 {name=p_vsense lab=VSENSE}
@@ -176,3 +248,14 @@ C {devices/lab_pin.sym} 820 -630 0 0 {name=mnid lab=GDRV}
 C {devices/lab_pin.sym} 780 -600 0 0 {name=mnig lab=NG}
 C {devices/lab_pin.sym} 820 -570 0 0 {name=mnis lab=VSS}
 C {devices/lab_pin.sym} 820 -600 0 0 {name=mnib lab=VSS}
+C {sky130_fd_pr/nfet_g5v0d10v5.sym} 1200 -600 0 0 {name=MNC
+L=1
+W=4
+nf=1
+mult='m_clamp'
+model=nfet_g5v0d10v5
+spiceprefix=X}
+C {devices/lab_pin.sym} 1220 -630 0 0 {name=mncd lab=VDD}
+C {devices/lab_pin.sym} 1180 -600 0 0 {name=mncg lab=VSENSE}
+C {devices/lab_pin.sym} 1220 -570 0 0 {name=mncs lab=GDRV}
+C {devices/lab_pin.sym} 1220 -600 0 0 {name=mncb lab=VSS}

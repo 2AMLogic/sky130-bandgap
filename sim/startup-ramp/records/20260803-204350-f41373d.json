@@ -1,0 +1,1661 @@
+{
+  "author": "robb@2amlogic.com",
+  "corners": [
+    {
+      "corner_id": "tt_-40c_2.97v",
+      "elapsed_s": 172.913,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-ramp/corners/20260803-204350-f41373d/tt_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "t_ref_s - t_vdd_s",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": -0.000372723
+        },
+        {
+          "expr": "t_ref_f - t_vdd_f",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_f",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": -1.13243e-07
+        },
+        {
+          "expr": "t_ref_g - t_vdd_g",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_g",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 1.112701e-09
+        },
+        {
+          "expr": "t_ref_s",
+          "max": 0.0022,
+          "min": null,
+          "name": "t_abs_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 0.0006037078
+        },
+        {
+          "expr": "v_s",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_s",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.207409
+        },
+        {
+          "expr": "v_f",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_f",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.207164
+        },
+        {
+          "expr": "v_g",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_g",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.207175
+        },
+        {
+          "expr": "abs(v_s - v_g) + abs(v_s - v_f)",
+          "max": 0.001,
+          "min": null,
+          "name": "vref_spread",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.000479
+        },
+        {
+          "expr": "v_n",
+          "max": 0.95,
+          "min": null,
+          "name": "vref_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5330473
+        },
+        {
+          "expr": "g_n",
+          "max": null,
+          "min": 2.5,
+          "name": "gn_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.975925
+        },
+        {
+          "expr": "-isg",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_g",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.484243e-05
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 1800
+    },
+    {
+      "corner_id": "tt_-40c_3.63v",
+      "elapsed_s": 188.876,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-ramp/corners/20260803-204350-f41373d/tt_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "t_ref_s - t_vdd_s",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": -0.000301527
+        },
+        {
+          "expr": "t_ref_f - t_vdd_f",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_f",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": -7.90041e-08
+        },
+        {
+          "expr": "t_ref_g - t_vdd_g",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_g",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 7.250169e-10
+        },
+        {
+          "expr": "t_ref_s",
+          "max": 0.0022,
+          "min": null,
+          "name": "t_abs_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 0.0004973712
+        },
+        {
+          "expr": "v_s",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_s",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.207586
+        },
+        {
+          "expr": "v_f",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_f",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.207187
+        },
+        {
+          "expr": "v_g",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_g",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.207184
+        },
+        {
+          "expr": "abs(v_s - v_g) + abs(v_s - v_f)",
+          "max": 0.001,
+          "min": null,
+          "name": "vref_spread",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.000801
+        },
+        {
+          "expr": "v_n",
+          "max": 0.95,
+          "min": null,
+          "name": "vref_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5317315
+        },
+        {
+          "expr": "g_n",
+          "max": null,
+          "min": 2.5,
+          "name": "gn_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.635952
+        },
+        {
+          "expr": "-isg",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_g",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.487946e-05
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 1800
+    },
+    {
+      "corner_id": "tt_125c_2.97v",
+      "elapsed_s": 180.349,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-ramp/corners/20260803-204350-f41373d/tt_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "t_ref_s - t_vdd_s",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 4.4008e-05
+        },
+        {
+          "expr": "t_ref_f - t_vdd_f",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_f",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 2.6782e-08
+        },
+        {
+          "expr": "t_ref_g - t_vdd_g",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_g",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 1.67305e-09
+        },
+        {
+          "expr": "t_ref_s",
+          "max": 0.0022,
+          "min": null,
+          "name": "t_abs_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 0.001020439
+        },
+        {
+          "expr": "v_s",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_s",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.175117
+        },
+        {
+          "expr": "v_f",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_f",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.175117
+        },
+        {
+          "expr": "v_g",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_g",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.175117
+        },
+        {
+          "expr": "abs(v_s - v_g) + abs(v_s - v_f)",
+          "max": 0.001,
+          "min": null,
+          "name": "vref_spread",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0
+        },
+        {
+          "expr": "v_n",
+          "max": 0.95,
+          "min": null,
+          "name": "vref_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.05667902
+        },
+        {
+          "expr": "g_n",
+          "max": null,
+          "min": 2.5,
+          "name": "gn_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.940085
+        },
+        {
+          "expr": "-isg",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_g",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.892316e-05
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 1800
+    },
+    {
+      "corner_id": "tt_125c_3.63v",
+      "elapsed_s": 206.737,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-ramp/corners/20260803-204350-f41373d/tt_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "t_ref_s - t_vdd_s",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 4.86293e-05
+        },
+        {
+          "expr": "t_ref_f - t_vdd_f",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_f",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 2.66081e-08
+        },
+        {
+          "expr": "t_ref_g - t_vdd_g",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_g",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 1.072178e-09
+        },
+        {
+          "expr": "t_ref_s",
+          "max": 0.0022,
+          "min": null,
+          "name": "t_abs_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 0.0008475274
+        },
+        {
+          "expr": "v_s",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_s",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.176934
+        },
+        {
+          "expr": "v_f",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_f",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.176934
+        },
+        {
+          "expr": "v_g",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_g",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.176934
+        },
+        {
+          "expr": "abs(v_s - v_g) + abs(v_s - v_f)",
+          "max": 0.001,
+          "min": null,
+          "name": "vref_spread",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0
+        },
+        {
+          "expr": "v_n",
+          "max": 0.95,
+          "min": null,
+          "name": "vref_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.05431358
+        },
+        {
+          "expr": "g_n",
+          "max": null,
+          "min": 2.5,
+          "name": "gn_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.597761
+        },
+        {
+          "expr": "-isg",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_g",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.905596e-05
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 1800
+    },
+    {
+      "corner_id": "ss_-40c_2.97v",
+      "elapsed_s": 216.75,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-ramp/corners/20260803-204350-f41373d/ss_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "t_ref_s - t_vdd_s",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": -0.000320545
+        },
+        {
+          "expr": "t_ref_f - t_vdd_f",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_f",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": -3.55311e-08
+        },
+        {
+          "expr": "t_ref_g - t_vdd_g",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_g",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 1.113052e-09
+        },
+        {
+          "expr": "t_ref_s",
+          "max": 0.0022,
+          "min": null,
+          "name": "t_abs_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 0.0006558861
+        },
+        {
+          "expr": "v_s",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_s",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.207843
+        },
+        {
+          "expr": "v_f",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_f",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.207771
+        },
+        {
+          "expr": "v_g",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_g",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.207771
+        },
+        {
+          "expr": "abs(v_s - v_g) + abs(v_s - v_f)",
+          "max": 0.001,
+          "min": null,
+          "name": "vref_spread",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.000144
+        },
+        {
+          "expr": "v_n",
+          "max": 0.95,
+          "min": null,
+          "name": "vref_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5332787
+        },
+        {
+          "expr": "g_n",
+          "max": null,
+          "min": 2.5,
+          "name": "gn_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.976991
+        },
+        {
+          "expr": "-isg",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_g",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.468916e-05
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 1800
+    },
+    {
+      "corner_id": "ss_-40c_3.63v",
+      "elapsed_s": 245.143,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-ramp/corners/20260803-204350-f41373d/ss_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "t_ref_s - t_vdd_s",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": -0.000258228
+        },
+        {
+          "expr": "t_ref_f - t_vdd_f",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_f",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": -3.44537e-08
+        },
+        {
+          "expr": "t_ref_g - t_vdd_g",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_g",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 7.288819e-10
+        },
+        {
+          "expr": "t_ref_s",
+          "max": 0.0022,
+          "min": null,
+          "name": "t_abs_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 0.0005406705
+        },
+        {
+          "expr": "v_s",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_s",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.207911
+        },
+        {
+          "expr": "v_f",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_f",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.207788
+        },
+        {
+          "expr": "v_g",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_g",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.207788
+        },
+        {
+          "expr": "abs(v_s - v_g) + abs(v_s - v_f)",
+          "max": 0.001,
+          "min": null,
+          "name": "vref_spread",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.000246
+        },
+        {
+          "expr": "v_n",
+          "max": 0.95,
+          "min": null,
+          "name": "vref_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5319032
+        },
+        {
+          "expr": "g_n",
+          "max": null,
+          "min": 2.5,
+          "name": "gn_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.637033
+        },
+        {
+          "expr": "-isg",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_g",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.419091e-05
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 1800
+    },
+    {
+      "corner_id": "ss_125c_2.97v",
+      "elapsed_s": 225.311,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-ramp/corners/20260803-204350-f41373d/ss_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "t_ref_s - t_vdd_s",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 0.000145716
+        },
+        {
+          "expr": "t_ref_f - t_vdd_f",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_f",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 4.2815e-08
+        },
+        {
+          "expr": "t_ref_g - t_vdd_g",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_g",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 1.647335e-09
+        },
+        {
+          "expr": "t_ref_s",
+          "max": 0.0022,
+          "min": null,
+          "name": "t_abs_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 0.001122147
+        },
+        {
+          "expr": "v_s",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_s",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.175375
+        },
+        {
+          "expr": "v_f",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_f",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.175375
+        },
+        {
+          "expr": "v_g",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_g",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.175375
+        },
+        {
+          "expr": "abs(v_s - v_g) + abs(v_s - v_f)",
+          "max": 0.001,
+          "min": null,
+          "name": "vref_spread",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0
+        },
+        {
+          "expr": "v_n",
+          "max": 0.95,
+          "min": null,
+          "name": "vref_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.05697181
+        },
+        {
+          "expr": "g_n",
+          "max": null,
+          "min": 2.5,
+          "name": "gn_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.940803
+        },
+        {
+          "expr": "-isg",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_g",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.881624e-05
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 1800
+    },
+    {
+      "corner_id": "ss_125c_3.63v",
+      "elapsed_s": 205.311,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-ramp/corners/20260803-204350-f41373d/ss_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "t_ref_s - t_vdd_s",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 0.0001031576
+        },
+        {
+          "expr": "t_ref_f - t_vdd_f",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_f",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 7.68026e-08
+        },
+        {
+          "expr": "t_ref_g - t_vdd_g",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_g",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 1.060286e-09
+        },
+        {
+          "expr": "t_ref_s",
+          "max": 0.0022,
+          "min": null,
+          "name": "t_abs_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 0.0009020557
+        },
+        {
+          "expr": "v_s",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_s",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.175639
+        },
+        {
+          "expr": "v_f",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_f",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.175639
+        },
+        {
+          "expr": "v_g",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_g",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.175639
+        },
+        {
+          "expr": "abs(v_s - v_g) + abs(v_s - v_f)",
+          "max": 0.001,
+          "min": null,
+          "name": "vref_spread",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0
+        },
+        {
+          "expr": "v_n",
+          "max": 0.95,
+          "min": null,
+          "name": "vref_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.05446907
+        },
+        {
+          "expr": "g_n",
+          "max": null,
+          "min": 2.5,
+          "name": "gn_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.598238
+        },
+        {
+          "expr": "-isg",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_g",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.822949e-05
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 1800
+    },
+    {
+      "corner_id": "ff_-40c_2.97v",
+      "elapsed_s": 172.609,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-ramp/corners/20260803-204350-f41373d/ff_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "t_ref_s - t_vdd_s",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": -0.000432252
+        },
+        {
+          "expr": "t_ref_f - t_vdd_f",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_f",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": -1.97486e-07
+        },
+        {
+          "expr": "t_ref_g - t_vdd_g",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_g",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 1.104675e-09
+        },
+        {
+          "expr": "t_ref_s",
+          "max": 0.0022,
+          "min": null,
+          "name": "t_abs_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 0.0005441786
+        },
+        {
+          "expr": "v_s",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_s",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.207596
+        },
+        {
+          "expr": "v_f",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_f",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.206712
+        },
+        {
+          "expr": "v_g",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_g",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.206712
+        },
+        {
+          "expr": "abs(v_s - v_g) + abs(v_s - v_f)",
+          "max": 0.001,
+          "min": null,
+          "name": "vref_spread",
+          "pass": false,
+          "reason": "above max 0.001",
+          "unit": "V",
+          "value": 0.001768
+        },
+        {
+          "expr": "v_n",
+          "max": 0.95,
+          "min": null,
+          "name": "vref_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5328385
+        },
+        {
+          "expr": "g_n",
+          "max": null,
+          "min": 2.5,
+          "name": "gn_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.975071
+        },
+        {
+          "expr": "-isg",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_g",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.460291e-05
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 1800
+    },
+    {
+      "corner_id": "ff_-40c_3.63v",
+      "elapsed_s": 239.138,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-ramp/corners/20260803-204350-f41373d/ff_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "t_ref_s - t_vdd_s",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": -0.000350764
+        },
+        {
+          "expr": "t_ref_f - t_vdd_f",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_f",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": -1.80317e-07
+        },
+        {
+          "expr": "t_ref_g - t_vdd_g",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_g",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 7.144289e-10
+        },
+        {
+          "expr": "t_ref_s",
+          "max": 0.0022,
+          "min": null,
+          "name": "t_abs_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 0.0004481342
+        },
+        {
+          "expr": "v_s",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_s",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.208184
+        },
+        {
+          "expr": "v_f",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_f",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.206738
+        },
+        {
+          "expr": "v_g",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_g",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.206733
+        },
+        {
+          "expr": "abs(v_s - v_g) + abs(v_s - v_f)",
+          "max": 0.001,
+          "min": null,
+          "name": "vref_spread",
+          "pass": false,
+          "reason": "above max 0.001",
+          "unit": "V",
+          "value": 0.002897
+        },
+        {
+          "expr": "v_n",
+          "max": 0.95,
+          "min": null,
+          "name": "vref_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.5315723
+        },
+        {
+          "expr": "g_n",
+          "max": null,
+          "min": 2.5,
+          "name": "gn_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.635084
+        },
+        {
+          "expr": "-isg",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_g",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.46329e-05
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 1800
+    },
+    {
+      "corner_id": "ff_125c_2.97v",
+      "elapsed_s": 246.243,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-ramp/corners/20260803-204350-f41373d/ff_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "t_ref_s - t_vdd_s",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": -3.40638e-05
+        },
+        {
+          "expr": "t_ref_f - t_vdd_f",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_f",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": -4.76879e-08
+        },
+        {
+          "expr": "t_ref_g - t_vdd_g",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_g",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 1.710826e-09
+        },
+        {
+          "expr": "t_ref_s",
+          "max": 0.0022,
+          "min": null,
+          "name": "t_abs_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 0.0009423672
+        },
+        {
+          "expr": "v_s",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_s",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.175047
+        },
+        {
+          "expr": "v_f",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_f",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.175047
+        },
+        {
+          "expr": "v_g",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_g",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.175047
+        },
+        {
+          "expr": "abs(v_s - v_g) + abs(v_s - v_f)",
+          "max": 0.001,
+          "min": null,
+          "name": "vref_spread",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0
+        },
+        {
+          "expr": "v_n",
+          "max": 0.95,
+          "min": null,
+          "name": "vref_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.05656073
+        },
+        {
+          "expr": "g_n",
+          "max": null,
+          "min": 2.5,
+          "name": "gn_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.939624
+        },
+        {
+          "expr": "-isg",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_g",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.85607e-05
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 1800
+    },
+    {
+      "corner_id": "ff_125c_3.63v",
+      "elapsed_s": 197.622,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-ramp/corners/20260803-204350-f41373d/ff_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "t_ref_s - t_vdd_s",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": -1.56525e-05
+        },
+        {
+          "expr": "t_ref_f - t_vdd_f",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_f",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": -2.84025e-08
+        },
+        {
+          "expr": "t_ref_g - t_vdd_g",
+          "max": 0.001,
+          "min": null,
+          "name": "t_start_g",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 1.089852e-09
+        },
+        {
+          "expr": "t_ref_s",
+          "max": 0.0022,
+          "min": null,
+          "name": "t_abs_s",
+          "pass": true,
+          "reason": "",
+          "unit": "s",
+          "value": 0.0007832456
+        },
+        {
+          "expr": "v_s",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_s",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.183555
+        },
+        {
+          "expr": "v_f",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_f",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.183555
+        },
+        {
+          "expr": "v_g",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_g",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.183555
+        },
+        {
+          "expr": "abs(v_s - v_g) + abs(v_s - v_f)",
+          "max": 0.001,
+          "min": null,
+          "name": "vref_spread",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0
+        },
+        {
+          "expr": "v_n",
+          "max": 0.95,
+          "min": null,
+          "name": "vref_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.05431153
+        },
+        {
+          "expr": "g_n",
+          "max": null,
+          "min": 2.5,
+          "name": "gn_n",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.597385
+        },
+        {
+          "expr": "-isg",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_g",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.911866e-05
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 1800
+    }
+  ],
+  "experiment": {
+    "claim": "spec/topology-survey.md Startup row (\"self-starting, < 1 ms\") -- the startup-TIME half. Measures, in a single transient per PVT point, how long design/bandgap_core.sch + design/startup_injector.sch takes to bring VOUT up after the supply arrives, on a slow ramp, on a fast ramp, and from the worst case of all: placed *in* the degenerate zero-current state at full supply and asked to leave it. The no-other-stable-state half of the same spec line is the sibling experiment sim/startup-stability/; the +/-1% output-accuracy claim is issue #11.",
+    "provenance": "schematic",
+    "provenance_source": "sim/startup-ramp/testbench/tb_startup_ramp.sch",
+    "slug": "startup-ramp",
+    "statistical_convention": "N/A (corner-matrix claim, not a distribution claim)",
+    "title": "Startup: supply-ramp transient startup time against the < 1 ms spec line"
+  },
+  "git": {
+    "branch": "feature/issue-52",
+    "dirty": false,
+    "sha": "f41373d"
+  },
+  "links": {
+    "corners_dir": "sim/startup-ramp/corners/20260803-204350-f41373d/",
+    "json": "sim/startup-ramp/records/20260803-204350-f41373d.json",
+    "manifest": "sim/startup-ramp/experiment.json",
+    "netlist_snapshot": "sim/startup-ramp/netlist-snapshots/20260803-204350-f41373d.spice",
+    "record": "sim/startup-ramp/records/20260803-204350-f41373d.md",
+    "testbench": "sim/startup-ramp/testbench/tb_startup_ramp.sch"
+  },
+  "matrix": {
+    "is_subset": true,
+    "n_points": 12,
+    "point_ids": [
+      "tt_-40c_2.97v",
+      "tt_-40c_3.63v",
+      "tt_125c_2.97v",
+      "tt_125c_3.63v",
+      "ss_-40c_2.97v",
+      "ss_-40c_3.63v",
+      "ss_125c_2.97v",
+      "ss_125c_3.63v",
+      "ff_-40c_2.97v",
+      "ff_-40c_3.63v",
+      "ff_125c_2.97v",
+      "ff_125c_3.63v"
+    ],
+    "points": [
+      [
+        "tt",
+        -40.0,
+        2.97
+      ],
+      [
+        "tt",
+        -40.0,
+        3.63
+      ],
+      [
+        "tt",
+        125.0,
+        2.97
+      ],
+      [
+        "tt",
+        125.0,
+        3.63
+      ],
+      [
+        "ss",
+        -40.0,
+        2.97
+      ],
+      [
+        "ss",
+        -40.0,
+        3.63
+      ],
+      [
+        "ss",
+        125.0,
+        2.97
+      ],
+      [
+        "ss",
+        125.0,
+        3.63
+      ],
+      [
+        "ff",
+        -40.0,
+        2.97
+      ],
+      [
+        "ff",
+        -40.0,
+        3.63
+      ],
+      [
+        "ff",
+        125.0,
+        2.97
+      ],
+      [
+        "ff",
+        125.0,
+        3.63
+      ]
+    ],
+    "process": [
+      "tt",
+      "ss",
+      "ff"
+    ],
+    "subset_reason": "Issue #10's stated worst-corner matrix for startup: slow and fast supply ramps (both are in every deck, as separate DUT copies) x -40/125 degC x ss/ff process x the 2.97/3.63 V supply endpoints, plus tt as the nominal process reference. The 27 degC row and the sf/fs skew corners are dropped because startup time here is set by how fast the injector can drag the mirror gate down and by when the core becomes self-sustaining, and both are monotone in temperature and in the n/p process axis, so ss/-40 (slowest) and ff/125 (fastest) bracket them. This is the same 12-corner matrix record 20260803-124933-e599e30 ran, repeated unchanged so the two are directly comparable across the design vintage split (that record's netlist snapshot carries the pre-issue-#41 amp, .param amp_m_in=2; this one carries amp_m_in=16 plus the issue-#52 railed-branch clamp MNC).",
+    "supply_v": [
+      2.97,
+      3.63
+    ],
+    "temperature_c": [
+      -40.0,
+      125.0
+    ]
+  },
+  "overall_pass": false,
+  "pdk": {
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "lib_file": "/Users/rwalters/.volare/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "root": "/Users/rwalters/.volare",
+    "variant": "sky130A"
+  },
+  "record_id": "20260803-204350-f41373d",
+  "spread_checks": [
+    {
+      "measurement": "vref_g",
+      "min_spread": 0.01,
+      "n": 12,
+      "note": "Untrimmed output over process and temperature must move by more than 10 mV; a frozen value would indicate the .lib corner or .temp injection stopped taking effect.",
+      "observed_spread": 0.03274100000000013,
+      "pass": true,
+      "reason": ""
+    }
+  ],
+  "supersedes": "20260803-124933-e599e30",
+  "timestamp": "2026-08-03T20:43:50Z",
+  "tools": {
+    "ngspice": "ngspice-46 : Circuit level simulation program",
+    "platform": "Darwin 25.6.0 arm64",
+    "python": "3.14.6",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}
