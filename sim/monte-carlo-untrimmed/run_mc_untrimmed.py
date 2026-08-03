@@ -797,18 +797,19 @@ def render_record(r: dict) -> str:
     add("")
     dominant_note = ""
     all27 = by_temp.get(27.0, {})
-    if all(c in all27 for c in ("pnp", "resistor", "mos")):
+    if all(c in all27 for c in ("all", "pnp", "resistor", "mos")):
         sigmas = {
             "PNP array": all27["pnp"]["stats"]["vout"]["sigma"],
             "resistor network": all27["resistor"]["stats"]["vout"]["sigma"],
             "amp/mirror MOS": all27["mos"]["stats"]["vout"]["sigma"],
         }
+        total_sigma_27c = all27["all"]["stats"]["vout"]["sigma"]
         dominant = max(sigmas, key=lambda k: sigmas[k])
         dominant_note = (
             f"At 27 °C the dominant term is **{dominant}** "
-            f"({mv(sigmas[dominant])} mV of the {mv(max(sigmas.values()))} mV largest "
-            f"contributor) — this is the term issue #15's layout matching priority and "
-            f"issue #13's trim-range scoping should target first."
+            f"({mv(sigmas[dominant])} mV of {mv(total_sigma_27c)} mV measured σ(all)) — "
+            f"this is the term issue #15's layout matching priority and issue #13's "
+            f"trim-range scoping should target first."
         )
     add(dominant_note)
     add("")
