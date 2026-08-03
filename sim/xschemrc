@@ -30,6 +30,18 @@ if {![file exists $_sky130_rc]} {
 }
 unset _sky130_rc
 
+#### Put the repository root on the symbol search path so this project's own
+#### cells resolve by their repo-relative name (e.g. `design/bandgap_core.sym`)
+#### rather than by an absolute, machine-local path. Appended *after* the PDK
+#### entries so a project symbol can never shadow a `sky130_fd_pr/*` one.
+set _repo_root [file normalize [file join [file dirname [info script]] ..]]
+if {[info exists XSCHEM_LIBRARY_PATH] && $XSCHEM_LIBRARY_PATH ne {}} {
+  append XSCHEM_LIBRARY_PATH ":$_repo_root"
+} else {
+  set XSCHEM_LIBRARY_PATH $_repo_root
+}
+unset _repo_root
+
 #### Keep xschem's generated netlists out of the tracked tree. The corner
 #### runner overrides this with an explicit `-o`, so this only affects
 #### interactive netlisting from the GUI.

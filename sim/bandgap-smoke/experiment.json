@@ -1,0 +1,77 @@
+{
+  "slug": "bandgap-smoke",
+  "title": "Bandgap core schematic-entry smoke check: untrimmed nominal operating point",
+  "claim": "Schematic-entry bring-up for issue #8 -- NOT the output-accuracy spec claim. Substantiates that design/bandgap_core.sch (Kuijk-style core + design/error_amp.sch) netlists headlessly through this harness, biases up out of its degenerate state, closes its loop (the amplifier's input-referred error at the sense nodes is microvolts, not millivolts), and produces an untrimmed reference in the vicinity of 1.20 V at tt / 27 degC / 3.30 V. The +/-1% output-accuracy claim over the full PVT matrix is issue #11's experiment, not this one; trim is #13 and the offset-budget amplifier is #9.",
+  "provenance": "schematic",
+  "provenance_source": "sim/bandgap-smoke/testbench/tb_bandgap_smoke.sch",
+  "schematic": "testbench/tb_bandgap_smoke.sch",
+  "statistical_convention": "N/A (single-point operating-point check, not a distribution claim)",
+  "corners": {
+    "process": ["tt", "ss", "ff", "sf", "fs"],
+    "temperature_c": [-40, 27, 125],
+    "supply_v": [2.97, 3.3, 3.63]
+  },
+  "quick_subset": [
+    ["tt", 27, 3.3]
+  ],
+  "deck": {
+    "options": ["wnflag=1"],
+    "params": {},
+    "analyses": ["op"]
+  },
+  "measurements": [
+    {
+      "name": "vref",
+      "expr": "v(vref)",
+      "unit": "V",
+      "min": 1.15,
+      "max": 1.25,
+      "note": "Untrimmed reference output, open circuit. Deliberately a few-percent sanity band around 1.20 V, NOT the +/-1% spec window -- that claim needs the full PVT matrix and belongs to issue #11."
+    },
+    {
+      "name": "vos_loop",
+      "expr": "v(xbg.va)-v(xbg.vb)",
+      "unit": "V",
+      "min": -0.001,
+      "max": 0.001,
+      "note": "Residual difference across the two matched R2 legs' bottom nodes -- the error the amplifier fails to null. Sub-millivolt means the loop is actually regulating; if the core sat in its degenerate zero-current state or the loop polarity were inverted, this would be tens of millivolts or more."
+    },
+    {
+      "name": "vgdrv",
+      "expr": "v(gdrv)",
+      "unit": "V",
+      "min": 1.0,
+      "max": 3.0,
+      "note": "PMOS mirror gate / startup attachment node. Explicit degenerate-state guard: the all-off solution parks this node at VDD, so an upper bound below the supply fails loudly instead of silently reporting a plausible-looking zero."
+    },
+    {
+      "name": "vbe_ctat",
+      "expr": "v(xbg.va)",
+      "unit": "V",
+      "min": 0.6,
+      "max": 0.9,
+      "note": "CTAT term: emitter voltage of the small-unit PNP array Q1 (base and collector at VSS, so this is VEB). Cross-checks against design/device-characterization-summary.md section 1."
+    },
+    {
+      "name": "dvbe",
+      "expr": "v(xbg.va)-v(xbg.vbq)",
+      "unit": "V",
+      "min": 0.045,
+      "max": 0.085,
+      "note": "PTAT term developed across R1 by the PNP pair's emitter-area ratio. Window spans the -40..125 degC range measured in design/device-characterization-summary.md section 1 (47.8 .. 82.2 mV)."
+    },
+    {
+      "name": "isup",
+      "expr": "-i(v1)",
+      "unit": "A",
+      "min": 5e-6,
+      "max": 5e-5,
+      "note": "Total quiescent supply current (core branches + amplifier). Upper bound is the < 50 uA Iq budget the device-characterization summary sizes against."
+    }
+  ],
+  "spread_checks": [],
+  "notes": [
+    "spread_checks is empty on purpose: a corner-sensitivity check needs at least two corner points, and this experiment's committed record is a deliberate single-point run (see the record's subset reason). The full-matrix run with spread checks is issue #11's job; the harness's own corner-liveness proof lives in sim/pdk-smoke/.",
+    "The corner axes above declare the full PVT matrix this experiment would sweep, so a later full run needs no manifest edit -- only dropping --quick."
+  ]
+}

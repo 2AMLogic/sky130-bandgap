@@ -1,0 +1,50 @@
+v {xschem version=3.4.7 file_version=1.2
+* sky130-bandgap error amplifier -- symbol (issue #8).
+*
+* Placeholder-quality amplifier: a single-stage current-mirror OTA on 5 V
+* thick-oxide devices, good enough to close the bandgap core's loop for a
+* smoke operating point. The offset-budget-driven amplifier design is issue
+* #9; this symbol is the swap boundary -- #9 replaces error_amp.sch and keeps
+* this pin list, so the core cell does not have to be re-entered.
+*
+* Pin order below is the order xschem emits into @pinlist, which is also the
+* .subckt port order. Do not reorder without updating error_amp.sch.
+*   VINP  non-inverting input  (AOUT rises when VINP rises)
+*   VINN  inverting input
+*   AOUT  output (high impedance; drives a PMOS gate in the core)
+*   ITAIL tail-current input (the core mirrors the amp's bias from its own
+*         output branch, so the amp needs no separate bias network)
+*   VDD   supply
+*   VSS   ground
+}
+G {}
+K {type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1"
+}
+V {}
+S {}
+E {}
+L 4 -40 -50 -40 50 {}
+L 4 -40 -50 40 0 {}
+L 4 -40 50 40 0 {}
+L 4 -50 -20 -40 -20 {}
+L 4 -50 20 -40 20 {}
+L 4 40 0 50 0 {}
+L 4 -10 -50 -10 -35 {}
+L 4 10 -50 10 -30 {}
+L 4 0 50 0 25 {}
+B 5 -52.5 -22.5 -47.5 -17.5 {name=VINP dir=in}
+B 5 -52.5 17.5 -47.5 22.5 {name=VINN dir=in}
+B 5 47.5 -2.5 52.5 2.5 {name=AOUT dir=out}
+B 5 -12.5 -52.5 -7.5 -47.5 {name=ITAIL dir=inout}
+B 5 7.5 -52.5 12.5 -47.5 {name=VDD dir=inout}
+B 5 -2.5 47.5 2.5 52.5 {name=VSS dir=inout}
+T {@name} -35 -70 0 0 0.3 0.3 {}
+T {@symname} -35 60 0 0 0.3 0.3 {}
+T {+} -34 -26 0 0 0.3 0.3 {}
+T {-} -34 14 0 0 0.3 0.3 {}
+T {ITAIL} -30 -46 0 0 0.2 0.2 {layer=7}
+T {VDD} 14 -46 0 0 0.2 0.2 {layer=7}
+T {VSS} 4 38 0 0 0.2 0.2 {layer=7}
+T {AOUT} 22 -10 0 0 0.2 0.2 {layer=7}
