@@ -1,0 +1,50 @@
+v {xschem version=3.4.7 file_version=1.2
+* sky130-bandgap startup injector -- symbol (issue #10).
+*
+* Degenerate-state breaker for the Kuijk core in bandgap_core.sch. Attaches
+* to the core's exposed GDRV node and senses the core's VOUT; the core cell
+* itself is unmodified. See startup_injector.sch for the topology and the
+* disengagement argument, and sim/startup-stability/ + sim/startup-ramp/ for
+* the per-corner numbers on both sides of that argument.
+*
+* The cell has no always-on bias branch from VDD: its reference is a
+* diode-connected PMOS pair fed from GDRV itself, so the node it drives is
+* also the node that switches the reference off.
+*
+* Pin order below is the order xschem emits into @pinlist, which is also the
+* .subckt port order. Do not reorder without updating startup_injector.sch.
+*   GDRV   the node being injected -- tie to bandgap_core's GDRV pin (the
+*          PMOS mirror gate / error-amplifier output)
+*   VSENSE "the core is running" sense input -- tie to bandgap_core's VOUT.
+*          High-impedance gate; draws no DC current from the reference.
+*   VDD    supply (bulk of both PMOS devices)
+*   VSS    ground
+}
+G {}
+K {type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1"
+}
+V {}
+S {}
+E {}
+L 4 -60 -40 60 -40 {}
+L 4 60 -40 60 40 {}
+L 4 60 40 -60 40 {}
+L 4 -60 40 -60 -40 {}
+L 4 -70 -20 -60 -20 {}
+L 4 -70 20 -60 20 {}
+L 4 0 -50 0 -40 {}
+L 4 0 40 0 50 {}
+B 5 -72.5 -22.5 -67.5 -17.5 {name=GDRV dir=inout}
+B 5 -72.5 17.5 -67.5 22.5 {name=VSENSE dir=in}
+B 5 -2.5 -52.5 2.5 -47.5 {name=VDD dir=inout}
+B 5 -2.5 47.5 2.5 52.5 {name=VSS dir=inout}
+T {@name} -55 -70 0 0 0.3 0.3 {}
+T {@symname} -55 55 0 0 0.3 0.3 {}
+T {GDRV} -55 -26 0 0 0.2 0.2 {layer=7}
+T {VSENSE} -55 14 0 0 0.2 0.2 {layer=7}
+T {VDD} 5 -30 0 0 0.2 0.2 {layer=7}
+T {VSS} 5 25 0 0 0.2 0.2 {layer=7}
+T {startup
+injector} 5 -12 0 0 0.25 0.25 {}

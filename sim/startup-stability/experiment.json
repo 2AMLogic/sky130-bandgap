@@ -1,0 +1,159 @@
+{
+  "slug": "startup-stability",
+  "title": "Startup: the degenerate zero-current state is not an operating point once the injector is attached",
+  "claim": "spec/topology-survey.md Startup row (\"self-starting, < 1 ms\") -- the no-other-stable-state half. Substantiates that design/bandgap_core.sch + design/startup_injector.sch has exactly ONE DC operating point over the whole 0..VDD range of its startup node GDRV, that the zero-current state the bare core does have (reproduced here as the control instance) is actively driven away from by microamps rather than merely being unlikely, and that the loop is pulled downhill by a bounded-below current everywhere in the degenerate region rather than merely somewhere in it. Also bounds what attaching the injector costs the running circuit: the residual current it draws out of GDRV and the shift that puts on the reference. The startup TIME claim is the sibling experiment sim/startup-ramp/; the +/-1% output-accuracy claim is issue #11.",
+  "provenance": "schematic",
+  "provenance_source": "sim/startup-stability/testbench/tb_startup_stability.sch",
+  "schematic": "testbench/tb_startup_stability.sch",
+  "statistical_convention": "N/A (corner-matrix claim, not a distribution claim)",
+  "corners": {
+    "process": ["tt", "ss", "ff", "sf", "fs"],
+    "temperature_c": [-40, 27, 125],
+    "supply_v": [2.97, 3.3, 3.63]
+  },
+  "quick_subset": [
+    ["tt", 27, 3.3]
+  ],
+  "deck": {
+    "options": ["wnflag=1"],
+    "params": {},
+    "analyses": [
+      "dc valpha 0 1 0.004",
+      "let ifsu = -i(vpsw)",
+      "let ifbare = -i(vpsn)",
+      "let ssu = ifsu / (abs(ifsu) + 1e-18)",
+      "let sbare = ifbare / (abs(ifbare) + 1e-18)"
+    ]
+  },
+  "measurements": [
+    {
+      "name": "ncross_su",
+      "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+      "unit": "",
+      "min": 0.5,
+      "max": 1.5,
+      "note": "Number of sign changes of iforce(GDRV) over the full 0..VDD sweep of the core+injector instance, i.e. the number of DC operating points of the loop. Must be exactly 1. The arithmetic is a shifted-product sign count over the fixed 251-point grid: sum over adjacent pairs of sgn*sgn is (npairs - 2*ncross)."
+    },
+    {
+      "name": "alpha_eq",
+      "expr": "1 - mean((ssu+1)/2)",
+      "unit": "",
+      "min": 0.2,
+      "max": 0.74,
+      "note": "Normalized sweep position of that single operating point (GDRV_eq / VDD). Given exactly one crossing, the fraction of the sweep on the iforce > 0 side is 1 - alpha_eq. Bounded at 0.74 so the degenerate-region windows used by itrav_min (alpha >= 0.75) and imin_off_* (alpha >= 0.90) are *proven* to lie strictly above the operating point at every corner rather than assumed to."
+    },
+    {
+      "name": "itrav_min",
+      "expr": "vecmin(ifsu[188,250])",
+      "unit": "A",
+      "min": 1e-9,
+      "note": "THE key margin number for this cell. Smallest *signed* iforce anywhere in the top quarter of the sweep (GDRV in 0.75*VDD .. VDD) for the core+injector instance -- i.e. the weakest downhill pull the loop sees anywhere on the run from the degenerate state back to the operating point, excluding the neighbourhood of the operating point itself. A positive floor here is what rules out a *stall*: a startup circuit can satisfy 'exactly one equilibrium' and still take milliseconds if this number sags into the picoamps somewhere in the middle, which is exactly the failure mode the first version of this cell had (it released at ~0.5 V of VOUT while the cold core does not self-sustain until ~0.70 V). With C(GDRV) ~ 200 fF, 1 nA traverses the whole range in ~0.3 ms, so this floor is the DC-side guarantee behind the < 1 ms line that sim/startup-ramp/ measures directly."
+    },
+    {
+      "name": "imin_off_su",
+      "expr": "vecmin(abs(ifsu[225,250]))",
+      "unit": "A",
+      "min": 1e-8,
+      "note": "Smallest |iforce| anywhere in the top 10 % of the sweep (GDRV in 0.9*VDD .. VDD) for the core+injector instance -- the neighbourhood of the degenerate all-off state. A floor here means there is no equilibrium *and no near-equilibrium* in that region: the circuit is pulling GDRV down by at least this much everywhere in it."
+    },
+    {
+      "name": "imin_off_bare",
+      "expr": "vecmin(abs(ifbare[225,250]))",
+      "unit": "A",
+      "max": 1e-9,
+      "note": "CONTROL. Same quantity on the bare core with no injector attached. It must come back at leakage level, i.e. the degenerate state really is an equilibrium of the unprotected core -- which is what makes imin_off_su meaningful. If the harness ever stopped exercising the injector, imin_off_su would collapse onto this number instead of reporting a plausible-looking single crossing."
+    },
+    {
+      "name": "i_off_su",
+      "expr": "ifsu[250]",
+      "unit": "A",
+      "min": 1e-6,
+      "note": "iforce at GDRV = VDD exactly: the current an external source would have to inject to hold the core+injector instance in its zero-current state. Microamps means the injector is actively evicting it."
+    },
+    {
+      "name": "i_off_bare",
+      "expr": "ifbare[250]",
+      "unit": "A",
+      "max": 1e-9,
+      "note": "CONTROL, at GDRV = VDD exactly. Leakage level on the bare core: nothing holds it out of the degenerate state."
+    },
+    {
+      "name": "i_on_su",
+      "expr": "ifsu[0]",
+      "unit": "A",
+      "max": -1e-6,
+      "note": "iforce at GDRV = 0 (mirror fully on). Strongly negative: the circuit pushes GDRV back up. Together with i_off_su > 0 this brackets the single crossing and fixes its direction -- negative below, positive above, i.e. the one operating point is a STABLE one, not a repeller."
+    },
+    {
+      "name": "i_su_standing",
+      "expr": "i(vpsu)[0]",
+      "unit": "A",
+      "min": -1e-12,
+      "max": 2e-7,
+      "note": "Standing current the disengaged injector draws, measured directly in its ground return (VPSU) on the free-running instance. Every amp the cell draws leaves through this probe, so this is the whole cost -- not an inference from the difference of two ~31 uA supply currents. There is no always-on bias branch from VDD in this cell, so this number is the diode-connected reference's residual: picoamps at the cold corners where the reference has collapsed below |Vth_p|, tens of nanoamps at the hot/fast corner where it has not. The 200 nA bound is ~0.4 % of the < 50 uA Iq budget in design/device-characterization-summary.md; the per-corner numbers, not this bound, are the result."
+    },
+    {
+      "name": "i_standing",
+      "expr": "i(v2)[0] - i(v1)[0]",
+      "unit": "A",
+      "min": -1e-6,
+      "max": 1e-6,
+      "note": "Independent cross-check on i_su_standing: total supply current of (core + injector) minus that of the bare core. Resolution-limited -- it is a difference of two ~31 uA numbers, so the solver's own tolerance is the floor -- which is exactly why i_su_standing is measured directly as well. Note this is NOT expected to equal i_su_standing: the cell draws its residual out of GDRV, so the loop partly re-sources it, and the difference also carries the operating-point shift that dvref reports."
+    },
+    {
+      "name": "dvref",
+      "expr": "v(vrefd)[0] - v(vrefr)[0]",
+      "unit": "V",
+      "min": -0.02,
+      "max": 0.02,
+      "note": "Output disturbance from attaching the injector: free-running core+injector minus bare core at the same corner. GDRV is a high-impedance amplifier output, so the disengaged cell's residual current shows up here amplified -- roughly 0.2 mV per nA. This is a REAL cost of this topology, not a resolution floor: it is sub-millivolt at the cold and nominal corners and worst at ff/125 degC/3.63 V. The +/-20 mV bound here is a bound, not a target; the ratified output-accuracy claim is issue #11's and this number has to be subtracted from its budget."
+    },
+    {
+      "name": "vref_dut",
+      "expr": "v(vrefd)[0]",
+      "unit": "V",
+      "min": 1.1,
+      "max": 1.3,
+      "note": "Untrimmed reference output of the injector-equipped core. Sanity band only, NOT the +/-1% spec window (issue #11)."
+    },
+    {
+      "name": "vgdrv_dut",
+      "expr": "v(gd)[0]",
+      "unit": "V",
+      "min": 1.0,
+      "max": 3.2,
+      "note": "Operating-point voltage of the startup node on the free-running instance. Cross-checks alpha_eq: this should equal alpha_eq * VDD, which is a check on the sweep arithmetic performed by an entirely different instance."
+    },
+    {
+      "name": "isup_dut",
+      "expr": "-i(v1)[0]",
+      "unit": "A",
+      "min": 5e-6,
+      "max": 5e-5,
+      "note": "Total quiescent supply current of core + injector. Upper bound is the < 50 uA Iq budget from design/device-characterization-summary.md."
+    },
+    {
+      "name": "ncross_bare",
+      "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+      "unit": "",
+      "note": "Informational, deliberately unbounded. The bare core's iforce does not *cross* zero at the degenerate end -- it decays to leakage level and stays there -- so its sign-change count is ~1 as well. That is precisely why the degenerate state is detected by imin_off_bare / i_off_bare (a magnitude floor) rather than by counting crossings, and this number is recorded so that reasoning is visible in the evidence instead of only in the manifest."
+    }
+  ],
+  "spread_checks": [
+    {
+      "measurement": "vgdrv_dut",
+      "min_spread": 0.3,
+      "note": "The startup node's operating voltage tracks the supply (GDRV ~ VDD - |Vgs_p|), so a full-matrix run must show it moving by more than the +/-10 % supply span. A flat vgdrv_dut across the matrix means the corner/supply knobs are not reaching the simulator."
+    },
+    {
+      "measurement": "vref_dut",
+      "min_spread": 0.01,
+      "note": "Untrimmed output over process and temperature must move by more than 10 mV; a frozen value would indicate the .lib corner or .temp injection stopped taking effect."
+    }
+  ],
+  "notes": [
+    "The sweep grid is fixed at 251 points on purpose: the sign-change count and the degenerate-region windows index that grid by literal position, so a supply-dependent point count would silently change what those measurements mean. The forcing source is 'vsup'*v(ALPHA) rather than a directly swept voltage source precisely so the grid can stay fixed while the range still tracks the supply corner.",
+    "This experiment is also the arbitrarily-slow-ramp limit of sim/startup-ramp/: a supply ramp slower than every time constant in the loop is quasi-static, and a quasi-static trajectory can only stall at a DC equilibrium OR crawl through a region where the net current is near zero. ncross_su covers the first, itrav_min covers the second. Together they cover ramp rates no finite transient can.",
+    "itrav_min is the measurement added after the first version of design/startup_injector.sch was found to pass 'exactly one equilibrium' at every corner while still failing to start at -40 degC: its net current sagged to a few picoamps between the point where the injector released and the point where the core becomes self-sustaining. 'One equilibrium' alone is not a sufficient startup claim, and this manifest no longer pretends it is."
+  ]
+}
