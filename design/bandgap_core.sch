@@ -194,7 +194,7 @@ C {devices/code_shown.sym} 100 -1250 0 0 {name=CORE_PARAMS only_toplevel=false v
 * ceiling, but a full 15-corner run found it loses the bandgap operating
 * point above ~124 degC at the ff/2.97 V and fs/2.97 V corners -- a worse
 * regression than the TC miss it was meant to fix. See the header comment's
-* "Sizing rationale" section for the full investigation and floor finding.
+* the Sizing rationale section for the full investigation and floor finding.
 .param n_r1=7
 .param n_r2=54
 * PMOS mirror multiplicities (unit device W=8u L=2u)
