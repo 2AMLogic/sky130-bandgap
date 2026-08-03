@@ -34,7 +34,10 @@
   ],
   "deck": {
     "options": [
-      "wnflag=1"
+      "wnflag=1",
+      "reltol=1e-6",
+      "vntol=1e-9",
+      "abstol=1e-15"
     ],
     "params": {},
     "analyses": [
@@ -94,6 +97,7 @@
   "notes": [
     "Temperature is swept INSIDE the deck (dc temp -40 125 11) because the box method needs the peak-to-peak excursion of a continuous curve; a three-point outer axis would miss the curvature extremum, which for a bandgap generally sits between the endpoints. The runner is therefore invoked with --temp 27 --subset-reason; process and supply run in full (5 x 3 = 15 points).",
     "Grid resolution is 11 degC (16 points), chosen so the sweep lands exactly on both endpoints (-40 + 15*11 = 125) -- the endpoints are where a bandgap characteristic is furthest from its extremum, so a grid that misses 125 degC would systematically under-report the box excursion. Rationale for the coarseness: the VREF(T) characteristic is smooth and near-quadratic, so an 11 degC grid can miss the interior extremum by at most 5.5 degC; with this core's measured curvature (~30 mV of excursion over 165 degC, i.e. a quadratic coefficient of order 4e-6 V/degC^2) that costs at most ~0.13 mV of peak-to-peak, i.e. under 1 ppm/degC on a TC of order 100 ppm/degC. Every ngspice temperature step forces a full re-evaluation of the PDK model set's temperature-dependent parameters, which dominates runtime; finer grids buy nothing measurable. Cross-check on the coarseness: a bring-up run of the same deck at 33 degC resolution (6 points) at tt / 27 degC / 3.30 V reported 164.5 ppm/degC, so the number is not an artifact of the grid.",
-    "The corner axes above declare the full PVT matrix so the manifest stays the canonical statement of what the claim requires and the subset is visible as a subset in the record."
+    "The corner axes above declare the full PVT matrix so the manifest stays the canonical statement of what the claim requires and the subset is visible as a subset in the record.",
+    "Solver tolerances are tightened well past ngspice's defaults: reltol=1e-6 (default 1e-3), vntol=1e-9 (default 1e-6), abstol=1e-15 (default 1e-12). This is a MEASUREMENT-RESOLUTION requirement, not a taste preference. At the default reltol=1e-3 the DC solver is only obliged to converge a ~1.175 V node to ~1.2 mV, and the first run of sim/line-regulation/ (record 20260803-100723-77b96e3) duly reported a 0.11 .. 1.27 mV supply-induced output shift that, on inspection of the raw sweep, was non-monotonic point-to-point jitter at exactly that amplitude -- i.e. the solver's convergence noise floor, not a property of the circuit. Re-run with these tolerances the same sweep is smooth and monotone with a shallow minimum near 3.45 V, and the shift drops to tens of microvolts. Every DC-based bench in this suite shares the setting so that all four are read off the same, resolved operating point."
   ]
 }

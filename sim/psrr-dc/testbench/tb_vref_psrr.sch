@@ -15,6 +15,14 @@ v {xschem version=3.4.7 file_version=1.2
 * computes; the large-signal DC counterpart of the same quantity is
 * measured independently in sim/line-regulation/ (its line_psrr_db
 * measurement), so the two benches cross-check each other by construction.
+* They are not the same number: psrr_dc here is the LOCAL slope at one
+* supply bias, line_psrr_db there is the AVERAGE slope over the whole
+* 0.66 V range, so a few dB of difference is expected on a characteristic
+* with a shallow interior minimum. Tens of dB is not, and that cross-check
+* earned its keep -- it is what exposed the first line-regulation run as a
+* readout of the DC solver's convergence noise floor rather than of the
+* circuit. Both benches now run at reltol=1e-6 / vntol=1e-9 /
+* abstol=1e-15, set in experiment.json deck.options.
 *
 * The AC magnitude of 1 V is a linearization scale factor, not a physical
 * 1 V ripple -- AC analysis is linear by definition, so the result is

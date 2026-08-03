@@ -7,17 +7,42 @@
   "schematic": "testbench/tb_vref_iq.sch",
   "statistical_convention": "N/A (corner-matrix claim)",
   "corners": {
-    "process": ["tt", "ss", "ff", "sf", "fs"],
-    "temperature_c": [-40, 27, 125],
-    "supply_v": [2.97, 3.3, 3.63]
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "temperature_c": [
+      -40,
+      27,
+      125
+    ],
+    "supply_v": [
+      2.97,
+      3.3,
+      3.63
+    ]
   },
   "quick_subset": [
-    ["tt", 27, 3.3]
+    [
+      "tt",
+      27,
+      3.3
+    ]
   ],
   "deck": {
-    "options": ["wnflag=1"],
+    "options": [
+      "wnflag=1",
+      "reltol=1e-6",
+      "vntol=1e-9",
+      "abstol=1e-15"
+    ],
     "params": {},
-    "analyses": ["op"]
+    "analyses": [
+      "op"
+    ]
   },
   "measurements": [
     {
@@ -53,6 +78,7 @@
     }
   ],
   "notes": [
-    "Full 45-point PVT matrix, no subset: an operating point is cheap and Iq is meaningful at every individual corner, unlike the box-TC and line-regulation claims whose benches sweep one axis internally."
+    "Full 45-point PVT matrix, no subset: an operating point is cheap and Iq is meaningful at every individual corner, unlike the box-TC and line-regulation claims whose benches sweep one axis internally.",
+    "Solver tolerances are tightened well past ngspice's defaults: reltol=1e-6 (default 1e-3), vntol=1e-9 (default 1e-6), abstol=1e-15 (default 1e-12). This is a MEASUREMENT-RESOLUTION requirement, not a taste preference. At the default reltol=1e-3 the DC solver is only obliged to converge a ~1.175 V node to ~1.2 mV, and the first run of sim/line-regulation/ (record 20260803-100723-77b96e3) duly reported a 0.11 .. 1.27 mV supply-induced output shift that, on inspection of the raw sweep, was non-monotonic point-to-point jitter at exactly that amplitude -- i.e. the solver's convergence noise floor, not a property of the circuit. Re-run with these tolerances the same sweep is smooth and monotone with a shallow minimum near 3.45 V, and the shift drops to tens of microvolts. Every DC-based bench in this suite shares the setting so that all four are read off the same, resolved operating point."
   ]
 }

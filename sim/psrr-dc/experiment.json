@@ -7,15 +7,38 @@
   "schematic": "testbench/tb_vref_psrr.sch",
   "statistical_convention": "N/A (corner-matrix claim)",
   "corners": {
-    "process": ["tt", "ss", "ff", "sf", "fs"],
-    "temperature_c": [-40, 27, 125],
-    "supply_v": [2.97, 3.3, 3.63]
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "temperature_c": [
+      -40,
+      27,
+      125
+    ],
+    "supply_v": [
+      2.97,
+      3.3,
+      3.63
+    ]
   },
   "quick_subset": [
-    ["tt", 27, 3.3]
+    [
+      "tt",
+      27,
+      3.3
+    ]
   ],
   "deck": {
-    "options": ["wnflag=1"],
+    "options": [
+      "wnflag=1",
+      "reltol=1e-6",
+      "vntol=1e-9",
+      "abstol=1e-15"
+    ],
     "params": {},
     "analyses": [
       "ac dec 10 0.1 100k"
@@ -69,6 +92,7 @@
   ],
   "notes": [
     "The AC magnitude of 1 V on the supply is a linearization scale factor, not a physical ripple amplitude: AC analysis is linear, so the transfer function is independent of it.",
-    "The large-signal DC counterpart of this quantity is measured independently by sim/line-regulation/ (its line_psrr_db measurement). The two should agree within a few dB; a large disagreement points at a bench error in one of them, which is why both are recorded."
+    "The large-signal DC counterpart of this quantity is measured independently by sim/line-regulation/ (its line_psrr_db measurement). They are related but not identical: psrr_dc here is the LOCAL slope at one supply bias point, line_psrr_db there is the AVERAGE slope over the whole 0.66 V range, so on a characteristic with a shallow interior minimum a few dB of difference is expected and line_psrr_db is the conservative figure. A difference of tens of dB is not expected and means one of the two benches is not resolving the circuit -- which is exactly what the first line-regulation run showed before its solver tolerances were tightened.",
+    "Solver tolerances are tightened well past ngspice's defaults: reltol=1e-6 (default 1e-3), vntol=1e-9 (default 1e-6), abstol=1e-15 (default 1e-12). This is a MEASUREMENT-RESOLUTION requirement, not a taste preference. At the default reltol=1e-3 the DC solver is only obliged to converge a ~1.175 V node to ~1.2 mV, and the first run of sim/line-regulation/ (record 20260803-100723-77b96e3) duly reported a 0.11 .. 1.27 mV supply-induced output shift that, on inspection of the raw sweep, was non-monotonic point-to-point jitter at exactly that amplitude -- i.e. the solver's convergence noise floor, not a property of the circuit. Re-run with these tolerances the same sweep is smooth and monotone with a shallow minimum near 3.45 V, and the shift drops to tens of microvolts. Every DC-based bench in this suite shares the setting so that all four are read off the same, resolved operating point."
   ]
 }

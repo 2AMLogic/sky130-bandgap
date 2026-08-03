@@ -38,8 +38,26 @@ v {xschem version=3.4.7 file_version=1.2
 * this bench's recorded numbers are the input to that decision.
 *
 * Cross-check: line_psrr_db below is the large-signal DC counterpart of
-* sim/psrr-dc/'s small-signal 0.1 Hz figure. The two are computed from
-* independent analyses of the same circuit and should agree within a few dB.
+* sim/psrr-dc/'s small-signal 0.1 Hz figure. They are related but not the
+* same quantity -- this one is an average slope over 0.66 V of supply,
+* that one is the local slope at a single bias point -- so on a
+* characteristic with a shallow interior minimum a few dB of difference is
+* expected, with this one the conservative figure. Tens of dB is not
+* expected, and means one of the two benches is not resolving the circuit.
+*
+* Solver resolution (learned the hard way, record 20260803-100723-77b96e3):
+* this bench measures a shift of tens of microvolts on a ~1.2 V node, which
+* is BELOW ngspice's default convergence tolerance. At the default
+* reltol=1e-3 the solver need only settle a 1.175 V node to ~1.2 mV, and
+* the first run of this bench duly reported 0.11 .. 1.27 mV of "shift"
+* that, on inspection of the raw sweep, was non-monotonic point-to-point
+* jitter at exactly that amplitude -- the noise floor, not the circuit.
+* That run also disagreed with sim/psrr-dc/ by ~39 dB, which is what
+* exposed it. The deck therefore runs at reltol=1e-6 / vntol=1e-9 /
+* abstol=1e-15 (set in experiment.json deck.options, shared by every
+* DC-based bench in this suite), at which the sweep is smooth and monotone
+* with a shallow minimum near 3.45 V. Do not loosen these back to the
+* defaults: the measurement stops being a measurement.
 *
 * Load: none. VREF is read open-circuit; an output buffer / load driver is
 * not part of the core cell.

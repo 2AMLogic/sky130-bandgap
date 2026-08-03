@@ -7,15 +7,38 @@
   "schematic": "testbench/tb_vref_linereg.sch",
   "statistical_convention": "N/A (corner-matrix claim)",
   "corners": {
-    "process": ["tt", "ss", "ff", "sf", "fs"],
-    "temperature_c": [-40, 27, 125],
-    "supply_v": [2.97, 3.3, 3.63]
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "temperature_c": [
+      -40,
+      27,
+      125
+    ],
+    "supply_v": [
+      2.97,
+      3.3,
+      3.63
+    ]
   },
   "quick_subset": [
-    ["tt", 27, 3.3]
+    [
+      "tt",
+      27,
+      3.3
+    ]
   ],
   "deck": {
-    "options": ["wnflag=1"],
+    "options": [
+      "wnflag=1",
+      "reltol=1e-6",
+      "vntol=1e-9",
+      "abstol=1e-15"
+    ],
     "params": {},
     "analyses": [
       "dc v1 2.97 3.63 0.022",
@@ -28,7 +51,7 @@
       "expr": "(maximum(v(vref))-minimum(v(vref)))*1e3",
       "unit": "mV",
       "max": 24.0,
-      "note": "Peak-to-peak VREF excursion across 2.97..3.63 V. Limit is the full +/-1% output-accuracy window (24 mV on 1.20 V) -- see the claim: necessary, not sufficient, and not a ratified line-regulation number."
+      "note": "Peak-to-peak VREF excursion across 2.97..3.63 V. Limit is the full +/-1% output-accuracy window (24 mV on 1.20 V) -- see the claim: necessary, not sufficient, and not a ratified line-regulation number. Meaningful only at the tightened solver tolerances set in deck.options; at ngspice's defaults this measurement is a readout of the solver's convergence noise floor rather than of the circuit."
     },
     {
       "name": "line_reg_pct_per_v",
@@ -40,7 +63,7 @@
       "name": "line_psrr_db",
       "expr": "db(0.66/(maximum(v(vref))-minimum(v(vref))))",
       "unit": "dB",
-      "note": "Informational (no limit): large-signal DC supply rejection, 20*log10(dVDD/dVREF) over the full range. This is the independent counterpart of sim/psrr-dc/'s small-signal 0.1 Hz psrr_dc; the two should agree within a few dB, and a large disagreement means one of the two benches is wrong."
+      "note": "Informational (no limit): large-signal DC supply rejection, 20*log10(dVDD/dVREF) over the full 2.97..3.63 V range. This is the independent counterpart of sim/psrr-dc/'s small-signal 0.1 Hz psrr_dc. The two are not the same quantity -- this one is an average slope over 0.66 V of supply while psrr_dc is the local slope at one bias point -- so on a characteristic with a shallow interior minimum they are expected to differ by a few dB, with this one the conservative (lower) figure. What they must NOT do is differ by tens of dB: that is what the first run of this bench did (54 dB here against 93 dB there at tt / 125 degC / 3.30 V), and the cause was the solver's convergence noise floor swamping the real shift, not a disagreement about the circuit. See the tolerance note below."
     },
     {
       "name": "vref_nom",
@@ -84,6 +107,7 @@
   ],
   "notes": [
     "Supply is swept INSIDE the deck because the claim is about the shift across a range, not about any single supply point; the runner is therefore invoked with --supply 3.3 --subset-reason. Process and temperature run in full (5 x 3 = 15 points).",
-    "The corner axes above declare the full PVT matrix so the manifest stays the canonical statement of what the claim requires and the subset is visible as a subset in the record."
+    "The corner axes above declare the full PVT matrix so the manifest stays the canonical statement of what the claim requires and the subset is visible as a subset in the record.",
+    "Solver tolerances are tightened well past ngspice's defaults: reltol=1e-6 (default 1e-3), vntol=1e-9 (default 1e-6), abstol=1e-15 (default 1e-12). This is a MEASUREMENT-RESOLUTION requirement, not a taste preference. At the default reltol=1e-3 the DC solver is only obliged to converge a ~1.175 V node to ~1.2 mV, and the first run of sim/line-regulation/ (record 20260803-100723-77b96e3) duly reported a 0.11 .. 1.27 mV supply-induced output shift that, on inspection of the raw sweep, was non-monotonic point-to-point jitter at exactly that amplitude -- i.e. the solver's convergence noise floor, not a property of the circuit. Re-run with these tolerances the same sweep is smooth and monotone with a shallow minimum near 3.45 V, and the shift drops to tens of microvolts. Every DC-based bench in this suite shares the setting so that all four are read off the same, resolved operating point."
   ]
 }
