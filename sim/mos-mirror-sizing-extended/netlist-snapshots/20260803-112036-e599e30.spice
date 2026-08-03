@@ -1,0 +1,28 @@
+** sch_path: sim/mos-mirror-sizing-extended/testbench/tb_mos_mirror_sizing.sch
+**.subckt tb_mos_mirror_sizing
+XMNB VD_NB VD_NB 0 0 sky130_fd_pr__nfet_g5v0d10v5 L=2 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 nrd=0.03625 nrs=0.03625 sa=0 sb=0
++ sd=0 mult=1 m=1
+INB 0 VD_NB 5.3e-06
+XMPB 0 0 VS_PB VS_PB sky130_fd_pr__pfet_g5v0d10v5 L=2 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 nrd=0.03625 nrs=0.03625 sa=0 sb=0
++ sd=0 mult=1 m=1
+IPB 0 VS_PB 5.3e-06
+XMNC VD_NC VD_NC 0 0 sky130_fd_pr__nfet_g5v0d10v5 L=3 W=12 nf=1 ad=3.48 as=3.48 pd=24.58 ps=24.58 nrd=0.0241666666666667
++ nrs=0.0241666666666667 sa=0 sb=0 sd=0 mult=1 m=1
+INC 0 VD_NC 5.3e-06
+XMPC 0 0 VS_PC VS_PC sky130_fd_pr__pfet_g5v0d10v5 L=3 W=12 nf=1 ad=3.48 as=3.48 pd=24.58 ps=24.58 nrd=0.0241666666666667
++ nrs=0.0241666666666667 sa=0 sb=0 sd=0 mult=1 m=1
+IPC 0 VS_PC 5.3e-06
+XMND VD_ND VD_ND 0 0 sky130_fd_pr__nfet_g5v0d10v5 L=4 W=16 nf=1 ad=4.64 as=4.64 pd=32.58 ps=32.58 nrd=0.018125 nrs=0.018125 sa=0
++ sb=0 sd=0 mult=1 m=1
+IND 0 VD_ND 5.3e-06
+XMPD 0 0 VS_PD VS_PD sky130_fd_pr__pfet_g5v0d10v5 L=4 W=16 nf=1 ad=4.64 as=4.64 pd=32.58 ps=32.58 nrd=0.018125 nrs=0.018125 sa=0
++ sb=0 sd=0 mult=1 m=1
+IPD 0 VS_PD 5.3e-06
+XMNE VD_NE VD_NE 0 0 sky130_fd_pr__nfet_g5v0d10v5 L=5 W=20 nf=1 ad=5.8 as=5.8 pd=40.58 ps=40.58 nrd=0.0145 nrs=0.0145 sa=0 sb=0
++ sd=0 mult=1 m=1
+INE 0 VD_NE 5.3e-06
+XMPE 0 0 VS_PE VS_PE sky130_fd_pr__pfet_g5v0d10v5 L=5 W=20 nf=1 ad=5.8 as=5.8 pd=40.58 ps=40.58 nrd=0.0145 nrs=0.0145 sa=0 sb=0
++ sd=0 mult=1 m=1
+IPE 0 VS_PE 5.3e-06
+**.ends
+.end

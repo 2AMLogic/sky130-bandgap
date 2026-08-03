@@ -383,6 +383,79 @@ mismatch has to stay in the low single digits of a percent against a
   current/Vov tuning alone — worth a follow-up sizing pass once #8's
   schematic fixes actual mirror ratios and node currents.
 
+### Sizing extension at the core's actual mirror current (issue #26)
+
+Testbench: `sim/mos-mirror-sizing-extended/testbench/tb_mos_mirror_sizing.sch`
+— record `20260803-112036-e599e30`, full tt/ss/ff/sf/fs × −40/27/125 °C @
+3.30 V matrix, 15/15 PASS.
+
+Once #8's schematic (`design/bandgap_core.sch`, merged via PR #40) fixed the
+core's actual mirror geometry and node current — `MPOUT`/`MPAMP` are both
+PFET `W=8/L=2` (size B, 16 µm², `mult=2`), self-biased off `GDRV`, converging
+on a single ~5.3 µA per-unit branch current (`I = dVBE/R1 ≈ 62.3 mV /
+11.8 kΩ`, per the core schematic's own sizing comment) — this current sits
+*below* the original sweep's 20 µA best case, so size B's real-world
+mismatch at the core's actual bias point is worse than the 1.1–1.2 % figure
+above. This experiment re-measures size B at the actual 5.3 µA current and
+extends the size axis with three larger sizes at the same W/L = 4 aspect
+ratio: C (W=12/L=3, 36 µm², 2.25×), D (W=16/L=4, 64 µm², 4×), E (W=20/L=5,
+100 µm², 6.25×) — both NFET and PFET at each size, for parity with the
+original experiment's structure (the core's own mirror devices are PFET
+only; the NFET row is a like-for-like generalization of the same aspect
+ratio, not a literal match to `error_amp.sch`'s placeholder `MN1`–`MN4`,
+which use a different W/L — see the testbench header for the full caveat).
+
+| Device | Size | Area | gm/Id (1/V), tt/27 °C | Projected σ(ΔId/Id), tt/27 °C | gm/Id (1/V), worst PVT corner | Projected σ(ΔId/Id), worst PVT corner |
+|---|---|---|---|---|---|---|
+| NFET | B | 16 µm² | 10.842 | 2.223 % | 13.504 (ff, −40 °C) | 2.768 % |
+| NFET | C | 36 µm² | 10.936 | 1.495 % | 13.594 (ff, −40 °C) | 1.858 % |
+| NFET | D | 64 µm² | 10.986 | 1.126 % | 13.639 (ff, −40 °C) | 1.398 % |
+| NFET | E | 100 µm² | 10.866 | 0.891 % | 13.504 (ff, −40 °C) | 1.107 % |
+| PFET | B | 16 µm² | 7.157 | 2.147 % | 8.399 (fs, −40 °C) | 2.520 % |
+| PFET | C | 36 µm² | 7.212 | 1.442 % | 8.385 (fs, −40 °C) | 1.677 % |
+| PFET | D | 64 µm² | 7.285 | 1.093 % | 8.441 (fs, −40 °C) | 1.266 % |
+| PFET | E | 100 µm² | 7.205 | 0.865 % | 8.311 (fs, −40 °C) | **0.997 %** |
+
+- **PFET** (the core's actual mirror devices, `MPOUT`/`MPAMP`) crosses below
+  1 % projected mismatch only at **size E (100 µm², 6.25× size B)**, and only
+  just: 0.865 % nominal (tt, 27 °C), **0.997 % at the worst PVT corner** (fs,
+  −40 °C) — a thin margin, not a comfortable one. Size D (64 µm²) stays just
+  above 1 % worst-case (1.266 %).
+- **NFET** does not cross below 1 % projected mismatch at any size tested
+  here, even at 100 µm² (0.891 % nominal but 1.107 % worst-case PVT) — an
+  NFET-based mirror leg biased at this current would need to go larger
+  still. As noted above, this design's actual mirror legs are PFET-only, so
+  this row is informational rather than a resizing target.
+
+**Updated recommendation for the core's actual PFET mirror legs**: reaching
+meaningfully-below-1 % projected mismatch at the schematic's actual ~5.3 µA
+branch current means sizing to **size E (W=20/L=5, 100 µm², 6.25× the
+schematic's current W=8/L=2) or larger** — and even then the worst-case-PVT
+margin is thin (0.997 %, essentially at the 1 % line). If #9's offset budget
+needs real margin below 1 % (not just a nominal-corner pass), plan for an
+even larger mirror device, or accept MOS mirror mismatch as a material
+contributor near the 1 % line rather than a solved problem. This sharpens,
+but does not contradict, the general recommendation above: the general
+region (`Vov ≈ 0.10–0.30 V`, area ≥ size B) still applies as a floor, and
+this section gives the specific size needed at the specific current the
+core schematic actually uses.
+
+**Area/layout check (issue #15's floorplan)**: `MPOUT`/`MPAMP` are each
+`mult=2` at their current per-unit `W=8/L=2` (16 µm²) size in
+`design/bandgap_core.sch`; resizing the unit device to size E raises
+per-unit area 6.25× (16 µm² → 100 µm²; 200 µm² per `mult=2` mirror leg, up
+from 32 µm² today). Against the < 0.05 mm² (50,000 µm²) floorplan budget
+issue #15 is scoped to (still open as of this writing), that increase is a
+small fraction of the total budget even doubled for a common-centroid
+array's dummy/interdigitation overhead — flagged here so #15 does not have
+to independently re-derive it, and not expected to be a layout blocker.
+
+This does not edit or supersede the original `mos-matching-characterization`
+record (`20260731-045825-a8c4147`) — that record's generic 2/5/20 µA sweep
+remains valid, unedited evidence for the ratio-agnostic characterization it
+was scoped to; this section adds a second, current-specific record for the
+sizing question the schematic's actual bias point raises.
+
 ---
 
 ## 4. Substrate PNP pair **local mismatch** — σ(ΔVBE) by Monte Carlo (issue #31)
@@ -544,11 +617,12 @@ hot corners rather than passing silently.
    to voltage-dependent behavioral resistor elements), not a
    two-length-subtraction bias-point artifact. The model card's
    `tc1 = −1470 ppm/°C` remains authoritative for `res_xhigh_po` design use.
-2. **MOS mirror sizing beyond size B.** §3's mismatch projection suggests
-   the < 1 % mismatch region may require device areas larger than the 16
-   µm² (size B) evaluated here; once #8 fixes actual mirror ratios, a sizing
-   sweep extending this experiment's device-size axis would sharpen the
-   recommendation.
+2. ~~MOS mirror sizing beyond size B.~~ **Resolved by issue #26** — see §3
+   "Sizing extension at the core's actual mirror current" above. Record
+   `20260803-112036-e599e30` extends the device-size axis to C/D/E (36/64/
+   100 µm²) at the core's actual ~5.3 µA branch current; the PFET mirror
+   legs (`MPOUT`/`MPAMP`) cross below 1 % projected mismatch only at size E,
+   with a thin worst-case-PVT margin (0.997 %).
 3. ~~Re-run `sim/pnp-characterization` with the emitter driven.~~ **Resolved
    by issue #35** — the schematic now drives the emitter, and record
    `20260801-041501-48ac24d` supersedes `20260731-043353-a8c4147` with the
@@ -570,6 +644,9 @@ hot corners rather than passing silently.
   `sim/resistor-tc-single-length/records/20260731-073440-3dfe830.md`
   (+ `.json` twin, netlist snapshot, 21 per-corner logs)
 - MOS: `sim/mos-matching-characterization/records/20260731-045825-a8c4147.md`
+  (+ `.json` twin, netlist snapshot, 15 per-corner logs)
+- MOS mirror sizing extension (issue #26):
+  `sim/mos-mirror-sizing-extended/records/20260803-112036-e599e30.md`
   (+ `.json` twin, netlist snapshot, 15 per-corner logs)
 - PNP pair local mismatch (issue #31):
   `sim/pnp-mismatch/records/20260731-232801-ab27f82.md`
