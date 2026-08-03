@@ -21,7 +21,11 @@ v {xschem version=3.4.7 file_version=1.2
 * three discrete points (-40/27/125). A three-point box would miss the
 * curvature maximum entirely -- for a bandgap the extremum of the
 * characteristic generally sits between the endpoints, not on them. So the
-* deck sweeps `dc temp -40 125 1` (166 points, 1 degC resolution), and the
+* deck sweeps `dc temp -40 125 5` (34 points, 5 degC resolution -- fine
+* enough that missing the extremum by at most 2.5 degC costs well under
+* 0.1% of the reported TC on a curve this smooth; each temperature step
+* forces a full re-evaluation of the PDK model set, so 1 degC resolution
+* would cost ~5x the runtime for no measurable gain), and the
 * runner is invoked with `--temp 27 --subset-reason ...` so the record says
 * plainly that the outer temperature axis was collapsed to one point
 * because the bench sweeps temperature itself. The process and supply axes

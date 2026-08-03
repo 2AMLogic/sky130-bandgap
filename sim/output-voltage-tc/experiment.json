@@ -18,7 +18,7 @@
     "options": ["wnflag=1"],
     "params": {},
     "analyses": [
-      "dc temp -40 125 1",
+      "dc temp -40 125 5",
       "meas dc vref27 FIND v(vref) AT=27",
       "let vspan = 165"
     ]
@@ -30,7 +30,7 @@
       "unit": "V",
       "min": 1.188,
       "max": 1.212,
-      "note": "Untrimmed open-circuit reference at 27 degC, read off the in-deck temperature sweep. Window is the draft spec's 1.20 V +/-1%."
+      "note": "Untrimmed open-circuit reference at 27 degC, read off the in-deck temperature sweep. Window is the draft spec's 1.20 V +/-1%. 27 degC is not on the 5 degC sweep grid (-40, -35, ... 120, 125), so this is ngspice's linear interpolation between the 25 degC and 30 degC points; on a curve whose total excursion is tens of mV over 165 degC the interpolation error is ~10 uV (< 0.001% of 1.2 V), four orders of magnitude inside the +/-1% window."
     },
     {
       "name": "vref_min",
@@ -59,9 +59,9 @@
       "name": "n_temp_points",
       "expr": "length(v(vref))",
       "unit": "",
-      "min": 166,
-      "max": 166,
-      "note": "Guard: asserts the in-deck temperature sweep really produced 166 points (-40..125 degC at 1 degC). If the sweep silently collapsed to a single operating point, the box TC above would read 0 ppm/degC and look like a spectacular pass. This check makes that failure loud."
+      "min": 34,
+      "max": 34,
+      "note": "Guard: asserts the in-deck temperature sweep really produced 34 points (-40..125 degC at 5 degC). If the sweep silently collapsed to a single operating point, the box TC above would read 0 ppm/degC and look like a spectacular pass. This check makes that failure loud."
     }
   ],
   "spread_checks": [
@@ -72,7 +72,8 @@
     }
   ],
   "notes": [
-    "Temperature is swept INSIDE the deck (dc temp -40 125 1) because the box method needs the peak-to-peak excursion of a continuous curve; a three-point outer axis would miss the curvature extremum, which for a bandgap generally sits between the endpoints. The runner is therefore invoked with --temp 27 --subset-reason; process and supply run in full (5 x 3 = 15 points).",
+    "Temperature is swept INSIDE the deck (dc temp -40 125 5) because the box method needs the peak-to-peak excursion of a continuous curve; a three-point outer axis would miss the curvature extremum, which for a bandgap generally sits between the endpoints. The runner is therefore invoked with --temp 27 --subset-reason; process and supply run in full (5 x 3 = 15 points).",
+    "Grid resolution is 5 degC (34 points), not 1 degC. Rationale: the VREF(T) characteristic is smooth and near-quadratic, so a 5 degC grid can miss the true extremum by at most 2.5 degC. With this core's measured curvature (~30 mV of excursion over 165 degC, i.e. a quadratic coefficient of order 4e-6 V/degC^2) that costs at most ~30 uV of peak-to-peak, under 0.1% of the reported TC. Each temperature step forces ngspice to re-evaluate the whole PDK model set's temperature-dependent parameters, which is what makes the sweep expensive; 1 degC resolution buys nothing measurable for ~5x the runtime.",
     "The corner axes above declare the full PVT matrix so the manifest stays the canonical statement of what the claim requires and the subset is visible as a subset in the record."
   ]
 }
