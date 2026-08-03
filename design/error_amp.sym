@@ -1,11 +1,13 @@
 v {xschem version=3.4.7 file_version=1.2
-* sky130-bandgap error amplifier -- symbol (issue #8).
+* sky130-bandgap error amplifier -- symbol (issue #8, contents redesigned by #9).
 *
-* Placeholder-quality amplifier: a single-stage current-mirror OTA on 5 V
-* thick-oxide devices, good enough to close the bandgap core's loop for a
-* smoke operating point. The offset-budget-driven amplifier design is issue
-* #9; this symbol is the swap boundary -- #9 replaces error_amp.sch and keeps
-* this pin list, so the core cell does not have to be re-entered.
+* A single-stage current-mirror OTA on 5 V thick-oxide devices, sized to the
+* offset/mismatch budget in design/error-amp-offset-budget.md. This symbol is
+* the swap boundary that #8 created and #9 used: error_amp.sch was replaced
+* wholesale, THIS FILE WAS NOT -- the pin list below is unchanged, so
+* design/bandgap_core.sch did not have to be re-entered. Keep it that way:
+* any future amplifier (chopped, auto-zeroed, trimmed) should arrive the same
+* way, behind this interface.
 *
 * Pin order below is the order xschem emits into @pinlist, which is also the
 * .subckt port order. Do not reorder without updating error_amp.sch.
