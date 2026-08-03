@@ -213,6 +213,7 @@ experiments ship a bespoke run script next to their testbench instead of an
 | `sim/pnp-mismatch/` | `run_pnp_mismatch.py` | N = 300 Monte Carlo samples per point; the PDK's `MC_MM_SWITCH` mismatch terms are re-drawn on each ngspice `reset` |
 | `sim/error-amp-offset-mc/` | `run_amp_offset_mc.py` | N = 300 Monte Carlo samples per point of the error amplifier's input-referred offset; same `MC_MM_SWITCH` resampling-per-`reset` need as `sim/pnp-mismatch/` |
 | `sim/monte-carlo-untrimmed/` | `run_mc_untrimmed.py` | N = 300 Monte Carlo samples per point, wrapping `sim/output-voltage-tc`'s own bench unmodified to report the untrimmed ±1 % claim's σ/yield with a PNP/resistor/amp-mirror contributor breakdown (issue #12); isolates each family by zeroing the PDK's own `sw_mm_*` coefficients for the other two |
+| `sim/trim-range-monotonicity/` | `run_trim_sweep.py` | Sweeps `design/bandgap_core.sch`'s own `n_r2_trim` trim-code parameter (issue #13); wraps `sim/output-voltage-tc`'s bench unmodified but needs a different value of a `.subckt`-internal `L=` parameter per run, which the corner runner's manifest-level `deck.params` cannot override (they land before the netlisted body; SPICE resolves that expression at `.subckt` definition time) — this script edits the netlisted body's own default line in place instead |
 
 Such a script still has to behave like the harness:
 

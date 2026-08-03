@@ -1,0 +1,503 @@
+{
+  "author": "agent-12@2amlogic.com",
+  "checks": [
+    {
+      "detail": "vref_27=1.199721 (sanity band (1.1, 1.3))",
+      "name": "sanity[tt_trimp0_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "name": "n_temp_points[tt_trimp0_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.185905 (sanity band (1.1, 1.3))",
+      "name": "sanity[tt_trimn8_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "name": "n_temp_points[tt_trimn8_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.172089 (sanity band (1.1, 1.3))",
+      "name": "sanity[tt_trimn16_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "name": "n_temp_points[tt_trimn16_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.200103 (sanity band (1.1, 1.3))",
+      "name": "sanity[ss_trimp0_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "name": "n_temp_points[ss_trimp0_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.186293 (sanity band (1.1, 1.3))",
+      "name": "sanity[ss_trimn8_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "name": "n_temp_points[ss_trimn8_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.172483 (sanity band (1.1, 1.3))",
+      "name": "sanity[ss_trimn16_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "name": "n_temp_points[ss_trimn16_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.199468 (sanity band (1.1, 1.3))",
+      "name": "sanity[ff_trimp0_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "name": "n_temp_points[ff_trimp0_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.185642 (sanity band (1.1, 1.3))",
+      "name": "sanity[ff_trimn8_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "name": "n_temp_points[ff_trimn8_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.171815 (sanity band (1.1, 1.3))",
+      "name": "sanity[ff_trimn16_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "name": "n_temp_points[ff_trimn16_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.201321 (sanity band (1.1, 1.3))",
+      "name": "sanity[sf_trimp0_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "name": "n_temp_points[sf_trimp0_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.187417 (sanity band (1.1, 1.3))",
+      "name": "sanity[sf_trimn8_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "name": "n_temp_points[sf_trimn8_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.173513 (sanity band (1.1, 1.3))",
+      "name": "sanity[sf_trimn16_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "name": "n_temp_points[sf_trimn16_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.199991 (sanity band (1.1, 1.3))",
+      "name": "sanity[fs_trimp0_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "name": "n_temp_points[fs_trimp0_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.186186 (sanity band (1.1, 1.3))",
+      "name": "sanity[fs_trimn8_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "name": "n_temp_points[fs_trimn8_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.172381 (sanity band (1.1, 1.3))",
+      "name": "sanity[fs_trimn16_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "name": "n_temp_points[fs_trimn16_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.172089), (-8, 1.185905), (0, 1.199721)]",
+      "name": "monotonic[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.172483), (-8, 1.186293), (0, 1.200103)]",
+      "name": "monotonic[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.171815), (-8, 1.185642), (0, 1.199468)]",
+      "name": "monotonic[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.173513), (-8, 1.187417), (0, 1.201321)]",
+      "name": "monotonic[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.172381), (-8, 1.186186), (0, 1.199991)]",
+      "name": "monotonic[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "downward trim span (code 0..-16) = 27.632 mV, required >= 1.5 x 15.620 mV = 23.430 mV",
+      "name": "range_covers_mc_spread[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "downward trim span (code 0..-16) = 27.620 mV, required >= 1.5 x 15.620 mV = 23.430 mV",
+      "name": "range_covers_mc_spread[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "downward trim span (code 0..-16) = 27.653 mV, required >= 1.5 x 15.620 mV = 23.430 mV",
+      "name": "range_covers_mc_spread[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "downward trim span (code 0..-16) = 27.808 mV, required >= 1.5 x 15.620 mV = 23.430 mV",
+      "name": "range_covers_mc_spread[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "downward trim span (code 0..-16) = 27.610 mV, required >= 1.5 x 15.620 mV = 23.430 mV",
+      "name": "range_covers_mc_spread[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=1.7270 mV, required <= 25% of window half-width (3.000 mV)",
+      "name": "lsb_comfortable[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=1.7262 mV, required <= 25% of window half-width (3.000 mV)",
+      "name": "lsb_comfortable[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=1.7283 mV, required <= 25% of window half-width (3.000 mV)",
+      "name": "lsb_comfortable[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=1.7380 mV, required <= 25% of window half-width (3.000 mV)",
+      "name": "lsb_comfortable[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=1.7256 mV, required <= 25% of window half-width (3.000 mV)",
+      "name": "lsb_comfortable[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "tc_ppm(trim=0)=163.389, tc_ppm(trim=-16)=242.313, delta=+78.924 ppm/degC (baseline itself already exceeds the 50 ppm/degC budget -- issue #46, out of scope here; this delta is reported, not gated -- see Scope limits)",
+      "name": "tc_delta_reported[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "tc_ppm(trim=0)=164.528, tc_ppm(trim=-16)=243.635, delta=+79.108 ppm/degC (baseline itself already exceeds the 50 ppm/degC budget -- issue #46, out of scope here; this delta is reported, not gated -- see Scope limits)",
+      "name": "tc_delta_reported[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "tc_ppm(trim=0)=162.298, tc_ppm(trim=-16)=241.059, delta=+78.760 ppm/degC (baseline itself already exceeds the 50 ppm/degC budget -- issue #46, out of scope here; this delta is reported, not gated -- see Scope limits)",
+      "name": "tc_delta_reported[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "tc_ppm(trim=0)=152.888, tc_ppm(trim=-16)=230.470, delta=+77.582 ppm/degC (baseline itself already exceeds the 50 ppm/degC budget -- issue #46, out of scope here; this delta is reported, not gated -- see Scope limits)",
+      "name": "tc_delta_reported[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "tc_ppm(trim=0)=169.187, tc_ppm(trim=-16)=248.724, delta=+79.537 ppm/degC (baseline itself already exceeds the 50 ppm/degC budget -- issue #46, out of scope here; this delta is reported, not gated -- see Scope limits)",
+      "name": "tc_delta_reported[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.201196, vref_max=2.816681 -- EXPECTED regulation loss confirmed (VOUT pinned near VDD, box TC reads thousands of ppm/degC)",
+      "name": "regulation_loss_confirmed[ff_trimp1_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.202925, vref_max=2.812911 -- EXPECTED regulation loss confirmed (VOUT pinned near VDD, box TC reads thousands of ppm/degC)",
+      "name": "regulation_loss_confirmed[ff_trimp2_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.204653, vref_max=1.211156 -- sane on this grid, but this code is bracketed by codes that collapse (see the non-monotonicity table) and is NOT a certified-safe design point",
+      "name": "positive_code_sane_but_not_safe[ff_trimp3_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.206381, vref_max=1.212573 -- sane on this grid, but this code is bracketed by codes that collapse (see the non-monotonicity table) and is NOT a certified-safe design point",
+      "name": "positive_code_sane_but_not_safe[ff_trimp4_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.20811, vref_max=2.820574 -- EXPECTED regulation loss confirmed (VOUT pinned near VDD, box TC reads thousands of ppm/degC)",
+      "name": "regulation_loss_confirmed[ff_trimp5_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.225393, vref_max=2.827441 -- EXPECTED regulation loss confirmed (VOUT pinned near VDD, box TC reads thousands of ppm/degC)",
+      "name": "regulation_loss_confirmed[ff_trimp15_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.225875, vref_max=2.834308 -- EXPECTED regulation loss confirmed (VOUT pinned near VDD, box TC reads thousands of ppm/degC)",
+      "name": "regulation_loss_confirmed[fs_trimp15_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "regulating-by-code = {1: False, 2: False, 3: True, 4: True, 5: False, 15: False} -- a genuine mix of regulating and collapsed codes among the SAME small interior range (not a clean threshold) is the evidence that no positive code can be certified safe from this record",
+      "name": "positive_direction_nonmonotonic[ff]",
+      "pass": true
+    }
+  ],
+  "git": {
+    "branch": "feature/issue-13",
+    "dirty": true,
+    "sha": "b976d0f"
+  },
+  "links": {
+    "corners_dir": "sim/trim-range-monotonicity/corners/20260803-170704-b976d0f/",
+    "json": "sim/trim-range-monotonicity/records/20260803-170704-b976d0f.json",
+    "netlist_snapshot": "sim/trim-range-monotonicity/netlist-snapshots/20260803-170704-b976d0f.spice",
+    "record": "sim/trim-range-monotonicity/records/20260803-170704-b976d0f.md",
+    "testbench": "sim/output-voltage-tc/testbench/tb_vref_tc.sch"
+  },
+  "overall_pass": true,
+  "pdk": {
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "lib_file": "/Users/rwalters/.volare/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "variant": "sky130A"
+  },
+  "points": [
+    "tt_trimp0_3.30v",
+    "tt_trimn8_3.30v",
+    "tt_trimn16_3.30v",
+    "ss_trimp0_3.30v",
+    "ss_trimn8_3.30v",
+    "ss_trimn16_3.30v",
+    "ff_trimp0_2.97v",
+    "ff_trimn8_2.97v",
+    "ff_trimn16_2.97v",
+    "sf_trimp0_2.97v",
+    "sf_trimn8_2.97v",
+    "sf_trimn16_2.97v",
+    "fs_trimp0_2.97v",
+    "fs_trimn8_2.97v",
+    "fs_trimn16_2.97v",
+    "ff_trimp1_2.97v",
+    "ff_trimp2_2.97v",
+    "ff_trimp3_2.97v",
+    "ff_trimp4_2.97v",
+    "ff_trimp5_2.97v",
+    "ff_trimp15_2.97v",
+    "fs_trimp15_2.97v"
+  ],
+  "record_id": "20260803-170704-b976d0f",
+  "results": {
+    "ff:2.97:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 241.0589,
+      "vref_27": 1.171815,
+      "vref_max": 1.185065,
+      "vref_min": 1.138456
+    },
+    "ff:2.97:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 200.7273,
+      "vref_27": 1.185642,
+      "vref_max": 1.195888,
+      "vref_min": 1.15662
+    },
+    "ff:2.97:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 162.2985,
+      "vref_27": 1.199468,
+      "vref_max": 1.206904,
+      "vref_min": 1.174783
+    },
+    "ff:2.97:1": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 8262.772,
+      "vref_27": 1.201196,
+      "vref_max": 2.816681,
+      "vref_min": 1.179022
+    },
+    "ff:2.97:15": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 8000.125,
+      "vref_27": 1.225393,
+      "vref_max": 2.827441,
+      "vref_min": 1.209897
+    },
+    "ff:2.97:2": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 8220.787,
+      "vref_27": 1.202925,
+      "vref_max": 2.812911,
+      "vref_min": 1.181227
+    },
+    "ff:2.97:3": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 148.7248,
+      "vref_27": 1.204653,
+      "vref_max": 1.211156,
+      "vref_min": 1.181594
+    },
+    "ff:2.97:4": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 144.2255,
+      "vref_27": 1.206381,
+      "vref_max": 1.212573,
+      "vref_min": 1.183865
+    },
+    "ff:2.97:5": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 8190.759,
+      "vref_27": 1.20811,
+      "vref_max": 2.820574,
+      "vref_min": 1.187843
+    },
+    "fs:2.97:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 248.7243,
+      "vref_27": 1.172381,
+      "vref_max": 1.186568,
+      "vref_min": 1.138454
+    },
+    "fs:2.97:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 208.493,
+      "vref_27": 1.186186,
+      "vref_max": 1.19739,
+      "vref_min": 1.156584
+    },
+    "fs:2.97:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 169.1873,
+      "vref_27": 1.199991,
+      "vref_max": 1.208212,
+      "vref_min": 1.174714
+    },
+    "fs:2.97:15": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 8014.507,
+      "vref_27": 1.225875,
+      "vref_max": 2.834308,
+      "vref_min": 1.213218
+    },
+    "sf:2.97:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 230.4701,
+      "vref_27": 1.173513,
+      "vref_max": 1.185628,
+      "vref_min": 1.141002
+    },
+    "sf:2.97:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 190.1354,
+      "vref_27": 1.187417,
+      "vref_max": 1.196507,
+      "vref_min": 1.159255
+    },
+    "sf:2.97:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 152.8877,
+      "vref_27": 1.201321,
+      "vref_max": 1.207814,
+      "vref_min": 1.177509
+    },
+    "ss:3.3:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 243.6354,
+      "vref_27": 1.172483,
+      "vref_max": 1.186139,
+      "vref_min": 1.139006
+    },
+    "ss:3.3:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 203.375,
+      "vref_27": 1.186293,
+      "vref_max": 1.196957,
+      "vref_min": 1.157149
+    },
+    "ss:3.3:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 164.5277,
+      "vref_27": 1.200103,
+      "vref_max": 1.207871,
+      "vref_min": 1.175291
+    },
+    "tt:3.3:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 242.3129,
+      "vref_27": 1.172089,
+      "vref_max": 1.185533,
+      "vref_min": 1.138671
+    },
+    "tt:3.3:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 202.0156,
+      "vref_27": 1.185905,
+      "vref_max": 1.196351,
+      "vref_min": 1.156822
+    },
+    "tt:3.3:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 163.3891,
+      "vref_27": 1.199721,
+      "vref_max": 1.207316,
+      "vref_min": 1.174973
+    }
+  },
+  "supersedes": "",
+  "timestamp": "2026-08-03T17:07:04Z",
+  "tools": {
+    "ngspice": "ngspice-46 : Circuit level simulation program",
+    "platform": "Darwin 25.6.0 arm64",
+    "python": "3.14.6",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}
