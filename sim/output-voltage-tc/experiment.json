@@ -1,0 +1,103 @@
+{
+  "slug": "output-voltage-tc",
+  "title": "Untrimmed output reference and box-method temperature coefficient over -40..125 degC",
+  "claim": "README.md 'Target specification (DRAFT)' rows 'Output reference' (1.20 V +/-1% untrimmed) and 'Temp coefficient (-40...125 degC)' (< 50 ppm/degC), for the 3.3 V primary flavor (DR-001). Records are PROVISIONAL against the draft spec until issue #1 ratifies it. Measures design/bandgap_core.sch open-circuit, untrimmed (no trim network -- that is issue #13), across process and supply corners with temperature swept continuously inside the deck.",
+  "provenance": "schematic",
+  "provenance_source": "sim/output-voltage-tc/testbench/tb_vref_tc.sch",
+  "schematic": "testbench/tb_vref_tc.sch",
+  "statistical_convention": "N/A (corner-matrix claim, not a distribution claim -- untrimmed spread from local mismatch is issue #12's Monte Carlo)",
+  "corners": {
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "temperature_c": [
+      -40,
+      27,
+      125
+    ],
+    "supply_v": [
+      2.97,
+      3.3,
+      3.63
+    ]
+  },
+  "quick_subset": [
+    [
+      "tt",
+      27,
+      3.3
+    ]
+  ],
+  "deck": {
+    "options": [
+      "wnflag=1",
+      "reltol=1e-6",
+      "vntol=1e-9",
+      "abstol=1e-15"
+    ],
+    "params": {},
+    "analyses": [
+      "dc temp -40 125 11",
+      "meas dc vref27 FIND v(vref) AT=27",
+      "let vspan = 165"
+    ]
+  },
+  "measurements": [
+    {
+      "name": "vref_27",
+      "expr": "vref27",
+      "unit": "V",
+      "min": 1.188,
+      "max": 1.212,
+      "note": "Untrimmed open-circuit reference at 27 degC, read off the in-deck temperature sweep. Window is the draft spec's 1.20 V +/-1%. 27 degC is not on the 11 degC sweep grid (-40, -29, -18, ... 114, 125), so this is ngspice's linear interpolation between the 26 degC and 37 degC points; on a curve whose total excursion is tens of mV over 165 degC the interpolation error is of order 50 uV (~0.004% of 1.2 V), more than two orders of magnitude inside the +/-1% window."
+    },
+    {
+      "name": "vref_min",
+      "expr": "minimum(v(vref))",
+      "unit": "V",
+      "min": 1.14,
+      "max": 1.26,
+      "note": "Minimum of VREF over the -40..125 degC sweep. Bounds are a loose +/-5% sanity band, not the spec window: the spec line is on the 27 degC value and on the TC derived from this excursion. A value outside +/-5% means the curve left the bandgap regime somewhere in the range and the TC number below would be meaningless."
+    },
+    {
+      "name": "vref_max",
+      "expr": "maximum(v(vref))",
+      "unit": "V",
+      "min": 1.14,
+      "max": 1.26,
+      "note": "Maximum of VREF over the -40..125 degC sweep; same loose sanity band as vref_min."
+    },
+    {
+      "name": "tc_ppm",
+      "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+      "unit": "ppm/degC",
+      "max": 50.0,
+      "note": "Box-method TC: peak-to-peak VREF excursion over -40..125 degC, normalized to VREF(27 degC) and to the 165 degC span. Limit is the draft spec's < 50 ppm/degC target column; the < 20 ppm/degC stretch column is out of scope for wave 1 per DR-001's scope note."
+    },
+    {
+      "name": "n_temp_points",
+      "expr": "length(v(vref))",
+      "unit": "",
+      "min": 16,
+      "max": 16,
+      "note": "Guard: asserts the in-deck temperature sweep really produced 16 points (-40..125 degC at 11 degC). If the sweep silently collapsed to a single operating point, the box TC above would read 0 ppm/degC and look like a spectacular pass. This check makes that failure loud."
+    }
+  ],
+  "spread_checks": [
+    {
+      "measurement": "vref_27",
+      "min_spread": 0.0001,
+      "note": "VREF(27 degC) must move by at least 0.1 mV across the process/supply matrix. A dead-flat result across 15 corner points means the corner include or the supply param is not reaching the simulator."
+    }
+  ],
+  "notes": [
+    "Temperature is swept INSIDE the deck (dc temp -40 125 11) because the box method needs the peak-to-peak excursion of a continuous curve; a three-point outer axis would miss the curvature extremum, which for a bandgap generally sits between the endpoints. The runner is therefore invoked with --temp 27 --subset-reason; process and supply run in full (5 x 3 = 15 points).",
+    "Grid resolution is 11 degC (16 points), chosen so the sweep lands exactly on both endpoints (-40 + 15*11 = 125) -- the endpoints are where a bandgap characteristic is furthest from its extremum, so a grid that misses 125 degC would systematically under-report the box excursion. Rationale for the coarseness: the VREF(T) characteristic is smooth and near-quadratic, so an 11 degC grid can miss the interior extremum by at most 5.5 degC; with this core's measured curvature (~30 mV of excursion over 165 degC, i.e. a quadratic coefficient of order 4e-6 V/degC^2) that costs at most ~0.13 mV of peak-to-peak, i.e. under 1 ppm/degC on a TC of order 100 ppm/degC. Every ngspice temperature step forces a full re-evaluation of the PDK model set's temperature-dependent parameters, which dominates runtime; finer grids buy nothing measurable. Cross-check on the coarseness: a bring-up run of the same deck at 33 degC resolution (6 points) at tt / 27 degC / 3.30 V reported 164.5 ppm/degC, so the number is not an artifact of the grid.",
+    "The corner axes above declare the full PVT matrix so the manifest stays the canonical statement of what the claim requires and the subset is visible as a subset in the record.",
+    "Solver tolerances are tightened well past ngspice's defaults: reltol=1e-6 (default 1e-3), vntol=1e-9 (default 1e-6), abstol=1e-15 (default 1e-12). This is a MEASUREMENT-RESOLUTION requirement, not a taste preference. At the default reltol=1e-3 the DC solver is only obliged to converge a ~1.175 V node to ~1.2 mV, and the first run of sim/line-regulation/ (record 20260803-100723-77b96e3) duly reported a 0.11 .. 1.27 mV supply-induced output shift that, on inspection of the raw sweep, was non-monotonic point-to-point jitter at exactly that amplitude -- i.e. the solver's convergence noise floor, not a property of the circuit. Re-run with these tolerances the same sweep is smooth and monotone with a shallow minimum near 3.45 V, and the shift drops to tens of microvolts. Every DC-based bench in this suite shares the setting so that all four are read off the same, resolved operating point."
+  ]
+}

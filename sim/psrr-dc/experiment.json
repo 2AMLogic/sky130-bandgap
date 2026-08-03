@@ -1,0 +1,98 @@
+{
+  "slug": "psrr-dc",
+  "title": "Power-supply rejection ratio at DC (0.1 Hz small-signal), untrimmed core",
+  "claim": "README.md 'Target specification (DRAFT)' row 'PSRR @ DC' (> 60 dB), for the 3.3 V primary flavor (DR-001). Records are PROVISIONAL against the draft spec until issue #1 ratifies it. Measures design/bandgap_core.sch open-circuit with a 1 V AC magnitude on the supply, so v(vref) is the supply-to-reference transfer function and PSRR = -db(v(vref)).",
+  "provenance": "schematic",
+  "provenance_source": "sim/psrr-dc/testbench/tb_vref_psrr.sch",
+  "schematic": "testbench/tb_vref_psrr.sch",
+  "statistical_convention": "N/A (corner-matrix claim)",
+  "corners": {
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "temperature_c": [
+      -40,
+      27,
+      125
+    ],
+    "supply_v": [
+      2.97,
+      3.3,
+      3.63
+    ]
+  },
+  "quick_subset": [
+    [
+      "tt",
+      27,
+      3.3
+    ]
+  ],
+  "deck": {
+    "options": [
+      "wnflag=1",
+      "reltol=1e-6",
+      "vntol=1e-9",
+      "abstol=1e-15"
+    ],
+    "params": {},
+    "analyses": [
+      "ac dec 10 0.1 100k"
+    ]
+  },
+  "measurements": [
+    {
+      "name": "psrr_dc",
+      "expr": "-db(v(vref)[0])",
+      "unit": "dB",
+      "min": 60.0,
+      "note": "Supply rejection at the lowest swept frequency (0.1 Hz), the DC figure the spec line asks for. Limit is the draft spec's > 60 dB target column; the > 70 dB stretch column is out of scope for wave 1 per DR-001's scope note."
+    },
+    {
+      "name": "f_dc",
+      "expr": "real(frequency[0])",
+      "unit": "Hz",
+      "min": 0.09,
+      "max": 0.11,
+      "note": "Index guard for psrr_dc: asserts that vector index 0 really is the 0.1 Hz point. Protects the DC rejection figure from being silently read off the wrong frequency if the sweep spec changes."
+    },
+    {
+      "name": "psrr_1k",
+      "expr": "-db(v(vref)[40])",
+      "unit": "dB",
+      "note": "Informational (no limit): rejection at 1 kHz. The spec line is DC only; this point is recorded so the roll-off is visible in the evidence trail and a later supply-noise question does not need a re-run."
+    },
+    {
+      "name": "f_1k",
+      "expr": "real(frequency[40])",
+      "unit": "Hz",
+      "min": 900.0,
+      "max": 1100.0,
+      "note": "Index guard for psrr_1k: asserts that vector index 40 really is the 1 kHz point."
+    },
+    {
+      "name": "n_ac_points",
+      "expr": "length(v(vref))",
+      "unit": "",
+      "min": 61,
+      "max": 61,
+      "note": "Guard: asserts the AC sweep produced the expected 61 points (0.1 Hz .. 100 kHz, 10/decade). A collapsed sweep would make the indexed readouts above meaningless."
+    }
+  ],
+  "spread_checks": [
+    {
+      "measurement": "psrr_dc",
+      "min_spread": 0.5,
+      "note": "DC rejection must move by at least 0.5 dB across the 45-point matrix. A dead-flat result would mean the corner/temperature/supply knobs are not reaching the simulator."
+    }
+  ],
+  "notes": [
+    "The AC magnitude of 1 V on the supply is a linearization scale factor, not a physical ripple amplitude: AC analysis is linear, so the transfer function is independent of it.",
+    "The large-signal DC counterpart of this quantity is measured independently by sim/line-regulation/ (its line_psrr_db measurement). They are related but not identical: psrr_dc here is the LOCAL slope at one supply bias point, line_psrr_db there is the AVERAGE slope over the whole 0.66 V range, so on a characteristic with a shallow interior minimum a few dB of difference is expected and line_psrr_db is the conservative figure. A difference of tens of dB is not expected and means one of the two benches is not resolving the circuit -- which is exactly what the first line-regulation run showed before its solver tolerances were tightened.",
+    "Solver tolerances are tightened well past ngspice's defaults: reltol=1e-6 (default 1e-3), vntol=1e-9 (default 1e-6), abstol=1e-15 (default 1e-12). This is a MEASUREMENT-RESOLUTION requirement, not a taste preference. At the default reltol=1e-3 the DC solver is only obliged to converge a ~1.175 V node to ~1.2 mV, and the first run of sim/line-regulation/ (record 20260803-100723-77b96e3) duly reported a 0.11 .. 1.27 mV supply-induced output shift that, on inspection of the raw sweep, was non-monotonic point-to-point jitter at exactly that amplitude -- i.e. the solver's convergence noise floor, not a property of the circuit. Re-run with these tolerances the same sweep is smooth and monotone with a shallow minimum near 3.45 V, and the shift drops to tens of microvolts. Every DC-based bench in this suite shares the setting so that all four are read off the same, resolved operating point."
+  ]
+}

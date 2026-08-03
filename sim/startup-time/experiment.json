@@ -1,0 +1,83 @@
+{
+  "slug": "startup-time",
+  "title": "Supply-ramp startup time of the untrimmed core over the full PVT matrix",
+  "claim": "README.md 'Target specification (DRAFT)' row 'Startup time' (< 1 ms), for the 3.3 V primary flavor (DR-001). Records are PROVISIONAL against the draft spec until issue #1 ratifies it. Ramps the supply feeding design/bandgap_core.sch from 0 V to the corner supply in t_ramp and measures the first time VREF rises through 1.08 V (90% of the 1.20 V draft nominal), open-circuit, over the full 45-point PVT matrix. NOTE: the core cell as merged by #8 contains no startup injector -- GDRV is exposed as the attachment node and the injector is issue #10's deliverable -- so this bench measures the core AS COMMITTED. A failure here is a statement about the missing injector, not about the bench.",
+  "provenance": "schematic",
+  "provenance_source": "sim/startup-time/testbench/tb_vref_startup.sch",
+  "schematic": "testbench/tb_vref_startup.sch",
+  "statistical_convention": "N/A (corner-matrix claim)",
+  "corners": {
+    "process": ["tt", "ss", "ff", "sf", "fs"],
+    "temperature_c": [-40, 27, 125],
+    "supply_v": [2.97, 3.3, 3.63]
+  },
+  "quick_subset": [
+    ["tt", 27, 3.3]
+  ],
+  "deck": {
+    "options": ["wnflag=1"],
+    "params": { "t_ramp": "100u" },
+    "analyses": [
+      "tran 1u 2m 0 5u",
+      "let up = (v(vref) gt 1.08)",
+      "let tcand = time*up + (1-up)*1",
+      "meas tran vreffin FIND v(vref) AT=1.9m",
+      "meas tran vddfin FIND v(vdd) AT=1.9m",
+      "meas tran gdrvfin FIND v(gdrv) AT=1.9m"
+    ]
+  },
+  "measurements": [
+    {
+      "name": "t_start_ms",
+      "expr": "minimum(tcand)*1e3",
+      "unit": "ms",
+      "max": 1.0,
+      "note": "Startup time: first time VREF rises through 1.08 V (90% of the 1.20 V draft nominal) after the supply ramp begins at t=0. Limit is the draft spec's < 1 ms row. Computed as minimum(time*up + (1-up)*1) so a core that never crosses the threshold reports the 1 s sentinel as 1000 ms -- a legible, loudly failing number -- instead of an undefined `meas ... WHEN` vector that would take every later measurement in the .control block down with it."
+    },
+    {
+      "name": "vref_final",
+      "expr": "vreffin",
+      "unit": "V",
+      "min": 1.0,
+      "max": 1.4,
+      "note": "VREF at 1.9 ms, i.e. 19 ramp time constants after the supply is up. Deliberately a wide degenerate-state guard, not the accuracy claim (that is sim/output-voltage-tc/): it asserts the core actually reached and held its intended operating point rather than crossing the threshold on a glitch. If the core stays in its zero-current state this reads ~0 V."
+    },
+    {
+      "name": "gdrv_final",
+      "expr": "gdrvfin",
+      "unit": "V",
+      "min": 0.5,
+      "max": 2.9,
+      "note": "PMOS mirror gate / startup attachment node at 1.9 ms. The all-off degenerate solution parks this node at VDD (>= 2.97 V anywhere in the supply range), so an upper bound of 2.9 V excludes that state at every corner. This is the measurement that names the failure mode when startup does not happen."
+    },
+    {
+      "name": "vdd_final",
+      "expr": "vddfin",
+      "unit": "V",
+      "min": 2.9,
+      "max": 3.7,
+      "note": "Guard: asserts the supply ramp actually completed and is holding the corner's supply value at 1.9 ms. The window spans all three supply endpoints (2.97 / 3.30 / 3.63 V); a ramp that never got off the ground would read ~0 V and invalidate every number above."
+    },
+    {
+      "name": "n_tran_points",
+      "expr": "length(v(vref))",
+      "unit": "",
+      "min": 400,
+      "note": "Guard: asserts the transient really produced a populated waveform (the 5 us max timestep over 2 ms floors this at 400 points). A transient that aborted after a handful of timepoints would make minimum(tcand) meaningless."
+    }
+  ],
+  "spread_checks": [
+    {
+      "measurement": "vdd_final",
+      "min_spread": 0.5,
+      "note": "The settled supply must move by at least 0.5 V across the matrix (2.97 -> 3.63 V is 0.66 V). This is the corner-liveness check for this bench: it proves the runner's supply knob reaches the simulator. It is deliberately NOT placed on t_start_ms or vref_final -- if the core does not self-start, those are pinned at their sentinel/zero values by the physics under test, and a spread check on them would report a second, redundant failure that says nothing new."
+    }
+  ],
+  "notes": [
+    "Full 45-point PVT matrix, no subset: startup is meaningful at every individual corner and a supply-ramp transient is affordable at every one of them.",
+    "t_ramp = 100 us is a single deck parameter so that ramp-rate sensitivity (slow vs fast ramps) can be swept without touching the schematic. Systematic ramp-rate variation and the no-other-stable-state initial-condition sweep are issue #10's acceptance criteria, not this issue's; this issue's spec line is the < 1 ms startup time itself.",
+    "No .nodeset in this testbench, unlike every sibling bench in the suite: seeding the DC solver onto the intended branch is exactly what this measurement must not do. The transient starts from the circuit's own t=0 solution with the supply at 0 V.",
+    "Open-circuit output. A capacitive load slows startup, so the recorded numbers are the optimistic case for the core; a loaded startup figure belongs with the output buffer, which this block does not have.",
+    "The comparison in `let up = (v(vref) gt 1.08)` uses ngspice's `gt` alias rather than `>`. In the ngspice command interpreter `>` is output redirection, so `let up = (v(vref) > 1.08)` is parsed as a redirect and fails with a syntax error -- which, because `up` then does not exist, silently takes the dependent measurement down with it. The alias form is the working one; do not 'tidy' it back to `>`."
+  ]
+}
