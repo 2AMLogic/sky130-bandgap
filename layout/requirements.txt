@@ -1,0 +1,17 @@
+# Pinned klayout-tools (`klt`) install for layout/'s DRC/LVS flow (issue #14).
+#
+# klt v0.1.0 on PyPI (https://pypi.org/project/klayout-tools) ships only
+# the `layers`/`stats`/`cells`/`drc`/`pdk` verbs -- `extract`, `lvs`, and
+# `gen` (all required by this flow) are documented but not yet released
+# there. The upstream README's own "Install" section names installing
+# from source as the sanctioned way to get the latest development verbs:
+#
+#   uv tool install git+https://github.com/2AMLogic/klayout-tools
+#
+# This pins an exact commit rather than floating `main`, for the same
+# reproducibility discipline sim/pdk.json applies to the PDK version: a
+# re-run months from now installs the identical `klt` build instead of
+# whatever `main` has drifted to. Bump this pin deliberately (and re-run
+# layout/bin/run-trivial-cell-flow.sh to refresh the checked-in reports)
+# when picking up new `klt` capability.
+klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@0cd630886e7b0034671d3e1e5d3131150596275f

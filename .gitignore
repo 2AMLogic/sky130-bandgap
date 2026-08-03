@@ -13,6 +13,9 @@ sim/build/
 # under sim/build/ (see sim/bin/corner-run.py). Root-anchored so it doesn't
 # clobber unrelated *.out files elsewhere in the tree.
 /*.out
+
+# layout/ DRC/LVS flow: local klt install, created by layout/bin/setup-venv.sh
+layout/.venv/
 # >>> loom-managed (do not edit) >>>
 # Loom runtime state (don't commit these)
 .loom-in-use
