@@ -1,0 +1,231 @@
+{
+  "slug": "error-amp-loop",
+  "title": "Error amplifier in its bandgap loop: stability, offset gain, PSRR and Iq split over PVT",
+  "claim": "Issue #9 (error-amplifier design to an offset/mismatch budget). Substantiates the deterministic half of that issue's acceptance criteria for design/error_amp.sch closing the loop around design/bandgap_core.sch: (a) loop stability -- DC loop gain, unity-gain frequency, phase margin and gain margin over the full PVT matrix; (b) the Kuijk offset gain dVOUT/dVOS that design/error-amp-offset-budget.md converts an input-referred offset into an output error with, measured rather than taken from the idealized (1 + R2/R1) algebra; (c) PSRR at DC against the > 60 dB line; (d) the < 50 uA Iq budget, split into the amplifier's share and the core's share. The RANDOM half of the budget (sigma(VOS) from local mismatch) is a distribution claim and lives in sim/error-amp-offset-mc/; the +/-1% untrimmed output-accuracy spec line over PVT is issue #11's experiment, not this one.",
+  "provenance": "schematic",
+  "provenance_source": "sim/error-amp-loop/testbench/tb_error_amp_loop.sch",
+  "schematic": "testbench/tb_error_amp_loop.sch",
+  "statistical_convention": "N/A (corner-matrix claim; the distribution claim is sim/error-amp-offset-mc/)",
+  "corners": {
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "temperature_c": [
+      -40,
+      27,
+      125
+    ],
+    "supply_v": [
+      2.97,
+      3.3,
+      3.63
+    ]
+  },
+  "quick_subset": [
+    [
+      "tt",
+      27,
+      3.3
+    ]
+  ],
+  "deck": {
+    "options": [
+      "wnflag=1"
+    ],
+    "params": {},
+    "analyses": [
+      "op",
+      "let gm_i = @m.xbg.xamp.xmp1.msky130_fd_pr__pfet_g5v0d10v5[gm]",
+      "let gm_n = @m.xbg.xamp.xmn1.msky130_fd_pr__nfet_g5v0d10v5[gm]",
+      "let gm_p = @m.xbg.xamp.xmp3.msky130_fd_pr__pfet_g5v0d10v5[gm]",
+      "let gds_n3 = @m.xbg.xamp.xmn3.msky130_fd_pr__nfet_g5v0d10v5[gds]",
+      "let gds_p4 = @m.xbg.xamp.xmp4.msky130_fd_pr__pfet_g5v0d10v5[gds]",
+      "let cc_gg = @m.xbg.xamp.xmcc.msky130_fd_pr__pfet_g5v0d10v5[cgg]",
+      "let idin = @m.xbg.xamp.xmp1.msky130_fd_pr__pfet_g5v0d10v5[id]",
+      "ac dec 20 0.01 1e9",
+      "let tdb = db(-v(gdrva)/v(gdrvc))",
+      "let tph = 180*cph(-v(gdrva)/v(gdrvc))/pi",
+      "meas ac t0dc find tdb at=0.01",
+      "meas ac ugf when tdb=0 fall=1",
+      "meas ac phugf find tph when tdb=0 fall=1",
+      "meas ac f180 when tph=-180 fall=1",
+      "meas ac gmdb find tdb when tph=-180 fall=1",
+      "alter @vinj[acmag]=0",
+      "alter @v1[acmag]=1",
+      "ac lin 1 0.01 0.01",
+      "let psrrdb = -db(v(vref))",
+      "alter @v1[acmag]=0",
+      "alter @vosinj[acmag]=1",
+      "ac lin 1 0.01 0.01",
+      "let aos = mag(v(voutr))"
+    ]
+  },
+  "measurements": [
+    {
+      "name": "vref_delta",
+      "expr": "abs(op1.v(vref)-op1.v(voutr))",
+      "unit": "V",
+      "max": 1e-06,
+      "note": "REPLICA STALENESS GUARD. The testbench carries a flattened replica of design/bandgap_core.sch so the loop can be broken at the (cell-internal) mirror-gate node. This compares the replica's output against the real cell's on the same corner. If bandgap_core.sch is re-sized and the replica is not, this fails instead of quietly reporting loop gain for a circuit that no longer exists."
+    },
+    {
+      "name": "iq_delta",
+      "expr": "abs(op1.i(vibg)-op1.i(virep))",
+      "unit": "A",
+      "max": 1e-09,
+      "note": "Second, independent replica-staleness guard: the real cell's supply current and the replica's must agree to within a nanoamp."
+    },
+    {
+      "name": "iq_total",
+      "expr": "op1.i(vibg)",
+      "unit": "A",
+      "min": 5e-06,
+      "max": 5e-05,
+      "note": "Total quiescent current of the real design/bandgap_core.sym instance (amplifier + core), read through the 0 V ammeter VIBG. Upper bound is the < 50 uA budget line this issue's amplifier has to live inside. Lower bound is a degenerate-state guard: the core's all-off solution draws ~0."
+    },
+    {
+      "name": "iq_amp",
+      "expr": "op1.i(vtail)+op1.i(vavdd)",
+      "unit": "A",
+      "max": 4e-05,
+      "note": "The amplifier's own share: its tail current plus everything its VDD pin draws (the two mirror branches). This is the number the budget doc sizes a chopping/auto-zero scheme's headroom against, not an assumed 50/50 split of the total."
+    },
+    {
+      "name": "iq_core",
+      "expr": "op1.i(virep)-op1.i(vtail)-op1.i(vavdd)",
+      "unit": "A",
+      "min": 1e-06,
+      "note": "The core's share (both PTAT/CTAT branches through MPOUT). iq_amp + iq_core = iq_total by construction."
+    },
+    {
+      "name": "loop_gain_dc",
+      "expr": "ac1.t0dc",
+      "unit": "dB",
+      "min": 35.0,
+      "note": "DC loop gain T(0.01 Hz) from the voltage-injection probe at the broken mirror-gate node. This is what suppresses the amplifier's finite-gain error and what sets DC PSRR; the limit is a floor, not a design target."
+    },
+    {
+      "name": "ugf",
+      "expr": "ac1.ugf",
+      "unit": "Hz",
+      "min": 1000.0,
+      "note": "Loop unity-gain frequency."
+    },
+    {
+      "name": "phase_margin",
+      "expr": "180+ac1.phugf",
+      "unit": "deg",
+      "min": 45.0,
+      "note": "THE STABILITY ACCEPTANCE CRITERION. Phase margin of the bandgap loop with this amplifier closing it. 45 deg is the floor; below it the untrimmed reference rings or oscillates and every other number in this record is meaningless."
+    },
+    {
+      "name": "gain_margin",
+      "expr": "-ac1.gmdb",
+      "unit": "dB",
+      "min": 6.0,
+      "note": "Gain margin: how far below 0 dB the loop gain has fallen by the time the phase reaches -180 deg."
+    },
+    {
+      "name": "f180",
+      "expr": "ac1.f180",
+      "unit": "Hz",
+      "note": "Frequency of the -180 deg phase crossing (informational; the frequency gain_margin is read at)."
+    },
+    {
+      "name": "psrr_dc",
+      "expr": "ac2.psrrdb",
+      "unit": "dB",
+      "min": 60.0,
+      "note": "PSRR at DC of the real cell: -20*log10(|dVREF/dVDD|) with the supply driven by a 1 V AC excitation at 0.01 Hz. The > 60 dB @ DC line from the issue's acceptance criteria."
+    },
+    {
+      "name": "offset_gain",
+      "expr": "ac3.aos",
+      "unit": "V/V",
+      "min": 5.0,
+      "max": 15.0,
+      "note": "MEASURED Kuijk offset gain dVOUT/dVOS, from a 1 V AC excitation injected in series with the amplifier's VINN pin. This is the multiplier design/error-amp-offset-budget.md turns an input-referred offset into an output error with. The idealized algebra (VOUT = VBE1 + K*dVBE - (K+1)*VOS, K = R2/R1 = 7.497) predicts 8.50; the measured value is higher because that algebra treats the PNP emitter voltages and dVBE as stiff against the offset-induced current change. The budget uses the measured number and its corner spread, not the algebra."
+    },
+    {
+      "name": "vos_sys",
+      "expr": "op1.v(vbc)-op1.v(vac)",
+      "unit": "V",
+      "min": -0.001,
+      "max": 0.001,
+      "note": "SYSTEMATIC input-referred offset: the residual across the amplifier's two sense inputs in the settled loop, with local mismatch OFF. This is the part of VOS that topology symmetry and Vds balancing control, and it is NOT the term the offset budget is about -- the budget's term is the random local-mismatch offset in sim/error-amp-offset-mc/. Keeping this sub-millivolt is what makes that random term the only one that matters."
+    },
+    {
+      "name": "vcm_in",
+      "expr": "op1.v(vac)",
+      "unit": "V",
+      "min": 0.5,
+      "max": 0.95,
+      "note": "Input common mode the amplifier actually sees (one VEB). Bounds are the sanity check on the PMOS-input-pair decision: an NMOS pair on 5 V thick-oxide devices cannot operate here, which is why the pair is PMOS."
+    },
+    {
+      "name": "gm_in",
+      "expr": "op1.gm_i",
+      "unit": "S",
+      "note": "Input-pair transconductance (MP1). Budget input: the input-referred weight of every non-input device's Vth mismatch is its own gm divided by this."
+    },
+    {
+      "name": "gm_nload",
+      "expr": "op1.gm_n",
+      "unit": "S",
+      "note": "NMOS diode-load transconductance (MN1). Budget input: gm_nload/gm_in is the weight on the four NMOS load/mirror devices' Vth mismatch."
+    },
+    {
+      "name": "gm_pmirr",
+      "expr": "op1.gm_p",
+      "unit": "S",
+      "note": "PMOS mirror transconductance (MP3). Budget input: gm_pmirr/gm_in is the weight on MP3/MP4's Vth mismatch."
+    },
+    {
+      "name": "id_in",
+      "expr": "op1.idin",
+      "unit": "A",
+      "note": "Per-device input-pair drain current (informational; half the tail)."
+    },
+    {
+      "name": "av_amp",
+      "expr": "op1.gm_i/(op1.gds_n3+op1.gds_p4)",
+      "unit": "V/V",
+      "min": 100.0,
+      "note": "The amplifier's OWN voltage gain, gm_in x (its output resistance). Two things lean on it: the loop gain above is this minus what the core's divider gives back, and sim/error-amp-offset-mc/ measures the amplifier's random offset as the residual across its sense inputs -- valid only because this gain is large enough that (required output)/(this gain) is microvolts."
+    },
+    {
+      "name": "rout_amp",
+      "expr": "1/(op1.gds_n3+op1.gds_p4)",
+      "unit": "ohm",
+      "min": 1000000.0,
+      "note": "Amplifier output resistance at AOUT: MN3 and MP4 in parallel. This is what the L = 20 um channel lengths buy, and it sets both av_amp and the dominant pole with cc_mcc."
+    },
+    {
+      "name": "cc_mcc",
+      "expr": "op1.cc_gg",
+      "unit": "F",
+      "min": 5e-12,
+      "note": "Gate capacitance of MCC, the thick-oxide PMOS wired as the loop's compensation capacitor (issue #9 restricts this cell to the two MOS primitives, so cap_mim_m3_* is deliberately not used). Measured, not computed from Cox x W x L -- the device has to actually be in inversion at every corner for this number to hold, and the lower bound is what fails if it is not."
+    }
+  ],
+  "spread_checks": [
+    {
+      "measurement": "vcm_in",
+      "min_spread": 0.05,
+      "note": "Guards against a silently corner-blind harness: VEB moves ~2 mV/degC, so a -40..125 degC sweep must move this by >150 mV. If every corner returns the same value, the .lib/.temp injection is not reaching the simulator."
+    },
+    {
+      "measurement": "phase_margin",
+      "min_spread": 1.0,
+      "note": "The stability number itself must move across the matrix. A phase margin identical on all 45 points would mean the AC probe is reading something corner-independent (i.e. not the circuit)."
+    }
+  ],
+  "notes": [
+    "The loop is probed by single voltage injection at the mirror-gate node, which is valid because the impedance looking forward into the break (two MOS gates, capacitive) is far above the impedance looking back (the amplifier's output resistance in parallel with its compensation device). See the testbench header for the numbers.",
+    "PSRR and Iq are read from the REAL design/bandgap_core.sym instance; only the loop-gain and offset-gain probes use the flattened replica, and both vref_delta and iq_delta fail the record if the replica has drifted from the cell."
+  ]
+}
