@@ -1,0 +1,45 @@
+v {xschem version=3.4.7 file_version=1.2
+* sky130-bandgap core cell -- symbol (issue #8).
+*
+* Kuijk-style CMOS bandgap core: two grounded-collector substrate PNPs at an
+* N:1 emitter-area ratio, an error amplifier forcing equal voltages across a
+* matched resistor pair, Vout = VBE + K*dVBE. See bandgap_core.sch.
+*
+* Pin order below is the order xschem emits into @pinlist, which is also the
+* .subckt port order. Do not reorder without updating bandgap_core.sch.
+*   VOUT  the reference output
+*   GDRV  amplifier output / PMOS mirror gate -- the STARTUP ATTACHMENT NODE.
+*         The core has a stable zero-current state; a startup injector
+*         (issue #10) pulls GDRV toward VSS until VOUT is up, then releases
+*         it. No startup circuit is built in this cell.
+*   VDD   supply (3.3 V nominal, +/-10%)
+*   VSS   ground
+}
+G {}
+K {type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1"
+}
+V {}
+S {}
+E {}
+L 4 -60 -60 60 -60 {}
+L 4 60 -60 60 60 {}
+L 4 60 60 -60 60 {}
+L 4 -60 60 -60 -60 {}
+L 4 60 0 70 0 {}
+L 4 -70 0 -60 0 {}
+L 4 0 -70 0 -60 {}
+L 4 0 60 0 70 {}
+B 5 67.5 -2.5 72.5 2.5 {name=VOUT dir=out}
+B 5 -72.5 -2.5 -67.5 2.5 {name=GDRV dir=inout}
+B 5 -2.5 -72.5 2.5 -67.5 {name=VDD dir=inout}
+B 5 -2.5 67.5 2.5 72.5 {name=VSS dir=inout}
+T {@name} -55 -90 0 0 0.3 0.3 {}
+T {@symname} -55 75 0 0 0.3 0.3 {}
+T {VOUT} 30 -12 0 0 0.2 0.2 {layer=7}
+T {GDRV} -55 -12 0 0 0.2 0.2 {layer=7}
+T {VDD} 5 -50 0 0 0.2 0.2 {layer=7}
+T {VSS} 5 45 0 0 0.2 0.2 {layer=7}
+T {Kuijk core
+VBG = VBE + K*dVBE} -50 -5 0 0 0.25 0.25 {}
