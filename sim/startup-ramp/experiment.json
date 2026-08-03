@@ -1,0 +1,135 @@
+{
+  "slug": "startup-ramp",
+  "title": "Startup: supply-ramp transient startup time against the < 1 ms spec line",
+  "claim": "spec/topology-survey.md Startup row (\"self-starting, < 1 ms\") -- the startup-TIME half. Measures, in a single transient per PVT point, how long design/bandgap_core.sch + design/startup_injector.sch takes to bring VOUT up after the supply arrives, on a slow ramp, on a fast ramp, and from the worst case of all: placed *in* the degenerate zero-current state at full supply and asked to leave it. The no-other-stable-state half of the same spec line is the sibling experiment sim/startup-stability/; the +/-1% output-accuracy claim is issue #11.",
+  "provenance": "schematic",
+  "provenance_source": "sim/startup-ramp/testbench/tb_startup_ramp.sch",
+  "schematic": "testbench/tb_startup_ramp.sch",
+  "statistical_convention": "N/A (corner-matrix claim, not a distribution claim)",
+  "corners": {
+    "process": ["tt", "ss", "ff", "sf", "fs"],
+    "temperature_c": [-40, 27, 125],
+    "supply_v": [2.97, 3.3, 3.63]
+  },
+  "quick_subset": [
+    ["tt", 27, 3.3]
+  ],
+  "deck": {
+    "options": ["wnflag=1"],
+    "params": {
+      "t_slow": "1e-3",
+      "t_fast": "1e-6"
+    },
+    "analyses": [
+      "tran 200n 2.5m uic",
+      "meas tran t_vdd_s when v(vdds)=2.90 rise=1",
+      "meas tran t_ref_s when v(vrefs)=1.05 rise=1",
+      "meas tran t_vdd_f when v(vddf)=2.90 rise=1",
+      "meas tran t_ref_f when v(vreff)=1.05 rise=1",
+      "meas tran t_vdd_g when v(vddg)=2.90 rise=1",
+      "meas tran t_ref_g when v(vrefg)=1.05 rise=1",
+      "meas tran v_s find v(vrefs) at=2.45e-3",
+      "meas tran v_f find v(vreff) at=2.45e-3",
+      "meas tran v_g find v(vrefg) at=2.45e-3",
+      "meas tran v_n find v(vrefn) at=2.45e-3",
+      "meas tran g_n find v(gn) at=2.45e-3",
+      "meas tran isg find i(vdeg) at=2.45e-3"
+    ]
+  },
+  "measurements": [
+    {
+      "name": "t_start_s",
+      "expr": "t_ref_s - t_vdd_s",
+      "unit": "s",
+      "max": 1e-3,
+      "note": "SLOW RAMP (0 -> vsup in t_slow = 1 ms). Startup time measured the way the spec line means it: from the supply arriving (VDD crossing 2.90 V) to VREF crossing 1.05 V. 2.90 V is used rather than the 2.97 V minimum-supply endpoint so the crossing exists even at the 2.97 V corner, where the ramp only *reaches* 2.97 V. Negative means the reference was already up before the supply finished arriving, which is normal on a slow ramp and is a pass -- hence no lower limit."
+    },
+    {
+      "name": "t_start_f",
+      "expr": "t_ref_f - t_vdd_f",
+      "unit": "s",
+      "max": 1e-3,
+      "note": "FAST RAMP (0 -> vsup in t_fast = 1 us). Same definition. The fast ramp is the case where the loop has no time to follow the supply, so the core is closest to being handed a full rail with every internal node still at zero."
+    },
+    {
+      "name": "t_start_g",
+      "expr": "t_ref_g - t_vdd_g",
+      "unit": "s",
+      "max": 1e-3,
+      "note": "DEGENERATE START -- the case this issue is really about. The supply steps to vsup in 1 ns AND the mirror gate GG is initialised to vsup by the testbench's .ic, i.e. the circuit is placed *in* the zero-current state, at full supply, and asked to leave it. The two ramps above start from GDRV = 0, which is the over-driven side of the loop, not the stuck side, so on their own they would not test the startup circuit at all."
+    },
+    {
+      "name": "t_abs_s",
+      "expr": "t_ref_s",
+      "unit": "s",
+      "max": 2.2e-3,
+      "note": "Absolute time of the slow ramp's VREF crossing from t = 0, bounded by (the 1 ms ramp + the 1 ms spec line + margin). Recorded so a negative t_start_s is never the only number on the page."
+    },
+    {
+      "name": "vref_s",
+      "expr": "v_s",
+      "unit": "V",
+      "min": 1.1,
+      "max": 1.3,
+      "note": "Settled output after the slow ramp. Sanity band only, NOT the +/-1% spec window (issue #11)."
+    },
+    {
+      "name": "vref_f",
+      "expr": "v_f",
+      "unit": "V",
+      "min": 1.1,
+      "max": 1.3,
+      "note": "Settled output after the fast ramp."
+    },
+    {
+      "name": "vref_g",
+      "expr": "v_g",
+      "unit": "V",
+      "min": 1.1,
+      "max": 1.3,
+      "note": "Settled output after the degenerate start."
+    },
+    {
+      "name": "vref_spread",
+      "expr": "abs(v_s - v_g) + abs(v_s - v_f)",
+      "unit": "V",
+      "max": 1e-3,
+      "note": "Asserts the three copies converge to the *same* operating point. A startup circuit that left the core in a different (e.g. over-driven) stable state, or that stayed partly engaged on one profile and not another, would show up as a ramp-rate-dependent output. This is the transient counterpart of sim/startup-stability/'s single-crossing claim. DIAGNOSIS of the two recorded FAILs (1.5 mV at ff/-40 degC/2.97 V and 2.5 mV at ff/-40 degC/3.63 V, record 20260803-124933-e599e30): these are an underdamped settling tail still ringing at the at=2.45e-3 sample point at the cold/fast corner, not divergent operating points -- the spread is exactly 0 V at every 125 degC corner and sub-millivolt at ss/tt cold, i.e. it tracks loop damping rather than ramp profile, and the sibling sim/startup-stability/ sweep reports ncross_su=1 with itrav_min 0.22-0.57 mA at both ff/-40 degC supplies, so there is only one operating point to converge to there. The 1 mV bound is deliberately NOT loosened and the sample point is deliberately NOT moved: until a record with a longer settling window retires it, the 2.5 mV stays charged against issue #11's budget."
+    },
+    {
+      "name": "vref_n",
+      "expr": "v_n",
+      "unit": "V",
+      "max": 0.95,
+      "note": "CONTROL, and the measurement sim/README.md insists on: the same degenerate initial condition and the same 1 ns supply step on a core with NO injector attached. It has to stay stuck. If it ever came up on its own, the premise of this issue -- and the value of every other number in this record -- would be wrong, so this is a bounded measurement, not a comment."
+    },
+    {
+      "name": "gn_n",
+      "expr": "g_n",
+      "unit": "V",
+      "min": 2.5,
+      "note": "CONTROL, second half: the no-injector core's mirror gate is still parked up near the supply rail at the end of the transient, i.e. it is stuck in the degenerate state specifically, not merely slow."
+    },
+    {
+      "name": "isup_g",
+      "expr": "-isg",
+      "unit": "A",
+      "min": 5e-6,
+      "max": 5e-5,
+      "note": "Settled total supply current of the degenerate-start copy (core + injector). Lower bound proves it really did start; upper bound is the < 50 uA Iq budget from design/device-characterization-summary.md, i.e. the injector is not still sinking current after handing over."
+    }
+  ],
+  "spread_checks": [
+    {
+      "measurement": "vref_g",
+      "min_spread": 0.01,
+      "note": "Untrimmed output over process and temperature must move by more than 10 mV; a frozen value would indicate the .lib corner or .temp injection stopped taking effect."
+    }
+  ],
+  "notes": [
+    "Four independent copies of the DUT are simulated in one transient so a PVT point costs one ngspice invocation: slow ramp, fast ramp, degenerate start, and the no-injector control. They share only the ground node, and each has its own supply source, so they cannot interact through a rail.",
+    "The transient runs with UIC: every node starts at 0 V except the two mirror gates the testbench's .ic places at the supply rail. There is no .nodeset and no preloaded operating point -- contrast sim/bandgap-smoke/, which had to seed the solver onto the intended branch because no startup circuit existed yet. Not needing that seed is itself part of what this experiment demonstrates.",
+    "t_slow = 1 ms and t_fast = 1 us are deck params rather than schematic constants so the same testbench can be re-run at other ramp rates (issue #11 reuses these benches) without editing the schematic.",
+    "A corner where a 'meas ... when' finds no crossing writes no vector, and the runner records the measurement as missing, i.e. as a failure. That is the intended behaviour: a corner that does not start inside the transient window is a failing corner, not an absent one."
+  ]
+}
