@@ -2,9 +2,10 @@
 
 Issue #14's deliverable: a headless, repeatable DRC/LVS flow driven by
 [`klayout-tools`](https://github.com/2AMLogic/klayout-tools) (`klt`),
-**proven on a trivial known-good cell**. Bandgap-core-specific layout is a
-later issue's scope (see "Extending to the bandgap core" below) — nothing
-here is core-specific yet.
+**proven on a trivial known-good cell**. Bandgap-core-specific layout
+starts with issue #15's floorplan + matching plan (see "Extending to the
+bandgap core" below) — the material above this section predates that and
+is not core-specific.
 
 Two rules from the root `CLAUDE.md` shape this directory the same way they
 shape `sim/`:
@@ -209,3 +210,43 @@ stops at the trivial-cell proof:
   concrete blocker on the resistor family specifically, and only for the
   `klt gen`-generated fixture path, not for hand-drawn or PCell-instanced
   resistor geometry that already carries the marker layer.
+
+## Extending to the bandgap core (issue #15)
+
+Issue #15's deliverable: a floorplan + written matching plan for
+`bandgap_core`/`error_amp`, plus an **initial placed layout skeleton**
+proving the floorplan composes and DRC-cleans. Read
+[`matching-plan.md`](matching-plan.md) first — it is the actual matching
+rationale (which mismatch term dominates, per issue #12's Monte Carlo
+contributor breakdown, and why the floorplan prioritizes it); this section
+only points at where the generated evidence and tooling live.
+
+```bash
+layout/bin/setup-venv.sh                    # once, or after a requirements.txt bump
+layout/bin/run-bandgap-floorplan-flow.sh    # generate + place + guard-ring + DRC
+```
+
+Writes a fresh record under `bandgap-core/reports/<record-id>/` (same
+`<YYYYMMDD-HHMMSS>-<short-sha>` convention as `trivial-cell/reports/`) and
+updates `bandgap-core/reports/LATEST`. The checked-in record is
+[`bandgap-core/reports/20260803-192947-e7a30b4/record.md`](bandgap-core/reports/20260803-192947-e7a30b4/record.md)
+— read that for the actual DRC-clean / area-budget evidence, and its
+`renders/overview.png` for a visual check of the common-centroid/dummy-ring
+placement.
+
+`layout/requirements.txt`'s `klt` pin was bumped for this issue (see that
+file's own comment) to pick up `gen-compose`'s `placement.strategy:
+"explicit"` (2AMLogic/klayout-tools#330), which is what makes a real 2D
+floorplan possible instead of the single-row-only composition #14's flow
+used. The bump was verified non-regressing by re-running
+`run-trivial-cell-flow.sh` unmodified before building on it — see
+`trivial-cell/reports/` for the refreshed record with an identical PASS
+verdict to the pre-bump one.
+
+This skeleton is DRC-clean but explicitly **not** LVS-checked (two of its
+matched-device generators, `bjt_array` and `res_array`, don't round-trip
+through `klt extract` as recognized devices yet — see
+`matching-plan.md` Section 7) and **not** a tape-out-ready layout (no
+routing, and the resistor ladder is at reduced scale pending
+2AMLogic/klayout-tools#415 — see `matching-plan.md` Section 4). Full LVS
+closure and routing are later issues' scope.

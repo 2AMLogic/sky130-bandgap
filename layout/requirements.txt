@@ -14,4 +14,16 @@
 # whatever `main` has drifted to. Bump this pin deliberately (and re-run
 # layout/bin/run-trivial-cell-flow.sh to refresh the checked-in reports)
 # when picking up new `klt` capability.
-klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@0cd630886e7b0034671d3e1e5d3131150596275f
+#
+# Bumped for issue #15 (bandgap-core floorplan): the prior pin
+# (0cd630886e7b0034671d3e1e5d3131150596275f) only supports
+# `gen-compose`'s `placement.strategy: "row"`, which cannot express a real
+# two-dimensional floorplan (2AMLogic/klayout-tools#321). This pin adds
+# `placement.strategy: "explicit"` (2AMLogic/klayout-tools#330) plus a
+# `gen-compose` request-path fix (#328/#332) and byte-reproducible GDS2
+# output (#325) -- all additive, no behavior change to the row strategy or
+# to `gen`/`drc`/`extract`/`lvs`, confirmed by re-running
+# layout/bin/run-trivial-cell-flow.sh unmodified after the bump (still
+# PASS, identical verdict; see trivial-cell/reports/ for the refreshed
+# record).
+klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@67ae02ed6199c0d9c314771669fbbc925364587a
