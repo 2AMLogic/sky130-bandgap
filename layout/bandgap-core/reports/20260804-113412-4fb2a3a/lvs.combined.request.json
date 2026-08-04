@@ -1,0 +1,23 @@
+{
+  "schema": "klt.lvs.request/1",
+  "engine": "klayout",
+  "layout": {
+    "netlist": "bandgap_core_routed.extract.spice",
+    "top": "bandgap_core_routed"
+  },
+  "reference": {
+    "netlist": "reference.spice",
+    "top": "bandgap_core"
+  },
+  "hints": {
+    "same_nets": [
+      [
+        "vsubs",
+        "VSS"
+      ]
+    ]
+  },
+  "options": {
+    "combine_devices": true
+  }
+}

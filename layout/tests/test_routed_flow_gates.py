@@ -1273,6 +1273,114 @@ class TestConnectRouter(unittest.TestCase):
         self.assertEqual(bus.met1_rects, rects_before)
         self.assertEqual(bus.shapes, shapes_before)
 
+    def test_blocker_counts_tally_every_distinct_veto_not_just_the_last(
+        self,
+    ) -> None:
+        """`_LAST_BLOCKER` (used for `blocked_by`) is whichever candidate a
+        search happened to check last -- issue #62's `matching-plan.md`
+        Section 7g found that misleading on a hop contested by several
+        already-drawn nets at once, not just one. `_BLOCKER_COUNTS` (surfaced
+        by `_draw_chain` as `blocked_by_counts`) tallies every veto a single
+        `_connect()` call sees, so the dominant contributor is visible even
+        when it is not the last one checked."""
+        bus = met1_bus.Met1Bus()
+        bus.net("WALL_A")
+        bus.hseg(9.85, 10.15, 0.0)
+        bus.net("WALL_B")
+        bus.hseg(-0.15, 0.15, 10.0)
+        detours = gen_bandgap_routed.DETOUR_OFFSETS_UM
+        gen_bandgap_routed.DETOUR_OFFSETS_UM = [0.0]
+        try:
+            result = gen_bandgap_routed._connect(
+                bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
+            )
+        finally:
+            gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
+        self.assertIsNone(result)
+        # Both walls vetoed at least one candidate elbow (WALL_A the one that
+        # turns first at x=10, WALL_B the one that turns first at y=10) --
+        # both must be present, not just whichever was checked last.
+        self.assertEqual(
+            set(gen_bandgap_routed._BLOCKER_COUNTS), {"WALL_A", "WALL_B"}
+        )
+        self.assertGreater(gen_bandgap_routed._BLOCKER_COUNTS["WALL_A"], 0)
+        self.assertGreater(gen_bandgap_routed._BLOCKER_COUNTS["WALL_B"], 0)
+
+    def test_blocker_counts_reset_at_the_start_of_each_connect_call(
+        self,
+    ) -> None:
+        """A tally left over from a previous hop's failed search must not
+        leak into the next hop's `blocked_by_counts` -- each `_connect()`
+        call reports only what *it* saw."""
+        bus = met1_bus.Met1Bus()
+        bus.net("WALL")
+        bus.hseg(9.85, 10.15, 0.0)
+        bus.hseg(-0.15, 0.15, 10.0)
+        detours = gen_bandgap_routed.DETOUR_OFFSETS_UM
+        gen_bandgap_routed.DETOUR_OFFSETS_UM = [0.0]
+        try:
+            gen_bandgap_routed._connect(
+                bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
+            )
+            self.assertIn("WALL", gen_bandgap_routed._BLOCKER_COUNTS)
+            # A second, unrelated call that never collides with anything
+            # must start from a clean tally.
+            result = gen_bandgap_routed._connect(
+                bus, "N2", (20.0, 20.0), (30.0, 25.0), channels={}
+            )
+        finally:
+            gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
+        self.assertIsNotNone(result)
+        self.assertEqual(dict(gen_bandgap_routed._BLOCKER_COUNTS), {})
+
+
+class TestDrawChainBlockedByCounts(unittest.TestCase):
+    """`_draw_chain()` is what a failed hop's report -- `blocked_by` and
+    `blocked_by_counts` -- actually comes from; see TestConnectRouter above
+    for `_connect()`/`_BLOCKER_COUNTS` itself."""
+
+    def test_failed_hop_carries_both_the_last_blocker_and_the_full_breakdown(
+        self,
+    ) -> None:
+        bus = met1_bus.Met1Bus()
+        bus.net("WALL_A")
+        bus.hseg(9.85, 10.15, 0.0)
+        bus.net("WALL_B")
+        bus.hseg(-0.15, 0.15, 10.0)
+        detours = gen_bandgap_routed.DETOUR_OFFSETS_UM
+        gen_bandgap_routed.DETOUR_OFFSETS_UM = [0.0]
+        plan = [
+            {"name": "P0", "pad": (0.0, 0.0), "via": False},
+            {"name": "P1", "pad": (10.0, 10.0), "via": False},
+        ]
+        try:
+            hops, routed = gen_bandgap_routed._draw_chain(bus, "N1", plan)
+        finally:
+            gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
+        self.assertFalse(routed)
+        self.assertEqual(len(hops), 1)
+        hop = hops[0]
+        self.assertFalse(hop["routed"])
+        self.assertIn(hop["blocked_by"], {"WALL_A", "WALL_B"})
+        self.assertEqual(set(hop["blocked_by_counts"]), {"WALL_A", "WALL_B"})
+        # Most-frequent first: both walls are vetoed at least once here, but
+        # the ordering contract (descending count) must hold regardless of
+        # which two nets a real floorplan's congestion names.
+        counts = list(hop["blocked_by_counts"].values())
+        self.assertEqual(counts, sorted(counts, reverse=True))
+
+    def test_successful_hop_carries_no_blocker_fields(self) -> None:
+        bus = met1_bus.Met1Bus()
+        plan = [
+            {"name": "P0", "pad": (0.0, 0.0), "via": False},
+            {"name": "P1", "pad": (10.0, 5.0), "via": False},
+        ]
+        hops, routed = gen_bandgap_routed._draw_chain(bus, "N1", plan)
+        self.assertTrue(routed)
+        self.assertEqual(len(hops), 1)
+        self.assertNotIn("blocked_by", hops[0])
+        self.assertNotIn("blocked_by_counts", hops[0])
+
 
 class TestChannelPaths(unittest.TestCase):
     """`_channel_paths()` is the shape a cross-floorplan hop needs that no
