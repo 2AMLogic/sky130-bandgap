@@ -92,7 +92,7 @@
 *     the schematic. Whether the layout draws that join is stated in the
 *     routed record's own coverage table, not accommodated here.
 *
-* RESISTOR BULK-TERMINAL CORRECTION (issue #62, sixteenth increment): the
+* RESISTOR BULK-TERMINAL CORRECTION (issue #62, fifteenth increment): the
 * R2A/R2B/R1 cards below now carry a third (bulk) node, `VSS`, matching
 * design/bandgap_core.sch's own explicit wiring -- `r2ab`/`r2bb`/`r1b` are
 * all `lab_pin`s reading `VSS` (design/bandgap_core.sch lines 258/267/283),
@@ -111,12 +111,8 @@
 * these 2-terminal `R` cards as `DeviceClassResistor`, which cannot pair
 * against the layout's 3-terminal `DeviceClassResistorWithBulk` reading of
 * the same device class name (klayout-tools#504) regardless of value --
-* the comparer never got far enough to compare resistance at all. The
-* generic upstream reconciliation for that shape (klayout-tools#506, filed
-* by the fifteenth increment) stays open but is not a dependency here: it
-* exists for references that genuinely cannot state a bulk net, and this
-* one always could. See layout/matching-plan.md Sections 7m and 7n for the
-* filing and the measured LVS effect respectively.
+* the comparer never got far enough to compare resistance at all. See
+* layout/matching-plan.md Section 7m for the measured LVS effect.
 *
 * Previously this section also disclosed that every nfet/resistor/PNP bulk
 * terminal in the layout extracted onto sky130's deck-synthesized `vsubs`
