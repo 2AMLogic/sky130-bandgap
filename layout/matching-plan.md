@@ -1670,6 +1670,87 @@ here for the same reason Sections 7d-7l's own larger candidates were --
 this section's job is the arity fix and the diagnosis it unlocks, not a new
 router or ladder-generator change.
 
+### 7o. Seventeenth increment: named and filed the metal-level capability gap behind AC1's corridor deadlock, no code change
+
+Section 7k's own closing line named two qualitatively different remaining
+candidates for AC1's `D1`/`GDRV`/`VSS` trio: an order-search change to this
+repo's own router, or "accepting the corridor deadlock as a hard limit of
+this router and pursuing ... a genuine second metal role instead ... a
+third routing layer, not merely a second role name, would be the actual
+capability gap to file." Section 7d had already found the second half of
+that -- klayout-tools#454's `"metal2"` role resolves to the same met1 layer
+this flow's own bus already hand-routes on, sky130's curated deck has only
+two metal levels total -- but ruled it out as *this floorplan's* lever
+without ever filing the underlying capability gap upstream. This increment
+closes that gap in the friction record, not in the routing.
+
+**Re-verified against current `klayout-tools` `main`.** Reading
+`klayout_tools.decks.sky130.EXTRACTION_DECK` and
+`klayout_tools.gen._PDK_ROLE_LAYERS["sky130"]` directly (source, not a PR
+description):
+
+- `EXTRACTION_DECK.metals = ((67, 20), (68, 20))` -- li1.drawing and
+  met1.drawing, exactly two connectivity levels, joined by
+  `vias = ((67, 44),)` (mcon). No met2/met3/met4 entry, even though the same
+  curated deck's own layer-number table already knows those GDS numbers
+  (used only as MiM-cap bottom-plate layers elsewhere, never as a
+  `metals`/`vias` connectivity level).
+- `_PDK_ROLE_LAYERS["sky130"]["metal"]` = `(67, 20)` (li1, the device-pad
+  layer); `_PDK_ROLE_LAYERS["sky130"]["metal2"]` = `(68, 20)` (met1) -- the
+  *same* layer `EXTRACTION_DECK.metals[1]` already names, and the same layer
+  this flow's own `met1_bus.py` already hand-routes every bus and
+  inter-block net on (MET1_BUS_NOTE). Compare gf180mcu in the same table:
+  its curated deck's `metals` stack runs Metal1-Metal5 (klayout-tools#220),
+  so `"metal2"` genuinely names a level above Metal1's device pads there --
+  sky130 has no equivalent third level to promote, at any role name.
+
+**Searched for an existing filing before opening a new one** (`gh issue
+list` against `2AMLogic/klayout-tools` for "metal2 role sky130", "third
+routing layer", "sky130 met2", "extraction deck metals stack") -- found
+klayout-tools#454 (closed, the role-name-only fix already picked up here)
+and klayout-tools#220 (the *gf180mcu* one-metal-level gap, a different
+family and a different shape: gf180mcu had no second level at all, sky130
+has exactly two and the ask here is for a third). No open or closed issue
+names the sky130-specific "the deck's own connectivity stack is two levels
+deep, so a caller whose bussing already needs the second one has no
+independent plane left" gap. Filed as
+[klayout-tools#508](https://github.com/2AMLogic/klayout-tools/issues/508),
+generically scoped per the friction protocol (no design-specific detail --
+describes any sky130-target router whose own intra-block bussing saturates
+`"metal"`, not this repo's floorplan).
+
+**No code or routing change ships from this increment**, same category as
+Section 7m's fifteenth increment: a friction-filing-only pass. A new
+`ROUTING_PLANE_NOTE` (sibling to `RES_BULK_ARITY_NOTE`/
+`RES_TRIM_TOPOLOGY_NOTE`) and the AC1 coverage-table narrative, the AC5
+friction-scoreboard row, and the "what this record does NOT claim" section
+in `gen_bandgap_routed.py` all now name klayout-tools#508 alongside
+klayout-tools#506 -- text-only, so a fresh flow run is required the same
+way Section 7l's fourteenth increment required one for
+`RES_BULK_ARITY_NOTE`'s text (the note strings are embedded in generated
+`record.md` output). Re-ran both flows to confirm no regression: `layout/
+bandgap-core`'s current record reproduces `mismatch_count=32`,
+`devices.matched=6`, `nets.matched=3`, 9/12 schematic coverage,
+`device_counts`/`pin_count` all unchanged from Section 7n's own record --
+this increment's only measured difference is the friction-scoreboard/
+coverage-table prose. `layout/trivial-cell` non-regression: DRC clean, LVS
+match (`devices.matched: 4/4`, `nets.matched: 13/13`), both negative
+controls still `mismatch`.
+
+**What this does and does not move.** AC1 is unchanged at 9/12 -- this
+increment does not touch routing or the floorplan, and per Section 7k's own
+framing, filing klayout-tools#508 documents *why* there is no metal-level
+lever left to pull locally, not a new lever itself. AC5 gains one more
+named, currently-open gap: two of AC4's/AC1's remaining causes now each have
+an upstream filing tracking their own capability gap (`klayout-tools#506`
+for the resistor arity, `klayout-tools#508` for the routing-plane budget),
+neither of which this repo can close from its own side. If
+`klayout-tools#508` lands (a third connectivity level curated for sky130
+with its own `"metal3"`/`"via2"` role pair), the next AC1 increment should
+re-evaluate whether the freed plane changes any of Section 7g's per-hop
+blocker tallies -- worth checking `blocked_by_counts` again rather than
+re-deriving it from scratch, since that diagnostic already exists.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five
@@ -1717,7 +1798,11 @@ router or ladder-generator change.
      block-internal comb geometry the inter-block router cannot reorder at
      all. A real corridor deadlock, not a single-net or search-depth problem
      a router-side change can still solve. It is the first time in this
-     issue's history that the top cause is this repo's own.
+     issue's history that the top cause is this repo's own. **Update,
+     seventeenth increment (Section 7o)**: the one metal-level capability
+     that could still open a corridor here -- a genuine third routing plane
+     on sky130 -- does not exist upstream and had never been filed; now
+     filed as klayout-tools#508 (open).
   2. **MCC** is in the reference and deliberately not drawn (Section 6).
   3. **The DR-002 trim ladder is always physically drawn, at code 0 the
      schematic has none at all.** `res_trim`'s 32 unit resistors exist as
@@ -1870,7 +1955,12 @@ router or ladder-generator change.
   or accepting the corridor deadlock as a hard limit of this router and
   pursuing a genuine third routing layer upstream (klayout-tools#454 merged,
   but its `"metal2"` role aliases to the same met1 layer on sky130 per
-  Section 7d -- not the same thing as a second physical layer).
+  Section 7d -- not the same thing as a second physical layer). **Update,
+  seventeenth increment (Section 7o)**: that third-routing-layer capability
+  gap had never actually been filed upstream, only ruled out locally --
+  filed as [klayout-tools#508](https://github.com/2AMLogic/klayout-tools/issues/508).
+  No code change; see Section 7o for what was verified against current
+  `klayout-tools` source before filing.
 - **Intra-block bussing is drawn for every device family**, on met1
   (Section 5a) -- PNP arrays, resistor ladders, and (from the fourth
   increment) MOS fingers. Each split MOS group now extracts and combines
