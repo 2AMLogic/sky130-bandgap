@@ -78,8 +78,9 @@ does NOT claim" section for the authoritative, measured version:
 - **Not LVS-clean.** Disclosed causes remain, none of them a topology error
   in either netlist: unrouted schematic nodes (this flow's own router
   congestion, not a tool gap), the resistor device-class arity mismatch
-  (RES_BULK_ARITY_NOTE -- filed as klayout-tools#504, diagnosed but not yet
-  fixable from this flow's side), the compensation cap MCC which is in the
+  (RES_BULK_ARITY_NOTE -- filed as klayout-tools#504, diagnosed via #505 but
+  not yet fixable from this flow's side; the actual reconciliation is filed
+  separately as klayout-tools#506), the compensation cap MCC which is in the
   reference and deliberately not drawn, and the resistor head resistance
   the schematic's unit model carries but a drawn poly body does not. The
   deck-synthesized substrate net and undeclarable array dummies are
@@ -274,7 +275,14 @@ RES_BULK_ARITY_NOTE = (
     "only workaround available today is to add a bulk node to the "
     "reference's R cards, i.e. to stop the reference being a transcription "
     "of the schematic -- which this flow refuses to do for the same reason "
-    "it refuses every other reference edit."
+    "it refuses every other reference edit. The actual reconciliation "
+    "#504 itself proposed (a request-side hint normalizing the reference "
+    "class's implicit bulk terminal, or the symmetric layout-side drop) was "
+    "left unimplemented by #505 -- filed as "
+    "2AMLogic/klayout-tools#506 since no follow-up existed for it; once it "
+    "lands, a `reference.device_bulk`-style hint binding `res_high_po`'s "
+    "bulk terminal to VSS is the highest-value remaining AC4 lever this "
+    "flow knows of."
 )
 
 # ---------------------------------------------------------------------------
@@ -3474,7 +3482,9 @@ def main() -> int:
         "resistor can ever be paired -- #505's fix is a dedicated "
         "`device.class_arity` diagnostic, a deliberately-deferred partial "
         "close per its own acceptance criteria, not a fix that lets the two "
-        "classes match; see RES_BULK_ARITY_NOTE) |"
+        "classes match; see RES_BULK_ARITY_NOTE). The actual reconciliation "
+        "#504 itself proposed is filed separately as "
+        "2AMLogic/klayout-tools#506 (open) |"
     )
     a("")
     a(f"- [{'x' if drc_clean else ' '}] DRC on the composed, routed layout is clean")
