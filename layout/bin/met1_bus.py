@@ -380,6 +380,55 @@ class Met1Bus:
                         )
         return found
 
+    def components(self) -> dict[str, int]:
+        """How many disjoint pieces of met1 each net's drawn wiring falls into.
+
+        A net drawn as two pieces that never touch is *not* a connected node,
+        however confidently the net id says otherwise -- and unlike a drawn
+        short, nothing downstream reports it as an error: `klt extract` simply
+        sees two anonymous nets. Counting connected components per net id is
+        the matching safety net to :meth:`conflicts`: 1 means the wiring this
+        flow drew for that node is genuinely one conductor.
+
+        Rectangles are joined when they touch or overlap (a shared edge is a
+        connection on one metal layer). Nets that legitimately close through
+        li1 rather than met1 are the caller's business to exclude.
+        """
+        by_net: dict[str, list[tuple[float, float, float, float]]] = {}
+        for net, x0, y0, x1, y1 in self.met1_rects:
+            by_net.setdefault(net, []).append((x0, y0, x1, y1))
+        out: dict[str, int] = {}
+        eps = 1e-9
+        for net, rects in by_net.items():
+            parent = list(range(len(rects)))
+
+            def find(i: int) -> int:
+                while parent[i] != i:
+                    parent[i] = parent[parent[i]]
+                    i = parent[i]
+                return i
+
+            local: dict[tuple[int, int], list[int]] = {}
+            for i, (x0, y0, x1, y1) in enumerate(rects):
+                for cell in self._cells(x0 - eps, y0 - eps, x1 + eps, y1 + eps):
+                    local.setdefault(cell, []).append(i)
+            for bucket in local.values():
+                for pos, i in enumerate(bucket):
+                    ax0, ay0, ax1, ay1 = rects[i]
+                    for j in bucket[pos + 1 :]:
+                        bx0, by0, bx1, by1 = rects[j]
+                        if (
+                            ax0 - eps <= bx1
+                            and bx0 - eps <= ax1
+                            and ay0 - eps <= by1
+                            and by0 - eps <= ay1
+                        ):
+                            ri, rj = find(i), find(j)
+                            if ri != rj:
+                                parent[ri] = rj
+            out[net] = len({find(i) for i in range(len(rects))})
+        return out
+
     # -- emit --------------------------------------------------------------
     def emit(
         self, klt: str, out_dir: Path, cell_name: str, pdk: dict[str, Any], note: str

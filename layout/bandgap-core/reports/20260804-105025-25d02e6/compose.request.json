@@ -1,0 +1,37 @@
+{
+  "schema": "klt.gen_compose.request/1",
+  "pdk": {
+    "variant": "sky130A"
+  },
+  "blocks": [
+    {
+      "id": "bandgap_core_routed_inner",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-72/layout/bandgap-core/reports/20260804-105025-25d02e6/bandgap_core_routed_inner.gen.json"
+    },
+    {
+      "id": "guard_ring_outer",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-72/layout/bandgap-core/reports/20260804-105025-25d02e6/guard_ring_outer.gen.json"
+    }
+  ],
+  "placement": {
+    "strategy": "explicit",
+    "order": [
+      "bandgap_core_routed_inner",
+      "guard_ring_outer"
+    ],
+    "origins_um": {
+      "bandgap_core_routed_inner": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "guard_ring_outer": {
+        "x": -10.0,
+        "y": -10.0
+      }
+    }
+  },
+  "options": {
+    "cell_name": "bandgap_core_routed",
+    "output": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-72/layout/bandgap-core/reports/20260804-105025-25d02e6/bandgap_core_routed.gds"
+  }
+}
