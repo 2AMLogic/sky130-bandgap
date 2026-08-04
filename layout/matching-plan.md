@@ -968,6 +968,86 @@ sharper and the two halves are genuinely different problems:
 Neither is a router parameter, and this increment ships no routing change:
 only the `blocked_by_counts` diagnostic, so the next increment can read
 this breakdown out of any record instead of re-deriving it.
+
+### 7h. Tenth increment: PR #78 changed the unrouted set from `D1`/`VDD`/`VSS` to `D1`/`GDRV`/`VSS` -- re-ran the search-depth lever against the new set, still not a lever
+
+PR #78 (merged after Section 7f) fixed `VDD`'s two blocked hops by offering
+every PMOS guard-ring tap (`TAP_N`/`TAP_S`/`TAP_E`) as a routing candidate
+instead of pinning `bulk_terminal()` to `TAP_S` -- `core_mirror` and
+`amp_input_pair` now route their n-well taps through `TAP_N`, and `VDD` is
+fully drawn (`klt lvs` correspondence went from `0`/`0` to `3`/`1` as a
+result, since every reference PMOS bulk is on `VDD`). The fix's own record
+disclosed a cost rather than burying it: the corridor `VDD` now uses through
+`core_mirror` is one `GDRV` previously had, so **`GDRV`'s hop from
+`core_mirror` to `amp_pmirr`/`amp_nmirr` is now blocked** (`blocked_by:
+TAIL`) where it was fully drawn before. Schematic inter-block coverage is
+unchanged at 9/12 -- a different net in the short column, not a net gain --
+so this section's job is to re-run the checks Sections 7d-7f already
+performed against the *new* unrouted set (`D1`, `GDRV`, `VSS`) rather than
+assume a finding measured against the old set (`D1`, `VDD`, `VSS`) still
+holds for a floorplan whose winning route order has changed.
+
+**What was tried.** Section 7d's router-search-depth widening
+(`CANDIDATE_ASSIGNMENTS` 3->6, `CANDIDATES_PER_TERMINAL` 3->5,
+`REPAIR_MAX_SKIPS_PER_NET` 3->8, `REPAIR_MAX_ATTEMPTS` 8->24) was re-applied,
+unmodified, against current `main` (`75db569`, i.e. post-PR-#78) and run to
+completion.
+
+**The result: byte-identical to the post-#78 baseline in every gated
+field.** `mismatch_count=92` (unchanged from the `20260804-105025-25d02e6`
+baseline), `devices.matched=3`/`nets.matched=1` (unchanged), `device_counts`/
+`pin_count` unchanged, met1 routing `nets=13, unrouted=3` with the identical
+three nets (`D1`, `GDRV`, `VSS`) blocked at the identical points
+(`GDRV`'s hop still reports `blocked_by=TAIL`). DRC stayed clean. This
+matches Section 7d's original finding for the pre-#78 net set exactly:
+widening this repo's own router's search budget 2x is not a lever, whether
+the specific net it fails to free is `VDD` (pre-#78) or `GDRV` (post-#78) --
+the mechanism ruled out in Section 7d is the *search*, not any one net's
+path, so re-verifying against the changed net set was expected to (and did)
+reproduce the same negative result, not superseded by it.
+
+**Also checked, by inspection rather than a further flow run**: `_connect`'s
+existing per-hop search (two direct elbows, `free_channels()`'s block-edge
+channel tracks restricted to `CHANNEL_NEAR_TRACKS`/`CHANNEL_DOGLEG_TRACKS`
+nearest options, then `DETOUR_OFFSETS_UM`'s 0.4 um-pitch Z-detour sweep out
+to +-48.4 um from each endpoint) is already a near-continuous search of the
+plane around both of a hop's endpoints, bounded only by already-drawn met1 --
+`free_channels()`'s own docstring states a block's bbox is not an obstacle to
+this router, only another node's drawn metal is. **Section 7g -- a
+concurrently developed increment that merged while this one was in review --
+has since measured exactly that, and independently confirms this section's
+result at the mechanism level.** Its per-`_connect()`-call blocker tally
+(now carried in every record as `blocked_by_counts`) shows `GDRV`'s hop
+rejecting **all 5636** candidate paths `_connect()` can generate -- every
+elbow, every floorplan-channel crossing, and the full +/-48 um detour sweep
+-- against just three vetoing nets (`VDD` 2851, `TAIL` 2778, `GDRV` 7); and
+its replay harness shows that deleting `TAIL`'s *inter-block* route leaves
+that tally byte-identical, i.e. the metal walling off the corridor is
+`core_mirror`'s and `amp_pmirr`'s own intra-block comb geometry, drawn
+before the inter-block router runs at all. A search that already exhausts
+its candidate space against obstacles no net order can move cannot be
+improved by giving it a larger budget -- which is precisely the negative
+result this section measured end to end, arrived at from the opposite
+direction. This section therefore does not re-derive that tally or re-run
+that harness; see Section 7g for the per-hop breakdown.
+
+**Ruled out, and reverted (not shipped)**: router search-depth widening is
+not a lever for the current (`D1`, `GDRV`, `VSS`) unrouted set, exactly as
+Section 7d found for the prior (`D1`, `VDD`, `VSS`) set. No code change
+ships from this increment; the report directory this run produced was not
+committed, per this issue's established convention (Sections 7d-7f). The
+remaining candidates for AC1 closure are unchanged in kind from Section
+7d-7f, updated only in which net stands in for the row-1/row-2 corridor
+problem: a floorplan revision splitting `amp_input_pair` (now for `D1`/
+`GDRV` -- `GDRV`'s blocked hop, like `VDD`'s before it, touches
+`core_mirror`'s row-1/row-2 crossing, the same region a split would open)
+and a separate `pnp_ctat`/`res_r2`/`pnp_ptat` re-placement for `VSS` -- both
+real floorplan/matching redesigns, still not attempted. Section 7g sharpens
+that same pair by naming what kind of relief each half needs: `D1` and
+`GDRV` need **block-internal** relief (their blockers are comb geometry the
+inter-block router never reorders), while `VSS` needs **corridor** relief in
+row 0 wide enough for `VOUT`, `VA` and `res_r2`'s own bus at once.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed three
@@ -982,9 +1062,16 @@ this breakdown out of any record instead of re-deriving it.
   and the layout side of the comparison is 39 devices against the
   reference's 16 (was 97). `devices.matched` is still 0. The fifth increment
   (Section 7c) added a rip-up-and-reroute repair pass and re-ran the flow;
-  `mismatch_count` did not move -- see cause 1. The residual causes, in the
-  order they matter (the routed record's "LVS mismatch analysis" section
-  quantifies each):
+  `mismatch_count` did not move -- see cause 1. **Update, post-PR-#78
+  (Sections 7g/7h context)**: `devices.matched` is no longer 0. PR #78
+  fixed two of `VDD`'s PMOS n-well taps (previously pinned to a single pad
+  that had no free corridor), which took `klt lvs`'s correspondence from
+  `0`/`0` device/net matches to `3`/`1` and `mismatch_count` from 106 to
+  **92** -- every reference PMOS bulk is now on `VDD`, giving
+  `NetlistComparer` a foothold it previously had none of. The cause list
+  below is otherwise unchanged; cause 1's specific unrouted trio moved from
+  `D1`/`VDD`/`VSS` to `D1`/`GDRV`/`VSS` (Sections 7g/7h) as a disclosed cost
+  of the same fix.
   1. **Three schematic nodes are still not joined end to end** -- this
      flow's own router running out of corridors, *not* a tool gap, and
      confirmed by the fifth increment to survive a per-net rip-up-and-retry,
@@ -1028,9 +1115,14 @@ this breakdown out of any record instead of re-deriving it.
   rather than needing a new generator.
 - **Inter-block connectivity is now mostly drawn, but not complete** -- 9 of
   12 schematic inter-block nets are joined across every block they reach (up
-  from 6/12, and 4/12 before that), via met1 (Section 5a). The three still
-  short (`D1`, `VDD`, `VSS`) are `partial`: each is drawn between the blocks
-  the router reached and stops where it did not. **The cause is no longer
+  from 6/12, and 4/12 before that), via met1 (Section 5a). **As of PR #78
+  (Sections 7g/7h), the three still short are `D1`, `GDRV`,
+  and `VSS`** (was `D1`, `VDD`, `VSS` through the eighth increment -- PR #78
+  freed `VDD` by offering every PMOS guard-ring tap as a routing candidate
+  instead of pinning to one, at the disclosed cost of the `core_mirror`
+  corridor `GDRV`'s hop to `amp_pmirr`/`amp_nmirr` had been using). Each is
+  `partial`: drawn between the blocks the router reached and stops where it
+  did not. **The cause is no longer
   upstream.** Every one of these nodes is expressible now; what is missing
   is corridor in a floorplan whose widest block spans 180 of the cell's 300
   um and whose own comb trunks are the obstacle. Issue #62's criterion 1 is
@@ -1070,9 +1162,19 @@ this breakdown out of any record instead of re-deriving it.
   search picking a different winner. Schematic coverage moved 9/12 -> 8/12
   (a net loss, not a lateral trade this time), `mismatch_count` 106 -> 107,
   and composed area grew to within ~3% of the 50,000 um^2 budget for the
-  privilege. Reverted, not shipped. The floorplan-split-plus-row-0-*re-
-  placement* pair (not mere re-spacing) above remains the only unexplored
-  path to closing AC1.
+  privilege. Reverted, not shipped. The tenth increment (Section 7h)
+  re-verified the search-depth lever against PR #78's changed unrouted set
+  (`D1`/`GDRV`/`VSS` in place of `D1`/`VDD`/`VSS`) and found the identical
+  negative result -- byte-identical `mismatch_count`/coverage/blocked-hop
+  attribution to the un-widened baseline, which Section 7g's exhaustive
+  per-hop blocker tally then explains mechanically (the search already
+  enumerates every candidate it can generate, against obstacles no budget
+  reaches). The
+  floorplan-split-plus-row-0-*re-placement* pair (not mere re-spacing) above
+  remains the only unexplored path to closing AC1; `GDRV`'s blocked hop
+  takes over `VDD`'s former role as the split candidate's target (both touch
+  `core_mirror`'s row-1/row-2 crossing), `VSS`'s row-0 re-placement candidate
+  is untouched by any of this.
 - **Intra-block bussing is drawn for every device family**, on met1
   (Section 5a) -- PNP arrays, resistor ladders, and (from the fourth
   increment) MOS fingers. Each split MOS group now extracts and combines
