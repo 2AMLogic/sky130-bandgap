@@ -475,7 +475,18 @@ class TestCoverageScoringGate(unittest.TestCase):
         row = self._row(routes, "VSS")
         self.assertEqual(row["status"], "partial")
         self.assertEqual(len(row["joined"]), 2, row["joined"])
-        self.assertEqual(len(row["missing"]), 5)
+        # Whatever VSS's declared block list is, the two islands above credit
+        # exactly one of them -- derived from the table rather than a literal,
+        # so a future scope change to the node does not silently turn this
+        # into a test of nothing.
+        declared = len(
+            next(
+                spec["blocks"]
+                for spec in gen_bandgap_routed.SCHEMATIC_INTER_BLOCK_NETS
+                if spec["net"] == "VSS"
+            )
+        )
+        self.assertEqual(len(row["missing"]), declared - 2)
 
     def test_separate_pads_on_one_block_do_not_bridge_two_fragments(self) -> None:
         """Two hops landing on *different* pads of the same block are not
@@ -612,3 +623,246 @@ class TestFlowGate(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# ---------------------------------------------------------------------------
+# The MOS gate contact + finger-bus geometry (added with the post-#461 pin)
+# ---------------------------------------------------------------------------
+class TestGateContact(unittest.TestCase):
+    """`met1_bus.Met1Bus.gate_contact()` is the stack upstream
+    2AMLogic/klayout-tools#461 (merged via #474) made legal: a licon on the
+    generator's poly landing pad plus an li1 riser down to a bus track inside
+    the device row. It is hand-placed geometry, so its sizing has to hold to
+    the deck's own thresholds without a DRC run to catch it.
+    """
+
+    def _shapes(self, bus: met1_bus.Met1Bus, layer: list[int]):
+        return [s["rect_um"] for s in bus.shapes if s["layer"] == layer]
+
+    def test_draws_a_licon_on_the_pad_and_an_li1_riser_to_the_track(self) -> None:
+        bus = met1_bus.Met1Bus()
+        bus.net("D1").gate_contact(10.0, 8.21, 4.0)
+        licons = self._shapes(bus, met1_bus.LICON_LAYER)
+        risers = self._shapes(bus, met1_bus.LI1_LAYER)
+        self.assertEqual(len(licons), 1)
+        self.assertEqual(len(risers), 1)
+        # The licon is centred on the reported gate-port position...
+        x0, y0, x1, y1 = licons[0]
+        self.assertAlmostEqual((x0 + x1) / 2, 10.0)
+        self.assertAlmostEqual((y0 + y1) / 2, 8.21)
+        self.assertAlmostEqual(x1 - x0, met1_bus.LICON_UM)
+        # ...and the riser spans pad to track, covering it at both ends.
+        rx0, ry0, rx1, ry1 = risers[0]
+        self.assertLessEqual(ry0, 4.0)
+        self.assertGreaterEqual(ry1, 8.21)
+        self.assertLessEqual(rx0, x0)
+        self.assertGreaterEqual(rx1, x1)
+
+    def test_riser_encloses_both_the_licon_under_it_and_the_mcon_on_it(self) -> None:
+        """The riser is the only conductor joining gate poly to the met1
+        trunk, so it has to cover the licon below and the mcon above. A riser
+        narrower than either would be an open circuit that no gate in this
+        flow reports -- `klt drc` models no li1 enclosure of mcon on sky130."""
+        self.assertGreaterEqual(met1_bus.GATE_LI1_UM, met1_bus.LICON_UM)
+        self.assertGreaterEqual(met1_bus.GATE_LI1_UM, met1_bus.VIA_UM)
+        # ...and is at least the deck's own li1 minimum width.
+        self.assertGreaterEqual(met1_bus.GATE_LI1_UM, 0.17)
+
+    def test_counts_are_speculation_safe(self) -> None:
+        """A gate contact drawn inside a rolled-back routing attempt must
+        leave nothing behind -- the same invariant `mark`/`restore` already
+        holds for wires and vias."""
+        bus = met1_bus.Met1Bus()
+        mark = bus.mark()
+        bus.net("D1").gate_contact(10.0, 8.21, 4.0)
+        self.assertEqual(bus.gate_contact_count, 1)
+        bus.restore(mark)
+        self.assertEqual(bus.gate_contact_count, 0)
+        self.assertEqual(bus.shapes, [])
+        self.assertEqual(bus.li1_rects, [])
+
+    def test_two_nodes_risers_too_close_are_a_conflict(self) -> None:
+        """li1 is the layer every device pad already lives on, so two gate
+        risers of different nodes that come within `li1.space.1` are a short
+        exactly as two met1 wires would be. Reported under its own layer key
+        so a failing run says which conductor."""
+        bus = met1_bus.Met1Bus()
+        bus.net("D1").gate_contact(10.0, 8.21, 4.0)
+        bus.net("D2").gate_contact(10.0 + met1_bus.GATE_LI1_UM + 0.10, 8.21, 4.0)
+        found = [c for c in bus.conflicts() if c.get("layer") == "li1"]
+        self.assertEqual(len(found), 1)
+        self.assertEqual(sorted(found[0]["nets"]), ["D1", "D2"])
+
+    def test_two_nodes_risers_at_the_deck_threshold_are_clean(self) -> None:
+        bus = met1_bus.Met1Bus()
+        bus.net("D1").gate_contact(10.0, 8.21, 4.0)
+        bus.net("D2").gate_contact(
+            10.0 + met1_bus.GATE_LI1_UM + met1_bus.LI1_SPACE_UM, 8.21, 4.0
+        )
+        self.assertEqual([c for c in bus.conflicts() if c.get("layer") == "li1"], [])
+
+
+class TestMet1ProximityIndex(unittest.TestCase):
+    """`met1_near()` is a pure speed-up of the drawn-short test the router
+    runs on every candidate path, so it has to return exactly what a full
+    scan would. A stale index would silently hide a drawn short -- the one
+    failure mode this whole file exists to make impossible.
+    """
+
+    def _brute(self, bus: met1_bus.Met1Bus, box, clearance):
+        x0, y0, x1, y1 = box
+        return sorted(
+            r
+            for r in bus.met1_rects
+            if x0 - clearance < r[3]
+            and r[1] - clearance < x1
+            and y0 - clearance < r[4]
+            and r[2] - clearance < y1
+        )
+
+    def _bus(self) -> met1_bus.Met1Bus:
+        bus = met1_bus.Met1Bus()
+        for i in range(40):
+            bus.net(f"N{i % 5}")
+            bus.hseg(i * 1.7, i * 1.7 + 30.0, i * 0.9)
+            bus.vseg(i * 2.3, -5.0, 40.0)
+            bus.via(i * 3.1, i * 1.3)
+        return bus
+
+    def test_matches_a_full_scan(self) -> None:
+        bus = self._bus()
+        for box in ((0.0, 0.0, 1.0, 1.0), (20.0, 10.0, 21.0, 30.0), (-9.0, -9.0, -8.0, -8.0)):
+            self.assertEqual(
+                sorted(bus.met1_near(*box, 0.14)),
+                self._brute(bus, box, 0.14),
+                box,
+            )
+
+    def test_truncation_unindexes(self) -> None:
+        """`truncate_met1` is how a rolled-back path leaves the index. If it
+        left entries behind, every later route would be tested against
+        geometry that is not in the emitted layout."""
+        bus = self._bus()
+        keep = 20
+        bus.truncate_met1(keep)
+        self.assertEqual(len(bus.met1_rects), keep)
+        box = (0.0, -10.0, 60.0, 40.0)
+        self.assertEqual(
+            sorted(bus.met1_near(*box, 0.14)), self._brute(bus, box, 0.14)
+        )
+
+
+class TestMosCombPlan(unittest.TestCase):
+    """The declarative half of the MOS finger bus: every schematic device
+    terminal in `BLOCKS`' `mos_comb` specs has to resolve through
+    `MOS_HALVES`, and the per-block net set has to be exactly the set of
+    schematic nodes that block participates in. A typo here is a topology
+    error neither DRC nor the drawn-short check can see -- the same class of
+    defect MOS_HALF_NOTE was written for.
+    """
+
+    def _combs(self):
+        return {
+            block["id"]: block["bus"]
+            for block in gen_bandgap_routed.BLOCKS
+            if block.get("bus", {}).get("kind") == "mos_comb"
+        }
+
+    def test_every_terminal_names_a_device_the_half_table_binds(self) -> None:
+        for bid, spec in self._combs().items():
+            devices = gen_bandgap_routed.MOS_HALVES[bid]["devices"]
+            for entry in spec["nets"]:
+                for device, terminal in entry["terminals"]:
+                    self.assertIn(device, devices, f"{bid}.{device}")
+                    self.assertIn(terminal, ("drain", "source", "gate"))
+
+    def test_every_device_terminal_is_assigned_exactly_once(self) -> None:
+        """A finger left off the comb is a floating terminal; a finger on two
+        combs is a drawn short. Both are silent."""
+        for bid, spec in self._combs().items():
+            seen: list[tuple[str, str]] = []
+            for entry in spec["nets"]:
+                seen.extend(tuple(t) for t in entry["terminals"])
+            self.assertEqual(len(seen), len(set(seen)), f"{bid}: repeated terminal")
+            expected = {
+                (device, terminal)
+                for device in gen_bandgap_routed.MOS_HALVES[bid]["devices"]
+                for terminal in ("drain", "source", "gate")
+            }
+            self.assertEqual(set(seen), expected, bid)
+
+    def test_every_comb_net_is_a_declared_inter_block_node(self) -> None:
+        declared = {spec["net"] for spec in gen_bandgap_routed.INTER_BLOCK_MET1}
+        for bid, spec in self._combs().items():
+            for entry in spec["nets"]:
+                self.assertIn(entry["net"], declared, f"{bid}:{entry['net']}")
+
+    def test_every_inter_block_comb_terminal_exists_in_its_block(self) -> None:
+        """The reverse direction: a route asking for a comb point the block
+        never built would raise deep inside the router, mid-run."""
+        combs = self._combs()
+        for spec in gen_bandgap_routed.INTER_BLOCK_MET1:
+            for terminal in spec["terminals"]:
+                if "comb" not in terminal:
+                    continue
+                bid, net = terminal["comb"]
+                self.assertIn(bid, combs)
+                self.assertIn(
+                    net, {e["net"] for e in combs[bid]["nets"]}, f"{bid}:{net}"
+                )
+
+    def test_the_spine_side_escape_goes_to_the_outermost_node_only(self) -> None:
+        """Only the last group in a block's list may escape on the spine
+        side -- every inner one is walled in by the outer spines. The order
+        is therefore load-bearing, and this asserts the block tables put a
+        node whose partners lie on the spine side there."""
+        for bid, spec in self._combs().items():
+            self.assertIn(spec["spine_side"], ("W", "E"), bid)
+            self.assertGreaterEqual(len(spec["nets"]), 2, bid)
+
+    def test_band_index_places_gates_with_their_own_row(self) -> None:
+        """A gate port sits above its row's diffusion, below the next row's.
+        Getting that wrong would bus a gate onto the *other* device row's
+        track -- legal geometry, wrong transistor."""
+        bands = [(0.0, 8.0), (8.82, 16.82)]
+        self.assertEqual(gen_bandgap_routed._band_index(bands, 4.0), 0)
+        self.assertEqual(gen_bandgap_routed._band_index(bands, 8.21), 0)
+        self.assertEqual(gen_bandgap_routed._band_index(bands, 12.82), 1)
+        self.assertEqual(gen_bandgap_routed._band_index(bands, 17.03), 1)
+
+
+class TestChannelTracks(unittest.TestCase):
+    """`free_channels()` decides where the open-channel router may cross the
+    floorplan. It returned a set with no usable track at all in a first cut
+    (every survivor of its "fewest blocks crossed" ranking was outside the
+    whole cell), which reported six schematic nets unroutable without any
+    tool gap behind it -- so the property worth asserting is that the
+    placement channels *between* neighbours are represented.
+    """
+
+    REPORTS = {
+        "a": {"bbox_um": {"x0": 0.0, "y0": 0.0, "x1": 10.0, "y1": 10.0}},
+        "b": {"bbox_um": {"x0": 30.0, "y0": 0.0, "x1": 40.0, "y1": 10.0}},
+        # Overlaps both in x, as a second-row block does on the real
+        # floorplan -- this is what a union-of-spans approach collapses.
+        "c": {"bbox_um": {"x0": 5.0, "y0": 40.0, "x1": 38.0, "y1": 50.0}},
+    }
+    ORIGINS = {k: {"x": 0.0, "y": 0.0} for k in REPORTS}
+
+    def test_the_gap_between_two_neighbours_gets_tracks(self) -> None:
+        lanes = gen_bandgap_routed.free_channels(self.REPORTS, self.ORIGINS)
+        between = [t for t in lanes["x"] if 10.0 < t < 30.0]
+        self.assertTrue(between, lanes["x"])
+
+    def test_tracks_clear_the_comb_escape_stubs(self) -> None:
+        """The nearest track to a block edge must sit outside that block's
+        own escape fan, or every path through it is rejected on arrival."""
+        self.assertGreater(
+            gen_bandgap_routed.CHANNEL_TRACK_OFFSET_UM,
+            max(gen_bandgap_routed.MOS_ESCAPE_UM),
+        )
+
+    def test_a_block_with_no_neighbour_still_gets_outside_tracks(self) -> None:
+        lanes = gen_bandgap_routed.free_channels(self.REPORTS, self.ORIGINS)
+        self.assertTrue([t for t in lanes["x"] if t < 0.0])
+        self.assertTrue([t for t in lanes["x"] if t > 40.0])

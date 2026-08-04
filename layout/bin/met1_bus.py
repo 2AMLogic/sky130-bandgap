@@ -73,15 +73,31 @@ MET1_LAYER = [68, 20]
 #: `...EXTRACTION_DECK.metal_labels[1]` -- names a met1 net for `klt extract`'s
 #: pin promotion.
 MET1_LABEL_LAYER = [68, 5]
+#: `...EXTRACTION_DECK.contact` -- the poly/diff -> li1 contact. Drawn by this
+#: module only on a MOS **gate landing pad** (see :meth:`Met1Bus.gate_contact`).
+LICON_LAYER = [66, 44]
 
 #: mcon drawn size (um). sky130's mcon is a fixed 0.17 um square.
 VIA_UM = 0.17
+#: licon drawn size (um). Same fixed 0.17 um square as mcon in sky130.
+LICON_UM = 0.17
 #: met1 landing-pad side (um) around one via: 0.24 encloses a 0.17 via by
 #: 0.035 > the deck's 0.03 `met1.enclosing.mcon.1` threshold.
 LANDING_UM = 0.24
 #: met1 wire width (um): same as the landing pad, so a wire ending on a via
 #: satisfies the enclosure rule along its own axis too.
 WIRE_WIDTH_UM = 0.24
+#: li1 width (um) of the gate riser :meth:`Met1Bus.gate_contact` draws. Above
+#: the deck's 0.17 um `li1.width.1` minimum, and wide enough to enclose both
+#: the licon under it and the mcon on top of it.
+GATE_LI1_UM = 0.24
+#: Cell size (um) of the met1 proximity index below. Large enough that a
+#: typical wire touches only a few cells, small enough that a cell holds only
+#: a few wires.
+GRID_UM = 8.0
+#: sky130 `li1.space.1` (um) -- the clearance :meth:`Met1Bus.conflicts` holds
+#: every pair of *different*-net li1 shapes this module draws to.
+LI1_SPACE_UM = 0.17
 
 
 class Met1Bus:
@@ -107,6 +123,15 @@ class Met1Bus:
         #: (net_id, x, y) per drawn mcon, for the `mcon.space.1` proximity
         #: half of :func:`conflicts`.
         self.via_xy: list[tuple[str, float, float]] = []
+        #: (net_id, x0, y0, x1, y1) for every li1 rectangle *this module*
+        #: draws -- only the gate risers of :meth:`gate_contact`. Checked to
+        #: the deck's `li1.space.1` for the same reason `met1_rects` is: a
+        #: hand-placed conductor that touches another node's conductor is a
+        #: short, and li1 is the layer every device pad already lives on.
+        self.li1_rects: list[tuple[str, float, float, float, float]] = []
+        #: (cell -> met1_rects indices) proximity index, see `met1_near`.
+        self._grid: dict[tuple[int, int], list[int]] = {}
+        self.gate_contact_count = 0
         self._vias: set[tuple[str, float, float]] = set()
         self._net = "?"
 
@@ -119,7 +144,63 @@ class Met1Bus:
     def _rect(self, layer: list[int], x0: float, y0: float, x1: float, y1: float) -> None:
         self.shapes.append({"layer": layer, "rect_um": [x0, y0, x1, y1]})
         if layer == MET1_LAYER:
+            self._index_met1(len(self.met1_rects), x0, y0, x1, y1)
             self.met1_rects.append((self._net, x0, y0, x1, y1))
+        elif layer == LI1_LAYER:
+            self.li1_rects.append((self._net, x0, y0, x1, y1))
+
+    # -- met1 spatial index -----------------------------------------------
+    # A route search asks "does this rectangle come within met1.space.1 of
+    # anything already drawn?" tens of thousands of times per run, and a full
+    # scan of every drawn rectangle makes the answer O(n) each. The index
+    # buckets rectangles into GRID_UM cells so the scan only touches the
+    # handful that could possibly be near -- which is what makes it affordable
+    # to try a large candidate-path set per hop rather than giving up early
+    # and reporting a node unroutable.
+    def _cells(self, x0: float, y0: float, x1: float, y1: float):
+        for ix in range(int(x0 // GRID_UM), int(x1 // GRID_UM) + 1):
+            for iy in range(int(y0 // GRID_UM), int(y1 // GRID_UM) + 1):
+                yield (ix, iy)
+
+    def _index_met1(self, position: int, x0: float, y0: float, x1: float, y1: float) -> None:
+        for cell in self._cells(x0, y0, x1, y1):
+            self._grid.setdefault(cell, []).append(position)
+
+    def met1_near(
+        self, x0: float, y0: float, x1: float, y1: float, clearance: float
+    ):
+        """Every already-drawn met1 rectangle within `clearance` of the box,
+        as `(net, x0, y0, x1, y1)`. Box (Chebyshev) proximity, i.e. slightly
+        stricter than the deck's Euclidean `met1.space.1` -- deliberately, so
+        a route this accepts can never be one DRC rejects."""
+        seen: set[int] = set()
+        for cell in self._cells(
+            x0 - clearance, y0 - clearance, x1 + clearance, y1 + clearance
+        ):
+            for position in self._grid.get(cell, ()):  # noqa: B007
+                if position in seen:
+                    continue
+                seen.add(position)
+                net_b, bx0, by0, bx1, by1 = self.met1_rects[position]
+                if (
+                    x0 - clearance < bx1
+                    and bx0 - clearance < x1
+                    and y0 - clearance < by1
+                    and by0 - clearance < y1
+                ):
+                    yield (net_b, bx0, by0, bx1, by1)
+
+    def truncate_met1(self, count: int) -> None:
+        """Drop every met1 rectangle from `count` on, index included."""
+        for position in range(count, len(self.met1_rects)):
+            _net, x0, y0, x1, y1 = self.met1_rects[position]
+            for cell in self._cells(x0, y0, x1, y1):
+                bucket = self._grid.get(cell)
+                if bucket and bucket[-1] == position:
+                    bucket.pop()
+                elif bucket and position in bucket:
+                    bucket.remove(position)
+        del self.met1_rects[count:]
 
     def via(self, x: float, y: float) -> None:
         """One mcon + its met1 landing pad, centred at (x, y).
@@ -142,6 +223,46 @@ class Met1Bus:
         h = LANDING_UM / 2.0
         self._rect(MET1_LAYER, x - h, y - h, x + h, y + h)
         self.via_count += 1
+
+    def gate_contact(self, x: float, gate_y: float, to_y: float) -> None:
+        """Contact one MOS gate at its reported poly landing pad `(x, gate_y)`
+        and run an li1 riser from it to `to_y`, so an ordinary
+        :meth:`via` at `(x, to_y)` can lift the gate onto met1.
+
+        This is what upstream 2AMLogic/klayout-tools#461 (merged via #474)
+        made drawable at all. Before it, `klt gen`'s MOS generators drew the
+        gate poly with exactly the active region's extent and reported the
+        gate port on the shared poly/diff boundary, so no contact could be
+        placed legally: one at the port straddled the diff edge and one moved
+        inward sat on poly over the channel. The generators now extend the
+        first finger's poly past the diffusion into a
+        contact-region-sized landing pad and report the port at its centre.
+
+        Three shapes, all sized from the deck's own thresholds:
+
+        * a `LICON_UM` licon centred on the pad -- the pad is a
+          contact-region square, so the poly encloses this by well over the
+          deck's 0.05 um `poly.enclosing.licon.1`, and it sits entirely
+          outside the diffusion;
+        * an `GATE_LI1_UM`-wide li1 riser spanning `gate_y` .. `to_y`, which
+          both covers the licon and reaches down into the device row where
+          the bus trunk runs. It passes *over* the gate poly and the channel,
+          which is ordinary routing -- it carries the gate's own node, and
+          without a licon under it it connects to nothing else;
+        * nothing on met1: the caller places the mcon with :meth:`via`.
+
+        `to_y` deliberately lands inside the device row rather than outside
+        it. A MOS row's source/drain pads are full-height li1 strips, so a
+        bus trunk can drop its via anywhere along them -- and putting the
+        gate's via on the same horizontal track removes the only stub that
+        would have had to cross another node's trunk.
+        """
+        h = LICON_UM / 2.0
+        self._rect(LICON_LAYER, x - h, gate_y - h, x + h, gate_y + h)
+        w = GATE_LI1_UM / 2.0
+        y0, y1 = min(gate_y, to_y), max(gate_y, to_y)
+        self._rect(LI1_LAYER, x - w, y0 - w, x + w, y1 + w)
+        self.gate_contact_count += 1
 
     def hseg(self, x0: float, x1: float, y: float) -> None:
         """One horizontal met1 segment (no vias)."""
@@ -184,19 +305,24 @@ class Met1Bus:
         model of it.
         """
         return (len(self.shapes), len(self.met1_rects), len(self.via_xy),
-                len(self.labels), self.via_count, self.wire_count)
+                len(self.labels), self.via_count, self.wire_count,
+                len(self.li1_rects), self.gate_contact_count)
 
     def restore(self, mark: tuple[int, ...]) -> None:
-        """Undo every shape, rectangle, via and label added since `mark`."""
-        shapes, rects, vias, labels, via_count, wire_count = mark
+        """Undo every shape, rectangle, via, gate contact and label added
+        since `mark`."""
+        (shapes, rects, vias, labels, via_count, wire_count, li1_rects,
+         gate_contacts) = mark
         for net, x, y in self.via_xy[vias:]:
             self._vias.discard((net, round(x, 4), round(y, 4)))
         self.via_count = via_count
         self.wire_count = wire_count
+        self.gate_contact_count = gate_contacts
         del self.shapes[shapes:]
-        del self.met1_rects[rects:]
+        self.truncate_met1(rects)
         del self.via_xy[vias:]
         del self.labels[labels:]
+        del self.li1_rects[li1_rects:]
 
     # -- verification ------------------------------------------------------
     def conflicts(self, clearance_um: float = 0.14) -> list[dict[str, Any]]:
@@ -223,19 +349,35 @@ class Met1Bus:
                     found.append(
                         {"nets": [net_a, net_b], "via_a": [ax, ay], "via_b": [bx, by]}
                     )
-        rects = self.met1_rects
-        for i, (net_a, ax0, ay0, ax1, ay1) in enumerate(rects):
-            for net_b, bx0, by0, bx1, by1 in rects[i + 1 :]:
-                if net_a == net_b:
-                    continue
-                if ax0 - eps < bx1 and bx0 - eps < ax1 and ay0 - eps < by1 and by0 - eps < ay1:
-                    found.append(
-                        {
-                            "nets": [net_a, net_b],
-                            "a": [ax0, ay0, ax1, ay1],
-                            "b": [bx0, by0, bx1, by1],
-                        }
-                    )
+        for layer, rects, clearance in (
+            ("met1", self.met1_rects, eps),
+            # The gate risers of `gate_contact` are the only li1 this module
+            # draws, and they are checked against each other to sky130's
+            # `li1.space.1`. Their clearance to the *generators'* own li1 pads
+            # is not checked here (this module never sees that geometry) --
+            # that one is held by construction, since a riser runs down the
+            # gate's own column gap, and it is `klt drc` on the composed cell
+            # that has the whole picture and proves it.
+            ("li1", self.li1_rects, LI1_SPACE_UM - 1e-9),
+        ):
+            for i, (net_a, ax0, ay0, ax1, ay1) in enumerate(rects):
+                for net_b, bx0, by0, bx1, by1 in rects[i + 1 :]:
+                    if net_a == net_b:
+                        continue
+                    if (
+                        ax0 - clearance < bx1
+                        and bx0 - clearance < ax1
+                        and ay0 - clearance < by1
+                        and by0 - clearance < ay1
+                    ):
+                        found.append(
+                            {
+                                "layer": layer,
+                                "nets": [net_a, net_b],
+                                "a": [ax0, ay0, ax1, ay1],
+                                "b": [bx0, by0, bx1, by1],
+                            }
+                        )
         return found
 
     # -- emit --------------------------------------------------------------

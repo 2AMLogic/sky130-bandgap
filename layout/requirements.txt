@@ -85,4 +85,60 @@
 # layout/bin/run-trivial-cell-flow.sh unmodified after the bump still PASSes
 # with the identical four-way verdict (see trivial-cell/reports/ for the
 # refreshed record).
-klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@6967be2d2c387b38243331ddfcc9d3495fa0bdb7
+#
+# Bumped again for issue #62's post-#461 increment. The prior pin
+# (6967be2d2c387b38243331ddfcc9d3495fa0bdb7) predates every upstream fix for
+# the blockers the last three routed-flow records named. All five have now
+# closed:
+#
+#   * 2AMLogic/klayout-tools#461 -> merged via #474. THE dominant blocker.
+#     Every `klt gen` MOS generator used to draw the gate poly with exactly
+#     the active region's extent, so the reported gate port sat on the shared
+#     poly/diff boundary and no contact could be placed there legally (it
+#     either straddled the diff edge or landed on poly over the channel).
+#     `diff_pair`/`mos_array` now extend the poly past the diffusion into a
+#     landing pad and report the gate port on the pad, so a gate is
+#     contactable. This is what unblocks the six schematic nodes that
+#     terminate on a gate (`VA`, `VB`, `D1`, `D2`, `GDRV`, `PN`), MOS finger
+#     bussing, and therefore `devices.matched` moving off 0.
+#   * 2AMLogic/klayout-tools#462 -> merged via #471. The dummy-device marker
+#     suppression path was MOS-gate-only; it now covers resistors and
+#     bipolars too. Measured at this pin: it changes nothing here, because
+#     the path keys off `ExtractionDeck.dummy` and the sky130 curated deck
+#     declares no such layer, no generator draws one, and `klt extract`
+#     exposes no override. Filed as the remaining half, #491.
+#   * 2AMLogic/klayout-tools#463 -> merged via #475. `gen res_array` on
+#     sky130 could only draw the base `res_generic_po` flavour, while the
+#     same tool's sky130 extraction deck recognises three. The schematic is
+#     built on `res_high_po`; the layout draws it from this pin on, which is
+#     what makes the resistor blocks a matching device class. It does NOT
+#     give them a reachable bulk pad: the deck marks `res_high_po`
+#     `bulk_to_substrate` and ties that terminal to its synthesized `vsubs`
+#     global, which no drawn shape can join (filed as #490).
+#   * 2AMLogic/klayout-tools#454 -> merged via #468. `gen-compose` now
+#     exposes metal2/via1 routing roles with via-drop bussing, i.e. a second
+#     routing metal above the layer every generator draws its pads on. This
+#     is the capability whose absence forced this repo to hand-draw its own
+#     met1 overlay (`layout/bin/met1_bus.py`, MET1_BUS_NOTE).
+#   * 2AMLogic/klayout-tools#470 -> merged via #481. `klt extract` now
+#     detects and reports multi-label net collisions instead of silently
+#     emitting a merged `A|B` net name. The flow's own label-collision gate
+#     stays in place (it is cheap and it is what caught the original), but
+#     the upstream silence this issue filed against is fixed.
+#
+# Also carried, and relevant to this flow: #467/#472 (self-net short and
+# drawn-pad-crossing detection hardening in `gen-compose`) and #477 (`klt
+# lvs` degrades gracefully instead of crashing when `combine_devices()`
+# raises a partial-match `RuntimeError` -- the crash this flow previously
+# had to catch and fall back from itself, filed as #466).
+#
+# Non-regression proof for the bump, same discipline as every pin above:
+# layout/bin/run-trivial-cell-flow.sh re-run unmodified still PASSes with the
+# identical four-way verdict (see trivial-cell/reports/ for the refreshed
+# record), and layout/bin/run-bandgap-routed-flow.sh re-run produces the
+# record this increment ships. One measured difference is expected and is
+# #474 itself: every MOS cell is 0.42 um taller, because the gate poly now
+# extends past the diffusion into its contact landing pad (the trivial cell's
+# bbox y1 goes 1.24 -> 2.08 um). Nothing else in either record moves that is
+# not this increment's own doing.
+klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@8c277eb94d6cdcb8b8b2fc02c801af3d7555e5b1
