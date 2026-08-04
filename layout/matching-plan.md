@@ -1161,6 +1161,97 @@ or a corridor carved out of the existing row 0/row 1 margin specifically for
 `VSS`'s trunk-to-trunk hop. Both remain real redesigns, not attempted in
 this pass.
 
+### 7j. Twelfth increment: the genuine 2D revision attempted directly -- fixes `VSS`'s named hop, costs two other nets, net regression, not shipped
+
+Section 7i's own back-of-envelope named the only two candidates left after
+ruling out 1D row-0 reordering as a category: a second resistor row (freeing
+row 0 for the two PNP blocks alone), measured 11% over the 50,000 um^2
+budget at this floorplan's sizing, or a dedicated row 0/row 1 corridor. This
+increment attempted the first candidate directly, with the budget overrun
+closed by tightening `ROW_MARGIN_UM` (the between-*row* channel, never
+touched by any prior increment -- Sections 7f/7h/7i all tightened or widened
+`BLOCK_MARGIN_UM`, the between-*block*-in-a-row channel, a different axis).
+
+**What was tried.** `BLOCKS`' row 0 (`pnp_ctat`, `res_r2`, `res_trim`,
+`res_r1`, `pnp_ptat`) was split into two physical rows, keeping each
+sub-group's existing left-to-right order (a minimal-diff split, not a new
+reordering): row 0 now holds only `pnp_ctat`/`pnp_ptat` -- adjacent, which
+is exactly Section 7i's experiment 1 arrangement, the one already shown to
+fully route `VSS`'s own trunk-to-trunk hop in isolation -- and a new row 1
+holds `res_r2`/`res_trim`/`res_r1`. The former row 1 (amp band) and row 2
+(mirror band) shift to row 2/row 3 unchanged in content. This adds a third
+`ROW_MARGIN_UM` channel to the height budget (PNP row to resistor row,
+alongside the pre-existing resistor-to-amp and amp-to-mirror channels), which
+at the un-widened 22 um value reproduces Section 7i's own estimate almost
+exactly (measured this increment: composed bbox would be 328.2 x 169.8 =
+**55,728** um^2 by direct `place_blocks()` computation against the current
+recorded block bboxes -- 11.5% over budget, confirming the back-of-envelope
+was accurate). `ROW_MARGIN_UM` was lowered 22 -> 15 um, uniformly across
+**every** row boundary (not a per-boundary override) -- 1 um under
+`BLOCK_MARGIN_UM`'s own already-proven-workable 16 um same-row clearance, so
+not an untested minimum, just the existing block-to-block value applied on
+the row axis. Recomputed against the same block bboxes before spending a
+flow run on it: composed bbox 328.2 x 148.8 = 48,836.16 um^2, 2.3% under
+budget.
+
+**The run completed** (record `20260804-150853-a074ca5`, not committed --
+see below -- DRC clean, `device_counts`/`pin_count` unchanged, composed bbox
+**48,836 um^2**, matching the hand computation to the um^2, confirming
+`place_blocks()`'s bbox-derived math is exactly what the flow draws).
+
+| net | baseline (`4fb2a3a`) | this experiment (row split + `ROW_MARGIN_UM` 22->15) |
+| --- | --- | --- |
+| `VSS` | partial (`pnp_ctat` hop fails) | **partial, but a different hop**: `pnp_ctat`<->`pnp_ptat` now routes end to end (confirmed in `bus-summary.json`'s per-hop trace -- `routed: true`), but `amp_nload:VSS:far0` -> `amp_nmirr.TAP_S` now fails, blocked by `D1` |
+| `TRIM` | drawn (`res_r2`-`res_trim`, both legs) | **partial** -- both `TRIM_A` and `TRIM_B` now fail, overwhelmingly vetoed by `VA` (3278/5268 and 1952/5282 rejections respectively) and, for `TRIM_B`, by `TRIM_A`'s own now-longer route (1484) |
+| `GDRV` | partial (blocked at `core_mirror`) | partial (blocked at `core_mirror`, unchanged) -- `blocked_by_counts` (`TAIL` 2705, `VDD` 2293, `VOUT` 630) is the same magnitude as the pre-split baseline's tally (Section 7g: `TAIL` 2778, `VDD` 2851), confirming yet again this hop's blocker is `core_mirror`/`amp_pmirr`'s own intra-block comb geometry, untouched by any floorplan change on either side of the row-0/row-1 boundary |
+| `D1` | partial (blocked at `amp_nmirr`) | partial (blocked at `amp_nmirr`, unchanged) -- same mechanism as `GDRV` above |
+
+Schematic inter-block coverage moved **9/12 -> 8/12** (a regression, not a
+lateral trade) and `mismatch_count` moved **92 -> 94** (two worse). `VSS`'s
+own named hop (`pnp_ctat`<->`pnp_ptat`) is genuinely fixed -- direct,
+per-hop evidence, not a coverage-table inference -- which is real
+confirmation that Section 7i's finding generalizes from a 1D reorder to an
+actual 2D floorplan split: PNP adjacency removes that specific corridor
+contention regardless of which axis freed the room. But the same session
+that fixes it introduces **two** new casualties (`TRIM_A`, `TRIM_B`) and
+shifts `VSS`'s own remaining congestion onto a different hop
+(`amp_nload`-`amp_nmirr`) rather than clearing it -- a worse trade than any
+prior increment's, including Section 7i's own experiments (which cost at
+most one net for one net).
+
+**Why this happened, read from the tally.** `TRIM_A`'s dominant blocker is
+`VA` (3278 of 5268 rejections) -- the net that already had to cross from
+`pnp_ctat` (now in its own row) up through the resistor row to reach
+`amp_input_pair` two rows further up. Moving `pnp_ctat` off the resistor
+row's own band and compressing every row-to-row channel to fit the budget
+both worked against `TRIM_A`/`TRIM_B` at once: `VA`'s path is now longer
+(crosses one more row boundary than at baseline) and every channel it
+crosses is narrower (15 um vs. 22 um) than before. The uniform
+`ROW_MARGIN_UM` cut is not neutral background -- it is exactly the axis
+`VA`'s new, longer path depends on, so shrinking it to fit the split's own
+height cost took room away from the net most exposed by the split itself.
+
+**Ruled out, and reverted (not shipped)**: a genuine 2D floorplan revision
+-- not a parameter tweak, not a 1D reorder -- was run to completion on this
+issue for the first time this increment, and it is *worse* than doing
+nothing, not merely a lateral trade. `BLOCKS`' row assignments and
+`ROW_MARGIN_UM` are both reverted to baseline (`22.0`, uniform); the
+report directory this run produced (`20260804-150853-a074ca5`) is not
+committed and `reports/LATEST` still points at `4fb2a3a`, per this issue's
+established convention for a tried-and-not-net-positive lever (Sections
+7d-7i). This closes the "second resistor row" half of Section 7i's own
+remaining-candidate pair -- it does not merely need the earlier
+increment's 11% area cut, it needs that area cut to come from *somewhere
+that is not `VA`'s own crossing budget*, which the uniform `ROW_MARGIN_UM`
+reduction this increment tried is not. The one candidate left, genuinely
+unexplored, is a **non-uniform** channel budget: keep the row 0/row 1
+(PNP/resistor) and row 1/row 2 (resistor/amp) boundaries wide enough for
+`VA`'s and the other resistor-row nets' existing crossings, and take the
+area saving from elsewhere in the floorplan entirely (not the row-margin
+axis at all) -- e.g. the amp band's or mirror band's own internal spacing,
+or accepting a smaller `RING_MARGIN_UM`. That is a different, still
+untried shape of the same "second row" idea, not a re-run of this one.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed three
@@ -1298,7 +1389,26 @@ this pass.
   of Section 7f's already-ruled-out re-spacing) and leaves a genuine 2D
   floorplan revision -- a second row for the resistor group (measured over
   budget by ~11% at this floorplan's current sizing, per Section 7i) or a
-  dedicated row 0/row 1 corridor -- as the only path left for `VSS`.
+  dedicated row 0/row 1 corridor -- as the only path left for `VSS`. The
+  twelfth increment (Section 7j) attempted the second-row candidate
+  directly -- splitting row 0 into a PNP-only row (adjacent, per Section
+  7i's own successful arrangement) and a resistor-only row, with
+  `ROW_MARGIN_UM` lowered 22 -> 15 um uniformly to close the resulting 11%
+  budget overrun -- and found it **fixes `VSS`'s own named hop** (direct
+  per-hop evidence, not inferred) but is a net regression overall: two new
+  casualties (`TRIM_A`/`TRIM_B`, both newly blocked by `VA`'s now-longer,
+  now-narrower-channel route) plus `VSS`'s own remaining congestion moving
+  to a different hop rather than clearing, for a net move of 9/12 -> 8/12
+  coverage and `mismatch_count` 92 -> 94 -- worse than either of the
+  eleventh increment's own trades. `GDRV`/`D1` are unaffected either way,
+  consistent with every prior increment's finding that their blockers are
+  intra-block comb geometry no floorplan-corridor change reaches. Reverted,
+  not shipped. What is left, unexplored: the same second-row idea with a
+  **non-uniform** row-margin budget, keeping the channels `VA`'s route
+  actually depends on at their working width and sourcing the area saving
+  from a different part of the floorplan entirely (the amp/mirror bands'
+  own spacing, or `RING_MARGIN_UM`) instead of cutting `ROW_MARGIN_UM`
+  uniformly.
 - **Intra-block bussing is drawn for every device family**, on met1
   (Section 5a) -- PNP arrays, resistor ladders, and (from the fourth
   increment) MOS fingers. Each split MOS group now extracts and combines
