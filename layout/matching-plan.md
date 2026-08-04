@@ -1477,6 +1477,69 @@ friction filed: every gap this increment interacts with was already on the
 tracker and is now closed, re-verified against the current pin rather than
 assumed from the issue history.
 
+### 7m. Fifteenth increment: cause 4 (resistor device-class arity) still has no fix upstream -- filed the missing follow-up, no code change
+
+Sections 7d-7k exhausted every floorplan/router lever this repo can pull for
+AC1's remaining `D1`/`GDRV`/`VSS` trio (Section 7k's own closing line: "What
+is left is qualitatively different... either an order-search change... or
+accepting the corridor deadlock as a hard limit of this router"). This
+increment does not attempt either -- it instead re-examines AC4's own
+remaining causes, since Section 7l's fourteenth increment retired two of the
+six and left cause 4 (the resistor device-class arity mismatch,
+`RES_HIGH_PO` `device.unmatched` entries in the `20260804-174203-ddf7f17`
+record) as the largest still-open, *not yet actually attempted*, blocker: it
+is what stops **every** resistor from pairing, in a layout that already
+matches every other class it can (nfet/pfet/pnp all extract and, per
+Section 7l, resolve their body terminals to real drawn nets).
+
+**Checked whether the upstream fix already exists.** klayout-tools#504 (this
+flow's own filing) proposed three options to close the arity gap, in order
+of preference: (1) a request-side `reference.device_bulk` hint that
+normalizes the reference's implicit bulk terminal before comparing --
+composing with the existing `hints.same_nets` hook the way issue #281's
+`device.body_unverified` acknowledgement does for the analogous MOS-body
+case; (2) the symmetric layout-side bulk-drop flag; (3) at minimum, a
+diagnostic naming the mismatch. #505 (merged, picked up in Section 7l)
+shipped **only** option 3 -- confirmed by reading `docs/cli/lvs.md`'s
+`device.class_arity` section directly off the pinned `klt` commit
+(`147602af`): it states in so many words that options 1/2 are "deliberately
+deferred". Searched `2AMLogic/klayout-tools` for any newer issue that might
+already track the deferred half (`class_arity`, `device_bulk`,
+"bulk-terminal-drop") -- none exists. This is a real, unfiled gap, not a
+duplicate.
+
+**Filed as [klayout-tools#506](https://github.com/2AMLogic/klayout-tools/issues/506)**,
+generically scoped (no design-specific detail per this repo's friction
+protocol): asks for option 1 (or, failing that, option 2) from #504's own
+list, since #505 only ever intended to ship the diagnostic first and revisit
+reconciliation separately. Recommends option 1 as the better fix to
+implement first, for the same reason #504 did -- it is a reference-side-only
+normalization, so it changes nothing about how the layout side is scored,
+and composes with the existing `hints.same_nets` mechanism rather than
+inventing a parallel one.
+
+**No code or routing change ships from this increment.** This is a
+friction-filing-only pass, same category as the diagnostic increments
+Section 7g/7h ran when the finding was "no lever here, but here is why" --
+except this time the finding is "the fix exists in principle, upstream
+already scoped it, and simply has not been built yet." Re-verified
+`layout/bin/run-bandgap-routed-flow.sh` and `run-trivial-cell-flow.sh` both
+still produce the exact `20260804-174203-ddf7f17` / prior trivial-cell
+results unmodified (no `klt` pin change, no generator change), so there is
+nothing new to re-run or re-record here -- this section is the record.
+
+**What this does and does not move.** AC4 is still NOT MET and
+`mismatch_count` is unchanged at 32 -- this increment does not touch the
+flow. AC5 (friction filing) gains one more named, currently-open gap
+(`klayout-tools#506`) that a future increment should watch: once it lands
+and this flow's `klt` pin is bumped past it, adding a `reference.device_bulk`
+declaration for `res_high_po`'s bulk terminal (bound to `VSS`, the same net
+`SUBSTRATE_NET_NOTE`'s drawn taps already resolve to) is very plausibly the
+single highest-value remaining lever for AC4 -- cause 4 is what stops every
+one of the 147 drawn resistor devices from pairing, ahead of cause 3's
+lower-magnitude value differences and unrelated to AC1's still-open routing
+causes.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed four
@@ -1523,7 +1586,10 @@ assumed from the issue history.
      class carries a bulk terminal (`DeviceClassResistorWithBulk`, 3 nodes)
      the reference's plain `R` cards do not (`DeviceClassResistor`, 2
      nodes) -- filed as klayout-tools#504 (closed via #505, a diagnostic-only
-     fix; see Section 7l).
+     fix; see Section 7l). The actual reconciliation #504 itself proposed
+     (options 1/2) was left unimplemented by #505; filed as
+     [klayout-tools#506](https://github.com/2AMLogic/klayout-tools/issues/506)
+     (open; see Section 7m) since no follow-up existed for it.
   Rewriting the reference netlist to enumerate the layout's own shortfalls
   would make LVS compare the layout against itself and is explicitly not
   done. **Retired as of Section 7l**: the substrate correspondence no
