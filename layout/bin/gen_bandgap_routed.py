@@ -1985,6 +1985,47 @@ def assert_no_merged_pin_names(netlist_path: Path) -> list[str]:
     return merged
 
 
+def flow_gate(
+    *,
+    drc_clean: bool,
+    within_budget: bool,
+    full_scale_ladder: bool,
+    all_classes: bool,
+    pin_count: int,
+    met1_conflicts: list[Any],
+    merged_pin_names: list[str],
+) -> dict[str, bool]:
+    """The flow's pass/fail gate, as a named condition per row.
+
+    Kept a pure function of already-measured values (rather than an inline
+    boolean at the end of :func:`main`) for two reasons: the composition is
+    then unit-testable without a `klt` install or a PDK -- see
+    `layout/tests/test_routed_flow_gates.py` -- and a failing run can name
+    *which* condition failed instead of only reporting exit 1.
+
+    What is deliberately NOT in here: `klt lvs`-clean and schematic-net
+    coverage. Both are blocked upstream (MOS_GATE_NOTE, RES_FLAVOR_NOTE) and
+    are recorded as measured numbers in record.md's own scoreboard instead;
+    gating on them would only mean the flow never runs to completion, which
+    hides the evidence rather than producing it.
+
+    The two that ARE gated and are not about the tool's own verdicts --
+    `no_drawn_shorts` and `no_merged_pin_names` -- are this flow's own
+    honesty checks: each catches a way the layout could claim connectivity
+    the schematic does not contain (through metal, and through a pin label
+    respectively), and neither is visible to DRC.
+    """
+    return {
+        "drc_clean": drc_clean,
+        "within_budget": within_budget,
+        "full_scale_ladder": full_scale_ladder,
+        "device_classes_present": all_classes,
+        "pins_promoted": pin_count > 0,
+        "no_drawn_shorts": not met1_conflicts,
+        "no_merged_pin_names": not merged_pin_names,
+    }
+
+
 def compose_inner(
     klt: str,
     out_dir: Path,
@@ -2845,16 +2886,22 @@ def main() -> int:
     # exactly the false evidence this flow must never produce. So is the
     # label-collision check, which catches the same failure arriving through a
     # pad rather than through metal (see assert_no_merged_pin_names).
-    ok = (
-        drc_clean
-        and within_budget
-        and full_scale_ladder
-        and all_classes
-        and pin_count > 0
-        and not met1_conflicts
-        and not merged_pin_names
+    gate = flow_gate(
+        drc_clean=drc_clean,
+        within_budget=within_budget,
+        full_scale_ladder=full_scale_ladder,
+        all_classes=all_classes,
+        pin_count=pin_count,
+        met1_conflicts=met1_conflicts,
+        merged_pin_names=merged_pin_names,
     )
-    return 0 if ok else 1
+    failed = [name for name, passed in gate.items() if not passed]
+    if failed:
+        print(
+            "gen_bandgap_routed.py: FAILED gate conditions: " + ", ".join(failed),
+            file=sys.stderr,
+        )
+    return 0 if not failed else 1
 
 
 if __name__ == "__main__":
