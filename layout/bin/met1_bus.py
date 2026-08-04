@@ -184,6 +184,11 @@ class Met1Bus:
         self.labels: list[dict[str, Any]] = []
         self.via_count = 0
         self.wire_count = 0
+        #: Segment count for the met2 escape plane -- kept separate from
+        #: `wire_count` (met1-only) so `met1_wire_count`/`met2_wire_count` in
+        #: the emitted report each describe their own plane rather than one
+        #: counter silently tallying both (issue #93).
+        self.met2_wire_count = 0
         #: (net_id, x0, y0, x1, y1) for every met1 rectangle drawn, used by
         #: :func:`conflicts` to prove no two *different* nets' wires touch or
         #: come closer than the deck's `met1.space.1` threshold. Nothing else
@@ -430,7 +435,7 @@ class Met1Bus:
             return
         h = MET2_WIRE_WIDTH_UM / 2.0
         self._rect(MET2_LAYER, min(x0, x1), y - h, max(x0, x1), y + h)
-        self.wire_count += 1
+        self.met2_wire_count += 1
 
     def vseg2(self, x: float, y0: float, y1: float) -> None:
         """One vertical met2 segment (no vias)."""
@@ -438,7 +443,7 @@ class Met1Bus:
             return
         h = MET2_WIRE_WIDTH_UM / 2.0
         self._rect(MET2_LAYER, x - h, min(y0, y1), x + h, max(y0, y1))
-        self.wire_count += 1
+        self.met2_wire_count += 1
 
     def hseg(self, x0: float, x1: float, y: float) -> None:
         """One horizontal met1 segment (no vias)."""
@@ -483,13 +488,14 @@ class Met1Bus:
         return (len(self.shapes), len(self.met1_rects), len(self.via_xy),
                 len(self.labels), self.via_count, self.wire_count,
                 len(self.li1_rects), self.gate_contact_count,
-                len(self.met2_rects), len(self.via1_xy), self.via1_count)
+                len(self.met2_rects), len(self.via1_xy), self.via1_count,
+                self.met2_wire_count)
 
     def restore(self, mark: tuple[int, ...]) -> None:
         """Undo every shape, rectangle, via, gate contact and label added
         since `mark`."""
         (shapes, rects, vias, labels, via_count, wire_count, li1_rects,
-         gate_contacts, met2_rects, via1s, via1_count) = mark
+         gate_contacts, met2_rects, via1s, via1_count, met2_wire_count) = mark
         for net, x, y in self.via_xy[vias:]:
             self._vias.discard((net, round(x, 4), round(y, 4)))
         for net, x, y in self.via1_xy[via1s:]:
@@ -498,6 +504,7 @@ class Met1Bus:
         self.wire_count = wire_count
         self.gate_contact_count = gate_contacts
         self.via1_count = via1_count
+        self.met2_wire_count = met2_wire_count
         del self.shapes[shapes:]
         self.truncate_met1(rects)
         self.truncate_met2(met2_rects)
@@ -714,6 +721,7 @@ class Met1Bus:
             "met1_label_count": len(self.labels),
             "via1_count": self.via1_count,
             "met2_rect_count": len(self.met2_rects),
+            "met2_wire_count": self.met2_wire_count,
         }
         (out_dir / f"{cell_name}.gen.json").write_text(
             json.dumps(gen_report, indent=2) + "\n"

@@ -2084,6 +2084,65 @@ class TestMet2Escape(unittest.TestCase):
         bus.via1(0.0, 0.0)
         self.assertEqual(bus.via1_count, 1)
 
+    def test_met2_wire_count_is_tracked_separately_from_met1(self) -> None:
+        """Issue #93: `hseg2()`/`vseg2()` used to bump the shared
+        `wire_count`, so the emitted `met1_wire_count` silently tallied met2
+        segments too. `met2_wire_count` must count only met2 segments, and
+        `wire_count` (emitted as `met1_wire_count`) must stay met1-only."""
+        bus = met1_bus.Met1Bus()
+        bus.net("N1")
+        bus.hseg(0.0, 5.0, 0.0)  # met1
+        bus.vseg(5.0, 0.0, 5.0)  # met1
+        bus.hseg2(0.0, 5.0, 10.0)  # met2
+        self.assertEqual(bus.wire_count, 2)
+        self.assertEqual(bus.met2_wire_count, 1)
+
+    def test_mark_and_restore_cover_met2_wire_count(self) -> None:
+        bus = met1_bus.Met1Bus()
+        bus.net("N1")
+        bus.hseg2(0.0, 5.0, 0.0)
+        mark = bus.mark()
+        bus.hseg2(10.0, 15.0, 0.0)
+        self.assertEqual(bus.met2_wire_count, 2)
+        bus.restore(mark)
+        self.assertEqual(bus.met2_wire_count, 1)
+
+    def test_met2_drop_backtracks_off_a_foreign_met2_wire_with_no_met1_nearby(
+        self,
+    ) -> None:
+        """Issue #93: `_met2_drop()` used to check only the met1 landing pad
+        against a foreign node, so a foreign met2 wire with no met1 anywhere
+        near the drop point sailed straight through -- the met1 check saw
+        nothing to object to, and the via1 stack landed right on top of it.
+        `conflicts()` catches the resulting met2 short today (this cannot
+        ship), but only after the fact; this asserts the search itself now
+        keeps walking the offset ladder past the blocked point instead of
+        committing to it."""
+        bus = met1_bus.Met1Bus()
+        # A foreign met2 wire straddling the origin, with no met1 anywhere
+        # near it -- isolates the met2-landing-pad half of the guard.
+        bus.net("F").hseg2(-1.0, 1.0, 0.0)
+        drop = gen_bandgap_routed._met2_drop(bus, "N1", 0.0, 0.0)
+        self.assertIsNotNone(drop)
+        self.assertNotEqual(drop, (0.0, 0.0))
+        self.assertEqual(bus.conflicts(), [])
+
+    def test_met2_drop_backtracks_off_a_foreign_via1_stack(self) -> None:
+        """The same guard against a full foreign via1 stack (met1 pad, via1
+        cut and met2 pad all at once), placed close enough to the query
+        point to foul the natural (0, 0) offset but far enough that the
+        search stub can still depart in the opposite direction -- a via1
+        stack coincident with the query point makes every direction
+        unroutable regardless of this guard (a pre-existing, unrelated
+        property of the offset walk), so that placement would not isolate
+        anything this fix changed."""
+        bus = met1_bus.Met1Bus()
+        bus.net("F").via1(0.3, 0.0)
+        drop = gen_bandgap_routed._met2_drop(bus, "N1", 0.0, 0.0)
+        self.assertIsNotNone(drop)
+        self.assertNotEqual(drop, (0.0, 0.0))
+        self.assertEqual(bus.conflicts(), [])
+
 
 class TestR2LegLength(unittest.TestCase):
     """`r2_leg_length()` states the drawn-vs-specified R2 divider leg length
