@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "checker": "layout/bin/met2_drc.py",
+  "gds": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-211109-0336eb4/bandgap_core_routed.gds",
+  "top": "bandgap_core_routed",
+  "source": "sky130A_mr.drc (installed PDK), see module docstring",
+  "reason": "the curated klt sky130 DRC deck declares met2 as a connectivity level but carries no met2.*/via.* rule, so `klt drc` is silent about this plane",
+  "counts": {
+    "met1_polygons": 161,
+    "via1_cuts": 11,
+    "met2_polygons": 4
+  },
+  "violation_count": 0,
+  "violations": [],
+  "status": "clean"
+}

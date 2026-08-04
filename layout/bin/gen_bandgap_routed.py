@@ -106,47 +106,64 @@ here, relative to that skeleton:
     unrouted `D1`/`GDRV`/`VSS` trio is real new router logic (via1
     landing-pad geometry, met2 DRC thresholds, a second congestion-free
     candidate-path search) left for the next increment, per this issue's
-    own one-lever-per-increment discipline.
+    own one-lever-per-increment discipline -- **done in item 13 below**.
+13. **AC1 is MET: every schematic inter-block node is joined across every
+    block it reaches** (issue #62's eighteenth increment). Item 11's
+    klayout-tools#508 merged upstream via #511, adding met2 (69/20) over a
+    met1<->met2 `via.drawing` (68/44) to sky130's curated *extraction* deck
+    as a genuine third connectivity level. `_connect_met2` lifts a hop that
+    no met1 form can clear onto that plane through a via1 stack at each
+    end; the `D1`/`GDRV`/`VSS` trio that PRs #75-#88 could not route on
+    met1 by any lever now routes, and so do two `VDD` hops that were only
+    reachable through long met1 detours. See MET2_ESCAPE_NOTE. The curated
+    *DRC* deck was not extended alongside the extraction deck, so
+    `layout/bin/met2_drc.py` checks the new plane against the installed
+    PDK's own source rules and the flow gates on it.
+14. **The trim ladder's four `pins[]` labels are gone, and with them every
+    remaining connectivity mismatch** (same increment). A labelled met1 net
+    is promoted to a top-level pin, and `combine_devices` will not fold a
+    series chain through a pinned node -- so labelling `TRIM_A`/`TRIM_B`
+    and the two code-0 taps, all interior to the schematic's own R2A/R2B
+    devices, split each divider leg into three unpairable pieces. Measured
+    in isolation: removing only those four pins from the otherwise-identical
+    extracted netlist took `mismatch_count` 26 -> 18 and `device.unmatched`
+    13 -> 1. See INTERNAL_NODE_LABEL_NOTE.
+15. **A real layout-vs-schematic defect surfaced by 14, quantified and
+    recorded, not fixed here**: with R2A/R2B finally paired, the comparer
+    reports 91,462.8 ohm against 88,130 -- a 286 um drawn leg where
+    design/bandgap_core.sch specifies 270 um at code 0, i.e. the drawn cell
+    sits at DR-002 trim code +16, a direction DR-002 rejects outright.
+    `r2_leg_length()` states this from the flow's own constants in every
+    record from now on. See RES_TRIM_LENGTH_NOTE and matching-plan Section 7q.
 
 What this script does NOT claim -- read record.md's own "What this record
 does NOT claim" section for the authoritative, measured version:
 
 - **Not LVS-clean.** Disclosed causes remain, none of them a topology error
-  in either netlist: unrouted schematic nodes (this flow's own router
-  congestion, not a tool gap), the compensation cap MCC which is in the
-  reference and deliberately not drawn, and the resistor topology/value
-  gap (RES_TRIM_TOPOLOGY_NOTE) -- the DR-002 trim ladder's 32 units are
-  always physically drawn regardless of code, so the layout has trim
-  devices and TRIM_A/TRIM_B nodes the code-0 schematic does not instantiate
-  at all, not merely a value difference on an otherwise-paired device. The
-  deck-synthesized substrate net, undeclarable array dummies, and the
-  resistor device-class arity mismatch are **retired** as causes -- see
-  items 9-10 above. Retiring the arity mismatch did not move
-  `mismatch_count`: it was never the operative blocker for these three
-  devices once the arity is fixed, RES_TRIM_TOPOLOGY_NOTE's structural
-  difference is -- see record.md's own before/after comparison.
-  klayout-tools#506 (filed by the prior increment) asked upstream for a
-  generic reconciliation of this arity shape and is now CLOSED as
-  COMPLETED (`reference.device_bulk` exists on `klt lvs` upstream); this
-  flow still does not depend on it, because its own reference can state
-  the bulk net directly -- see RES_BULK_ARITY_NOTE.
-- **Not fully inter-block routed.** record.md's "Schematic inter-block nets"
-  table scores every schematic inter-block node as drawn / partial /
-  labelled-only against SCHEMATIC_INTER_BLOCK_NETS below -- i.e. against
-  design/bandgap_core.sch's node list, not against this script's own
-  declaration -- and criterion 1 is PARTIAL while any node is short. What is
-  left is congestion in this flow's own hand-written router, not a
-  per-net tool gap: every remaining node *can* be expressed now. The
-  metal-level budget the router searches within was a real curated-deck
-  limit through issue #62's seventeenth increment (ROUTING_PLANE_NOTE --
-  filed as klayout-tools#508): sky130's curated deck exposed exactly one
-  connectivity level above device pads, the same one this flow's own
-  intra-block bussing already occupies, so there was no independent second
-  plane to route the remaining corridor on. #508 is now CLOSED via #511
-  (eighteenth increment, `layout/requirements.txt` bump): a third
-  connectivity level (`metal3`/`via2`, met2) exists on this record's `klt`
-  pin, but this flow does not yet draw on it -- see the module docstring's
-  item 12.
+  in either netlist and -- new with the eighteenth increment -- none of them
+  a connectivity difference either: the compensation cap MCC, which is in
+  the reference and deliberately not drawn (the only `device.unmatched`
+  entry left on either side); the R2 leg length defect of item 15
+  (RES_TRIM_LENGTH_NOTE); `res_high_po`'s per-device 380 ohm head term,
+  which the extractor's sheet-resistance model does not carry and no drawn
+  shape can add; and the reference's PNP cards stating no emitter count or
+  geometry. The deck-synthesized substrate net, undeclarable array dummies,
+  the resistor device-class arity mismatch and unrouted schematic nodes are
+  all **retired** as causes -- see items 9-14 above. klayout-tools#506
+  (filed by the fifteenth increment) asked upstream for a generic
+  reconciliation of the arity shape and is now CLOSED as COMPLETED
+  (`reference.device_bulk` exists on `klt lvs` upstream); this flow
+  still does not depend on it, because its own reference can state the
+  bulk net directly -- see RES_BULK_ARITY_NOTE.
+- **Fully inter-block routed, but not on one plane, and not on a plane
+  `klt drc` checks.** record.md's "Schematic inter-block nets" table scores
+  every schematic inter-block node against SCHEMATIC_INTER_BLOCK_NETS below
+  -- i.e. against design/bandgap_core.sch's node list, not against this
+  script's own declaration -- and criterion 1 is PARTIAL while any node is
+  short. Several of the hops that close it are drawn on met2, whose
+  connectivity is the curated extraction deck's (klayout-tools#511) but
+  whose DRC is this repo's own (`layout/bin/met2_drc.py`), because the
+  curated DRC deck carries no met2 rule at all.
 
 Every gap still open is filed upstream per CLAUDE.md's friction protocol and
 named in the NOTE constants below; record.md restates them with the measured
@@ -183,8 +200,11 @@ MET1_BUS_NOTE = (
     "device pads on, so `klt gen-compose` could not express a bus at all "
     "(klayout-tools#433; its fix #439 made the failure visible rather than "
     "expressible). klayout-tools#454 (merged via #468) has since added "
-    "`metal2`/`via1` roles with via-drop bussing, so the router *can* now "
-    "plan wires on a second metal. This flow has not yet moved onto it: the "
+    "`metal2`/`via1` roles with via-drop bussing, and #508 (merged via "
+    "#511) a third `metal3`/`via2` level, so the router *can* now plan "
+    "wires above the pad layer. This flow has not moved its bussing onto "
+    "them (its own met2 escape plane is hand-drawn too, MET2_ESCAPE_NOTE): "
+    "the "
     "bussing here is a planar lane assignment derived from each block's own "
     "reported geometry (MOS_COMB_NOTE), and swapping it for router-planned "
     "routing is a rework to be measured on its own, not a parameter change "
@@ -228,40 +248,50 @@ RES_FLAVOR_NOTE = (
     "resolves to this layout's real, drawn `VSS` net -- see "
     "SUBSTRATE_NET_NOTE."
 )
-#: The corridor congestion behind AC1's remaining unrouted trio (see the
-#: "Schematic inter-block nets" coverage table below) is this flow's own
-#: router running out of free metal, not an upstream tool gap in the sense
-#: AC5 tracks -- layout/matching-plan.md Sections 7d-7k rule out every
-#: router/floorplan lever this repo can pull, including klayout-tools#454's
-#: own `metal2` role (Section 7d, MET1_BUS_NOTE above). This note names
-#: *why* that role was not a lever: through issue #62's seventeenth
-#: increment it was not a second, independent routing plane on sky130, only
-#: a second name for the one this flow's own bussing already occupies.
-#: Filed generically as 2AMLogic/klayout-tools#508 (seventeenth increment),
-#: **closed via #511** (picked up by this flow's eighteenth increment's
-#: `layout/requirements.txt` bump, see item 12 in the module docstring):
-#: sky130's curated deck now has a third connectivity level (met2, role
-#: name `"metal3"`/`"via2"`) -- a real, independent plane at last. This
-#: flow does not yet draw on it; see the module docstring's item 12.
+#: RESOLVED upstream, and the reason this increment exists. Through issue
+#: #62's seventeenth increment this note recorded a live blocker: the corridor
+#: congestion behind AC1's unrouted trio was this flow's own router running
+#: out of free metal, with no metal-level lever left -- layout/matching-plan.md
+#: Sections 7d-7o rule out every router/floorplan lever this repo can pull,
+#: and klayout-tools#454's own `metal2` role was not one, because on sky130 it
+#: resolved to the same met1 layer this flow's bussing already occupies
+#: (Section 7d). Filed generically as 2AMLogic/klayout-tools#508; merged via
+#: #511. Kept as a named note because the escape plane is still *this flow's*
+#: own hand-drawn geometry, and because the record has to say why the layout
+#: now draws met2 at all.
 ROUTING_PLANE_NOTE = (
-    "Through issue #62's seventeenth increment, sky130's curated "
-    "extraction deck declared exactly two connectivity levels "
-    "(`EXTRACTION_DECK.metals = (li1, met1)`), so klayout-tools#454/#468's "
-    "`metal2` role resolved to the same met1 layer this flow's own "
-    "met1_bus.py already routes every bus and inter-block net on "
-    "(MET1_BUS_NOTE) -- not a distinct plane above it. A router that needs "
-    "a second, independent routing plane once its own intra-block bussing "
-    "has saturated the only other level the deck exposes had no escape "
-    "short of deck curation adding a third connectivity level. Filed "
-    "generically as 2AMLogic/klayout-tools#508 (seventeenth increment), "
-    "**closed via #511**: sky130's curated deck now declares a third "
-    "connectivity level (met2.drawing, role name `metal3`, joined by a new "
-    "`via2` role) -- the genuinely independent second plane this note "
-    "asked for. Picked up by this flow's eighteenth increment's "
-    "`layout/requirements.txt` bump, but not yet used: extending "
-    "met1_bus.py/this router to actually draw the still-unrouted "
-    "`D1`/`GDRV`/`VSS` trio on it (layout/matching-plan.md Sections "
-    "7g/7k/7o) is real new router logic, left for the next increment."
+    "sky130's curated extraction deck declared exactly two connectivity "
+    "levels (`EXTRACTION_DECK.metals = (li1, met1)`) through issue #62's "
+    "seventeenth increment, so klayout-tools#454/#468's `metal2` role "
+    "resolved to the same met1 layer this flow's own met1_bus.py already "
+    "routes every bus and inter-block net on (MET1_BUS_NOTE) -- not a "
+    "distinct plane above it. A router that needs a second, independent "
+    "routing plane once its own intra-block bussing has saturated the only "
+    "other level the deck exposes had no escape short of deck curation "
+    "adding a third connectivity level. Filed generically as "
+    "2AMLogic/klayout-tools#508 and merged via #511: sky130's deck now "
+    "declares met2 (69/20) over a met1<->met2 `via.drawing` (68/44) as a "
+    "genuine third level, which is what MET2_ESCAPE_NOTE's escape hatch is "
+    "drawn on."
+)
+#: The layout-side consequence of #511, and its own residual gap.
+MET2_ESCAPE_NOTE = (
+    "Inter-block hops that no met1 form can clear are lifted onto met2 by "
+    "`_connect_met2`: a via1 stack (met1 pad + `via.drawing` cut + met2 pad) "
+    "at each endpoint and met2 wire between them, all hand-drawn by "
+    "met1_bus.py exactly as the met1 routing is. met2 is tried strictly "
+    "last, after every met1 elbow, channel path and Z-detour has been rolled "
+    "back, because met1 is the plane the curated `klt drc` deck actually "
+    "checks: that deck now declares met2 as a *connectivity* level "
+    "(klayout-tools#511) but carries no `met2.*`/`via.*` DRC rule at all, so "
+    "`klt drc` is silent about every shape on the new plane. This flow holds "
+    "the sky130A source deck's own thresholds by construction instead "
+    "(`m2.1`/`m2.2`/`m2.6`, `via.1a`/`via.2`/`via.4a`/`via.5a` -- see "
+    "met1_bus.py's DRC-budget docstring) and re-proves the spacing half with "
+    "`Met1Bus.conflicts()`, which now scores met2 and via1 alongside met1 "
+    "and li1. The DRC-rule half of the new level is the residual gap and is "
+    "filed generically upstream; connectivity itself is the tool's, and is "
+    "what `klt extract` reads back."
 )
 #: Historical note, kept for context: through issue #62's thirteenth
 #: increment, sky130's curated extraction deck had no NMOS-body or
@@ -409,7 +439,62 @@ RES_TRIM_TOPOLOGY_NOTE = (
     "devices the reference has no counterpart for. `klt lvs`'s own "
     "`net.split`/`net.merged` categories on `VOUT`/`VB`/`VBQ` (the R2A/R2B/"
     "R1 nodes the trim branch hangs off of) are this, read from the "
-    "comparer's own output, not inferred."
+    "comparer's own output, not inferred. **Half of this is fixed in the "
+    "eighteenth increment** -- see INTERNAL_NODE_LABEL_NOTE and "
+    "RES_TRIM_LENGTH_NOTE, which between them separate the two things this "
+    "note had conflated: the *labelling* that made the trim ladder look like "
+    "extra devices, and the *length* it genuinely adds."
+)
+#: Why the trim ladder's nodes were unpairable, isolated in issue #62's
+#: eighteenth increment by removing four labels and re-running `klt lvs`
+#: against the otherwise-identical extracted netlist.
+INTERNAL_NODE_LABEL_NOTE = (
+    "A labelled met1 net is promoted by `klt extract` to a **top-level "
+    "pin**, and `klt lvs`'s `combine_devices` will not fold a series chain "
+    "through a pinned node -- folding one away would delete an externally "
+    "visible port. This flow labelled every declared inter-block net plus "
+    "four trim taps, including `TRIM_A`/`TRIM_B` (the junction between "
+    "`res_r2`'s leg and `res_trim`'s leg) and "
+    "`TRIM_A_CODE_0`/`TRIM_B_CODE_0`. Every one of those four sits on a node "
+    "*interior to the schematic's own R2A/R2B device*, which at DR-002's "
+    "code 0 the schematic does not have at all -- so each leg's series chain "
+    "was pinned into three pieces on the layout side and none of the three "
+    "could pair with the reference's single R2A/R2B, and the resulting "
+    "orphan nodes dragged `VBQ`, `R1` and `Q2` out of correspondence with "
+    "them. Measured in isolation before being fixed: re-running `klt lvs` on "
+    "the identical extracted netlist with only those four pins removed took "
+    "`mismatch_count` 26 -> 18 and `device.unmatched` 13 -> **1** (the "
+    "deliberately-undrawn `MCC`), with `net.unmatched` going 6 -> 0. Fixed "
+    "here by not labelling a net declared `internal` to a schematic device, "
+    "and by reporting the trim taps into the record instead of into `pins[]` "
+    "-- the taps are still documented, they are just no longer asserted to "
+    "be device-level ports of this cell."
+)
+#: The residual, and the genuine circuit finding this increment's LVS
+#: clean-up exposed: with the labels gone, the comparer pairs R2A/R2B and
+#: reports what is actually wrong with them.
+RES_TRIM_LENGTH_NOTE = (
+    "With INTERNAL_NODE_LABEL_NOTE's pins removed the comparer pairs R2A and "
+    "R2B and reports a *value* difference, which is the first time this "
+    "flow has been able to see one on these devices: layout 91,462.8 ohm "
+    "against the reference's 88,130 ohm. 91,462.8 / 319.8 ohm-per-square = "
+    "**286 squares**, i.e. a 286 um drawn leg where "
+    "design/bandgap_core.sch's `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim` at "
+    "`n_r2=54, r_lseg=5, n_r2_trim=0` states 270 um. The 16 um difference is "
+    "exactly `res_trim`'s 16 x 1 um leg, which this layout wires in series "
+    "*unconditionally*: the drawn cell therefore sits at trim code **+16**, "
+    "and DR-002 rejects every positive code outright (issue #46 found "
+    "n_r2=55, i.e. +5 um, already collapses the operating point at the "
+    "ff/2.97 V and fs/2.97 V hot corners; sim/trim-range-monotonicity/ finds "
+    "+1/+2 collapse too). This is a real layout-vs-schematic defect, not an "
+    "LVS bookkeeping artifact, and it is only visible now because the "
+    "labelling gap above was masking it. Fixing it means re-decomposing each "
+    "270 um leg so the trim ladder subtracts rather than adds (50 coarse 5 um "
+    "units + 20 fine 1 um units is the minimal integral decomposition that "
+    "keeps 270 um and still offers DR-002's 16 downward codes), which "
+    "perturbs the matched-array unit structure and the floorplan and is "
+    "therefore tracked as its own change: **issue #91**, and "
+    "layout/matching-plan.md Section 7p."
 )
 
 # ---------------------------------------------------------------------------
@@ -1380,6 +1465,7 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
     },
     {
         "net": "TRIM_A",
+        "internal": "R2A",
         "terminals": [
             {"block": "res_r2", "port": f"R{2 * N_R2 - 2}_B", "leg": 0},
             {"block": "res_trim", "port": "R0_A", "leg": 0},
@@ -1399,6 +1485,7 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
     },
     {
         "net": "TRIM_B",
+        "internal": "R2B",
         "terminals": [
             {"block": "res_r2", "port": f"R{2 * N_R2 - 1}_B", "leg": 1},
             {"block": "res_trim", "port": "R1_A", "leg": 1},
@@ -1612,6 +1699,11 @@ def _draw_guarded(
     """
     shape_mark = len(bus.shapes)
     rect_mark = len(bus.met1_rects)
+    # Restored on rollback along with the geometry: without it `wire_count`
+    # tallies every *attempted* segment, including the tens of thousands a
+    # congested hop's search draws and takes straight back, so the report's
+    # `met1_wire_count` describes the search rather than the layout.
+    wire_mark = bus.wire_count
     bus.net(net)
     for (x0, y0), (x1, y1) in zip(points, points[1:]):
         if x0 != x1 and y0 != y1:
@@ -1636,6 +1728,7 @@ def _draw_guarded(
                     continue
             del bus.shapes[shape_mark:]
             bus.truncate_met1(rect_mark)
+            bus.wire_count = wire_mark
             _LAST_BLOCKER.clear()
             _LAST_BLOCKER.append(net_b)
             _BLOCKER_COUNTS[net_b] += 1
@@ -1847,6 +1940,165 @@ def _connect(
                     "detour_um": offset,
                     "points": [[round(x, 3), round(y, 3)] for x, y in points],
                 }
+    # Last resort: lift the hop onto the met2 escape plane. Deliberately last,
+    # not first -- see MET2_ESCAPE_NOTE.
+    if MET2_ESCAPE_ENABLED:
+        return _connect_met2(bus, net, a, b)
+    return None
+
+
+#: Whether :func:`_connect` may fall back to the met2 escape plane. Always
+#: True in the flow; the met1-only router tests flip it off so they can keep
+#: asserting what the *met1* search does when it runs out of corridor, which
+#: is a different question from what the whole router does.
+MET2_ESCAPE_ENABLED = True
+
+#: Lateral offsets (um) a met2 escape tries for its via1 drop point when the
+#: hop's own endpoint has no room for the 0.32 um met1 landing pad the via
+#: stack needs. Each is reached by a short guarded met1 stub from the endpoint,
+#: so the drop still lands on the net's own metal.
+MET2_DROP_OFFSETS_UM = (0.0, 0.4, -0.4, 0.8, -0.8, 1.6, -1.6)
+#: Intermediate-lane offsets (um) a met2 Z-detour tries when neither plain
+#: L-shape clears an already-drawn met2 wire of another node.
+MET2_DETOUR_OFFSETS_UM = (0.0, 1.2, -1.2, 3.0, -3.0, 6.0, -6.0)
+
+
+def _draw_guarded_met2(
+    bus: "met1_bus.Met1Bus", net: str, points: list[tuple[float, float]]
+) -> bool:
+    """:func:`_draw_guarded`, on the met2 escape plane.
+
+    Same contract, same rollback, different plane and threshold (sky130's
+    `m2.2`, 0.14 um). It has to exist separately rather than be a parameter of
+    the met1 version because the two planes are independent conductors: met2
+    crossing over another node's met1 is ordinary routing, and that is the
+    whole reason this escape hatch works.
+    """
+    shape_mark = len(bus.shapes)
+    rect_mark = len(bus.met2_rects)
+    wire_mark = bus.wire_count  # see _draw_guarded
+    bus.net(net)
+    for (x0, y0), (x1, y1) in zip(points, points[1:]):
+        if x0 != x1 and y0 != y1:
+            raise ValueError("path segments must be orthogonal")
+        if x0 == x1:
+            bus.vseg2(x0, y0, y1)
+        else:
+            bus.hseg2(x0, x1, y0)
+    eps = met1_bus.MET2_SPACE_UM - 1e-9
+    for _, ax0, ay0, ax1, ay1 in bus.met2_rects[rect_mark:]:
+        for net_b, bx0, by0, bx1, by1 in bus.met2_near(ax0, ay0, ax1, ay1, eps):
+            if net_b == net:
+                # Same-node notch check, identical in intent to _draw_guarded's.
+                if ax0 <= bx1 and bx0 <= ax1 and ay0 <= by1 and by0 <= ay1:
+                    continue
+            del bus.shapes[shape_mark:]
+            bus.truncate_met2(rect_mark)
+            bus.wire_count = wire_mark
+            _LAST_BLOCKER.clear()
+            _LAST_BLOCKER.append(net_b)
+            _BLOCKER_COUNTS[f"met2:{net_b}"] += 1
+            return False
+    return True
+
+
+def _met2_drop(
+    bus: "met1_bus.Met1Bus", net: str, x: float, y: float
+) -> tuple[float, float] | None:
+    """Place a via1 stack on this net's own met1 at or near `(x, y)`.
+
+    Returns the drop point actually used, or None if no offset had room. The
+    via stack's met1 landing pad (0.32 um, sized by `via.4a`/`via.5a`) is
+    wider than the 0.24 um wire that reaches it, so it can foul a neighbour
+    the wire itself cleared; the offsets walk the pad along a short guarded
+    met1 stub until one fits, rather than declaring the hop unroutable
+    because its exact endpoint was 0.04 um too tight.
+    """
+    half = met1_bus.MET1_VIA1_LANDING_UM / 2.0
+    eps = 0.14 - 1e-9
+    for axis in ("x", "y"):
+        for offset in MET2_DROP_OFFSETS_UM:
+            dx, dy = (offset, 0.0) if axis == "x" else (0.0, offset)
+            if offset == 0.0 and axis == "y":
+                continue  # already tried as the x-axis zero offset
+            px, py = x + dx, y + dy
+            mark = bus.mark()
+            if offset != 0.0 and not _draw_guarded(bus, net, [(x, y), (px, py)]):
+                bus.restore(mark)
+                continue
+            # Does the wider landing pad itself fit?
+            fouled = False
+            for net_b, *_ in bus.met1_near(
+                px - half, py - half, px + half, py + half, eps
+            ):
+                if net_b != net:
+                    fouled = True
+                    _BLOCKER_COUNTS[f"met2drop:{net_b}"] += 1
+                    break
+            if fouled:
+                bus.restore(mark)
+                continue
+            bus.net(net)
+            bus.via1(px, py)
+            return (px, py)
+    return None
+
+
+def _connect_met2(
+    bus: "met1_bus.Met1Bus",
+    net: str,
+    a: tuple[float, float],
+    b: tuple[float, float],
+) -> dict[str, Any] | None:
+    """Join two met1 points by going *up*: via1 at each end, met2 in between.
+
+    met1 on this floorplan is one shared plane carrying both every block's
+    intra-block bus and every inter-block net, and three schematic hops have
+    no corridor left on it at any lane, margin or placement this repo can set
+    (`layout/matching-plan.md` Sections 7d-7o). met2 is a genuinely separate
+    conductor -- new to sky130's curated deck with klayout-tools#511 -- so a
+    hop lifted onto it crosses the congestion instead of competing with it.
+
+    Returns a hop record with `met2: True`, or None if even the escape plane
+    could not be reached (no room for a via1 landing pad at an endpoint) or
+    could not be crossed (another node's met2 escape already in the way).
+    """
+    mark = bus.mark()
+    (ax, ay), (bx, by) = a, b
+    drop_a = _met2_drop(bus, net, ax, ay)
+    if drop_a is None:
+        bus.restore(mark)
+        return None
+    drop_b = _met2_drop(bus, net, bx, by)
+    if drop_b is None:
+        bus.restore(mark)
+        return None
+    (px, py), (qx, qy) = drop_a, drop_b
+    met2_mark = bus.mark()
+    for offset in MET2_DETOUR_OFFSETS_UM:
+        if offset == 0.0:
+            candidates = [
+                [(px, py), (qx, py), (qx, qy)],
+                [(px, py), (px, qy), (qx, qy)],
+            ]
+        else:
+            candidates = [
+                [(px, py), (px, py + offset), (qx, py + offset), (qx, qy)],
+                [(px, py), (px + offset, py), (px + offset, qy), (qx, qy)],
+            ]
+        for points in candidates:
+            if _draw_guarded_met2(bus, net, points):
+                return {
+                    "detour_um": offset,
+                    "met2": True,
+                    "via1_drops": [
+                        [round(px, 3), round(py, 3)],
+                        [round(qx, 3), round(qy, 3)],
+                    ],
+                    "points": [[round(x, 3), round(y, 3)] for x, y in points],
+                }
+        bus.restore(met2_mark)
+    bus.restore(mark)
     return None
 
 
@@ -2130,10 +2382,18 @@ def _route_one_net(
     # the same text on two *disconnected* pieces of metal would merge them
     # into one extracted net and manufacture connectivity that was never
     # drawn.
-    bus.label(net, resolved[0]["x"], resolved[0]["y"])
+    #
+    # ... and deliberately *none* for a node the schematic does not have.
+    # A labelled met1 net is promoted to a top-level pin, and a pin is a
+    # node the comparer must preserve, so labelling an internal node of a
+    # schematic device splits that device in two on the layout side and
+    # nothing can pair either half. See INTERNAL_NODE_LABEL_NOTE.
+    if not spec.get("internal"):
+        bus.label(net, resolved[0]["x"], resolved[0]["y"])
     return {
         "net": net,
         "routed": routed,
+        "internal_to": spec.get("internal"),
         "schematic": spec["schematic"],
         "terminals": [p["name"] for p in best_plan],
         "blocks": sorted({p["block"] for p in best_plan}),
@@ -3002,8 +3262,53 @@ def schematic_net_coverage(routes: list[dict[str, Any]]) -> list[dict[str, Any]]
     return rows
 
 
+#: The schematic parameters this flow's own resistor geometry must reproduce,
+#: transcribed from design/bandgap_core.sch's CORE_PARAMS block. Kept here
+#: rather than inlined so :func:`r2_leg_length` can state both sides of the
+#: comparison from one place.
+SCH_R_LSEG_UM = 5.0  # .param r_lseg=5
+SCH_N_R2 = 54  # .param n_r2=54
+SCH_R_LSEG_TRIM_UM = 1.0  # .param r_lseg_trim=1
+SCH_N_R2_TRIM = 0  # .param n_r2_trim=0 (DR-002's untrimmed code)
+
+
+def r2_leg_length() -> dict[str, Any]:
+    """Drawn vs. specified length of one R2 divider leg, in um.
+
+    `klt lvs` can only report a resistor's *value*, and only once the two
+    sides pair at all -- which took until issue #62's eighteenth increment
+    (INTERNAL_NODE_LABEL_NOTE). This states the same fact in the units the
+    schematic actually specifies, unconditionally and from the flow's own
+    constants, so it appears in every record whether or not the comparer
+    reaches these devices: a future regression in either constant shows up
+    here immediately instead of hiding behind an unpaired device.
+
+    `drawn_um` is what the layout puts in series between `VOUT` and `VA`
+    (resp. `VB`): the `res_r2` leg plus the `res_trim` leg, because the trim
+    ladder is wired into the DC path unconditionally (see INTER_BLOCK_MET1's
+    `TRIM_A`/`VA` entries). `spec_um` is design/bandgap_core.sch's own
+    `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim` at the checked-in code.
+    """
+    coarse_um = R_LSEG_UM * N_R2
+    trim_um = 1.0 * N_R2_TRIM_CODES
+    drawn_um = coarse_um + trim_um
+    spec_um = SCH_R_LSEG_UM * SCH_N_R2 + SCH_R_LSEG_TRIM_UM * SCH_N_R2_TRIM
+    delta_um = drawn_um - spec_um
+    return {
+        "coarse_um": coarse_um,
+        "trim_um": trim_um,
+        "drawn_um": drawn_um,
+        "spec_um": spec_um,
+        "delta_um": delta_um,
+        # The trim code the drawn metal option actually selects, in DR-002's
+        # own units. Positive is the direction DR-002 rejects outright.
+        "effective_trim_code": round(delta_um / SCH_R_LSEG_TRIM_UM),
+        "matches": abs(delta_um) < 1e-9,
+    }
+
+
 def trim_tap_pins(reports: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
-    """Label the downward-only trim ladder's taps at **both ends** of the
+    """Locate the downward-only trim ladder's taps at **both ends** of the
     DR-002 code range (0 and -N_R2_TRIM_CODES), per leg.
 
     The ladder interdigitates the two legs by segment index (even = leg A,
@@ -3012,6 +3317,13 @@ def trim_tap_pins(reports: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
     segment's; leg B is the odd-index mirror image. Indices are validated
     against the block's own reported ports, so a count-constant change fails
     loudly here instead of silently mislabelling a tap.
+
+    These are **no longer emitted as `pins[]` entries** -- they are reported
+    into the record as documentation of where the metal option lands. See
+    INTERNAL_NODE_LABEL_NOTE: every one of these taps sits on a node interior
+    to the schematic's own `R2A`/`R2B` device, and promoting an interior node
+    to a top-level pin is what was splitting those two devices on the layout
+    side.
     """
     bid = "res_trim"
     available = {p["name"] for p in reports[bid]["ports"]}
@@ -3104,6 +3416,42 @@ def split_routed_nets(
     }
 
 
+def run_met2_drc(
+    klt: str, gds_path: Path, top: str, out_dir: Path
+) -> dict[str, Any]:
+    """Run `layout/bin/met2_drc.py` on the composed GDS and persist its report.
+
+    Shelled out rather than imported because this script is deliberately
+    stdlib-only (it drives `klt` as a subprocess and never imports it), while
+    the met2 check needs `klayout.db`. The interpreter is taken from the same
+    venv the `--klt` executable lives in, which is where `layout/bin/
+    setup-venv.sh` puts both.
+    """
+    python = Path(klt).with_name("python")
+    if not python.exists():  # pragma: no cover -- non-venv klt on PATH
+        python = Path(sys.executable)
+    report_path = out_dir / "met2-drc.json"
+    result = subprocess.run(
+        [
+            str(python),
+            str(Path(__file__).resolve().parent / "met2_drc.py"),
+            str(gds_path),
+            "--top",
+            top,
+            "-o",
+            str(report_path),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode not in (0, 3):
+        raise RuntimeError(
+            f"met2_drc.py failed ({result.returncode}):\n{result.stderr}"
+        )
+    return json.loads(report_path.read_text())
+
+
 def flow_gate(
     *,
     drc_clean: bool,
@@ -3114,6 +3462,7 @@ def flow_gate(
     met1_conflicts: list[Any],
     merged_pin_names: list[str],
     split_routed: dict[str, int],
+    met2_drc_clean: bool = True,
 ) -> dict[str, bool]:
     """The flow's pass/fail gate, as a named condition per row.
 
@@ -3129,17 +3478,21 @@ def flow_gate(
     gating on them would only mean the flow never runs to completion, which
     hides the evidence rather than producing it.
 
-    The three that ARE gated and are not about the tool's own verdicts --
-    `no_drawn_shorts`, `no_merged_pin_names` and `no_split_routed_nets` --
-    are this flow's own honesty checks. The first two catch a way the layout
-    could claim connectivity the schematic does not contain (through metal,
-    and through a pin label respectively); the third catches the inverse, a
-    node this flow's own bookkeeping calls routed while the drawn metal is
-    still in two pieces (see :func:`split_routed_nets`). None of the three is
-    visible to DRC.
+    The four that ARE gated and are not about the tool's own verdicts --
+    `no_drawn_shorts`, `no_merged_pin_names`, `no_split_routed_nets` and
+    `met2_drc_clean` -- are this flow's own honesty checks. The first two
+    catch a way the layout could claim connectivity the schematic does not
+    contain (through metal, and through a pin label respectively); the third
+    catches the inverse, a node this flow's own bookkeeping calls routed
+    while the drawn metal is still in two pieces (see
+    :func:`split_routed_nets`); the fourth checks the met2 escape plane
+    against sky130's own source DRC rules, because the curated deck `drc_clean`
+    above reports on carries none for it (MET2_ESCAPE_NOTE). None of the four
+    is visible to `klt drc`.
     """
     return {
         "drc_clean": drc_clean,
+        "met2_drc_clean": met2_drc_clean,
         "within_budget": within_budget,
         "full_scale_ladder": full_scale_ladder,
         "device_classes_present": all_classes,
@@ -3209,10 +3562,8 @@ def compose_inner(
                 f"pin {spec['net']}: every gate port of {block}.{device} is "
                 "already claimed"
             )
-    for pin in trim_tap_pins(reports):
-        if (pin["block"], pin["port"]) not in used:
-            pins.append(pin)
-            used.add((pin["block"], pin["port"]))
+    # trim_tap_pins() is deliberately NOT folded into `pins[]` -- see
+    # INTERNAL_NODE_LABEL_NOTE and the record's own trim-tap table.
 
     request = {
         "schema": "klt.gen_compose.request/1",
@@ -3421,6 +3772,14 @@ def main() -> int:
     )
     (out_dir / "drc.json").write_text(json.dumps(drc, indent=2) + "\n")
 
+    # --- 6b. met2 DRC, because the curated deck does not do it ---------------
+    # `klt drc --deck sky130` above returns `violation_count: 0` on a layout
+    # whose met2 could be 10 nm wide: the curated deck declares met2 as a
+    # *connectivity* level (klayout-tools#511) and carries no met2.*/via.*
+    # rule. Everything this flow draws on the escape plane would therefore be
+    # unchecked evidence. See MET2_ESCAPE_NOTE and layout/bin/met2_drc.py.
+    met2_drc = run_met2_drc(klt, Path(compose["gds_path"]), cell, out_dir)
+
     # --- 7. Extract ---------------------------------------------------------
     extract = run_klt_json(
         klt,
@@ -3535,6 +3894,8 @@ def main() -> int:
     routed_nets = [r for r in met1_routes if r["routed"]]
     unrouted = [r["net"] for r in met1_routes if not r["routed"]]
     labelled_pins = [p for p in inner_compose.get("pins", []) if p.get("labelled")]
+    trim_taps = trim_tap_pins(reports)
+    r2_length = r2_leg_length()
     pin_count = extract.get("pin_count", 0)
     lvs_clean = lvs.get("status") == "match"
     classes_present = {
@@ -3604,23 +3965,27 @@ def main() -> int:
         "record is the re-run "
         "against them: 2AMLogic/klayout-tools#461 via #474, #462 via #471, "
         "#463 via #475, #454 via #468, #470 via #481, #490 via #495, #491 "
-        "via #494, #492 via #497/#498, #504 via #505 (#505's own fix is "
-        "diagnostic-only, but the class-arity mismatch it diagnoses is now "
-        "fixed on this flow's own side -- `reference.spice`'s resistor "
-        "cards carry the bulk terminal the schematic already wires; see "
-        "RES_BULK_ARITY_NOTE). Two more gaps closed since the last record: "
+        "via #494, #492 via #497/#498, #504 via #505, and -- the one this "
+        "increment turns on -- **#508 via #511** (sky130's curated deck "
+        "gains met2 as a third connectivity level, which is what makes "
+        "criterion 1's escape plane real connectivity rather than inert "
+        "geometry; see ROUTING_PLANE_NOTE / MET2_ESCAPE_NOTE). "
         "2AMLogic/klayout-tools#506 (the generic arity reconciliation #505 "
-        "deferred) is CLOSED as COMPLETED -- `reference.device_bulk` now "
-        "exists upstream, but this flow still does not need it, because its "
-        "own reference can state the bulk net directly (RES_BULK_ARITY_NOTE); "
-        "and 2AMLogic/klayout-tools#508 (the routing-plane capability gap) "
-        "is CLOSED via #511, picked up by this record's `klt` pin -- sky130 "
-        "now has a third connectivity level (`metal3`/`via2`, met2), the "
-        "genuinely independent plane ROUTING_PLANE_NOTE said was missing. "
-        "**Not yet used**: this pin bump does not itself change what is "
-        "drawn -- see ROUTING_PLANE_NOTE and the module docstring's item 12 "
-        "for what the next increment still has to do with it. No gap this "
-        "flow has ever filed is open upstream as of this record. |"
+        "deferred, filed by the fifteenth increment) has since closed as "
+        "COMPLETED too -- this flow never needed it, because its own "
+        "reference can state the bulk net directly. **Every gap this flow "
+        "has ever filed as blocking is now closed upstream.** Two "
+        "new gaps are filed this increment, neither blocking: "
+        "**klayout-tools#513** is the flip side of #511 -- the curated "
+        "sky130 **DRC** deck was not extended alongside the extraction "
+        "deck, so `klt drc` returns violation_count=0 on any met2 geometry "
+        "whatsoever, and this flow checks the plane itself instead "
+        "(`layout/bin/met2_drc.py`, gated; see the met2 DRC row in "
+        "Results). **klayout-tools#514** is the labelling gap "
+        "INTERNAL_NODE_LABEL_NOTE describes: there is no way to name a net "
+        "without promoting it to a pin, and a pin on a node interior to a "
+        "schematic device silently blocks `combine_devices` with nothing "
+        "attributing the resulting mismatches to it |"
     )
     a("")
     a(f"- [{'x' if drc_clean else ' '}] DRC on the composed, routed layout is clean")
@@ -3635,16 +4000,23 @@ def main() -> int:
     a(f"1. `klt gen` once per matched device group ({len(BLOCKS)} blocks).")
     a(
         "2. `klt draw` once, for the whole cell: every intra-block bus and "
-        "every inter-block net, on met1 over mcon, plus one met1 net label "
-        "each -- `bandgap_core_bus.draw.json`, summarised in "
-        "`bus-summary.json`."
+        "every inter-block net, on met1 over mcon -- plus, for the hops met1 "
+        "has no corridor for, a met2 escape over `via.drawing` "
+        "(MET2_ESCAPE_NOTE) -- and one met1 net label per *schematic* node. "
+        "`bandgap_core_bus.draw.json`, summarised in `bus-summary.json`."
     )
     a(
         "3. `klt gen-compose` with `placement.strategy: \"explicit\"`, an "
-        "empty `connectivity[]` (routing is on met1, above) and `pins[]` for "
-        "the label-only nodes -- `compose.request.json`."
+        "empty `connectivity[]` (routing is drawn above) and an empty "
+        "`pins[]` -- every pin this cell promotes is now a net label from "
+        "step 2, and the four trim-tap pin entries earlier records carried "
+        "are gone (INTERNAL_NODE_LABEL_NOTE). `compose.request.json`."
     )
     a("4. `klt drc <composed> --deck sky130`.")
+    a(
+        "4b. `layout/bin/met2_drc.py <composed>` -- the escape plane's own "
+        "DRC, because the curated deck step 4 runs has no met2 rule."
+    )
     a(f"5. `klt extract <composed> --deck sky130 --top {cell}`.")
     a(
         "6. `klt lvs` against the xschem-derived reference netlist (issue "
@@ -3702,8 +4074,10 @@ def main() -> int:
     a(
         "Each matched group's units are tied into the node the schematic "
         "says they form, on met1 over mcon -- the sky130 extraction deck's "
-        "own second conductor and via (`metals = (li1, met1)`, "
-        "`vias = (mcon,)`). This flow draws them itself from each block's "
+        "own second conductor and via (`metals = (li1, met1, met2)`, "
+        "`vias = (mcon, via)` since klayout-tools#511; met2 is reserved for "
+        "the inter-block escape plane above and no intra-block bus uses "
+        "it). This flow draws them itself from each block's "
         "reported `ports[]` (MET1_BUS_NOTE). That is what turns a "
         "108-segment ladder into two real series resistors, an 8-unit PNP "
         "array into one real m=8 device, and -- new in this increment -- "
@@ -3808,14 +4182,84 @@ def main() -> int:
     a("")
     a("## Inter-block nets drawn on met1")
     a("")
-    a("| net | terminals | routed | schematic node |")
-    a("| --- | --- | --- | --- |")
+    a("| net | terminals | routed | plane | schematic node |")
+    a("| --- | --- | --- | --- | --- |")
     for route in met1_routes:
+        met2_hops = sum(1 for h in route.get("hops", []) if h.get("met2"))
+        plane = "met1" if not met2_hops else f"met1 + met2 x{met2_hops}"
         a(
             f"| `{route['net']}` | "
             f"{' + '.join(f'`{t}`' for t in route['terminals'])} | "
-            f"{'yes' if route['routed'] else 'NO'} | {route['schematic']} |"
+            f"{'yes' if route['routed'] else 'NO'} | {plane} | "
+            f"{route['schematic']} |"
         )
+    a("")
+    met2_hop_rows = [
+        (route["net"], hop)
+        for route in met1_routes
+        for hop in route.get("hops", [])
+        if hop.get("met2")
+    ]
+    a("### The met2 escape plane")
+    a("")
+    a(
+        f"**{len(met2_hop_rows)}** of this cell's inter-block hops are drawn "
+        "on met2 rather than met1, each entered and left through a via1 "
+        "stack (met1 pad + `via.drawing` cut + met2 pad). met1 on this "
+        "floorplan carries both every block's intra-block bus and every "
+        "inter-block net, and the hops below had no met1 corridor at any "
+        "lane, margin, block placement or search depth this repo can set -- "
+        "layout/matching-plan.md Sections 7d-7o are the exhausted list. met2 "
+        "is a genuinely independent conductor, and became one for sky130's "
+        "curated deck only with 2AMLogic/klayout-tools#508 (merged via "
+        "#511); before that its `metal2` role resolved to the same met1 "
+        "layer this flow's own bussing already occupies. The escape is tried "
+        "**strictly last**, after every met1 elbow, channel path and "
+        "Z-detour has been drawn and rolled back, so met1 remains the "
+        "primary plane -- see MET2_ESCAPE_NOTE."
+    )
+    a("")
+    if met2_hop_rows:
+        a("| net | hop | via1 drops (um) | met2 path |")
+        a("| --- | --- | --- | --- |")
+        for net, hop in met2_hop_rows:
+            drops = " -> ".join(
+                f"({d[0]}, {d[1]})" for d in hop.get("via1_drops", [])
+            )
+            a(
+                f"| `{net}` | `{hop['from']}` -> `{hop['to']}` | {drops} | "
+                f"{len(hop.get('points', []))}-point |"
+            )
+        a("")
+    unchecked = drc.get("coverage", {}).get("layers_in_stream_without_rules", [])
+    escape_unchecked = [
+        gds
+        for gds, layer in (
+            ("68/44", met1_bus.VIA1_LAYER),
+            ("69/20", met1_bus.MET2_LAYER),
+        )
+        if f"{layer[0]}/{layer[1]}" in unchecked
+    ]
+    a(
+        "**`klt drc` does not check any of this geometry, and says so.** The "
+        "curated sky130 deck declares met2 as a connectivity level and "
+        "carries no `met2.*`/`via.*` rule at all, so its `violation_count` "
+        "above is *silent* about the escape plane rather than clean about "
+        "it. That is not inferred here -- `drc.json`'s own `coverage` block "
+        "(klayout-tools#189) lists this run's unchecked stream layers as "
+        f"`{', '.join(unchecked) or '--'}`, which includes "
+        f"**{', '.join(escape_unchecked) or 'neither'}** of the escape "
+        "plane's two layers (`via.drawing` 68/44, `met2.drawing` 69/20). "
+        "This flow checks them itself against the installed sky130A PDK's "
+        "own source deck (`libs.tech/klayout/drc/sky130A_mr.drc`: `m2.1`, "
+        "`m2.2`, `m2.6`, `via.1a`, `via.2`, `via.4a`/`via.5a`, `m2.4`/"
+        "`m2.5`) in `layout/bin/met2_drc.py`, and gates on it -- see the "
+        "met2 DRC row in Results and [`met2-drc.json`](met2-drc.json). The "
+        "missing DRC half is filed upstream as friction this increment; the "
+        "curated deck's *rule* coverage now trails its own *extraction* "
+        "coverage on sky130, the same shape klayout-tools#188 closed for "
+        "gf180mcu's upper metals."
+    )
     a("")
     a("## Schematic inter-block nets: drawn vs. labelled only")
     a("")
@@ -3825,17 +4269,13 @@ def main() -> int:
         "design/bandgap_core.sch (+ design/error_amp.sch) that joins devices "
         "in different blocks, and whether drawn metal joins **all** the "
         "blocks the schematic says it reaches. "
-        "The cause of a short row has changed with this increment, and the "
-        "change is the point of it: it is no longer a per-net tool gap. "
-        "Every one of these nodes is now *expressible* -- MOS gates are "
-        "contactable (MOS_GATE_NOTE) and the resistor blocks carry the "
-        "schematic's own flavour (RES_FLAVOR_NOTE) -- so a row that is not "
-        "`drawn` is this flow's own router failing to find a corridor "
-        "through its own congestion, and no per-net expressibility gap is "
-        "being waited on for it. What this flow's own router *cannot* do "
-        "anything about is the metal budget it is searching within -- see "
-        "ROUTING_PLANE_NOTE for the capability gap behind that, filed "
-        "upstream this increment."
+        "Every one of these nodes is *expressible*: MOS gates are contactable "
+        "(MOS_GATE_NOTE), the resistor blocks carry the schematic's own "
+        "flavour (RES_FLAVOR_NOTE), and -- new in this increment -- a hop "
+        "that met1 has no corridor for can escape onto met2 "
+        "(MET2_ESCAPE_NOTE). A row that is not `drawn` would therefore be "
+        "this flow's own router failing on a floorplan that can express the "
+        "node, not a capability being waited on."
     )
     a("")
     a("| schematic net | reaches (blocks) | joined by drawn metal | not drawn | status |")
@@ -3851,7 +4291,9 @@ def main() -> int:
     a(
         f"**{len(fully_drawn)} of {len(coverage)} schematic inter-block nets "
         "are fully drawn.** Criterion 1 is scored PARTIAL, not MET, whenever "
-        "that count is short. `VSS` reaches four blocks here, not the seven "
+        "that count is short"
+        + (" -- it is not short here." if full_connectivity else ".")
+        + " `VSS` reaches four blocks here, not the seven "
         "an earlier record listed: the three resistor blocks' `res_high_po` "
         "bulk terminals are on this node in the schematic and now resolve "
         "to the same real, drawn `VSS` net the rest of the row does "
@@ -3878,6 +4320,58 @@ def main() -> int:
             f"{'yes' if pin.get('labelled') else 'no'} |"
         )
     a("")
+    a(
+        "Four labels the previous records carried are **gone** from this "
+        "list, and their absence is one of this increment's two substantive "
+        "changes: `TRIM_A`, `TRIM_B`, `TRIM_A_CODE_0` and `TRIM_B_CODE_0`. "
+        f"{INTERNAL_NODE_LABEL_NOTE}"
+    )
+    a("")
+    a("### DR-002 trim-ladder taps (documented, not pinned)")
+    a("")
+    a(
+        "The metal option's code taps are still located and validated "
+        "against the block's own reported ports every run -- a count-constant "
+        "change still fails the flow loudly here rather than silently "
+        "mislabelling a tap. They are reported into this record instead of "
+        "into `pins[]` for the reason above."
+    )
+    a("")
+    a("| DR-002 code | block.port |")
+    a("| --- | --- |")
+    for tap in trim_taps:
+        a(f"| `{tap['net']}` | {tap['block']}.{tap['port']} |")
+    a("")
+    a("### Drawn vs. specified R2 leg length")
+    a("")
+    a(
+        "The divider legs are the one place where the layout's own geometry "
+        "constants can disagree with design/bandgap_core.sch's `CORE_PARAMS` "
+        "without anything else in this flow noticing -- `klt lvs` can only "
+        "report a resistor's *value*, and only once the two sides pair at "
+        "all, which they did not until this increment. This row states the "
+        "comparison in the units the schematic itself specifies, "
+        "unconditionally, from this flow's own constants."
+    )
+    a("")
+    a("| quantity | value |")
+    a("| --- | --- |")
+    a(f"| `res_r2` leg (drawn) | {r2_length['coarse_um']:.0f} um |")
+    a(f"| `res_trim` leg, wired in series (drawn) | {r2_length['trim_um']:.0f} um |")
+    a(f"| **total drawn** | **{r2_length['drawn_um']:.0f} um** |")
+    a(
+        f"| schematic `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim` | "
+        f"{r2_length['spec_um']:.0f} um |"
+    )
+    a(f"| delta | {r2_length['delta_um']:+.0f} um |")
+    a(
+        f"| effective DR-002 trim code | "
+        f"**{r2_length['effective_trim_code']:+d}** |"
+    )
+    a("")
+    if not r2_length["matches"]:
+        a(f"**Known defect, newly quantified this increment.** {RES_TRIM_LENGTH_NOTE}")
+        a("")
     a("## Results")
     a("")
     a("| Stage | Status | Detail |")
@@ -3889,6 +4383,12 @@ def main() -> int:
         f"split routed nodes={len(met1_split_routed)} |"
     )
     a(f"| DRC | {drc.get('status')} | violation_count={drc.get('violation_count')} |")
+    a(
+        f"| met2 DRC (this repo's own) | {met2_drc.get('status')} | "
+        f"violation_count={met2_drc.get('violation_count')}, "
+        f"via1 cuts={met2_drc.get('counts', {}).get('via1_cuts')}, "
+        f"met2 polygons={met2_drc.get('counts', {}).get('met2_polygons')} |"
+    )
     a(
         f"| extract | ok | device_count={extract.get('device_count')}, "
         f"device_counts={json.dumps(device_counts)}, pin_count={pin_count} |"
@@ -3966,50 +4466,82 @@ def main() -> int:
     a(f"Mismatch categories: `{json.dumps(lvs.get('category_counts', {}))}`.")
     a("")
     a(
-        "The residual gap has three disclosed causes, none of them a "
-        "topology error in either netlist. Three causes tracked by prior "
-        "records -- the deck-synthesized substrate net, undeclarable "
-        "array dummies, and the resistor device-class arity mismatch -- are "
-        "**retired** as of this or the last increment; see "
-        "\"Retired since the last increment\" below."
+        "The residual gap has four disclosed causes, none of them a "
+        "topology error in either netlist -- and, for the first time in this "
+        "issue's history, **none of them a connectivity difference**: every "
+        "remaining category is `device.property` (a value or parameter) or "
+        "the single deliberately-undrawn device. Four causes tracked by "
+        "prior records -- the deck-synthesized substrate net, undeclarable "
+        "array dummies, the resistor device-class arity mismatch, and "
+        "unrouted schematic nodes -- are **retired**; see \"Retired since "
+        "the last increment\" below."
     )
     a("")
     a(
-        "1. **Unrouted nodes.** "
-        f"{len(coverage) - len(fully_drawn)} of {len(coverage)} schematic "
-        "inter-block nodes are not joined across every block they reach (see "
-        "the coverage table above), so the corresponding layout nets are "
-        "split where the reference has one. This is not a tool gap: it is "
-        "this flow's own hand-written router running out of corridors in "
-        "its own congestion."
-    )
-    a(
-        "2. **`MMCC`, the amp's compensation cap, is in the reference but "
+        "1. **`MMCC`, the amp's compensation cap, is in the reference but "
         "deliberately not drawn in this layout** (see the Blocks note "
         "above), so one reference device has no layout counterpart by "
-        "construction."
+        "construction. This is now the *only* `device.unmatched` entry on "
+        "either side."
     )
     a(
-        "3. **Resistor topology and values differ.** "
-        "design/bandgap_core.sch line 188 models a res_high_po segment as "
+        "2. **The R2 divider legs are 16 um longer than the schematic "
+        f"specifies.** {RES_TRIM_LENGTH_NOTE}"
+    )
+    a(
+        "3. **`res_high_po`'s per-device head resistance is not drawn "
+        "geometry.** design/bandgap_core.sch line 188 models a segment as "
         "`R ~ 380 + 325*L` ohm, with the 380 ohm head charged once per "
         "*device*; the extractor derives R from drawn body squares alone "
-        "(319.8 ohm/sq), so a 270 um leg reads 86,346 ohm against the "
-        "reference's 88,130. More fundamentally, and now that the "
-        "now-retired arity mismatch (see \"Retired since the last "
-        f"increment\" below) no longer stops the comparer from reaching "
-        f"these three devices at all: {RES_TRIM_TOPOLOGY_NOTE}"
+        "(319.8 ohm/sq), so `R1`'s 35 um leg reads 11,193 ohm against the "
+        "reference's 11,755 -- a 4.8% difference that is entirely the head "
+        "term, with the drawn body length exactly right. Unlike cause 2 this "
+        "is not a layout defect: no drawn shape can add a contact-resistance "
+        "term the extractor's sheet-resistance model does not carry."
+    )
+    a(
+        "4. **The reference's PNP cards state no emitter count or "
+        "geometry.** `Q1`/`Q2` now *pair* with their layout counterparts, "
+        "and the comparer reports `ne` 8 (layout) vs 1 (reference) plus "
+        "zero-valued `ae`/`pe`/`ab`/`pb`/`ac`/`pc`. The schematic "
+        "instantiates both as `m='n_pnp_ctat'` / `m='n_pnp_ptat'` = 8, so "
+        "the layout's 8 is right and the reference is silent rather than "
+        "contradicting -- the same transcription shape as the resistor bulk "
+        "terminal RES_BULK_ARITY_NOTE fixed, not yet fixed here because a "
+        "bipolar's emitter area/perimeter are not values "
+        "design/bandgap_core.sch states at all."
     )
     a("")
     a(
-        "None of the three is worked around by editing either netlist. "
-        "`reference.spice` states design/bandgap_core.sch; rewriting it to "
-        "enumerate the layout's own shortfalls would make LVS compare the "
-        "layout against itself, which is not evidence."
+        "None of the four is worked around by editing either netlist to "
+        "match the layout. `reference.spice` states "
+        "design/bandgap_core.sch; rewriting it to enumerate the layout's own "
+        "shortfalls would make LVS compare the layout against itself, which "
+        "is not evidence. Cause 2 in particular is recorded as a **layout** "
+        "defect to fix, not a reference to relax."
     )
     a("")
     a("### Retired since the last increment")
     a("")
+    a(
+        "- **Every schematic inter-block node is now joined across every "
+        "block it reaches.** Through the seventeenth increment, "
+        "`D1`/`GDRV`/`VSS` were split in the layout where the reference has "
+        "one node, and PRs #75-#88 are an exhaustive negative-result "
+        "sequence on every met1-side lever (search depth, channel-search "
+        "window, row-0 margin, row-0 re-placement, a genuine 2D row split, "
+        "and klayout-tools#454/#468's `metal2` role). The cause was never "
+        "any of those: it was that sky130's curated deck had only one "
+        "routing plane above the device pads, and this flow's own bussing "
+        "already occupied it. Retired by 2AMLogic/klayout-tools#508 (merged "
+        "via #511) plus the escape router built on it -- see \"The met2 "
+        "escape plane\" above. `net.split` and `net.merged` are both **0** "
+        "in the categories line above; they were 10 and 3."
+    )
+    a(
+        "- **The trim ladder's nodes no longer split R2A/R2B into unpairable "
+        f"pieces.** {INTERNAL_NODE_LABEL_NOTE}"
+    )
     a(
         "- **The substrate net is now real, drawn connectivity, not a "
         f"declaration.** {SUBSTRATE_NET_NOTE} No `hints.same_nets` entry is "
@@ -4033,25 +4565,31 @@ def main() -> int:
         f"- **Not LVS-clean.** `klt lvs` reports `{lvs.get('status')}` with "
         f"`mismatch_count={lvs.get('mismatch_count')}` against the "
         "xschem-derived reference netlist, and `devices.matched` is "
-        f"{lvs_devices.get('matched')}. The three causes above are the whole "
+        f"{lvs_devices.get('matched')}. The four causes above are the whole "
         "of it; none is hidden behind a number that moved."
     )
-    a(
-        "- **Not fully inter-block routed either.** "
-        f"{len(fully_drawn)}/{len(coverage)} schematic inter-block nets are "
-        "joined across every block they reach. The rest are *partial*, not "
-        "absent: each is drawn between the blocks the router could reach and "
-        "stops where it could not, which the coverage table names per row. "
-        "Every one of them is now expressible per-net -- what is missing is "
-        "corridor, not per-net capability. The metal-level capability behind "
-        "that corridor (a genuinely independent second routing plane, "
-        "distinct from the one this flow's own bussing already occupies) "
-        "was filed as 2AMLogic/klayout-tools#508 and is now CLOSED via "
-        "#511 -- sky130's curated deck has a third connectivity level "
-        "(`metal3`/`via2`, met2) as of this record's `klt` pin. This "
-        "record's own router does not yet draw on it -- see "
-        "ROUTING_PLANE_NOTE for what remains."
-    )
+    if full_connectivity:
+        a(
+            "- **Fully inter-block routed, but not on one plane.** All "
+            f"{len(fully_drawn)}/{len(coverage)} schematic inter-block nets "
+            "are joined across every block they reach -- and "
+            f"{len(met2_hop_rows)} of the hops that get them there are drawn "
+            "on met2, not met1. That plane's geometry is checked by this "
+            "repo's own `layout/bin/met2_drc.py` against the installed PDK's "
+            "source rules, **not** by `klt drc`, whose curated deck carries "
+            "no met2 rule; the connectivity itself is the extractor's, since "
+            "klayout-tools#511 made met2 a level of the curated extraction "
+            "deck's own graph."
+        )
+    else:
+        a(
+            "- **Not fully inter-block routed either.** "
+            f"{len(fully_drawn)}/{len(coverage)} schematic inter-block nets "
+            "are joined across every block they reach. The rest are "
+            "*partial*, not absent: each is drawn between the blocks the "
+            "router could reach and stops where it could not, which the "
+            "coverage table names per row."
+        )
     a(
         "- **MOS finger bussing is drawn, and the m=N devices it produces "
         "are this record's own claim, not the tool's.** Each `bus_mos_comb` "
@@ -4093,7 +4631,8 @@ def main() -> int:
     a("")
     a("- [`compose.request.json`](compose.request.json), [`compose.json`](compose.json)")
     a(
-        "- [`drc.json`](drc.json), [`extract.json`](extract.json), "
+        "- [`drc.json`](drc.json), [`met2-drc.json`](met2-drc.json), "
+        "[`extract.json`](extract.json), "
         "[`lvs.combined.json`](lvs.combined.json), [`lvs.json`](lvs.json)"
     )
     a("- [`bus-summary.json`](bus-summary.json)")
@@ -4126,6 +4665,7 @@ def main() -> int:
         met1_conflicts=met1_conflicts,
         merged_pin_names=merged_pin_names,
         split_routed=met1_split_routed,
+        met2_drc_clean=met2_drc.get("status") == "clean",
     )
     failed = [name for name, passed in gate.items() if not passed]
     if failed:
