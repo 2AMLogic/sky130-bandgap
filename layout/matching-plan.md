@@ -255,7 +255,7 @@ Consistent with the measured PSRR (77.7 dB at DC, worst case sf/125 degC/
   code-select tap on the trim ladder feeds which net) were deferred by #15.
   Issue #62 draws both -- see Section 5a.
 
-### 5a. What issue #62's routed flow actually draws (second increment)
+### 5a. What issue #62's routed flow actually draws
 
 **Per-matched-group rings are back on.** Upstream
 [klayout-tools#441](https://github.com/2AMLogic/klayout-tools/issues/441)
@@ -288,31 +288,64 @@ is what turns the 108-unit ladder into two real series resistors and each
 
 **Inter-block nets are now drawn on met1 too**, for the same routing-metal
 reason -- `gen-compose` only ever routed 2-pin nets between channel-adjacent
-blocks; met1 does not care about crossing other blocks' interiors. **11 of
-12** declared inter-block nets route; measured against
-`design/bandgap_core.sch`'s own node list (not this flow's own
-`connectivity[]` declaration), **6 of 12 schematic inter-block nets are
-fully drawn across every block they reach** (up from 4/12 in the first
-increment) -- see the routed record's "Schematic inter-block nets" table for
-the per-net breakdown.
+blocks; met1 does not care about crossing other blocks' interiors. Measured
+against `design/bandgap_core.sch`'s own node list (not this flow's own
+routing declaration), **8 of 12 schematic inter-block nets are fully drawn
+across every block they reach** -- 4/12 in the first increment, 6/12 in the
+second -- see the routed record's "Schematic inter-block nets" table for the
+per-net breakdown.
 
-**What still isn't drawn, and why.** Every remaining gap -- the unrouted
-12th net, the rest of the partial schematic nodes, and all MOS finger
-bussing -- terminates on a MOS gate. Every `klt gen` MOS generator on sky130
-draws gate poly with **exactly** the active region's extent (poly and diff
-share both edges), so there is no poly landing area outside the channel a
-contact could legally sit on. A gate cannot be connected to anything through
-drawn geometry today. Filed as
-[klayout-tools#461](https://github.com/2AMLogic/klayout-tools/issues/461).
-This flow deliberately does not draw a contact over the channel to make a
-number move -- that would be illegal geometry the curated DRC deck simply
-doesn't happen to model, not real connectivity.
+> Historical note (second increment, PR #65): at that point **6 of 12**
+> schematic inter-block nets were fully drawn and no MOS gate could be
+> contacted at all, so every remaining gap terminated on a gate.
 
-The routed record's "Schematic inter-block nets: drawn vs. labelled only"
-table is the measured, per-net version of this. Issue #62's criterion 1 is
-scored **PARTIAL** on it -- the reference netlist is *not* adjusted to
-accommodate any of it (an earlier revision bridged `AOUT`/`GDRV` with a
-0-ohm device -- that stays removed).
+**MOS gates are contacted, and the matched pairs are bussed** (third
+increment). Every `klt gen` MOS generator on sky130 draws gate poly with
+**exactly** the active region's extent (poly and diff share both edges) and
+reports the gate port on that shared boundary, so the generator leaves no
+landing area a contact could legally sit on --
+[klayout-tools#461](https://github.com/2AMLogic/klayout-tools/issues/461),
+still open. Rather than wait, this flow draws the missing piece itself, from
+the generator's own reported gate port: a poly extension of the port's
+reported width past the active edge, then a licon and an li1 pad on it. That
+overhang is what every real foundry PDK draws for exactly this purpose, and
+it is DRC-clean under the curated deck -- unlike the two illegal
+alternatives the gap forces (a contact straddling the diff edge, or one
+sitting on poly over the channel), neither of which this flow will draw to
+make a number move.
+
+With a contactable gate, `layout/bin/mos_bus.py` buses each `diff_pair`
+block's `2 x splits` unit devices into the two devices the schematic
+contains: one met1 **lane** per node inside each device row (a unit's li1
+pad is the device's full width tall, so each node drops its vias at its own
+lane's height and lanes never need to cross), nested riser/escape bundles
+either side, and a guard-ring tie dropped where the ring's node already runs
+over its west band. `klt lvs` now folds the layout to 38 devices against the
+reference's 16, with 5 device and 1 net correspondences established -- from
+97-vs-16 and none in the second increment.
+
+**The gate band is the residual generator constraint.** `diff_pair`'s
+guard-ring padding (0.5 um) and inter-row spacing (0.4 um) are module
+constants with no parameter, and the band they leave holds exactly one gate
+contact row per side. This circuit's five matched groups fit only because
+the bus splits each block's gate nets three ways -- one net stubbed inboard
+to the innermost lane, one routed outboard past the ring, and a
+diode-connected device's gate bonded straight to its own pad on li1. A group
+needing two independent non-diode gate nets has nowhere left to go. Filed as
+[klayout-tools#484](https://github.com/2AMLogic/klayout-tools/issues/484).
+
+**What still isn't drawn, and why.** **8 of 12** schematic inter-block nets
+are now fully drawn (`VB`, `VOUT`, `D2` and `VSS` are not). Every remaining
+gap is a hop this repo's *own* met1 router could not place without a drawn
+short -- a routing-quality limit of `gen_bandgap_routed.py`, not a node the
+tool cannot express. That is a change of kind from the previous two
+increments, whose gaps were all upstream capability gaps.
+
+The routed record's "Schematic inter-block nets" table is the measured,
+per-net version of this. Issue #62's criterion 1 is scored **PARTIAL** on it
+-- the reference netlist is *not* adjusted to accommodate any of it (an
+earlier revision bridged `AOUT`/`GDRV` with a 0-ohm device -- that stays
+removed).
 
 ## 6. Area budget
 
@@ -344,18 +377,19 @@ of the remaining margin, so it is the next real area question.
 
 ## 7. `klt` generator mapping and friction
 
-Status as of issue #62's routed flow, second increment (the #15 column is
+Status as of issue #62's routed flow, third increment (the #15 column is
 kept because the skeleton's own checked-in records were produced under it):
 
 | Matched group | Generator | DRC-clean | Extraction status at #15 | Extraction status at #62 (current) |
 |---|---|---|---|---|
 | PNP arrays (Q1, Q2) | `bjt_array` | yes | no -- `klt extract` on a `bjt_array` output reports `device_count: 0` | **yes, 24 `pnp` devices** (dummies included), drawn by the generator itself since upstream [klayout-tools#440](https://github.com/2AMLogic/klayout-tools/issues/440) (the first increment's local recognition overlay is retired) |
 | Resistor ladders (R2A/R2B, R1, trim) | `res_array` | yes | no -- never drew the PDK's resistor-ID marker layer (2AMLogic/klayout-tools#369) | **yes, 159 `res_generic_po` devices** -- #369 merged upstream via klayout-tools#382. Only the base flavour is drawable -- [klayout-tools#463](https://github.com/2AMLogic/klayout-tools/issues/463) |
-| Amp input pair, NMOS loads/mirrors, PMOS mirror, core mirror | `diff_pair` | yes | not attempted | **yes, 52 `pfet` + 16 `nfet`** -- the nfet flavour needed klayout-tools#421 (guard-ring well tie enclosing nfet devices in nwell), merged via klayout-tools#426. Gates are unconnectable regardless of flavour -- [klayout-tools#461](https://github.com/2AMLogic/klayout-tools/issues/461) |
+| Amp input pair, NMOS loads/mirrors, PMOS mirror, core mirror | `diff_pair` | yes | not attempted | **yes, 52 `pfet` + 16 `nfet`** -- the nfet flavour needed klayout-tools#421 (guard-ring well tie enclosing nfet devices in nwell), merged via klayout-tools#426. The generator draws no contactable gate landing area -- [klayout-tools#461](https://github.com/2AMLogic/klayout-tools/issues/461), worked around by this flow drawing the poly extension itself (Section 5a) |
 | Overall guard ring | `guard_ring` (standalone) | yes | n/a | n/a -- composed in a **second** `gen-compose` pass, because a ring enclosing the whole floorplan reports a bbox that the router treats as an obstacle vetoing every net |
 | Per-group guard rings | `add_guard_ring`/`add_collector_ring` (built into `diff_pair`/`bjt_array`) | yes | n/a | **on**, with a routing opening (klayout-tools#441) -- see Section 5a |
 | Intra-block bussing (array units, ladder segments) | `met1_bus.py` (`klt draw`, this repo) | yes | n/a | **drawn on met1**, not through `gen-compose` -- see Section 5a and `MET1_BUS_NOTE` |
-| 2D floorplan composition | `gen-compose` `placement.strategy: "explicit"` | n/a | n/a | plus `connectivity[]` routing and `pins[]` pin promotion for the li1-reachable nets |
+| Matched-pair bussing (MOS units into `m=N` devices) + gate contacts | `mos_bus.py` (`klt draw`, this repo) | yes | n/a | **drawn** -- one met1 lane per node per row, nested escapes, self-drawn gate poly extension. A workaround for [klayout-tools#461](https://github.com/2AMLogic/klayout-tools/issues/461) and [#484](https://github.com/2AMLogic/klayout-tools/issues/484), not a fix |
+| 2D floorplan composition | `gen-compose` `placement.strategy: "explicit"` | n/a | n/a | placement only; `connectivity[]` is empty (routing is on met1) and `pins[]` carries the trim-ladder taps alone |
 
 Friction filed or cross-confirmed while building this floorplan, per
 `CLAUDE.md`'s protocol (tool-gap description only, no design-specific
@@ -400,7 +434,7 @@ detail beyond a generic reproduction):
   guard-ringed block, so per-group rings and connectivity are no longer
   mutually exclusive (Section 5a).
 
-**Second increment (this PR), the residual blockers on LVS closure:**
+**Second increment (PR #65), and where each stands after the third:**
 
 - **[klayout-tools#454](https://github.com/2AMLogic/klayout-tools/issues/454)**
   -- re-raises #433's un-shipped half: there is still no metal2/via role or
@@ -408,9 +442,12 @@ detail beyond a generic reproduction):
   this flow's `met1_bus.py` is a layout-side workaround, not a fix.
 - **[klayout-tools#461](https://github.com/2AMLogic/klayout-tools/issues/461)**
   -- MOS gate poly is drawn exactly coincident with the diffusion edge, so
-  no contact can land on a gate at all. **This is the dominant blocker on
-  criterion 4** (Section 8): it blocks all MOS finger bussing and every
-  schematic node that terminates on a gate.
+  the generator leaves no landing area a contact can sit on. Still open
+  upstream; the third increment stops waiting on it and draws the missing
+  poly extension itself (Section 5a). That is a layout-side workaround, not
+  a fix: the extension's size, direction and the room it has to fit in are
+  decided here, per block, rather than by the generator that knows the
+  device.
 - **[klayout-tools#462](https://github.com/2AMLogic/klayout-tools/issues/462)**
   -- the dummy-device marker-layer suppression path only covers MOS gates,
   never bipolar or resistor devices, so this layout's array dummy edge
@@ -419,6 +456,19 @@ detail beyond a generic reproduction):
   -- `res_array` on sky130 can only draw the base `res_generic_po` flavour;
   a schematic built on a higher-sheet-rho flavour has no matching drawable
   device class.
+
+**Third increment (this PR), filed while bussing the matched pairs:**
+
+- **[klayout-tools#484](https://github.com/2AMLogic/klayout-tools/issues/484)**
+  -- `diff_pair`'s guard-ring padding, inter-row spacing and ring width are
+  module constants with no parameter, and the band they leave between the
+  outermost active edge and the ring holds exactly one gate contact row per
+  side. Both matched devices' gate nets therefore cannot be brought out of a
+  ringed block the same way; the inboard / outboard / li1-bond split
+  `layout/bin/mos_bus.py` uses is a circuit-specific answer, not a general
+  one. The other half of #461: #461 is "there is nowhere on the gate to put
+  a contact", #484 is "there is nowhere beside it to put the wire that
+  leaves it".
 
 Two gaps the first increment **picked up rather than filed**, having landed
 upstream in the interval: klayout-tools#415 (`res_array` row folding,
@@ -429,26 +479,26 @@ bump; #421's fix was verified effective before relying on it (an isolated
 
 ## 8. Known limitations / follow-on work
 
-- **LVS is not clean.** *(Still open; the reason has changed twice now.)* At
-  #15 the blocker was device recognition -- neither `bjt_array` nor
-  `res_array` output extracted as devices at all. The first increment (PR
-  #64) closed that and hit the single-routing-metal bussing gap
-  (klayout-tools#433). This increment closes *that* with a layout-side met1
-  bus (Section 5a): the routed layout now extracts 24 `pnp` (dummies
-  included), 16 `nfet`, 52 `pfet` and 159 `res_generic_po` devices with 24
-  named top-level pins, and `klt lvs` compares 97 layout devices (after
-  `combine_devices` folds the busses) against the reference's 16. The
-  remaining blocker is **klayout-tools#461** (MOS gate poly has no
-  contactable landing area): every split MOS group's fingers stay separate
-  devices, and six of the schematic's twelve inter-block nodes -- everything
-  that lands on a gate -- stay open. Secondary contributors are
+- **LVS is not clean.** *(Still open; the reason has changed three times
+  now.)* At #15 the blocker was device recognition -- neither `bjt_array`
+  nor `res_array` output extracted as devices at all. The first increment
+  (PR #64) closed that and hit the single-routing-metal bussing gap
+  (klayout-tools#433). The second (PR #65) closed *that* with a layout-side
+  met1 bus and hit the gate-contact gap (klayout-tools#461), leaving 365
+  mismatches. This increment works around #461 by drawing the gate's missing
+  poly landing area itself (Section 5a) and buses every matched pair, taking
+  the count to **85**: `klt lvs` now folds 38 layout devices against the
+  reference's 16 (from 97) and establishes 5 device and 1 net
+  correspondences (from none). The remaining causes, in order of size:
+  four inter-block nodes this repo's own met1 router still cannot draw
+  (`VB`, `VOUT`, `D2`, `VSS` -- a routing-quality limit, not a tool gap);
   klayout-tools#462 (dummy edge units of the PNP/resistor arrays extract as
-  real, unmatched devices) and #463 (the layout can only draw
-  `res_generic_po`, not the schematic's higher-sheet-rho flavour). `klt lvs`
-  runs and reports `mismatch`; the routed record's "LVS mismatch analysis"
-  section quantifies and attributes each cause. Rewriting the reference
-  netlist to enumerate the layout's own shortfalls would make LVS compare
-  the layout against itself and is explicitly not done.
+  real, unmatched devices); #463 (the layout can only draw
+  `res_generic_po`, not the schematic's higher-sheet-rho flavour); and MCC,
+  which is not drawn at all. The routed record's "LVS mismatch analysis"
+  section quantifies and attributes each. Rewriting the reference netlist to
+  enumerate the layout's own shortfalls would make LVS compare the layout
+  against itself and is explicitly not done.
 - ~~**R2A/R2B ladder is at reduced scale**~~ -- **closed** by issue #62, see
   Section 4a. The ladder is drawn at its real 108-unit count.
 - ~~**Per-matched-group guard rings are off in the routed layout**~~ --
@@ -462,16 +512,25 @@ bump; #421's fix was verified effective before relying on it (an isolated
   picks up full tape-out-ready layout, since it may be resolvable by a
   different placement of two `diff_pair` instances relative to each other
   rather than needing a new generator.
-- **Inter-block connectivity is now mostly drawn, but not complete** -- 6 of
-  12 schematic inter-block nets are joined across every block they reach (up
-  from 4/12), via met1 (Section 5a). The rest terminate on a MOS gate and
-  stay open -- klayout-tools#461. Issue #62's criterion 1 is scored PARTIAL,
-  not MET, on this.
-- **Intra-block bussing is drawn for PNP arrays and resistor ladders**, on
-  met1 (Section 5a) -- closed for those device families. **MOS finger
-  bussing is still not drawn**, for the same klayout-tools#461 gate-contact
-  reason; each matched MOS pair's split fingers remain separate devices in
-  the extracted netlist.
+- **Inter-block connectivity is now mostly drawn, but not complete** -- 8 of
+  12 schematic inter-block nets are joined across every block they reach (4
+  in the first increment, 6 in the second), via met1 (Section 5a). The four
+  that are not (`VB`, `VOUT`, `D2`, `VSS`) each have one hop this repo's own
+  router could not place without a drawn short. That is the first time the
+  residual gap on this criterion is *ours* rather than upstream's, and it is
+  the obvious next lever: a maze router over the placement channels, rather
+  than `gen_bandgap_routed.py`'s current fixed repertoire of elbow and
+  Z-shaped candidate paths, should close it without any new tool capability.
+  Issue #62's criterion 1 is scored PARTIAL, not MET, on this.
+- ~~**MOS finger bussing is not drawn**~~ -- **closed** by this increment,
+  see Section 5a. Every matched pair's split units are bussed into the two
+  devices the schematic contains, and every gate is contacted through a
+  self-drawn poly extension. Intra-block bussing is now drawn for all three
+  device families (PNP arrays, resistor ladders, matched MOS pairs).
+- **Every guard/collector ring is now tied to its node** (`VDD` for the
+  three PMOS groups, `VSS` for the two NMOS groups) rather than left
+  floating, so a pfet group's bulk terminal is the supply the schematic says
+  it is instead of an unmatched net.
 - **Array dummy edge units extract as real devices** with no schematic
   counterpart (klayout-tools#462) -- turning them off to shrink the LVS
   mismatch count would trade a real matching property for a smaller number,

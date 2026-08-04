@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "gds_path": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-032842-27656fb/bandgap_core_bus.gds",
+  "cell_name": "bandgap_core_bus",
+  "dbu_um": 0.001,
+  "shape_count": 1723,
+  "label_count": 13,
+  "layers": [
+    {
+      "layer": 67,
+      "datatype": 44,
+      "name": null,
+      "shapes": 527
+    },
+    {
+      "layer": 68,
+      "datatype": 20,
+      "name": null,
+      "shapes": 952
+    },
+    {
+      "layer": 66,
+      "datatype": 20,
+      "name": null,
+      "shapes": 76
+    },
+    {
+      "layer": 66,
+      "datatype": 44,
+      "name": null,
+      "shapes": 76
+    },
+    {
+      "layer": 67,
+      "datatype": 20,
+      "name": null,
+      "shapes": 92
+    },
+    {
+      "layer": 68,
+      "datatype": 5,
+      "name": null,
+      "shapes": 0
+    }
+  ],
+  "bbox_um": {
+    "x0": -6.72,
+    "y0": 0.13,
+    "x1": 302.72,
+    "y1": 108.7
+  },
+  "warnings": [
+    "written verbatim by `klt draw`: no PDK awareness and no rule checking were applied; this cell is not guaranteed to be design-legal"
+  ]
+}
