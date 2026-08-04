@@ -2427,6 +2427,95 @@ showed. So with both increments in, neither remaining cause is a layout
 defect, and neither is closable by drawing anything -- `mismatch_count=4` is
 1 deliberately-undrawn device plus 3 model-term value differences.
 
+### 7t. Twenty-second increment: confirmed the remaining `res_high_po` cause against the PDK's own model card (not just this repo's schematic-side approximation of it), filed it upstream
+
+No code change; this increment ran concurrently with Section 7s's (same
+starting record, `20260804-223242-539e30b`) and is rebased on top of it
+rather than duplicating it — see the concurrency note at the end of this
+section. Section 7s closed cause 4 (PNP `ae`/`pe`/`ne`); this increment
+investigates the two causes Section 7s's own scoreboard names as still
+open: cause 3 (`res_high_po`'s head-resistance term) and cause 2 (issue
+#91, deliberately left to its own concurrent claim, not duplicated here).
+
+**Re-verified the baseline.** Reinstalled `layout/.venv` at the checked-in
+pin (`--force`) and re-ran `run-bandgap-routed-flow.sh` before Section 7s's
+fix landed in this session's own working tree: reproduced `mismatch_count:
+18` byte-for-byte against the last checked-in record at that point. After
+rebasing onto Section 7s's fix, the current checked-in record
+(`20260804-224713-539e30b`) is `mismatch_count: 4` — cited directly here
+rather than re-run again, since no code changed between that record and
+this section.
+
+**Cause 3, checked against the PDK model directly, not just the schematic's
+own restatement of it.** The existing record compares the layout's
+extracted `res_high_po` value against *this repo's own* `R ~ 380 + 325*L`
+approximation (`design/bandgap_core.sch` line 188) — itself a
+simplification, not the PDK's ground truth. Built a standalone ngspice
+testbench against the real `sky130_fd_pr__res_high_po` model card (via
+`sky130.lib.spice`'s `.lib tt` section, nominal corner, `MC_MM_SWITCH=0`) to
+check both whether the schematic's approximation is itself accurate and
+whether `klt extract`'s gap is what prior records say it is:
+
+| drawn `l` (w=1um) | `klt extract` (`L/W*319.8`) | real PDK model (nominal `tt`) | delta |
+| --- | --- | --- | --- |
+| 1 um | 319.8 ohm | 704.5 ohm | +120.3% |
+| 5 um | 1,599.0 ohm | 2,003.8 ohm | +25.3% |
+| 10 um | 3,198.0 ohm | 3,628.0 ohm | +13.4% |
+| 35 um | 11,193.0 ohm | 11,748.7 ohm | +5.0% |
+
+Two things confirmed, not assumed: (1) the real model card is literally two
+series sub-resistors per instance (`rhead`, a fixed ~300 ohm `w=1um`
+end/contact term whose own length parameter is a model constant, independent
+of the caller's drawn `l`; and `rbody`, the length-scaling term `klt
+extract`'s `L/W*sheet_rho` already approximates) — so the gap is structural,
+not a rounding difference in a single coefficient. (2) At `l=35um` the real
+model's 11,748.7 ohm agrees with `design/bandgap_core.sch`'s own
+`380+325*L` approximation (11,755 ohm) to within 0.05% — the schematic's
+simplified formula is itself a good stand-in for the real device, so this
+cause's "no drawn shape can add a contact-resistance term the extractor's
+sheet-resistance model does not carry" framing holds up under a
+from-the-model check, not only a from-the-schematic one.
+
+Filed upstream, generic (the model-card structure and the measured deltas
+above, no bandgap-specific detail), as
+[klayout-tools#518](https://github.com/2AMLogic/klayout-tools/issues/518) —
+searched the tracker first for `res_high_po`, "resistor head/end
+resistance", and `ResistorDevice`; found #299/#323 (a different resistor
+gap, which sheet-rho flavours are wired into the list at all) and #512 (the
+capacitor-side sibling of this exact "area/length-only formula misses a real
+device's second term" shape), no existing filing for this one. Also
+confirmed no request-side escape hatch exists: `klt lvs`'s per-property
+compare epsilon (`_PARAM_ABS_EPSILON`/`_PARAM_REL_EPSILON` in
+`klayout_tools/lvs.py`) is a hardcoded module constant, not something a
+request document can widen.
+
+**Concurrency note.** This section and Section 7s were both branched from
+`20260804-223242-539e30b` by separate sessions at nearly the same time; a
+build hiccup on this session's side briefly force-pushed over Section 7s's
+commit on the shared branch before being caught and corrected by rebasing
+this section on top of it (same recovery shape as PR #71/#92's own
+concurrency notes for this issue). No content was lost; this section is
+additive to Section 7s's, not a redo of it.
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET (see issue #91) | unchanged; issue #91 in flight |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, 4 | unchanged, **4** — no code change this increment |
+| 5 (blocking gaps filed) | MET | MET (+#518) |
+
+**Suggested next increment**: issue #91 (already in flight under a separate
+claim) is the only actionable AC4 lever left in this repo's own layout.
+Once it lands, `mismatch_count` should drop from 4 to 2 (`MCC` and `R1`'s
+head term survive; `R2A`/`R2B`'s head term will newly appear once their
+length is correct, unless klayout-tools#518 lands first). Cause 3 is now
+independently confirmed (not just asserted) to have no layout-side fix
+available, and its upstream half is filed and out of this repo's hands
+until it lands.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five
@@ -2538,6 +2627,14 @@ defect, and neither is closable by drawing anything -- `mismatch_count=4` is
   2. **`res_high_po`'s per-device 380 ohm head term is not drawn
      geometry** -- unchanged, still an inherent extractor-model limit, and
      since Section 7r the whole of every remaining `r` difference.
+  **Update, twenty-second increment (Section 7t)**: cause 2 above is now
+  confirmed against the real `sky130_fd_pr__res_high_po` SPICE model card,
+  not only this repo's own schematic-side approximation of it -- the real
+  device is two series sub-resistors (a fixed end/contact term plus the
+  length-scaling term `klt extract` already computes), so the gap is
+  structural and has no layout-side fix. Filed generically as
+  [klayout-tools#518](https://github.com/2AMLogic/klayout-tools/issues/518).
+  `mismatch_count` is unchanged at **4**.
 - ~~**R2A/R2B ladder is at reduced scale**~~ -- **closed** by issue #62, see
   Section 4a. The ladder is drawn at its real full length: 100 coarse units
   plus 40 fine trim units = the schematic's 270 um per leg.
