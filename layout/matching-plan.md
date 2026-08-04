@@ -834,6 +834,140 @@ Section 7d/7e -- a floorplan revision splitting `amp_input_pair` (for
 just re-spacing) for `VSS` -- both real floorplan/matching redesigns, still
 not attempted.
 
+### 7g. Ninth increment: `blocked_by` names one veto of many -- a per-hop blocker tally, and what it says about the three hops left after #78
+
+Every increment from 7c on characterized each still-unrouted hop by *one*
+net: the `blocked_by` value the hop's own record carries. That value comes
+from `_LAST_BLOCKER` (`gen_bandgap_routed.py`), which is only ever the
+*last* candidate path `_connect()` happened to try before giving up -- an
+artifact of search order, not necessarily the net actually holding the
+corridor. This increment tested that framing directly and found it
+incomplete, then used the corrected picture to ask what is really left.
+
+**The set of failing hops changed under this increment's feet, and the
+analysis is against the new one.** An earlier draft of this section
+analysed `D1`, `VDD` x2 and `VSS`. PR #78 (`bulk_terminal()` offering all
+three ring taps) landed while that draft was open and moved the failure:
+`VDD` now routes end to end, `GDRV` takes the corridor `VDD` used to leave
+free, and `mismatch_count` is 92 rather than 106. Everything below is
+measured against the post-#78 floorplan -- record
+`20260804-113412-4fb2a3a`, this increment's own full flow run, whose
+`device_counts`/`pin_count`/`mismatch_count=92`/`violation_count=0` are
+identical to the `20260804-105025-25d02e6` baseline on `main`. The three
+hops in play are now **`D1`, `VSS`, `GDRV`**, one hop each.
+
+**The tally is now part of the flow's own record, not a one-off
+diagnostic.** `_connect()`'s per-candidate blocker tracking (previously
+`_LAST_BLOCKER`, overwritten on every rejection) is joined by
+`_BLOCKER_COUNTS`, a per-call tally reset at the start of every `_connect()`
+invocation and surfaced on a failed hop as `blocked_by_counts`
+(`bus-summary.json`'s `_inter_block` entries, and so every future record)
+alongside the existing `blocked_by`. `blocked_by` is unchanged, for
+backward compatibility with the repair pass's own targeting and any
+existing reader; `blocked_by_counts` is strictly additive. Unit-covered in
+`layout/tests/test_routed_flow_gates.py` (`TestConnectRouter`'s two
+blocker-tally tests, `TestDrawChainBlockedByCounts`). The table below is
+read straight out of that record -- no standalone harness required to
+reproduce it:
+
+| hop | recorded `blocked_by` | distinct vetoing nets | rejected candidates (attempts / distinct geometries) | breakdown |
+| --- | --- | --- | --- | --- |
+| `D1` (`amp_nmirr:D1:far0` -> `amp_input_pair:D1:far1`) | `D2` | 8 | 5262 / 4780 | `D2` 3091, `GDRV` 806, `TAIL` 732, `VA` 256, `VB` 238, `D1` 82, `PN` 55, `VSS` 2 |
+| `VSS` (`pnp_ptat:VSS trunk` -> `pnp_ctat:VSS trunk`) | `VOUT` | 20 | 5230 / 4748 | `VOUT` 2546, `VA` 1445, `VSS` 407, `VBQ` 271, `TAIL` 101, `VB` 91, `D2` 33, plus **13** distinct `res_r2` intra-block bus segments totalling 336 |
+| `GDRV` (`core_mirror:GDRV:far1` -> `amp_pmirr:GDRV:far0`) | `TAIL` | 3 | 5636 / 5154 | `VDD` 2851, `TAIL` 2778, `GDRV` 7 |
+
+Two things fall out of the table immediately. `VSS`'s recorded blocker
+(`VOUT`) accounts for under half its rejections, with `VA` nearly as large
+and `res_r2`'s own intra-block series-chain bus (the 108-unit ladder folded
+into 9 rows, Section 4a) a real contributor -- row 0's internal wiring is
+part of that deadlock, which no prior increment's per-net framing
+surfaced. `GDRV`'s recorded blocker (`TAIL`) is likewise not its largest;
+`VDD` is, and `GDRV` is contested by only **three** nets, the narrowest
+congestion of the three hops.
+
+**These are exhaustive counts, not samples.** A hop that fails has had
+*every* candidate `_connect()` can generate rejected, and each rejection
+tallies exactly one net, so the tally's sum is the size of the search:
+5230, 5262 and 5636 candidate attempts respectively for the three hops
+above (4748 / 4780 / 5154 distinct geometries -- the detour ladder re-offers
+the two plain elbows at each of its 241 offsets, which the attempt count
+includes and the geometry count does not). That is every elbow, every
+floorplan-channel crossing, and every Z-detour/four-segment escape across
+the full +/-48 um `DETOUR_OFFSETS_UM` range, for that hop's endpoints.
+Summed over each net's whole per-net search (`_route_one_net` enumerates
+`CANDIDATE_ASSIGNMENTS` pad assignments x `_chain_orders` visit orders,
+each re-running `_connect` on every hop), the three nets between them burn
+**66,478 / 57,937 / 39,452** rejected candidate paths for `VSS` / `D1` /
+`GDRV`. "The router's search just needs to be smarter" is not a live
+hypothesis for any of them.
+
+**Which blockers are actually rippable?** A pure-Python replay harness
+(reads a record's per-block `*.gen.json`, rebuilds the intra-block busses
+and re-runs `route_inter_block_nets` on the recorded winning order -- no
+`klt` calls, ~70 s per configuration instead of a ~15 min flow run)
+reproduces the record's routing exactly, then re-runs it with one net's
+*inter-block* wiring removed from the order entirely. Removing a net this
+way does not remove its intra-block metal: `_draw_intra_block_busses` draws
+every MOS group's combs and every array's trunks before the inter-block
+router starts, and those carry net names too. That distinction is what the
+test measures:
+
+| removed net | effect on the hop that named it |
+| --- | --- |
+| `VA` | **`VSS`'s hop routes completely** -- all five terminals joined, zero conflicts |
+| `VOUT` | **`VSS`'s hop routes completely** as well |
+| `VDD` | `GDRV` still fails; `VDD` still vetoes 819 candidates (down from 2851) purely from intra-block comb metal, and `TAIL` grows to 4045 |
+| `TAIL` | `GDRV` still fails, with a **byte-identical** blocker tally (`VDD` 2851, `TAIL` 2778, `GDRV` 7) -- not one of `TAIL`'s 2778 vetoes came from its inter-block route |
+| `D2` | `D1` still fails, and gets *worse* (two failing hops instead of one); `D2` still vetoes 2854 of its original 3091 from intra-block metal |
+
+So the three hops are not the same kind of failure, and the old
+one-blocker-per-hop framing hid that:
+
+- **`VSS` is genuine inter-block corridor contention.** Two different nets'
+  drawn routes each independently hold it, and removing *either* frees it.
+- **`GDRV` and `D1` are not.** The metal in their way is overwhelmingly
+  intra-block comb/trunk geometry that exists before the inter-block router
+  runs at all -- so no net order, no rip-up target, and no repair budget can
+  move it. `GDRV`'s corridor is bounded by `core_mirror`'s and
+  `amp_pmirr`'s own `VDD`/`TAIL` combs; `D1`'s by `amp_nmirr`'s and
+  `amp_input_pair`'s own `D2` combs.
+
+That also explains a result Section 7c's repair pass has been producing
+ever since: this record's repair pass ran, found all three named blockers
+*eligible* (each is drawn earlier in the winning order than the net it
+blocks -- `VOUT` at 4 vs `VSS` at 9, `TAIL` at 10 vs `GDRV` at 11, `D2` at
+0 vs `D1` at 12), tried them, and produced a result identical to the
+forward pass (`_route_order_attempts`' last entry: `repair_pass: true`,
+`kept: false`). For `GDRV`/`D1` no rerouting of the named net could have
+helped -- the blocking metal is not the part the repair pass can move. For
+`VSS` the target selection was right and the *alternate solutions* were the
+limit: `_route_one_net`'s `skip_first` search never reaches a `VOUT`
+routing that vacates the corridor, even though deleting `VOUT` outright
+does. Widening the repair pass's targeting to the full `blocked_by_counts`
+list (so it could also reach `VA`) was considered and is **not** shipped:
+for two of the three hops it targets metal the pass cannot move by
+construction, and for the third the constraint is the alternate-solution
+search, not the target -- it would cost runtime for no reachable gain,
+which is the same test Sections 7e/7f applied to their own levers.
+
+**What this narrows for the next increment.** The remaining candidate is
+still the floorplan revision Section 7d named, but the reason is now
+sharper and the two halves are genuinely different problems:
+
+- `D1` and `GDRV` need **block-internal** relief -- either splitting
+  `amp_input_pair` (Section 7d) or otherwise re-planning `amp_nmirr`'s,
+  `amp_pmirr`'s and `core_mirror`'s comb escapes so their own `D2`/`VDD`/
+  `TAIL` fingers do not wall off the one corridor between them. Nothing in
+  the inter-block router reaches this.
+- `VSS` needs **corridor** relief in row 0 -- and specifically enough of it
+  to clear `VOUT` *and* `VA` *and* `res_r2`'s own bus, since removing any
+  single one of the first two is sufficient in isolation but the floorplan
+  has to accommodate all of them at once. Section 7f already ruled out
+  simply widening row 0's block margin as a way to get it.
+
+Neither is a router parameter, and this increment ships no routing change:
+only the `blocked_by_counts` diagnostic, so the next increment can read
+this breakdown out of any record instead of re-deriving it.
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed three
@@ -854,8 +988,15 @@ not attempted.
   1. **Three schematic nodes are still not joined end to end** -- this
      flow's own router running out of corridors, *not* a tool gap, and
      confirmed by the fifth increment to survive a per-net rip-up-and-retry,
-     not just a whole-cell reorder. It is the first time in this issue's
-     history that the top cause is this repo's own.
+     not just a whole-cell reorder. The ninth increment (Section 7g) went
+     further: the per-hop blocker tally now in every record shows each of
+     the three remaining hops rejecting *every* candidate path `_connect()`
+     can generate (5230-5636 per hop), against 3 to 20 distinct already-drawn
+     nets -- and that for two of them (`D1`, `GDRV`) the metal in the way is
+     block-internal comb geometry the inter-block router cannot reorder at
+     all. A real corridor deadlock, not a single-net or search-depth problem
+     a router-side change can still solve. It is the first time in this
+     issue's history that the top cause is this repo's own.
   2. **klayout-tools#490** -- the extraction deck's synthesized substrate
      net, which no drawn shape can join. Declared to `klt lvs` through
      `hints.same_nets` rather than worked around; the layout's genuinely

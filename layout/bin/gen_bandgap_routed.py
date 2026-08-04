@@ -96,6 +96,7 @@ import json
 import re
 import subprocess
 import sys
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -1394,6 +1395,23 @@ def _li1_ports(
 #: routes can say *what* stopped it instead of only that it failed.
 _LAST_BLOCKER: list[str] = []
 
+#: How many times each net vetoed a candidate path during the *current*
+#: :func:`_connect` call (reset there, tallied by :func:`_draw_guarded`).
+#: `_LAST_BLOCKER` alone is order-dependent -- it is whichever candidate
+#: happened to be tried last, not the net actually responsible for most of
+#: the congestion -- which made a hop's own "blocked_by" attribution
+#: misleading on a floorplan where *several* nets contest the same corridor
+#: (issue #62's `matching-plan.md` Section 7g: the three still-unrouted
+#: schematic hops are each rejected by 3 to 20 distinct already-drawn nets --
+#: including, for `VSS`, thirteen segments of the resistor ladder's own
+#: intra-block bus -- not by the single net their old `blocked_by` value
+#: named, which in two of the three cases is not even the largest
+#: contributor). `_connect`'s caller surfaces this as
+#: `blocked_by_counts` on a failed hop, ordered most-frequent first, so a
+#: future increment reading the record does not have to re-run a standalone
+#: diagnostic to see that.
+_BLOCKER_COUNTS: "Counter[str]" = Counter()
+
 
 def _draw_guarded(
     bus: "met1_bus.Met1Bus", net: str, points: list[tuple[float, float]]
@@ -1434,6 +1452,7 @@ def _draw_guarded(
             bus.truncate_met1(rect_mark)
             _LAST_BLOCKER.clear()
             _LAST_BLOCKER.append(net_b)
+            _BLOCKER_COUNTS[net_b] += 1
             return False
     return True
 
@@ -1580,6 +1599,7 @@ def _connect(
 ) -> dict[str, Any] | None:
     """Join two met1 points, trying elbows, then floorplan channels, then
     Z-detours, until one clears."""
+    _BLOCKER_COUNTS.clear()
     (ax, ay), (bx, by) = a, b
     for points in (
         [(ax, ay), (bx, ay), (bx, by)],
@@ -2224,6 +2244,12 @@ def _draw_chain(
                     "to": second["name"],
                     "routed": False,
                     "blocked_by": _LAST_BLOCKER[0] if _LAST_BLOCKER else None,
+                    # Every net that vetoed at least one candidate path this
+                    # hop tried, most-frequent first -- see _BLOCKER_COUNTS.
+                    # `blocked_by` above is kept unchanged (the last-tried
+                    # veto, not necessarily the dominant one) for backward
+                    # compatibility with existing readers/tests.
+                    "blocked_by_counts": dict(_BLOCKER_COUNTS.most_common()),
                 }
             )
             continue
