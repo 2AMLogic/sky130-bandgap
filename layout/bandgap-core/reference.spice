@@ -20,6 +20,32 @@
 * point above ~124 degC at ff/2.97 V and fs/2.97 V). The transcribed values
 * here were always the n_r2=54 design values; only the citation was wrong.
 *
+* INPUT-PAIR CORRECTION: an earlier revision of this file transcribed the
+* amp's differential inputs the wrong way round (`MMP1 ... VA` / `MMP2 ... VB`).
+* The schematic says the opposite, and the mapping is worth writing down
+* because it survives no relabeling -- D1 and D2 are distinguishable in the
+* graph (D1 drives MMN3 -> GDRV, D2 drives MMN4 -> PN), so a VA<->VB rename
+* would have to move R1 and Q1's emitter too, and those are already correct:
+*   design/error_amp.sym    VINP pin box at symbol-relative (-50, -20),
+*                           VINN at (-50, +20); header: "VINP non-inverting
+*                           input (AOUT rises when VINP rises)".
+*   design/bandgap_core.sch XAMP instantiated at 900 -600 rot 0 flip 0, so
+*                           VINP lands on (850, -620) = `ampp lab=VB` and
+*                           VINN on (850, -580) = `ampn lab=VA`.
+*   design/error_amp.sch    MP1 gate = VINP (mp1g), MP2 gate = VINN (mp2g);
+*                           MP1 drain = D1, MP2 drain = D2.
+*   => flattened: MMP1 D1 VB TAIL VDD  and  MMP2 D2 VA TAIL VDD.
+* The checked-in snapshot cited below agrees:
+*   `XAMP VB VA GDRV TAIL VDD VSS error_amp` against
+*   `.subckt error_amp VINP VINN AOUT ITAIL VDD VSS`.
+* VINP = VB is also what makes the loop negative-feedback: VB is the
+* higher-impedance leg (R1 + r_Q2 vs r_Q1), so it moves more per volt of
+* VOUT. The previous transcription described a positive-feedback amplifier.
+* The rest of the VA/VB assignments were, and remain, as the schematic has
+* them: R2A on VA (`r2am lab=VA`), R2B on VB (`r2bm lab=VB`), R1's head on
+* VB (`r1p lab=VB`) with its tail on VBQ, Q1's emitter on VA (`q1e lab=VA`)
+* and Q2's emitter on VBQ (`q2e lab=VBQ`).
+*
 * Parameters (design/bandgap_core.sch CORE_PARAMS, design/error_amp.sch):
 *   n_pnp_ctat = n_pnp_ptat = 8      r_w = 1     r_lseg = 5
 *   n_r1 = 7    n_r2 = 54            n_r2_trim = 0 (untrimmed, code 0)
@@ -74,8 +100,9 @@ MMPOUT VOUT GDRV VDD VDD pfet L=2U W=8U m=2
 MMPAMP TAIL GDRV VDD VDD pfet L=2U W=8U m=2
 * ---- error amplifier (design/error_amp.sch), flattened -----------------
 * The amp's output node IS the core's gate-drive node (schematic AOUT/GDRV).
-MMP1  D1   VA   TAIL VDD pfet L=10U W=20U m=16
-MMP2  D2   VB   TAIL VDD pfet L=10U W=20U m=16
+* MP1's gate is VINP = VB; MP2's gate is VINN = VA (see INPUT-PAIR CORRECTION).
+MMP1  D1   VB   TAIL VDD pfet L=10U W=20U m=16
+MMP2  D2   VA   TAIL VDD pfet L=10U W=20U m=16
 MMN1  D1   D1   VSS  VSS nfet L=20U W=8U  m=4
 MMN2  D2   D2   VSS  VSS nfet L=20U W=8U  m=4
 MMN3  GDRV D1   VSS  VSS nfet L=20U W=8U  m=4

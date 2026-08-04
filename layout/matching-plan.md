@@ -284,9 +284,14 @@ pin labels on the blocks the metal never reached:
   schematic** but two separate, unrouted labelled pins in the layout.
 - `D2` is not drawn at all; `VA`, `VB`, `D1` are drawn between two of their
   blocks but not to the amp gate they also feed.
-- The `VDD` trunk reaches 2 of its 3 blocks and `VSS` 2 of its 4 -- a trunk
+- The `VDD` trunk reaches 2 of its 3 blocks and `VSS` 2 of its 7 -- a trunk
   is only expressible as a chain of 2-pin hops between blocks that happen to
-  be adjacent across an empty channel.
+  be adjacent across an empty channel. `VSS`'s seven include the three
+  resistor blocks: `res_high_po` is a 3-terminal device whose bulk ties to
+  `VSS` in the schematic (`design/bandgap_core.sch` `r2ab`/`r2bb`/`r1b`).
+  The reference cards drop that bulk terminal because the `klt` LVS reader's
+  `res_generic_po` is 2-terminal, but the coverage table states what the
+  *schematic* requires, not what the reference happens to model.
 
 The routed record's "Schematic inter-block nets: drawn vs. labelled only"
 table is the measured, per-net version of this list, and issue #62's

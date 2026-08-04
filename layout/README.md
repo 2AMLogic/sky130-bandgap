@@ -302,7 +302,7 @@ every generator draws its device pads on, and the router is documented as
 unaware of a block's internal geometry — so any wire crossing a block shorts
 to every pad it passes over. That makes intra-block bussing (tying an array's
 8 emitters, or a ladder's 108 series segments, into one node) inexpressible,
-so the layout's 243 devices cannot collapse into the reference netlist's 17.
+so the layout's 243 devices cannot collapse into the reference netlist's 16.
 Filed as
 [2AMLogic/klayout-tools#433](https://github.com/2AMLogic/klayout-tools/issues/433);
 the related "no way to route into a guard-ringed block" gap is

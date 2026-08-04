@@ -781,13 +781,14 @@ SCHEMATIC_INTER_BLOCK_NETS: list[dict[str, Any]] = [
         "net": "VA",
         "blocks": ["pnp_ctat", "res_r2", "amp_input_pair"],
         "hops": ["VA"],
-        "schematic": "Q1 emitter + R2A low end + MP1 gate (amp VINN)",
+        "schematic": "Q1 emitter + R2A low end + MP2 gate (amp VINN)",
     },
     {
         "net": "VB",
         "blocks": ["res_trim", "res_r1", "amp_input_pair"],
         "hops": ["VB"],
-        "schematic": "R2B low end (through the trim taps) + R1 head + MP2 gate",
+        "schematic": "R2B low end (through the trim taps) + R1 head + MP1 gate "
+        "(amp VINP)",
     },
     {
         "net": "TRIM",
@@ -848,9 +849,22 @@ SCHEMATIC_INTER_BLOCK_NETS: list[dict[str, Any]] = [
     },
     {
         "net": "VSS",
-        "blocks": ["amp_nload", "amp_nmirr", "pnp_ctat", "pnp_ptat"],
+        "blocks": [
+            "amp_nload",
+            "amp_nmirr",
+            "pnp_ctat",
+            "pnp_ptat",
+            "res_r2",
+            "res_trim",
+            "res_r1",
+        ],
         "hops": ["VSS"],
-        "schematic": "ground trunk: MN1-MN4 sources + both PNPs' base/collector ties",
+        "schematic": "ground trunk: MN1-MN4 sources + both PNPs' base/collector "
+        "ties + all three res_high_po bulk terminals (R2A/R2B/R1 each tie their "
+        "bulk to VSS -- design/bandgap_core.sch r2ab/r2bb/r1b; res_trim carries "
+        "the layout-internal tail of the same R2 devices). The reference cards "
+        "drop the bulk terminal because the klt reader's res_generic_po is "
+        "2-terminal, but this table states what the *schematic* requires",
     },
 ]
 
@@ -1439,10 +1453,14 @@ def main() -> int:
         f"**{len(fully_drawn)} of {len(coverage)} schematic inter-block nets "
         "are fully drawn.** Criterion 1 is therefore scored PARTIAL, not MET, "
         "whenever that count is short: the `VDD` trunk reaches two of its "
-        "three blocks, `VSS` two of four, and `VOUT` / `GDRV` (the amp output "
-        "the schematic ties straight to the mirror gates) are labelled pins "
-        "with no metal between them. The same single-routing-metal limit that "
-        "blocks criterion 4 caps this criterion too."
+        "three blocks, `VSS` two of seven (its seven include the three "
+        "resistor blocks: `res_high_po` is a 3-terminal device whose bulk ties "
+        "to `VSS` in the schematic, and this table states what the *schematic* "
+        "requires even where the 2-terminal `res_generic_po` reference cards "
+        "cannot carry it), and `VOUT` / `GDRV` (the amp output the schematic "
+        "ties straight to the mirror gates) are labelled pins with no metal "
+        "between them. The same single-routing-metal limit that blocks "
+        "criterion 4 caps this criterion too."
     )
     a("")
     a("## Promoted top-level pins")
