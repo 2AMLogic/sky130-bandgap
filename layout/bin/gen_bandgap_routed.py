@@ -94,6 +94,12 @@ here, relative to that skeleton:
     independently in layout/matching-plan.md Section 7d, but never filed).
     No routing or floorplan change ships from this increment; see
     ROUTING_PLANE_NOTE and 2AMLogic/klayout-tools#508.
+12. **The generic upstream reconciliation klayout-tools#506 asked for is
+    now merged (via #507)** (issue #62's eighteenth increment) -- `klt lvs`
+    gained `request.reference.device_bulk` for a reference that genuinely
+    cannot state a bulk net, which this repo's already could (see item
+    10), so this flow does not adopt the new hook; the pin bump is a
+    refresh, not a flow change. See RES_BULK_ARITY_NOTE.
 
 What this script does NOT claim -- read record.md's own "What this record
 does NOT claim" section for the authoritative, measured version:
@@ -112,10 +118,10 @@ does NOT claim" section for the authoritative, measured version:
   `mismatch_count`: it was never the operative blocker for these three
   devices once the arity is fixed, RES_TRIM_TOPOLOGY_NOTE's structural
   difference is -- see record.md's own before/after comparison.
-  klayout-tools#506 (filed by the prior increment, still open) asked
-  upstream for a generic reconciliation of this arity shape; it stays a
-  valid ask for references that genuinely do not wire the bulk net, but is
-  no longer a dependency of *this* flow -- see RES_BULK_ARITY_NOTE.
+  klayout-tools#506 (filed by a prior increment) is now **merged**, via
+  #507's `request.reference.device_bulk` -- see RES_BULK_ARITY_NOTE and item
+  12 above; it stays a valid ask for references that genuinely do not wire
+  the bulk net, but was never a dependency of *this* flow's own fix.
 - **Not fully inter-block routed.** record.md's "Schematic inter-block nets"
   table scores every schematic inter-block node as drawn / partial /
   labelled-only against SCHEMATIC_INTER_BLOCK_NETS below -- i.e. against
@@ -359,7 +365,16 @@ RES_BULK_ARITY_NOTE = (
     "`device.unmatched` entry list -- the arity mismatch was real and is "
     "now retired, but was never the operative blocker for these three "
     "devices; RES_TRIM_TOPOLOGY_NOTE's structural gap is. See "
-    "layout/matching-plan.md Section 7n."
+    "layout/matching-plan.md Section 7n. **Addendum, eighteenth "
+    "increment**: klayout-tools#506 (the generic reconciliation this note "
+    "says was 'not needed here') is now merged upstream via #507's "
+    "`request.reference.device_bulk`. This flow still does not adopt it -- "
+    "the transcription fix above already covers this reference's own case, "
+    "and #507's hook is for a reference that genuinely cannot state the "
+    "bulk net, which this one always could. The `klt` pin is bumped past "
+    "#507 anyway (a real upstream closure worth carrying); the bump is "
+    "measured to change nothing (`mismatch_count` stays 32). See "
+    "layout/matching-plan.md Section 7p."
 )
 #: What actually keeps R2A/R2B/R1 unpaired now that RES_BULK_ARITY_NOTE's
 #: class mismatch is fixed -- found while measuring that fix's (null) effect
@@ -3579,13 +3594,12 @@ def main() -> int:
         "diagnostic-only, but the class-arity mismatch it diagnoses is now "
         "fixed on this flow's own side -- `reference.spice`'s resistor "
         "cards carry the bulk terminal the schematic already wires; see "
-        "RES_BULK_ARITY_NOTE). Two filed gaps stay open and are not "
-        "blocking further progress on this flow's own side: 2AMLogic/"
-        "klayout-tools#506 asks for the generic reconciliation #505 "
-        "deferred, which this flow no longer needs because its own "
+        "RES_BULK_ARITY_NOTE), and #506 via #507 (the generic reconciliation "
+        "#505 deferred, which this flow no longer needs because its own "
         "reference can state the bulk net -- it remains a valid ask for "
-        "references that cannot; and 2AMLogic/klayout-tools#508 (filed this "
-        "increment) documents why AC1's remaining router congestion has no "
+        "references that cannot). One filed gap stays open: 2AMLogic/"
+        "klayout-tools#508 (filed this issue's seventeenth increment) "
+        "documents why AC1's remaining router congestion has no "
         "metal-level escape on sky130's curated deck -- see "
         "ROUTING_PLANE_NOTE |"
     )

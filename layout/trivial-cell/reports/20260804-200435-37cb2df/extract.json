@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "file": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-62/layout/trivial-cell/reports/20260804-200435-37cb2df/trivial_mos_array.gds",
+  "deck": "sky130",
+  "top": "trivial_mos_array",
+  "dbu_um": 0.001,
+  "netlist_path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-62/layout/trivial-cell/reports/20260804-200435-37cb2df/trivial_mos_array.extract.spice",
+  "netlist_sha256": "30806f340dd553220f3003e8ef22aa2920d8015a577d3bcf805f6edaf829cef9",
+  "status": "extracted",
+  "device_count": 4,
+  "net_count": 13,
+  "pin_count": 1,
+  "device_counts": {
+    "nfet": 4
+  },
+  "dummy_devices_dropped": 4,
+  "ignored_layers": [],
+  "device_classes": [
+    "nfet",
+    "pfet",
+    "pnp",
+    "sky130_fd_pr__model__cap_mim",
+    "sky130_fd_pr__model__cap_mim_m4",
+    "resistor"
+  ],
+  "devices": [
+    {
+      "name": "$1",
+      "class": "nfet",
+      "nets": {
+        "s": "$3",
+        "g": "$17",
+        "d": "$4",
+        "b": "vsubs"
+      },
+      "params": {
+        "l_um": 0.28,
+        "w_um": 0.42
+      }
+    },
+    {
+      "name": "$2",
+      "class": "nfet",
+      "nets": {
+        "s": "$5",
+        "g": "$18",
+        "d": "$6",
+        "b": "vsubs"
+      },
+      "params": {
+        "l_um": 0.28,
+        "w_um": 0.42
+      }
+    },
+    {
+      "name": "$3",
+      "class": "nfet",
+      "nets": {
+        "s": "$11",
+        "g": "$19",
+        "d": "$12",
+        "b": "vsubs"
+      },
+      "params": {
+        "l_um": 0.28,
+        "w_um": 0.42
+      }
+    },
+    {
+      "name": "$4",
+      "class": "nfet",
+      "nets": {
+        "s": "$13",
+        "g": "$20",
+        "d": "$14",
+        "b": "vsubs"
+      },
+      "params": {
+        "l_um": 0.28,
+        "w_um": 0.42
+      }
+    }
+  ],
+  "nets": [
+    {
+      "name": "$11",
+      "pin": false,
+      "device_count": 1
+    },
+    {
+      "name": "$12",
+      "pin": false,
+      "device_count": 1
+    },
+    {
+      "name": "$13",
+      "pin": false,
+      "device_count": 1
+    },
+    {
+      "name": "$14",
+      "pin": false,
+      "device_count": 1
+    },
+    {
+      "name": "$17",
+      "pin": false,
+      "device_count": 1
+    },
+    {
+      "name": "$18",
+      "pin": false,
+      "device_count": 1
+    },
+    {
+      "name": "$19",
+      "pin": false,
+      "device_count": 1
+    },
+    {
+      "name": "$20",
+      "pin": false,
+      "device_count": 1
+    },
+    {
+      "name": "$3",
+      "pin": false,
+      "device_count": 1
+    },
+    {
+      "name": "$4",
+      "pin": false,
+      "device_count": 1
+    },
+    {
+      "name": "$5",
+      "pin": false,
+      "device_count": 1
+    },
+    {
+      "name": "$6",
+      "pin": false,
+      "device_count": 1
+    },
+    {
+      "name": "vsubs",
+      "pin": true,
+      "device_count": 4
+    }
+  ],
+  "warnings": [],
+  "black_box_regions": [],
+  "unmodelled_poly": [],
+  "merged_net_labels": [],
+  "pdk": null,
+  "provenance": {
+    "klt_version": "0.2.0",
+    "klayout_version": "0.30.10",
+    "pdk": null,
+    "deck": {
+      "name": "sky130",
+      "content_hash": "sha256:4bd1c88cc68810600da1b8eafe1f0cf7d61785078a5c4ed03582bdd9c754d9dc"
+    },
+    "input": {
+      "content_hash": "sha256:1808215c56ef69edf5baa08ad7362f9617eab90e57f58b189937093e50f44521"
+    }
+  },
+  "parasitics": null
+}

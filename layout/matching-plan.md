@@ -1751,6 +1751,58 @@ re-evaluate whether the freed plane changes any of Section 7g's per-hop
 blocker tallies -- worth checking `blocked_by_counts` again rather than
 re-deriving it from scratch, since that diagnostic already exists.
 
+### 7p. Eighteenth increment: the other upstream thread (klayout-tools#506) has landed too, via #507 -- `klt` pin bumped past it, measured to change nothing
+
+Section 7o checked one of the two upstream threads a prior status refresh
+named (klayout-tools#468/metal2) and found it landed with no lever this
+issue had not already ruled out from a different direction. This increment
+checks the other: **klayout-tools#506 (the generic
+`reference.device_bulk`-style resistor arity reconciliation #504/#505 left
+undone) has merged, via
+[klayout-tools#507](https://github.com/2AMLogic/klayout-tools/pull/507)**.
+`request.reference.device_bulk: {"<model>": "<reference net>"}` adds a
+declared implicit bulk/well/collector terminal to a named reference-side
+device class -- creating the reference net if the reference does not model
+it at all -- before `NetlistComparer` runs, so a layout-side bulk-terminal
+device class and an arity-incompatible reference class can be compared at
+all. This is exactly the generic fix Section 7m's filing asked for.
+
+**This flow does not adopt the new hook.** Section 7n's sixteenth increment
+already retired the arity mismatch on this flow's own side by transcribing
+the bulk terminal `design/bandgap_core.sch` already wires
+(`r2ab`/`r2bb`/`r1b` `lab_pin`s) directly into `reference.spice`'s
+`RR2A`/`RR2B`/`RR1` cards -- a transcription fix, not a reference edit to
+accommodate the layout. `#507`'s own docs frame `reference.device_bulk` as
+the tool for a reference that *cannot* state the bulk net; this repo's
+always could, so adopting the hook now would replace a working, more
+direct fix with an equivalent indirection for no benefit.
+
+**The `klt` pin is bumped to `c66c98d` anyway** -- a genuine, real upstream
+closure worth carrying, matching PR #71/#84's practice of picking up closed
+gaps even when they don't move this flow's own numbers. Measured, not
+assumed, to be inert: re-running the full flow after the bump reproduces
+the identical `mismatch_count=32`, `device_counts`, and `pin_count=15` as
+the pre-bump baseline (`20260804-193914-f6df783`, Section 7o's own record),
+and `run-trivial-cell-flow.sh` re-run unmodified reproduces the identical
+four-way `PASS` verdict, byte-for-byte except the record ID.
+
+**What this does and does not change.** No AC moves. AC1 stays PARTIAL at
+9/12 (this increment touches no router or floorplan code). AC4 stays NOT
+MET at `mismatch_count=32` (the bump is additive and inert for this flow).
+AC5 stays MET: `RES_BULK_ARITY_NOTE` and the AC5 friction scoreboard now
+say klayout-tools#506 is merged (via #507) rather than "open"; no new gap
+is filed this increment -- klayout-tools#508 (Section 7o) remains the only
+gap this flow currently depends on that is still open upstream.
+
+**What is left, unchanged from Section 7o's own ranking.** Both named
+upstream threads (#506, #468) are now resolved, and Sections 7d-7k's
+floorplan/router levers remain exhausted. The highest-value remaining lever
+this flow knows of is still RES_TRIM_TOPOLOGY_NOTE's own structural fix
+(Section 7n's closing paragraph): drawing `res_trim`'s taps shorted out of
+the DC path at code 0, or teaching the reference to model a parametrized,
+code-0-empty trim device set. Both remain materially larger, separate
+tasks from a pin-bump-and-filing increment.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five
@@ -1828,13 +1880,19 @@ re-deriving it from scratch, since that diagnostic already exists.
   `DeviceClassResistor` / 2 nodes -- filed as klayout-tools#504, closed via
   #505's diagnostic-only fix, with the generic reconciliation #505 deferred
   filed by Section 7m as
-  [klayout-tools#506](https://github.com/2AMLogic/klayout-tools/issues/506),
-  still open). `reference.spice`'s cards now carry the bulk
+  [klayout-tools#506](https://github.com/2AMLogic/klayout-tools/issues/506)
+  -- since **merged via #507** (Section 7p, eighteenth increment)).
+  `reference.spice`'s cards now carry the bulk
   node too, because the schematic already wires it -- a transcription fix,
   not a reference edit to accommodate the layout, so this flow retires the
-  cause without #506. #506 is left open on purpose: it remains the right
-  ask for a reference that genuinely cannot state a bulk net, which this
-  one can.
+  cause without #506. #507's `reference.device_bulk` hook remains the right
+  tool for a reference that genuinely cannot state a bulk net; this one
+  always could, so this flow does not adopt it (Section 7p). **Update,
+  eighteenth increment (Section 7p)**: both upstream threads a prior status
+  refresh named (klayout-tools#506, #468) have now landed; `klt` pin bumped
+  to pick up #506's own merge (via #507), measured to change nothing
+  (`mismatch_count` still 32) since this flow's fix predates and does not
+  need it.
 - ~~**R2A/R2B ladder is at reduced scale**~~ -- **closed** by issue #62, see
   Section 4a. The ladder is drawn at its real 108-unit count.
 - ~~**Per-matched-group guard rings are off in the routed layout**~~ --

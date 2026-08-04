@@ -183,4 +183,38 @@
 # routed-flow.sh re-run produces the record this increment ships -- see that
 # record and layout/matching-plan.md Section 7l for what moved and what did
 # not.
-klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@147602af31c47fb935383b1761e8ce2f21c534cf
+#
+# Bumped again for issue #62's eighteenth increment (2026-08-04). The prior
+# pin (147602af31c47fb935383b1761e8ce2f21c534cf) predates the actual upstream
+# reconciliation for the resistor device-class arity gap:
+#
+#   * 2AMLogic/klayout-tools#506 -> merged via #507. `klt lvs` gains
+#     `request.reference.device_bulk: {"<model>": "<reference net>"}`, which
+#     adds a declared implicit bulk/well/collector terminal to a named
+#     reference-side device class (creating the reference net if the
+#     reference does not model it at all) before `NetlistComparer` runs, so a
+#     layout-side bulk-terminal device class and an arity-incompatible
+#     reference class can be compared at all. This is the generic upstream
+#     fix for exactly the shape `reference.spice`'s `res_high_po` cards hit
+#     (klayout-tools#504/#505's diagnostic, filed onward as #506 by this
+#     issue's fifteenth increment). This flow does not adopt the new hook,
+#     though: the sixteenth increment (PR #86) already retired the arity
+#     mismatch on this flow's own side, by transcribing the bulk terminal
+#     (`VSS`) design/bandgap_core.sch's own `r2ab`/`r2bb`/`r1b` `lab_pin`s
+#     already wire directly into `reference.spice`'s `RR2A`/`RR2B`/`RR1`
+#     cards -- a transcription fix, not a reference edit to accommodate the
+#     layout, and one `reference.device_bulk` was not needed for because this
+#     reference could always state the net. `reference.device_bulk` remains
+#     the right tool for a reference that genuinely cannot state the bulk net
+#     (klayout-tools#506's own motivating case); this repo's reference can,
+#     so bumping past it is a pin refresh, not a flow change. See
+#     layout/matching-plan.md Section 7p and RES_BULK_ARITY_NOTE in
+#     gen_bandgap_routed.py.
+#
+# Non-regression proof for this bump: layout/bin/run-trivial-cell-flow.sh
+# re-run unmodified still PASSes with the identical four-way verdict (see
+# trivial-cell/reports/ for the refreshed record); layout/bin/run-bandgap-
+# routed-flow.sh re-run reproduces the identical `mismatch_count=32`,
+# `device_counts`, and `pin_count` as the pre-bump baseline
+# (`20260804-193914-f6df783`) -- see the record this increment ships.
+klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@c66c98da10cf5f025440a44b5dd67dadfdf480bd
