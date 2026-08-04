@@ -51,6 +51,16 @@ does NOT claim" section for the authoritative, measured version:
 - Consequently the flow routes only the inter-block nets the router itself
   certifies as obstacle-free, and the extracted netlist keeps each block's
   units as separate devices.
+- **Not fully inter-block routed.** `klt gen-compose` routes 2-pin nets only,
+  and only between blocks adjacent across an empty channel, so a supply trunk
+  can reach at most the blocks a chain of such hops can string together and a
+  non-adjacent pair (MPOUT's drain and the R2 ladder's tops; the amp's output
+  and the mirror gates) cannot be joined at all. record.md's "Schematic
+  inter-block nets" table scores every schematic inter-block node as drawn /
+  partial / labelled-only against SCHEMATIC_INTER_BLOCK_NETS below -- i.e.
+  against design/bandgap_core.sch's node list, not against this script's own
+  `connectivity[]` declaration -- and criterion 1 is PARTIAL while any node
+  is short.
 
 Every one of those gaps is filed upstream per CLAUDE.md's friction protocol
 and named in the NOTE constants below; record.md restates them with the
@@ -758,6 +768,135 @@ CORE_PIN_LABELS: list[dict[str, Any]] = [
 ]
 
 
+#: The bar criterion 1 is measured against: every node of
+#: design/bandgap_core.sch (+ design/error_amp.sch) that joins devices living
+#: in *different* layout blocks, with the set of blocks the schematic says it
+#: must reach. This is deliberately independent of CORE_NETS -- scoring
+#: "9/9 declared nets routed" measures the flow against its own declaration,
+#: which is not what issue #62 asks for. `hops` names the CORE_NETS entries
+#: that carry this node's label; a node counts as fully drawn only when the
+#: blocks those routed hops actually touch cover `blocks`.
+SCHEMATIC_INTER_BLOCK_NETS: list[dict[str, Any]] = [
+    {
+        "net": "VA",
+        "blocks": ["pnp_ctat", "res_r2", "amp_input_pair"],
+        "hops": ["VA"],
+        "schematic": "Q1 emitter + R2A low end + MP1 gate (amp VINN)",
+    },
+    {
+        "net": "VB",
+        "blocks": ["res_trim", "res_r1", "amp_input_pair"],
+        "hops": ["VB"],
+        "schematic": "R2B low end (through the trim taps) + R1 head + MP2 gate",
+    },
+    {
+        "net": "TRIM",
+        "blocks": ["res_r2", "res_trim"],
+        "hops": ["TRIM"],
+        "schematic": "layout-internal split of the R2 legs into ladder + "
+        "DR-002 trim taps (one device in the schematic)",
+    },
+    {
+        "net": "VBQ",
+        "blocks": ["res_r1", "pnp_ptat"],
+        "hops": ["VBQ"],
+        "schematic": "R1 tail + Q2 emitter",
+    },
+    {
+        "net": "VOUT",
+        "blocks": ["core_mirror", "res_r2"],
+        "hops": [],
+        "schematic": "MPOUT drain + both R2A/R2B tops (the reference output)",
+    },
+    {
+        "net": "GDRV",
+        "blocks": ["core_mirror", "amp_pmirr", "amp_nmirr"],
+        "hops": [],
+        "schematic": "amp output (MP4/MN3 drains, labelled AOUT in the layout) "
+        "+ MPOUT/MPAMP gates -- one node in the schematic",
+    },
+    {
+        "net": "TAIL",
+        "blocks": ["core_mirror", "amp_input_pair"],
+        "hops": ["TAIL"],
+        "schematic": "MPAMP drain + MP1/MP2 common source",
+    },
+    {
+        "net": "D1",
+        "blocks": ["amp_input_pair", "amp_nload", "amp_nmirr"],
+        "hops": ["D1"],
+        "schematic": "MP1 drain + MN1 diode + MN3 gate",
+    },
+    {
+        "net": "D2",
+        "blocks": ["amp_input_pair", "amp_nload", "amp_nmirr"],
+        "hops": [],
+        "schematic": "MP2 drain + MN2 diode + MN4 gate",
+    },
+    {
+        "net": "PN",
+        "blocks": ["amp_nmirr", "amp_pmirr"],
+        "hops": ["PN"],
+        "schematic": "MN4 drain + MP3 diode + MP4 gate",
+    },
+    {
+        "net": "VDD",
+        "blocks": ["core_mirror", "amp_input_pair", "amp_pmirr"],
+        "hops": ["VDD"],
+        "schematic": "supply trunk: MPOUT/MPAMP sources, the input pair's "
+        "well side, MP3/MP4 sources (and MCC, not drawn)",
+    },
+    {
+        "net": "VSS",
+        "blocks": ["amp_nload", "amp_nmirr", "pnp_ctat", "pnp_ptat"],
+        "hops": ["VSS"],
+        "schematic": "ground trunk: MN1-MN4 sources + both PNPs' base/collector ties",
+    },
+]
+
+
+def schematic_net_coverage(compose: dict[str, Any]) -> list[dict[str, Any]]:
+    """Score each schematic inter-block node against what `gen-compose`
+    actually routed.
+
+    `status` is "drawn" only when the routed hops carrying that node's label
+    touch every block the schematic says the node reaches; "partial" when
+    some but not all are joined; "labelled only" when no metal is drawn for
+    it at all (the node exists in the layout solely as promoted pin labels).
+    """
+    touched: dict[str, set[str]] = {}
+    for net in compose.get("nets", []):
+        if not net.get("routed"):
+            continue
+        touched.setdefault(net["net"], set()).update(
+            p["block"] for p in net.get("pins", [])
+        )
+    rows = []
+    for spec in SCHEMATIC_INTER_BLOCK_NETS:
+        want = set(spec["blocks"])
+        have: set[str] = set()
+        for hop in spec["hops"]:
+            have |= touched.get(hop, set())
+        joined = want & have
+        if joined >= want:
+            status = "drawn"
+        elif len(joined) >= 2:
+            status = "partial"
+        else:
+            status = "labelled only"
+        rows.append(
+            {
+                "net": spec["net"],
+                "schematic": spec["schematic"],
+                "blocks": spec["blocks"],
+                "joined": sorted(joined),
+                "missing": sorted(want - joined),
+                "status": status,
+            }
+        )
+    return rows
+
+
 def trim_tap_pins(reports: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
     """Label the downward-only trim ladder's taps at **both ends** of the
     DR-002 code range (0 and -N_R2_TRIM_CODES), per leg.
@@ -1163,6 +1302,12 @@ def main() -> int:
     r2_units = BLOCKS[[b["id"] for b in BLOCKS].index("res_r2")]["params"]["num"]
     full_scale_ladder = r2_units == 2 * N_R2
 
+    # Criterion 1 is scored against design/bandgap_core.sch's own inter-block
+    # node list, NOT against this flow's `connectivity[]` declaration.
+    coverage = schematic_net_coverage(inner_compose)
+    fully_drawn = [c for c in coverage if c["status"] == "drawn"]
+    full_connectivity = len(fully_drawn) == len(coverage) and not unrouted
+
     lines: list[str] = []
     a = lines.append
     a(f"# Bandgap-core routed layout record: {args.record_id}")
@@ -1180,9 +1325,12 @@ def main() -> int:
     a("| # | Criterion | Status | Evidence |")
     a("| --- | --- | --- | --- |")
     a(
-        f"| 1 | Full inter-block routing | {'MET' if not unrouted else 'PARTIAL'} | "
-        f"{len(routed_nets)}/{len(inner_compose.get('nets', []))} declared nets routed, "
-        f"{len(unrouted)} unrouted |"
+        f"| 1 | Full inter-block routing | "
+        f"{'MET' if full_connectivity else 'PARTIAL'} | "
+        f"{len(fully_drawn)}/{len(coverage)} **schematic** inter-block nets "
+        f"fully drawn ({len(routed_nets)}/{len(inner_compose.get('nets', []))} "
+        f"declared 2-pin hops routed, {len(unrouted)} unrouted) -- see "
+        "\"Schematic inter-block nets\" below |"
     )
     a(
         f"| 2 | Resistor ladder at real unit count | {'MET' if full_scale_ladder else 'NOT MET'} | "
@@ -1262,6 +1410,41 @@ def main() -> int:
         for note in inner_compose.get("drc_hints", {}).get("notes", []):
             a(f"- {note}")
         a("")
+    a("## Schematic inter-block nets: drawn vs. labelled only")
+    a("")
+    a(
+        "The table above counts this flow's own `connectivity[]` declaration. "
+        "This one counts what issue #62 actually asks for: every node of "
+        "design/bandgap_core.sch (+ design/error_amp.sch) that joins devices "
+        "in different blocks, and whether drawn metal joins **all** the "
+        "blocks the schematic says it reaches. `klt gen-compose` routes 2-pin "
+        "nets only, so a trunk can only be built as a chain of same-labelled "
+        "hops -- and a hop is only certifiable when the two blocks are "
+        "adjacent across an empty channel (2AMLogic/klayout-tools#433, #434). "
+        "Everything not drawn below exists in the layout as a promoted pin "
+        "label, i.e. it is addressable but electrically open."
+    )
+    a("")
+    a("| schematic net | reaches (blocks) | joined by drawn metal | not drawn | status |")
+    a("| --- | --- | --- | --- | --- |")
+    for row in coverage:
+        a(
+            f"| `{row['net']}` | {', '.join(f'`{b}`' for b in row['blocks'])} | "
+            f"{', '.join(f'`{b}`' for b in row['joined']) or '--'} | "
+            f"{', '.join(f'`{b}`' for b in row['missing']) or '--'} | "
+            f"**{row['status']}** |"
+        )
+    a("")
+    a(
+        f"**{len(fully_drawn)} of {len(coverage)} schematic inter-block nets "
+        "are fully drawn.** Criterion 1 is therefore scored PARTIAL, not MET, "
+        "whenever that count is short: the `VDD` trunk reaches two of its "
+        "three blocks, `VSS` two of four, and `VOUT` / `GDRV` (the amp output "
+        "the schematic ties straight to the mirror gates) are labelled pins "
+        "with no metal between them. The same single-routing-metal limit that "
+        "blocks criterion 4 caps this criterion too."
+    )
+    a("")
     a("## Promoted top-level pins")
     a("")
     a(
@@ -1339,8 +1522,9 @@ def main() -> int:
     )
     a("")
     a(
-        "The shape of the gap is a single cause, not a scatter of unrelated "
-        "errors. The reference netlist expresses each matched group the way "
+        "The gap has one dominant cause plus two smaller, separately "
+        "disclosed deltas. The dominant cause: the reference netlist "
+        "expresses each matched group the way "
         "the schematic does -- one device carrying a multiplicity (`m=8` "
         "PNPs, `m=16` input-pair PMOS) or one resistor carrying a total "
         "length (`R2A` = 54 unit segments' worth). The layout draws those as "
@@ -1348,13 +1532,28 @@ def main() -> int:
         "because bussing an array's units requires a wire that crosses the "
         "block -- which today's router can only draw on the same single metal "
         "the device pads occupy, shorting every pad it crosses "
-        "(2AMLogic/klayout-tools#433). Every unmatched device and net below "
-        "traces back to that: the layout's device and net counts are the "
-        "un-bussed expansion of the reference's, not a topology error in "
-        "either. Closing the gap needs the upstream capability, not a "
+        "(2AMLogic/klayout-tools#433). The bulk of the unmatched devices and "
+        "nets below trace back to that: the layout's device and net counts "
+        "are the un-bussed expansion of the reference's, not a topology error "
+        "in either. Closing the gap needs the upstream capability, not a "
         "different reference netlist -- rewriting the reference to enumerate "
         "the layout's own un-bussed devices would make LVS compare the layout "
         "against itself, which is not evidence."
+    )
+    a("")
+    a(
+        "The two smaller deltas, folded in here so this paragraph is not read "
+        "as \"one cause explains everything\": (a) `MMCC`, the amp's "
+        "compensation cap, is in the reference but deliberately not drawn in "
+        "this layout (see the Blocks note above), so one reference device has "
+        "no layout counterpart by construction; and (b) the schematic "
+        "inter-block nets left as labelled-only pins in the table above "
+        "(`VOUT`, `GDRV`/`AOUT`, `D2`, and the unjoined legs of `VDD`/`VSS`/"
+        "`VA`/`VB`/`D1`) are single reference nodes that the layout carries as "
+        "two or more open nodes. Neither is an error in the reference "
+        "netlist, and neither is accommodated in it: `reference.spice` states "
+        "the schematic (one `GDRV` node, no 0-ohm bridge device), and the "
+        "gaps are recorded here."
     )
     a("")
     a("## Visual verification")
@@ -1368,6 +1567,19 @@ def main() -> int:
         f"`mismatch_count={lvs.get('mismatch_count')}` against the "
         "xschem-derived reference netlist. The blocking reason is a tool "
         f"gap, not a layout choice: {ROUTING_LAYER_NOTE}"
+    )
+    a(
+        "- **Not fully inter-block routed either.** "
+        f"{len(fully_drawn)}/{len(coverage)} schematic inter-block nets are "
+        "joined across every block they reach; the rest are promoted pin "
+        "labels with no metal between them (`VOUT` never reaches the ladder, "
+        "`AOUT`/`GDRV` are two pins where the schematic has one node, `D2` is "
+        "undrawn, and the `VDD`/`VSS` trunks each stop short of blocks they "
+        "supply). `klt gen-compose` routes 2-pin nets between blocks adjacent "
+        "across an empty channel only, so a trunk is a chain of hops and a "
+        "non-adjacent pair is unroutable -- the same #433/#434 limits as "
+        "above. Criterion 1 is scored PARTIAL on this basis, against the "
+        "schematic's node list rather than this flow's own declaration."
     )
     a(
         "- **No intra-block bussing is drawn.** Each PNP array's 8 emitters, "

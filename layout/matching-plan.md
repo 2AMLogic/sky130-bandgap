@@ -271,6 +271,31 @@ Consistent with the measured PSRR (77.7 dB at DC, worst case sf/125 degC/
   "which tap feeds which net" -- both range endpoints on both legs are
   addressable by name from a post-layout testbench (issue #16).
 
+**Not drawn, and not claimed as drawn.** Those nine are 2-pin hops, one
+adjacent block pair each. Scored against `design/bandgap_core.sch`'s *own*
+inter-block node list instead of against that declaration, **4 of 12
+schematic inter-block nets are joined across every block they reach**
+(`TRIM`, `VBQ`, `TAIL`, `PN`). The rest exist in the layout only as promoted
+pin labels on the blocks the metal never reached:
+
+- `VOUT` is a labelled pin on `core_mirror` and is **not** routed to the
+  R2A/R2B ladder tops.
+- `AOUT` (amp output) and `GDRV` (mirror gate drive) are **one node in the
+  schematic** but two separate, unrouted labelled pins in the layout.
+- `D2` is not drawn at all; `VA`, `VB`, `D1` are drawn between two of their
+  blocks but not to the amp gate they also feed.
+- The `VDD` trunk reaches 2 of its 3 blocks and `VSS` 2 of its 4 -- a trunk
+  is only expressible as a chain of 2-pin hops between blocks that happen to
+  be adjacent across an empty channel.
+
+The routed record's "Schematic inter-block nets: drawn vs. labelled only"
+table is the measured, per-net version of this list, and issue #62's
+criterion 1 is scored **PARTIAL** on it. The cap is the same
+[klayout-tools#433](https://github.com/2AMLogic/klayout-tools/issues/433)
+single-routing-metal limit that blocks LVS closure, plus #434 below; the
+reference netlist is *not* adjusted to accommodate any of it (an earlier
+revision bridged `AOUT`/`GDRV` with a 0-ohm device -- that is removed).
+
 **The trade-off this forced.** `klt gen-compose`'s router rejects *every*
 route to a non-tap port on a block that reports a guard/collector ring (the
 route would cross the ring's own metal loop and merge with its tap net), and
@@ -411,6 +436,14 @@ extracts `{"nfet": 8}`, not `pfet`).
   picks up full tape-out-ready layout, since it may be resolvable by a
   different placement of two `diff_pair` instances relative to each other
   rather than needing a new generator.
+- **Inter-block connectivity is only partial** -- 4 of 12 schematic
+  inter-block nets are joined across every block they reach; `VOUT`,
+  `AOUT`/`GDRV` and `D2` are labelled pins with no metal between them, and
+  the `VDD`/`VSS` trunks each stop short of blocks they supply (Section 5a).
+  `klt gen-compose` routes 2-pin nets between channel-adjacent blocks only,
+  so this needs klayout-tools#433 (a second metal + via) or a floorplan whose
+  every net happens to fall between neighbours. Issue #62's criterion 1 is
+  scored PARTIAL, not MET, on this.
 - **Intra-block connectivity is not drawn** -- each array's units, each
   ladder's series segments, and each matched pair's split fingers remain
   separate nodes. This is the klayout-tools#433 consequence above, and is a
@@ -424,9 +457,10 @@ extracts `{"nfet": 8}`, not `pfet`).
 - Routed layout driver (issue #62 -- gen/draw/compose+route/drc/extract/lvs):
   `layout/bin/gen_bandgap_routed.py`,
   `layout/bin/run-bandgap-routed-flow.sh`
-- LVS reference netlist (schematic side, transcribed from the xschem
-  snapshot, never derived from the layout):
-  `layout/bandgap-core/reference.spice`
+- LVS reference netlist (schematic side, transcribed from
+  `design/bandgap_core.sch` + `design/error_amp.sch` and corroborated by the
+  checked-in `n_r2=54` xschem snapshot its header cites, never derived from
+  the layout): `layout/bandgap-core/reference.spice`
 - Floorplan generation/placement/DRC driver (issue #15, unchanged):
   `layout/bin/gen_bandgap_floorplan.py`,
   `layout/bin/run-bandgap-floorplan-flow.sh`

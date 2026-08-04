@@ -1,0 +1,475 @@
+{
+  "schema_version": 1,
+  "cell_name": "bandgap_core_routed_inner",
+  "gds_path": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260803-235842-b4bcce9/bandgap_core_routed_inner.gds",
+  "pdk": {
+    "name": "sky130A",
+    "variant": "sky130A",
+    "version": "open_pdks c6d73a35f524070e85faff4a6a9eef49553ebc2b"
+  },
+  "bbox_um": {
+    "x0": 0.0,
+    "y0": 0.0,
+    "x1": 294.68,
+    "y1": 101.30000000000001
+  },
+  "blocks": [
+    {
+      "id": "pnp_ctat",
+      "generator": "bjt_array",
+      "offset_um": {
+        "x": 9.390000000000004,
+        "y": 0.15
+      },
+      "bbox_um": {
+        "x0": 7.340000000000004,
+        "y0": 0.0,
+        "x1": 18.640000000000004,
+        "y1": 2.06
+      }
+    },
+    {
+      "id": "res_r2",
+      "generator": "res_array",
+      "offset_um": {
+        "x": 43.32000000000001,
+        "y": 0.0
+      },
+      "bbox_um": {
+        "x0": 30.640000000000008,
+        "y0": 0.0,
+        "x1": 131.58,
+        "y1": 12.200000000000001
+      }
+    },
+    {
+      "id": "res_trim",
+      "generator": "res_array",
+      "offset_um": {
+        "x": 148.26000000000002,
+        "y": 7.000000000000001
+      },
+      "bbox_um": {
+        "x0": 143.58,
+        "y0": 7.000000000000001,
+        "x1": 166.48000000000002,
+        "y1": 12.200000000000001
+      }
+    },
+    {
+      "id": "res_r1",
+      "generator": "res_array",
+      "offset_um": {
+        "x": 191.16000000000003,
+        "y": 11.200000000000001
+      },
+      "bbox_um": {
+        "x0": 178.48000000000002,
+        "y0": 11.200000000000001,
+        "x1": 247.72000000000003,
+        "y1": 12.200000000000001
+      }
+    },
+    {
+      "id": "pnp_ptat",
+      "generator": "bjt_array",
+      "offset_um": {
+        "x": 264.49,
+        "y": 0.15
+      },
+      "bbox_um": {
+        "x0": 259.72,
+        "y0": 0.0,
+        "x1": 287.34000000000003,
+        "y1": 7.500000000000001
+      }
+    },
+    {
+      "id": "core_mirror",
+      "generator": "diff_pair",
+      "offset_um": {
+        "x": 0.15,
+        "y": 40.35
+      },
+      "bbox_um": {
+        "x0": 0.0,
+        "y0": 40.2,
+        "x1": 6.380000000000001,
+        "y1": 56.900000000000006
+      }
+    },
+    {
+      "id": "amp_input_pair",
+      "generator": "diff_pair",
+      "offset_um": {
+        "x": 18.53,
+        "y": 28.35
+      },
+      "bbox_um": {
+        "x0": 18.380000000000003,
+        "y0": 28.200000000000003,
+        "x1": 198.12,
+        "y1": 68.9
+      }
+    },
+    {
+      "id": "amp_nload",
+      "generator": "diff_pair",
+      "offset_um": {
+        "x": 210.12,
+        "y": 40.35000000000001
+      },
+      "bbox_um": {
+        "x0": 210.12,
+        "y0": 40.35000000000001,
+        "x1": 294.68,
+        "y1": 56.75000000000001
+      }
+    },
+    {
+      "id": "amp_pmirr",
+      "generator": "diff_pair",
+      "offset_um": {
+        "x": 14.300000000000006,
+        "y": 86.9
+      },
+      "bbox_um": {
+        "x0": 14.150000000000006,
+        "y0": 86.75,
+        "x1": 183.97000000000003,
+        "y1": 99.45
+      }
+    },
+    {
+      "id": "amp_nmirr",
+      "generator": "diff_pair",
+      "offset_um": {
+        "x": 195.97000000000003,
+        "y": 84.9
+      },
+      "bbox_um": {
+        "x0": 195.97000000000003,
+        "y0": 84.9,
+        "x1": 280.53000000000003,
+        "y1": 101.30000000000001
+      }
+    },
+    {
+      "id": "pnp_ctat_pnpmark",
+      "generator": "draw",
+      "offset_um": {
+        "x": 9.390000000000004,
+        "y": 0.15
+      },
+      "bbox_um": {
+        "x0": 9.390000000000004,
+        "y0": 0.15,
+        "x1": 9.390000000000004,
+        "y1": 0.15
+      }
+    },
+    {
+      "id": "pnp_ptat_pnpmark",
+      "generator": "draw",
+      "offset_um": {
+        "x": 264.49,
+        "y": 0.15
+      },
+      "bbox_um": {
+        "x0": 264.49,
+        "y0": 0.15,
+        "x1": 264.49,
+        "y1": 0.15
+      }
+    }
+  ],
+  "nets": [
+    {
+      "net": "VA",
+      "pins": [
+        {
+          "block": "pnp_ctat",
+          "port": "Q3_E"
+        },
+        {
+          "block": "res_r2",
+          "port": "R24_A"
+        }
+      ],
+      "routed": true,
+      "route_length_um": 33.63
+    },
+    {
+      "net": "TRIM",
+      "pins": [
+        {
+          "block": "res_r2",
+          "port": "R11_B"
+        },
+        {
+          "block": "res_trim",
+          "port": "R0_A"
+        }
+      ],
+      "routed": true,
+      "route_length_um": 36.78000000000003
+    },
+    {
+      "net": "VB",
+      "pins": [
+        {
+          "block": "res_trim",
+          "port": "R23_B"
+        },
+        {
+          "block": "res_r1",
+          "port": "R1_A"
+        }
+      ],
+      "routed": true,
+      "route_length_um": 32.840000000000025
+    },
+    {
+      "net": "VBQ",
+      "pins": [
+        {
+          "block": "res_r1",
+          "port": "R6_B"
+        },
+        {
+          "block": "pnp_ptat",
+          "port": "Q1_E"
+        }
+      ],
+      "routed": true,
+      "route_length_um": 46.64999999999996
+    },
+    {
+      "net": "TAIL",
+      "pins": [
+        {
+          "block": "core_mirror",
+          "port": "M2_1_D"
+        },
+        {
+          "block": "amp_input_pair",
+          "port": "Q1_1_S"
+        }
+      ],
+      "routed": true,
+      "route_length_um": 18.720000000000002
+    },
+    {
+      "net": "D1",
+      "pins": [
+        {
+          "block": "amp_input_pair",
+          "port": "Q2_8_D"
+        },
+        {
+          "block": "amp_nload",
+          "port": "M1_1_S"
+        }
+      ],
+      "routed": true,
+      "route_length_um": 18.57000000000003
+    },
+    {
+      "net": "PN",
+      "pins": [
+        {
+          "block": "amp_nmirr",
+          "port": "M1_1_S"
+        },
+        {
+          "block": "amp_pmirr",
+          "port": "M2_4_D"
+        }
+      ],
+      "routed": true,
+      "route_length_um": 13.570000000000022
+    },
+    {
+      "net": "VDD",
+      "pins": [
+        {
+          "block": "core_mirror",
+          "port": "M2_1_S"
+        },
+        {
+          "block": "amp_input_pair",
+          "port": "Q2_1_S"
+        }
+      ],
+      "routed": true,
+      "route_length_um": 32.38000000000001
+    },
+    {
+      "net": "VSS",
+      "pins": [
+        {
+          "block": "amp_nload",
+          "port": "M1_2_D"
+        },
+        {
+          "block": "amp_nmirr",
+          "port": "M1_2_D"
+        }
+      ],
+      "routed": true,
+      "route_length_um": 58.699999999999974
+    }
+  ],
+  "pins": [
+    {
+      "net": "GDRV",
+      "block": "core_mirror",
+      "port": "M2_2_G",
+      "labelled": true
+    },
+    {
+      "net": "VOUT",
+      "block": "core_mirror",
+      "port": "M1_2_D",
+      "labelled": true
+    },
+    {
+      "net": "VA_GATE",
+      "block": "amp_input_pair",
+      "port": "Q2_9_G",
+      "labelled": true
+    },
+    {
+      "net": "VB_GATE",
+      "block": "amp_input_pair",
+      "port": "Q1_1_G",
+      "labelled": true
+    },
+    {
+      "net": "D1_GATE",
+      "block": "amp_nload",
+      "port": "M2_3_G",
+      "labelled": true
+    },
+    {
+      "net": "D2_GATE",
+      "block": "amp_nload",
+      "port": "M1_1_G",
+      "labelled": true
+    },
+    {
+      "net": "D1_MIRROR_GATE",
+      "block": "amp_nmirr",
+      "port": "M2_3_G",
+      "labelled": true
+    },
+    {
+      "net": "D2_MIRROR_GATE",
+      "block": "amp_nmirr",
+      "port": "M1_1_G",
+      "labelled": true
+    },
+    {
+      "net": "PN_GATE",
+      "block": "amp_pmirr",
+      "port": "M2_5_G",
+      "labelled": true
+    },
+    {
+      "net": "AOUT",
+      "block": "amp_pmirr",
+      "port": "M1_8_D",
+      "labelled": true
+    },
+    {
+      "net": "TRIM_A_CODE_0",
+      "block": "res_trim",
+      "port": "R0_B",
+      "labelled": true
+    },
+    {
+      "net": "TRIM_A_CODE_MINUS16",
+      "block": "res_trim",
+      "port": "R30_B",
+      "labelled": true
+    },
+    {
+      "net": "TRIM_B_CODE_0",
+      "block": "res_trim",
+      "port": "R1_B",
+      "labelled": true
+    },
+    {
+      "net": "TRIM_B_CODE_MINUS16",
+      "block": "res_trim",
+      "port": "R31_B",
+      "labelled": true
+    }
+  ],
+  "unrouted_nets": [],
+  "drc_hints": {
+    "min_spacing_um": null,
+    "matched_groups": [
+      {
+        "matched_group_id": "bjt_array:2x4:common_centroid:ratio8",
+        "blocks": [
+          "pnp_ctat",
+          "pnp_ptat"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "res_array:108",
+        "blocks": [
+          "res_r2"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "res_array:32",
+        "blocks": [
+          "res_trim"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "res_array:7",
+        "blocks": [
+          "res_r1"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "diff_pair:mirror:2",
+        "blocks": [
+          "core_mirror"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "diff_pair:pair:16",
+        "blocks": [
+          "amp_input_pair"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "diff_pair:mirror:4",
+        "blocks": [
+          "amp_nload",
+          "amp_nmirr"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "diff_pair:mirror:8",
+        "blocks": [
+          "amp_pmirr"
+        ],
+        "placement_symmetric": null
+      }
+    ],
+    "notes": []
+  },
+  "warnings": []
+}

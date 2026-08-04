@@ -266,7 +266,7 @@ table, and a quantitative LVS mismatch analysis. Summary of what it measures:
 
 | | #15 skeleton | #62 routed |
 |---|---|---|
-| inter-block routing | none drawn | 9/9 declared nets routed, with net labels |
+| inter-block routing | none drawn | 9 routed 2-pin hops with net labels — **4/12 schematic inter-block nets fully joined** (criterion 1 PARTIAL) |
 | promoted top-level pins | 0 | 23 |
 | R2A/R2B ladder | 16 units (reduced) | **108 units (real count)**, folded into 9 rows |
 | extracted `pnp` | 0 | 16 |
@@ -311,6 +311,20 @@ deliberately does **not** draw those intra-block wires: `gen-compose` would
 certify them `routed: true` while producing an electrical short, and a
 certified short is worse evidence than an open node.
 
+**Inter-block routing is partial too, for the same reason.** `gen-compose`
+routes 2-pin nets, and only between blocks adjacent across an empty channel,
+so a supply trunk is a chain of hops and a non-adjacent pair cannot be joined
+at all. Measured against `design/bandgap_core.sch`'s own inter-block node
+list — not against the flow's `connectivity[]` declaration — 4 of 12 nets are
+joined across every block they reach; `VOUT` never reaches the R2 ladder,
+`AOUT`/`GDRV` are two labelled pins where the schematic has one node, `D2` is
+undrawn, and the `VDD`/`VSS` trunks stop short of blocks they supply. The
+record's "Schematic inter-block nets: drawn vs. labelled only" table is the
+per-net version, and issue #62's criterion 1 is scored **PARTIAL** on it.
+
 `bandgap-core/reference.spice` is the schematic side of that comparison —
-transcribed from the xschem netlist snapshot this repo already records
+transcribed from `design/bandgap_core.sch` + `design/error_amp.sch` and
+corroborated by the checked-in `n_r2=54` xschem snapshot its header cites
 (`sim/output-voltage-tc/netlist-snapshots/`), never derived from the layout.
+It states the schematic even where the layout falls short of it: there is no
+0-ohm bridge device standing in for the unrouted `AOUT`→`GDRV` net.
