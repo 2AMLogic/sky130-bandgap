@@ -1252,6 +1252,111 @@ axis at all) -- e.g. the amp band's or mirror band's own internal spacing,
 or accepting a smaller `RING_MARGIN_UM`. That is a different, still
 untried shape of the same "second row" idea, not a re-run of this one.
 
+### 7k. Thirteenth increment: Section 7j's own "non-uniform channel budget" candidate attempted, in two shapes -- neither avoids the trade, and the mechanism turns out not to be channel width at all
+
+Section 7j left exactly one candidate open: the same PNP-row/resistor-row
+split, but with the area saving sourced from a channel `VA`'s route does
+*not* cross, instead of a uniform `ROW_MARGIN_UM` cut across every boundary.
+This increment attempts that candidate directly, in two independent shapes,
+plus a third control run (the same split with every margin left at its
+un-widened baseline value, over budget but otherwise untouched) to isolate
+what the uniform cut in Section 7j was actually doing.
+
+**Setup, common to all three runs.** `ROW_MARGIN_UM` is generalized from a
+single scalar to a `ROW_MARGIN_OVERRIDES_UM` dict keyed by boundary index (the
+channel between row `i` and row `i + 1`), defaulting to the unchanged `22.0`
+for any boundary not named -- a backward-compatible generalization, not a
+behavior change on its own by construction (an empty override dict makes
+`.get(row_index, ROW_MARGIN_UM)` return the same `22.0` for every boundary
+the unmodified scalar did; this permutation -- the mechanism with no split
+and no override -- was not run separately as its own flow record, since the
+code path is unconditionally identical to the pre-existing scalar lookup).
+`BLOCKS`' row
+0 is split the same way Section 7j did it: row 0 = `pnp_ctat`/`pnp_ptat`
+(adjacent), new row 1 = `res_r2`/`res_trim`/`res_r1`, former row 1 (amp band)
+and row 2 (mirror band) shift to row 2/row 3.
+
+| run | change from baseline split | composed bbox | gate | coverage | `mismatch_count` |
+| --- | --- | --- | --- | --- | --- |
+| A (control) | row-0 split only, every margin at its original value (`ROW_MARGIN_UM=22`, `RING_MARGIN_UM=8`) | 328.2 x 169.8 = **55,728 um^2** (11.5% over) | fails `within_budget` | 8/12 | 95 |
+| B | row-0 split + `RING_MARGIN_UM` 8 -> 2 (every row boundary, including both channels `VA` crosses, left at 22) | **49,896 um^2** (0.2% under) | passes | 8/12 | 95 |
+| C | row-0 split + `ROW_MARGIN_OVERRIDES_UM={2: 4.0}` (only the row-2/row-3 amp-to-mirror boundary cut, the one channel none of `VA`/`VB`/`VBQ`/`TRIM` crosses; `RING_MARGIN_UM` and every other row boundary untouched) | **49,821 um^2** (0.4% under) | passes | 8/12 | 94 |
+
+All three ran to completion with `violation_count=0` (DRC clean) and
+identical `device_counts`/`pin_count` to the baseline record -- run A's sole
+gate failure is `within_budget`, confirming every other gate (DRC, device
+classes, pin promotion) still passed. None of the three beats the shipped
+baseline's 9/12 / 92. Per-net detail:
+
+| net | baseline (`4fb2a3a`) | A (uncut, over budget) | B (`RING_MARGIN_UM` cut) | C (row-2/3 boundary cut) |
+| --- | --- | --- | --- | --- |
+| `VA` | drawn | **partial** -- loses `res_trim` even though its own crossing channels are untouched | drawn | drawn |
+| `VB`, `VBQ` | drawn | drawn | drawn | drawn |
+| `TRIM` | drawn | drawn | **labelled only** -- `res_r2`/`res_trim` are in the *same* row in every one of these runs, no row boundary between them at all | **labelled only**, same mechanism |
+| `VSS` | partial (`pnp_ctat` hop) | **drawn** -- both PNP arrays' adjacency (Section 7i/7j's own finding) fully fixes it here | partial, but a *different* hop (`amp_nmirr` now missing, not `pnp_ctat`) | partial, `amp_nmirr` missing, same as B |
+| `GDRV` | partial (`core_mirror`) | partial, unchanged | **labelled only** -- worse: `amp_nmirr`/`amp_pmirr` both now missing, not just `core_mirror` | partial, unchanged (matches baseline exactly) |
+| `D1` | partial (`amp_nmirr`) | **labelled only** -- worse, loses `amp_input_pair`/`amp_nload` too | partial, unchanged | partial, unchanged |
+| `D2` | drawn | **labelled only** -- a regression on a previously-fully-working net, from a boundary (row 2/row 3) whose width run A does not even touch | drawn | drawn |
+
+**The finding this run set adds, beyond Section 7j's own:** `TRIM` is a
+same-row net (`res_r2` and `res_trim` are both in the new row 1 in every one
+of these runs) that never crosses a row boundary at all, yet it breaks in
+both B and C -- the two runs that touch *any* margin elsewhere in the
+floorplan -- and survives intact in A, the one run that touches nothing. That
+rules out Section 7j's own explanation (`TRIM_A`/`TRIM_B` failing because
+`VA`'s crossing channel got narrower) as the general mechanism: C leaves
+every channel `VA`, `VB`, `TRIM`, or `VBQ` could plausibly use at its full
+22 um width, and `TRIM` still fails. Run A independently confirms the same
+point from the other direction -- it changes nothing about any margin at all
+(the split is the only difference from baseline) and still trades `D1`
+further and breaks `D2` outright, a previously-fully-working net whose own
+row-2/row-3 boundary width A does not touch either. `GDRV`/`D1`'s specific
+blocker (block-internal comb geometry, Section 7g/7j) is unaffected across
+all three, exactly as every prior increment found -- but which *other*,
+previously-working nets get displaced changes completely between A, B, and C
+despite each one touching a different (or no) parameter. The mechanism is
+the whole-cell route-**order** search (`ROUTE_ORDER_PASSES`, ~14
+candidate orders tried per run) re-converging on a different winning order
+for *any* change to the floorplan's own geometry -- including one, like A,
+that changes no channel width at all, only which rows exist -- not a specific
+channel's available width. A per-boundary margin budget cannot target a
+failure mode that is global to the order search, so this closes off
+"non-uniform row-margin budget" as a category, the same way Section 7i closed
+off 1D row-0 reordering: not because the specific values tried were wrong,
+but because the axis itself (channel width, uniform or not) does not control
+which order the search picks.
+
+**Ruled out, and reverted (not shipped)**: all three runs' code (the
+`ROW_MARGIN_OVERRIDES_UM` generalization, the row-0 split, and the
+`RING_MARGIN_UM` change from run B) is reverted to baseline; none of the
+three runs' report directories are committed and `reports/LATEST` still
+points at `4fb2a3a`, per this issue's established convention. The
+`ROW_MARGIN_OVERRIDES_UM` mechanism itself is a legitimate, backward-compatible
+generalization by construction (see the Setup note above) -- it is not
+shipped here only because nothing in this increment found a value for it
+that helps; a future increment that needs a genuine per-boundary margin for
+an unrelated reason does not need to re-derive it.
+
+**What is left.** The 2D-split path (Section 7i/7j/7k) is now three-for-three
+on "fixes `VSS`'s named hop but nets a regression via order-search
+sensitivity," across a 1D reorder, a uniform 2D margin cut, and two
+non-uniform 2D margin cuts. `GDRV`/`D1` have never moved under any floorplan
+change tried across all thirteen increments -- their blocker is
+block-internal comb geometry the inter-block router draws before it starts
+routing between blocks at all (Section 7g), which no placement change reaches
+by construction. The remaining candidates for AC1's last 3/12 gap are
+qualitatively different from everything tried so far: (a) a router change
+that either reorders *intra*-block bussing relative to inter-block routing,
+or makes the order search itself route-order-stable under small floorplan
+perturbations (so a future margin/placement change can be evaluated on its
+own merit instead of via a different emergent global order every time); or
+(b) accepting the corridor deadlock as a hard floorplan-generation limit of
+this router and pursuing klayout-tools' own two-pin router / a genuine second
+metal role instead (klayout-tools#454 is merged, but Section 7d already found
+its `"metal2"` role aliases to the same met1 layer on sky130 -- a *third*
+routing layer, not merely a second role name, would be the actual capability
+gap to file).
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed three
@@ -1403,12 +1508,28 @@ untried shape of the same "second row" idea, not a re-run of this one.
   eleventh increment's own trades. `GDRV`/`D1` are unaffected either way,
   consistent with every prior increment's finding that their blockers are
   intra-block comb geometry no floorplan-corridor change reaches. Reverted,
-  not shipped. What is left, unexplored: the same second-row idea with a
-  **non-uniform** row-margin budget, keeping the channels `VA`'s route
-  actually depends on at their working width and sourcing the area saving
-  from a different part of the floorplan entirely (the amp/mirror bands'
-  own spacing, or `RING_MARGIN_UM`) instead of cutting `ROW_MARGIN_UM`
-  uniformly.
+  not shipped. The thirteenth increment (Section 7k) tried exactly that
+  non-uniform channel budget, in two shapes -- cutting only `RING_MARGIN_UM`
+  (every row boundary left at its working 22 um width) and cutting only the
+  row-2/row-3 (amp-to-mirror) boundary the resistor-row nets never cross --
+  plus a control run of the same split with no margin touched at all. Every
+  one of the three still nets a regression (9/12 -> 8/12 in all three,
+  `mismatch_count` 92 -> 94 or 95), and, tellingly, `TRIM` -- a same-row net
+  that crosses no row boundary in any of these runs -- breaks in the two runs
+  that touch any margin elsewhere and survives in the one run that touches
+  none. That rules out channel width, uniform or not, as the mechanism: the
+  failure is the whole-cell route-*order* search re-converging on a different
+  winning order for any floorplan perturbation, not a specific corridor
+  running short. `GDRV`/`D1` are unaffected across all three runs, unchanged
+  from every prior increment's finding. This closes off "non-uniform
+  row-margin budget" as a category, the same way Section 7i closed off 1D
+  reordering. What is left is qualitatively different from every lever tried
+  in Sections 7c-7k: either an order-search change (route-order stability
+  under small perturbations, or reordering intra- vs. inter-block drawing)
+  or accepting the corridor deadlock as a hard limit of this router and
+  pursuing a genuine third routing layer upstream (klayout-tools#454 merged,
+  but its `"metal2"` role aliases to the same met1 layer on sky130 per
+  Section 7d -- not the same thing as a second physical layer).
 - **Intra-block bussing is drawn for every device family**, on met1
   (Section 5a) -- PNP arrays, resistor ladders, and (from the fourth
   increment) MOS fingers. Each split MOS group now extracts and combines
