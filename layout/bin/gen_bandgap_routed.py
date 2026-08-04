@@ -84,6 +84,16 @@ here, relative to that skeleton:
     `reference.spice` now registers `RES_HIGH_PO` as
     `DeviceClassResistorWithBulk`, matching the layout side, where it was
     the incompatible `DeviceClassResistor` before). See RES_BULK_ARITY_NOTE.
+11. **The metal-level capability gap behind AC1's remaining corridor
+    congestion is now named and filed upstream** (issue #62's seventeenth
+    increment). Re-verified against current `klayout-tools` source that
+    `metal2`/`via1` (klayout-tools#454, merged via #468) resolves to the
+    same met1 layer this flow's own intra-block bussing already occupies
+    on sky130 -- not a distinct plane above it -- so it was never a lever
+    for the `D1`/`GDRV`/`VSS` trio's own congestion (already found
+    independently in layout/matching-plan.md Section 7d, but never filed).
+    No routing or floorplan change ships from this increment; see
+    ROUTING_PLANE_NOTE and 2AMLogic/klayout-tools#508.
 
 What this script does NOT claim -- read record.md's own "What this record
 does NOT claim" section for the authoritative, measured version:
@@ -111,8 +121,14 @@ does NOT claim" section for the authoritative, measured version:
   labelled-only against SCHEMATIC_INTER_BLOCK_NETS below -- i.e. against
   design/bandgap_core.sch's node list, not against this script's own
   declaration -- and criterion 1 is PARTIAL while any node is short. What is
-  left is congestion in this flow's own hand-written router, not a tool gap:
-  every remaining node *can* be expressed now.
+  left is congestion in this flow's own hand-written router, not a
+  per-net tool gap: every remaining node *can* be expressed now. The
+  metal-level budget the router searches within is a real curated-deck
+  limit, though (ROUTING_PLANE_NOTE -- filed as klayout-tools#508,
+  seventeenth increment): sky130's curated deck exposes exactly one
+  connectivity level above device pads, the same one this flow's own
+  intra-block bussing already occupies, so there is no independent second
+  plane left to route the remaining corridor on.
 
 Every gap still open is filed upstream per CLAUDE.md's friction protocol and
 named in the NOTE constants below; record.md restates them with the measured
@@ -193,6 +209,31 @@ RES_FLAVOR_NOTE = (
     "`deck.substrate_net` global identity every NMOS body ties to, which "
     "resolves to this layout's real, drawn `VSS` net -- see "
     "SUBSTRATE_NET_NOTE."
+)
+#: The corridor congestion behind AC1's remaining unrouted trio (see the
+#: "Schematic inter-block nets" coverage table below) is this flow's own
+#: router running out of free metal, not an upstream tool gap in the sense
+#: AC5 tracks -- layout/matching-plan.md Sections 7d-7k rule out every
+#: router/floorplan lever this repo can pull, including klayout-tools#454's
+#: own `metal2` role (Section 7d, MET1_BUS_NOTE above). This note names
+#: *why* that role was not a lever: it is not a second, independent routing
+#: plane on sky130, only a second name for the one this flow's own bussing
+#: already occupies. Filed generically as 2AMLogic/klayout-tools#508
+#: (seventeenth increment) -- a capability gap, not a fix for AC1's three
+#: remaining hops.
+ROUTING_PLANE_NOTE = (
+    "sky130's curated extraction deck declares exactly two connectivity "
+    "levels (`EXTRACTION_DECK.metals = (li1, met1)`), so "
+    "klayout-tools#454/#468's `metal2` role resolves to the same met1 layer "
+    "this flow's own met1_bus.py already routes every bus and inter-block "
+    "net on (MET1_BUS_NOTE) -- not a distinct plane above it. A router that "
+    "needs a second, independent routing plane once its own intra-block "
+    "bussing has saturated the only other level the deck exposes has no "
+    "escape short of deck curation adding a third connectivity level. Filed "
+    "generically as 2AMLogic/klayout-tools#508 (seventeenth increment): the "
+    "capability gap behind why AC1's remaining corridor congestion "
+    "(layout/matching-plan.md Sections 7g/7k/7o) has no metal-level lever "
+    "left to try, not a fix for it."
 )
 #: Historical note, kept for context: through issue #62's thirteenth
 #: increment, sky130's curated extraction deck had no NMOS-body or
@@ -3538,11 +3579,15 @@ def main() -> int:
         "diagnostic-only, but the class-arity mismatch it diagnoses is now "
         "fixed on this flow's own side -- `reference.spice`'s resistor "
         "cards carry the bulk terminal the schematic already wires; see "
-        "RES_BULK_ARITY_NOTE). One filed gap stays open and is no longer "
-        "blocking: 2AMLogic/klayout-tools#506 asks for the generic "
-        "reconciliation #505 deferred, which this flow no longer needs "
-        "because its own reference can state the bulk net -- it remains a "
-        "valid ask for references that cannot |"
+        "RES_BULK_ARITY_NOTE). Two filed gaps stay open and are not "
+        "blocking further progress on this flow's own side: 2AMLogic/"
+        "klayout-tools#506 asks for the generic reconciliation #505 "
+        "deferred, which this flow no longer needs because its own "
+        "reference can state the bulk net -- it remains a valid ask for "
+        "references that cannot; and 2AMLogic/klayout-tools#508 (filed this "
+        "increment) documents why AC1's remaining router congestion has no "
+        "metal-level escape on sky130's curated deck -- see "
+        "ROUTING_PLANE_NOTE |"
     )
     a("")
     a(f"- [{'x' if drc_clean else ' '}] DRC on the composed, routed layout is clean")
@@ -3748,12 +3793,16 @@ def main() -> int:
         "in different blocks, and whether drawn metal joins **all** the "
         "blocks the schematic says it reaches. "
         "The cause of a short row has changed with this increment, and the "
-        "change is the point of it: it is no longer a tool gap. Every one of "
-        "these nodes is now *expressible* -- MOS gates are contactable "
-        "(MOS_GATE_NOTE) and the resistor blocks carry the schematic's own "
-        "flavour (RES_FLAVOR_NOTE) -- so a row that is not `drawn` is this "
-        "flow's own router failing to find a corridor through its own "
-        "congestion, and nothing upstream is being waited on for it."
+        "change is the point of it: it is no longer a per-net tool gap. "
+        "Every one of these nodes is now *expressible* -- MOS gates are "
+        "contactable (MOS_GATE_NOTE) and the resistor blocks carry the "
+        "schematic's own flavour (RES_FLAVOR_NOTE) -- so a row that is not "
+        "`drawn` is this flow's own router failing to find a corridor "
+        "through its own congestion, and no per-net expressibility gap is "
+        "being waited on for it. What this flow's own router *cannot* do "
+        "anything about is the metal budget it is searching within -- see "
+        "ROUTING_PLANE_NOTE for the capability gap behind that, filed "
+        "upstream this increment."
     )
     a("")
     a("| schematic net | reaches (blocks) | joined by drawn metal | not drawn | status |")
@@ -3960,8 +4009,12 @@ def main() -> int:
         "joined across every block they reach. The rest are *partial*, not "
         "absent: each is drawn between the blocks the router could reach and "
         "stops where it could not, which the coverage table names per row. "
-        "Every one of them is now expressible -- what is missing is corridor, "
-        "not capability."
+        "Every one of them is now expressible per-net -- what is missing is "
+        "corridor, not per-net capability. The metal-level capability behind "
+        "that corridor (a genuinely independent second routing plane, "
+        "distinct from the one this flow's own bussing already occupies) "
+        "does not exist on sky130's curated deck -- see ROUTING_PLANE_NOTE, "
+        "filed as 2AMLogic/klayout-tools#508 this increment."
     )
     a(
         "- **MOS finger bussing is drawn, and the m=N devices it produces "
