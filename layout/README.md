@@ -277,7 +277,7 @@ table, and a quantitative LVS mismatch analysis. Summary of what it measures:
 |---|---|---|
 | inter-block routing | none drawn | 13/13 declared nets routed — **12/12 schematic inter-block nets fully joined** (criterion 1 MET), 7 hops via the met2 escape plane |
 | promoted top-level pins | 0 | 11 |
-| R2A/R2B ladder | 16 units (reduced) | **108 units (real count)**, folded into 9 rows |
+| R2A/R2B ladder | 16 units (reduced) | **270 µm/leg (the real length)** — 100 coarse 5 µm units folded into 10 rows, plus 40 fine 1 µm trim units in 4 rows carrying each leg's last 20 µm |
 | extracted `pnp` | 0 | 16 |
 | extracted `nfet` | 0 | 16 |
 | DRC | clean | clean |
@@ -286,10 +286,13 @@ table, and a quantitative LVS mismatch analysis. Summary of what it measures:
 Three changes make that possible, each backed by a `klt` pin bump
 (`requirements.txt`) or a local workaround:
 
-1. **Full-scale ladder.** `res_array` gained a `rows` fold parameter
-   (2AMLogic/klayout-tools#415, merged upstream), so the real 108-unit
-   R2A/R2B ladder occupies ~1,231 µm² instead of a ~710 µm-long single row.
-   The whole routed cell is 38,171 µm², inside the 50,000 µm² budget.
+1. **Full-length ladder.** `res_array` gained a `rows` fold parameter
+   (2AMLogic/klayout-tools#415, merged upstream), so the real R2A/R2B ladder
+   folds into a compact block instead of a ~710 µm-long single row. It draws
+   the schematic's whole 270 µm per leg — 50 coarse 5 µm units plus 20 fine
+   1 µm trim units, so the trim taps *subtract* from the specified length
+   rather than adding to it (issue #91; it drew 286 µm before). The whole
+   routed cell is 45,968 µm², inside the 50,000 µm² budget.
 2. **PNP recognition overlay.** `klt gen bjt_array` draws no bipolar
    device-recognition marker on sky130 and no well tap for its base pads, so
    its output extracts as *zero* devices — filed as
@@ -299,7 +302,7 @@ Three changes make that possible, each backed by a `klt` pin bump
    generator's own reported `ports[]`) to close it locally.
 3. **Router-oracle port selection.** `klt gen-compose` rejects a net whose
    Manhattan backbone would cross a block's interior but offers no "which
-   port should I have used?" query, and a 108-segment ladder exposes 216
+   port should I have used?" query, and a 100-segment ladder exposes 200
    ports. `gen_bandgap_routed.py` drives `gen-compose` itself as the
    pass/fail oracle over an ordered, geometry-derived candidate list rather
    than hardcoding port indices.
@@ -334,9 +337,11 @@ per-net version, and issue #62's criterion 1 is scored **PARTIAL** on it.
 ### The flow's own gates, and their unit tests
 
 `run-bandgap-routed-flow.sh`'s exit status is not `klt`'s verdict — it is
-`gen_bandgap_routed.flow_gate()`, seven named conditions that must all hold
-(DRC clean, area within budget, ladder at full scale, every device class
-extracted, pins promoted, **no drawn shorts**, **no merged pin names**).
+`gen_bandgap_routed.flow_gate()`, ten named conditions that must all hold
+(DRC clean, met2 DRC clean, area within budget, ladder at full scale, **the
+drawn R2 leg length equal to the schematic's**, every device class extracted,
+pins promoted, **no drawn shorts**, **no merged pin names**, **no split
+routed nets**).
 `klt lvs`-clean and full schematic-net coverage are deliberately *not* gated:
 both are blocked on open upstream `klt` gaps, and gating on them would stop
 the flow producing the very record that measures how far short it falls.
@@ -369,6 +374,15 @@ failure mode that must never pass silently:
   `m2.6`, `via.1a`, `via.2`, `via.4a`/`via.5a`, `m2.4`/`m2.5`) to the
   composed stream instead. Filed upstream as
   [klayout-tools#513](https://github.com/2AMLogic/klayout-tools/issues/513).
+- **R2 leg-length check** (`gen_bandgap_routed.r2_leg_length()`). The drawn
+  divider leg's length against `design/bandgap_core.sch`'s own
+  `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim`. `klt lvs` can only report a
+  resistor's *value*, and only once both sides pair; `klt drc` has no opinion
+  about length at all. For nineteen increments neither noticed that the trim
+  ladder was wired in series *after* a full-length leg, drawing 286 um where
+  the schematic states 270 and making every trim tap move the leg the one
+  direction DR-002 forbids (issue #91). The check itself already existed and
+  reported the defect — into `record.md` only. It is a gate row now.
 - **Split-node check** (`met1_bus.Met1Bus.components()` scored by
   `gen_bandgap_routed.split_routed_nets()`). The inverse of the drawn-short
   check: a node this router reports as routed whose own metal is still in

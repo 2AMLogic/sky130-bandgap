@@ -13,13 +13,16 @@ This is the routed successor to gen_bandgap_floorplan.py (issue #15), which
 stays untouched as the placement-only DRC record it always was. What is new
 here, relative to that skeleton:
 
-1. **The R2A/R2B ladder is drawn at its real 108-unit count** (54 segments
-   per leg), not the skeleton's reduced 16. `klt gen res_array` gained a
-   `rows` fold parameter (2AMLogic/klayout-tools#415, merged upstream via
-   klayout-tools#418), so a 108-unit ladder folds into 9 rows and occupies
-   ~1,231 um^2 instead of the ~710 um-long single row that forced the
-   skeleton's reduction. The area-budget line in layout/matching-plan.md
-   Section 4/6 is closed by this, not deferred.
+1. **The R2A/R2B ladder is drawn at its real full-length count** -- the
+   schematic's 270 um per leg, as 50 coarse 5 um units plus 20 fine 1 um
+   trim units (item 16 below re-decomposed this; it was 54 coarse units
+   plus a 16-unit ladder in series), not the skeleton's reduced 16. `klt
+   gen res_array` gained a `rows` fold parameter
+   (2AMLogic/klayout-tools#415, merged upstream via klayout-tools#418), so
+   the coarse ladder folds into 10 rows and occupies ~1,030 um^2 instead of
+   the ~710 um-long single row that forced the skeleton's reduction. The
+   area-budget line in layout/matching-plan.md Section 4/6 is closed by
+   this, not deferred.
 2. **PNP devices actually extract**, from the generator's own geometry.
    `klt gen bjt_array` used to draw neither the sky130 bipolar
    device-recognition marker (`pnp.drawing` 82/44) its own `klt extract`
@@ -129,12 +132,24 @@ here, relative to that skeleton:
     extracted netlist took `mismatch_count` 26 -> 18 and `device.unmatched`
     13 -> 1. See INTERNAL_NODE_LABEL_NOTE.
 15. **A real layout-vs-schematic defect surfaced by 14, quantified and
-    recorded, not fixed here**: with R2A/R2B finally paired, the comparer
-    reports 91,462.8 ohm against 88,130 -- a 286 um drawn leg where
-    design/bandgap_core.sch specifies 270 um at code 0, i.e. the drawn cell
-    sits at DR-002 trim code +16, a direction DR-002 rejects outright.
-    `r2_leg_length()` states this from the flow's own constants in every
-    record from now on. See RES_TRIM_LENGTH_NOTE and matching-plan Section 7q.
+    recorded**: with R2A/R2B finally paired, the comparer reported 91,462.8
+    ohm against 88,130 -- a 286 um drawn leg where design/bandgap_core.sch
+    specifies 270 um at code 0, i.e. the drawn cell sat at DR-002 trim code
+    +16, a direction DR-002 rejects outright. `r2_leg_length()` states this
+    from the flow's own constants in every record. See RES_TRIM_LENGTH_NOTE
+    and matching-plan Section 7q.
+16. **That defect is fixed, and the check that found it is now gated**
+    (issue #91). The trim ladder is drawn *inside* the specified 270 um
+    rather than after it: `res_r2` is 50 coarse 5 um units per leg (250 um)
+    and `res_trim` 20 fine 1 um units (20 um), so the tap `VA`/`VB` join --
+    the far end of the fine chain -- is exactly the schematic's 270 um
+    (DR-002 code 0) and every other tap *subtracts*, which is the only
+    direction DR-002 permits. `r2_leg_length()`'s verdict, which previously
+    reached only record.md's table, is now the `r2_leg_length_matches` row
+    of :func:`flow_gate`, and :func:`trim_tap_ladder` enumerates every
+    drawn code with the leg length it yields -- flagging the four taps
+    (-17..-20) that exist in metal but outside DR-002's certified range.
+    See RES_TRIM_LENGTH_NOTE and matching-plan Section 7r.
 
 What this script does NOT claim -- read record.md's own "What this record
 does NOT claim" section for the authoritative, measured version:
@@ -143,13 +158,13 @@ does NOT claim" section for the authoritative, measured version:
   in either netlist and -- new with the eighteenth increment -- none of them
   a connectivity difference either: the compensation cap MCC, which is in
   the reference and deliberately not drawn (the only `device.unmatched`
-  entry left on either side); the R2 leg length defect of item 15
-  (RES_TRIM_LENGTH_NOTE); `res_high_po`'s per-device 380 ohm head term,
+  entry left on either side); `res_high_po`'s per-device 380 ohm head term,
   which the extractor's sheet-resistance model does not carry and no drawn
   shape can add; and the reference's PNP cards stating no emitter count or
   geometry. The deck-synthesized substrate net, undeclarable array dummies,
-  the resistor device-class arity mismatch and unrouted schematic nodes are
-  all **retired** as causes -- see items 9-14 above. klayout-tools#506
+  the resistor device-class arity mismatch, unrouted schematic nodes and --
+  as of item 16 -- the R2 leg length are all **retired** as causes; see
+  items 9-16 above. klayout-tools#506
   (filed by the fifteenth increment) asked upstream for a generic
   reconciliation of the arity shape and is now CLOSED as COMPLETED
   (`reference.device_bulk` exists on `klt lvs` upstream); this flow
@@ -470,31 +485,38 @@ INTERNAL_NODE_LABEL_NOTE = (
     "-- the taps are still documented, they are just no longer asserted to "
     "be device-level ports of this cell."
 )
-#: The residual, and the genuine circuit finding this increment's LVS
-#: clean-up exposed: with the labels gone, the comparer pairs R2A/R2B and
-#: reports what is actually wrong with them.
+#: The genuine circuit defect the nineteenth increment's LVS clean-up
+#: exposed, and how the twentieth (issue #91) closed it.
 RES_TRIM_LENGTH_NOTE = (
-    "With INTERNAL_NODE_LABEL_NOTE's pins removed the comparer pairs R2A and "
-    "R2B and reports a *value* difference, which is the first time this "
-    "flow has been able to see one on these devices: layout 91,462.8 ohm "
-    "against the reference's 88,130 ohm. 91,462.8 / 319.8 ohm-per-square = "
-    "**286 squares**, i.e. a 286 um drawn leg where "
-    "design/bandgap_core.sch's `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim` at "
-    "`n_r2=54, r_lseg=5, n_r2_trim=0` states 270 um. The 16 um difference is "
-    "exactly `res_trim`'s 16 x 1 um leg, which this layout wires in series "
-    "*unconditionally*: the drawn cell therefore sits at trim code **+16**, "
-    "and DR-002 rejects every positive code outright (issue #46 found "
-    "n_r2=55, i.e. +5 um, already collapses the operating point at the "
-    "ff/2.97 V and fs/2.97 V hot corners; sim/trim-range-monotonicity/ finds "
-    "+1/+2 collapse too). This is a real layout-vs-schematic defect, not an "
-    "LVS bookkeeping artifact, and it is only visible now because the "
-    "labelling gap above was masking it. Fixing it means re-decomposing each "
-    "270 um leg so the trim ladder subtracts rather than adds (50 coarse 5 um "
-    "units + 20 fine 1 um units is the minimal integral decomposition that "
-    "keeps 270 um and still offers DR-002's 16 downward codes), which "
-    "perturbs the matched-array unit structure and the floorplan and is "
-    "therefore tracked as its own change: **issue #91**, and "
-    "layout/matching-plan.md Section 7p."
+    "With INTERNAL_NODE_LABEL_NOTE's pins removed the comparer paired R2A "
+    "and R2B and reported a *value* difference -- the first time this flow "
+    "had been able to see one on these devices: layout 91,462.8 ohm against "
+    "the reference's 88,130 ohm. 91,462.8 / 319.8 ohm-per-square = **286 "
+    "squares**, i.e. a 286 um drawn leg where design/bandgap_core.sch's "
+    "`L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim` at `n_r2=54, r_lseg=5, "
+    "n_r2_trim=0` states 270 um. The 16 um was exactly `res_trim`'s 16 x 1 "
+    "um leg, which the layout wired in series *after* a full-length 270 um "
+    "`res_r2` leg: the drawn cell sat at trim code **+16**, and DR-002 "
+    "rejects every positive code outright (issue #46 found n_r2=55, i.e. "
+    "+5 um, already collapses the operating point at the ff/2.97 V and "
+    "fs/2.97 V hot corners; sim/trim-range-monotonicity/ finds +1/+2 "
+    "collapse too). Worse than the 5.9% value error: with the ladder wired "
+    "after the full leg, *every* tap moved the leg further up from 270, so "
+    "the drawn ladder could not express any of the 16 downward codes DR-002 "
+    "certifies. A real layout-vs-schematic defect, not an LVS bookkeeping "
+    "artifact. **Fixed in issue #91** by re-decomposing the leg instead of "
+    "extending it: `res_r2` draws 50 coarse 5 um units (250 um) and "
+    "`res_trim` the remaining 20 fine 1 um units (20 um), so the code-0 tap "
+    "-- the far end of the fine chain, which is what `VA`/`VB` join -- is "
+    "exactly 270 um and code -k skips k fine units for 270-k um. 50/20 is "
+    "the minimal integral decomposition that keeps 270 um and still reaches "
+    "DR-002's -16 (51 coarse + 15 fine also totals 270 but stops at -15). "
+    "The drawn ladder spans 0..-20; -17..-20 are physically drawn but "
+    "flagged out-of-certified-range in the tap table above, not offered as "
+    "valid codes. `r2_leg_length()` now reports `matches: true` and is a "
+    "**gated** flow condition (`r2_leg_length_matches`) rather than a "
+    "recorded number, so this cannot silently regress. See "
+    "layout/matching-plan.md Section 7r."
 )
 
 # ---------------------------------------------------------------------------
@@ -541,9 +563,47 @@ RES_FLAVOR = "high"
 RES_CLASS = "res_high_po"
 R_W_UM = 1.0
 R_LSEG_UM = 5.0
+#: Fine trim-unit body length (um), design/bandgap_core.sch's `r_lseg_trim=1`.
+R_LSEG_TRIM_UM = 1.0
 N_R1 = 7
-N_R2 = 54  # per leg; R2A + R2B = 108 unit segments total
-N_R2_TRIM_CODES = 16  # downward-only range 0..-16, per leg (DR-002)
+#: The R2 divider leg's **drawn** decomposition (issue #91). The schematic
+#: states one length per leg -- `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim`
+#: = 5*54 + 1*0 = 270 um at DR-002's untrimmed code 0 -- and the layout has
+#: to reproduce *that* number while still offering DR-002's downward-only
+#: trim codes. It does so by splitting the 270 um, not by adding to it:
+#: 50 coarse 5 um units (250 um) in `res_r2` plus 20 fine 1 um units (20 um)
+#: in `res_trim`. Joining the leg's low node at the far end of the fine chain
+#: is then exactly 270 um = code 0, and every tap short of that end
+#: *subtracts* 1 um per skipped unit -- the only direction DR-002 permits.
+#:
+#: Before issue #91 the coarse leg was drawn at the full 54 units (270 um)
+#: and the fine ladder was wired in series *after* it, so the drawn leg was
+#: 286 um and every tap moved it further up: trim code +16, which DR-002
+#: rejects outright. See RES_TRIM_LENGTH_NOTE.
+#:
+#: 50/20 is the minimal integral decomposition that keeps 270 um and still
+#: offers all 16 of DR-002's downward codes (51 coarse + 15 fine also totals
+#: 270 but reaches only -15).
+N_R2_COARSE = 50
+N_R2_TRIM_UNITS = 20
+#: DR-002's **certified** downward code range (0..-16, per leg). The drawn
+#: ladder can express 0..-20 -- codes -17..-20 are drawn metal but outside
+#: the range spec/decision-records/DR-002-trim-network-scoping.md certifies,
+#: and :func:`trim_tap_ladder` marks them as such rather than offering them
+#: as valid.
+N_R2_TRIM_CODES = 16
+#: The specified side of the same comparison, transcribed verbatim from
+#: design/bandgap_core.sch's CORE_PARAMS so :func:`r2_leg_length` can state
+#: both sides from one place. Deliberately kept as its own constants rather
+#: than folded into the drawn ones above: the whole point of the check is
+#: that the drawn decomposition and the specified length are independent
+#: statements that must agree.
+SCH_R_LSEG_UM = 5.0  # .param r_lseg=5
+SCH_N_R2 = 54  # .param n_r2=54
+SCH_R_LSEG_TRIM_UM = 1.0  # .param r_lseg_trim=1
+SCH_N_R2_TRIM = 0  # .param n_r2_trim=0 (DR-002's untrimmed code)
+#: The per-leg length design/bandgap_core.sch specifies, in um (270.0).
+R2_LEG_SPEC_UM = SCH_R_LSEG_UM * SCH_N_R2 + SCH_R_LSEG_TRIM_UM * SCH_N_R2_TRIM
 M_OUT = 2
 M_AMPBIAS = 2
 AMP_M_IN = 16
@@ -556,7 +616,8 @@ AMP_M_PMIRR = 8
 # listed. Relative to gen_bandgap_floorplan.py's BLOCKS this list differs in
 # exactly three ways, each of them load-bearing for this issue:
 #
-#   * `res_r2` is at its real 108-unit count, folded into 9 rows.
+#   * `res_r2` is at its real full-length count (100 coarse units, 10 rows;
+#     with `res_trim`'s 40 fine units that is the schematic's 270 um/leg).
 #   * every guard/collector ring is back **on**, each with a routing opening
 #     (upstream klayout-tools#441's `ring_gap_side`), retiring the PR #64
 #     trade-off recorded in layout/matching-plan.md Section 5a.
@@ -597,16 +658,22 @@ BLOCKS: list[dict[str, Any]] = [
             "width_um": R_W_UM,
             "spacing_um": 0.5,
             "flavor": RES_FLAVOR,
-            "num": 2 * N_R2,
+            "num": 2 * N_R2_COARSE,
             "dummy": 2,
-            "rows": 9,
+            "rows": 10,
         },
         "bus": {"kind": "res_series", "legs": 2},
         "matched_group_label": "R2A/R2B interdigitated ladder (K = R2/R1 divider)",
-        "real_target": f"n_r2={N_R2} unit segments PER LEG x 2 legs = "
-        f"{2 * N_R2} total (design/bandgap_core.sch); drawn 1:1 -- the "
-        "skeleton's 16-unit reduction is closed here by `res_array`'s `rows` "
-        "fold parameter (2AMLogic/klayout-tools#415, merged via #418)",
+        "real_target": f"{N_R2_COARSE} coarse {R_LSEG_UM:.0f}um segments PER "
+        f"LEG x 2 legs = {2 * N_R2_COARSE} total = "
+        f"{R_LSEG_UM * N_R2_COARSE:.0f} um/leg, the coarse part of "
+        f"design/bandgap_core.sch's {R2_LEG_SPEC_UM:.0f} um "
+        f"(`r_lseg*n_r2` at n_r2={SCH_N_R2}); the remaining "
+        f"{R_LSEG_TRIM_UM * N_R2_TRIM_UNITS:.0f} um is `res_trim`'s fine "
+        "ladder, so the trim taps subtract from the specified length instead "
+        "of adding to it (issue #91). The skeleton's 16-unit reduction is "
+        "closed by `res_array`'s `rows` fold parameter "
+        "(2AMLogic/klayout-tools#415, merged via #418)",
     },
     {
         "id": "res_trim",
@@ -614,19 +681,23 @@ BLOCKS: list[dict[str, Any]] = [
         "align": "top",
         "generator": "res_array",
         "params": {
-            "length_um": 1.0,
+            "length_um": R_LSEG_TRIM_UM,
             "width_um": R_W_UM,
             "spacing_um": 0.5,
             "flavor": RES_FLAVOR,
-            "num": 2 * N_R2_TRIM_CODES,
+            "num": 2 * N_R2_TRIM_UNITS,
             "dummy": 2,
             "rows": 4,
         },
         "bus": {"kind": "res_series", "legs": 2},
         "matched_group_label": "Downward-only trim ladder taps (both legs)",
-        "real_target": f"n_r2_trim range 0..-{N_R2_TRIM_CODES} codes x 2 legs "
-        f"= {2 * N_R2_TRIM_CODES} 1um unit taps (design/bandgap_core.sch "
-        "CORE_PARAMS, DR-002); drawn 1:1",
+        "real_target": f"{N_R2_TRIM_UNITS} fine {R_LSEG_TRIM_UM:.0f}um units "
+        f"PER LEG x 2 legs = {2 * N_R2_TRIM_UNITS} unit taps, the fine part "
+        f"of the same {R2_LEG_SPEC_UM:.0f} um leg -- code 0 puts all "
+        f"{N_R2_TRIM_UNITS} in circuit and code -k skips k of them, so the "
+        f"ladder spans 0..-{N_R2_TRIM_UNITS} of which DR-002 certifies "
+        f"0..-{N_R2_TRIM_CODES} (design/bandgap_core.sch CORE_PARAMS, "
+        "DR-002); drawn 1:1",
     },
     {
         "id": "res_r1",
@@ -1435,6 +1506,32 @@ def mos_comb(block: str, net: str) -> dict[str, Any]:
     return {"block": block, "comb": (block, net)}
 
 
+def trim_tap_port(leg: int, code: int) -> str:
+    """The `res_trim` port that selects DR-002 trim `code` (<= 0) on `leg`.
+
+    The fine ladder is the last :data:`N_R2_TRIM_UNITS` um of the divider
+    leg, not an addition to it (issue #91), so code 0 is the tap that puts
+    *all* the fine units in circuit -- the far end of that leg's chain -- and
+    code -k is the tap k units short of it. :func:`bus_res_series`
+    interdigitates the two legs by segment index (even = leg 0, odd = leg 1,
+    per layout/matching-plan.md Section 3), so chain position `j` of leg `l`
+    is segment `2*j + l` and its `_B` terminal has `j + 1` fine units behind
+    it. `code = -N_R2_TRIM_UNITS` is the chain's head, i.e. the
+    `TRIM_A`/`TRIM_B` junction with `res_r2`, which bypasses the fine units
+    entirely.
+
+    Returns a port *name*; callers that need it to exist validate it against
+    the block's own reported ports (:func:`trim_tap_ladder`).
+    """
+    if code > 0 or code < -N_R2_TRIM_UNITS:
+        raise ValueError(
+            f"trim code {code:+d} is outside the drawn ladder's "
+            f"0..-{N_R2_TRIM_UNITS} range"
+        )
+    j = N_R2_TRIM_UNITS + code - 1
+    return f"R{leg}_A" if j < 0 else f"R{2 * j + leg}_B"
+
+
 #: The bandgap core's inter-block nodes that this flow draws on met1.
 #:
 #: This is now the *complete* node list of design/bandgap_core.sch (with
@@ -1456,22 +1553,23 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
     {
         "net": "VA",
         "terminals": [
-            {"block": "res_trim", "port": f"R{2 * N_R2_TRIM_CODES - 2}_B", "leg": 0},
+            {"block": "res_trim", "port": trim_tap_port(0, 0), "leg": 0},
             {"trunk": ("pnp_ctat", "VA")},
             mos_comb("amp_input_pair", "VA"),
         ],
-        "schematic": "the R2A leg's low end (through its trim taps) to Q1's "
-        "emitter bus and MP2's gate -- the amp's VINN node",
+        "schematic": "the R2A leg's low end (at trim code 0, the far end of "
+        "its fine ladder) to Q1's emitter bus and MP2's gate -- the amp's "
+        "VINN node",
     },
     {
         "net": "TRIM_A",
         "internal": "R2A",
         "terminals": [
-            {"block": "res_r2", "port": f"R{2 * N_R2 - 2}_B", "leg": 0},
+            {"block": "res_r2", "port": f"R{2 * N_R2_COARSE - 2}_B", "leg": 0},
             {"block": "res_trim", "port": "R0_A", "leg": 0},
         ],
-        "schematic": "R2A's low end into leg A of the downward-only trim "
-        "ladder (DR-002)",
+        "schematic": "R2A's coarse 250 um into leg A of the fine trim ladder "
+        "that carries the leg's last 20 um (DR-002, downward-only)",
     },
     {
         "net": "VOUT",
@@ -1487,20 +1585,20 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
         "net": "TRIM_B",
         "internal": "R2B",
         "terminals": [
-            {"block": "res_r2", "port": f"R{2 * N_R2 - 1}_B", "leg": 1},
+            {"block": "res_r2", "port": f"R{2 * N_R2_COARSE - 1}_B", "leg": 1},
             {"block": "res_trim", "port": "R1_A", "leg": 1},
         ],
-        "schematic": "R2B's low end into leg B of the trim ladder",
+        "schematic": "R2B's coarse 250 um into leg B of the same fine ladder",
     },
     {
         "net": "VB",
         "terminals": [
-            {"block": "res_trim", "port": f"R{2 * N_R2_TRIM_CODES - 1}_B", "leg": 1},
+            {"block": "res_trim", "port": trim_tap_port(1, 0), "leg": 1},
             {"block": "res_r1", "port": "R0_A"},
             mos_comb("amp_input_pair", "VB"),
         ],
-        "schematic": "the R2B leg's low end (through its trim taps) to R1's "
-        "head and MP1's gate -- the amp's VINP node",
+        "schematic": "the R2B leg's low end (at trim code 0, the far end of "
+        "its fine ladder) to R1's head and MP1's gate -- the amp's VINP node",
     },
     {
         "net": "VBQ",
@@ -2025,12 +2123,41 @@ def _met2_drop(
     backtrackable case into a hard flow failure instead of trying the next
     offset -- the same reason the met1 pad is checked here rather than left
     to those later gates.
+
+    A landing pad is also rejected when it *notches its own node's* metal --
+    the rule :func:`_draw_guarded` already applies to wires, applied here to
+    the pad. It is not redundant with that check, because the pad is 0.32 um
+    where the stub reaching it is 0.24: the pad overhangs its own stub by
+    0.04 um on each side, and that overhang can sit inside `met1.space.1` of
+    a wire of the same net that the stub itself cleared by overlapping it.
+    `met1.space.1` does not care whose net the two edges belong to; only
+    *touching* is exempt. Found by exactly that shape -- one 0.12 um same-net
+    gap between a drop pad and its own net's wire, invisible to
+    `conflicts()` (which compares different nets only) and reported by
+    `klt drc` alone (issue #91's re-run).
     """
     half = met1_bus.MET1_VIA1_LANDING_UM / 2.0
     eps = 0.14 - 1e-9
     met2_half = met1_bus.MET2_LANDING_UM / 2.0
     met2_eps = met1_bus.MET2_SPACE_UM - 1e-9
     via1_gap = met1_bus.VIA1_UM + met1_bus.VIA1_SPACE_UM - 1e-9
+
+    def _pad_fouled(
+        near: Any,  # the met1_near/met2_near generators of (net, x0, y0, x1, y1)
+        x0: float,
+        y0: float,
+        x1: float,
+        y1: float,
+    ) -> str | None:
+        """The first neighbour this pad may not sit next to, if any: another
+        node at all, or its own node *without* touching (a notch)."""
+        for net_b, bx0, by0, bx1, by1 in near:
+            if net_b != net:
+                return net_b
+            if not (x0 <= bx1 and bx0 <= x1 and y0 <= by1 and by0 <= y1):
+                return f"{net_b} (same-node notch)"
+        return None
+
     for axis in ("x", "y"):
         for offset in MET2_DROP_OFFSETS_UM:
             dx, dy = (offset, 0.0) if axis == "x" else (0.0, offset)
@@ -2044,22 +2171,25 @@ def _met2_drop(
             # Does the wider landing pad itself fit, on either plane -- and
             # does the via1 cut itself clear another node's cut?
             fouled = False
-            for net_b, *_ in bus.met1_near(
-                px - half, py - half, px + half, py + half, eps
-            ):
-                if net_b != net:
-                    fouled = True
-                    _BLOCKER_COUNTS[f"met2drop:{net_b}"] += 1
-                    break
+            blocker = _pad_fouled(
+                bus.met1_near(px - half, py - half, px + half, py + half, eps),
+                px - half, py - half, px + half, py + half,
+            )
+            if blocker is not None:
+                fouled = True
+                _BLOCKER_COUNTS[f"met2drop:{blocker}"] += 1
             if not fouled:
-                for net_b, *_ in bus.met2_near(
+                blocker = _pad_fouled(
+                    bus.met2_near(
+                        px - met2_half, py - met2_half,
+                        px + met2_half, py + met2_half, met2_eps,
+                    ),
                     px - met2_half, py - met2_half,
-                    px + met2_half, py + met2_half, met2_eps,
-                ):
-                    if net_b != net:
-                        fouled = True
-                        _BLOCKER_COUNTS[f"met2drop:{net_b}"] += 1
-                        break
+                    px + met2_half, py + met2_half,
+                )
+                if blocker is not None:
+                    fouled = True
+                    _BLOCKER_COUNTS[f"met2drop:{blocker}"] += 1
             if not fouled:
                 for net_b, vx, vy in bus.via1_xy:
                     if (
@@ -3063,7 +3193,7 @@ def select_ports(
     `klt gen-compose`'s router draws a straight/single-jog Manhattan backbone
     between two ports and rejects the net outright when that backbone crosses
     a block's interior by more than the port's own edge margin. Which port of
-    a 108-segment ladder or a 16-way split pair is chosen therefore decides
+    a 100-segment ladder or a 16-way split pair is chosen therefore decides
     whether a net routes at all -- the one nearest the edge the route arrives
     at is the only one whose approach stays outside the block.
 
@@ -3110,7 +3240,7 @@ def select_ports(
 #: damage `routed_ports` exists to prevent.
 #:
 #: What remains is the trim ladder's read-only probe taps, which are genuinely
-#: single-port nodes no schematic net reaches (see :func:`trim_tap_pins`).
+#: single-port nodes no schematic net reaches (see :func:`trim_tap_ladder`).
 CORE_PIN_LABELS: list[dict[str, Any]] = []
 
 
@@ -3297,16 +3427,6 @@ def schematic_net_coverage(routes: list[dict[str, Any]]) -> list[dict[str, Any]]
     return rows
 
 
-#: The schematic parameters this flow's own resistor geometry must reproduce,
-#: transcribed from design/bandgap_core.sch's CORE_PARAMS block. Kept here
-#: rather than inlined so :func:`r2_leg_length` can state both sides of the
-#: comparison from one place.
-SCH_R_LSEG_UM = 5.0  # .param r_lseg=5
-SCH_N_R2 = 54  # .param n_r2=54
-SCH_R_LSEG_TRIM_UM = 1.0  # .param r_lseg_trim=1
-SCH_N_R2_TRIM = 0  # .param n_r2_trim=0 (DR-002's untrimmed code)
-
-
 def r2_leg_length() -> dict[str, Any]:
     """Drawn vs. specified length of one R2 divider leg, in um.
 
@@ -3319,13 +3439,19 @@ def r2_leg_length() -> dict[str, Any]:
     here immediately instead of hiding behind an unpaired device.
 
     `drawn_um` is what the layout puts in series between `VOUT` and `VA`
-    (resp. `VB`): the `res_r2` leg plus the `res_trim` leg, because the trim
-    ladder is wired into the DC path unconditionally (see INTER_BLOCK_MET1's
-    `TRIM_A`/`VA` entries). `spec_um` is design/bandgap_core.sch's own
-    `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim` at the checked-in code.
+    (resp. `VB`) **at DR-002 code 0**: the `res_r2` coarse leg plus the whole
+    `res_trim` fine leg, because code 0 is the tap at the far end of the fine
+    chain (see INTER_BLOCK_MET1's `TRIM_A`/`VA` entries and
+    :func:`trim_tap_port`). `spec_um` is design/bandgap_core.sch's own
+    `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim` at that same code.
+
+    The two sides are independent statements -- the drawn constants describe
+    a coarse/fine decomposition, the specified one a single length -- so
+    `matches` is a real comparison, not a tautology: any change to the fold,
+    the unit length or either count moves `drawn_um` alone.
     """
-    coarse_um = R_LSEG_UM * N_R2
-    trim_um = 1.0 * N_R2_TRIM_CODES
+    coarse_um = R_LSEG_UM * N_R2_COARSE
+    trim_um = R_LSEG_TRIM_UM * N_R2_TRIM_UNITS
     drawn_um = coarse_um + trim_um
     spec_um = SCH_R_LSEG_UM * SCH_N_R2 + SCH_R_LSEG_TRIM_UM * SCH_N_R2_TRIM
     delta_um = drawn_um - spec_um
@@ -3342,19 +3468,27 @@ def r2_leg_length() -> dict[str, Any]:
     }
 
 
-def trim_tap_pins(reports: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
-    """Locate the downward-only trim ladder's taps at **both ends** of the
-    DR-002 code range (0 and -N_R2_TRIM_CODES), per leg.
+def trim_tap_ladder(reports: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    """Every trim code the drawn metal option can select, per code, with the
+    leg length that code yields -- read off the block's own reported ports.
 
-    The ladder interdigitates the two legs by segment index (even = leg A,
-    odd = leg B, per layout/matching-plan.md Section 3), so leg A's code-0
-    tap is segment 0's far terminal and its code-N tap is the last even
-    segment's; leg B is the odd-index mirror image. Indices are validated
-    against the block's own reported ports, so a count-constant change fails
-    loudly here instead of silently mislabelling a tap.
+    This is the whole ladder, not just its endpoints, because the ladder's
+    *direction* is the thing DR-002 constrains and a two-row table cannot
+    show a direction. Code 0 is the far end of the fine chain and yields the
+    schematic's own `L` exactly; code -k skips the last k fine units and
+    yields `L - k` um. `certified` is DR-002's own range (0..-16): the drawn
+    ladder can express four codes past it (-17..-20, down to the bare coarse
+    leg), and they are listed **flagged**, not silently offered, because
+    spec/decision-records/DR-002-trim-network-scoping.md certifies the
+    monotonic operating point only over 0..-16 (issue #46,
+    sim/trim-range-monotonicity/).
 
-    These are **no longer emitted as `pins[]` entries** -- they are reported
-    into the record as documentation of where the metal option lands. See
+    Every port index is validated against the block's own reported ports, so
+    a count-constant change fails loudly here instead of silently
+    mislabelling a tap.
+
+    These are **not** emitted as `pins[]` entries -- they are reported into
+    the record as documentation of where the metal option lands. See
     INTERNAL_NODE_LABEL_NOTE: every one of these taps sits on a node interior
     to the schematic's own `R2A`/`R2B` device, and promoting an interior node
     to a top-level pin is what was splitting those two devices on the layout
@@ -3362,20 +3496,25 @@ def trim_tap_pins(reports: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
     """
     bid = "res_trim"
     available = {p["name"] for p in reports[bid]["ports"]}
-    last_a = 2 * N_R2_TRIM_CODES - 2
-    last_b = 2 * N_R2_TRIM_CODES - 1
-    wanted = [
-        ("TRIM_A_CODE_0", "R0_B"),
-        (f"TRIM_A_CODE_MINUS{N_R2_TRIM_CODES}", f"R{last_a}_B"),
-        ("TRIM_B_CODE_0", "R1_B"),
-        (f"TRIM_B_CODE_MINUS{N_R2_TRIM_CODES}", f"R{last_b}_B"),
-    ]
-    pins = []
-    for net, port in wanted:
-        if port not in available:
-            raise KeyError(f"block '{bid}' has no trim-tap port '{port}'")
-        pins.append({"net": net, "block": bid, "port": port})
-    return pins
+    coarse_um = R_LSEG_UM * N_R2_COARSE
+    rows: list[dict[str, Any]] = []
+    for k in range(N_R2_TRIM_UNITS + 1):
+        ports: dict[str, str] = {}
+        for leg, name in ((0, "A"), (1, "B")):
+            port = trim_tap_port(leg, -k)
+            if port not in available:
+                raise KeyError(f"block '{bid}' has no trim-tap port '{port}'")
+            ports[name] = port
+        rows.append(
+            {
+                "code": -k,
+                "block": bid,
+                "ports": ports,
+                "leg_um": coarse_um + R_LSEG_TRIM_UM * (N_R2_TRIM_UNITS - k),
+                "certified": k <= N_R2_TRIM_CODES,
+            }
+        )
+    return rows
 
 
 def routed_ports(bus_summary: dict[str, Any]) -> set[tuple[str, str]]:
@@ -3492,6 +3631,7 @@ def flow_gate(
     drc_clean: bool,
     within_budget: bool,
     full_scale_ladder: bool,
+    r2_leg_matches: bool,
     all_classes: bool,
     pin_count: int,
     met1_conflicts: list[Any],
@@ -3524,12 +3664,22 @@ def flow_gate(
     against sky130's own source DRC rules, because the curated deck `drc_clean`
     above reports on carries none for it (MET2_ESCAPE_NOTE). None of the four
     is visible to `klt drc`.
+
+    `r2_leg_length_matches` is the fifth of that kind, and the newest (issue
+    #91). `full_scale_ladder` above only checks that the ladder is drawn at
+    its real unit *count*; it says nothing about the resulting *length*,
+    which is what design/bandgap_core.sch actually specifies and what sets
+    K = R2/R1. The 286-um-vs-270-um defect issue #91 fixed passed
+    `full_scale_ladder` for nineteen increments, and `r2_leg_length()`'s
+    verdict reached only record.md's table -- reported, never gated. It is
+    gated here so the same class of regression fails the flow.
     """
     return {
         "drc_clean": drc_clean,
         "met2_drc_clean": met2_drc_clean,
         "within_budget": within_budget,
         "full_scale_ladder": full_scale_ladder,
+        "r2_leg_length_matches": r2_leg_matches,
         "device_classes_present": all_classes,
         "pins_promoted": pin_count > 0,
         "no_drawn_shorts": not met1_conflicts,
@@ -3597,7 +3747,7 @@ def compose_inner(
                 f"pin {spec['net']}: every gate port of {block}.{device} is "
                 "already claimed"
             )
-    # trim_tap_pins() is deliberately NOT folded into `pins[]` -- see
+    # trim_tap_ladder() is deliberately NOT folded into `pins[]` -- see
     # INTERNAL_NODE_LABEL_NOTE and the record's own trim-tap table.
 
     request = {
@@ -3929,7 +4079,7 @@ def main() -> int:
     routed_nets = [r for r in met1_routes if r["routed"]]
     unrouted = [r["net"] for r in met1_routes if not r["routed"]]
     labelled_pins = [p for p in inner_compose.get("pins", []) if p.get("labelled")]
-    trim_taps = trim_tap_pins(reports)
+    trim_taps = trim_tap_ladder(reports)
     r2_length = r2_leg_length()
     pin_count = extract.get("pin_count", 0)
     lvs_clean = lvs.get("status") == "match"
@@ -3947,8 +4097,12 @@ def main() -> int:
         ),
     }
     all_classes = all(classes_present.values())
-    r2_units = BLOCKS[[b["id"] for b in BLOCKS].index("res_r2")]["params"]["num"]
-    full_scale_ladder = r2_units == 2 * N_R2
+    block_params = {b["id"]: b["params"] for b in BLOCKS}
+    r2_units = block_params["res_r2"]["num"]
+    trim_units = block_params["res_trim"]["num"]
+    full_scale_ladder = (
+        r2_units == 2 * N_R2_COARSE and trim_units == 2 * N_R2_TRIM_UNITS
+    )
 
     # Criterion 1 is scored against design/bandgap_core.sch's own inter-block
     # node list, NOT against this flow's `connectivity[]` declaration.
@@ -3981,8 +4135,15 @@ def main() -> int:
         "\"Schematic inter-block nets\" below |"
     )
     a(
-        f"| 2 | Resistor ladder at real unit count | {'MET' if full_scale_ladder else 'NOT MET'} | "
-        f"`res_r2` num={r2_units} (= 2 x n_r2={N_R2}); composed bbox "
+        f"| 2 | Resistor ladder at real unit count | "
+        f"{'MET' if full_scale_ladder and r2_length['matches'] else 'NOT MET'} | "
+        f"`res_r2` num={r2_units} (= 2 legs x {N_R2_COARSE} coarse "
+        f"{R_LSEG_UM:.0f}um units) + `res_trim` num={trim_units} (= 2 legs x "
+        f"{N_R2_TRIM_UNITS} fine {R_LSEG_TRIM_UM:.0f}um units) = "
+        f"{r2_length['drawn_um']:.0f} um/leg at DR-002 code 0, against "
+        f"design/bandgap_core.sch's `r_lseg*n_r2` = "
+        f"{r2_length['spec_um']:.0f} um (delta "
+        f"{r2_length['delta_um']:+.0f} um); composed bbox "
         f"{composed_area_um2:,.0f} um^2 vs {budget_um2:,.0f} um^2 budget |"
     )
     a(
@@ -4027,7 +4188,8 @@ def main() -> int:
     a(
         f"- [{'x' if within_budget else ' '}] Composed bbox area "
         f"({composed_area_um2:,.0f} um^2) is within the < 0.05 mm^2 "
-        f"({budget_um2:,.0f} um^2) budget, **at the real 108-unit ladder count**"
+        f"({budget_um2:,.0f} um^2) budget, **at the real full-length ladder "
+        f"count** ({r2_units} coarse + {trim_units} fine units)"
     )
     a("")
     a("## Flow")
@@ -4114,7 +4276,8 @@ def main() -> int:
         "the inter-block escape plane above and no intra-block bus uses "
         "it). This flow draws them itself from each block's "
         "reported `ports[]` (MET1_BUS_NOTE). That is what turns a "
-        "108-segment ladder into two real series resistors, an 8-unit PNP "
+        "100-segment coarse ladder (and its 40-segment fine trim ladder) "
+        "into two real series resistors, an 8-unit PNP "
         "array into one real m=8 device, and -- new in this increment -- "
         "each split MOS group's 4 to 32 fingers into the single m=N "
         "transistor the schematic names."
@@ -4365,17 +4528,36 @@ def main() -> int:
     a("### DR-002 trim-ladder taps (documented, not pinned)")
     a("")
     a(
-        "The metal option's code taps are still located and validated "
-        "against the block's own reported ports every run -- a count-constant "
-        "change still fails the flow loudly here rather than silently "
-        "mislabelling a tap. They are reported into this record instead of "
-        "into `pins[]` for the reason above."
+        "Every code the drawn metal option can select, with the divider-leg "
+        "length it yields. Each tap is located and validated against the "
+        "block's own reported ports every run -- a count-constant change "
+        "fails the flow loudly here rather than silently mislabelling a tap "
+        "-- and the lengths below are computed from the tap index, not "
+        "asserted, so the table *is* the demonstration that the ladder runs "
+        "downward: code -k yields exactly `spec - k` um. Taps are reported "
+        "into this record instead of into `pins[]` for the reason above."
     )
     a("")
-    a("| DR-002 code | block.port |")
-    a("| --- | --- |")
+    a(
+        f"Codes outside DR-002's certified 0..-{N_R2_TRIM_CODES} range are "
+        "drawn (the ladder is a metal option, so its physical taps exist "
+        "whether or not a code is certified) and are marked "
+        "**out-of-certified-range** below. "
+        "`spec/decision-records/DR-002-trim-network-scoping.md` certifies the "
+        "operating point over 0..-16 only; issue #46 and "
+        "`sim/trim-range-monotonicity/` are the corner evidence for the "
+        "boundary. Selecting one of the flagged taps is out of spec, not a "
+        "wider trim range."
+    )
+    a("")
+    a("| DR-002 code | leg A port | leg B port | leg length | certified |")
+    a("| --- | --- | --- | --- | --- |")
     for tap in trim_taps:
-        a(f"| `{tap['net']}` | {tap['block']}.{tap['port']} |")
+        a(
+            f"| `{tap['code']:d}` | {tap['block']}.{tap['ports']['A']} | "
+            f"{tap['block']}.{tap['ports']['B']} | {tap['leg_um']:.0f} um | "
+            f"{'yes' if tap['certified'] else '**no -- out of certified range**'} |"
+        )
     a("")
     a("### Drawn vs. specified R2 leg length")
     a("")
@@ -4384,15 +4566,24 @@ def main() -> int:
         "constants can disagree with design/bandgap_core.sch's `CORE_PARAMS` "
         "without anything else in this flow noticing -- `klt lvs` can only "
         "report a resistor's *value*, and only once the two sides pair at "
-        "all, which they did not until this increment. This row states the "
-        "comparison in the units the schematic itself specifies, "
-        "unconditionally, from this flow's own constants."
+        "all, which they did not until the nineteenth increment. This row "
+        "states the comparison in the units the schematic itself specifies, "
+        "unconditionally, from this flow's own constants. **It is a gated "
+        "condition** (`r2_leg_length_matches`), not merely a reported one, "
+        "since issue #91."
     )
     a("")
     a("| quantity | value |")
     a("| --- | --- |")
-    a(f"| `res_r2` leg (drawn) | {r2_length['coarse_um']:.0f} um |")
-    a(f"| `res_trim` leg, wired in series (drawn) | {r2_length['trim_um']:.0f} um |")
+    a(
+        f"| `res_r2` coarse leg (drawn) | {r2_length['coarse_um']:.0f} um "
+        f"({N_R2_COARSE} x {R_LSEG_UM:.0f} um) |"
+    )
+    a(
+        f"| `res_trim` fine leg at code 0 (drawn) | "
+        f"{r2_length['trim_um']:.0f} um ({N_R2_TRIM_UNITS} x "
+        f"{R_LSEG_TRIM_UM:.0f} um) |"
+    )
     a(f"| **total drawn** | **{r2_length['drawn_um']:.0f} um** |")
     a(
         f"| schematic `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim` | "
@@ -4404,9 +4595,16 @@ def main() -> int:
         f"**{r2_length['effective_trim_code']:+d}** |"
     )
     a("")
-    if not r2_length["matches"]:
-        a(f"**Known defect, newly quantified this increment.** {RES_TRIM_LENGTH_NOTE}")
-        a("")
+    if r2_length["matches"]:
+        a(f"**How this came to be a gated row.** {RES_TRIM_LENGTH_NOTE}")
+    else:
+        a(
+            "**REGRESSION.** The drawn leg no longer reproduces the "
+            "schematic's specified length, and the flow's "
+            "`r2_leg_length_matches` gate has failed on it. "
+            f"{RES_TRIM_LENGTH_NOTE}"
+        )
+    a("")
     a("## Results")
     a("")
     a("| Stage | Status | Detail |")
@@ -4501,15 +4699,16 @@ def main() -> int:
     a(f"Mismatch categories: `{json.dumps(lvs.get('category_counts', {}))}`.")
     a("")
     a(
-        "The residual gap has four disclosed causes, none of them a "
-        "topology error in either netlist -- and, for the first time in this "
-        "issue's history, **none of them a connectivity difference**: every "
-        "remaining category is `device.property` (a value or parameter) or "
-        "the single deliberately-undrawn device. Four causes tracked by "
+        "The residual gap has three disclosed causes, none of them a "
+        "topology error in either netlist, **none of them a connectivity "
+        "difference** and -- since issue #91 -- **none of them a layout "
+        "defect**: every remaining category is `device.property` (a value "
+        "the extractor's model states differently from the schematic's) or "
+        "the single deliberately-undrawn device. Five causes tracked by "
         "prior records -- the deck-synthesized substrate net, undeclarable "
-        "array dummies, the resistor device-class arity mismatch, and "
-        "unrouted schematic nodes -- are **retired**; see \"Retired since "
-        "the last increment\" below."
+        "array dummies, the resistor device-class arity mismatch, "
+        "unrouted schematic nodes, and the R2 divider leg length -- are "
+        "**retired**; see \"Retired since the last increment\" below."
     )
     a("")
     a(
@@ -4520,22 +4719,24 @@ def main() -> int:
         "either side."
     )
     a(
-        "2. **The R2 divider legs are 16 um longer than the schematic "
-        f"specifies.** {RES_TRIM_LENGTH_NOTE}"
-    )
-    a(
-        "3. **`res_high_po`'s per-device head resistance is not drawn "
-        "geometry.** design/bandgap_core.sch line 188 models a segment as "
+        "2. **`res_high_po`'s resistance model is not drawn geometry.** "
+        "design/bandgap_core.sch line 188 models a segment as "
         "`R ~ 380 + 325*L` ohm, with the 380 ohm head charged once per "
         "*device*; the extractor derives R from drawn body squares alone "
-        "(319.8 ohm/sq), so `R1`'s 35 um leg reads 11,193 ohm against the "
-        "reference's 11,755 -- a 4.8% difference that is entirely the head "
-        "term, with the drawn body length exactly right. Unlike cause 2 this "
-        "is not a layout defect: no drawn shape can add a contact-resistance "
-        "term the extractor's sheet-resistance model does not carry."
+        "(319.8 ohm/sq). Every resistor's remaining `r` difference is "
+        "exactly those two model terms and nothing else, on all three "
+        "devices at once: `R1`'s 35 um leg reads 11,193 = 319.8 x 35 "
+        "against 325 x 35 + 380 = 11,755, and each R2 leg reads 86,346 = "
+        "319.8 x 270 against 325 x 270 + 380 = 88,130. Both differences "
+        "resolve to the same `5.2*L + 380`, which is the check that the "
+        "*drawn length* on either device is exactly right -- 35 um and "
+        "270 um, the schematic's own numbers. No drawn shape can add a "
+        "contact-resistance term the extractor's sheet-resistance model "
+        "does not carry, so this is a model difference, not a layout "
+        "defect."
     )
     a(
-        "4. **The reference's PNP cards state no emitter count or "
+        "3. **The reference's PNP cards state no emitter count or "
         "geometry.** `Q1`/`Q2` now *pair* with their layout counterparts, "
         "and the comparer reports `ne` 8 (layout) vs 1 (reference) plus "
         "zero-valued `ae`/`pe`/`ab`/`pb`/`ac`/`pc`. The schematic "
@@ -4548,16 +4749,21 @@ def main() -> int:
     )
     a("")
     a(
-        "None of the four is worked around by editing either netlist to "
+        "None of the three is worked around by editing either netlist to "
         "match the layout. `reference.spice` states "
         "design/bandgap_core.sch; rewriting it to enumerate the layout's own "
         "shortfalls would make LVS compare the layout against itself, which "
-        "is not evidence. Cause 2 in particular is recorded as a **layout** "
-        "defect to fix, not a reference to relax."
+        "is not evidence. The one cause that *was* a layout defect -- the R2 "
+        "leg length -- was fixed in the layout (issue #91), not relaxed in "
+        "the reference."
     )
     a("")
     a("### Retired since the last increment")
     a("")
+    a(
+        "- **The R2 divider legs draw the length the schematic specifies.** "
+        f"{RES_TRIM_LENGTH_NOTE}"
+    )
     a(
         "- **Every schematic inter-block node is now joined across every "
         "block it reaches.** Through the seventeenth increment, "
@@ -4600,8 +4806,14 @@ def main() -> int:
         f"- **Not LVS-clean.** `klt lvs` reports `{lvs.get('status')}` with "
         f"`mismatch_count={lvs.get('mismatch_count')}` against the "
         "xschem-derived reference netlist, and `devices.matched` is "
-        f"{lvs_devices.get('matched')}. The four causes above are the whole "
-        "of it; none is hidden behind a number that moved."
+        f"{lvs_devices.get('matched')}. The three causes above are the whole "
+        "of it; none is hidden behind a number that moved. The count did "
+        "**not** move when issue #91 fixed the R2 leg length, and that is "
+        "the honest result: the `r` difference on those two devices "
+        "survives as the same `res_high_po` model term `R1` always showed, "
+        "so what changed is the *kind* of the residual (a model difference, "
+        "not a drawn-length defect), which the value itself now proves -- "
+        "86,346 = 319.8 x 270."
     )
     if full_connectivity:
         a(
@@ -4680,7 +4892,9 @@ def main() -> int:
     print("\n".join(lines))
 
     # The flow's own gate: DRC must be clean, the ladder must be at full
-    # scale, every device class must extract, and pins must be promoted.
+    # scale *and* draw the leg length design/bandgap_core.sch specifies
+    # (issue #91), every device class must extract, and pins must be
+    # promoted.
     # LVS-clean is NOT gated here -- it is blocked upstream (MOS_GATE_NOTE)
     # and the record above states so explicitly rather than silently passing.
     # The drawn-short check IS gated: a met1 rectangle of one node touching
@@ -4695,6 +4909,7 @@ def main() -> int:
         drc_clean=drc_clean,
         within_budget=within_budget,
         full_scale_ladder=full_scale_ladder,
+        r2_leg_matches=r2_length["matches"],
         all_classes=all_classes,
         pin_count=pin_count,
         met1_conflicts=met1_conflicts,
