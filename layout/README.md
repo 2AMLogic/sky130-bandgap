@@ -248,5 +248,83 @@ matched-device generators, `bjt_array` and `res_array`, don't round-trip
 through `klt extract` as recognized devices yet — see
 `matching-plan.md` Section 7) and **not** a tape-out-ready layout (no
 routing, and the resistor ladder is at reduced scale pending
-2AMLogic/klayout-tools#415 — see `matching-plan.md` Section 4). Full LVS
-closure and routing are later issues' scope.
+2AMLogic/klayout-tools#415 — see `matching-plan.md` Section 4). Routing and
+LVS are issue #62's scope, below.
+
+## Routing the core and closing on LVS (issue #62)
+
+```bash
+layout/bin/setup-venv.sh                 # once, or after a requirements.txt bump
+layout/bin/run-bandgap-routed-flow.sh    # gen -> draw -> compose+route -> drc -> extract -> lvs
+```
+
+Writes a fresh record under `bandgap-core/reports/<record-id>/` alongside
+(never replacing) the #15 skeleton's records, and updates
+`bandgap-core/reports/LATEST`. **Read that record's `record.md` first** — it
+carries a per-criterion scoreboard, the routed-net table, the promoted-pin
+table, and a quantitative LVS mismatch analysis. Summary of what it measures:
+
+| | #15 skeleton | #62 routed |
+|---|---|---|
+| inter-block routing | none drawn | 9 routed 2-pin hops with net labels — **4/12 schematic inter-block nets fully joined** (criterion 1 PARTIAL) |
+| promoted top-level pins | 0 | 23 |
+| R2A/R2B ladder | 16 units (reduced) | **108 units (real count)**, folded into 9 rows |
+| extracted `pnp` | 0 | 16 |
+| extracted `nfet` | 0 | 16 |
+| DRC | clean | clean |
+| LVS | not attempted | runs; **mismatch**, see below |
+
+Three changes make that possible, each backed by a `klt` pin bump
+(`requirements.txt`) or a local workaround:
+
+1. **Full-scale ladder.** `res_array` gained a `rows` fold parameter
+   (2AMLogic/klayout-tools#415, merged upstream), so the real 108-unit
+   R2A/R2B ladder occupies ~1,231 µm² instead of a ~710 µm-long single row.
+   The whole routed cell is 38,171 µm², inside the 50,000 µm² budget.
+2. **PNP recognition overlay.** `klt gen bjt_array` draws no bipolar
+   device-recognition marker on sky130 and no well tap for its base pads, so
+   its output extracts as *zero* devices — filed as
+   [2AMLogic/klayout-tools#432](https://github.com/2AMLogic/klayout-tools/issues/432).
+   The flow composes a `klt draw` overlay (82/44 marker per functional
+   emitter pad, 65/44 nwell tap per base pad, positioned from the
+   generator's own reported `ports[]`) to close it locally.
+3. **Router-oracle port selection.** `klt gen-compose` rejects a net whose
+   Manhattan backbone would cross a block's interior but offers no "which
+   port should I have used?" query, and a 108-segment ladder exposes 216
+   ports. `gen_bandgap_routed.py` drives `gen-compose` itself as the
+   pass/fail oracle over an ordered, geometry-derived candidate list rather
+   than hardcoding port indices.
+
+**LVS is not clean, and the record says so rather than working around it.**
+The blocker is upstream, not a layout choice: sky130's generator/router
+layer-role table exposes exactly one routing metal (`li1`), the same layer
+every generator draws its device pads on, and the router is documented as
+unaware of a block's internal geometry — so any wire crossing a block shorts
+to every pad it passes over. That makes intra-block bussing (tying an array's
+8 emitters, or a ladder's 108 series segments, into one node) inexpressible,
+so the layout's 243 devices cannot collapse into the reference netlist's 16.
+Filed as
+[2AMLogic/klayout-tools#433](https://github.com/2AMLogic/klayout-tools/issues/433);
+the related "no way to route into a guard-ringed block" gap is
+[#434](https://github.com/2AMLogic/klayout-tools/issues/434). The flow
+deliberately does **not** draw those intra-block wires: `gen-compose` would
+certify them `routed: true` while producing an electrical short, and a
+certified short is worse evidence than an open node.
+
+**Inter-block routing is partial too, for the same reason.** `gen-compose`
+routes 2-pin nets, and only between blocks adjacent across an empty channel,
+so a supply trunk is a chain of hops and a non-adjacent pair cannot be joined
+at all. Measured against `design/bandgap_core.sch`'s own inter-block node
+list — not against the flow's `connectivity[]` declaration — 4 of 12 nets are
+joined across every block they reach; `VOUT` never reaches the R2 ladder,
+`AOUT`/`GDRV` are two labelled pins where the schematic has one node, `D2` is
+undrawn, and the `VDD`/`VSS` trunks stop short of blocks they supply. The
+record's "Schematic inter-block nets: drawn vs. labelled only" table is the
+per-net version, and issue #62's criterion 1 is scored **PARTIAL** on it.
+
+`bandgap-core/reference.spice` is the schematic side of that comparison —
+transcribed from `design/bandgap_core.sch` + `design/error_amp.sch` and
+corroborated by the checked-in `n_r2=54` xschem snapshot its header cites
+(`sim/output-voltage-tc/netlist-snapshots/`), never derived from the layout.
+It states the schematic even where the layout falls short of it: there is no
+0-ohm bridge device standing in for the unrouted `AOUT`→`GDRV` net.

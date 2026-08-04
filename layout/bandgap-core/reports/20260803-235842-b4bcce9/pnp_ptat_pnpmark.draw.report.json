@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "gds_path": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260803-235842-b4bcce9/pnp_ptat_pnpmark.gds",
+  "cell_name": "pnp_ptat_pnpmark",
+  "dbu_um": 0.001,
+  "shape_count": 16,
+  "label_count": 0,
+  "layers": [
+    {
+      "layer": 82,
+      "datatype": 44,
+      "name": null,
+      "shapes": 8
+    },
+    {
+      "layer": 65,
+      "datatype": 44,
+      "name": null,
+      "shapes": 8
+    }
+  ],
+  "bbox_um": {
+    "x0": -0.15,
+    "y0": -0.15,
+    "x1": 18.03,
+    "y1": 7.3500000000000005
+  },
+  "warnings": [
+    "written verbatim by `klt draw`: no PDK awareness and no rule checking were applied; this cell is not guaranteed to be design-legal"
+  ]
+}

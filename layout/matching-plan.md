@@ -1,4 +1,4 @@
-# Bandgap core -- floorplan and matching plan (issue #15)
+# Bandgap core -- floorplan and matching plan (issues #15, #62)
 
 Written matching plan + initial placed layout skeleton for the sky130
 Kuijk-style bandgap core (`design/bandgap_core.sch`, `design/error_amp.sch`).
@@ -17,6 +17,19 @@ This is not a tape-out-ready layout -- routing, exact spacing
 optimization, and full LVS closure on the matched-device generators are
 explicitly out of scope here and flagged as follow-on work in "Known
 limitations" below.
+
+> **Update (issue #62, routed layout).** Sections 4, 5, 7 and 8 below have
+> been revised where issue #62's routed flow changed the facts on the
+> ground -- the R2A/R2B ladder is now drawn at its **real 108-unit count**,
+> inter-block routing and top-level pins **are** drawn, and PNP/NMOS/
+> resistor devices **do** extract with correct classes. Where a statement
+> below is now historical, it is marked as such rather than deleted, so the
+> #15 skeleton's own records stay readable against the document that
+> described them. The routed flow is
+> `layout/bin/run-bandgap-routed-flow.sh` /
+> `layout/bin/gen_bandgap_routed.py`; its record is the newest directory
+> under `layout/bandgap-core/reports/`. Read that record for measured
+> results; this document remains the rationale.
 
 ## 1. Matching-effort allocation, driven by issue #12's contributor breakdown
 
@@ -183,13 +196,37 @@ scale:
 | Block | Skeleton count | Real target | Why reduced |
 |---|---|---|---|
 | `pnp_ctat` / `pnp_ptat` | 8 units each (2x4) | 8 units each | drawn 1:1 |
-| `res_r2` (R2A/R2B) | 16 units (8/leg) | 108 units (54/leg) | a single-row `res_array` at 108 units is ~710 um long (measured directly: `klt gen res_array --params '{"num":108,...}'` reports `bbox_um.x1 - x0 = 709.6`) -- pairing that with any other block in a floorplan forces the whole composition's bounding box past the 0.05 mm^2 budget on width alone, even though the segments' own drawn area is small. `klt gen res_array` has no row-folding/meander parameter to keep a long unit-resistor string's *footprint* compact the way `mos_array`/`bjt_array`'s `rows`/`cols` do -- filed as new friction, [2AMLogic/klayout-tools#415](https://github.com/2AMLogic/klayout-tools/issues/415). Until that lands (or a hand-folded layout is built), a full-scale single-row R2A/R2B ladder does not fit this budget; the skeleton uses a representative 1/6.75-scale count instead, to prove the interdigitated composition + DRC-clean mechanism now and keep the real-count constraint on record for whoever builds the tape-out-ready version. |
+| `res_r2` (R2A/R2B) | 16 units (8/leg) -- **superseded, see below** | 108 units (54/leg) | *(historical, #15)* a single-row `res_array` at 108 units is ~710 um long (measured directly: `klt gen res_array --params '{"num":108,...}'` reports `bbox_um.x1 - x0 = 709.6`) -- pairing that with any other block in a floorplan forces the whole composition's bounding box past the 0.05 mm^2 budget on width alone, even though the segments' own drawn area is small. `klt gen res_array` had no row-folding/meander parameter to keep a long unit-resistor string's *footprint* compact the way `mos_array`/`bjt_array`'s `rows`/`cols` do -- filed as new friction, [2AMLogic/klayout-tools#415](https://github.com/2AMLogic/klayout-tools/issues/415). |
 | `res_r1` | 7 units | 7 units | drawn 1:1 (small enough to be tractable at full scale) |
 | `res_trim` | 32 units (16/leg) | 32 units (16/leg) | drawn 1:1 |
 | `amp_input_pair` | mult=16 (splits=16) | mult=16 | drawn 1:1 |
 | `amp_nload` / `amp_nmirr` | mult=4 each | mult=4 each | drawn 1:1 |
 | `amp_pmirr` | mult=8 (splits=8) | mult=8 | drawn 1:1 |
 | `core_mirror` | mult=2 (splits=2) | mult=2 | drawn 1:1 |
+
+### 4a. Ladder scale reduction: closed (issue #62)
+
+**2AMLogic/klayout-tools#415 landed** (merged upstream via
+klayout-tools#418), adding `res_array`'s `rows` fold parameter. The routed
+flow (`layout/bin/gen_bandgap_routed.py`) therefore draws the R2A/R2B ladder
+at its **real 108-unit count**, folded into 9 rows:
+
+| | skeleton (#15) | routed (#62) |
+|---|---|---|
+| `res_r2` unit count | 16 | **108** (2 legs x n_r2=54) |
+| `res_r2` footprint | ~110 x 12 um | ~101 x 12 um (9 folded rows) |
+| composed cell bbox | 35,763 um^2 | **38,171 um^2** |
+| budget | 50,000 um^2 | 50,000 um^2 |
+
+Folding turns the ladder from the floorplan's width-dominating block into
+one of its smaller ones: 108 units cost ~1,231 um^2 of footprint, and the
+whole routed cell -- at the real count, with routing and the cell-level
+guard ring -- still lands ~24% inside the 0.05 mm^2 budget. `res_r1`
+(n_r1=7) and the trim ladder (32 taps) were already 1:1 and stay so; the
+trim ladder is now folded into 4 rows for the same footprint reason.
+
+The area-budget claim in Section 6 was previously caveated as "does not yet
+include the R2A/R2B ladder at its real count". That caveat is now closed.
 
 ## 5. Supply/ground and guard-ring strategy
 
@@ -215,11 +252,74 @@ Consistent with the measured PSRR (77.7 dB at DC, worst case sf/125 degC/
   tied to VDD via each block's own guard ring -- `diff_pair`'s
   `flavor="pfet"` draws this well automatically.
 - **Metal-trunk VDD/VSS routing and the trim-tap connectivity** (which
-  code-select tap on the trim ladder feeds which net) are explicitly
-  deferred -- see "Known limitations" below. The floorplan-level placement
-  above (short, direct paths from each block's own ring to a shared VDD/
-  VSS trunk running along the guard ring's own tap contacts) is the
-  intended strategy, not yet drawn.
+  code-select tap on the trim ladder feeds which net) were deferred by #15.
+  Issue #62 draws both -- see Section 5a.
+
+### 5a. What issue #62's routed flow actually draws, and the ring trade-off
+
+**Drawn now** (measured in the routed record's own net/pin tables):
+
+- Nine inter-block nets carrying the schematic's own names -- `VA`, `TRIM`,
+  `VB`, `VBQ` along the core's PNP/resistor string; `TAIL`, `D1`, `PN`
+  through the amplifier; and `VDD`/`VSS` supply hops. Each is drawn as
+  labelled `li1` metal, so it survives `klt extract`'s pin promotion as a
+  *named* `.SUBCKT` pin rather than an anonymous `$N` node.
+- Twenty-three promoted top-level pins, including every device gate
+  (`GDRV`, the amp's input and mirror gates) and the trim ladder's taps at
+  **both ends of the DR-002 downward-only range**: `TRIM_A_CODE_0` /
+  `TRIM_A_CODE_MINUS16` and the leg-B pair. That is the concrete answer to
+  "which tap feeds which net" -- both range endpoints on both legs are
+  addressable by name from a post-layout testbench (issue #16).
+
+**Not drawn, and not claimed as drawn.** Those nine are 2-pin hops, one
+adjacent block pair each. Scored against `design/bandgap_core.sch`'s *own*
+inter-block node list instead of against that declaration, **4 of 12
+schematic inter-block nets are joined across every block they reach**
+(`TRIM`, `VBQ`, `TAIL`, `PN`). The rest exist in the layout only as promoted
+pin labels on the blocks the metal never reached:
+
+- `VOUT` is a labelled pin on `core_mirror` and is **not** routed to the
+  R2A/R2B ladder tops.
+- `AOUT` (amp output) and `GDRV` (mirror gate drive) are **one node in the
+  schematic** but two separate, unrouted labelled pins in the layout.
+- `D2` is not drawn at all; `VA`, `VB`, `D1` are drawn between two of their
+  blocks but not to the amp gate they also feed.
+- The `VDD` trunk reaches 2 of its 3 blocks and `VSS` 2 of its 7 -- a trunk
+  is only expressible as a chain of 2-pin hops between blocks that happen to
+  be adjacent across an empty channel. `VSS`'s seven include the three
+  resistor blocks: `res_high_po` is a 3-terminal device whose bulk ties to
+  `VSS` in the schematic (`design/bandgap_core.sch` `r2ab`/`r2bb`/`r1b`).
+  The reference cards drop that bulk terminal because the `klt` LVS reader's
+  `res_generic_po` is 2-terminal, but the coverage table states what the
+  *schematic* requires, not what the reference happens to model.
+
+The routed record's "Schematic inter-block nets: drawn vs. labelled only"
+table is the measured, per-net version of this list, and issue #62's
+criterion 1 is scored **PARTIAL** on it. The cap is the same
+[klayout-tools#433](https://github.com/2AMLogic/klayout-tools/issues/433)
+single-routing-metal limit that blocks LVS closure, plus #434 below; the
+reference netlist is *not* adjusted to accommodate any of it (an earlier
+revision bridged `AOUT`/`GDRV` with a 0-ohm device -- that is removed).
+
+**The trade-off this forced.** `klt gen-compose`'s router rejects *every*
+route to a non-tap port on a block that reports a guard/collector ring (the
+route would cross the ring's own metal loop and merge with its tap net), and
+offers no opening to route through -- filed as
+[2AMLogic/klayout-tools#434](https://github.com/2AMLogic/klayout-tools/issues/434).
+So today, a matched group can have its own ring, or it can be wired to the
+rest of the circuit, but not both.
+
+The routed layout takes connectivity: **the per-matched-group rings
+(`diff_pair`'s `add_guard_ring`, `bjt_array`'s `add_collector_ring`) are
+off, and the cell-level ring is kept.** This is a real matching-quality
+regression against the strategy stated at the top of this section, recorded
+here rather than quietly dropped -- the per-group rings exist precisely to
+stop substrate noise near one group from coupling asymmetrically into a
+neighbour, which Section 1 identified as the dominant VOS term's mechanism.
+It should be reverted as soon as #434 (or a second routing metal, #433)
+makes ringed groups routable. The n-well under each PMOS group is still
+drawn by `diff_pair` itself, so the well-isolation half of the strategy is
+intact; only the local tap ring is absent.
 
 ## 6. Area budget
 
@@ -229,29 +329,36 @@ Consistent with the measured PSRR (77.7 dB at DC, worst case sf/125 degC/
 | MCC compensation cap, analytic (single-ended, not a matched pair -- see Section 2) | 9,600 um^2 |
 | Core PNP + resistor + mirror devices, analytic (drawn/emitter area only) | ~735 um^2 (MPOUT+MPAMP 64, Q1 3.7, Q2 92.5, R1 35, R2A+R2B 540) |
 | **Analytic device total** | **~21,215 um^2** |
-| **Skeleton composed floorplan bbox** (measured, includes guard rings, dummies, spacing, and the reduced R2A/R2B count from Section 4) | **35,763 um^2** (`layout/bandgap-core/reports/LATEST/record.md`) |
+| **Skeleton composed floorplan bbox** (measured, #15 -- includes guard rings, dummies, spacing, and the reduced R2A/R2B count from Section 4) | **35,763 um^2** (`layout/bandgap-core/reports/20260803-192947-e7a30b4/record.md`) |
+| **Routed composed floorplan bbox** (measured, #62 -- includes inter-block routing, the cell-level guard ring, and the **real 108-unit** R2A/R2B ladder) | **38,171 um^2** (`layout/bandgap-core/reports/LATEST/record.md`) |
 | **Budget** | **50,000 um^2 (0.05 mm^2)** |
 
-The skeleton's measured footprint (35,763 um^2) is within budget with
-~29% margin, but it does **not** yet include the R2A/R2B ladder at its
-real 108-unit count (Section 4) -- closing that gap (via
-2AMLogic/klayout-tools#415's folding capability, or a hand-folded layout)
-is the largest open item standing between this skeleton and a budget
-claim over the real design. `design/device-characterization-summary.md`'s
-own note on `MPOUT`/`MPAMP` sizing (a potential 6.25x per-unit-area
-increase to size E, flagged there for this issue) is a small fraction of
-the remaining margin even before folding closes the resistor gap, and is
-not expected to be a blocker on its own.
+The skeleton's measured footprint (35,763 um^2) was within budget with ~29%
+margin, but did **not** include the R2A/R2B ladder at its real 108-unit
+count. Issue #62 closed that gap (Section 4a): the routed cell draws the
+full 108-unit ladder *and* its inter-block routing and still measures
+38,171 um^2 -- ~24% inside the 50,000 um^2 budget. The budget claim now
+covers the real device counts, not a reduced-scale stand-in.
+`design/device-characterization-summary.md`'s own note on `MPOUT`/`MPAMP`
+sizing (a potential 6.25x per-unit-area increase to size E) is a small
+fraction of the remaining ~11,800 um^2 margin and is not expected to be a
+blocker on its own. The largest un-budgeted item is now MCC, still carried
+analytically (9,600 um^2) rather than drawn -- adding it would consume most
+of the remaining margin, so it is the next real area question.
 
 ## 7. `klt` generator mapping and friction
 
-| Matched group | Generator | DRC-clean | LVS-recognized |
-|---|---|---|---|
-| PNP arrays (Q1, Q2) | `bjt_array` | yes | no -- draws generic bipolar-shaped geometry from base layers, not the PDK's own vendor `pnp_05v5` cell (2AMLogic/klayout-tools#176's own design note); confirmed directly: `klt extract` on a `bjt_array` output reports `device_count: 0` |
-| Resistor ladders (R2A/R2B, R1, trim) | `res_array` | yes | no -- never draws the PDK's resistor-ID marker layer (2AMLogic/klayout-tools#369, already tracked before this issue) |
-| Amp input pair, NMOS loads/mirrors, PMOS mirror, core mirror | `diff_pair` | yes | not attempted (composed output is DRC-only this issue; see `gen_bandgap_floorplan.py`'s module docstring) |
-| Overall + per-group guard rings | `guard_ring` (standalone) / `add_guard_ring`/`add_collector_ring` (built into `diff_pair`/`bjt_array`) | yes | n/a |
-| 2D floorplan composition | `gen-compose` `placement.strategy: "explicit"` | n/a | n/a |
+Status as of issue #62's routed flow (the #15 column is kept because the
+skeleton's own checked-in records were produced under it):
+
+| Matched group | Generator | DRC-clean | Extraction status at #15 | Extraction status at #62 |
+|---|---|---|---|---|
+| PNP arrays (Q1, Q2) | `bjt_array` | yes | no -- `klt extract` on a `bjt_array` output reports `device_count: 0` | **yes, 16 `pnp` devices**, via a locally-composed recognition overlay (82/44 marker + 65/44 nwell tap per unit). The generator still draws neither -- [2AMLogic/klayout-tools#432](https://github.com/2AMLogic/klayout-tools/issues/432) |
+| Resistor ladders (R2A/R2B, R1, trim) | `res_array` | yes | no -- never drew the PDK's resistor-ID marker layer (2AMLogic/klayout-tools#369) | **yes, 159 `res_generic_po` devices** -- #369 merged upstream via klayout-tools#382 |
+| Amp input pair, NMOS loads/mirrors, PMOS mirror, core mirror | `diff_pair` | yes | not attempted | **yes, 52 `pfet` + 16 `nfet`** -- the nfet flavour needed klayout-tools#421 (guard-ring well tie enclosing nfet devices in nwell), merged via klayout-tools#426 |
+| Overall guard ring | `guard_ring` (standalone) | yes | n/a | n/a -- composed in a **second** `gen-compose` pass, because a ring enclosing the whole floorplan reports a bbox that the router treats as an obstacle vetoing every net |
+| Per-group guard rings | `add_guard_ring`/`add_collector_ring` (built into `diff_pair`/`bjt_array`) | yes | n/a | **off** -- mutually exclusive with routing today, see Section 5a and [klayout-tools#434](https://github.com/2AMLogic/klayout-tools/issues/434) |
+| 2D floorplan composition | `gen-compose` `placement.strategy: "explicit"` | n/a | n/a | plus `connectivity[]` routing and `pins[]` pin promotion |
 
 Friction filed or cross-confirmed while building this floorplan, per
 `CLAUDE.md`'s protocol (tool-gap description only, no design-specific
@@ -278,35 +385,88 @@ detail beyond a generic reproduction):
   `layout/trivial-cell/reports/` record confirming the bump does not
   regress issue #14's own DRC/LVS proof.
 
+### 7a. Friction filed while routing the core (issue #62)
+
+Three new gaps, all filed at `2AMLogic/klayout-tools` as generic tool-gap
+descriptions with no design content, per `CLAUDE.md`'s protocol:
+
+- **[klayout-tools#432](https://github.com/2AMLogic/klayout-tools/issues/432)**
+  -- `gen bjt_array` draws neither the bipolar device-recognition marker nor
+  the well tap that the *same tool's* sky130 extraction deck requires, so a
+  generated bipolar array extracts as zero devices. (Also reports a
+  secondary bug: a marker exactly coincident with the emitter makes
+  `klt extract` abort with an unhandled `RuntimeError` traceback rather than
+  its documented error envelope.) Worked around locally by the routed flow's
+  recognition overlay.
+- **[klayout-tools#433](https://github.com/2AMLogic/klayout-tools/issues/433)**
+  -- the router can only draw on the device-pad metal (sky130's role table
+  exposes one metal role and no via, though the extraction deck declares
+  two metals and a via), and self-nets are exempt from the obstacle check,
+  so intra-block bussing is drawn as a certified-`routed: true` short.
+  **This is the blocker on LVS closure** (Section 8).
+- **[klayout-tools#434](https://github.com/2AMLogic/klayout-tools/issues/434)**
+  -- no way to route into a guard-ringed block, forcing the ring/connectivity
+  trade-off in Section 5a.
+
+Two gaps this issue **picked up rather than filed**, having landed upstream
+in the interval: klayout-tools#415 (`res_array` row folding, Section 4a) and
+klayout-tools#421 (`diff_pair`'s nfet-in-nwell misclassification). Both are
+covered by `layout/requirements.txt`'s pin bump; #421's fix was verified
+effective before relying on it (an isolated `flavor: "nfet"` `diff_pair` now
+extracts `{"nfet": 8}`, not `pfet`).
+
 ## 8. Known limitations / follow-on work
 
-- **No LVS on the composed floorplan.** Both `bjt_array` and `res_array`
-  output are not recognized by `klt extract` as `pnp`/`resistor` devices
-  (Section 7). DRC-clean is this issue's acceptance bar; full LVS closure
-  on the bandgap core's actual layout is later work, and depends on
-  upstream `klt` capability this issue does not control.
-- **R2A/R2B ladder is at reduced scale** (Section 4) -- the real 108-unit
-  count needs either 2AMLogic/klayout-tools#415's folding capability or a
-  hand-folded layout to fit the area budget.
+- **LVS is not clean.** *(Still open; the reason changed.)* At #15 the
+  blocker was device recognition -- neither `bjt_array` nor `res_array`
+  output extracted as devices at all. That half is closed: the routed layout
+  extracts 16 `pnp`, 16 `nfet`, 52 `pfet` and 159 `res_generic_po` devices
+  with 23 named top-level pins. The remaining blocker is
+  **klayout-tools#433**: with a single routing metal shared with every
+  device pad, an array's units cannot be bussed into one node, so the
+  layout's 243 devices cannot collapse into the schematic's 17. `klt lvs`
+  runs and reports `mismatch`; the routed record's "LVS mismatch analysis"
+  section quantifies it. Rewriting the reference netlist to enumerate the
+  layout's own un-bussed devices would make LVS compare the layout against
+  itself and is explicitly not done.
+- ~~**R2A/R2B ladder is at reduced scale**~~ -- **closed** by issue #62, see
+  Section 4a. The ladder is drawn at its real 108-unit count.
+- **Per-matched-group guard rings are off in the routed layout** -- see
+  Section 5a. Revert as soon as klayout-tools#434 or #433 lands.
 - **The amp's 4-device NMOS load/mirror group (MN1-MN4) is split into two
-  matched pairs** (MN1/MN2 in row 2, MN3/MN4 in row 3) because `diff_pair`
-  only common-centroids two devices at a time; a true 4-device
-  common-centroid quad (the textbook ABBA/BAAB arrangement for a group
-  this size) is not directly expressible with today's generators. Not
-  filed as new friction this pass -- flagged here for whoever picks up
-  full tape-out-ready layout, since it may be resolvable by a different
-  placement of two `diff_pair` instances relative to each other rather
-  than needing a new generator.
-- **Metal-trunk VDD/VSS routing and trim-tap connectivity are not drawn**
-  (Section 5) -- the floorplan states the intended strategy; routing
-  itself is later work.
-- **Inter-block routing between matched groups** (e.g. Q1's emitter to
-  R2A, the amp's AOUT to GDRV) is not drawn -- this issue's skeleton
-  proves placement + DRC, not full-cell connectivity.
+  matched pairs** because `diff_pair` only common-centroids two devices at a
+  time; a true 4-device common-centroid quad (the textbook ABBA/BAAB
+  arrangement for a group this size) is not directly expressible with
+  today's generators. Not filed as new friction -- flagged here for whoever
+  picks up full tape-out-ready layout, since it may be resolvable by a
+  different placement of two `diff_pair` instances relative to each other
+  rather than needing a new generator.
+- **Inter-block connectivity is only partial** -- 4 of 12 schematic
+  inter-block nets are joined across every block they reach; `VOUT`,
+  `AOUT`/`GDRV` and `D2` are labelled pins with no metal between them, and
+  the `VDD`/`VSS` trunks each stop short of blocks they supply (Section 5a).
+  `klt gen-compose` routes 2-pin nets between channel-adjacent blocks only,
+  so this needs klayout-tools#433 (a second metal + via) or a floorplan whose
+  every net happens to fall between neighbours. Issue #62's criterion 1 is
+  scored PARTIAL, not MET, on this.
+- **Intra-block connectivity is not drawn** -- each array's units, each
+  ladder's series segments, and each matched pair's split fingers remain
+  separate nodes. This is the klayout-tools#433 consequence above, and is a
+  deliberate choice not to draw a wire the tool would certify as routed
+  while producing an electrical short.
+- **MCC is still not drawn** (analytic allocation only, Section 6) -- now
+  the largest single un-budgeted item.
 
 ## 9. Evidence
 
-- Floorplan generation/placement/DRC driver:
+- Routed layout driver (issue #62 -- gen/draw/compose+route/drc/extract/lvs):
+  `layout/bin/gen_bandgap_routed.py`,
+  `layout/bin/run-bandgap-routed-flow.sh`
+- LVS reference netlist (schematic side, transcribed from
+  `design/bandgap_core.sch` + `design/error_amp.sch` and corroborated by the
+  checked-in `n_r2=54` xschem snapshot its header cites, never derived from
+  the layout): `layout/bandgap-core/reference.spice`
+- Floorplan generation/placement/DRC driver (issue #15, unchanged):
   `layout/bin/gen_bandgap_floorplan.py`,
   `layout/bin/run-bandgap-floorplan-flow.sh`
 - Current record (read this for the actual pass/fail evidence):

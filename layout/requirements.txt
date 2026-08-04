@@ -26,4 +26,31 @@
 # layout/bin/run-trivial-cell-flow.sh unmodified after the bump (still
 # PASS, identical verdict; see trivial-cell/reports/ for the refreshed
 # record).
-klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@67ae02ed6199c0d9c314771669fbbc925364587a
+#
+# Bumped for issue #62 (routed bandgap-core layout). The prior pin
+# (67ae02ed6199c0d9c314771669fbbc925364587a) predates three capabilities this
+# issue's flow depends on, all now merged upstream:
+#
+#   * `res_array`'s `rows` fold parameter (2AMLogic/klayout-tools#415, merged
+#     via #418) -- the reason the #15 skeleton drew a reduced 16-unit R2A/R2B
+#     ladder instead of the real 108. With folding, 108 units occupy ~1,231
+#     um^2 instead of a ~710 um-long single row, and the real count fits the
+#     area budget. This is what closes issue #62's acceptance criterion 2.
+#   * the `diff_pair` nfet/pfet misclassification fix (#421, merged via #426)
+#     -- before it, every `flavor: "nfet"` device was enclosed in the
+#     guard-ring well tie and extracted as `pfet`. Verified effective at this
+#     pin: an isolated nfet `diff_pair` now extracts `{"nfet": 8}`, and the
+#     composed layout reports both flavours.
+#   * the `res_array` resistor-ID marker fix (#369, merged via #382) -- a
+#     drawn ladder now extracts as `res_generic_po` resistors rather than
+#     plain interconnect.
+#
+# It also carries `klt gen-compose`'s two-pin routing, `connectivity[]` net
+# labels and `pins[]` pin promotion, which is what lets the routed flow draw
+# real inter-block metal and promote named top-level pins.
+#
+# Additive to everything the earlier flows use: re-running
+# layout/bin/run-trivial-cell-flow.sh unmodified after the bump still PASSes
+# with the identical verdict (see trivial-cell/reports/ for the refreshed
+# record).
+klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@680ee42edf2319aa944f66df1f6f7db3975a73c4
