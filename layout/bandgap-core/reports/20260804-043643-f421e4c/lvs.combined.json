@@ -1,0 +1,1147 @@
+{
+  "schema_version": 1,
+  "engine": "klayout",
+  "layout": "bandgap_core_routed.extract.spice",
+  "reference": "reference.spice",
+  "top": "BANDGAP_CORE_ROUTED",
+  "status": "mismatch",
+  "mismatch_count": 81,
+  "category_counts": {
+    "device.unmatched": 38,
+    "net.merged": 2,
+    "net.split": 41
+  },
+  "counts": {
+    "nets": {
+      "layout": 192,
+      "reference": 11,
+      "matched": 1
+    },
+    "devices": {
+      "layout": 37,
+      "reference": 16,
+      "matched": 5
+    },
+    "pins": {
+      "layout": 16,
+      "reference": 4,
+      "matched": 17
+    }
+  },
+  "device_classes": null,
+  "environment": {
+    "engine": "klayout",
+    "engine_version": "0.30.10",
+    "layout_sha256": "c489cec3513ce268036b069aa02fd97818c651d228bf220353b4dd8d7cf2ac42",
+    "reference_sha256": "acc813a100c1c9442ae848a604d2fe30b849fa9a0e7c917cc1633bdabcfca1c4",
+    "extracted_netlist": null
+  },
+  "provenance": {
+    "klt_version": "0.1.0",
+    "klayout_version": "0.30.10",
+    "pdk": null,
+    "deck": null,
+    "input": null
+  },
+  "mismatches": [
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$167",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$168",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$169",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$170",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$228",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$229",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$230",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$231",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$232",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$238",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$241",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$242",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$248",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$250",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$251",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$69",
+        "reference": null,
+        "class": "PNP"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$70",
+        "reference": null,
+        "class": "PNP"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$74",
+        "reference": null,
+        "class": "PNP"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$75",
+        "reference": null,
+        "class": "PNP"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$80",
+        "reference": null,
+        "class": "PNP"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$81",
+        "reference": null,
+        "class": "PNP"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$82",
+        "reference": null,
+        "class": "PNP"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$86",
+        "reference": null,
+        "class": "PNP"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$87",
+        "reference": null,
+        "class": "PNP"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$92",
+        "reference": null,
+        "class": "PNP"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$93",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": "$94",
+        "reference": null,
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "reference",
+      "net": null,
+      "device": {
+        "layout": null,
+        "reference": "MCC",
+        "class": "PFET"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "reference",
+      "net": null,
+      "device": {
+        "layout": null,
+        "reference": "Q1",
+        "class": "PNP"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "reference",
+      "net": null,
+      "device": {
+        "layout": null,
+        "reference": "Q2",
+        "class": "PNP"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "reference",
+      "net": null,
+      "device": {
+        "layout": null,
+        "reference": "R1",
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "reference",
+      "net": null,
+      "device": {
+        "layout": null,
+        "reference": "R2A",
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "reference",
+      "net": null,
+      "device": {
+        "layout": null,
+        "reference": "R2B",
+        "class": "RES_GENERIC_PO"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "reference",
+      "net": null,
+      "device": {
+        "layout": "$1",
+        "reference": "MN1",
+        "class": "NFET"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "reference",
+      "net": null,
+      "device": {
+        "layout": "$10",
+        "reference": "MN4",
+        "class": "NFET"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "reference",
+      "net": null,
+      "device": {
+        "layout": "$18",
+        "reference": "MP2",
+        "class": "PFET"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "reference",
+      "net": null,
+      "device": {
+        "layout": "$2",
+        "reference": "MN2",
+        "class": "NFET"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "reference",
+      "net": null,
+      "device": {
+        "layout": "$9",
+        "reference": "MN3",
+        "class": "NFET"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.merged",
+      "severity": "error",
+      "description": "multiple reference nets were collapsed into one layout net",
+      "side": "reference",
+      "net": {
+        "layout": null,
+        "reference": "VBQ"
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.merged",
+      "severity": "error",
+      "description": "multiple reference nets were collapsed into one layout net",
+      "side": "reference",
+      "net": {
+        "layout": null,
+        "reference": "VSS"
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$156",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$157",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$158",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$159",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$160",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$161",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$162",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$163",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$171",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$172",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$173",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$174",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$181",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$182",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$183",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$184",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$20",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$22",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$24",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$37",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$38",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$39",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$41",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$5",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$6",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$7",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$78",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$79",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$8",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$93",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$94",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$95",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "$96",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "D2",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "TRIM_A",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "TRIM_A_CODE_0",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "TRIM_B",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "TRIM_B_CODE_0",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "VBQ",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "VSS",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "net.split",
+      "severity": "error",
+      "description": "a reference net's role is divided across multiple layout nets",
+      "side": "layout",
+      "net": {
+        "layout": "VSUBS",
+        "reference": null
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    }
+  ],
+  "net_correspondence": [
+    {
+      "layout": "TAIL",
+      "reference": "TAIL",
+      "pin": true
+    }
+  ],
+  "combine_devices": true
+}
