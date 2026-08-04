@@ -1048,6 +1048,119 @@ that same pair by naming what kind of relief each half needs: `D1` and
 inter-block router never reorders), while `VSS` needs **corridor** relief in
 row 0 wide enough for `VOUT`, `VA` and `res_r2`'s own bus at once.
 
+### 7i. Eleventh increment: `VSS`'s row-0 re-placement attempted directly -- fixes `VSS`, at the cost of a different row-0 net each time, no net win, not shipped
+
+Every prior increment on `VSS`'s hop (7d/7f/7g) narrowed the candidate to "a
+`pnp_ctat`/`res_r2`/`pnp_ptat` **re-placement**, not just re-spacing" without
+attempting one, on the grounds that a real floorplan/matching redesign does
+not fit the bounded, single-lever pattern the other levers here were tested
+under. This increment attempted the cheapest possible re-placement move --
+reordering row 0's five `BLOCKS` entries left-to-right, which changes no
+device's own topology or generator params and costs zero area (row 0's width
+is a sum of the same five block widths plus `BLOCK_MARGIN_UM` regardless of
+order, and row 0 has never been the floorplan's widest row -- row 1,
+driven by `amp_input_pair`, is, per Section 7f) -- to test the theory
+directly with two concrete orderings, each run to completion.
+
+**Why this is a real placement change, not a parameter sweep.** Baseline row
+0 order is `pnp_ctat, res_r2, res_trim, res_r1, pnp_ptat` -- `VSS`'s two
+trunks (`pnp_ctat`/`pnp_ptat`) sit at opposite ends of the row, so its hop
+must cross all three resistor blocks, competing for the same corridor
+`VA`'s and `VOUT`'s own routes already use (Section 7g's replay-harness
+finding). Moving the PNP blocks adjacent to each other removes that
+crossing entirely for `VSS` -- which is exactly what both experiments below
+confirm happens -- but the resistor blocks' own inter-block partners
+(`VA`/`VB`/`VBQ`, each anchored on `res_trim`/`res_r1`) do not go away, so
+the question was always whether *something* has to give, not whether `VSS`
+itself can be fixed.
+
+**Experiment 1: `res_r2, res_trim, res_r1, pnp_ctat, pnp_ptat`** (both PNP
+blocks moved to the row's right end, resistor blocks keep their existing
+relative order). Full flow run to completion, DRC clean,
+`device_counts`/`pin_count` unchanged, composed bbox unchanged (row 1 is
+still the width-driving row, confirmed with `place_blocks()` called
+directly against the recorded `*.gen.json` bboxes before spending a flow
+run on it). Result:
+
+| net | baseline (`496ab43`/`4fb2a3a`) | experiment 1 |
+| --- | --- | --- |
+| `VSS` | partial (blocked at `pnp_ctat`) | **drawn** -- all 5 hops routed, 0 conflicts |
+| `VB` | drawn | **partial** -- blocked at `amp_input_pair`, vetoed 4764/5636 times by `VA` alone |
+| `D1`, `GDRV` | partial (unchanged) | partial (unchanged) -- confirms Section 7g's finding that these two are untouched by row 0, since neither block moved |
+
+`VSS` routes cleanly for the first time in this issue's history: every hop
+of its 5-terminal chain succeeds with zero rejected candidates worth
+naming. But `VB`'s hop into `amp_input_pair` -- previously fully drawn --
+now fails, vetoed overwhelmingly by `VA`'s own route (which, with
+`pnp_ctat` now two blocks further from `res_trim` than at baseline, has to
+cross more of row 0's own width to reach it, and claims the same ascent
+corridor into `amp_input_pair` that `VB` needs). Schematic coverage stays
+at **9/12** (a lateral trade, not a gain), `mismatch_count` stays at **92**
+-- byte-identical to baseline in the one metric AC4 actually gates on.
+
+**Experiment 2: `res_r2, res_trim, pnp_ctat, pnp_ptat, res_r1`** (PNP blocks
+moved between `res_trim` and `res_r1` instead, preserving `res_trim`-`pnp_ctat`
+adjacency for `VA` and `pnp_ptat`-`res_r1` adjacency for `VBQ`, hypothesising
+that keeping *two* of the three resistor-to-PNP relationships short would
+cost less than experiment 1's one-sided move). Full flow run to completion,
+DRC clean, same device/pin counts. Result: **worse, not better**.
+
+| net | baseline | experiment 2 |
+| --- | --- | --- |
+| `VA` | drawn | drawn (unchanged -- the adjacency this ordering targeted held) |
+| `VB` | drawn | **drawn** (fixed -- routes via a different chain now that `res_trim`/`res_r1` are not forced adjacent) |
+| `VBQ` | drawn | drawn (unchanged -- the other adjacency this ordering targeted held) |
+| `TRIM` | drawn | **labelled only** -- new casualty, `res_r2`-`res_trim` no longer joins |
+| `VSS` | partial | **partial** (still not fixed -- `amp_nload`/`pnp_ctat`/`pnp_ptat` join but `amp_nmirr` does not, a different missing leg than baseline's) |
+
+Schematic coverage drops to **8/12** (down from 9/12) and `mismatch_count`
+rises to **94** (up from 92, `nets.layout` also grew 191 -> 193) -- a net
+regression on both of AC1's and AC4's own gated numbers. Putting the two PNP
+blocks *between* the three resistor blocks fixes `VB` (this ordering's own
+target) but breaks `TRIM` (`res_r2`-`res_trim`, previously trivial since
+they were adjacent at baseline) and only partially helps `VSS` (three of its
+four legs join, not all).
+
+**Neither experiment ships.** Per this issue's established convention for a
+tried-and-not-net-positive lever (Sections 7d-7h), `BLOCKS`'s row 0 order is
+reverted to baseline and neither experiment's report directory is committed.
+Experiment 1 is the closer of the two -- proof that `VSS` itself is fixable
+by placement alone, with a measured, named cost (`VB`) rather than a vague
+one -- but "byte-identical `mismatch_count`, one schematic net traded for
+another" is not a criterion-1 or criterion-4 improvement, and shipping it
+would just swap which section of this document explains the remaining 3/12
+gap without changing its size.
+
+**What this closes off, and what it leaves open.** A single 1D reordering of
+row 0's five blocks cannot satisfy all four of the row's own adjacency
+wants at once: `VA` (`res_trim`-`pnp_ctat`), `VB` (`res_trim`-`res_r1`,
+mediated through `amp_input_pair`), `VBQ` (`res_r1`-`pnp_ptat`), and `VSS`
+(`pnp_ctat`-`pnp_ptat`) form a 4-edge cycle over the row's own two PNP
+blocks and two of its three resistor blocks (`res_r2` is not part of the
+cycle and never moved in either experiment). Five slots in a line supply at
+most four adjacent pairs, and the cycle needs all four simultaneously to
+avoid trading one for another -- confirmed twice now, in both directions
+this increment tried. This rules out "row 0, reordered" as a category, on
+top of Section 7f's already-ruled-out "row 0, respaced" -- consistent with
+Section 7d/7g's original framing that `VSS` needs **corridor** relief (more
+physical room for `VOUT`/`VA`/`res_r2`'s bus to coexist with `VSS`'s own
+hop), not just a different arrangement of the same room. The remaining
+candidate is unchanged in kind: a genuine 2D floorplan revision (e.g. a
+second row for the resistor group, freeing row 0 for the two PNP blocks
+alone -- not attempted here because it adds a full `ROW_MARGIN_UM` and a new
+row height to the height budget; a back-of-envelope check against this
+increment's own `place_blocks()` figures -- new row 0 (PNPs only) 58.2 x
+9.14 um, new row 1 (resistors) 225.08 x 12.2 um, rows 2/3 (the former
+row 1/row 2, unchanged) 308.2 x 43.38 um and 274.06 x 19.08 um, stacked with
+the existing 22 um `ROW_MARGIN_UM` between each -- puts the resulting
+composed bbox (guard ring included, `+20` um each dimension per Section 6's
+own convention) at `(308.2+20) x (149.8+20) = 55,728` um^2 against the
+50,000 um^2 budget, over by about 11%, so that specific shape of fix would
+need to shrink the budget's consumption elsewhere first, not just add a row)
+or a corridor carved out of the existing row 0/row 1 margin specifically for
+`VSS`'s trunk-to-trunk hop. Both remain real redesigns, not attempted in
+this pass.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed three
@@ -1173,8 +1286,19 @@ row 0 wide enough for `VOUT`, `VA` and `res_r2`'s own bus at once.
   floorplan-split-plus-row-0-*re-placement* pair (not mere re-spacing) above
   remains the only unexplored path to closing AC1; `GDRV`'s blocked hop
   takes over `VDD`'s former role as the split candidate's target (both touch
-  `core_mirror`'s row-1/row-2 crossing), `VSS`'s row-0 re-placement candidate
-  is untouched by any of this.
+  `core_mirror`'s row-1/row-2 crossing). The eleventh increment (Section 7i)
+  finally attempted the row-0 half directly -- reordering row 0's five
+  blocks so both PNP arrays sit adjacent, at zero area cost -- and found
+  `VSS` genuinely fixable this way (all 5 hops routed, 0 conflicts) but
+  every ordering tried trades it for a different row-0 net (`VB` in the
+  cheaper ordering, `VB` fixed but `TRIM` and part of `VSS` itself lost in
+  the other), net schematic coverage flat at best (9/12, `mismatch_count`
+  byte-identical at 92) and worse at worst (8/12, `mismatch_count` 94).
+  Neither shipped. This rules out 1D row-0 reordering as a category (on top
+  of Section 7f's already-ruled-out re-spacing) and leaves a genuine 2D
+  floorplan revision -- a second row for the resistor group (measured over
+  budget by ~11% at this floorplan's current sizing, per Section 7i) or a
+  dedicated row 0/row 1 corridor -- as the only path left for `VSS`.
 - **Intra-block bussing is drawn for every device family**, on met1
   (Section 5a) -- PNP arrays, resistor ladders, and (from the fourth
   increment) MOS fingers. Each split MOS group now extracts and combines
