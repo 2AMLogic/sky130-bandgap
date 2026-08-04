@@ -757,6 +757,83 @@ plus a separate row-0 corridor fix between `pnp_ctat` and `pnp_ptat` (for
 `VSS`) -- both real floorplan/matching redesigns, not parameter tuning, and
 still not attempted.
 
+### 7f. Eighth increment: widening row 0's own block margin, run to completion -- `VSS`'s blocker unchanged, `GDRV` regresses, ruled out
+
+Sections 7d/7e narrowed the remaining candidate for `VSS`'s hop
+(`pnp_ctat:VSS trunk` -> `pnp_ptat:VSS trunk`) to "a separate row-0 corridor
+fix between `pnp_ctat` and `pnp_ptat`" but flagged that an actual
+`amp_input_pair` split is a real matching-topology redesign, out of scope
+for a single bounded increment. This increment looked for a smaller,
+row-0-only lever short of that redesign: `place_blocks()`'s
+`BLOCK_MARGIN_UM` (the horizontal clearance between blocks placed
+side-by-side in the same row) is a single global constant, applied to every
+row's gaps identically. Row 0 (`pnp_ctat`/`res_r2`/`res_trim`/`res_r1`/
+`pnp_ptat`, 5 blocks, 4 gaps) is not the floorplan's widest row -- row 1
+(driven by `amp_input_pair`) is, at 308.2 um vs. row 0's 299.28 um measured
+from the `20260804-065252-496ab43` record's `compose.inner.json` -- so
+widening only row 0's own gaps looked like a plausible, bounded, mostly-free
+lever: up to ~9 um of it costs nothing (row 0 is re-centered under row 1's
+already-wider span), and the < 0.05 mm^2 area budget (Section 6) had ~9.8%
+headroom (45,508 / 50,000 um^2 used) for the rest.
+
+**What was tried.** Added a `ROW_BLOCK_MARGIN_OVERRIDE_UM = {0: 24.0}` table
+to `gen_bandgap_routed.py` (row 0's margin 16 -> 24 um, i.e. +8 um per gap x
+4 gaps = +32 um of row-0 width), consulted by `place_blocks()` in place of
+the flat `BLOCK_MARGIN_UM` on a per-row basis -- every other row's geometry
+is untouched. Chosen conservatively so the resulting composed bbox
+(estimated ~48.7k um^2 from the width delta) stayed under the 50,000 um^2
+budget with margin to spare, confirmed by the actual run below.
+
+**The run completed** (record `20260804-104732-fc95614`, ~16 min wall
+time -- inside the flow's normal ~13-16 min range, not the prior session's
+unexplained hang). DRC stayed clean, `device_counts`/`pin_count` unchanged,
+composed bbox grew **45,508 -> 48,708 um^2** (still under the 50,000 budget,
+but consuming nearly all the remaining headroom for a change that, per the
+comparison below, bought nothing).
+
+| net | baseline (`496ab43`) | this experiment (row 0 margin 16->24) |
+| --- | --- | --- |
+| `VDD` | partial (blocked at `amp_input_pair`) | partial (blocked at `amp_input_pair`, unchanged) |
+| `D1` | partial (blocked at `amp_nmirr`) | partial (blocked at `amp_nmirr`, unchanged) |
+| `VSS` | partial (blocked at `pnp_ctat`) | partial (blocked at `pnp_ctat`, unchanged) |
+| `GDRV` | **drawn** | **partial** -- newly blocked at `core_mirror` |
+
+**`VSS`'s own blocker did not move at all** -- the coverage table's "not
+drawn" column names the identical block (`pnp_ctat`) before and after, so
+the extra row-0 corridor this change added was not the resource the router
+was short of for that hop; whatever `VSS`'s actual path needs, more
+horizontal gap between row 0's blocks is not it. `D1` and `VDD` were
+similarly untouched (both still blocked at the same block as baseline).
+Worse, `GDRV` -- fully drawn at baseline -- regressed to partial: the
+whole-cell net-order search picked a different winning order once row 0's
+blocks sat further apart, and that reshuffle cost `GDRV`'s route through
+`core_mirror` even though nothing about `GDRV`'s own hop touches row 0.
+Schematic inter-block coverage moved **9/12 -> 8/12** (a net regression, not
+a lateral trade this time) and `mismatch_count` moved **106 -> 107** (one
+worse). This is the same failure mode Section 7e already demonstrated for
+the per-hop channel window -- widening a router resource anywhere on this
+floorplan reshuffles the whole-cell order search's winner, and a hop
+untouched by the widened resource can still lose from the reshuffle -- now
+confirmed for a floorplan-geometry lever too, not just a search-parameter
+one.
+
+**Ruled out, and reverted (not shipped)**: widening row 0's own
+`BLOCK_MARGIN_UM` is not a lever for `VSS` (or `D1`/`VDD`) -- it left the
+actual blocking contention untouched while regressing a previously-drawn
+net and consuming most of the remaining area-budget headroom for zero
+gain. `ROW_BLOCK_MARGIN_OVERRIDE_UM` and the `place_blocks()` per-row
+lookup it drove were reverted after this measurement, not shipped; the new
+report directory this run produced was not committed either, per this
+issue's established convention for a tried-and-ruled-out lever (Sections
+7d/7e). This closes out "wider gap, same floorplan" as a category of
+lever for `VSS`'s hop specifically (distinct from the whole-row-1-blocking
+`amp_input_pair` split candidate, which this increment does not bear on
+either way): the remaining candidates for AC1 closure are unchanged from
+Section 7d/7e -- a floorplan revision splitting `amp_input_pair` (for
+`D1`/`VDD`) and a `pnp_ctat`/`res_r2`/`pnp_ptat` **re-placement** (not
+just re-spacing) for `VSS` -- both real floorplan/matching redesigns, still
+not attempted.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed three
@@ -841,8 +918,19 @@ still not attempted.
   but could not verify it) and found it is **not** a lever either: it
   freed `VDD` but broke a previously-drawn net (`TAIL`) in trade, net
   schematic coverage unchanged at 9/12, `mismatch_count` 106 -> 105 (not
-  material), runtime nearly doubled. Reverted, not shipped. The
-  floorplan-split-plus-row-0-fix pair above remains the only unexplored
+  material), runtime nearly doubled. Reverted, not shipped. The eighth
+  increment (Section 7f) tried the row-0-only half of the fix pair without
+  the full `amp_input_pair` redesign -- widening `place_blocks()`'s
+  block-to-block margin for row 0 alone (16 -> 24 um) -- and found it is
+  **not** a lever either: `VSS`'s blocked hop stayed blocked at the exact
+  same block (`pnp_ctat`) before and after, so the extra spacing was not the
+  resource its route was short of, while a previously-drawn net (`GDRV`)
+  regressed to partial as an unrelated side effect of the whole-cell order
+  search picking a different winner. Schematic coverage moved 9/12 -> 8/12
+  (a net loss, not a lateral trade this time), `mismatch_count` 106 -> 107,
+  and composed area grew to within ~3% of the 50,000 um^2 budget for the
+  privilege. Reverted, not shipped. The floorplan-split-plus-row-0-*re-
+  placement* pair (not mere re-spacing) above remains the only unexplored
   path to closing AC1.
 - **Intra-block bussing is drawn for every device family**, on met1
   (Section 5a) -- PNP arrays, resistor ladders, and (from the fourth
