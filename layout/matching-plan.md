@@ -299,7 +299,7 @@ per-net breakdown.
 > schematic inter-block nets were fully drawn and no MOS gate could be
 > contacted at all, so every remaining gap terminated on a gate.
 
-**MOS gates are contacted, and the matched pairs are bussed** (third
+**MOS gates are contacted, and the matched pairs are bussed** (fourth
 increment). Every `klt gen` MOS generator on sky130 draws gate poly with
 **exactly** the active region's extent (poly and diff share both edges) and
 reports the gate port on that shared boundary, so the generator leaves no
@@ -320,7 +320,7 @@ contains: one met1 **lane** per node inside each device row (a unit's li1
 pad is the device's full width tall, so each node drops its vias at its own
 lane's height and lanes never need to cross), nested riser/escape bundles
 either side, and a guard-ring tie dropped where the ring's node already runs
-over its west band. `klt lvs` now folds the layout to 38 devices against the
+over its west band. `klt lvs` now folds the layout to 37 devices against the
 reference's 16, with 5 device and 1 net correspondences established -- from
 97-vs-16 and none in the second increment.
 
@@ -348,6 +348,10 @@ earlier revision bridged `AOUT`/`GDRV` with a 0-ohm device -- that stays
 removed).
 
 ### 5b. Corrections and additions from the third increment (issue #62)
+
+> The fourth increment (Section 5a's gate-contact bus) kept every correction
+> below, and Section 5c records where its own measurements superseded the
+> numbers quoted here.
 
 The paragraph above was **not accurate**, and the third increment's first
 job was to find out how much of "blocked on the gate gap" was really the
@@ -405,9 +409,9 @@ label both landed on amp_pmirr's `M2` -- MP3's drain and MP4's drain on one
 physical transistor -- and amp_nload's `D1` route and `D1_GATE` label
 disagreed about which half is MN1. `MOS_HALVES` in
 `layout/bin/gen_bandgap_routed.py` binds every half to a named schematic
-device, and both routes and gate pin labels resolve through it. Neither
-error was visible to DRC or to the drawn-short check: every terminal
-involved is legal, well-separated metal.
+device, and every route resolves through it. Neither error was visible to DRC
+or to the drawn-short check: every terminal involved is legal, well-separated
+metal.
 
 **Net effect on the acceptance criteria.** Criterion 1 stays **PARTIAL** at
 6/12 fully drawn -- the six that remain short are genuinely short, and this
@@ -418,6 +422,32 @@ zero. Criterion 4 stays **NOT MET**: `mismatch_count` 365 -> 355, with
 `devices.matched` still 0, because no split MOS group can collapse into the
 `m=N` device the schematic states while every gate is unreachable. That
 number will not move materially until klayout-tools#461 lands.
+
+### 5c. Where the fourth increment's measurements supersede 5b's
+
+Section 5b is the third increment's account and is left as written; three of
+its numbers were measured on a floorplan with no MOS bussing in it and do not
+survive the fourth increment's, which draws several times as much metal:
+
+- **`unrouted: 0` (5b item 1) is no longer true** -- four declared nets
+  (`VB`, `VOUT`, `D2`, `VSS`) lose a hop on the bussed floorplan. The
+  channel router that closed `VSS` in the third increment is still here and
+  is still what makes those nets *mostly* drawn; it is now tried after the
+  short-detour ladder rather than before it, because a corridor across the
+  whole cell is worth taking only when nothing cheaper works. Criterion 1 is
+  scored on schematic-node coverage, which went **6/12 -> 8/12**.
+- **The `TAIL|VOUT` collision (5b item 4) has a second instance.** Retiring
+  the gate-port pin labels removed the mechanism that caused the first one,
+  but this branch's own pre-merge record shipped `TRIM_A_CODE_MINUS16|VA`:
+  a trim-tap label on a pad the drawn `VA` net already contacts. The
+  claimed-pad set (`routed_ports()`) still filters the trim taps, and the
+  netlist scan still gates the flow -- which is how it was found.
+- **`MOS_HALVES` is no longer a per-net pad lookup.** With both halves' S/D/G
+  bussed from the generator's own port names there is no per-net pad choice
+  left to bind; the table now names the schematic device each port family is,
+  and every block's bus spec is written in schematic device names and
+  resolved through it (`resolve_bus_devices()`), which rejects an unbound
+  device or a doubly-bound half outright.
 
 ## 6. Area budget
 
@@ -506,7 +536,7 @@ detail beyond a generic reproduction):
   guard-ringed block, so per-group rings and connectivity are no longer
   mutually exclusive (Section 5a).
 
-**Second increment (PR #65), and where each stands after the third:**
+**Second increment (PR #65), and where each stands after the fourth:**
 
 - **[klayout-tools#454](https://github.com/2AMLogic/klayout-tools/issues/454)**
   -- re-raises #433's un-shipped half: there is still no metal2/via role or
@@ -515,7 +545,7 @@ detail beyond a generic reproduction):
 - **[klayout-tools#461](https://github.com/2AMLogic/klayout-tools/issues/461)**
   -- MOS gate poly is drawn exactly coincident with the diffusion edge, so
   the generator leaves no landing area a contact can sit on. Still open
-  upstream; the third increment stops waiting on it and draws the missing
+  upstream; the fourth increment stops waiting on it and draws the missing
   poly extension itself (Section 5a). That is a layout-side workaround, not
   a fix: the extension's size, direction and the room it has to fit in are
   decided here, per block, rather than by the generator that knows the
@@ -529,7 +559,7 @@ detail beyond a generic reproduction):
   a schematic built on a higher-sheet-rho flavour has no matching drawable
   device class.
 
-**Third increment (this PR), filed while bussing the matched pairs:**
+**Third increment (PR #67), one new filing:**
 
 - **[klayout-tools#470](https://github.com/2AMLogic/klayout-tools/issues/470)**
   -- when two different net labels land on one electrical net, KLayout names
@@ -541,7 +571,12 @@ detail beyond a generic reproduction):
   Found because the second increment's own layout had shipped one; see
   Section 5b item 4. The flow scans the extracted netlist for it and gates on
   the result, but every caller having to reinvent a `"|" in name` check is
-  the gap.
+  the gap. Still earning its keep in the fourth increment: this branch had
+  retired the pin-label table that caused the original collision and shipped
+  a `TRIM_A_CODE_MINUS16|VA` net anyway, which the gate caught on merge.
+
+**Fourth increment (this PR), filed while bussing the matched pairs:**
+
 - **[klayout-tools#484](https://github.com/2AMLogic/klayout-tools/issues/484)**
   -- `diff_pair`'s guard-ring padding, inter-row spacing and ring width are
   module constants with no parameter, and the band they leave between the
@@ -553,11 +588,11 @@ detail beyond a generic reproduction):
   a contact", #484 is "there is nowhere beside it to put the wire that
   leaves it".
 
-None of #462/#463 moved upstream during the third increment, so none of their
-consequences changed. #461 has not moved either, but this increment stops
-waiting on it and draws the missing gate landing area itself (Section 5a) --
-so what changed most is how much is attributed to it: Section 5b lists the
-things that had been recorded as blocked by #461 and were not.
+None of #461/#462/#463 moved upstream during the third or fourth increments,
+so none of their consequences changed by themselves. What changed is how much
+is attributed to them: the third increment (Section 5b) found four things
+recorded as blocked by #461 that were not, and the fourth stops waiting on
+#461 altogether and draws the missing gate landing area itself (Section 5a).
 
 Two gaps the first increment **picked up rather than filed**, having landed
 upstream in the interval: klayout-tools#415 (`res_array` row folding,
@@ -568,15 +603,18 @@ bump; #421's fix was verified effective before relying on it (an isolated
 
 ## 8. Known limitations / follow-on work
 
-- **LVS is not clean.** *(Still open; the reason has changed three times
+- **LVS is not clean.** *(Still open; the reason has changed four times
   now.)* At #15 the blocker was device recognition -- neither `bjt_array`
   nor `res_array` output extracted as devices at all. The first increment
   (PR #64) closed that and hit the single-routing-metal bussing gap
   (klayout-tools#433). The second (PR #65) closed *that* with a layout-side
   met1 bus and hit the gate-contact gap (klayout-tools#461), leaving 365
-  mismatches. This increment works around #461 by drawing the gate's missing
+  mismatches. The third (PR #67) bound the device halves, wired the bulk
+  terminals and closed the `VSS` routing hole, taking it to 355 -- with
+  `devices.matched` still 0, because nothing can fold while every gate is
+  unreachable. This increment works around #461 by drawing the gate's missing
   poly landing area itself (Section 5a) and buses every matched pair, taking
-  the count to **85**: `klt lvs` now folds 38 layout devices against the
+  the count to **81**: `klt lvs` now folds 37 layout devices against the
   reference's 16 (from 97) and establishes 5 device and 1 net
   correspondences (from none). The remaining causes, in order of size:
   four inter-block nodes this repo's own met1 router still cannot draw
@@ -603,14 +641,15 @@ bump; #421's fix was verified effective before relying on it (an isolated
   rather than needing a new generator.
 - **Inter-block connectivity is now mostly drawn, but not complete** -- 8 of
   12 schematic inter-block nets are joined across every block they reach (4
-  in the first increment, 6 in the second), via met1 (Section 5a). The four
-  that are not (`VB`, `VOUT`, `D2`, `VSS`) each have one hop this repo's own
-  router could not place without a drawn short. That is the first time the
-  residual gap on this criterion is *ours* rather than upstream's, and it is
-  the obvious next lever: a maze router over the placement channels, rather
-  than `gen_bandgap_routed.py`'s current fixed repertoire of elbow and
-  Z-shaped candidate paths, should close it without any new tool capability.
-  Issue #62's criterion 1 is scored PARTIAL, not MET, on this.
+  in the first increment, 6 in the second and third), via met1 (Section 5a).
+  The four that are not (`VB`, `VOUT`, `D2`, `VSS`) each have one hop this
+  repo's own router could not place without a drawn short. That is the first
+  time the residual gap on this criterion is *ours* rather than upstream's,
+  and it is the obvious next lever: a maze router over the placement
+  channels, rather than `gen_bandgap_routed.py`'s current fixed repertoire of
+  elbows, Z-detours and free-channel corridors, should close it without any
+  new tool capability. Issue #62's criterion 1 is scored PARTIAL, not MET, on
+  this.
 - ~~**MOS finger bussing is not drawn**~~ -- **closed** by this increment,
   see Section 5a. Every matched pair's split units are bussed into the two
   devices the schematic contains, and every gate is contacted through a

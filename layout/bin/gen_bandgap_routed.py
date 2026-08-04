@@ -1126,14 +1126,22 @@ def _connect_any(
 ) -> dict[str, Any] | None:
     """Join any one of `pairs` of met1 points, simplest path first.
 
-    Search order is by path *shape*, not by endpoint pair: every pair is tried
-    with a plain elbow first, then every pair through the floorplan's free
-    channels, and only then does the detour ladder run with the pair as the
-    inner loop. A hop that has a straight elbow between some pair of its
-    blocks' escape points therefore finds it immediately instead of
-    exhausting the whole ladder on the nearest pair, and a hop that has to
-    cross the cell reaches for a channel before it starts sweeping blind
-    offsets -- neither of which the other ordering can do.
+    Search order is by path *shape*, not by endpoint pair, and strictly
+    cheapest-shape-first:
+
+    1. a plain elbow, for every endpoint pair -- so a hop that has one
+       anywhere finds it immediately instead of exhausting the whole detour
+       ladder on the nearest pair;
+    2. the Z and four-segment detours, offset by offset, pair inside offset;
+    3. and only if all of that fails, a corridor through the floorplan's free
+       channels.
+
+    The channel stage is deliberately last even though PR #67 (which had one
+    escape point per terminal, so stage 1 was a single attempt) put it
+    second. A channel path crosses the whole cell; taking one in preference
+    to a 0.4 um jog spends a corridor several later nets need. Measured: with
+    the channel stage second, `VDD` lost its route entirely and the run
+    scored 7/12 schematic nets against 8/12 with it last.
 
     The two ingredients are what PR #67 and this branch each contributed:
     multiple endpoints per terminal (a bussed block presents its node at four
@@ -1145,10 +1153,6 @@ def _connect_any(
         for points in _candidate_paths(a, b, 0.0):
             if _draw_guarded(bus, net, points):
                 return _hop_record(a, b, points, detour_um=0.0)
-    for a, b in pairs:
-        for points in _channel_paths(a, b, channels or {}):
-            if _draw_guarded(bus, net, points):
-                return _hop_record(a, b, points, detour_um=None, via_channel=True)
     for offset in DETOUR_OFFSETS_UM:
         if not offset:
             continue  # already tried, for every pair, above
@@ -1156,6 +1160,10 @@ def _connect_any(
             for points in _candidate_paths(a, b, offset):
                 if _draw_guarded(bus, net, points):
                     return _hop_record(a, b, points, detour_um=offset)
+    for a, b in pairs:
+        for points in _channel_paths(a, b, channels or {}):
+            if _draw_guarded(bus, net, points):
+                return _hop_record(a, b, points, detour_um=None, via_channel=True)
     return None
 
 
@@ -2576,9 +2584,10 @@ def main() -> int:
     a(MOS_HALF_NOTE)
     a("")
     a(
-        "The binding is made once, in `MOS_HALVES`, and the table below is "
-        "read back out of `bus-summary.json` -- i.e. out of what was drawn, "
-        "not out of the declaration. Every source, drain and gate of both "
+        "The binding is made once, in `MOS_HALVES`; the half-to-device column "
+        "below is read back out of `bus-summary.json`'s `device_labels`, i.e. "
+        "out of the binding the bus actually drew with, and the net columns "
+        "are that block's bus spec. Every source, drain and gate of both "
         "halves is bussed from the generator's own reported ports, so there "
         "is no per-net pad choice left to get wrong."
     )
@@ -2588,11 +2597,8 @@ def main() -> int:
     for bid, entry in bus_summary.items():
         if not isinstance(entry, dict) or entry.get("kind") != "mos_diff_pair":
             continue
-        spec_devices = next(
-            b["bus"]["devices"] for b in BLOCKS if b["id"] == bid
-        )
-        for device, half in MOS_HALVES[bid].items():
-            terms = spec_devices[device]
+        for half, device in sorted(entry["device_labels"].items()):
+            terms = entry["devices_nets"][half]
             a(
                 f"| `{bid}` | `{half}_*` | `{device}` | `{terms['S']}` | "
                 f"`{terms['D']}` | `{terms['G']}` |"

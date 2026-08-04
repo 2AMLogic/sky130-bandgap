@@ -392,6 +392,7 @@ def bus_diff_pair(
         "units": len(units),
         "device_width_um": round(w, 3),
         "device_labels": dict(spec.get("device_labels") or {}),
+        "devices_nets": {half: dict(terms) for half, terms in devices.items()},
         "lanes": lanes,
         "inboard_gate_net": in_core_gate,
         "outboard_gate_net": outer_gate,
