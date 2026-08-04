@@ -1751,6 +1751,85 @@ re-evaluate whether the freed plane changes any of Section 7g's per-hop
 blocker tallies -- worth checking `blocked_by_counts` again rather than
 re-deriving it from scratch, since that diagnostic already exists.
 
+### 7p. Eighteenth increment: bumped the `klt` pin past klayout-tools#508's merge, picked up the third connectivity level, no routing change yet
+
+Section 7o's own closing line named the trigger for this increment:
+klayout-tools#508 landing. It has -- checked directly via `gh issue view
+508 --repo 2AMLogic/klayout-tools`, state `CLOSED`/`COMPLETED`, and via the
+GraphQL `closedByPullRequestsReferences` edge, which names the exact
+merged PR: [klayout-tools#511](https://github.com/2AMLogic/klayout-tools/pull/511)
+(`feat(decks): add sky130 met2 as a third connectivity level
+(metal3/via2)`), merged 2026-08-04T19:56:08Z at `af5791b`. `main` has no
+commits after it (`git ls-remote` confirms `af5791b` is still the tip), so
+this pin is current, not a partial bump.
+
+**What #511 actually ships**, read from its own PR body and re-verified
+against the pinned commit directly (not reconstructed from the PR
+description alone):
+
+- `klayout_tools.decks.sky130.EXTRACTION_DECK.metals` is now
+  `((67, 20), (68, 20), (69, 20))` -- li1.drawing, met1.drawing,
+  **met2.drawing** -- with `.vias` now `((67, 44), (68, 44))` (mcon.drawing,
+  and the new met1<->met2 via, `via.drawing`) and `.metal_labels` now
+  `((67, 5), (68, 5), (69, 5))`.
+- `klayout_tools.gen._PDK_ROLE_LAYERS["sky130"]` gains `"metal3": (69, 20)`
+  and `"via2": (68, 44)`, mirroring the existing `"metal2"`/`"via1"` pair
+  exactly (same shape `met1_bus.py`'s own `MET1_LAYER`/`MCON_LAYER`
+  constants already follow for the first level).
+- `gen_compose`'s router resolves the new role generically (confirmed by
+  #511's own Judge-facing description of `_resolve_route_layer`/
+  `_resolve_via_drop_layer` walking `deck.metals`/`.vias` by index, no
+  hardcoded role names) -- no `gen_compose.py` code change was needed
+  upstream for `"metal3"` to become selectable.
+- The via-drop restriction this repo has run into before is unchanged and
+  still applies to the new role: single-hop only. A `"metal3"` backbone
+  reaches a `"metal2"`(met1)-role pin one via hop away, not a
+  `"metal"`(li1)-role pin two hops away.
+
+**What this increment ships**: `layout/requirements.txt`'s pin only, bumped
+from `147602af31c47fb935383b1761e8ce2f21c534cf` to
+`af5791b557fc7c669c3981335a294256ccf37e6f`, plus updating every NOTE
+constant and generated `record.md` section in `gen_bandgap_routed.py` that
+named klayout-tools#508/#506 as open -- both are closed now (#506 as
+COMPLETED, independently of this repo's own needs; see RES_BULK_ARITY_NOTE)
+-- so a fresh record does not ship stale "still open" claims about gaps
+that no longer are. **No routing, floorplan, or router-logic change ships
+here.** `met1_bus.py` still draws every bus and inter-block net on met1
+only; the router's candidate-path search (`_channel_paths`/`_connect`/
+`_route_one_net`) is untouched.
+
+**Non-regression proof**: `layout/bin/run-trivial-cell-flow.sh` re-run
+unmodified still PASSes with the identical four-way verdict (see
+`trivial-cell/reports/` for the refreshed record); `layout/bin/
+run-bandgap-routed-flow.sh` re-run reproduces AC1/AC4's prior numbers
+unchanged -- 9/12 schematic nets, `mismatch_count=32`,
+`devices.matched=6`, `nets.matched=3` -- exactly as expected, since the
+newly available `"metal3"`/`"via2"` role is not yet referenced anywhere in
+this repo's own code.
+
+**What this does and does not move.** AC1/AC4 are unchanged in number.
+AC5 gains no new filing (nothing new to file -- the opposite: this
+increment is the friction-filing series' own upstream fix landing) and
+loses two "currently open" gaps from its own scoreboard: klayout-tools#506
+and #508 are both closed as of this record, so **no gap this flow has ever
+filed is open upstream any longer**. What changes is scope for the *next*
+increment: the metal-level capability constraint Sections 7d-7o spent
+eleven increments confirming was real and immovable from this repo's own
+side no longer holds. The next AC1 increment's job is concrete and
+narrower than "find a lever" -- it is "spend the lever that now exists":
+extend `met1_bus.py` (or a sibling module alongside it) to draw the
+still-unrouted `D1`/`GDRV`/`VSS` trio's hops on met2/via.drawing, which
+starts as a genuinely empty plane relative to every block's own met1
+interior bussing (`bus_mos_comb`'s finger trunks -- the "block-internal
+comb geometry the inter-block router cannot reorder at all" Section 7g's
+per-hop blocker tally named as two of the three hops' actual obstacle).
+That is real new geometry code (via1 landing-pad sizing against met2's own
+DRC thresholds, a second `conflicts()`/`components()` proof analogous to
+`Met1Bus`'s existing met1 ones, and deciding whether to route the whole
+hop on met2 or only the congested segment), not a parameter flip -- left
+for the next increment, per this issue's own one-lever-per-increment
+discipline.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five
@@ -1802,7 +1881,13 @@ re-deriving it from scratch, since that diagnostic already exists.
      seventeenth increment (Section 7o)**: the one metal-level capability
      that could still open a corridor here -- a genuine third routing plane
      on sky130 -- does not exist upstream and had never been filed; now
-     filed as klayout-tools#508 (open).
+     filed as klayout-tools#508. **Update, eighteenth increment (Section
+     7p)**: klayout-tools#508 is now **closed**, merged via
+     [#511](https://github.com/2AMLogic/klayout-tools/pull/511) -- sky130's
+     curated deck now declares that third connectivity level
+     (`metal3`/`via2`, met2), and this repo's `klt` pin has picked it up.
+     Not yet spent: no routing code changed this increment, only the pin
+     -- see Section 7p for what remains.
   2. **MCC** is in the reference and deliberately not drawn (Section 6).
   3. **The DR-002 trim ladder is always physically drawn, at code 0 the
      schematic has none at all.** `res_trim`'s 32 unit resistors exist as
@@ -1828,13 +1913,14 @@ re-deriving it from scratch, since that diagnostic already exists.
   `DeviceClassResistor` / 2 nodes -- filed as klayout-tools#504, closed via
   #505's diagnostic-only fix, with the generic reconciliation #505 deferred
   filed by Section 7m as
-  [klayout-tools#506](https://github.com/2AMLogic/klayout-tools/issues/506),
-  still open). `reference.spice`'s cards now carry the bulk
-  node too, because the schematic already wires it -- a transcription fix,
-  not a reference edit to accommodate the layout, so this flow retires the
-  cause without #506. #506 is left open on purpose: it remains the right
-  ask for a reference that genuinely cannot state a bulk net, which this
-  one can.
+  [klayout-tools#506](https://github.com/2AMLogic/klayout-tools/issues/506)
+  -- since **closed as COMPLETED** (Section 7p): `reference.device_bulk`
+  now exists upstream on `klt lvs`. `reference.spice`'s cards now carry the
+  bulk node too, because the schematic already wires it -- a transcription
+  fix, not a reference edit to accommodate the layout, so this flow
+  retired the cause without needing #506 at all, and still does not use
+  the upstream mechanism #506 shipped -- it remains the right tool for a
+  reference that genuinely cannot state a bulk net, which this one can.
 - ~~**R2A/R2B ladder is at reduced scale**~~ -- **closed** by issue #62, see
   Section 4a. The ladder is drawn at its real 108-unit count.
 - ~~**Per-matched-group guard rings are off in the routed layout**~~ --
