@@ -1479,6 +1479,19 @@ assumed from the issue history.
 
 ### 7m. Fifteenth increment: cause 4 (resistor device-class arity) still has no fix upstream -- filed the missing follow-up, no code change
 
+> **Superseded in part by Section 7n (sixteenth increment).** This section's
+> operative premise -- that the only alternative to an upstream fix was "to
+> add a bulk node to the reference's R cards, i.e. to stop the reference
+> being a transcription of the schematic," which this flow refuses -- turned
+> out to be false *for this device*: `design/bandgap_core.sch` already wires
+> the bulk pin, so adding it is a transcription **fix**, not an invented
+> connection. Section 7n makes that fix and retires the arity cause without
+> waiting on klayout-tools#506. The filing below stands on its own merits
+> and stays open: #506 is still a valid generic ask for the case where the
+> reference genuinely does not (and cannot) state a bulk net. Read this
+> section as the record of the filing, and Section 7n for what the arity
+> cause actually turned out to need.
+
 Sections 7d-7k exhausted every floorplan/router lever this repo can pull for
 AC1's remaining `D1`/`GDRV`/`VSS` trio (Section 7k's own closing line: "What
 is left is qualitatively different... either an order-search change... or
@@ -1540,9 +1553,126 @@ one of the 147 drawn resistor devices from pairing, ahead of cause 3's
 lower-magnitude value differences and unrelated to AC1's still-open routing
 causes.
 
+### 7n. Sixteenth increment: `reference.spice`'s resistor bulk-terminal transcription gap fixed -- class arity now matches without waiting on klayout-tools#506, `mismatch_count` unchanged, and the real blocker for R2A/R2B/R1 turns out to be the DR-002 trim ladder's own topology, not the arity or a value difference
+
+Sections 7l and 7m both disclosed cause 4 as "no resistor can be paired at
+all" because the sky130 deck marks `res_high_po` `bulk_to_substrate`, so the
+layout side extracts a 3-terminal `DeviceClassResistorWithBulk` while
+`reference.spice`'s 2-terminal `R` cards read as the incompatible
+`DeviceClassResistor` -- and stated that "the only workaround available
+today is to add a bulk node to the reference's R cards... which this flow
+refuses to do for the same reason it refuses every other reference edit."
+Section 7m acted on exactly that premise, filing klayout-tools#506 for the
+upstream reconciliation on the grounds that no in-repo option remained.
+That statement rests on an unstated assumption -- that adding a bulk node
+would mean *inventing* a schematic connection that is not actually there.
+Checking that assumption directly (not assuming it) finds it is false:
+
+- `design/bandgap_core.sch` explicitly wires the bulk pin of every one of
+  R2A/R2B/R1's `res_high_po` instances to `VSS`, via ordinary `lab_pin`
+  components: `r2ab lab=VSS` (line 258), `r2bb lab=VSS` (line 267), `r1b
+  lab=VSS` (line 283).
+- `sky130_fd_pr__res_high_po`'s own PDK SPICE model
+  (`$PDK_ROOT/sky130A/libs.ref/sky130_fd_pr/spice/sky130_fd_pr__res_high_po.model.spice`)
+  is `.subckt sky130_fd_pr__res_high_po r0 r1 b ...` -- a genuine 3-terminal
+  device; the third terminal is not an artifact of `klt`'s extraction deck.
+- The checked-in xschem netlist snapshot `reference.spice` already cites as
+  its own provenance
+  (`sim/output-voltage-tc/netlist-snapshots/20260803-115356-7759435.spice`)
+  states it directly: `XR2A VA VOUT VSS sky130_fd_pr__res_high_po ...`,
+  `XR2B VB VOUT VSS ...`, `XR1 VBQ VB VSS ...`. The real xschem netlister,
+  run independently of this layout, already produces a 3-terminal card for
+  every one of these devices.
+
+So `reference.spice`'s 2-terminal R cards were an incomplete transcription
+of design/bandgap_core.sch, not a faithful one -- the same category of bug
+the res_generic_po -> res_high_po correction (Section 7, prior increments)
+and the removed `RGDRV AOUT GDRV 0` bridge card fixed previously, not the
+"reference edit to accommodate the layout" category those corrections (and
+Sections 7l/7m's own statement) were guarding against. Fixed: `RR2A`/`RR2B`/
+`RR1` now carry `VSS` as a third node, in the same node order (`A B BULK
+value model`) `klt extract` itself emits for this device class (confirmed
+against this flow's own extracted netlist, e.g. `R$85 VOUT $6 VSS 1599
+res_high_po`).
+
+**Verified structurally fixed, in isolation, before measuring the flow.**
+Reading `reference.spice` directly with `klayout.db.NetlistSpiceReader`
+before this fix registers `RES_HIGH_PO` as `DeviceClassResistor` (2
+terminals); after the fix it registers `DeviceClassResistorWithBulk` (3
+terminals) -- the same class the layout side already registers. The class
+arity mismatch klayout-tools#504/#505 diagnosed is genuinely retired.
+
+**Measured effect on the full flow: none.** `mismatch_count` is 32 both
+before (Section 7m's re-run,
+`layout/bandgap-core/reports/20260804-181651-f3b2b2e/record.md`) and after
+(`layout/bandgap-core/reports/20260804-190815-092c8cb/record.md`),
+`category_counts` is byte-identical
+(`{"device.unmatched": 19, "net.merged": 3, "net.split": 10}`), and the
+`device.unmatched` entry list is identical too, R1/R2A/R2B (reference
+side) and seven anonymous layout-side `RES_HIGH_PO` devices among them both
+before and after -- the only textual difference between the two runs' lists
+is `MPAMP`/`MPOUT` swapping positions within the reference-side entries,
+the comparer's own enumeration order for an identical device set, not a
+changed result. This is not a null result from an ineffective fix -- it
+is direct evidence that the arity mismatch was never the *operative*
+blocker for these three devices, once traced further:
+
+- `klt lvs`'s own `net.split`/`net.merged` categories already name `VOUT`,
+  `VB`, and `VBQ` -- exactly the three nodes R2A/R2B/R1 sit on -- both
+  before and after this fix. AC1's coverage table scores these three
+  **drawn** (every block they reach is joined), so this is not the
+  D1/GDRV/VSS routing-congestion cause (Section 7c-7l) resurfacing under a
+  different name.
+- The actual mechanism: `design/bandgap_core.sch`'s `CORE_PARAMS` carries
+  `n_r2_trim=0` (DR-002's untrimmed code). At code 0 the schematic has *no*
+  trim devices at all -- R2A/R2B's length is a single `res_high_po` device
+  each, full stop, and `reference.spice` correctly enumerates none. But
+  `res_trim`'s 32 unit resistors are drawn as real, physical devices in the
+  layout *unconditionally*, regardless of code -- a metal-option tap
+  ladder, not a code-gated one (matching-plan.md's own resistor-ladder
+  section already documents this design). So the layout has trim devices
+  and `TRIM_A`/`TRIM_A_CODE_0`/`TRIM_B`/`TRIM_B_CODE_0` nodes the schematic
+  does not have at all at this code. This is not a value difference on an
+  otherwise-paired device (Section 7l's cause 3 as previously framed) -- it
+  is a genuine extra branch in the layout's own device graph that
+  `combine_devices` cannot fold away, because folding combines devices that
+  already share a two-sided identity with a reference counterpart, not
+  devices the reference has none for at all.
+
+**What this does and does not change.** AC4 (LVS-clean) is still NOT MET,
+`mismatch_count` unchanged at 32. AC5's friction-filing status is unchanged
+in substance and files no new gap: klayout-tools#504/#505 stay closed and
+correctly diagnostic, and Section 7m's klayout-tools#506 stays **open** but
+is no longer a dependency of this flow. It is deliberately *not* closed as
+invalid: #506 asks `klt` to reconcile the arity for the case where the
+reference genuinely cannot state a bulk net, and that case is real -- it is
+just not this device's case, because `design/bandgap_core.sch` wires the
+bulk pin explicitly. What this increment retires is 7m's narrower premise
+that an upstream fix was the *only* remaining option here, not the filing
+itself. The disclosed-causes list drops from four to three: the arity
+mismatch is retired, and the former cause 3 ("resistor values differ") is
+reframed as what it actually is -- a structural topology difference (the
+always-drawn trim ladder), with the 380-ohm-head value difference as a
+secondary, still-unreached detail behind it. AC1 (routing) is untouched --
+this increment does not touch the router, the floorplan, or any `klt`
+capability.
+
+**Not shipped as a routing fix, because it is not one.** Closing this cause
+for real would mean either drawing `res_trim`'s taps so they are
+electrically shorted out of the DC path at code 0 (a real layout change,
+matching the trim ladder's own "metal option" design intent -- code 0 should
+mean "not in circuit," not "in circuit as a dangling branch"), or teaching
+the reference to model the trim ladder as a parametrized device set that
+happens to be empty at code 0 in a way the comparer's `combine_devices` can
+still traverse through to the main chain. Both are materially larger,
+separate tasks from this increment's transcription fix, and out of scope
+here for the same reason Sections 7d-7l's own larger candidates were --
+this section's job is the arity fix and the diagnosis it unlocks, not a new
+router or ladder-generator change.
+
 ## 8. Known limitations / follow-on work
 
-- **LVS is not clean.** *(Still open; the reason has now changed four
+- **LVS is not clean.** *(Still open; the reason has now changed five
   times.)* At #15 the blocker was device recognition -- neither `bjt_array`
   nor `res_array` output extracted as devices at all. The first increment
   (PR #64) closed that and hit the single-routing-metal bussing gap
@@ -1557,13 +1687,25 @@ causes.
   `mismatch_count` did not move -- see cause 1. PR #78 fixed two of `VDD`'s
   PMOS n-well taps (previously pinned to a single pad that had no free
   corridor), which took `klt lvs`'s correspondence from `0`/`0` device/net
-  matches to `3`/`1` and `mismatch_count` from 106 to **92**. **Update,
-  fourteenth increment (Section 7l)**: `mismatch_count` is now **32**,
-  `devices.matched` **6**, `nets.matched` **3** -- the deck-synthesized
-  substrate net and undeclarable array dummies (causes 2/3 below, through
-  the prior update) are both **retired**, not just improved. Cause 1's
-  unrouted trio (`D1`/`GDRV`/`VSS`) is unchanged -- this increment did not
-  touch routing or the floorplan, only the `klt` pin and the LVS request.
+  matches to `3`/`1` and `mismatch_count` from 106 to **92**. The fourteenth
+  increment (Section 7l): `mismatch_count` is now **32**, `devices.matched`
+  **6**, `nets.matched` **3** -- the deck-synthesized substrate net and
+  undeclarable array dummies (causes 2/3 below, through the prior update)
+  are both **retired**, not just improved. Cause 1's unrouted trio
+  (`D1`/`GDRV`/`VSS`) is unchanged -- that increment did not touch routing
+  or the floorplan, only the `klt` pin and the LVS request. The fifteenth
+  increment (Section 7m) filed klayout-tools#506 for the arity
+  reconciliation upstream and changed nothing in the flow. **Update,
+  sixteenth increment (Section 7n)**: the former cause 4 (resistor
+  device-class arity mismatch) is fixed for real, not just diagnosed, and
+  without waiting on #506 --
+  `reference.spice`'s R2A/R2B/R1 cards now carry the bulk terminal
+  design/bandgap_core.sch already wires on each of them, verified directly
+  (`klayout.db`) to reclassify `RES_HIGH_PO` as the same
+  `DeviceClassResistorWithBulk` the layout side registers. `mismatch_count`
+  did not move (still 32) -- tracing further shows the arity was never the
+  *operative* blocker for these three devices; the DR-002 trim ladder's own
+  always-drawn topology (new cause 3, below) is.
   1. **Three schematic nodes are still not joined end to end** -- this
      flow's own router running out of corridors, *not* a tool gap, and
      confirmed by the fifth increment to survive a per-net rip-up-and-retry,
@@ -1577,24 +1719,37 @@ causes.
      a router-side change can still solve. It is the first time in this
      issue's history that the top cause is this repo's own.
   2. **MCC** is in the reference and deliberately not drawn (Section 6).
-  3. **Resistor values** differ by the schematic's per-device 380 ohm head
-     term, which the extractor (drawn body squares x sheet rho) does not
-     model, and by the DR-002 trim taps, which the layout draws as series
-     devices where the schematic carries them as a length term. Unreached in
-     practice -- cause 4 stops the comparer one step earlier.
-  4. **No resistor can be paired at all**: `res_high_po`'s sky130 device
-     class carries a bulk terminal (`DeviceClassResistorWithBulk`, 3 nodes)
-     the reference's plain `R` cards do not (`DeviceClassResistor`, 2
-     nodes) -- filed as klayout-tools#504 (closed via #505, a diagnostic-only
-     fix; see Section 7l). The actual reconciliation #504 itself proposed
-     (options 1/2) was left unimplemented by #505; filed as
-     [klayout-tools#506](https://github.com/2AMLogic/klayout-tools/issues/506)
-     (open; see Section 7m) since no follow-up existed for it.
+  3. **The DR-002 trim ladder is always physically drawn, at code 0 the
+     schematic has none at all.** `res_trim`'s 32 unit resistors exist as
+     real devices in the layout regardless of code (a metal-option tap
+     ladder, not a code-gated one), so the layout carries trim devices and
+     `TRIM_A`/`TRIM_B`(`_CODE_0`) nodes the untrimmed (`n_r2_trim=0`)
+     schematic does not instantiate at all -- not a value difference on an
+     otherwise-paired device, a genuine extra branch `combine_devices`
+     cannot fold away. This is what actually keeps R2A/R2B/R1 unmatched now
+     that the former cause 4 (the arity mismatch, retired below) is fixed;
+     see Section 7n. The schematic's
+     per-device 380 ohm head term (which the extractor's drawn-body-squares
+     model does not carry) is a secondary, still-unreached value
+     difference behind this structural one.
   Rewriting the reference netlist to enumerate the layout's own shortfalls
   would make LVS compare the layout against itself and is explicitly not
   done. **Retired as of Section 7l**: the substrate correspondence no
   longer needs a `hints` declaration at all (it is real drawn connectivity
-  now), and array dummies are no longer counted as devices.
+  now), and array dummies are no longer counted as devices. **Retired as of
+  Section 7n**: the resistor device-class arity mismatch (`res_high_po`'s
+  sky130 device class carries a bulk terminal, `DeviceClassResistorWithBulk`
+  / 3 nodes, that the reference's `R` cards previously did not,
+  `DeviceClassResistor` / 2 nodes -- filed as klayout-tools#504, closed via
+  #505's diagnostic-only fix, with the generic reconciliation #505 deferred
+  filed by Section 7m as
+  [klayout-tools#506](https://github.com/2AMLogic/klayout-tools/issues/506),
+  still open). `reference.spice`'s cards now carry the bulk
+  node too, because the schematic already wires it -- a transcription fix,
+  not a reference edit to accommodate the layout, so this flow retires the
+  cause without #506. #506 is left open on purpose: it remains the right
+  ask for a reference that genuinely cannot state a bulk net, which this
+  one can.
 - ~~**R2A/R2B ladder is at reduced scale**~~ -- **closed** by issue #62, see
   Section 4a. The ladder is drawn at its real 108-unit count.
 - ~~**Per-matched-group guard rings are off in the routed layout**~~ --
