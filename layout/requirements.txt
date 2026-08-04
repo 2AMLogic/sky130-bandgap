@@ -53,4 +53,39 @@
 # layout/bin/run-trivial-cell-flow.sh unmodified after the bump still PASSes
 # with the identical verdict (see trivial-cell/reports/ for the refreshed
 # record).
-klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@680ee42edf2319aa944f66df1f6f7db3975a73c4
+#
+# Bumped again for issue #62's second increment (routed bandgap-core layout,
+# intra-block bussing). The prior pin (680ee42edf2319aa944f66df1f6f7db3975a73c4,
+# PR #64) predates three fixes this increment depends on, all now merged
+# upstream and closed as friction issues #432/#433/#434 filed by PR #64:
+#
+#   * 2AMLogic/klayout-tools#440 (merged 11c3f2dbffeb362c895a65b424d0ce32c9621fbe)
+#     -- `klt gen bjt_array` now draws its own per-unit bipolar
+#     device-recognition marker + nwell tap on sky130, replacing the local
+#     `klt draw` overlay workaround (PNP_OVERLAY_NOTE) this flow previously
+#     carried for issue #432.
+#   * 2AMLogic/klayout-tools#439 (merged ac10d834398724dd8174552046324aa13e947c22)
+#     -- `gen-compose`'s self-net router now rejects (rather than silently
+#     drawing as a certified short) a self-net backbone that crosses another
+#     port's pad on the same block. This is a "fail visibly" safety net, not
+#     new routing capability -- it does not by itself make intra-block
+#     bussing routable; it only makes an unroutable bussing attempt report
+#     `unrouted_nets[]` instead of a silent short. A self-net hop between two
+#     ports that do NOT have a third pad between them (e.g. two immediately
+#     physically adjacent unit ports) is unaffected and continues to route,
+#     which is what this increment's chained-adjacent-hop bussing technique
+#     (see gen_bandgap_routed.py's `bus_ports_chain`) exploits.
+#   * 2AMLogic/klayout-tools#441 (merged 4fa8440687b1422d9a6fa1b25ed487935b3c1f67)
+#     -- `klt gen`'s guard/collector ring generators now leave a routing
+#     opening, so a block keeping its own guard ring is no longer
+#     automatically unroutable. This lets this increment restore the
+#     per-matched-group guard rings PR #64 had to drop (matching-plan.md
+#     Section 5a).
+#
+# Pinned at 4fa8440687b1422d9a6fa1b25ed487935b3c1f67 (right after #441, the
+# last of the three commits this increment needs) rather than a later `main`
+# tip -- the commits after it (#443 DRC/place-and-route test coverage, #444
+# synthesize/place-and-route eval wiring) are unrelated digital-flow work,
+# and pinning past them would be an unrelated-churn bump this issue's scope
+# does not need.
+klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@4fa8440687b1422d9a6fa1b25ed487935b3c1f67

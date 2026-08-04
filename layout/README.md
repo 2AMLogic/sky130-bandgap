@@ -259,57 +259,61 @@ layout/bin/run-bandgap-routed-flow.sh    # gen -> draw -> compose+route -> drc -
 ```
 
 Writes a fresh record under `bandgap-core/reports/<record-id>/` alongside
-(never replacing) the #15 skeleton's records, and updates
+(never replacing) earlier records, and updates
 `bandgap-core/reports/LATEST`. **Read that record's `record.md` first** — it
 carries a per-criterion scoreboard, the routed-net table, the promoted-pin
-table, and a quantitative LVS mismatch analysis. Summary of what it measures:
+table, and a quantitative LVS mismatch analysis. Summary of what it measures
+as of issue #62's second increment (intra-block bussing):
 
-| | #15 skeleton | #62 routed |
-|---|---|---|
-| inter-block routing | none drawn | 9 routed 2-pin hops with net labels — **4/12 schematic inter-block nets fully joined** (criterion 1 PARTIAL) |
-| promoted top-level pins | 0 | 23 |
-| R2A/R2B ladder | 16 units (reduced) | **108 units (real count)**, folded into 9 rows |
-| extracted `pnp` | 0 | 16 |
-| extracted `nfet` | 0 | 16 |
-| DRC | clean | clean |
-| LVS | not attempted | runs; **mismatch**, see below |
+| | #15 skeleton | #62 first increment (PR #64) | #62 second increment |
+|---|---|---|---|
+| inter-block routing | none drawn | 9 routed 2-pin hops — 4/12 schematic nets fully joined | same, plus a hand-drawn PNP-base-to-VSS bridge — `VSS` now reaches 4/7 blocks (up from 2/7) |
+| intra-block bussing | none | none (would certify a short — see below) | PNP arrays' real emitters bussed + base bridged to VSS, verified by extraction; `diff_pair` MOS fingers and resistor-ladder series chains still not bussed |
+| promoted top-level pins | 0 | 23 | 23 |
+| R2A/R2B ladder | 16 units (reduced) | 108 units (real count), folded into 9 rows | same |
+| extracted `pnp` | 0 | 16 | 24 (includes dummy units, now natively recognized) |
+| DRC | clean | clean | clean |
+| LVS | not attempted | runs; mismatch | runs (with a `combine_devices: true` attempt + graceful fallback, see below); still mismatch |
 
-Three changes make that possible, each backed by a `klt` pin bump
-(`requirements.txt`) or a local workaround:
+**Three changes made the first increment possible** (`res_array` row
+folding, a local PNP recognition overlay, and router-oracle port selection
+for the 108-segment ladder) — see PR #64 and `layout/matching-plan.md`
+Section 7a for the detail; the recognition overlay was retired in the
+second increment once `klt gen bjt_array` started drawing its marker/tap
+natively (klayout-tools#440).
 
-1. **Full-scale ladder.** `res_array` gained a `rows` fold parameter
-   (2AMLogic/klayout-tools#415, merged upstream), so the real 108-unit
-   R2A/R2B ladder occupies ~1,231 µm² instead of a ~710 µm-long single row.
-   The whole routed cell is 38,171 µm², inside the 50,000 µm² budget.
-2. **PNP recognition overlay.** `klt gen bjt_array` draws no bipolar
-   device-recognition marker on sky130 and no well tap for its base pads, so
-   its output extracts as *zero* devices — filed as
-   [2AMLogic/klayout-tools#432](https://github.com/2AMLogic/klayout-tools/issues/432).
-   The flow composes a `klt draw` overlay (82/44 marker per functional
-   emitter pad, 65/44 nwell tap per base pad, positioned from the
-   generator's own reported `ports[]`) to close it locally.
-3. **Router-oracle port selection.** `klt gen-compose` rejects a net whose
-   Manhattan backbone would cross a block's interior but offers no "which
-   port should I have used?" query, and a 108-segment ladder exposes 216
-   ports. `gen_bandgap_routed.py` drives `gen-compose` itself as the
-   pass/fail oracle over an ordered, geometry-derived candidate list rather
-   than hardcoding port indices.
-
-**LVS is not clean, and the record says so rather than working around it.**
-The blocker is upstream, not a layout choice: sky130's generator/router
-layer-role table exposes exactly one routing metal (`li1`), the same layer
-every generator draws its device pads on, and the router is documented as
-unaware of a block's internal geometry — so any wire crossing a block shorts
-to every pad it passes over. That makes intra-block bussing (tying an array's
-8 emitters, or a ladder's 108 series segments, into one node) inexpressible,
-so the layout's 243 devices cannot collapse into the reference netlist's 16.
-Filed as
-[2AMLogic/klayout-tools#433](https://github.com/2AMLogic/klayout-tools/issues/433);
-the related "no way to route into a guard-ringed block" gap is
-[#434](https://github.com/2AMLogic/klayout-tools/issues/434). The flow
-deliberately does **not** draw those intra-block wires: `gen-compose` would
-certify them `routed: true` while producing an electrical short, and a
-certified short is worse evidence than an open node.
+**The second increment busses PNP array emitters by hand, and closes part
+of the LVS gap.** `klt gen-compose`'s router still cannot bus a block's own
+pads into one node (klayout-tools#433 closed only its "fail visibly" half,
+via #439; the capability gap is re-raised as
+[#454](https://github.com/2AMLogic/klayout-tools/issues/454)) — and a
+second gap found while routing around that, where #439's own check misses
+a same-row/same-direction short, is filed as
+[#453](https://github.com/2AMLogic/klayout-tools/issues/453). So
+`gen_bandgap_routed.py` draws its own met1+mcon bus overlay (`klt draw`,
+not `gen-compose`), verified by running `klt extract` on every draw — not
+just DRC — to confirm it lands only on the intended pads: each PNP array's
+8 real emitters bus into one node, and each array's shared base (already
+one node via the generator's own continuous nwell) bridges to the VSS
+trunk. `klt lvs` then runs with `options.combine_devices: true`, which is
+what lets N correctly-bussed parallel devices collapse into the reference's
+single multiplicity-N device. Along the way, `klayout.db.Netlist.
+combine_devices()` was found to crash on this array's real+dummy mix (only
+the real units share the bussed emitter, dummies each have their own) —
+filed as
+[#466](https://github.com/2AMLogic/klayout-tools/issues/466) — so the flow
+catches that and falls back to `combine_devices: false` for the run rather
+than aborting. `diff_pair` MOS finger busing was attempted with the same
+technique and reverted: the interleaved S/G/D pad positions across nearly
+the whole block width mean a stacked-bus-level approach cannot avoid
+cross-net shorts without real per-net channel routing. Resistor-ladder
+series-chain busing (a different, larger problem — a chain of 2-terminal
+hops across a 9-row fold, not a shared-node bus) was not attempted this
+increment. See `gen_bandgap_routed.py`'s `MANUAL_BUS_TECHNIQUE_NOTE`,
+`PNP_BASE_VSS_BRIDGE_NOTE`, `MOS_FINGER_BUS_NOTE`, `RESISTOR_CHAIN_NOTE`,
+and `COMBINE_DEVICES_CRASH_NOTE` for the full reasoning, and the routed
+record's own "What this record does NOT claim" section for the measured
+version.
 
 **Inter-block routing is partial too, for the same reason.** `gen-compose`
 routes 2-pin nets, and only between blocks adjacent across an empty channel,
@@ -318,9 +322,12 @@ at all. Measured against `design/bandgap_core.sch`'s own inter-block node
 list — not against the flow's `connectivity[]` declaration — 4 of 12 nets are
 joined across every block they reach; `VOUT` never reaches the R2 ladder,
 `AOUT`/`GDRV` are two labelled pins where the schematic has one node, `D2` is
-undrawn, and the `VDD`/`VSS` trunks stop short of blocks they supply. The
-record's "Schematic inter-block nets: drawn vs. labelled only" table is the
-per-net version, and issue #62's criterion 1 is scored **PARTIAL** on it.
+undrawn, and the `VDD` trunk stops short of a block it supplies. `VSS` is the
+one exception (the hand-drawn PNP-base-to-VSS bridge above counts toward its
+coverage even though it is not a `connectivity[]` hop), now reaching 4 of 7
+blocks. The record's "Schematic inter-block nets: drawn vs. labelled only"
+table is the per-net version, and issue #62's criterion 1 is scored
+**PARTIAL** on it.
 
 `bandgap-core/reference.spice` is the schematic side of that comparison —
 transcribed from `design/bandgap_core.sch` + `design/error_amp.sch` and

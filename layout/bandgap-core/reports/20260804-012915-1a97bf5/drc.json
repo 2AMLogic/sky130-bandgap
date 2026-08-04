@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "file": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/bandgap_core_routed.gds",
+  "deck": "sky130",
+  "dbu_um": 0.001,
+  "status": "clean",
+  "violation_count": 0,
+  "rule_counts": {},
+  "violations": [],
+  "coverage": {
+    "deck_layers": [
+      "65/20",
+      "66/20",
+      "66/44",
+      "67/20",
+      "67/44",
+      "68/20"
+    ],
+    "layers_checked": [
+      "65/20",
+      "66/20",
+      "66/44",
+      "67/20",
+      "67/44",
+      "68/20"
+    ],
+    "layers_in_stream_without_rules": [
+      "64/20",
+      "65/44",
+      "66/5",
+      "66/13",
+      "67/5",
+      "82/44"
+    ],
+    "rules_skipped": []
+  },
+  "provenance": {
+    "klt_version": "0.1.0",
+    "klayout_version": "0.30.10",
+    "pdk": null,
+    "deck": {
+      "name": "sky130",
+      "content_hash": "sha256:3bf7dada5e1dc46d36411c6149a227599f41580edfeb78c00060b5756424f3d3"
+    },
+    "input": {
+      "content_hash": "sha256:28f329e5e47d2f92c58bf9af01a69045d3a2e387af401284e90e123ce17c4115"
+    }
+  }
+}

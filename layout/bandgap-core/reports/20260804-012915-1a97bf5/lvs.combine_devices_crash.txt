@@ -1,0 +1,15 @@
+klt lvs /Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/lvs.request.json exited 1:
+Traceback (most recent call last):
+  File "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/.venv/bin/klt", line 6, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/.venv/lib/python3.14/site-packages/klayout_tools/cli/__init__.py", line 24, in main
+    return args.func(args)
+           ~~~~~~~~~^^^^^^
+  File "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/.venv/lib/python3.14/site-packages/klayout_tools/cli/lvs_cmd.py", line 29, in run
+    report = run_lvs(args.request)
+  File "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/.venv/lib/python3.14/site-packages/klayout_tools/lvs.py", line 365, in run_lvs
+    layout_netlist.combine_devices()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+RuntimeError: Internal error: Terminal still connected after removing device in device combination: name=, circuit=bandgap_core_routed, terminal=E in Netlist.combine_devices
+

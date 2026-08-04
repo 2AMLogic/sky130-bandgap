@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "generator": "draw",
+  "cell_name": "pnp_ctat_vss_bridge",
+  "gds_path": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/pnp_ctat_vss_bridge.gds",
+  "pdk": {
+    "name": "sky130A",
+    "variant": "sky130A",
+    "version": "open_pdks c6d73a35f524070e85faff4a6a9eef49553ebc2b"
+  },
+  "bbox_um": {
+    "x0": 0.0,
+    "y0": 0.0,
+    "x1": 0.0,
+    "y1": 0.0
+  },
+  "device_count": 0,
+  "ports": [],
+  "drc_hints": {
+    "min_spacing_um": null,
+    "matched_group_id": null,
+    "snapped_to_grid": false,
+    "notes": [
+      "This flow busses a block's own pads (an array's emitters, a split pair's fingers) by hand with `klt draw`, not `klt gen-compose`'s router: a met1 (68/20) bus polygon plus one mcon (67/44) via per target li1 pad, positioned from each target's own reported port coordinates. This works because `klt extract`'s generic per-layer connectivity loop only merges li1 and met1 through an actual via shape (`connect(metals[i], vias[i])` / `connect(vias[i], metals[i+1])`) -- met1 crossing *over* an untargeted li1 pad with no via there does not connect to it, unlike `gen-compose`'s li1-only router, where crossing a pad on the routing metal *is* the connection. Verified by extraction, not just DRC, for every bus this flow draws (build_bus_overlay()/build_bridge_overlay() below): the targeted pads share one node and every other device's terminals are unchanged. This was chosen over attempting the same result with more `gen-compose` self-net hops after finding a case 2AMLogic/klayout-tools#439's \"fail visibly\" check does not catch -- a same-row, same-direction self-net that composed `routed: true`, DRC-clean, and, confirmed by extraction, silently absorbed the array's whole shared base node into the route. Filed as 2AMLogic/klayout-tools#453; drawing the bus geometry directly (verified by this flow's own extraction check on every run) does not depend on that gap being fixed."
+    ]
+  },
+  "warnings": []
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "gds_path": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/pnp_ptat_bus.gds",
+  "cell_name": "pnp_ptat_bus",
+  "dbu_um": 0.001,
+  "shape_count": 17,
+  "label_count": 0,
+  "layers": [
+    {
+      "layer": 68,
+      "datatype": 20,
+      "name": null,
+      "shapes": 9
+    },
+    {
+      "layer": 67,
+      "datatype": 44,
+      "name": null,
+      "shapes": 8
+    }
+  ],
+  "bbox_um": {
+    "x0": 1.54,
+    "y0": 1.54,
+    "x1": 15.72,
+    "y1": 8.67
+  },
+  "warnings": [
+    "written verbatim by `klt draw`: no PDK awareness and no rule checking were applied; this cell is not guaranteed to be design-legal"
+  ]
+}

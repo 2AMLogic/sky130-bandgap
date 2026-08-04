@@ -1,0 +1,46 @@
+{
+  "schema": "klt.gen_compose.request/1",
+  "pdk": {
+    "variant": "sky130A"
+  },
+  "blocks": [
+    {
+      "id": "bandgap_core_routed_inner",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/bandgap_core_routed_inner.gen.json"
+    },
+    {
+      "id": "pnp_ctat_vss_bridge",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/pnp_ctat_vss_bridge.gen.json"
+    },
+    {
+      "id": "pnp_ptat_vss_bridge",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/pnp_ptat_vss_bridge.gen.json"
+    }
+  ],
+  "placement": {
+    "strategy": "explicit",
+    "order": [
+      "bandgap_core_routed_inner",
+      "pnp_ctat_vss_bridge",
+      "pnp_ptat_vss_bridge"
+    ],
+    "origins_um": {
+      "bandgap_core_routed_inner": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "pnp_ctat_vss_bridge": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "pnp_ptat_vss_bridge": {
+        "x": 0.0,
+        "y": 0.0
+      }
+    }
+  },
+  "options": {
+    "cell_name": "bandgap_core_routed_inner_bridged",
+    "output": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/bandgap_core_routed_inner_bridged.gds"
+  }
+}

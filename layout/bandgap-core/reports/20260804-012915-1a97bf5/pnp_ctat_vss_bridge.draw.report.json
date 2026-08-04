@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "gds_path": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/pnp_ctat_vss_bridge.gds",
+  "cell_name": "pnp_ctat_vss_bridge",
+  "dbu_um": 0.001,
+  "shape_count": 7,
+  "label_count": 0,
+  "layers": [
+    {
+      "layer": 68,
+      "datatype": 20,
+      "name": null,
+      "shapes": 5
+    },
+    {
+      "layer": 67,
+      "datatype": 44,
+      "name": null,
+      "shapes": 2
+    }
+  ],
+  "bbox_um": {
+    "x0": 12.42,
+    "y0": -1.16,
+    "x1": 273.39,
+    "y1": 44.51
+  },
+  "warnings": [
+    "written verbatim by `klt draw`: no PDK awareness and no rule checking were applied; this cell is not guaranteed to be design-legal"
+  ]
+}

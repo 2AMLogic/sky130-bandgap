@@ -1,0 +1,322 @@
+{
+  "schema": "klt.gen_compose.request/1",
+  "pdk": {
+    "variant": "sky130A"
+  },
+  "blocks": [
+    {
+      "id": "pnp_ctat",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/pnp_ctat.gen.json"
+    },
+    {
+      "id": "res_r2",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/res_r2.gen.json"
+    },
+    {
+      "id": "res_trim",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/res_trim.gen.json"
+    },
+    {
+      "id": "res_r1",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/res_r1.gen.json"
+    },
+    {
+      "id": "pnp_ptat",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/pnp_ptat.gen.json"
+    },
+    {
+      "id": "core_mirror",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/core_mirror.gen.json"
+    },
+    {
+      "id": "amp_input_pair",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/amp_input_pair.gen.json"
+    },
+    {
+      "id": "amp_nload",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/amp_nload.gen.json"
+    },
+    {
+      "id": "amp_pmirr",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/amp_pmirr.gen.json"
+    },
+    {
+      "id": "amp_nmirr",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/amp_nmirr.gen.json"
+    },
+    {
+      "id": "pnp_ctat_bus",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/pnp_ctat_bus.gen.json"
+    },
+    {
+      "id": "pnp_ptat_bus",
+      "generator_report": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/pnp_ptat_bus.gen.json"
+    }
+  ],
+  "placement": {
+    "strategy": "explicit",
+    "order": [
+      "pnp_ctat",
+      "res_r2",
+      "res_trim",
+      "res_r1",
+      "pnp_ptat",
+      "core_mirror",
+      "amp_input_pair",
+      "amp_nload",
+      "amp_pmirr",
+      "amp_nmirr",
+      "pnp_ctat_bus",
+      "pnp_ptat_bus"
+    ],
+    "origins_um": {
+      "pnp_ctat": {
+        "x": 9.390000000000004,
+        "y": 0.15
+      },
+      "res_r2": {
+        "x": 43.32000000000001,
+        "y": 0.0
+      },
+      "res_trim": {
+        "x": 148.26000000000002,
+        "y": 7.000000000000001
+      },
+      "res_r1": {
+        "x": 191.16000000000003,
+        "y": 11.200000000000001
+      },
+      "pnp_ptat": {
+        "x": 264.49,
+        "y": 0.15
+      },
+      "core_mirror": {
+        "x": 0.15,
+        "y": 40.35
+      },
+      "amp_input_pair": {
+        "x": 18.53,
+        "y": 28.35
+      },
+      "amp_nload": {
+        "x": 210.12,
+        "y": 40.35000000000001
+      },
+      "amp_pmirr": {
+        "x": 14.300000000000006,
+        "y": 86.9
+      },
+      "amp_nmirr": {
+        "x": 195.97000000000003,
+        "y": 84.9
+      },
+      "pnp_ctat_bus": {
+        "x": 9.390000000000004,
+        "y": 0.15
+      },
+      "pnp_ptat_bus": {
+        "x": 264.49,
+        "y": 0.15
+      }
+    }
+  },
+  "connectivity": [
+    {
+      "net": "VA",
+      "pins": [
+        {
+          "block": "pnp_ctat",
+          "port": "Q3_E"
+        },
+        {
+          "block": "res_r2",
+          "port": "R24_A"
+        }
+      ]
+    },
+    {
+      "net": "TRIM",
+      "pins": [
+        {
+          "block": "res_r2",
+          "port": "R11_B"
+        },
+        {
+          "block": "res_trim",
+          "port": "R0_A"
+        }
+      ]
+    },
+    {
+      "net": "VB",
+      "pins": [
+        {
+          "block": "res_trim",
+          "port": "R23_B"
+        },
+        {
+          "block": "res_r1",
+          "port": "R1_A"
+        }
+      ]
+    },
+    {
+      "net": "VBQ",
+      "pins": [
+        {
+          "block": "res_r1",
+          "port": "R6_B"
+        },
+        {
+          "block": "pnp_ptat",
+          "port": "Q1_E"
+        }
+      ]
+    },
+    {
+      "net": "TAIL",
+      "pins": [
+        {
+          "block": "core_mirror",
+          "port": "M2_1_D"
+        },
+        {
+          "block": "amp_input_pair",
+          "port": "Q1_1_S"
+        }
+      ]
+    },
+    {
+      "net": "D1",
+      "pins": [
+        {
+          "block": "amp_input_pair",
+          "port": "Q2_8_D"
+        },
+        {
+          "block": "amp_nload",
+          "port": "M1_1_S"
+        }
+      ]
+    },
+    {
+      "net": "PN",
+      "pins": [
+        {
+          "block": "amp_nmirr",
+          "port": "M1_1_S"
+        },
+        {
+          "block": "amp_pmirr",
+          "port": "M2_4_D"
+        }
+      ]
+    },
+    {
+      "net": "VDD",
+      "pins": [
+        {
+          "block": "core_mirror",
+          "port": "M2_1_S"
+        },
+        {
+          "block": "amp_input_pair",
+          "port": "Q2_1_S"
+        }
+      ]
+    },
+    {
+      "net": "VSS",
+      "pins": [
+        {
+          "block": "amp_nload",
+          "port": "M1_2_D"
+        },
+        {
+          "block": "amp_nmirr",
+          "port": "M1_2_D"
+        }
+      ]
+    }
+  ],
+  "pins": [
+    {
+      "net": "GDRV",
+      "block": "core_mirror",
+      "port": "M2_2_G"
+    },
+    {
+      "net": "VOUT",
+      "block": "core_mirror",
+      "port": "M1_2_D"
+    },
+    {
+      "net": "VA_GATE",
+      "block": "amp_input_pair",
+      "port": "Q2_9_G"
+    },
+    {
+      "net": "VB_GATE",
+      "block": "amp_input_pair",
+      "port": "Q1_1_G"
+    },
+    {
+      "net": "D1_GATE",
+      "block": "amp_nload",
+      "port": "M2_3_G"
+    },
+    {
+      "net": "D2_GATE",
+      "block": "amp_nload",
+      "port": "M1_1_G"
+    },
+    {
+      "net": "D1_MIRROR_GATE",
+      "block": "amp_nmirr",
+      "port": "M2_3_G"
+    },
+    {
+      "net": "D2_MIRROR_GATE",
+      "block": "amp_nmirr",
+      "port": "M1_1_G"
+    },
+    {
+      "net": "PN_GATE",
+      "block": "amp_pmirr",
+      "port": "M2_5_G"
+    },
+    {
+      "net": "AOUT",
+      "block": "amp_pmirr",
+      "port": "M1_8_D"
+    },
+    {
+      "net": "TRIM_A_CODE_0",
+      "block": "res_trim",
+      "port": "R0_B"
+    },
+    {
+      "net": "TRIM_A_CODE_MINUS16",
+      "block": "res_trim",
+      "port": "R30_B"
+    },
+    {
+      "net": "TRIM_B_CODE_0",
+      "block": "res_trim",
+      "port": "R1_B"
+    },
+    {
+      "net": "TRIM_B_CODE_MINUS16",
+      "block": "res_trim",
+      "port": "R31_B"
+    }
+  ],
+  "routing": {
+    "layer_role": "metal",
+    "width_um": 0.5
+  },
+  "options": {
+    "cell_name": "bandgap_core_routed_inner",
+    "output": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-012915-1a97bf5/bandgap_core_routed_inner.gds"
+  }
+}

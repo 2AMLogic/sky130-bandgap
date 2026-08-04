@@ -257,6 +257,18 @@ Consistent with the measured PSRR (77.7 dB at DC, worst case sf/125 degC/
 
 ### 5a. What issue #62's routed flow actually draws, and the ring trade-off
 
+**Update (issue #62's second increment):** the `gen-compose` router
+limitation described below (#434) was fixed upstream via
+[klayout-tools#441](https://github.com/2AMLogic/klayout-tools/pull/441)
+(ring-routing openings), so per-matched-group rings and inter-block
+connectivity are no longer mutually exclusive in principle. This increment
+did **not** spend its scope reverting the rings-off trade-off, though --
+that is left to a follow-up so the increment's effort could go to intra-
+block bussing (Section 8) instead. The rest of this subsection (written for
+the first increment, PR #64) is otherwise still accurate: the routed layout
+still keeps per-group rings off today.
+
+
 **Drawn now** (measured in the routed record's own net/pin tables):
 
 - Nine inter-block nets carrying the schematic's own names -- `VA`, `TRIM`,
@@ -387,26 +399,33 @@ detail beyond a generic reproduction):
 
 ### 7a. Friction filed while routing the core (issue #62)
 
-Three new gaps, all filed at `2AMLogic/klayout-tools` as generic tool-gap
-descriptions with no design content, per `CLAUDE.md`'s protocol:
+**First increment (PR #64), three gaps filed:**
 
 - **[klayout-tools#432](https://github.com/2AMLogic/klayout-tools/issues/432)**
   -- `gen bjt_array` draws neither the bipolar device-recognition marker nor
   the well tap that the *same tool's* sky130 extraction deck requires, so a
-  generated bipolar array extracts as zero devices. (Also reports a
-  secondary bug: a marker exactly coincident with the emitter makes
-  `klt extract` abort with an unhandled `RuntimeError` traceback rather than
-  its documented error envelope.) Worked around locally by the routed flow's
-  recognition overlay.
+  generated bipolar array extracts as zero devices. **Closed upstream** via
+  [klayout-tools#440](https://github.com/2AMLogic/klayout-tools/pull/440):
+  `bjt_array` now draws both natively, per unit; the routed flow's local
+  recognition-overlay workaround was retired once the pin bumped past it.
 - **[klayout-tools#433](https://github.com/2AMLogic/klayout-tools/issues/433)**
   -- the router can only draw on the device-pad metal (sky130's role table
   exposes one metal role and no via, though the extraction deck declares
-  two metals and a via), and self-nets are exempt from the obstacle check,
-  so intra-block bussing is drawn as a certified-`routed: true` short.
-  **This is the blocker on LVS closure** (Section 8).
+  two metals and a via), and self-nets were exempt from the obstacle check,
+  so intra-block bussing was drawn as a certified-`routed: true` short.
+  **Closed upstream** via
+  [klayout-tools#439](https://github.com/2AMLogic/klayout-tools/pull/439),
+  but only its "fail visibly" option (a crossing self-net now reports
+  `unrouted_nets[]` instead of silently shorting) -- the underlying
+  capability gap (no metal2/via role, so bussing still cannot be routed by
+  `gen-compose` itself) was re-raised as
+  [klayout-tools#454](https://github.com/2AMLogic/klayout-tools/issues/454).
 - **[klayout-tools#434](https://github.com/2AMLogic/klayout-tools/issues/434)**
   -- no way to route into a guard-ringed block, forcing the ring/connectivity
-  trade-off in Section 5a.
+  trade-off in Section 5a. **Closed upstream** via
+  [klayout-tools#441](https://github.com/2AMLogic/klayout-tools/pull/441)
+  (ring-routing openings); restoring the rings this repo still keeps off is
+  a follow-up (Section 5a's update note).
 
 Two gaps this issue **picked up rather than filed**, having landed upstream
 in the interval: klayout-tools#415 (`res_array` row folding, Section 4a) and
@@ -415,20 +434,64 @@ covered by `layout/requirements.txt`'s pin bump; #421's fix was verified
 effective before relying on it (an isolated `flavor: "nfet"` `diff_pair` now
 extracts `{"nfet": 8}`, not `pfet`).
 
+**Second increment, three new gaps filed** (found while implementing the
+hand-drawn met1+mcon bus technique #433/#454 left necessary):
+
+- **[klayout-tools#453](https://github.com/2AMLogic/klayout-tools/issues/453)**
+  -- #439's "fail visibly" self-net check misses a same-row, same-direction
+  port pair: reproduced directly on an 8-unit `bjt_array`, a self-net
+  between two north-facing emitter ports in the same row composed
+  `routed: true`, DRC-clean, and, confirmed by extraction, absorbed the
+  array's entire shared base node into the route -- the exact silent-short
+  shape #439 was meant to close, just not caught by it in this case. Worked
+  around by not relying on `gen-compose`'s self-net router for busing at
+  all (the hand-drawn met1+mcon technique is verified independently by this
+  flow's own extraction check on every run).
+- **[klayout-tools#454](https://github.com/2AMLogic/klayout-tools/issues/454)**
+  -- re-raises #433's still-open Ask (a `metal2`/`via` routing role, or
+  via-drop support), since #439 shipped only the "fail visibly" safety net.
+  This is why the routed flow draws its own met1+mcon bus geometry by hand
+  via `klt draw` instead of asking `gen-compose` to route it.
+- **[klayout-tools#466](https://github.com/2AMLogic/klayout-tools/issues/466)**
+  -- `klayout.db.Netlist.combine_devices()` (via `klt lvs`'s
+  `options.combine_devices: true`) raises an uncaught `RuntimeError` on a
+  partial-match device group: a PNP array's 8 real + 4 dummy units all
+  share base and collector, but only the 8 real units additionally share
+  the (now-bussed) emitter -- confirmed by isolation that the crash is
+  specifically the partial 2-of-3-terminal overlap, not the busing itself.
+  The routed flow catches this and falls back to `combine_devices: false`
+  for that run rather than aborting.
+
 ## 8. Known limitations / follow-on work
 
-- **LVS is not clean.** *(Still open; the reason changed.)* At #15 the
-  blocker was device recognition -- neither `bjt_array` nor `res_array`
-  output extracted as devices at all. That half is closed: the routed layout
-  extracts 16 `pnp`, 16 `nfet`, 52 `pfet` and 159 `res_generic_po` devices
-  with 23 named top-level pins. The remaining blocker is
-  **klayout-tools#433**: with a single routing metal shared with every
-  device pad, an array's units cannot be bussed into one node, so the
-  layout's 243 devices cannot collapse into the schematic's 17. `klt lvs`
-  runs and reports `mismatch`; the routed record's "LVS mismatch analysis"
-  section quantifies it. Rewriting the reference netlist to enumerate the
-  layout's own un-bussed devices would make LVS compare the layout against
-  itself and is explicitly not done.
+- **LVS is not clean.** *(Still open; the reason narrowed again in issue
+  #62's second increment.)* At #15 the blocker was device recognition --
+  neither `bjt_array` nor `res_array` output extracted as devices at all.
+  That half is closed. The first routing increment (PR #64) closed nothing
+  on the bussing side -- `klayout-tools#433`'s single-routing-metal limit
+  meant no array's units could be bussed at all, so every matched group's
+  instances stayed separate devices. The second increment closes it for the
+  PNP arrays specifically: each array's 8 real emitters are bussed by hand
+  on met1+mcon (verified correct by extraction, not just DRC -- see
+  `gen_bandgap_routed.py`'s `MANUAL_BUS_TECHNIQUE_NOTE`), each array's
+  shared base is bridged to the VSS trunk
+  (`PNP_BASE_VSS_BRIDGE_NOTE`), and `klt lvs` is run with
+  `options.combine_devices: true` so a correctly-bussed group *can* collapse
+  into the reference's single multiplicity-N device. `diff_pair` MOS finger
+  busing was attempted with the same technique and reverted after being
+  found geometrically unsafe there (interleaved S/G/D positions across
+  nearly the whole block width mean a stacked-bus-level approach cannot
+  avoid cross-net shorts without real per-net channel routing -- see
+  `MOS_FINGER_BUS_NOTE`), and R2A/R2B/R1's series-chain busing was not
+  attempted this increment either (`RESISTOR_CHAIN_NOTE`). A genuine
+  upstream `klayout.db.Netlist.combine_devices()` crash on a partial-match
+  device group (found while busing the PNP arrays' real+dummy mix) is filed
+  as [klayout-tools#466](https://github.com/2AMLogic/klayout-tools/issues/466);
+  this flow catches it and falls back to `combine_devices: false` for that
+  run rather than aborting. `klt lvs` still reports `mismatch`; the routed
+  record's "LVS mismatch analysis" section quantifies it. Rewriting the
+  reference netlist to enumerate the layout's own un-bussed devices would
+  make LVS compare the layout against itself and is explicitly not done.
 - ~~**R2A/R2B ladder is at reduced scale**~~ -- **closed** by issue #62, see
   Section 4a. The ladder is drawn at its real 108-unit count.
 - **Per-matched-group guard rings are off in the routed layout** -- see
@@ -444,16 +507,22 @@ extracts `{"nfet": 8}`, not `pfet`).
 - **Inter-block connectivity is only partial** -- 4 of 12 schematic
   inter-block nets are joined across every block they reach; `VOUT`,
   `AOUT`/`GDRV` and `D2` are labelled pins with no metal between them, and
-  the `VDD`/`VSS` trunks each stop short of blocks they supply (Section 5a).
-  `klt gen-compose` routes 2-pin nets between channel-adjacent blocks only,
-  so this needs klayout-tools#433 (a second metal + via) or a floorplan whose
+  the `VDD` trunk still stops short of a block it supplies (Section 5a).
+  `VSS` improved in issue #62's second increment via the hand-drawn
+  PNP-base-to-VSS bridge (`PNP_BASE_VSS_BRIDGE_NOTE`), which is not a
+  `gen-compose` hop but is counted in the routed record's coverage table --
+  it now reaches 4 of its 7 blocks, up from 2. `klt gen-compose` itself
+  still routes 2-pin nets between channel-adjacent blocks only, so the rest
+  needs klayout-tools#433/#454 (a second metal + via) or a floorplan whose
   every net happens to fall between neighbours. Issue #62's criterion 1 is
   scored PARTIAL, not MET, on this.
-- **Intra-block connectivity is not drawn** -- each array's units, each
-  ladder's series segments, and each matched pair's split fingers remain
-  separate nodes. This is the klayout-tools#433 consequence above, and is a
-  deliberate choice not to draw a wire the tool would certify as routed
-  while producing an electrical short.
+- **Intra-block connectivity is drawn for PNP emitters only.** *(Narrowed
+  in issue #62's second increment; see the LVS bullet above for what
+  changed and why the rest was not attempted.)* Each PNP array's real
+  emitters are bussed and its base bridged to VSS. `diff_pair` split
+  fingers and each resistor ladder's series segments remain separate nodes
+  -- the former was tried and found unsafe with this flow's technique, the
+  latter was not attempted this increment.
 - **MCC is still not drawn** (analytic allocation only, Section 6) -- now
   the largest single un-budgeted item.
 

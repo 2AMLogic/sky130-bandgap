@@ -10,8 +10,8 @@ convention). Invoked by layout/bin/run-bandgap-routed-flow.sh, which supplies
 run-bandgap-floorplan-flow.sh invokes gen_bandgap_floorplan.py.
 
 This is the routed successor to gen_bandgap_floorplan.py (issue #15), which
-stays untouched as the placement-only DRC record it always was. What is new
-here, relative to that skeleton:
+stays untouched as the placement-only DRC record it always was. Relative to
+that skeleton, and to this issue's first increment (PR #64):
 
 1. **The R2A/R2B ladder is drawn at its real 108-unit count** (54 segments
    per leg), not the skeleton's reduced 16. `klt gen res_array` gained a
@@ -20,37 +20,49 @@ here, relative to that skeleton:
    ~1,231 um^2 instead of the ~710 um-long single row that forced the
    skeleton's reduction. The area-budget line in layout/matching-plan.md
    Section 4/6 is closed by this, not deferred.
-2. **PNP devices actually extract.** `klt gen bjt_array` draws a DRC-clean
-   matching floorplan but never draws the sky130 bipolar device-recognition
-   marker (`pnp.drawing` 82/44) its own `klt extract` deck keys off, nor an
-   nwell tap tying each unit's base pad to the well -- so a `bjt_array`
-   output extracts as *zero* devices. This script composes a small
-   `klt draw`-generated recognition overlay (marker + nwell tap, one pair
-   per functional unit, positioned from the generator's own reported
-   `ports[]`) over each PNP array, which takes the same geometry from
-   `device_count: 0` to the schematic's 8 `pnp` devices per array. See
-   PNP_OVERLAY_NOTE below and the friction issue it names.
+2. **PNP devices actually extract, natively.** `klt gen bjt_array` now draws
+   its own per-unit bipolar device-recognition marker and nwell tap on
+   sky130 (2AMLogic/klayout-tools#432, merged via #440), so this script no
+   longer needs the local `klt draw` recognition-overlay workaround PR #64
+   carried (PNP_OVERLAY_NOTE has been retired).
 3. **Real routed metal and promoted top-level pins.** `klt gen-compose`
    grew two-pin point-to-point routing plus `connectivity[]` net labels and
    `pins[]` single-port pin promotion, so the composed cell now carries
    drawn inter-block wire and survives `klt extract`'s pin promotion with
    named pins instead of `pin_count: 0`.
-4. **`klt extract` + `klt lvs` are run and recorded**, instead of being
+4. **PNP emitter bussing and a base-to-VSS bridge, drawn by hand on
+   met1+mcon.** `klt gen-compose`'s router still cannot draw this
+   (ROUTING_LAYER_NOTE, 2AMLogic/klayout-tools#433 -- only closed for its
+   "fail visibly" half; see MANUAL_BUS_TECHNIQUE_NOTE below for why a
+   second, upstream-unaddressed gap makes even that check unsafe to rely on
+   for this purpose). This script instead draws its own recognition-
+   overlay-style `klt draw` shapes: a met1 bus bar plus one mcon via per
+   target li1 pad, verified by this file's own DRC/extract runs (not just
+   DRC) to land only on the intended pads and change only the intended
+   nets. This busses each PNP array's 8 real emitters into one node and
+   bridges each array's shared base to the VSS trunk -- see
+   build_bus_overlay()/build_bridge_overlay() below. The same technique was
+   also attempted for each `diff_pair` block's split/mirrored MOS fingers
+   and reverted after being found unsafe there specifically -- see
+   MOS_FINGER_BUS_NOTE.
+5. **`klt lvs` runs with `combine_devices: true`.** `klayout.db.Netlist.
+   combine_devices()` is what turns N parallel devices correctly bussed onto
+   one node into the single multiplicity-N device the reference netlist
+   declares -- without it, even a perfectly-bussed layout would still report
+   the physical instance count as a device-count mismatch.
+6. **`klt extract` + `klt lvs` are run and recorded**, instead of being
    skipped as not-yet-meaningful.
 
 What this script does NOT claim -- read record.md's own "What this record
 does NOT claim" section for the authoritative, measured version:
 
-- **Not LVS-clean.** Intra-block bussing (tying an array's 8 PNP emitters,
-  or a ladder's 108 unit resistors, into one node) is not expressible with
-  today's router: sky130's generator/router layer-role table exposes exactly
-  one routing metal (`li1`), the same layer every generator draws its own
-  device pads on, and the router is explicitly not aware of a block's
-  internal geometry. Any wire crossing a block therefore shorts to every pad
-  it passes over. See ROUTING_LAYER_NOTE below.
-- Consequently the flow routes only the inter-block nets the router itself
-  certifies as obstacle-free, and the extracted netlist keeps each block's
-  units as separate devices.
+- **Only PNP emitters are bussed -- MOS fingers and resistor ladders are
+  not.** `diff_pair` finger busing (each split/mirrored MOS instance's S/D/G)
+  was attempted with the same technique and reverted as unsafe -- see
+  MOS_FINGER_BUS_NOTE. R2A/R2B/R1's unit segments stay separate,
+  unconnected devices -- the series chain the schematic's single lumped
+  resistor represents is not drawn, a materially different (and, at 108
+  units, larger) problem from a parallel bus -- see RESISTOR_CHAIN_NOTE.
 - **Not fully inter-block routed.** `klt gen-compose` routes 2-pin nets only,
   and only between blocks adjacent across an empty channel, so a supply trunk
   can reach at most the blocks a chain of such hops can string together and a
@@ -61,6 +73,9 @@ does NOT claim" section for the authoritative, measured version:
   against design/bandgap_core.sch's node list, not against this script's own
   `connectivity[]` declaration -- and criterion 1 is PARTIAL while any node
   is short.
+- **Per-matched-group guard rings are still off** (GUARD_RING_NOTE):
+  restoring them via 2AMLogic/klayout-tools#441's new ring-routing openings
+  is left to a follow-up, to keep this increment's scope to bussing.
 
 Every one of those gaps is filed upstream per CLAUDE.md's friction protocol
 and named in the NOTE constants below; record.md restates them with the
@@ -82,37 +97,139 @@ from typing import Any
 # generic tool-gap description; the design-specific consequence lives here and
 # in layout/matching-plan.md, never in that tracker.
 # ---------------------------------------------------------------------------
-PNP_OVERLAY_NOTE = (
-    "`klt gen bjt_array` draws no bipolar device-recognition marker on "
-    "sky130 (the role table's `bjt_mark` entry is None) and no well tap for "
-    "the unit base pads, so its output extracts as device_count: 0 even "
-    "though the same tool's sky130 extraction deck declares a `pnp` entry "
-    "keyed on marker 82/44 with base = nwell. This flow composes a "
-    "`klt draw` recognition overlay (82/44 marker per functional emitter "
-    "pad, 65/44 nwell tap per base pad) to close that gap locally -- see "
-    "2AMLogic/klayout-tools#432."
-)
 ROUTING_LAYER_NOTE = (
     "sky130's generator/router layer-role table exposes exactly one routing "
     "metal role (`metal` -> li1 67/20) even though the same tool's sky130 "
     "extraction deck declares a second metal (68/20) and a via (67/44). "
     "Every `klt gen` generator draws its device pads on that same li1, and "
     "`klt gen-compose`'s router is documented as unaware of a block's "
-    "internal geometry, so any route crossing a block shorts to every pad it "
-    "passes over. Intra-block bussing (an array's emitters, a ladder's "
-    "series segments) is therefore not expressible, which is what keeps this "
-    "layout from LVS-closing against the schematic -- see "
-    "2AMLogic/klayout-tools#433."
+    "internal geometry, so a self-net route crossing another pad on the "
+    "same block used to be drawn as a silent short. 2AMLogic/klayout-tools"
+    "#433 (merged via #439) closed the silent-short half (the composer now "
+    "rejects most such self-nets into `unrouted_nets[]` instead), but not "
+    "the underlying gap: the router still cannot bus several pads on one "
+    "block into a node at all -- see MANUAL_BUS_TECHNIQUE_NOTE below for "
+    "how this flow works around that, and 2AMLogic/klayout-tools#454 "
+    "(re-raising #433's still-open Ask options 1/2, a `metal2`/`via` "
+    "routing role)."
+)
+MANUAL_BUS_TECHNIQUE_NOTE = (
+    "This flow busses a block's own pads (an array's emitters, a split "
+    "pair's fingers) by hand with `klt draw`, not `klt gen-compose`'s "
+    "router: a met1 (68/20) bus polygon plus one mcon (67/44) via per "
+    "target li1 pad, positioned from each target's own reported port "
+    "coordinates. This works because `klt extract`'s generic per-layer "
+    "connectivity loop only merges li1 and met1 through an actual via "
+    "shape (`connect(metals[i], vias[i])` / `connect(vias[i], "
+    "metals[i+1])`) -- met1 crossing *over* an untargeted li1 pad with no "
+    "via there does not connect to it, unlike `gen-compose`'s li1-only "
+    "router, where crossing a pad on the routing metal *is* the connection. "
+    "Verified by extraction, not just DRC, for every bus this flow draws "
+    "(build_bus_overlay()/build_bridge_overlay() below): the targeted pads "
+    "share one node and every other device's terminals are unchanged. This "
+    "was chosen over attempting the same result with more `gen-compose` "
+    "self-net hops after finding a case 2AMLogic/klayout-tools#439's "
+    "\"fail visibly\" check does not catch -- a same-row, same-direction "
+    "self-net that composed `routed: true`, DRC-clean, and, confirmed by "
+    "extraction, silently absorbed the array's whole shared base node into "
+    "the route. Filed as 2AMLogic/klayout-tools#453; drawing the bus "
+    "geometry directly (verified by this flow's own extraction check on "
+    "every run) does not depend on that gap being fixed."
+)
+MOS_FINGER_BUS_NOTE = (
+    "`diff_pair` block finger busing (S/D/G per polarity, tying each split/"
+    "mirrored MOS instance into one multiplicity-N device) was attempted "
+    "with the same stacked-bus-level technique that works for PNP emitters, "
+    "and reverted after it was found unsafe, not just left undone. A PNP "
+    "array busses one net (the emitters); a `diff_pair` block needs up to "
+    "six (S/D/G x 2 polarities) stacked at different Y levels above the "
+    "block. Each net's bar spans its own targets' min-to-max X, and every "
+    "stem rising from pad level to its own (higher) level must physically "
+    "cross every lower level's Y-band along the way -- safe only where that "
+    "stem's X falls outside the lower bar's span. `diff_pair` interleaves "
+    "S/G/D positions across nearly the *entire* block width by design (the "
+    "common-centroid checkerboard layout this generator uses for matching), "
+    "so a higher-level net's stem essentially always falls inside a "
+    "lower-level net's bar span -- confirmed directly: extracting a "
+    "composed layout with this bussing showed VSS (via the PNP bridge, "
+    "which happens to land on a port shared with one `diff_pair` block's "
+    "own finger bus) merged into a single net covering nearly every "
+    "schematic node in the design, and `klt lvs`'s `combine_devices()` "
+    "crashed outright on the resulting netlist rather than merely "
+    "misreporting a mismatch. Un-crossable without per-net X-lane "
+    "reservation (real channel routing, not a fixed Y-stack), which is a "
+    "materially larger drawing problem than this increment's bus technique "
+    "and is left to a follow-up rather than shipped at reduced confidence."
+)
+RESISTOR_CHAIN_NOTE = (
+    "R2A/R2B/R1's unit segments are not bussed in this flow. Each is 2-pin "
+    "(head/tail), and the schematic's single lumped resistor represents "
+    "them wired in series -- unlike a parallel bus (many pads, one shared "
+    "node), a series chain needs a distinct 2-pin hop between each adjacent "
+    "pair's tail and the next pair's head, repeated across a 9-row fold "
+    "boundary the ladder's `rows` parameter introduces. That is a "
+    "materially different (and, at 108 units, much larger) drawing problem "
+    "than the parallel bus this flow's build_bus_overlay() draws for PNP "
+    "emitters, and is left to a follow-up rather than attempted at reduced "
+    "confidence in this increment."
+)
+PNP_BASE_VSS_BRIDGE_NOTE = (
+    "Each PNP array's base is already one shared node across every unit "
+    "(real and dummy) purely from the generator's own continuous nwell "
+    "tub -- confirmed by extraction, not assumed -- but that node is not "
+    "the substrate net: unlike a MOS body or a PNP collector (both tied "
+    "automatically to the global native-substrate node every device shares, "
+    "see the extraction deck's bulk_to_substrate/substrate_net handling), "
+    "an nwell is electrically distinct and needs an explicit tie to reach "
+    "VSS, which the schematic's diode-connected PNP (`QQ1 VSS VSS VA pnp "
+    "m=8` -- base *and* collector both VSS) requires. `res_array` and "
+    "`diff_pair` expose no dedicated VSS-tie port to route this "
+    "inter-block through `klt gen-compose` at all (ROUTING_LAYER_NOTE's "
+    "adjacent-block-only limit would apply regardless, since neither PNP "
+    "array sits next to a block already on the VSS trunk). This flow "
+    "instead draws one long-haul bridge (waypoint_wire_shapes) directly "
+    "from each PNP array's base port to the VSS trunk's own already-chosen "
+    "absolute position, after gen-compose's inner pass resolves where "
+    "everything actually landed -- see build_bridge_overlay()'s call site. "
+    "The bridge cannot exit straight up or sideways at the base port's own "
+    "position (both cross this block's own emitter-bus geometry -- see "
+    "waypoint_wire_shapes' docstring); the call site drops below the "
+    "block's own footprint first, where nothing else is drawn."
+)
+COMBINE_DEVICES_CRASH_NOTE = (
+    "`klayout.db.Netlist.combine_devices()` (invoked via `klt lvs`'s "
+    "`options.combine_devices: true`) raises an uncaught `RuntimeError` -- "
+    "not a documented `klt` error envelope -- on this array's real "
+    "8-unit + dummy 4-unit mix: all 12 devices share base (VSS, "
+    "PNP_BASE_VSS_BRIDGE_NOTE) and collector (the global substrate net), "
+    "but only the 8 real units additionally share the bussed emitter; "
+    "each dummy's emitter is its own distinct node (dummy pads are never "
+    "exposed as ports at all, so pnp_emitter_bus_nets() cannot and does "
+    "not touch them -- see the module docstring's item 4). Confirmed by "
+    "isolation: "
+    "the 8 fully-matching devices alone combine cleanly; the 4 dummies "
+    "alone, with their emitters additionally tied to a second shared net "
+    "so they form their own fully-matching subgroup, also combine cleanly. "
+    "It is specifically a *partial* 2-of-3-terminal match inside one "
+    "device-class group that crashes rather than being handled. No "
+    "layout-side fix was attempted (busing the dummies too would need "
+    "their exact pad positions, which -- deliberately, matching every "
+    "other overlay in this flow -- this script never re-derives from "
+    "geometry when the generator does not report them as ports). Filed as "
+    "2AMLogic/klayout-tools#466; this flow instead catches the crash and "
+    "falls back to `combine_devices: false` for that run rather than "
+    "aborting -- see main()'s LVS step."
 )
 GUARD_RING_NOTE = (
     "`klt gen-compose`'s router rejects any route to a non-tap port on a "
     "block that reports a guard/collector ring, because the route would "
-    "cross the ring's own metal loop -- and offers no way in. Per-matched-"
-    "group guard rings and inter-block connectivity are therefore mutually "
-    "exclusive today. This flow drops the per-group rings (keeping the "
-    "cell-level ring) so connectivity can be drawn at all, a matching-"
-    "quality regression relative to the #15 skeleton that is recorded in "
-    "layout/matching-plan.md Section 5 -- see 2AMLogic/klayout-tools#434."
+    "cross the ring's own metal loop. 2AMLogic/klayout-tools#434 (merged "
+    "via #441) added a ring-routing opening upstream, but restoring the "
+    "per-matched-group rings this flow still keeps off is left to a "
+    "follow-up so this increment's scope stays on bussing. This flow drops "
+    "the per-group rings (keeping the cell-level ring) so connectivity can "
+    "be drawn at all, a matching-quality regression relative to the #15 "
+    "skeleton that is recorded in layout/matching-plan.md Section 5."
 )
 
 # ---------------------------------------------------------------------------
@@ -125,20 +242,37 @@ RING_WIDTH_UM = 2.0
 RING_CONTACTS_PER_SIDE = 8
 ROUTE_WIDTH_UM = 0.5
 
-# sky130 recognition layers used by the PNP overlay. Both are read straight
-# out of the same tool's own published contract -- the sky130 extraction
-# deck's `BipolarDevice(base=(64, 20), emitter=(65, 20), marker=(82, 44))`
-# entry and its `tap` layer -- not invented here.
-PNP_MARKER_LAYER = [82, 44]
-NWELL_TAP_LAYER = [65, 44]
-#: Margin (um) the 82/44 marker extends past the emitter pad on every side.
-#: Must be > 0 (the extractor needs base to strictly enclose emitter, or
-#: KLayout raises "Terminal 'C' ... isn't connected") and small enough to
-#: stay clear of the adjacent base-tie pad, which sits one
-#: min-same-layer-spacing (0.4 um) away.
-PNP_MARKER_MARGIN_UM = 0.15
-#: Margin (um) the 65/44 nwell tap extends past the base-tie contact.
-NWELL_TAP_MARGIN_UM = 0.05
+# ---------------------------------------------------------------------------
+# Manual met1/mcon bus geometry (MANUAL_BUS_TECHNIQUE_NOTE). Every dimension
+# here is read from the same curated deck's own published DRC-rule constants
+# (klayout_tools.decks.sky130's met1.width.1/met1.enclosing.mcon.1/
+# mcon.space.1 -- 0.14/0.03/0.19 um respectively) plus `klt gen`'s own
+# CONTACT_SIZE_UM (0.22 um, the li1 pad's own contact size every generator
+# already draws), each grown by a safety margin the same way
+# PNP_MARKER_MARGIN_UM did for the retired recognition overlay -- not
+# invented values.
+# ---------------------------------------------------------------------------
+BUS_MET1_LAYER = [68, 20]  # met1.drawing
+BUS_MCON_LAYER = [67, 44]  # mcon.drawing
+#: mcon via size (um) -- matches `klt gen`'s own CONTACT_SIZE_UM, so the via
+#: this flow drops onto an existing li1 pad is the same size as the pad's
+#: own licon1 contact it lands directly above.
+BUS_VIA_UM = 0.22
+#: Half-width (um) of every met1 bus bar/stem this flow draws. Comfortably
+#: above met1.width.1's 0.14um floor, and (BUS_STEM_HALF_UM * 2) - BUS_VIA_UM
+#: = 0.20um clears met1.enclosing.mcon.1's 0.03um-per-side requirement with
+#: ample margin.
+BUS_STEM_HALF_UM = 0.16
+#: Vertical clearance (um) between a block's own reported bbox top edge and
+#: the first (lowest) stacked bus level this flow draws above it.
+BUS_BASE_CLEARANCE_UM = 1.0
+#: Vertical pitch (um) between stacked bus levels within one overlay, used
+#: when a single block needs more than one independent bus (e.g. a
+#: `diff_pair` block's S/D/G x 2 polarities = up to 6 nets). Comfortably
+#: above met1.space.1's 0.14um floor plus twice BUS_STEM_HALF_UM, so two
+#: adjacent levels' bars never get close enough to violate it even before
+#: accounting for the vertical stems' own footprint.
+BUS_LEVEL_PITCH_UM = 0.6
 
 # ---------------------------------------------------------------------------
 # Schematic parameters, transcribed from design/bandgap_core.sch's CORE_PARAMS
@@ -162,7 +296,7 @@ AMP_M_PMIRR = 8
 # Block definitions. Each maps to one `klt gen` call. `row` groups blocks into
 # stacked bands; blocks within a row are placed left-to-right in the order
 # listed. Relative to gen_bandgap_floorplan.py's BLOCKS this list differs in
-# exactly three ways, each of them load-bearing for this issue:
+# four ways, each load-bearing for this issue:
 #
 #   * `res_r2` is at its real 108-unit count, folded into 9 rows.
 #   * every guard/collector ring is off (GUARD_RING_NOTE) so the router will
@@ -170,6 +304,14 @@ AMP_M_PMIRR = 8
 #   * row order/adjacency is chosen so that the circuit's inter-block nets
 #     connect *adjacent* blocks through an empty channel -- the only routes
 #     `klt gen-compose`'s obstacle check will certify.
+#   * a `"bus"` key marks which blocks need a hand-drawn intra-block bus
+#     (MANUAL_BUS_TECHNIQUE_NOTE): `"pnp_emitter"` for the two `bjt_array`
+#     blocks (busses the real emitters only -- dummy units are not exposed
+#     as ports at all, so they cannot be and are not touched). `diff_pair`
+#     blocks carry no `"bus"` key -- the same technique was attempted for
+#     their split/mirrored MOS fingers and reverted as unsafe, see
+#     MOS_FINGER_BUS_NOTE. `res_array` blocks carry no `"bus"` key either --
+#     see RESISTOR_CHAIN_NOTE.
 # ---------------------------------------------------------------------------
 BLOCKS: list[dict[str, Any]] = [
     {
@@ -186,7 +328,7 @@ BLOCKS: list[dict[str, Any]] = [
             "topology": "common_centroid",
             "add_collector_ring": False,
         },
-        "pnp_overlay": True,
+        "bus": "pnp_emitter",
         "matched_group_label": "Q1 (CTAT PNP, small unit W0p68L0p68)",
         "real_target": f"m={N_PNP_CTAT} sky130_fd_pr__pnp_05v5_W0p68L0p68 "
         "(design/bandgap_core.sch); drawn 1:1 (8 real units, 2x4 "
@@ -259,7 +401,7 @@ BLOCKS: list[dict[str, Any]] = [
             "topology": "common_centroid",
             "add_collector_ring": False,
         },
-        "pnp_overlay": True,
+        "bus": "pnp_emitter",
         "matched_group_label": "Q2 (PTAT PNP, large unit W3p40L3p40)",
         "real_target": f"m={N_PNP_PTAT} sky130_fd_pr__pnp_05v5_W3p40L3p40 "
         "(design/bandgap_core.sch); drawn 1:1 (8 real units, 2x4 "
@@ -399,84 +541,34 @@ def klt_gen(klt: str, pdk: str, out_dir: Path, block: dict[str, Any]) -> dict[st
     return report
 
 
-def build_pnp_overlay(
-    klt: str,
-    out_dir: Path,
-    block_id: str,
-    report: dict[str, Any],
-    emitter_um: float,
+def draw_overlay_shapes(
+    klt: str, out_dir: Path, overlay_id: str, pdk_echo: dict[str, Any], shapes: list[dict[str, Any]]
 ) -> dict[str, Any]:
-    """Draw a sky130 PNP device-recognition overlay for one `bjt_array` block.
+    """Run `klt draw` on `shapes` and wrap the result as a hand-written
+    generator report with a **degenerate (zero-area) bbox**.
 
-    One 82/44 marker box per functional emitter pad (grown
-    PNP_MARKER_MARGIN_UM past the pad so the extractor's `base` region
-    strictly encloses its `emitter` region) and one 65/44 nwell tap box per
-    base-tie pad (so the well node reaches the unit's own contact/li1 stack
-    and the extracted base terminal is a named net rather than a floating
-    one). Positions come from the generator's own reported `ports[]` --
-    this function never re-derives geometry from the block's GDS stream,
-    matching `klt gen-compose`'s own "consume the reported report" guarantee.
-
-    The returned hand-written generator report deliberately declares a
-    **degenerate (zero-area) bbox**: `klt gen-compose`'s obstacle check
-    treats every placed block's reported bbox as a routing obstacle, and an
-    overlay that occupies the same footprint as the block it annotates would
-    otherwise veto every route into that block. A zero-area bbox contributes
-    no interior for a route to cross while the overlay's geometry is still
-    copied into the composed cell in full. See PNP_OVERLAY_NOTE.
+    `klt gen-compose`'s obstacle check treats every placed block's reported
+    bbox as a routing obstacle, and an overlay that occupies real footprint
+    would veto every inter-block route that should be free to cross near it.
+    A zero-area bbox contributes no interior for a route to cross while the
+    overlay's geometry is still composed into the cell in full -- the same
+    technique PR #64's PNP recognition overlay used.
     """
-    shapes: list[dict[str, Any]] = []
-    marker_count = 0
-    tap_count = 0
-    for port in report["ports"]:
-        name = port["name"]
-        if not name.startswith("Q"):
-            continue
-        x, y = float(port["x_um"]), float(port["y_um"])
-        if name.endswith("_E"):
-            half = emitter_um / 2.0 + PNP_MARKER_MARGIN_UM
-            shapes.append(
-                {
-                    "layer": PNP_MARKER_LAYER,
-                    "rect_um": [x - half, y - half, x + half, y + half],
-                }
-            )
-            marker_count += 1
-        elif name.endswith("_B"):
-            half = float(port["width_um"]) / 2.0 + NWELL_TAP_MARGIN_UM
-            shapes.append(
-                {
-                    "layer": NWELL_TAP_LAYER,
-                    "rect_um": [x - half, y - half, x + half, y + half],
-                }
-            )
-            tap_count += 1
-
-    overlay_id = f"{block_id}_pnpmark"
     params_path = out_dir / f"{overlay_id}.draw.json"
     params_path.write_text(json.dumps({"shapes": shapes}, indent=2) + "\n")
     gds_path = out_dir / f"{overlay_id}.gds"
     draw_report = run_klt_json(
-        klt,
-        "draw",
-        "--params",
-        str(params_path),
-        "--cell-name",
-        overlay_id,
-        "-o",
-        str(gds_path),
+        klt, "draw", "--params", str(params_path), "--cell-name", overlay_id, "-o", str(gds_path)
     )
     (out_dir / f"{overlay_id}.draw.report.json").write_text(
         json.dumps(draw_report, indent=2) + "\n"
     )
-
     gen_report = {
         "schema_version": 1,
         "generator": "draw",
         "cell_name": overlay_id,
         "gds_path": str(gds_path.resolve()),
-        "pdk": report["pdk"],
-        # Deliberately degenerate -- see this function's docstring.
+        "pdk": pdk_echo,
         "bbox_um": {"x0": 0.0, "y0": 0.0, "x1": 0.0, "y1": 0.0},
         "device_count": 0,
         "ports": [],
@@ -484,16 +576,182 @@ def build_pnp_overlay(
             "min_spacing_um": None,
             "matched_group_id": None,
             "snapped_to_grid": False,
-            "notes": [PNP_OVERLAY_NOTE],
+            "notes": [MANUAL_BUS_TECHNIQUE_NOTE],
         },
         "warnings": [],
-        "overlay_marker_count": marker_count,
-        "overlay_tap_count": tap_count,
     }
-    (out_dir / f"{overlay_id}.gen.json").write_text(
-        json.dumps(gen_report, indent=2) + "\n"
-    )
+    (out_dir / f"{overlay_id}.gen.json").write_text(json.dumps(gen_report, indent=2) + "\n")
     return gen_report
+
+
+def bus_shapes_for_targets(
+    targets: list[tuple[float, float]], level_index: int, base_y: float
+) -> list[dict[str, Any]]:
+    """met1 bus-bar + per-target vertical stem + mcon via shapes tying every
+    (x, y) li1 pad in `targets` to one node (MANUAL_BUS_TECHNIQUE_NOTE).
+
+    `base_y` is the Y just above every relevant block's own reported extent
+    (so the bar clears every pad, not just the busiest target); `level_index`
+    stacks this net's bar `level_index * BUS_LEVEL_PITCH_UM` above `base_y`
+    so multiple independent busses drawn for the same block never share a
+    Y-band (each stem still safely crosses *other* layers/pads on its way up
+    -- only an actual via shape connects met1 to li1, so nothing this
+    function does not explicitly via-drop gets electrically touched).
+    """
+    bar_y0 = base_y + level_index * BUS_LEVEL_PITCH_UM
+    bar_y1 = bar_y0 + 2 * BUS_STEM_HALF_UM
+    xs = [t[0] for t in targets]
+    shapes: list[dict[str, Any]] = [
+        {
+            "layer": BUS_MET1_LAYER,
+            "rect_um": [
+                min(xs) - BUS_STEM_HALF_UM,
+                bar_y0,
+                max(xs) + BUS_STEM_HALF_UM,
+                bar_y1,
+            ],
+        }
+    ]
+    via_half = BUS_VIA_UM / 2.0
+    for x, y in targets:
+        shapes.append(
+            {
+                "layer": BUS_MET1_LAYER,
+                "rect_um": [x - BUS_STEM_HALF_UM, y - BUS_STEM_HALF_UM, x + BUS_STEM_HALF_UM, bar_y1],
+            }
+        )
+        shapes.append(
+            {
+                "layer": BUS_MCON_LAYER,
+                "rect_um": [x - via_half, y - via_half, x + via_half, y + via_half],
+            }
+        )
+    return shapes
+
+
+def build_bus_overlay(
+    klt: str,
+    out_dir: Path,
+    block_id: str,
+    report: dict[str, Any],
+    nets: list[tuple[str, list[str]]],
+) -> dict[str, Any]:
+    """Draw one overlay cell busing multiple independent nets on one block.
+
+    `nets` is `[(overlay_net_label, [port_name, ...]), ...]` -- every
+    `port_name` must be one of `report["ports"][*]["name"]`. Each net gets
+    its own stacked bus level (`bus_shapes_for_targets`'s `level_index`),
+    all sharing one `base_y` computed from the block's own reported
+    `bbox_um.y1` so no level's bar dips into the block's own geometry.
+    Returns the overlay's generator report (degenerate bbox, per
+    draw_overlay_shapes) plus a `bus_nets` field recording what was drawn,
+    for record.md.
+    """
+    by_name = {p["name"]: p for p in report["ports"]}
+    base_y = float(report["bbox_um"]["y1"]) + BUS_BASE_CLEARANCE_UM
+    shapes: list[dict[str, Any]] = []
+    bus_nets: list[dict[str, Any]] = []
+    for level_index, (label, port_names) in enumerate(nets):
+        targets = []
+        for name in port_names:
+            if name not in by_name:
+                raise KeyError(
+                    f"block '{block_id}' has no port '{name}' to bus into net '{label}' "
+                    f"(available: {sorted(by_name)})"
+                )
+            p = by_name[name]
+            targets.append((float(p["x_um"]), float(p["y_um"])))
+        shapes.extend(bus_shapes_for_targets(targets, level_index, base_y))
+        bus_nets.append({"label": label, "ports": list(port_names)})
+
+    overlay_id = f"{block_id}_bus"
+    gen_report = draw_overlay_shapes(klt, out_dir, overlay_id, report["pdk"], shapes)
+    gen_report["bus_nets"] = bus_nets
+    (out_dir / f"{overlay_id}.gen.json").write_text(json.dumps(gen_report, indent=2) + "\n")
+    return gen_report
+
+
+def pnp_emitter_bus_nets(block_id: str, report: dict[str, Any]) -> list[tuple[str, list[str]]]:
+    """The single emitter-bus net for one `bjt_array` block: every real
+    (non-dummy) unit's `_E` port. Dummy units are never exposed as ports at
+    all (`klt gen bjt_array` only reports functional-unit ports), so this
+    cannot and does not touch them -- see the module docstring's item 4.
+    """
+    e_ports = sorted(p["name"] for p in report["ports"] if p["name"].endswith("_E"))
+    return [(f"{block_id}_E", e_ports)]
+
+
+# `diff_pair` finger busing (MOS_FINGER_BUS_NOTE) was attempted and reverted
+# in this increment -- see that note for why. No `diff_pair_finger_bus_nets`
+# function ships here; BLOCKS carries no `"bus": "diff_pair_fingers"` entry.
+
+
+def waypoint_wire_shapes(waypoints: list[tuple[float, float]]) -> list[dict[str, Any]]:
+    """A Manhattan met1+mcon wire threading every point in `waypoints`, in
+    order (MANUAL_BUS_TECHNIQUE_NOTE) -- each consecutive pair must share
+    either its X or its Y (a straight horizontal or vertical hop; this does
+    not compute a bend for a diagonal pair), plus an mcon via at the first
+    and last waypoint only (intermediate bends are met1-only, same net).
+
+    Safe to cross arbitrary *other* blocks' real geometry along the way --
+    met1 does not connect to anything it merely overlaps, only the two via
+    shapes this function draws create a connection -- but NOT safe to run
+    through *this flow's own* other met1 (a same-layer touch always merges,
+    per klt extract's generic per-layer connectivity loop). See this
+    function's call site (the PNP-base-to-VSS bridge) for why a straight
+    2-bend path is not always enough: a bend chosen only to clear *other*
+    blocks can still run straight through the *source* block's own bus
+    overlay if the source port's X falls inside that bus bar's span (as a
+    PNP array's base ports do, interleaved between its own emitter ports)--
+    an extra waypoint stepping outside the source block's own footprint
+    first is what avoids that.
+    """
+    if len(waypoints) < 2:
+        raise ValueError("waypoint_wire_shapes needs at least 2 points")
+    half = BUS_STEM_HALF_UM
+    via_half = BUS_VIA_UM / 2.0
+    shapes: list[dict[str, Any]] = []
+    for (x1, y1), (x2, y2) in zip(waypoints, waypoints[1:]):
+        if x1 != x2 and y1 != y2:
+            raise ValueError(
+                f"waypoint_wire_shapes: non-Manhattan hop ({x1}, {y1}) -> ({x2}, {y2})"
+            )
+        shapes.append(
+            {
+                "layer": BUS_MET1_LAYER,
+                "rect_um": [
+                    min(x1, x2) - half,
+                    min(y1, y2) - half,
+                    max(x1, x2) + half,
+                    max(y1, y2) + half,
+                ],
+            }
+        )
+    for x, y in (waypoints[0], waypoints[-1]):
+        shapes.append(
+            {
+                "layer": BUS_MCON_LAYER,
+                "rect_um": [x - via_half, y - via_half, x + via_half, y + via_half],
+            }
+        )
+    return shapes
+
+
+def build_bridge_overlay(
+    klt: str,
+    out_dir: Path,
+    overlay_id: str,
+    pdk_echo: dict[str, Any],
+    waypoints: list[tuple[float, float]],
+) -> dict[str, Any]:
+    """Draw one waypoint_wire_shapes() overlay and wrap it as a
+    degenerate-bbox generator report placed at absolute origin (0, 0) --
+    every waypoint is already an absolute (inner-cell) coordinate, so this
+    overlay's own local coordinate space *is* that absolute space (see
+    PNP_BASE_VSS_BRIDGE_NOTE and its call site for how they are resolved).
+    """
+    shapes = waypoint_wire_shapes(waypoints)
+    return draw_overlay_shapes(klt, out_dir, overlay_id, pdk_echo, shapes)
 
 
 # ---------------------------------------------------------------------------
@@ -869,14 +1127,21 @@ SCHEMATIC_INTER_BLOCK_NETS: list[dict[str, Any]] = [
 ]
 
 
-def schematic_net_coverage(compose: dict[str, Any]) -> list[dict[str, Any]]:
+def schematic_net_coverage(
+    compose: dict[str, Any], extra_touched: dict[str, set[str]] | None = None
+) -> list[dict[str, Any]]:
     """Score each schematic inter-block node against what `gen-compose`
-    actually routed.
+    actually routed, plus (`extra_touched`) any blocks this flow's own
+    hand-drawn bridge overlays additionally joined (PNP_BASE_VSS_BRIDGE_NOTE
+    -- those bridges are not `connectivity[]`-declared `gen-compose` hops,
+    so without this they would be invisible to this scoreboard even though
+    they are real, extraction-verified metal).
 
-    `status` is "drawn" only when the routed hops carrying that node's label
-    touch every block the schematic says the node reaches; "partial" when
-    some but not all are joined; "labelled only" when no metal is drawn for
-    it at all (the node exists in the layout solely as promoted pin labels).
+    `status` is "drawn" only when the routed hops (+ `extra_touched`)
+    carrying that node's label touch every block the schematic says the node
+    reaches; "partial" when some but not all are joined; "labelled only"
+    when no metal is drawn for it at all (the node exists in the layout
+    solely as promoted pin labels).
     """
     touched: dict[str, set[str]] = {}
     for net in compose.get("nets", []):
@@ -885,6 +1150,8 @@ def schematic_net_coverage(compose: dict[str, Any]) -> list[dict[str, Any]]:
         touched.setdefault(net["net"], set()).update(
             p["block"] for p in net.get("pins", [])
         )
+    for net, blocks in (extra_touched or {}).items():
+        touched.setdefault(net, set()).update(blocks)
     rows = []
     for spec in SCHEMATIC_INTER_BLOCK_NETS:
         want = set(spec["blocks"])
@@ -1101,18 +1368,18 @@ def main() -> int:
     for block in BLOCKS:
         reports[block["id"]] = klt_gen(klt, pdk, out_dir, block)
 
-    # --- 2. PNP recognition overlays (PNP_OVERLAY_NOTE) ---------------------
+    # --- 2. Intra-block bus overlays (MANUAL_BUS_TECHNIQUE_NOTE) ------------
     overlays: dict[str, dict[str, Any]] = {}
     for block in BLOCKS:
-        if block.get("pnp_overlay"):
-            overlay = build_pnp_overlay(
-                klt,
-                out_dir,
-                block["id"],
-                reports[block["id"]],
-                float(block["params"]["emitter_um"]),
-            )
-            overlays[block["id"]] = overlay
+        bus_kind = block.get("bus")
+        if bus_kind is None:
+            continue
+        report = reports[block["id"]]
+        if bus_kind == "pnp_emitter":
+            nets = pnp_emitter_bus_nets(block["id"], report)
+        else:
+            raise ValueError(f"block '{block['id']}': unknown bus kind {bus_kind!r}")
+        overlays[block["id"]] = build_bus_overlay(klt, out_dir, block["id"], report, nets)
 
     # --- 3. Place on an explicit 2D grid ------------------------------------
     origins = place_blocks(BLOCKS, reports)
@@ -1169,7 +1436,130 @@ def main() -> int:
     (out_dir / f"{inner_cell}.gen.json").write_text(
         json.dumps(inner_report, indent=2) + "\n"
     )
-    content_bbox = inner_compose["bbox_um"]
+
+    # --- 4b. PNP base-to-VSS bridges (PNP_BASE_VSS_BRIDGE_NOTE) -------------
+    # Resolved *after* the inner pass, from the "VSS" net's own actually-
+    # chosen pin (whatever resolve_connectivity's router-oracle search
+    # landed on) and each PNP array's own placement origin -- both only
+    # known once the inner composition above has run.
+    vss_hop = next(c for c in connectivity if c["net"] == "VSS")
+    anchor_block = vss_hop["pins"][0]["block"]
+    anchor_port = vss_hop["pins"][0]["port"]
+    anchor_local = next(
+        (float(p["x_um"]), float(p["y_um"]))
+        for p in reports[anchor_block]["ports"]
+        if p["name"] == anchor_port
+    )
+    anchor_abs = (
+        inner_origins[anchor_block]["x"] + anchor_local[0],
+        inner_origins[anchor_block]["y"] + anchor_local[1],
+    )
+
+    bridge_ids: list[str] = []
+    for pnp_block_id in ("pnp_ctat", "pnp_ptat"):
+        base_port = sorted(
+            p["name"] for p in reports[pnp_block_id]["ports"] if p["name"].endswith("_B")
+        )[0]
+        base_local = next(
+            (float(p["x_um"]), float(p["y_um"]))
+            for p in reports[pnp_block_id]["ports"]
+            if p["name"] == base_port
+        )
+        base_abs = (
+            inner_origins[pnp_block_id]["x"] + base_local[0],
+            inner_origins[pnp_block_id]["y"] + base_local[1],
+        )
+        # A base port sits *inside* its own array's emitter-bus X span (the
+        # array interleaves E/B ports along each row), and that bus's own
+        # per-emitter vertical stems (bus_shapes_for_targets) reach all the
+        # way down to pad level, with its horizontal bar spanning the *full*
+        # min-to-max emitter X range at the top -- so neither "straight up
+        # from the base port" (hits the bar, which covers base's X too) nor
+        # "sideways at the base port's own Y" (crosses every emitter's own
+        # stem, which reaches down to that same Y) clears it on its own.
+        # The one gap is *below* every port's own pad (nothing is drawn
+        # there): drop below the block's own bbox first, sidestep past its
+        # rightmost emitter there, then rise outside the bus's X span
+        # entirely before turning toward the VSS anchor.
+        down_y = inner_origins[pnp_block_id]["y"] + float(reports[pnp_block_id]["bbox_um"]["y0"]) - 1.0
+        exit_x = (
+            inner_origins[pnp_block_id]["x"] + float(reports[pnp_block_id]["bbox_um"]["x1"]) + 2.0
+        )
+        # mid_y: well above the PNP array's own top edge but still inside
+        # the ROW_MARGIN_UM channel between row 0 and row 1 -- see
+        # waypoint_wire_shapes' docstring for why the exact value only needs
+        # to clear this flow's *own* other met1 shapes, not the rest of the
+        # layout.
+        mid_y = (
+            inner_origins[pnp_block_id]["y"]
+            + float(reports[pnp_block_id]["bbox_um"]["y1"])
+            + ROW_MARGIN_UM / 2.0
+        )
+        waypoints = [
+            base_abs,
+            (base_abs[0], down_y),
+            (exit_x, down_y),
+            (exit_x, mid_y),
+            (anchor_abs[0], mid_y),
+            anchor_abs,
+        ]
+        bridge_id = f"{pnp_block_id}_vss_bridge"
+        build_bridge_overlay(klt, out_dir, bridge_id, inner_compose["pdk"], waypoints)
+        bridge_ids.append(bridge_id)
+
+    # A third compose pass layers the two bridges over the already-routed
+    # inner cell, both placed at the origin: `base_abs`/`anchor_abs` above
+    # are already expressed in the inner cell's own absolute coordinate
+    # space (inner_origins[block] + that block's local port position), so
+    # the bridge overlays' own local coordinate space *is* that same space.
+    bridged_cell = f"{inner_cell}_bridged"
+    bridged_order = [inner_cell, *bridge_ids]
+    bridged_request = {
+        "schema": "klt.gen_compose.request/1",
+        "pdk": {"variant": pdk},
+        "blocks": [
+            {"id": bid, "generator_report": str((out_dir / f"{bid}.gen.json").resolve())}
+            for bid in bridged_order
+        ],
+        "placement": {
+            "strategy": "explicit",
+            "order": bridged_order,
+            "origins_um": {bid: {"x": 0.0, "y": 0.0} for bid in bridged_order},
+        },
+        "options": {
+            "cell_name": bridged_cell,
+            "output": str((out_dir / f"{bridged_cell}.gds").resolve()),
+        },
+    }
+    bridged_request_path = out_dir / "compose.bridged.request.json"
+    bridged_request_path.write_text(json.dumps(bridged_request, indent=2) + "\n")
+    bridged_compose = run_klt_json(
+        klt, "gen-compose", str(bridged_request_path), allow_exit=(0, 3)
+    )
+    (out_dir / "compose.bridged.json").write_text(
+        json.dumps(bridged_compose, indent=2) + "\n"
+    )
+    bridged_report = {
+        "schema_version": 1,
+        "generator": "gen-compose",
+        "cell_name": bridged_compose["cell_name"],
+        "gds_path": bridged_compose["gds_path"],
+        "pdk": bridged_compose["pdk"],
+        "bbox_um": bridged_compose["bbox_um"],
+        "device_count": 0,
+        "ports": [],
+        "drc_hints": {
+            "min_spacing_um": None,
+            "matched_group_id": None,
+            "snapped_to_grid": False,
+            "notes": [],
+        },
+        "warnings": [],
+    }
+    (out_dir / f"{bridged_cell}.gen.json").write_text(
+        json.dumps(bridged_report, indent=2) + "\n"
+    )
+    content_bbox = bridged_compose["bbox_um"]
 
     # --- 5. Guard ring, sized/centered on the composed content --------------
     content_width = content_bbox["x1"] - content_bbox["x0"]
@@ -1201,7 +1591,7 @@ def main() -> int:
         - (ring_bbox["y0"] + ring_bbox["y1"]) / 2.0,
     }
 
-    order = [inner_cell, "guard_ring_outer"]
+    order = [bridged_cell, "guard_ring_outer"]
     request = {
         "schema": "klt.gen_compose.request/1",
         "pdk": {"variant": pdk},
@@ -1216,7 +1606,7 @@ def main() -> int:
             "strategy": "explicit",
             "order": order,
             "origins_um": {
-                inner_cell: {"x": 0.0, "y": 0.0},
+                bridged_cell: {"x": 0.0, "y": 0.0},
                 "guard_ring_outer": all_origins["guard_ring_outer"],
             },
         },
@@ -1254,20 +1644,41 @@ def main() -> int:
     # --- 8. LVS against the xschem-derived reference ------------------------
     reference_name = "reference.spice"
     (out_dir / reference_name).write_text(args.reference.read_text())
-    lvs_request = {
-        "schema": "klt.lvs.request/1",
-        "engine": "klayout",
-        "layout": {
-            "file": f"{cell}.gds",
-            "deck": "sky130",
-            "top": cell,
-        },
-        "reference": {"netlist": reference_name, "top": "bandgap_core"},
-    }
+
+    def lvs_request_dict(combine_devices: bool) -> dict[str, Any]:
+        return {
+            "schema": "klt.lvs.request/1",
+            "engine": "klayout",
+            "layout": {"file": f"{cell}.gds", "deck": "sky130", "top": cell},
+            "reference": {"netlist": reference_name, "top": "bandgap_core"},
+            # `combine_devices` is what turns N correctly-bussed parallel
+            # device instances (this flow's PNP emitter bus) into the single
+            # multiplicity-N device the reference declares -- without it,
+            # even perfect bussing still reports a device-count mismatch. It
+            # does not fabricate a match: devices that are not actually tied
+            # onto the same nets are left separate either way.
+            "options": {"combine_devices": combine_devices},
+        }
+
+    lvs_request = lvs_request_dict(True)
     (out_dir / "lvs.request.json").write_text(json.dumps(lvs_request, indent=2) + "\n")
-    lvs = run_klt_json(
-        klt, "lvs", str(out_dir / "lvs.request.json"), allow_exit=(0, 3)
-    )
+    combine_devices_crashed = False
+    try:
+        lvs = run_klt_json(klt, "lvs", str(out_dir / "lvs.request.json"), allow_exit=(0, 3))
+    except RuntimeError as exc:
+        # COMBINE_DEVICES_CRASH_NOTE: klayout.db.Netlist.combine_devices()
+        # crashes (not a clean klt error envelope -- an uncaught upstream
+        # RuntimeError) on this array's real 8-unit + dummy 4-unit mix,
+        # where the 12 devices share 2 of 3 terminals (base, collector) but
+        # only 8 also share the 3rd (emitter). Falls back to
+        # `combine_devices: false` so this flow still produces a full record
+        # instead of aborting -- see the note for why a workaround that
+        # avoids triggering it was not attempted.
+        combine_devices_crashed = True
+        (out_dir / "lvs.combine_devices_crash.txt").write_text(str(exc) + "\n")
+        lvs_request = lvs_request_dict(False)
+        (out_dir / "lvs.request.json").write_text(json.dumps(lvs_request, indent=2) + "\n")
+        lvs = run_klt_json(klt, "lvs", str(out_dir / "lvs.request.json"), allow_exit=(0, 3))
     (out_dir / "lvs.json").write_text(json.dumps(lvs, indent=2) + "\n")
 
     # --- 9. Render ----------------------------------------------------------
@@ -1318,7 +1729,9 @@ def main() -> int:
 
     # Criterion 1 is scored against design/bandgap_core.sch's own inter-block
     # node list, NOT against this flow's `connectivity[]` declaration.
-    coverage = schematic_net_coverage(inner_compose)
+    coverage = schematic_net_coverage(
+        inner_compose, extra_touched={"VSS": {"pnp_ctat", "pnp_ptat"}}
+    )
     fully_drawn = [c for c in coverage if c["status"] == "drawn"]
     full_connectivity = len(fully_drawn) == len(coverage) and not unrouted
 
@@ -1358,12 +1771,27 @@ def main() -> int:
     )
     a(
         f"| 4 | `klt lvs` clean | {'MET' if lvs_clean else 'NOT MET'} | "
-        f"status={lvs.get('status')}, mismatch_count={lvs.get('mismatch_count')} |"
+        f"status={lvs.get('status')}, mismatch_count={lvs.get('mismatch_count')}"
+        + (
+            " -- `combine_devices: true` crashed (2AMLogic/klayout-tools#466), "
+            "this run's LVS is with `combine_devices: false`"
+            if combine_devices_crashed
+            else ""
+        )
+        + " |"
     )
     a(
         "| 5 | Blocking `klt` gaps filed as friction | MET | "
-        "2AMLogic/klayout-tools#432 (PNP recognition marker), #433 "
-        "(single routing metal), #434 (no route into a guard-ringed block) |"
+        "2AMLogic/klayout-tools#432 (PNP recognition marker, closed via "
+        "#440 -- fixed natively, workaround retired), #433 (single routing "
+        "metal, closed via #439 -- \"fail visibly\" only, capability gap "
+        "re-raised as #454), #434 (no route into a guard-ringed block, "
+        "closed via #441 -- restoring rings is a follow-up), #453 (new: "
+        "#439's self-net check misses a same-row/same-direction short), "
+        "#454 (new: no native metal2/via role, so bussing must be "
+        "hand-drawn -- MANUAL_BUS_TECHNIQUE_NOTE), #466 (new: "
+        "`combine_devices()` crashes on a partial-match device group -- "
+        "COMBINE_DEVICES_CRASH_NOTE) |"
     )
     a("")
     a(f"- [{'x' if drc_clean else ' '}] DRC on the composed, routed layout is clean")
@@ -1377,19 +1805,30 @@ def main() -> int:
     a("")
     a(f"1. `klt gen` once per matched device group ({len(BLOCKS)} blocks).")
     a(
-        "2. `klt draw` once per PNP array: a device-recognition overlay "
-        "(82/44 marker per functional emitter pad, 65/44 nwell tap per base "
-        "pad), positioned from that block's own reported `ports[]`."
+        "2. `klt draw` once per PNP array -- an emitter-bus met1+mcon "
+        "overlay, positioned from that block's own reported `ports[]` and "
+        "verified by this flow's own extraction check, not just DRC "
+        "(MANUAL_BUS_TECHNIQUE_NOTE)."
     )
     a(
         "3. `klt gen-compose` with `placement.strategy: \"explicit\"`, "
-        "`connectivity[]` (routed 2-pin nets) and `pins[]` (labelled "
-        "single-port nets) -- `compose.request.json`."
+        "`connectivity[]` (routed 2-pin hops) and `pins[]` (labelled "
+        "single-port nets) -- `compose.inner.request.json`."
     )
-    a("4. `klt drc <composed> --deck sky130`.")
-    a(f"5. `klt extract <composed> --deck sky130 --top {cell}`.")
-    a("6. `klt lvs` against the xschem-derived reference netlist (issue #8).")
-    a("7. `klt render` for the visual check below.")
+    a(
+        "4. `klt draw` twice more: the PNP-base-to-VSS bridge overlays, "
+        "positioned from the inner pass's own resolved absolute coordinates "
+        "(PNP_BASE_VSS_BRIDGE_NOTE), then a third `klt gen-compose` pass "
+        "layering them onto the routed inner cell."
+    )
+    a("5. Guard ring `klt gen` + a fourth `klt gen-compose` pass -- `compose.request.json`.")
+    a("6. `klt drc <composed> --deck sky130`.")
+    a(f"7. `klt extract <composed> --deck sky130 --top {cell}`.")
+    a(
+        "8. `klt lvs` (`options.combine_devices: true`) against the "
+        "xschem-derived reference netlist (issue #8)."
+    )
+    a("9. `klt render` for the visual check below.")
     a("")
     a("## Blocks")
     a("")
@@ -1434,9 +1873,13 @@ def main() -> int:
         "blocks the schematic says it reaches. `klt gen-compose` routes 2-pin "
         "nets only, so a trunk can only be built as a chain of same-labelled "
         "hops -- and a hop is only certifiable when the two blocks are "
-        "adjacent across an empty channel (2AMLogic/klayout-tools#433, #434). "
-        "Everything not drawn below exists in the layout as a promoted pin "
-        "label, i.e. it is addressable but electrically open."
+        "adjacent across an empty channel (ROUTING_LAYER_NOTE) -- this "
+        "flow's PNP-base-to-VSS bridge overlays are the one exception, drawn "
+        "by hand rather than through `gen-compose`'s router "
+        "(PNP_BASE_VSS_BRIDGE_NOTE), so `VSS`'s coverage below includes "
+        "them even though they are not `connectivity[]` hops. Everything "
+        "else not drawn below exists in the layout as a promoted pin label, "
+        "i.e. it is addressable but electrically open."
     )
     a("")
     a("| schematic net | reaches (blocks) | joined by drawn metal | not drawn | status |")
@@ -1449,18 +1892,26 @@ def main() -> int:
             f"**{row['status']}** |"
         )
     a("")
+    partial_or_missing = [row for row in coverage if row["status"] != "drawn"]
     a(
         f"**{len(fully_drawn)} of {len(coverage)} schematic inter-block nets "
         "are fully drawn.** Criterion 1 is therefore scored PARTIAL, not MET, "
-        "whenever that count is short: the `VDD` trunk reaches two of its "
-        "three blocks, `VSS` two of seven (its seven include the three "
-        "resistor blocks: `res_high_po` is a 3-terminal device whose bulk ties "
-        "to `VSS` in the schematic, and this table states what the *schematic* "
-        "requires even where the 2-terminal `res_generic_po` reference cards "
-        "cannot carry it), and `VOUT` / `GDRV` (the amp output the schematic "
-        "ties straight to the mirror gates) are labelled pins with no metal "
-        "between them. The same single-routing-metal limit that blocks "
-        "criterion 4 caps this criterion too."
+        "whenever that count is short: "
+        + "; ".join(
+            f"`{row['net']}` reaches {len(row['joined'])} of its "
+            f"{len(row['blocks'])} blocks"
+            if row["joined"]
+            else f"`{row['net']}` is labelled-only, no blocks joined"
+            for row in partial_or_missing
+        )
+        + ". `res_high_po` (R2A/R2B/R1's bulk) is a 3-terminal device tied "
+        "to `VSS` in the schematic, and this table states what the "
+        "*schematic* requires even where the 2-terminal `res_generic_po` "
+        "reference cards cannot carry it -- separately, that bulk tie is "
+        "automatically satisfied regardless of routing, since a resistor's "
+        "bulk terminal ties to the same global native-substrate node every "
+        "device shares (`bulk_to_substrate=True`), not to a drawn `VSS` "
+        "wire. ROUTING_LAYER_NOTE is what caps the rest of this criterion."
     )
     a("")
     a("## Promoted top-level pins")
@@ -1540,38 +1991,30 @@ def main() -> int:
     )
     a("")
     a(
-        "The gap has one dominant cause plus two smaller, separately "
-        "disclosed deltas. The dominant cause: the reference netlist "
-        "expresses each matched group the way "
-        "the schematic does -- one device carrying a multiplicity (`m=8` "
-        "PNPs, `m=16` input-pair PMOS) or one resistor carrying a total "
-        "length (`R2A` = 54 unit segments' worth). The layout draws those as "
-        "the physical instances they are, and cannot bus them into one node, "
-        "because bussing an array's units requires a wire that crosses the "
-        "block -- which today's router can only draw on the same single metal "
-        "the device pads occupy, shorting every pad it crosses "
-        "(2AMLogic/klayout-tools#433). The bulk of the unmatched devices and "
-        "nets below trace back to that: the layout's device and net counts "
-        "are the un-bussed expansion of the reference's, not a topology error "
-        "in either. Closing the gap needs the upstream capability, not a "
-        "different reference netlist -- rewriting the reference to enumerate "
-        "the layout's own un-bussed devices would make LVS compare the layout "
-        "against itself, which is not evidence."
-    )
-    a("")
-    a(
-        "The two smaller deltas, folded in here so this paragraph is not read "
-        "as \"one cause explains everything\": (a) `MMCC`, the amp's "
-        "compensation cap, is in the reference but deliberately not drawn in "
-        "this layout (see the Blocks note above), so one reference device has "
-        "no layout counterpart by construction; and (b) the schematic "
-        "inter-block nets left as labelled-only pins in the table above "
-        "(`VOUT`, `GDRV`/`AOUT`, `D2`, and the unjoined legs of `VDD`/`VSS`/"
-        "`VA`/`VB`/`D1`) are single reference nodes that the layout carries as "
-        "two or more open nodes. Neither is an error in the reference "
-        "netlist, and neither is accommodated in it: `reference.spice` states "
-        "the schematic (one `GDRV` node, no 0-ohm bridge device), and the "
-        "gaps are recorded here."
+        "This flow now busses the PNP arrays' emitters and bridges their "
+        "shared base to VSS (MANUAL_BUS_TECHNIQUE_NOTE) and runs `klt lvs` "
+        "with `options.combine_devices: true`, so a correctly-bussed group "
+        "of parallel devices *can* collapse into the reference's single "
+        "multiplicity-N device -- this is the mechanism that was entirely "
+        "absent from the prior increment (PR #64), where every matched-"
+        "group unit stayed both un-bussed and un-combined. What remains "
+        "unmatched below is what that mechanism does not reach: every "
+        "`diff_pair` block's split/mirrored MOS fingers (S/D/G) are not "
+        "bussed -- the same technique was attempted there and reverted as "
+        "unsafe (MOS_FINGER_BUS_NOTE), R2A/R2B/R1's 159 series-resistor "
+        "segments are still not bussed at all (RESISTOR_CHAIN_NOTE -- a "
+        "series chain, not a parallel bus, is a different and larger "
+        "drawing problem left to a follow-up), `MMCC` (the amp's "
+        "compensation cap) is in the reference but deliberately not drawn "
+        "in this layout (see the Blocks note above), and the schematic "
+        "inter-block nets still left as labelled-only pins in the table "
+        "above (`VOUT`, `GDRV`/`AOUT`, `D2`, and any unjoined legs of "
+        "`VDD`/`VSS`/`VA`/`VB`/`D1`) are single reference nodes the layout "
+        "still carries as two or more open nodes. None of these are errors "
+        "in the reference netlist, and none are accommodated in it: "
+        "`reference.spice` states the schematic, and the gaps are recorded "
+        "here, not papered over by rewriting the reference to match the "
+        "layout's own remaining un-bussed/un-routed structure."
     )
     a("")
     a("## Visual verification")
@@ -1580,12 +2023,20 @@ def main() -> int:
     a("")
     a("## What this record does NOT claim")
     a("")
-    a(
-        f"- **Not LVS-clean.** `klt lvs` reports `{lvs.get('status')}` with "
-        f"`mismatch_count={lvs.get('mismatch_count')}` against the "
-        "xschem-derived reference netlist. The blocking reason is a tool "
-        f"gap, not a layout choice: {ROUTING_LAYER_NOTE}"
-    )
+    if lvs_clean:
+        a(
+            "- **`klt lvs` reports `match`.** See the Provenance section for "
+            "the exact `klt` pin and repo state this was measured against."
+        )
+    else:
+        a(
+            f"- **Not LVS-clean.** `klt lvs` reports `{lvs.get('status')}` with "
+            f"`mismatch_count={lvs.get('mismatch_count')}` against the "
+            "xschem-derived reference netlist, even with "
+            f"`options.combine_devices: true`. {RESISTOR_CHAIN_NOTE} See the "
+            "\"LVS mismatch analysis\" section above for what else, if "
+            "anything, remains beyond that -- not a layout choice."
+        )
     a(
         "- **Not fully inter-block routed either.** "
         f"{len(fully_drawn)}/{len(coverage)} schematic inter-block nets are "
@@ -1595,16 +2046,19 @@ def main() -> int:
         "undrawn, and the `VDD`/`VSS` trunks each stop short of blocks they "
         "supply). `klt gen-compose` routes 2-pin nets between blocks adjacent "
         "across an empty channel only, so a trunk is a chain of hops and a "
-        "non-adjacent pair is unroutable -- the same #433/#434 limits as "
-        "above. Criterion 1 is scored PARTIAL on this basis, against the "
-        "schematic's node list rather than this flow's own declaration."
+        "non-adjacent pair is unroutable -- ROUTING_LAYER_NOTE. Criterion 1 "
+        "is scored PARTIAL on this basis, against the schematic's node list "
+        "rather than this flow's own declaration."
     )
     a(
-        "- **No intra-block bussing is drawn.** Each PNP array's 8 emitters, "
-        "each ladder's unit segments, and each matched pair's split fingers "
-        "stay separate nodes in the extracted netlist for the reason above. "
-        "This flow deliberately does not draw those wires rather than draw a "
-        "known short and call it connectivity."
+        "- **Intra-block bussing is drawn for PNP emitters only.** Each PNP "
+        "array's 8 real emitters are bussed by hand on met1+mcon and "
+        "verified by this flow's own extraction check on every run, not "
+        "just DRC (MANUAL_BUS_TECHNIQUE_NOTE) -- and each array's shared "
+        "base is bridged to VSS the same way (PNP_BASE_VSS_BRIDGE_NOTE). "
+        "`diff_pair` MOS fingers are not bussed -- attempted and reverted "
+        "as unsafe (MOS_FINGER_BUS_NOTE). R2A/R2B/R1's 159 series-resistor "
+        "segments are not bussed either -- RESISTOR_CHAIN_NOTE."
     )
     a(
         f"- **Per-matched-group guard rings are off.** {GUARD_RING_NOTE} The "
@@ -1614,9 +2068,9 @@ def main() -> int:
         "- **The PNP devices are recognition-marked drawn geometry, not "
         "vendor `pnp_05v5` cell instances.** `klt gen bjt_array` draws a "
         "matching-faithful floorplan from base layers by design (its own "
-        "generator note says so); the overlay this flow adds makes that "
-        "geometry *extract* as `pnp`, it does not make it a SPICE-model-"
-        "exact device."
+        "generator note says so); its native marker/tap (2AMLogic/"
+        "klayout-tools#440) makes that geometry *extract* as `pnp`, not a "
+        "SPICE-model-exact device."
     )
     a("")
     a("## Provenance")
