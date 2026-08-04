@@ -1156,3 +1156,295 @@ class TestCandidateAssignments(unittest.TestCase):
         resolved, claims = assignments[0]
         self.assertEqual(resolved[0]["name"], "escape")
         self.assertEqual(claims, [])
+
+
+# ---------------------------------------------------------------------------
+# PR #73's rip-up-and-reroute repair pass (issue #62, fifth increment) --
+# `_route_one_net`'s `skip_first` parameter and `_repair_unrouted_hops`/
+# `_replay_tail`.
+#
+# SEE ALSO `layout/tests/test_route_repair.py`, which PR #73 shipped
+# alongside the mechanism itself and which already unit-covers these same
+# three functions. That file is the primary coverage: it isolates the repair
+# pass's *control flow* (targeting, bounded retries, revert-on-no-improvement,
+# "a later net named as blocker is never rolled back") by replacing
+# `_route_one_net` with a scripted mock, and covers `skip_first` candidate
+# selection against hand-built li1 block ports.
+#
+# The classes below are deliberately complementary, not a replacement, and do
+# not originate coverage of this mechanism:
+#   * They drive the *real*, non-mocked router end to end -- `skip_first` and
+#     `_repair_unrouted_hops` acting on actually-drawn met1 geometry, with
+#     `bus.mark()`/`bus.conflicts()` as the assertions -- so a geometry-level
+#     regression that a scripted mock cannot see (the mock never draws
+#     anything) still fails here.
+#   * They reach `_route_one_net` through a different terminal-resolution
+#     path: `trunk`/`comb` terminals, which need no `klt gen` block report,
+#     versus `test_route_repair.py`'s `block`/li1-port terminals.
+#   * They live in the file issue #62's own Test Plan names ("extend
+#     layout/tests/test_routed_flow_gates.py ... for any new gate logic a
+#     further increment adds"), next to this repo's other router-internal
+#     gate tests.
+#
+# The synthetic floorplans here (minimal `trunk`/`comb` fixtures) exercise the
+# three outcomes the real record (`bus-summary.json`,
+# `layout/matching-plan.md` Section 7c) and this mechanism's own docstring
+# describe: a rip-up that finds a genuinely clear alternate and frees the hop;
+# a rip-up that tries a real alternate and it still blocks, so the change is
+# reverted (the `D1`/`VSS` case); and a hop whose blocker cannot be attributed
+# to any rippable net at all (the `VDD` case, no valid target).
+# ---------------------------------------------------------------------------
+class TestRouteOneNetSkipFirst(unittest.TestCase):
+    """`_route_one_net(..., skip_first=N)` must pass over its own first `N`
+    fully-*routed* attempts and commit to the next one -- the exact question
+    `_repair_unrouted_hops` asks a blocker: "what is your next-best routing
+    against the same geometry?" (Section 7c of `layout/matching-plan.md`).
+
+    A 2-terminal net has exactly two chain-visit orders (forward and
+    reverse) and they draw identical geometry -- so the first `skip_first`
+    slot is always spent on that duplicate before a genuinely different
+    candidate is tried; `skip_first=2` is what actually reaches the second
+    `comb` candidate below. This is a real, load-bearing property of the
+    search, not a test artefact -- `TestRepairUnroutedHops` below uses a
+    3-terminal net specifically to avoid it, the same way a real multi-pad
+    inter-block node does.
+
+    Complements (does not replace) the same-named
+    `test_route_repair.TestRouteOneNetSkipFirst`, which covers `skip_first`
+    candidate *ranking* through `block`/li1-port terminals; this class covers
+    it through `trunk`/`comb` terminals, where the reversed-duplicate quirk
+    above is visible.
+    """
+
+    def _specs(self) -> dict[str, dict[str, object]]:
+        return {
+            "A": {
+                "net": "A",
+                "schematic": "test net",
+                "terminals": [{"trunk": ("L", "A")}, {"comb": ("R", "A")}],
+            }
+        }
+
+    def test_skip_first_zero_takes_the_nearest_candidate(self) -> None:
+        bus = met1_bus.Met1Bus()
+        trunks = {("L", "A"): (0.0, 0.0)}
+        combs = {("R", "A"): [("near", 10.0, 0.0), ("far", 50.0, 0.0)]}
+        result = gen_bandgap_routed._route_one_net(
+            bus, "A", self._specs(), {}, {}, trunks, combs, set(), {},
+            skip_first=0,
+        )
+        self.assertTrue(result["routed"])
+        self.assertIn("near", result["terminals"])
+        self.assertNotIn("far", result["terminals"])
+
+    def test_skip_first_past_the_reversed_duplicate_reaches_the_next_candidate(
+        self,
+    ) -> None:
+        bus = met1_bus.Met1Bus()
+        trunks = {("L", "A"): (0.0, 0.0)}
+        combs = {("R", "A"): [("near", 10.0, 0.0), ("far", 50.0, 0.0)]}
+        result = gen_bandgap_routed._route_one_net(
+            bus, "A", self._specs(), {}, {}, trunks, combs, set(), {},
+            skip_first=2,
+        )
+        self.assertTrue(result["routed"])
+        self.assertIn("far", result["terminals"])
+        self.assertNotIn("near", result["terminals"])
+
+    def test_skip_first_past_every_candidate_still_reports_a_result(self) -> None:
+        """Asking to skip past every fully-routed candidate must not raise --
+        `_route_one_net` falls back to redrawing its own best-scoring attempt
+        (see its own "if not routed" tail), the same fallback a real deadlock
+        (no candidate left to try) hits."""
+        bus = met1_bus.Met1Bus()
+        trunks = {("L", "A"): (0.0, 0.0)}
+        combs = {("R", "A"): [("near", 10.0, 0.0), ("far", 50.0, 0.0)]}
+        result = gen_bandgap_routed._route_one_net(
+            bus, "A", self._specs(), {}, {}, trunks, combs, set(), {},
+            skip_first=99,
+        )
+        self.assertIn("net", result)
+        self.assertIn("hops", result)
+
+
+class TestRepairUnroutedHops(unittest.TestCase):
+    """`_repair_unrouted_hops()` rolls back to just before a blocking net,
+    forces it past its own next-best solution, and keeps the result only if
+    it strictly improves -- see the function's own docstring and
+    `layout/matching-plan.md` Section 7c for the real-floorplan record this
+    mirrors.
+
+    Complements (does not replace) the same-named
+    `test_route_repair.TestRepairUnroutedHops`, which covers this function's
+    control flow with `_route_one_net` replaced by a scripted mock. Here
+    `_route_one_net` is the real one and really draws met1, so these tests
+    additionally pin the *geometric* outcome (`bus.mark()` equality on the
+    revert/no-op paths, `bus.conflicts()` on the kept path) that a mocked
+    router cannot observe.
+
+    Fixture: net `A` is a 3-terminal net (`L`, `R`, `M`, all fixed `trunk`
+    points -- deliberately not collinear, and scaled up so the widest
+    candidate geometry's extent comfortably exceeds every offset
+    `DETOUR_OFFSETS_UM` tries). A 3-terminal net's chain-visit orders are
+    *not* all mutual reversals of one another (unlike the 2-terminal case
+    `TestRouteOneNetSkipFirst` documents above): `skip_first=1` alone lands
+    on a genuinely different pair of drawn segments, which is what lets a
+    single repair attempt (`_repair_unrouted_hops` only ever tries one
+    `skip_first` increment per blocker/failing-net pair before giving up)
+    matter at all. `B` is a 2-terminal vertical hop with no channels
+    declared, so its only route is the direct vertical elbow.
+    """
+
+    _K = 60.0
+    L_TRUNK = (11.4 * _K, -7.9 * _K)
+    R_TRUNK = (-0.9 * _K, 3.3 * _K)
+    M_TRUNK = (16.3 * _K, 0.2 * _K)
+
+    def _specs(self) -> dict[str, dict[str, object]]:
+        return {
+            "A": {
+                "net": "A",
+                "schematic": "test blocker net",
+                "terminals": [
+                    {"trunk": ("L", "A")},
+                    {"trunk": ("R", "A")},
+                    {"trunk": ("M", "A")},
+                ],
+            },
+            "B": {
+                "net": "B",
+                "schematic": "test failing net",
+                "terminals": [{"trunk": ("X", "B")}, {"trunk": ("Y", "B")}],
+            },
+        }
+
+    def _trunks(
+        self, x_y: tuple[float, float], y_y: tuple[float, float]
+    ) -> dict[tuple[str, str], tuple[float, float]]:
+        return {
+            ("L", "A"): self.L_TRUNK,
+            ("R", "A"): self.R_TRUNK,
+            ("M", "A"): self.M_TRUNK,
+            ("X", "B"): x_y,
+            ("Y", "B"): y_y,
+        }
+
+    def _run_forward_pass(self, x_y: tuple[float, float], y_y: tuple[float, float]):
+        bus = met1_bus.Met1Bus()
+        specs = self._specs()
+        trunks = self._trunks(x_y, y_y)
+        channels: dict[str, list[float]] = {}
+        used_ports: set[tuple[str, str]] = set()
+        sequence = ["A", "B"]
+        marks = []
+        port_snapshots = []
+        results = []
+        for net_name in sequence:
+            marks.append(bus.mark())
+            port_snapshots.append(set(used_ports))
+            results.append(
+                gen_bandgap_routed._route_one_net(
+                    bus, net_name, specs, {}, {}, trunks, {}, used_ports,
+                    channels,
+                )
+            )
+        return bus, specs, trunks, channels, used_ports, sequence, marks, \
+            port_snapshots, results
+
+    def test_repair_reroutes_the_blocker_and_frees_the_hop(self) -> None:
+        """`B`'s vertical hop at x=5 crosses `A`'s greedy-first geometry (a
+        segment at y=198, drawn between `R` and `L`) but not its `skip_first=1`
+        alternate (a segment at y=12, drawn between `L` and `M`) -- so ripping
+        `A` up and forcing it past its first pick frees `B`."""
+        bus, specs, trunks, channels, used_ports, sequence, marks, \
+            port_snapshots, results = self._run_forward_pass(
+                (5.0, 150.0), (5.0, 250.0)
+            )
+
+        self.assertTrue(results[0]["routed"])
+        self.assertFalse(results[1]["routed"])
+        self.assertEqual(results[1]["hops"][0]["blocked_by"], "A")
+        original_terminals = list(results[0]["terminals"])
+
+        gen_bandgap_routed._repair_unrouted_hops(
+            bus, sequence, specs, {}, {}, trunks, {}, used_ports, channels,
+            marks, port_snapshots, results,
+        )
+
+        self.assertTrue(results[0]["routed"])
+        self.assertTrue(results[1]["routed"], results[1])
+        # `A` was genuinely ripped up and redrawn -- not left as the forward
+        # pass's own pick.
+        self.assertNotEqual(results[0]["terminals"], original_terminals)
+        self.assertEqual(bus.conflicts(), [])
+
+    def test_repair_is_a_noop_when_the_blocker_is_outside_the_sequence(
+        self,
+    ) -> None:
+        """Mirrors `VDD`'s recorded finding (PR #73): a hop whose blocker
+        cannot be attributed to any net this repair pass could rip up (here,
+        pre-existing bus geometry from outside `sequence` entirely) must be
+        left exactly as the forward pass drew it -- no attempt, no change."""
+        bus = met1_bus.Met1Bus()
+        bus.net("WALL")
+        # A long horizontal wall at y=5, wide enough that every x-offset
+        # Z-detour DETOUR_OFFSETS_UM tries still crosses it (max offset is
+        # bounded, see that constant's own docstring).
+        bus.hseg(-150.0, 300.0, 5.0)
+        specs = {
+            "B": {
+                "net": "B",
+                "schematic": "test failing net",
+                "terminals": [{"trunk": ("X", "B")}, {"trunk": ("Y", "B")}],
+            }
+        }
+        trunks = {("X", "B"): (5.0, 0.0), ("Y", "B"): (5.0, 10.0)}
+        channels: dict[str, list[float]] = {}
+        used_ports: set[tuple[str, str]] = set()
+        sequence = ["B"]
+        marks = [bus.mark()]
+        port_snapshots = [set(used_ports)]
+        results = [
+            gen_bandgap_routed._route_one_net(
+                bus, "B", specs, {}, {}, trunks, {}, used_ports, channels,
+            )
+        ]
+        self.assertFalse(results[0]["routed"])
+        self.assertEqual(results[0]["hops"][0]["blocked_by"], "WALL")
+
+        mark_before_repair = bus.mark()
+        gen_bandgap_routed._repair_unrouted_hops(
+            bus, sequence, specs, {}, {}, trunks, {}, used_ports, channels,
+            marks, port_snapshots, results,
+        )
+
+        self.assertFalse(results[0]["routed"])
+        self.assertEqual(bus.mark(), mark_before_repair)
+
+    def test_repair_reverts_when_no_alternate_improves(self) -> None:
+        """Mirrors `D1`/`VSS`'s recorded finding (PR #73): `B`'s hop spans
+        wide enough (x=5, y 0..250) to cross both `A`'s greedy-first geometry
+        *and* its `skip_first=1` alternate, so ripping `A` up finds a real,
+        different, legitimate rip-up target and it still does not free the
+        hop -- the repair must leave the layout exactly as the forward pass
+        drew it (`"kept": false` in the real record's `bus-summary.json`),
+        not a half-reverted mutation."""
+        bus, specs, trunks, channels, used_ports, sequence, marks, \
+            port_snapshots, results = self._run_forward_pass(
+                (5.0, 0.0), (5.0, 250.0)
+            )
+
+        self.assertTrue(results[0]["routed"])
+        self.assertFalse(results[1]["routed"])
+        original_terminals = list(results[0]["terminals"])
+        mark_before_repair = bus.mark()
+
+        gen_bandgap_routed._repair_unrouted_hops(
+            bus, sequence, specs, {}, {}, trunks, {}, used_ports, channels,
+            marks, port_snapshots, results,
+        )
+
+        self.assertFalse(results[1]["routed"])
+        self.assertEqual(results[0]["terminals"], original_terminals)
+        self.assertEqual(bus.mark(), mark_before_repair)
+        self.assertEqual(bus.conflicts(), [])
