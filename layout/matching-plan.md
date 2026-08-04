@@ -558,6 +558,58 @@ misclassification). Both are covered by `layout/requirements.txt`'s pin
 bump; #421's fix was verified effective before relying on it (an isolated
 `flavor: "nfet"` `diff_pair` now extracts `{"nfet": 8}`, not `pfet`).
 
+### 7c. Fifth increment: rip-up-and-reroute, no filing, no number moved
+
+The fourth increment's own record named the highest-value next lever as its
+own router, not an upstream gap: `D1`, `VDD` and `VSS` each have exactly one
+hop that comes up short on every one of `ROUTE_ORDER_PASSES`' whole-cell
+reorderings, because reordering *which net draws first* cannot express "net
+J's own greedy first solution sits exactly where net K's one remaining hop
+needs to go, and no order changes that because J must still be drawn before
+K". This increment builds that missing mechanism:
+`gen_bandgap_routed._route_one_net` (the per-net solver, split out of
+`route_inter_block_nets` so it can be called in isolation),
+`_replay_tail` and `_repair_unrouted_hops` run once, after the order-search
+above picks its winner: find a still-unrouted hop, read which already-drawn
+net blocked it, and -- when that net is itself earlier in the same draw
+order -- roll back to just before it, redraw it forced past its own first
+`skip_first` fully-routed solutions (its "next-best" routing against the
+same geometry), and replay everything after it so the forward pass's "a net
+only ever sees final geometry" invariant still holds. Kept only if the
+total unrouted-hop count drops and no new drawn-short conflict appears;
+reverted and blacklisted otherwise, bounded to `REPAIR_MAX_SKIPS_PER_NET`
+(3) attempts per blocker net and `REPAIR_MAX_ATTEMPTS` (8) total, so a
+genuine capacity deadlock costs a fixed, small multiple of one order-search
+pass rather than looping.
+
+**It ran, found real targets, and did not move the number.** The repaired
+record's `bus-summary.json` shows the repair pass's own attempt entry in
+`_route_order_attempts` (`"repair_pass": true`): it identified `VSS`'s
+failing hop as blocked by the already-routed `VOUT` (drawn nine positions
+earlier in the winning order) and `D1`'s as blocked by `D2` (drawn first),
+both legitimate rip-up targets by the ordering rule above, and forced each
+through its available alternate solutions. Neither alternate freed the
+target hop; the repaired attempt's score tied the order-search's own best
+(`"kept": false`), so the original geometry was kept unchanged.
+`mismatch_count` is unchanged at **106**, `pin_count` unchanged at **16**,
+`device_counts` unchanged, and the same three schematic nets (`D1`, `VDD`,
+`VSS`) are still `partial` in the coverage table -- a clean, evidence-backed
+negative result, not a regression.
+
+**What this narrows for the next increment.** The remaining congestion
+survives being asked "what is your next-best routing against the same
+geometry" at the per-net level (`CANDIDATE_ASSIGNMENTS`/chain-order
+granularity), which is real evidence that a single net's own alternate
+choices are not the limiting resource here -- the floorplan's free
+corridors themselves are. That leaves the fourth increment's other two
+candidates as the ones actually worth attempting next: taking up
+klayout-tools#468's metal2/via1 roles so the router (not this repo) plans
+the wires on a second layer entirely, or a floorplan revision that splits
+`amp_input_pair` (180 of the cell's 300 um) so something can cross the
+middle. No new upstream friction filed this increment -- the gap this
+increment closes (a router capability, not a `klt` capability) and the gap
+it leaves open (floorplan congestion) are both this repo's own.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed three
@@ -570,13 +622,16 @@ bump; #421's fix was verified effective before relying on it (an isolated
   is bussed, and `klt lvs`'s `combine_devices` folds each into the
   schematic's own `m=N` device. `mismatch_count` is **106**, down from 355,
   and the layout side of the comparison is 39 devices against the
-  reference's 16 (was 97). `devices.matched` is still 0. The residual
-  causes, in the order they matter (the routed record's "LVS mismatch
-  analysis" section quantifies each):
+  reference's 16 (was 97). `devices.matched` is still 0. The fifth increment
+  (Section 7c) added a rip-up-and-reroute repair pass and re-ran the flow;
+  `mismatch_count` did not move -- see cause 1. The residual causes, in the
+  order they matter (the routed record's "LVS mismatch analysis" section
+  quantifies each):
   1. **Three schematic nodes are still not joined end to end** -- this
-     flow's own router running out of corridors, *not* a tool gap. It is the
-     first thing a further increment should attack, and the first time in
-     this issue's history that the top cause is this repo's own.
+     flow's own router running out of corridors, *not* a tool gap, and
+     confirmed by the fifth increment to survive a per-net rip-up-and-retry,
+     not just a whole-cell reorder. It is the first time in this issue's
+     history that the top cause is this repo's own.
   2. **klayout-tools#490** -- the extraction deck's synthesized substrate
      net, which no drawn shape can join. Declared to `klt lvs` through
      `hints.same_nets` rather than worked around; the layout's genuinely
@@ -614,12 +669,15 @@ bump; #421's fix was verified effective before relying on it (an isolated
   upstream.** Every one of these nodes is expressible now; what is missing
   is corridor in a floorplan whose widest block spans 180 of the cell's 300
   um and whose own comb trunks are the obstacle. Issue #62's criterion 1 is
-  scored PARTIAL, not MET, on this. Candidates for the next increment, in
-  rough order of expected return: a per-hop rip-up-and-reroute instead of
-  the current per-net one; taking up klayout-tools#468's metal2/via1 roles
-  so the router (not this repo) plans the wires; or a floorplan revision
-  that breaks `amp_input_pair` into two stacked halves so something can
-  cross the middle of the cell.
+  scored PARTIAL, not MET, on this. The fifth increment (Section 7c) tried
+  the first candidate the fourth increment's own record proposed here -- a
+  per-hop rip-up-and-reroute instead of the whole-cell per-order one -- and
+  it did not free any of the three hops, which is real evidence the limit is
+  the floorplan's free corridor, not a single net's choice of path. The two
+  candidates left, in rough order of expected return: taking up
+  klayout-tools#468's metal2/via1 roles so the router (not this repo) plans
+  the wires; or a floorplan revision that breaks `amp_input_pair` into two
+  stacked halves so something can cross the middle of the cell.
 - **Intra-block bussing is drawn for every device family**, on met1
   (Section 5a) -- PNP arrays, resistor ladders, and (from the fourth
   increment) MOS fingers. Each split MOS group now extracts and combines

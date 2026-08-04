@@ -1663,12 +1663,358 @@ def _candidate_assignments(
     return assignments
 
 
+#: How many of a blocking net's own "next-best" fully-routed solutions the
+#: rip-up-and-reroute repair pass (:func:`_repair_unrouted_hops`) will force
+#: before giving up on freeing one specific hop through it.
+REPAIR_MAX_SKIPS_PER_NET = 3
+#: Hard ceiling on repair attempts per :func:`route_inter_block_nets` call
+#: (`repair=True`), so a genuine capacity deadlock -- no alternative routing
+#: of the blocker exists at all -- costs a bounded number of tail replays
+#: rather than looping. Each attempt redraws at most `len(sequence)` nets, the
+#: same cost as one more :data:`ROUTE_ORDER_PASSES` pass, so this bounds the
+#: repair pass to a small, fixed multiple of one order-search pass.
+REPAIR_MAX_ATTEMPTS = 8
+
+
+def _route_one_net(
+    bus: "met1_bus.Met1Bus",
+    net_name: str,
+    specs: dict[str, dict[str, Any]],
+    reports: dict[str, dict[str, Any]],
+    origins: dict[str, dict[str, float]],
+    trunks: dict[tuple[str, str], tuple[float, float]],
+    combs: dict[tuple[str, str], list[tuple[str, float, float]]],
+    used_ports: set[tuple[str, str]],
+    channels: dict[str, list[float]],
+    skip_first: int = 0,
+) -> dict[str, Any]:
+    """Draw one INTER_BLOCK_MET1 node into `bus` and report what was drawn.
+
+    This is :func:`route_inter_block_nets`'s original per-net loop body,
+    split out so :func:`_repair_unrouted_hops` can redraw a single net in
+    isolation. `skip_first` forces the search past this net's own first
+    `skip_first` fully-routed candidate assignment/chain-order solutions --
+    i.e. asks "what is this net's *next*-best routing against the same
+    already-drawn geometry?" instead of its greedy first pick.
+    `skip_first=0` (the default, used by every call in the plain forward
+    pass below) reproduces the original loop body exactly.
+    """
+    spec = specs[net_name]
+    net = spec["net"]
+    points: list[dict[str, Any]] = []
+    for terminal in spec["terminals"]:
+        if "trunk" in terminal:
+            x, y = trunks[tuple(terminal["trunk"])]
+            points.append(
+                {
+                    "block": terminal["trunk"][0],
+                    "name": f"{terminal['trunk'][0]}:{net} trunk",
+                    "x": x,
+                    "y": y,
+                    "via": False,
+                }
+            )
+            continue
+        if "comb" in terminal:
+            # Already met1, already contacted: the comb drew every finger's
+            # via itself, so this terminal is a point on drawn metal and
+            # claims no pad the pin selector could collide with. Both of
+            # the comb's row escapes are offered; the resolver below takes
+            # whichever sits nearer the rest of the node.
+            points.append(
+                {
+                    "block": terminal["comb"][0],
+                    "candidates": combs[tuple(terminal["comb"])],
+                    "via": False,
+                    "claims_pad": False,
+                }
+            )
+            continue
+        bid = terminal["block"]
+        if "port" in terminal:
+            port = _ports_by_name(reports[bid])[terminal["port"]]
+            lane = 0.0
+            if "leg" in terminal:
+                lane = (terminal["leg"] - 0.5) * (2 * RES_LANE_OFFSET_UM)
+            px = float(port["x_um"]) + origins[bid]["x"]
+            py = float(port["y_um"]) + origins[bid]["y"] + lane
+            # Escape hatch: a multi-row resistor array's rows are packed
+            # end to end with its own series-chain lanes, so any path
+            # that tries to cross the block collides with them. A
+            # chain-end terminal sits at a row end, though, and the track
+            # straight out of that row end is free by construction -- so
+            # every route to one of these starts by leaving the block
+            # sideways at the terminal's own y, and the general router
+            # only has to solve the open-channel part.
+            bbox = reports[bid]["bbox_um"]
+            west = bbox["x0"] + origins[bid]["x"]
+            east = bbox["x1"] + origins[bid]["x"]
+            outward = east + BLOCK_ESCAPE_UM if px > (west + east) / 2.0 else west - BLOCK_ESCAPE_UM
+            point = {
+                "block": bid,
+                "name": f"{bid}.{terminal['port']}",
+                "x": px,
+                "y": py,
+                "via": True,
+                "fixed": True,
+            }
+            if terminal.get("escape", True):
+                point["escape"] = (outward, py)
+            points.append(point)
+            used_ports.add((bid, terminal["port"]))
+            continue
+        candidates = [
+            c
+            for c in _li1_ports(
+                reports[bid],
+                origins[bid],
+                terminal["suffix"],
+                terminal["facing"],
+                terminal.get("half"),
+            )
+            if (bid, c[0]) not in used_ports
+        ]
+        if not candidates:
+            raise KeyError(
+                f"net {net}: no li1 '{terminal['suffix']}' port facing "
+                f"{terminal['facing']} deg on block {bid}"
+                + (f" half {terminal['half']}" if terminal.get("half") else "")
+            )
+        points.append({"block": bid, "candidates": candidates, "via": True})
+
+    # Resolve each block terminal to the candidate port nearest the net's
+    # other terminals -- shortest wire, from the block's own geometry.
+    anchors = [
+        (p["x"], p["y"]) for p in points if "x" in p
+    ] or [
+        (sum(c[1] for c in p["candidates"]) / len(p["candidates"]),
+         sum(c[2] for c in p["candidates"]) / len(p["candidates"]))
+        for p in points if "candidates" in p
+    ]
+    cx = sum(a[0] for a in anchors) / len(anchors)
+    cy = sum(a[1] for a in anchors) / len(anchors)
+
+    # Which candidate each terminal takes is a *choice*, and the nearest
+    # one is only a first guess. A comb offers two or four escapes (one
+    # per device row, plus the spine side for the outermost node) and a
+    # split MOS group offers several pads; picking centroid-nearest once
+    # and never revisiting it is what left `D1`/`TAIL`/`VOUT` reported
+    # unroutable while a perfectly good path existed off the *other*
+    # escape of the same comb. So the assignments are enumerated too,
+    # nearest-first, and the first that routes completely wins (unless
+    # `skip_first` asks for it to be passed over).
+    best_score: tuple[int, int] | None = None
+    best_plan: list[dict[str, Any]] = []
+    best_claims: list[tuple[str, str]] = []
+    hops: list[dict[str, Any]] = []
+    routed = False
+    skipped = 0
+    resolved: list[dict[str, Any]] = []
+    for assignment in _candidate_assignments(points, cx, cy):
+        resolved, claims = assignment
+        for point in resolved:
+            # The pad each terminal contacts, kept separate from `x`/`y`
+            # because drawing an escape stub moves the latter. A retried
+            # chain order has to start from the pad again, not from
+            # wherever the previous attempt left the terminal.
+            point["pad"] = (point["x"], point["y"])
+        # The terminals of one node are joined as an open chain, so the
+        # order they are visited in *is* the wire plan: a chain that
+        # zig-zags across the floorplan asks the open-channel router for
+        # corridors that a chain visiting the same terminals in a
+        # friendlier order never needs.
+        for plan in _chain_orders(resolved):
+            mark = bus.mark()
+            hops, routed = _draw_chain(bus, net, plan, channels)
+            score = (0 if routed else 1, sum(1 for h in hops if not h["routed"]))
+            if routed and skipped < skip_first:
+                # A fully-routed candidate, but the repair pass asked for
+                # this net's *next* solution past its greedy first pick --
+                # keep it as the fallback (in case nothing survives past
+                # skip_first, see the "not routed" tail below) and keep
+                # looking rather than accepting it.
+                skipped += 1
+                routed = False
+                bus.restore(mark)
+                if best_score is None or score < best_score:
+                    best_plan, best_score, best_claims = plan, score, claims
+                continue
+            if routed:
+                best_plan, best_score, best_claims = plan, score, claims
+                break  # geometry for the winning plan stays on the bus
+            bus.restore(mark)
+            if best_score is None or score < best_score:
+                best_plan, best_score, best_claims = plan, score, claims
+        if routed:
+            break
+    if not routed:
+        # Every plan was rolled back (or, with `skip_first` set and nothing
+        # surviving past it, only ever scored and rolled back). Redraw the
+        # best one so the geometry on the bus is the geometry the report
+        # below describes.
+        hops, routed = _draw_chain(bus, net, best_plan, channels)
+    used_ports.update(best_claims)
+    # One label per net, on drawn metal, so `klt extract` promotes it as a
+    # named top-level pin. Deliberately one and only one: two labels with
+    # the same text on two *disconnected* pieces of metal would merge them
+    # into one extracted net and manufacture connectivity that was never
+    # drawn.
+    bus.label(net, resolved[0]["x"], resolved[0]["y"])
+    return {
+        "net": net,
+        "routed": routed,
+        "schematic": spec["schematic"],
+        "terminals": [p["name"] for p in best_plan],
+        "blocks": sorted({p["block"] for p in best_plan}),
+        "hops": hops,
+    }
+
+
+def _replay_tail(
+    bus: "met1_bus.Met1Bus",
+    sequence: list[str],
+    from_index: int,
+    specs: dict[str, dict[str, Any]],
+    reports: dict[str, dict[str, Any]],
+    origins: dict[str, dict[str, float]],
+    trunks: dict[tuple[str, str], tuple[float, float]],
+    combs: dict[tuple[str, str], list[tuple[str, float, float]]],
+    used_ports: set[tuple[str, str]],
+    channels: dict[str, list[float]],
+    marks: list[tuple[int, ...]],
+    port_snapshots: list[set[tuple[str, str]]],
+    results: list[dict[str, Any]],
+    skip_counts: dict[str, int],
+) -> None:
+    """Roll `bus` back to just before `sequence[from_index]` and redraw every
+    net from there to the end of `sequence`, each with its current
+    `skip_counts` entry.
+
+    Every net at or after `from_index` sees the *replayed* geometry of every
+    net before it, so the forward pass's own invariant -- a net only ever
+    sees already-final geometry -- holds after a repair exactly as it does
+    on the first pass. `marks`/`port_snapshots`/`results` are updated in
+    place so a further repair attempt (or a revert back to this same point)
+    can build on the new state.
+    """
+    bus.restore(marks[from_index])
+    used_ports.clear()
+    used_ports.update(port_snapshots[from_index])
+    for j in range(from_index, len(sequence)):
+        marks[j] = bus.mark()
+        port_snapshots[j] = set(used_ports)
+        results[j] = _route_one_net(
+            bus, sequence[j], specs, reports, origins, trunks, combs,
+            used_ports, channels, skip_first=skip_counts.get(sequence[j], 0),
+        )
+
+
+def _repair_unrouted_hops(
+    bus: "met1_bus.Met1Bus",
+    sequence: list[str],
+    specs: dict[str, dict[str, Any]],
+    reports: dict[str, dict[str, Any]],
+    origins: dict[str, dict[str, float]],
+    trunks: dict[tuple[str, str], tuple[float, float]],
+    combs: dict[tuple[str, str], list[tuple[str, float, float]]],
+    used_ports: set[tuple[str, str]],
+    channels: dict[str, list[float]],
+    marks: list[tuple[int, ...]],
+    port_snapshots: list[set[tuple[str, str]]],
+    results: list[dict[str, Any]],
+) -> None:
+    """Rip up and reroute the net that blocked a still-unrouted hop, in
+    place, when doing so frees it without costing more than it buys.
+
+    The order-search in :func:`build_bus_overlay` already retries a *whole*
+    redraw with a different net order when something fails -- a coarse,
+    whole-cell form of rip-up. What that cannot express is "net J's own
+    greedy first solution happens to sit exactly where net K's one remaining
+    hop needs to go, and no reordering changes that, because J is drawn
+    before K in every order that still satisfies J's own prerequisites" --
+    which is exactly the pattern issue #62's last increment measured: the
+    same net, on every one of :data:`ROUTE_ORDER_PASSES` orderings, comes up
+    one hop short.
+
+    This targets exactly that case: it finds a still-unrouted hop, reads
+    which net's already-drawn geometry blocked it
+    (:data:`_LAST_BLOCKER`, recorded per hop by :func:`_draw_chain`), and --
+    when that net is itself one of this call's own already-routed nets and
+    is drawn earlier in `sequence` -- rolls `bus` back to just before it and
+    replays the rest of `sequence` (:func:`_replay_tail`) with it forced
+    past its first `skip_first` solutions (:func:`_route_one_net`). Kept
+    only if the total number of unrouted hops drops and no new drawn-short
+    conflict appears; reverted and blacklisted otherwise, so a genuine
+    capacity deadlock -- no alternative routing of the blocker exists at all
+    -- costs :data:`REPAIR_MAX_SKIPS_PER_NET` bounded attempts, not an
+    unbounded search.
+    """
+    skip_counts: dict[str, int] = {}
+    # (blocker, failing net) pairs already tried past their skip budget with
+    # no improvement -- never retried, so a genuine deadlock cannot loop.
+    exhausted: set[tuple[str, str]] = set()
+    net_index = {name: i for i, name in enumerate(sequence)}
+
+    def score() -> tuple[int, int]:
+        conflicts = len(bus.conflicts())
+        unrouted = sum(1 for r in results for h in r["hops"] if not h["routed"])
+        return (conflicts, unrouted)
+
+    for _ in range(REPAIR_MAX_ATTEMPTS):
+        target: tuple[str, str] | None = None
+        for r in results:
+            if r["routed"]:
+                continue
+            for h in r["hops"]:
+                if h["routed"]:
+                    continue
+                blocker = h.get("blocked_by")
+                if (
+                    blocker is None
+                    or blocker not in net_index
+                    or net_index[blocker] >= net_index[r["net"]]
+                    or (blocker, r["net"]) in exhausted
+                ):
+                    continue
+                target = (r["net"], blocker)
+                break
+            if target:
+                break
+        if target is None:
+            return  # nothing left this pass can attribute to a rippable net
+
+        failing_net, blocker = target
+        blocker_i = net_index[blocker]
+        skip_counts[blocker] = skip_counts.get(blocker, 0) + 1
+        if skip_counts[blocker] > REPAIR_MAX_SKIPS_PER_NET:
+            skip_counts[blocker] -= 1
+            exhausted.add((blocker, failing_net))
+            continue
+
+        before = score()
+        _replay_tail(
+            bus, sequence, blocker_i, specs, reports, origins, trunks, combs,
+            used_ports, channels, marks, port_snapshots, results, skip_counts,
+        )
+        if score() < before:
+            continue  # improvement kept; look for the next repairable failure
+        # No better (or worse, e.g. a new drawn-short conflict): put the
+        # blocker back to its previous choice and never retry this pair.
+        skip_counts[blocker] -= 1
+        _replay_tail(
+            bus, sequence, blocker_i, specs, reports, origins, trunks, combs,
+            used_ports, channels, marks, port_snapshots, results, skip_counts,
+        )
+        exhausted.add((blocker, failing_net))
+
+
 def route_inter_block_nets(
     bus: "met1_bus.Met1Bus",
     reports: dict[str, dict[str, Any]],
     origins: dict[str, dict[str, float]],
     bus_summary: dict[str, Any],
     order: list[str] | None = None,
+    repair: bool = False,
 ) -> list[dict[str, Any]]:
     """Draw every INTER_BLOCK_MET1 node on met1 and report what was drawn.
 
@@ -1676,6 +2022,14 @@ def route_inter_block_nets(
     by :func:`_connect`. A hop that no candidate path can place without
     colliding is reported `routed: false` rather than drawn -- the flow gates
     on that, so an undrawn node can never be mistaken for a drawn one.
+
+    `repair=True` runs :func:`_repair_unrouted_hops` after the forward pass
+    below (unused by :func:`build_bus_overlay`'s order-search loop, which
+    calls this `ROUTE_ORDER_PASSES` times and would multiply the repair cost
+    by as many; used once, after that loop picks its winning order, on a
+    fresh redraw of just that order -- see build_bus_overlay's own comment).
+    `repair=False` (the default) makes this function behave exactly as it
+    did before the repair pass existed.
     """
     channels = free_channels(reports, origins)
     trunks: dict[tuple[str, str], tuple[float, float]] = {}
@@ -1697,164 +2051,33 @@ def route_inter_block_nets(
     # pad would be a short that neither DRC nor the drawn-short check can
     # see (they would be one net by construction).
     used_ports: set[tuple[str, str]] = set()
-    results: list[dict[str, Any]] = []
     specs = {spec["net"]: spec for spec in INTER_BLOCK_MET1}
     sequence = order or [spec["net"] for spec in INTER_BLOCK_MET1]
+
+    # A restore point and the port-claim state captured *before* each net is
+    # drawn, so a repair attempt can roll back to exactly one net's start and
+    # replay forward -- see _repair_unrouted_hops / _replay_tail. Cheap to
+    # keep even when `repair` is False: each entry is a handful of ints and a
+    # small set.
+    marks: list[tuple[int, ...]] = []
+    port_snapshots: list[set[tuple[str, str]]] = []
+    results: list[dict[str, Any]] = []
     for net_name in sequence:
-        spec = specs[net_name]
-        net = spec["net"]
-        points: list[dict[str, Any]] = []
-        for terminal in spec["terminals"]:
-            if "trunk" in terminal:
-                x, y = trunks[tuple(terminal["trunk"])]
-                points.append(
-                    {
-                        "block": terminal["trunk"][0],
-                        "name": f"{terminal['trunk'][0]}:{net} trunk",
-                        "x": x,
-                        "y": y,
-                        "via": False,
-                    }
-                )
-                continue
-            if "comb" in terminal:
-                # Already met1, already contacted: the comb drew every finger's
-                # via itself, so this terminal is a point on drawn metal and
-                # claims no pad the pin selector could collide with. Both of
-                # the comb's row escapes are offered; the resolver below takes
-                # whichever sits nearer the rest of the node.
-                points.append(
-                    {
-                        "block": terminal["comb"][0],
-                        "candidates": combs[tuple(terminal["comb"])],
-                        "via": False,
-                        "claims_pad": False,
-                    }
-                )
-                continue
-            bid = terminal["block"]
-            if "port" in terminal:
-                port = _ports_by_name(reports[bid])[terminal["port"]]
-                lane = 0.0
-                if "leg" in terminal:
-                    lane = (terminal["leg"] - 0.5) * (2 * RES_LANE_OFFSET_UM)
-                px = float(port["x_um"]) + origins[bid]["x"]
-                py = float(port["y_um"]) + origins[bid]["y"] + lane
-                # Escape hatch: a multi-row resistor array's rows are packed
-                # end to end with its own series-chain lanes, so any path
-                # that tries to cross the block collides with them. A
-                # chain-end terminal sits at a row end, though, and the track
-                # straight out of that row end is free by construction -- so
-                # every route to one of these starts by leaving the block
-                # sideways at the terminal's own y, and the general router
-                # only has to solve the open-channel part.
-                bbox = reports[bid]["bbox_um"]
-                west = bbox["x0"] + origins[bid]["x"]
-                east = bbox["x1"] + origins[bid]["x"]
-                outward = east + BLOCK_ESCAPE_UM if px > (west + east) / 2.0 else west - BLOCK_ESCAPE_UM
-                point = {
-                    "block": bid,
-                    "name": f"{bid}.{terminal['port']}",
-                    "x": px,
-                    "y": py,
-                    "via": True,
-                    "fixed": True,
-                }
-                if terminal.get("escape", True):
-                    point["escape"] = (outward, py)
-                points.append(point)
-                used_ports.add((bid, terminal["port"]))
-                continue
-            candidates = [
-                c
-                for c in _li1_ports(
-                    reports[bid],
-                    origins[bid],
-                    terminal["suffix"],
-                    terminal["facing"],
-                    terminal.get("half"),
-                )
-                if (bid, c[0]) not in used_ports
-            ]
-            if not candidates:
-                raise KeyError(
-                    f"net {net}: no li1 '{terminal['suffix']}' port facing "
-                    f"{terminal['facing']} deg on block {bid}"
-                    + (f" half {terminal['half']}" if terminal.get("half") else "")
-                )
-            points.append({"block": bid, "candidates": candidates, "via": True})
-
-        # Resolve each block terminal to the candidate port nearest the net's
-        # other terminals -- shortest wire, from the block's own geometry.
-        anchors = [
-            (p["x"], p["y"]) for p in points if "x" in p
-        ] or [
-            (sum(c[1] for c in p["candidates"]) / len(p["candidates"]),
-             sum(c[2] for c in p["candidates"]) / len(p["candidates"]))
-            for p in points if "candidates" in p
-        ]
-        cx = sum(a[0] for a in anchors) / len(anchors)
-        cy = sum(a[1] for a in anchors) / len(anchors)
-
-        # Which candidate each terminal takes is a *choice*, and the nearest
-        # one is only a first guess. A comb offers two or four escapes (one
-        # per device row, plus the spine side for the outermost node) and a
-        # split MOS group offers several pads; picking centroid-nearest once
-        # and never revisiting it is what left `D1`/`TAIL`/`VOUT` reported
-        # unroutable while a perfectly good path existed off the *other*
-        # escape of the same comb. So the assignments are enumerated too,
-        # nearest-first, and the first that routes completely wins.
-        best_score: tuple[int, int] | None = None
-        best_plan: list[dict[str, Any]] = []
-        best_claims: list[tuple[str, str]] = []
-        hops: list[dict[str, Any]] = []
-        routed = False
-        for assignment in _candidate_assignments(points, cx, cy):
-            resolved, claims = assignment
-            for point in resolved:
-                # The pad each terminal contacts, kept separate from `x`/`y`
-                # because drawing an escape stub moves the latter. A retried
-                # chain order has to start from the pad again, not from
-                # wherever the previous attempt left the terminal.
-                point["pad"] = (point["x"], point["y"])
-            # The terminals of one node are joined as an open chain, so the
-            # order they are visited in *is* the wire plan: a chain that
-            # zig-zags across the floorplan asks the open-channel router for
-            # corridors that a chain visiting the same terminals in a
-            # friendlier order never needs.
-            for plan in _chain_orders(resolved):
-                mark = bus.mark()
-                hops, routed = _draw_chain(bus, net, plan, channels)
-                score = (0 if routed else 1, sum(1 for h in hops if not h["routed"]))
-                if routed:
-                    best_plan, best_score, best_claims = plan, score, claims
-                    break  # geometry for the winning plan stays on the bus
-                bus.restore(mark)
-                if best_score is None or score < best_score:
-                    best_plan, best_score, best_claims = plan, score, claims
-            if routed:
-                break
-        if not routed:
-            # Every plan was rolled back. Redraw the best one so the geometry
-            # on the bus is the geometry the report below describes.
-            hops, routed = _draw_chain(bus, net, best_plan, channels)
-        used_ports.update(best_claims)
-        # One label per net, on drawn metal, so `klt extract` promotes it as a
-        # named top-level pin. Deliberately one and only one: two labels with
-        # the same text on two *disconnected* pieces of metal would merge them
-        # into one extracted net and manufacture connectivity that was never
-        # drawn.
-        bus.label(net, resolved[0]["x"], resolved[0]["y"])
+        marks.append(bus.mark())
+        port_snapshots.append(set(used_ports))
         results.append(
-            {
-                "net": net,
-                "routed": routed,
-                "schematic": spec["schematic"],
-                "terminals": [p["name"] for p in resolved],
-                "blocks": sorted({p["block"] for p in resolved}),
-                "hops": hops,
-            }
+            _route_one_net(
+                bus, net_name, specs, reports, origins, trunks, combs,
+                used_ports, channels,
+            )
         )
+
+    if repair and any(not r["routed"] for r in results):
+        _repair_unrouted_hops(
+            bus, sequence, specs, reports, origins, trunks, combs,
+            used_ports, channels, marks, port_snapshots, results,
+        )
+
     return results
 
 
@@ -1944,6 +2167,55 @@ def _draw_chain(
     return hops, routed
 
 
+def _draw_intra_block_busses(
+    bus: "met1_bus.Met1Bus",
+    blocks: list[dict[str, Any]],
+    reports: dict[str, dict[str, Any]],
+    origins: dict[str, dict[str, float]],
+) -> dict[str, Any]:
+    """Draw every block's own intra-block bus into `bus` and return the
+    per-block summary :func:`route_inter_block_nets` reads trunk/comb escape
+    points from.
+
+    Split out of :func:`build_bus_overlay` so both the order-search loop and
+    the one-shot repair redraw after it (see that function's own comment) can
+    build a fresh `(bus, summary)` pair from the same block list without
+    duplicating this dispatch table.
+    """
+    summary: dict[str, Any] = {}
+    for block in blocks:
+        spec = block.get("bus")
+        if not spec:
+            continue
+        bid = block["id"]
+        if spec["kind"] == "res_series":
+            summary[bid] = {
+                "kind": "res_series",
+                "legs": spec["legs"],
+                "links": bus_res_series(
+                    bus, bid, reports[bid], origins[bid], spec["legs"]
+                ),
+            }
+        elif spec["kind"] == "bjt_parallel":
+            summary[bid] = {
+                "kind": "bjt_parallel",
+                "nets": bus_bjt_parallel(
+                    bus, spec["nets"], reports[bid], origins[bid]
+                ),
+            }
+        elif spec["kind"] == "mos_comb":
+            summary[bid] = {
+                "kind": "mos_comb",
+                "nets": bus_mos_comb(
+                    bus, bid, reports[bid], origins[bid],
+                    spec["spine_side"], spec["nets"],
+                ),
+            }
+        else:  # pragma: no cover -- BLOCKS is a literal table
+            raise ValueError(f"unknown bus kind {spec['kind']!r} on block {bid}")
+    return summary
+
+
 def build_bus_overlay(
     klt: str,
     out_dir: Path,
@@ -1972,37 +2244,7 @@ def build_bus_overlay(
             continue
         seen.add(tuple(order))
         bus = met1_bus.Met1Bus()
-        summary = {}
-        for block in blocks:
-            spec = block.get("bus")
-            if not spec:
-                continue
-            bid = block["id"]
-            if spec["kind"] == "res_series":
-                summary[bid] = {
-                    "kind": "res_series",
-                    "legs": spec["legs"],
-                    "links": bus_res_series(
-                        bus, bid, reports[bid], origins[bid], spec["legs"]
-                    ),
-                }
-            elif spec["kind"] == "bjt_parallel":
-                summary[bid] = {
-                    "kind": "bjt_parallel",
-                    "nets": bus_bjt_parallel(
-                        bus, spec["nets"], reports[bid], origins[bid]
-                    ),
-                }
-            elif spec["kind"] == "mos_comb":
-                summary[bid] = {
-                    "kind": "mos_comb",
-                    "nets": bus_mos_comb(
-                        bus, bid, reports[bid], origins[bid],
-                        spec["spine_side"], spec["nets"],
-                    ),
-                }
-            else:  # pragma: no cover -- BLOCKS is a literal table
-                raise ValueError(f"unknown bus kind {spec['kind']!r} on block {bid}")
+        summary = _draw_intra_block_busses(bus, blocks, reports, origins)
 
         routes = route_inter_block_nets(bus, reports, origins, summary, order)
         failed = [r["net"] for r in routes if not r["routed"]]
@@ -2051,6 +2293,58 @@ def build_bus_overlay(
     # and a later pass is not automatically an improvement.
     assert best is not None
     _, bus, summary, routes, conflicts, chosen_order = best
+
+    # --- rip-up-and-reroute repair pass ------------------------------------
+    # The order-search above is a coarse, whole-cell form of rip-up: retry
+    # everything with a different net order. It cannot express "net J's own
+    # greedy solution sits exactly where net K's one remaining hop needs to
+    # go, and no order changes that because J must still be drawn before K"
+    # -- which is what issue #62's own record showed: the same net, on every
+    # one of ROUTE_ORDER_PASSES orderings, came up exactly one hop short (see
+    # _repair_unrouted_hops). Rebuild the winning order on a fresh bus once
+    # more, this time with `repair=True`, so route_inter_block_nets can rip
+    # up and retry the specific net named as each remaining hop's blocker.
+    # Every input here is deterministic (no randomness anywhere in this
+    # module), so this reproduces `bus`/`routes` byte-for-byte before repair
+    # does anything -- this can only match or improve the order-search's own
+    # winner, never regress it.
+    if any(not r["routed"] for r in routes):
+        repaired_bus = met1_bus.Met1Bus()
+        repaired_summary = _draw_intra_block_busses(repaired_bus, blocks, reports, origins)
+        repaired_routes = route_inter_block_nets(
+            repaired_bus, reports, origins, repaired_summary, chosen_order,
+            repair=True,
+        )
+        repaired_conflicts = repaired_bus.conflicts()
+        repaired_drawn = sum(
+            1
+            for row in schematic_net_coverage(repaired_routes)
+            if row["status"] == "drawn"
+        )
+        repaired_hops_routed = sum(
+            1 for r in repaired_routes for h in r["hops"] if h.get("routed")
+        )
+        repaired_failed = [r["net"] for r in repaired_routes if not r["routed"]]
+        repaired_score = (
+            len(repaired_conflicts), -repaired_drawn, -repaired_hops_routed,
+            len(repaired_failed),
+        )
+        if repaired_score < best[0]:
+            bus, summary, routes, conflicts = (
+                repaired_bus, repaired_summary, repaired_routes, repaired_conflicts,
+            )
+        attempts.append(
+            {
+                "order": list(chosen_order),
+                "failed": repaired_failed,
+                "conflicts": len(repaired_conflicts),
+                "schematic_nets_drawn": repaired_drawn,
+                "hops_routed": repaired_hops_routed,
+                "repair_pass": True,
+                "kept": repaired_score < best[0],
+            }
+        )
+
     summary["_inter_block"] = routes
     summary["_route_order_attempts"] = attempts
     summary["_route_order_used"] = chosen_order
