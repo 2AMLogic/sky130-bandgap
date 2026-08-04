@@ -1357,9 +1357,129 @@ its `"metal2"` role aliases to the same met1 layer on sky130 -- a *third*
 routing layer, not merely a second role name, would be the actual capability
 gap to file).
 
+### 7l. Fourteenth increment: `klt` pin bump picks up five upstream fixes; a stale `hints.same_nets` declaration turns out to be actively blocking, not neutral -- `mismatch_count` 92 -> 32
+
+Sections 7d-7k are all router/floorplan-geometry attempts on AC1's remaining
+`D1`/`GDRV`/`VSS` trio and all came up empty. This increment does not touch
+routing or the floorplan at all -- it re-checks the friction-tracker
+blockers named in the last several records (klayout-tools#490, #491, #492,
+#504) and finds all four closed upstream since the current `klt` pin
+(`8c277eb9`, set at the fifth increment) was cut, none of them picked up
+yet. Bumping the pin to `147602af` (current `klayout-tools` `main`) pulls in
+the fixes:
+
+- **klayout-tools#490 -> #495**: an NMOS body / `bulk_to_substrate` resistor
+  bulk / bipolar collector terminal now resolves to a real drawn `tap.drawing`
+  ring outside `nwell` when one is present and contacted, instead of an
+  unconditional synthesized `vsubs` global.
+- **klayout-tools#491 -> #494**: sky130's curated deck now declares a
+  `dummy` marker layer, and `mos_array`/`res_array`/`bjt_array` draw it over
+  each array's own `dummy_cells` footprint, so `klt extract`'s existing
+  dummy-suppression (since #462) finally fires on sky130.
+- **klayout-tools#492 -> #497**: `mos_array`/`diff_pair` gain an opt-in
+  `gate_contact` param; not adopted here (default off, byte-identical
+  geometry) -- this flow already hand-draws the gate contact via
+  `met1_bus.py`'s own `gate_contact` helper (MOS_GATE_NOTE), and swapping to
+  the generator-side version is a separate rework, not a pin-bump side
+  effect.
+- **#496 -> #498**: `gen-compose`'s Manhattan backbone stub now widens to
+  match a wide north/south pad (e.g. this flow's `TAP_N`/`TAP_S` taps) --
+  measured to change nothing in this flow's own composed geometry (DRC
+  stayed clean before and after).
+- **klayout-tools#504 -> #505**: a dedicated `device.class_arity` mismatch
+  category for a bulk-terminal-vs-plain resistor class pair, diagnostic
+  only.
+
+**The pin bump alone broke the flow.** `klt lvs` returned
+`{"status": "error", "error": "layout net 'vsubs' not found"}` for every one
+of the flow's three LVS attempts (combined-from-netlist, combined-from-GDS,
+uncombined). Root cause: `gen_bandgap_routed.py`'s `run_lvs()` unconditionally
+sent `hints.same_nets: [["vsubs", "VSS"]]` -- a declaration that was load-bearing
+through the pin bump above, and became actively wrong the moment it landed.
+This layout already draws the exact shape #495 keys off (both NMOS groups'
+substrate guard-ring taps and both PNP base ties, wired to `VSS`), so once any
+such tap is drawn anywhere in the design, sky130's single shared
+`deck.substrate_net` global identity resolves to that real net everywhere it
+is used -- confirmed by reading the extracted netlist back: every nfet's `b`
+terminal and every `res_high_po`'s `w` terminal now read `VSS` directly, not
+`vsubs`. There is no longer a `vsubs` net in this layout's extracted netlist
+at all, so a `hints.same_nets` entry naming it is not a no-op -- it is a
+request for a correspondence between a net that exists (`VSS`) and one that
+does not (`vsubs`), which `klt lvs` correctly rejects as a hard error instead
+of running.
+
+**The fix: `SUBSTRATE_SAME_NETS` is now empty.** Verified by manually
+constructing the same LVS request with the `hints` key removed and running it
+directly against this run's own `bandgap_core_routed.gds`/`.extract.spice`:
+`status: "mismatch"` (not `error`), and no mismatch entry mentions `vsubs`
+anywhere -- the correspondence the flow previously had to *declare* is now
+something `klt lvs` *discovers* on its own from the drawn geometry. Landed as
+a code change (`SUBSTRATE_SAME_NETS: list[list[str]] = []`), not a one-off
+manual patch, with the surrounding `SUBSTRATE_NET_NOTE`/`DUMMY_DEVICE_NOTE`
+prose and the record generator's per-cause writeup updated to match (both
+retired causes moved to a new "Retired since the last increment" record
+section instead of being silently dropped).
+
+**Measured result** (`layout/bandgap-core/reports/20260804-174203-ddf7f17/record.md`,
+full flow re-run to completion after the fix, DRC clean,
+`run-trivial-cell-flow.sh` re-run unmodified -- see below):
+
+| metric | baseline (`4fb2a3a`, post-PR-#78) | this increment |
+| --- | --- | --- |
+| `mismatch_count` | 92 | **32** |
+| `devices.matched` | 3 | **6** |
+| `nets.matched` | 1 | **3** |
+| `pins.matched` | 17 | 16 |
+| `device_counts` | `{"nfet": 16, "pfet": 52, "pnp": 24, "res_high_po": 159}` | `{"nfet": 16, "pfet": 52, "pnp": 16, "res_high_po": 147}` (dummy suppression: `dummy_devices_dropped: 20`) |
+| `pin_count` | 16 | 15 |
+| AC1 schematic coverage | 9/12 | **9/12 (unchanged)** -- this increment does not touch routing |
+| AC5 friction | 5 closed gaps named | **9 closed gaps named** (#490/#491/#492/#496/#504 added) |
+
+`mismatch_count` category breakdown moved from
+`{"device.body_unverified": ..., "device.unmatched": ..., "net.merged": ...,
+"net.split": ...}`-shaped (dominated by the unresolvable substrate
+declaration) to `{"device.unmatched": 19, "net.merged": 3, "net.split": 10}`
+-- no `device.body_unverified` warnings at all now, confirming every body
+terminal resolves to a real net. The remaining `device.unmatched` entries are
+1 NFET + 4 PFET + 4 PNP + 10 `RES_HIGH_PO` (reference + layout sides
+combined); the `RES_HIGH_PO` entries are cause 4 above (arity), not a
+substrate or dummy artifact.
+
+**Non-regression proof carried an unexpected finding of its own.**
+`layout/bin/run-trivial-cell-flow.sh`'s hand-authored `reference.spice`
+enumerates 8 M-cards (`klt gen mos_array`'s pinned defaults draw 4 real + 4
+dummy units) -- written that way specifically because, through this pin,
+sky130 could not suppress dummies at all (the fixture's own header said so).
+Once #494 lands, `klt extract` correctly drops the 4 dummy units
+(`dummy_devices_dropped: 4`), and the fixture's LVS-match proof regressed to
+`status: "mismatch"` (`layout: 4, reference: 8` devices) -- caught by
+`render-record.py`'s own verdict-flip assertion (`run-trivial-cell-flow.sh`
+exited 1). Fixed by updating `reference.spice` (and both negative controls)
+to 4 M-cards: a dummy unit has no schematic counterpart by construction (it
+exists only for layout-matching symmetry), so 4 real devices is the
+topologically correct reference now that the layout side can express the
+distinction -- not a relaxation to chase a smaller number, the mirror image
+of the `res_generic_po` -> `res_high_po` correction PR #71 made for the same
+reason. Re-run after the fix: DRC clean, LVS match (`devices.matched: 4/4`,
+`nets.matched: 13/13`), both negative controls still `mismatch` -- the
+four-way verdict restored. See `layout/trivial-cell/reference.spice`'s own
+header and `layout/README.md` for the full writeup.
+
+**What this does and does not move.** AC4 (LVS-clean) is still NOT MET, but
+`mismatch_count` more than halved and two of six previously-disclosed causes
+are fully retired, both with a real mechanism (not a workaround): the
+substrate correspondence is discovered from drawn geometry instead of
+declared, and dummy devices are excluded from the comparison because the
+tool can now tell them apart from real ones, not because this flow hid them.
+AC1 (routing) is untouched -- `D1`/`GDRV`/`VSS` remain exactly where
+Sections 7g-7k left them, and this increment does not claim otherwise. No new
+friction filed: every gap this increment interacts with was already on the
+tracker and is now closed, re-verified against the current pin rather than
+assumed from the issue history.
+
 ## 8. Known limitations / follow-on work
 
-- **LVS is not clean.** *(Still open; the reason has now changed three
+- **LVS is not clean.** *(Still open; the reason has now changed four
   times.)* At #15 the blocker was device recognition -- neither `bjt_array`
   nor `res_array` output extracted as devices at all. The first increment
   (PR #64) closed that and hit the single-routing-metal bussing gap
@@ -1371,16 +1491,16 @@ gap to file).
   and the layout side of the comparison is 39 devices against the
   reference's 16 (was 97). `devices.matched` is still 0. The fifth increment
   (Section 7c) added a rip-up-and-reroute repair pass and re-ran the flow;
-  `mismatch_count` did not move -- see cause 1. **Update, post-PR-#78
-  (Sections 7g/7h context)**: `devices.matched` is no longer 0. PR #78
-  fixed two of `VDD`'s PMOS n-well taps (previously pinned to a single pad
-  that had no free corridor), which took `klt lvs`'s correspondence from
-  `0`/`0` device/net matches to `3`/`1` and `mismatch_count` from 106 to
-  **92** -- every reference PMOS bulk is now on `VDD`, giving
-  `NetlistComparer` a foothold it previously had none of. The cause list
-  below is otherwise unchanged; cause 1's specific unrouted trio moved from
-  `D1`/`VDD`/`VSS` to `D1`/`GDRV`/`VSS` (Sections 7g/7h) as a disclosed cost
-  of the same fix.
+  `mismatch_count` did not move -- see cause 1. PR #78 fixed two of `VDD`'s
+  PMOS n-well taps (previously pinned to a single pad that had no free
+  corridor), which took `klt lvs`'s correspondence from `0`/`0` device/net
+  matches to `3`/`1` and `mismatch_count` from 106 to **92**. **Update,
+  fourteenth increment (Section 7l)**: `mismatch_count` is now **32**,
+  `devices.matched` **6**, `nets.matched` **3** -- the deck-synthesized
+  substrate net and undeclarable array dummies (causes 2/3 below, through
+  the prior update) are both **retired**, not just improved. Cause 1's
+  unrouted trio (`D1`/`GDRV`/`VSS`) is unchanged -- this increment did not
+  touch routing or the floorplan, only the `klt` pin and the LVS request.
   1. **Three schematic nodes are still not joined end to end** -- this
      flow's own router running out of corridors, *not* a tool gap, and
      confirmed by the fifth increment to survive a per-net rip-up-and-retry,
@@ -1393,22 +1513,22 @@ gap to file).
      all. A real corridor deadlock, not a single-net or search-depth problem
      a router-side change can still solve. It is the first time in this
      issue's history that the top cause is this repo's own.
-  2. **klayout-tools#490** -- the extraction deck's synthesized substrate
-     net, which no drawn shape can join. Declared to `klt lvs` through
-     `hints.same_nets` rather than worked around; the layout's genuinely
-     drawn `VSS` is then a second layout net the reference has no
-     counterpart for.
-  3. **klayout-tools#491** -- array dummies still extract as real devices.
-  4. **MCC** is in the reference and deliberately not drawn (Section 6).
-  5. **Resistor values** differ by the schematic's per-device 380 ohm head
+  2. **MCC** is in the reference and deliberately not drawn (Section 6).
+  3. **Resistor values** differ by the schematic's per-device 380 ohm head
      term, which the extractor (drawn body squares x sheet rho) does not
      model, and by the DR-002 trim taps, which the layout draws as series
-     devices where the schematic carries them as a length term.
+     devices where the schematic carries them as a length term. Unreached in
+     practice -- cause 4 stops the comparer one step earlier.
+  4. **No resistor can be paired at all**: `res_high_po`'s sky130 device
+     class carries a bulk terminal (`DeviceClassResistorWithBulk`, 3 nodes)
+     the reference's plain `R` cards do not (`DeviceClassResistor`, 2
+     nodes) -- filed as klayout-tools#504 (closed via #505, a diagnostic-only
+     fix; see Section 7l).
   Rewriting the reference netlist to enumerate the layout's own shortfalls
   would make LVS compare the layout against itself and is explicitly not
-  done. The one declaration made -- the substrate correspondence in cause 2
-  -- is a `hints` entry stating something true of the design, not a netlist
-  edit.
+  done. **Retired as of Section 7l**: the substrate correspondence no
+  longer needs a `hints` declaration at all (it is real drawn connectivity
+  now), and array dummies are no longer counted as devices.
 - ~~**R2A/R2B ladder is at reduced scale**~~ -- **closed** by issue #62, see
   Section 4a. The ladder is drawn at its real 108-unit count.
 - ~~**Per-matched-group guard rings are off in the routed layout**~~ --

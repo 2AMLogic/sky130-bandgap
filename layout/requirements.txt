@@ -141,4 +141,46 @@
 # extends past the diffusion into its contact landing pad (the trivial cell's
 # bbox y1 goes 1.24 -> 2.08 um). Nothing else in either record moves that is
 # not this increment's own doing.
-klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@8c277eb94d6cdcb8b8b2fc02c801af3d7555e5b1
+#
+# Bumped again for issue #62's fourteenth increment (2026-08-04). The prior
+# pin (8c277eb94d6cdcb8b8b2fc02c801af3d7555e5b1) predates five upstream fixes
+# that closed the friction filed while isolating AC4's remaining causes
+# (issue #72's own bisect, and the last record's disclosed cause list):
+#
+#   * 2AMLogic/klayout-tools#490 -> merged via #495. `klt extract --deck
+#     sky130` now resolves an NMOS body / `bulk_to_substrate` resistor bulk /
+#     collector-less bipolar collector terminal to a real drawn `tap.drawing`
+#     ring outside `nwell` when one is present and contacted, instead of
+#     unconditionally synthesizing the `vsubs` global. This repo's guard-ring
+#     taps on `amp_nload`/`amp_nmirr` (both wired to `VSS`) are exactly that
+#     shape, so this pin removes the dependency on `hints.same_nets` for the
+#     substrate correspondence where those taps are drawn -- measured below.
+#   * 2AMLogic/klayout-tools#491 -> merged via #494. sky130's curated deck now
+#     declares a `dummy` marker layer and `mos_array`/`res_array`/`bjt_array`
+#     draw it over `dummy_cells`' own footprint, so `klt extract`'s existing
+#     (since #462) dummy-device suppression can finally fire on sky130.
+#   * 2AMLogic/klayout-tools#492 -> merged via #497. `mos_array`/`diff_pair`
+#     gain an opt-in `gate_contact` param that draws the contact + local-metal
+#     pad on the #461/#474 gate landing pad, and `gen-compose` now rejects (
+#     instead of silently drawing an uncontacted stub over) a route to a bare
+#     poly pin. Default is `false` (byte-identical geometry unless adopted);
+#     this flow does not opt in this pass -- see the record for why.
+#   * #496 -> merged via #498. `gen-compose`'s Manhattan backbone stub is now
+#     widened to match a north/south port's own drawn pad width when the pad
+#     is wider than `routing.width_um`, closing a same-layer-spacing DRC trap
+#     next to any wide pad (e.g. this flow's `TAP_N`/`TAP_S` guard-ring taps).
+#   * 2AMLogic/klayout-tools#504 -> merged via #505. `klt lvs` now reports a
+#     dedicated `device.class_arity` mismatch (naming both terminal lists)
+#     instead of a silent, unattributed `device.unmatched` when a layout-side
+#     and reference-side device class share a name but differ in terminal
+#     count -- exactly this flow's `res_high_po` (3-terminal, bulk_to_substrate)
+#     vs. the reference's plain 2-terminal `R` cards. Diagnostic only, does
+#     not itself make the two classes match.
+#
+# Non-regression proof for this bump: layout/bin/run-trivial-cell-flow.sh
+# re-run unmodified still PASSes with the identical four-way verdict (see
+# trivial-cell/reports/ for the refreshed record); layout/bin/run-bandgap-
+# routed-flow.sh re-run produces the record this increment ships -- see that
+# record and layout/matching-plan.md Section 7l for what moved and what did
+# not.
+klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@147602af31c47fb935383b1761e8ce2f21c534cf

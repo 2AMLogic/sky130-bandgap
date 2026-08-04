@@ -60,16 +60,30 @@ here, relative to that skeleton:
    gate (`VA`, `VB`, `D1`, `D2`, `GDRV`, `PN`) drawable at all.
 8. **The resistors are the schematic's own `res_high_po` flavour**, per
    upstream klayout-tools#463 (merged via #475). See RES_FLAVOR_NOTE.
+9. **The substrate correspondence is real, drawn connectivity, not a
+   declaration -- and array dummies are correctly excluded** (added in
+   issue #62's fourteenth increment). Upstream klayout-tools#490 (merged
+   via #495) resolves an NMOS body / resistor bulk terminal to a real drawn
+   substrate tap when one is present, which this layout already draws
+   (wired to `VSS`); klayout-tools#491 (merged via #494) makes sky130's
+   deck declare a `dummy` marker layer that `mos_array`/`res_array`/
+   `bjt_array` now draw over their own dummy units. Both retire a
+   `hints.same_nets` declaration and a "dummies are counted as real
+   devices" trade-off this flow previously had to carry -- see
+   SUBSTRATE_NET_NOTE and DUMMY_DEVICE_NOTE.
 
 What this script does NOT claim -- read record.md's own "What this record
 does NOT claim" section for the authoritative, measured version:
 
-- **Not LVS-clean.** Four disclosed causes remain, none of them a topology
-  error in either netlist: the deck-synthesized substrate net
-  (SUBSTRATE_NET_NOTE), array dummies that cannot be declared as dummies on
-  sky130 (DUMMY_DEVICE_NOTE), the compensation cap MCC which is in the
-  reference and deliberately not drawn, and the resistor head resistance the
-  schematic's unit model carries but a drawn poly body does not.
+- **Not LVS-clean.** Disclosed causes remain, none of them a topology error
+  in either netlist: unrouted schematic nodes (this flow's own router
+  congestion, not a tool gap), the resistor device-class arity mismatch
+  (RES_BULK_ARITY_NOTE -- filed as klayout-tools#504, diagnosed but not yet
+  fixable from this flow's side), the compensation cap MCC which is in the
+  reference and deliberately not drawn, and the resistor head resistance
+  the schematic's unit model carries but a drawn poly body does not. The
+  deck-synthesized substrate net and undeclarable array dummies are
+  **retired** as causes -- see item 9 above.
 - **Not fully inter-block routed.** record.md's "Schematic inter-block nets"
   table scores every schematic inter-block node as drawn / partial /
   labelled-only against SCHEMATIC_INTER_BLOCK_NETS below -- i.e. against
@@ -77,15 +91,10 @@ does NOT claim" section for the authoritative, measured version:
   declaration -- and criterion 1 is PARTIAL while any node is short. What is
   left is congestion in this flow's own hand-written router, not a tool gap:
   every remaining node *can* be expressed now.
-- **Array dummies remain unmatched devices.** Neither curated deck declares
-  an `ExtractionDeck.dummy` marker layer and no generator draws one, so
-  klayout-tools#462's merged fix (which taught the suppression path about
-  resistors and bipolars) has nothing to key off on sky130. See
-  DUMMY_DEVICE_NOTE below.
 
-Every one of those gaps is filed upstream per CLAUDE.md's friction protocol
-and named in the NOTE constants below; record.md restates them with the
-measured numbers from the run that produced it.
+Every gap still open is filed upstream per CLAUDE.md's friction protocol and
+named in the NOTE constants below; record.md restates them with the measured
+numbers from the run that produced it.
 """
 
 from __future__ import annotations
@@ -158,26 +167,46 @@ RES_FLAVOR_NOTE = (
     "keys off, so this layout draws the schematic's own `res_high_po` -- "
     "which is also what gives the resistor blocks a bulk terminal at all "
     "(the deck marks `res_high_po` `bulk_to_substrate`). That terminal is "
-    "not a drawn pad, though: the deck ties it to the same synthesized "
-    "`vsubs` global it ties every NMOS body to, so it is reached by "
-    "declaration, not by metal -- see SUBSTRATE_NET_NOTE."
+    "not a drawn pad, though: the deck ties it to the same shared "
+    "`deck.substrate_net` global identity every NMOS body ties to, which "
+    "resolves to this layout's real, drawn `VSS` net -- see "
+    "SUBSTRATE_NET_NOTE."
 )
-#: The one place this flow's layout cannot answer the reference netlist with
-#: drawn geometry, and the reason a `hints.same_nets` declaration is used
-#: instead of more metal.
+#: Historical note, kept for context: through issue #62's thirteenth
+#: increment, sky130's curated extraction deck had no NMOS-body or
+#: resistor-bulk layer to derive from drawn geometry -- `extract.py`
+#: registered an *empty* `nfet_body` region, wired it into every nfet's `W`
+#: terminal, every `bulk_to_substrate` resistor's `W` terminal and every
+#: bipolar's collector, and then `connect_global`'d it to the deck's
+#: synthesized `vsubs` net, which no drawn shape could ever join. The
+#: correspondence to the schematic's real `VSS` had to be declared via
+#: `hints.same_nets` instead.
+#:
+#: 2AMLogic/klayout-tools#490 (merged via #495, picked up in issue #62's
+#: fourteenth increment) resolves the body/bulk/collector terminal to a real
+#: drawn `tap.drawing` ring outside `nwell` when one is present and
+#: contacted -- and this layout already draws exactly that shape (both NMOS
+#: groups' substrate guard-ring taps and both PNP base ties, wired to `VSS`
+#: by this flow). Once any such tap is drawn anywhere in the design, sky130's
+#: single shared `deck.substrate_net` global identity resolves to that real
+#: net everywhere it is used, not just at the tap itself -- confirmed by
+#: reading the extracted netlist back: every nfet's `b` terminal and every
+#: `res_high_po`'s `w` terminal now read `VSS`, not `vsubs`. There is no
+#: longer a `vsubs` net in this layout's extracted netlist at all, so
+#: `SUBSTRATE_SAME_NETS` is empty -- declaring a correspondence for a net
+#: that no longer exists is not a no-op, it is a hard `klt lvs` error
+#: (`hints.same_nets: layout net 'vsubs' not found`), which is exactly what
+#: shipping the klt pin bump without this change produced.
 SUBSTRATE_NET_NOTE = (
-    "sky130's curated extraction deck has no NMOS-body or resistor-bulk "
-    "layer to derive from drawn geometry: `extract.py` registers an *empty* "
-    "`nfet_body` region, wires it into every nfet's `W` terminal, every "
-    "`bulk_to_substrate` resistor's `W` terminal and every bipolar's "
-    "collector, and then `connect_global`s it to the deck's synthesized "
-    "`vsubs` net. No drawn shape can ever join that net -- the deck says so "
-    "itself, and `klt lvs` emits a `device.body_unverified` warning for "
-    "exactly this. The schematic ties all of those terminals to `VSS`, and "
-    "the layout does draw a real `VSS` (both NMOS groups' substrate "
-    "guard-ring taps and both PNP base ties are wired to it). The two can "
-    "only be reconciled by declaring the correspondence, which is what this "
-    "flow's `hints.same_nets` entry does."
+    "Through issue #62's thirteenth increment, sky130's curated extraction "
+    "deck had no NMOS-body or resistor-bulk layer to derive from drawn "
+    "geometry and tied every such terminal to a synthesized, undrawable "
+    "`vsubs` global (2AMLogic/klayout-tools#490). Resolved via #495 "
+    "(picked up this flow's fourteenth increment): a real drawn substrate "
+    "tap -- which this layout already draws, wired to `VSS` -- now resolves "
+    "the whole design's substrate identity to the real `VSS` net directly. "
+    "Verified by reading the extracted netlist: every nfet body and every "
+    "`res_high_po` bulk terminal reads `VSS`, not `vsubs`."
 )
 #: NOT a tool gap -- a flow correctness rule this increment adds. A
 #: `diff_pair` reports its two devices as two port families (`M1_*`/`M2_*`,
@@ -199,21 +228,30 @@ MOS_HALF_NOTE = (
     "can see -- both terminals are legal, well-separated metal."
 )
 DUMMY_DEVICE_NOTE = (
-    "2AMLogic/klayout-tools#462 (merged via #471) extended `klt extract`'s "
-    "dummy-device suppression from MOS gates to resistors and bipolars, "
-    "which is the half of this gap that was in the extractor. The other "
-    "half is still open on sky130: the suppression keys off "
-    "`ExtractionDeck.dummy`, the sky130 curated deck declares no `dummy` "
-    "layer at all, no `klt gen` generator draws one, and `klt extract` "
-    "exposes no override -- so there is no layer for a layout to mark its "
-    "dummies with. Every matched array's dummy edge units therefore still "
-    "extract as ordinary devices with no schematic counterpart. Turning "
-    "dummies off to make the LVS count move would trade a real matching "
-    "property for a smaller number, which this flow refuses to do."
+    "Through issue #62's thirteenth increment: 2AMLogic/klayout-tools#462 "
+    "(merged via #471) extended `klt extract`'s dummy-device suppression "
+    "from MOS gates to resistors and bipolars, which was only the "
+    "extractor half of the gap. The other half was open on sky130: the "
+    "suppression keyed off `ExtractionDeck.dummy`, and the sky130 curated "
+    "deck declared no `dummy` layer at all, no `klt gen` generator drew "
+    "one, and `klt extract` exposed no override -- so there was no layer "
+    "for a layout to mark its dummies with, and every matched array's "
+    "dummy edge units extracted as ordinary devices with no schematic "
+    "counterpart. Resolved via 2AMLogic/klayout-tools#491 (merged via #494, "
+    "picked up in this flow's fourteenth increment): sky130's curated deck "
+    "now declares a `dummy` marker layer, and `mos_array`/`res_array`/ "
+    "`bjt_array` draw it over each array's own `dummy_cells` footprint, so "
+    "`klt extract` correctly drops them. Verified: `extract.json`'s "
+    "`dummy_devices_dropped` is non-zero and `pnp`/`res_high_po` device "
+    "counts dropped accordingly, with no change to the drawn GDS geometry "
+    "-- a dummy unit has no schematic counterpart by construction (it "
+    "exists only for layout-matching symmetry), so this is a strictly "
+    "*more* correct comparison, not a number chased by hiding matching "
+    "geometry."
 )
 #: Why no resistor can be paired by `klt lvs` at all, whatever the routing
 #: does -- found while isolating issue #72's 0/0 correspondence regression and
-#: filed as 2AMLogic/klayout-tools#504.
+#: filed as 2AMLogic/klayout-tools#504 (closed via #505 -- see below).
 RES_BULK_ARITY_NOTE = (
     "The sky130 deck marks `res_high_po` `bulk_to_substrate`, so `klt "
     "extract` writes a **three-node** R card "
@@ -222,17 +260,21 @@ RES_BULK_ARITY_NOTE = (
     "`reference.spice` states the schematic, where a poly resistor is a "
     "two-node device, so the same reader turns its R cards into "
     "`DeviceClassResistor` (terminals A/B). Same model name on both sides, "
-    "different terminal count -- `NetlistComparer` cannot pair them, and it "
-    "says so only as generic `device.unmatched` entries, with no "
-    "`device_class_mismatch` event and nothing in `device_classes[]` "
-    "distinguishing the two. `klt lvs` offers no request-side hook to "
-    "reconcile the arity (`hints.same_nets` reconciles a *net*, which is "
-    "enough for MOS bodies because M cards carry four nodes on both sides). "
-    "The only workaround available today is to add a bulk node to the "
+    "different terminal count -- `NetlistComparer` cannot pair them. "
+    "2AMLogic/klayout-tools#505 (merged, picked up this flow's fourteenth "
+    "increment) added a dedicated `device.class_arity` mismatch category for "
+    "exactly this shape, naming both terminal lists -- but it only fires "
+    "when `NetlistComparer` gets far enough to attempt a two-sided pairing "
+    "on the device; this layout's other open causes (unrouted nodes, net "
+    "splits) keep the resistor devices out of a coherent-enough subgraph for "
+    "that, so `klt lvs` still emits generic one-sided `device.unmatched` "
+    "entries here, not the new category -- confirmed by reading this run's "
+    "own `lvs.json`. #505 is diagnostic-only regardless: it does not itself "
+    "let the two classes match (`status` still reports `mismatch`). The "
+    "only workaround available today is to add a bulk node to the "
     "reference's R cards, i.e. to stop the reference being a transcription "
     "of the schematic -- which this flow refuses to do for the same reason "
-    "it refuses every other reference edit. Filed upstream as "
-    "2AMLogic/klayout-tools#504."
+    "it refuses every other reference edit."
 )
 
 # ---------------------------------------------------------------------------
@@ -560,14 +602,23 @@ BLOCKS: list[dict[str, Any]] = [
     },
 ]
 
-#: The one declaration this flow makes to `klt lvs` rather than drawing.
-#: sky130's curated extraction deck synthesizes the substrate net (see
-#: SUBSTRATE_NET_NOTE) and no drawn shape can join it, so the layout side
-#: carries `vsubs` where the schematic carries `VSS`. Declaring the
-#: correspondence is honest -- the substrate *is* the schematic's ground in
-#: this design -- and it is a `hints` entry rather than an edit to either
-#: netlist, so both still state what they state.
-SUBSTRATE_SAME_NETS: list[list[str]] = [["vsubs", "VSS"]]
+#: Empty since issue #62's fourteenth increment (see SUBSTRATE_NET_NOTE).
+#: Through the thirteenth increment this named a `hints.same_nets`
+#: declaration (`[["vsubs", "VSS"]]`) because sky130's curated deck
+#: synthesized an undrawable `vsubs` net and no drawn shape could join it.
+#: klayout-tools#495 (picked up at the fourteenth increment's `klt` pin
+#: bump) resolves the deck's substrate identity to a real drawn tap when one
+#: is present -- and this layout already draws one, wired to `VSS` -- so the
+#: layout side no longer has a `vsubs` net at all. Leaving the stale
+#: declaration in `hints.same_nets` after that pin bump is not a no-op: `klt
+#: lvs` hard-errors with `hints.same_nets: layout net 'vsubs' not found`
+#: instead of running, which is what shipping the pin bump without this
+#: change produced (see this increment's own PR description for the
+#: measurement). Kept as a named, typed constant (rather than deleted
+#: outright) so a future floorplan revision that stops drawing every
+#: substrate tap has an obvious place to reintroduce the declaration, with a
+#: test that would catch the regression before a flow run does.
+SUBSTRATE_SAME_NETS: list[list[str]] = []
 
 MCC_AREA_UM2_NOTE = (
     "MCC (amp compensation cap, amp_m_cc=16 x W=30 x L=20 = 9600 um^2) is "
@@ -2722,10 +2773,12 @@ SCHEMATIC_INTER_BLOCK_NETS: list[dict[str, Any]] = [
         "schematic": "ground trunk: MN1-MN4 sources + both PNPs' base ties. "
         "The three resistor blocks' res_high_po bulk terminals "
         "(design/bandgap_core.sch r2ab/r2bb/r1b) are on this node in the "
-        "schematic too, but the extraction deck ties every resistor bulk to "
-        "its synthesized `vsubs` global rather than to drawn geometry "
-        "(SUBSTRATE_NET_NOTE), so there is no pad in those blocks for metal "
-        "to reach and they are not counted as routing targets here",
+        "schematic too, and now resolve to the same real drawn `VSS` net "
+        "the rest of this row does (SUBSTRATE_NET_NOTE) -- but not through "
+        "a pad this router can target: `res_array` draws no bulk-terminal "
+        "pad inside those three blocks for metal to land on, so they stay "
+        "uncounted as routing targets here even though the correspondence "
+        "itself is no longer in question",
     },
 ]
 
@@ -3411,20 +3464,17 @@ def main() -> int:
         f"status={lvs.get('status')}, mismatch_count={lvs.get('mismatch_count')} |"
     )
     a(
-        "| 5 | Blocking `klt` gaps filed as friction | MET | every gap the "
-        "previous three records named is now CLOSED upstream and this "
-        "record is the re-run against them (2AMLogic/klayout-tools#461 via "
-        "#474, #462 via #471, #463 via #475, #454 via #468, #470 via #481). "
-        "New this increment: #490 (the sky130 extraction deck synthesizes "
-        "the substrate/bulk net from an empty region, so no drawn shape can "
-        "join it -- the dominant remaining LVS term), #491 (#462's "
-        "suppression path is unreachable on sky130: no deck `dummy` layer, "
-        "no generator draws one, no CLI override), #492 (`gen-compose` "
-        "still cannot route to a poly gate port, so #461's landing pad has "
-        "to be contacted by hand), #504 (a `bulk_to_substrate` resistor "
-        "extracts with one more terminal than the same device read from a "
-        "plain-element reference, so no resistor can ever be paired and the "
-        "compare says so only as generic `device.unmatched`) |"
+        "| 5 | Blocking `klt` gaps filed as friction | MET | every previously "
+        "named gap is now CLOSED upstream and this record is the re-run "
+        "against them: 2AMLogic/klayout-tools#461 via #474, #462 via #471, "
+        "#463 via #475, #454 via #468, #470 via #481, #490 via #495, #491 "
+        "via #494, #492 via #497/#498, #504 via #505 (a "
+        "`bulk_to_substrate` resistor still extracts with one more terminal "
+        "than the same device read from a plain-element reference, so no "
+        "resistor can ever be paired -- #505's fix is a dedicated "
+        "`device.class_arity` diagnostic, a deliberately-deferred partial "
+        "close per its own acceptance criteria, not a fix that lets the two "
+        "classes match; see RES_BULK_ARITY_NOTE) |"
     )
     a("")
     a(f"- [{'x' if drc_clean else ' '}] DRC on the composed, routed layout is clean")
@@ -3653,13 +3703,12 @@ def main() -> int:
         "are fully drawn.** Criterion 1 is scored PARTIAL, not MET, whenever "
         "that count is short. `VSS` reaches four blocks here, not the seven "
         "an earlier record listed: the three resistor blocks' `res_high_po` "
-        "bulk terminals are on this node in the schematic, but the "
-        "extraction deck puts every resistor bulk on its synthesized `vsubs` "
-        "global rather than on drawn geometry (SUBSTRATE_NET_NOTE), so there "
-        "is no pad in those blocks for metal to reach and counting them as "
-        "routing targets would be scoring against an impossible bar rather "
-        "than a missed one. The correspondence itself is declared to `klt "
-        "lvs` instead."
+        "bulk terminals are on this node in the schematic and now resolve "
+        "to the same real, drawn `VSS` net the rest of the row does "
+        "(SUBSTRATE_NET_NOTE) -- but `res_array` draws no bulk-terminal pad "
+        "inside those three blocks, so there is nothing for this router to "
+        "target and counting them as routing targets would be scoring "
+        "against an impossible bar rather than a missed one."
     )
     a("")
     a("## Promoted top-level pins")
@@ -3766,41 +3815,31 @@ def main() -> int:
     a("")
     a(f"Mismatch categories: `{json.dumps(lvs.get('category_counts', {}))}`.")
     a("")
-    a("The residual gap has six disclosed causes, none of them a topology "
-      "error in either netlist:")
+    a(
+        "The residual gap has four disclosed causes, none of them a "
+        "topology error in either netlist. Two causes tracked by prior "
+        "records -- the deck-synthesized substrate net and undeclarable "
+        "array dummies -- are **retired** as of this increment; see "
+        "\"Retired since the last increment\" below."
+    )
     a("")
     a(
         "1. **Unrouted nodes.** "
         f"{len(coverage) - len(fully_drawn)} of {len(coverage)} schematic "
         "inter-block nodes are not joined across every block they reach (see "
         "the coverage table above), so the corresponding layout nets are "
-        "split where the reference has one. Unlike every previous "
-        "increment's headline cause, this one is not a tool gap: it is this "
-        "flow's own hand-written router running out of corridors in its own "
-        "congestion, and it is the first thing a further increment should "
-        "attack."
+        "split where the reference has one. This is not a tool gap: it is "
+        "this flow's own hand-written router running out of corridors in "
+        "its own congestion."
     )
     a(
-        "2. **The substrate net is synthesized, not drawn.** "
-        f"{SUBSTRATE_NET_NOTE} Declared through "
-        f"`hints.same_nets={json.dumps(SUBSTRATE_SAME_NETS)}` rather than "
-        "worked around in either netlist. The layout's own drawn `VSS` -- "
-        "the NMOS sources, the substrate guard-ring taps and both PNP base "
-        "ties -- is then a second layout net with no reference counterpart, "
-        "because the reference (correctly) has only one ground node."
-    )
-    a(
-        f"3. **Dummy devices cannot be declared on sky130.** "
-        f"{DUMMY_DEVICE_NOTE}"
-    )
-    a(
-        "4. **`MMCC`, the amp's compensation cap, is in the reference but "
+        "2. **`MMCC`, the amp's compensation cap, is in the reference but "
         "deliberately not drawn in this layout** (see the Blocks note "
         "above), so one reference device has no layout counterpart by "
         "construction."
     )
     a(
-        "5. **Resistor values differ by the schematic's head resistance.** "
+        "3. **Resistor values differ by the schematic's head resistance.** "
         "design/bandgap_core.sch line 188 models a res_high_po segment as "
         "`R ~ 380 + 325*L` ohm, with the 380 ohm head charged once per "
         "*device*; the extractor derives R from drawn body squares alone "
@@ -3811,21 +3850,29 @@ def main() -> int:
         "than as separate devices."
     )
     a(
-        "6. **No resistor can be paired at all: the two sides' resistor "
+        "4. **No resistor can be paired at all: the two sides' resistor "
         f"device class has a different terminal count.** {RES_BULK_ARITY_NOTE} "
-        "This is why cause 5's value difference has never actually been "
+        "This is why cause 3's value difference has never actually been "
         "reached -- the comparer stops one step earlier, at the arity."
     )
     a("")
     a(
-        "None of the six is worked around by editing either netlist. "
+        "None of the four is worked around by editing either netlist. "
         "`reference.spice` states design/bandgap_core.sch; rewriting it to "
         "enumerate the layout's own shortfalls would make LVS compare the "
-        "layout against itself, which is not evidence. The one declaration "
-        "made -- the substrate correspondence in cause 2 -- is a `hints` "
-        "entry, and it states something that is true of the design rather "
-        "than something convenient about the layout."
+        "layout against itself, which is not evidence."
     )
+    a("")
+    a("### Retired since the last increment")
+    a("")
+    a(
+        "- **The substrate net is now real, drawn connectivity, not a "
+        f"declaration.** {SUBSTRATE_NET_NOTE} No `hints.same_nets` entry is "
+        "sent (`SUBSTRATE_SAME_NETS` is empty); the correspondence this "
+        "flow previously had to *state* is now something `klt lvs` "
+        "*discovers* from the drawn geometry on its own."
+    )
+    a(f"- **Array dummies are now correctly excluded from the comparison.** {DUMMY_DEVICE_NOTE}")
     a("")
     a("## Visual verification")
     a("")
@@ -3837,7 +3884,7 @@ def main() -> int:
         f"- **Not LVS-clean.** `klt lvs` reports `{lvs.get('status')}` with "
         f"`mismatch_count={lvs.get('mismatch_count')}` against the "
         "xschem-derived reference netlist, and `devices.matched` is "
-        f"{lvs_devices.get('matched')}. The six causes above are the whole "
+        f"{lvs_devices.get('matched')}. The four causes above are the whole "
         "of it; none is hidden behind a number that moved."
     )
     a(
@@ -3868,12 +3915,12 @@ def main() -> int:
         "device. PR #64's local recognition overlay is retired here."
     )
     a(
-        "- **Array dummies are counted as real devices.** The `pnp` and "
-        f"`{RES_CLASS}` counts above include each array's dummy edge "
-        "units, which have no schematic counterpart and cannot be marked as "
-        "dummies (cause 2 above). Turning dummies off would trade a real "
-        "matching property for a smaller mismatch number; this flow keeps "
-        "them."
+        "- **Array dummies are excluded, and the substrate correspondence "
+        "is real drawn connectivity -- both new this increment.** The "
+        f"`pnp` and `{RES_CLASS}` counts above already exclude each "
+        f"array's dummy edge units ({extract.get('dummy_devices_dropped', 0)} "
+        "dropped this run); see \"Retired since the last increment\" above "
+        "for both."
     )
     a("")
     a("## Provenance")
