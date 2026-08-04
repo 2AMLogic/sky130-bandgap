@@ -5,10 +5,16 @@ open PDK, designed end-to-end by AI agents driving
 [klayout-tools](https://github.com/2AMLogic/klayout-tools) and the open-source
 xschem + ngspice analog flow.
 
-**Status: early-stage.** This project is in active development — simulation
-and device characterization work is underway, layout has not started, and
-nothing here has been taped out or measured in silicon yet. See the
-maturity ladder below for where things currently stand.
+**Status: active development.** Simulation and device characterization work
+is underway, and bandgap-core layout is DRC-clean and partially routed —
+extracted PNP/MOS/resistor devices, 4 of 12 schematic inter-block nets
+routed — with full LVS blocked on upstream `klayout-tools` gaps
+([#433](https://github.com/2AMLogic/klayout-tools/issues/433),
+[#434](https://github.com/2AMLogic/klayout-tools/issues/434)) rather than
+unattempted; see [`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)
+for the full record. Nothing here has been taped out or measured in
+silicon yet. See the maturity ladder below for where things currently
+stand.
 
 **Built agent-native.** Every schematic, testbench, decision record, and
 line of documentation in this repo was produced by AI agents working from
@@ -36,7 +42,9 @@ Port parity note: spec mirrors gf180-bandgap deliberately — same block,
 two PDKs is the portability proof.
 
 Maturity ladder: simulation-complete → layout DRC/LVS-clean → shuttle
-seat → measured silicon over temperature.
+seat → measured silicon over temperature. Current position: mid-ladder —
+bandgap-core layout is DRC-clean but not yet LVS-clean (blocked upstream,
+see Status above).
 
 ## Environment setup
 
