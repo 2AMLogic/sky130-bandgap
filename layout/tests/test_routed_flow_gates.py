@@ -898,7 +898,7 @@ class TestCoverageScoringGate(unittest.TestCase):
 # ---------------------------------------------------------------------------
 class TestFlowGate(unittest.TestCase):
     """`flow_gate()` is the flow's exit status. Its job is to fail on any one
-    condition -- an "and" written as nine separate rows so a failing run can
+    condition -- an "and" written as ten separate rows so a failing run can
     name which.
     """
 
@@ -906,6 +906,7 @@ class TestFlowGate(unittest.TestCase):
         "drc_clean": True,
         "within_budget": True,
         "full_scale_ladder": True,
+        "r2_leg_matches": True,
         "all_classes": True,
         "pin_count": 23,
         "met1_conflicts": [],
@@ -926,6 +927,12 @@ class TestFlowGate(unittest.TestCase):
             "drc_clean": {"drc_clean": False},
             "within_budget": {"within_budget": False},
             "full_scale_ladder": {"full_scale_ladder": False},
+            # `full_scale_ladder` above is about the ladder's unit *count*;
+            # this one is about the *length* those units add up to, which is
+            # what design/bandgap_core.sch actually specifies and what sets
+            # K = R2/R1. The 286-um-vs-270-um defect passed the count check
+            # for nineteen increments (issue #91).
+            "r2_leg_length_matches": {"r2_leg_matches": False},
             "device_classes_present": {"all_classes": False},
             "pins_promoted": {"pin_count": 0},
             "no_drawn_shorts": {"met1_conflicts": [{"nets": ["VDD", "VSS"]}]},
@@ -2127,6 +2134,47 @@ class TestMet2Escape(unittest.TestCase):
         self.assertNotEqual(drop, (0.0, 0.0))
         self.assertEqual(bus.conflicts(), [])
 
+    def test_met2_drop_backtracks_off_a_same_node_notch(self) -> None:
+        """Issue #91's re-run. `_met2_drop()` rejected only *foreign* metal
+        under its landing pad, so a pad could land 0.12 um from a wire of its
+        **own** node and notch it. `met1.space.1` does not exempt same-node
+        edges -- only touching ones -- and the pad is 0.32 um where the stub
+        reaching it is 0.24, so the pad overhangs its own stub by 0.04 um on
+        each side and that overhang is what lands in the gap. Invisible to
+        `conflicts()`, which compares different nets only; `klt drc` was the
+        only thing that saw it. Here the drop must walk past the notching
+        point rather than commit to it."""
+        bus = met1_bus.Met1Bus()
+        # This net's own wire, its top edge 0.12 um below the pad the natural
+        # (0, 0) drop would place (pad spans y -0.16..+0.16 about the query
+        # point) -- close enough to notch, far enough not to touch. It runs
+        # well past every x offset in both directions, so sliding along x
+        # cannot dodge it: the walk has to leave in y.
+        bus.net("N1").hseg(-20.0, 20.0, -0.4)
+        drop = gen_bandgap_routed._met2_drop(bus, "N1", 0.0, 0.0)
+        self.assertIsNotNone(drop)
+        assert drop is not None
+        self.assertNotEqual(drop, (0.0, 0.0))
+        # And the committed pad genuinely clears the notch: it stands a full
+        # met1.space.1 above its own wire's top edge (the only other legal
+        # outcome, touching it, is not reachable from this geometry).
+        half = met1_bus.MET1_VIA1_LANDING_UM / 2.0
+        self.assertGreaterEqual(
+            drop[1] - half, -0.28 + 0.14 - 1e-9,
+            f"pad at {drop} still notches its own wire",
+        )
+
+    def test_met2_drop_still_lands_on_its_own_wire_when_it_touches(
+        self,
+    ) -> None:
+        """The negative control for the check above: a pad *overlapping* its
+        own node's wire is the ordinary case (that is how the stack connects
+        at all) and must not be rejected as a notch."""
+        bus = met1_bus.Met1Bus()
+        bus.net("N1").hseg(-2.0, 2.0, 0.0)
+        drop = gen_bandgap_routed._met2_drop(bus, "N1", 0.0, 0.0)
+        self.assertEqual(drop, (0.0, 0.0))
+
     def test_met2_drop_backtracks_off_a_foreign_via1_stack(self) -> None:
         """The same guard against a full foreign via1 stack (met1 pad, via1
         cut and met2 pad all at once), placed close enough to the query
@@ -2146,9 +2194,9 @@ class TestMet2Escape(unittest.TestCase):
 
 class TestR2LegLength(unittest.TestCase):
     """`r2_leg_length()` states the drawn-vs-specified R2 divider leg length
-    from the flow's own constants, so the defect it currently reports (and
-    any future regression in either constant) is in every record whether or
-    not `klt lvs` reaches those devices -- see RES_TRIM_LENGTH_NOTE."""
+    from the flow's own constants, so any regression in either constant is in
+    every record whether or not `klt lvs` reaches those devices -- see
+    RES_TRIM_LENGTH_NOTE."""
 
     def test_reports_the_schematic_value_from_core_params(self) -> None:
         report = gen_bandgap_routed.r2_leg_length()
@@ -2162,15 +2210,173 @@ class TestR2LegLength(unittest.TestCase):
             report["drawn_um"], report["coarse_um"] + report["trim_um"]
         )
 
-    def test_the_known_defect_is_reported_as_a_positive_dr002_code(self) -> None:
-        """DR-002 rejects every positive trim code. The layout currently sits
-        at one; this asserts the *reporting* of that, not that it is
-        acceptable -- when the ladder is re-decomposed, this test is what
-        catches a fix that silently changes the sign or the magnitude."""
+    def test_the_drawn_leg_is_the_specified_leg_at_dr002_code_0(self) -> None:
+        """Issue #91. The layout used to draw 286 um -- a full-length 270 um
+        coarse leg with a 16 um trim ladder wired in series after it, i.e.
+        DR-002 trim code +16, a direction DR-002 rejects outright. The leg is
+        now decomposed rather than extended, so code 0 is exactly the
+        schematic's own length and this test catches any silent return of
+        either the sign or the magnitude."""
         report = gen_bandgap_routed.r2_leg_length()
-        self.assertFalse(report["matches"])
-        self.assertEqual(report["delta_um"], 16.0)
-        self.assertEqual(report["effective_trim_code"], 16)
+        self.assertTrue(report["matches"])
+        self.assertEqual(report["delta_um"], 0.0)
+        self.assertEqual(report["effective_trim_code"], 0)
+
+    def test_the_split_is_coarse_plus_fine_not_coarse_plus_extra(self) -> None:
+        """The specific decomposition matters, not just the total: the fine
+        ladder has to be long enough to reach DR-002's -16 code from inside
+        the 270 um, which is what rules out e.g. 53 coarse + 5 fine."""
+        report = gen_bandgap_routed.r2_leg_length()
+        self.assertEqual(report["coarse_um"], 250.0)
+        self.assertEqual(report["trim_um"], 20.0)
+        self.assertGreaterEqual(
+            gen_bandgap_routed.N_R2_TRIM_UNITS,
+            gen_bandgap_routed.N_R2_TRIM_CODES,
+            "the fine ladder cannot express DR-002's full downward range",
+        )
+
+    def test_the_blocks_draw_the_counts_the_length_claims(self) -> None:
+        """`r2_leg_length()` reads the constants; the gate is only honest if
+        `BLOCKS` draws those same constants (two legs of each)."""
+        params = {b["id"]: b["params"] for b in gen_bandgap_routed.BLOCKS}
+        self.assertEqual(
+            params["res_r2"]["num"], 2 * gen_bandgap_routed.N_R2_COARSE
+        )
+        self.assertEqual(
+            params["res_trim"]["num"], 2 * gen_bandgap_routed.N_R2_TRIM_UNITS
+        )
+        self.assertEqual(
+            params["res_r2"]["length_um"], gen_bandgap_routed.R_LSEG_UM
+        )
+        self.assertEqual(
+            params["res_trim"]["length_um"], gen_bandgap_routed.R_LSEG_TRIM_UM
+        )
+
+
+class TestTrimTapLadder(unittest.TestCase):
+    """The trim ladder's *direction*, from the block's own reported ports.
+
+    DR-002 certifies codes 0..-16 and rejects every positive one, so it is
+    not enough that the leg is 270 um at code 0: selecting a tap has to make
+    the leg shorter, monotonically, one um per code. Before issue #91 the
+    ladder was wired after a full-length leg and every tap made it longer.
+    """
+
+    #: A `res_array` report stub carrying exactly the ports the real block
+    #: reports for `2 * N_R2_TRIM_UNITS` interdigitated fine units.
+    def _reports(self, num: int | None = None) -> dict[str, dict[str, object]]:
+        if num is None:
+            num = 2 * gen_bandgap_routed.N_R2_TRIM_UNITS
+        return {
+            "res_trim": {
+                "ports": [
+                    {"name": f"R{i}_{end}"}
+                    for i in range(num)
+                    for end in ("A", "B")
+                ]
+            }
+        }
+
+    def test_code_0_yields_the_schematic_leg_length(self) -> None:
+        rows = gen_bandgap_routed.trim_tap_ladder(self._reports())
+        code0 = [row for row in rows if row["code"] == 0]
+        self.assertEqual(len(code0), 1)
+        self.assertEqual(
+            code0[0]["leg_um"], gen_bandgap_routed.r2_leg_length()["spec_um"]
+        )
+
+    def test_every_certified_code_subtracts_exactly_one_um(self) -> None:
+        """Acceptance criterion 3 of issue #91, stated as an assertion:
+        selecting tap k yields `270 - k` um for k in 0..16."""
+        rows = {row["code"]: row for row in gen_bandgap_routed.trim_tap_ladder(
+            self._reports()
+        )}
+        spec_um = gen_bandgap_routed.r2_leg_length()["spec_um"]
+        for k in range(gen_bandgap_routed.N_R2_TRIM_CODES + 1):
+            with self.subTest(code=-k):
+                self.assertEqual(rows[-k]["leg_um"], spec_um - k)
+                self.assertTrue(rows[-k]["certified"])
+
+    def test_no_tap_is_longer_than_the_specified_leg(self) -> None:
+        """The whole defect, as one assertion: a positive code (a leg longer
+        than the schematic's) must not be expressible by any drawn tap."""
+        spec_um = gen_bandgap_routed.r2_leg_length()["spec_um"]
+        for row in gen_bandgap_routed.trim_tap_ladder(self._reports()):
+            with self.subTest(code=row["code"]):
+                self.assertLessEqual(row["leg_um"], spec_um)
+                self.assertLessEqual(row["code"], 0)
+
+    def test_taps_past_dr002s_range_are_drawn_but_flagged(self) -> None:
+        """The 50/20 split draws four taps past DR-002's certified -16. They
+        exist in metal (a metal-option ladder's taps always do), so they are
+        reported -- explicitly marked out of certified range, not silently
+        offered as valid codes."""
+        rows = gen_bandgap_routed.trim_tap_ladder(self._reports())
+        uncertified = [row["code"] for row in rows if not row["certified"]]
+        self.assertEqual(uncertified, [-17, -18, -19, -20])
+        self.assertEqual(
+            min(row["code"] for row in rows),
+            -gen_bandgap_routed.N_R2_TRIM_UNITS,
+        )
+
+    def test_the_two_legs_interdigitate_by_segment_parity(self) -> None:
+        """Leg A owns even segment indices, leg B odd -- the arrangement
+        `bus_res_series` chains and matching-plan Section 3 asks for. A tap
+        that named the wrong parity would address the other leg."""
+        for row in gen_bandgap_routed.trim_tap_ladder(self._reports()):
+            with self.subTest(code=row["code"]):
+                for leg, name in ((0, "A"), (1, "B")):
+                    port = row["ports"][name]
+                    index = int(port[1:].split("_")[0])
+                    self.assertEqual(index % 2, leg)
+
+    def test_a_count_change_fails_loudly_instead_of_mislabelling(self) -> None:
+        """The ports are validated against the block's own report, so a
+        constant change that the generator did not follow raises here rather
+        than silently naming a tap that is not drawn."""
+        with self.assertRaises(KeyError):
+            gen_bandgap_routed.trim_tap_ladder(self._reports(num=4))
+
+    def test_the_wired_low_end_of_each_leg_is_the_code_0_tap(self) -> None:
+        """INTER_BLOCK_MET1 joins `VA`/`VB` to a specific `res_trim` port.
+        That port must be the code-0 tap, or the drawn cell sits at a code
+        the record does not report."""
+        wired = {
+            spec["net"]: [
+                terminal["port"]
+                for terminal in spec["terminals"]
+                if terminal.get("block") == "res_trim"
+            ]
+            for spec in gen_bandgap_routed.INTER_BLOCK_MET1
+            if spec["net"] in ("VA", "VB")
+        }
+        self.assertEqual(wired["VA"], [gen_bandgap_routed.trim_tap_port(0, 0)])
+        self.assertEqual(wired["VB"], [gen_bandgap_routed.trim_tap_port(1, 0)])
+
+    def test_the_coarse_leg_hands_off_to_the_head_of_the_fine_chain(
+        self,
+    ) -> None:
+        """`TRIM_A`/`TRIM_B` join `res_r2`'s tail to `res_trim`'s head, so the
+        coarse and fine parts are in series and the whole 270 um is one
+        device per leg."""
+        trims = {
+            spec["net"]: {t["block"]: t["port"] for t in spec["terminals"]}
+            for spec in gen_bandgap_routed.INTER_BLOCK_MET1
+            if spec["net"] in ("TRIM_A", "TRIM_B")
+        }
+        coarse = 2 * gen_bandgap_routed.N_R2_COARSE
+        self.assertEqual(trims["TRIM_A"]["res_r2"], f"R{coarse - 2}_B")
+        self.assertEqual(trims["TRIM_A"]["res_trim"], "R0_A")
+        self.assertEqual(trims["TRIM_B"]["res_r2"], f"R{coarse - 1}_B")
+        self.assertEqual(trims["TRIM_B"]["res_trim"], "R1_A")
+
+    def test_a_positive_code_is_not_addressable_at_all(self) -> None:
+        with self.assertRaises(ValueError):
+            gen_bandgap_routed.trim_tap_port(0, 1)
+        with self.assertRaises(ValueError):
+            gen_bandgap_routed.trim_tap_port(
+                0, -(gen_bandgap_routed.N_R2_TRIM_UNITS + 1)
+            )
 
 
 class TestInternalNetLabelling(unittest.TestCase):

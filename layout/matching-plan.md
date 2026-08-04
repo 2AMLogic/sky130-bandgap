@@ -20,7 +20,9 @@ limitations" below.
 
 > **Update (issue #62, routed layout).** Sections 4, 5, 7 and 8 below have
 > been revised where issue #62's routed flow changed the facts on the
-> ground -- the R2A/R2B ladder is now drawn at its **real 108-unit count**,
+> ground -- the R2A/R2B ladder is now drawn at its **real full length**
+> (100 coarse units + 40 fine trim units = the schematic's 270 um per leg;
+> it was 108 coarse units with a bolt-on ladder until issue #91),
 > inter-block routing and top-level pins **are** drawn, and PNP/NMOS/
 > resistor devices **do** extract with correct classes. Where a statement
 > below is now historical, it is marked as such rather than deleted, so the
@@ -96,6 +98,52 @@ layout with dummies, but the amp's three groups (and within that, the
 input pair and NMOS quad specifically) are where a layout reviewer's
 scrutiny should concentrate first if area or time forces a tradeoff later.
 
+### 1a. The R2 leg's coarse/fine split, and why priority 3's budget is unchanged by it
+
+Issue #91 re-decomposed each R2 divider leg. It used to be drawn as 54
+coarse 5 um units (270 um) with a 16 x 1 um trim ladder wired in series
+*after* it — 286 um, 16 um more than the schematic states, and a ladder
+whose taps could only add. It is now drawn as **50 coarse 5 um units
+(250 um) plus 20 fine 1 um units (20 um)**, so the code-0 tap is exactly the
+specified 270 um and every tap short of it subtracts. The full argument and
+the measured evidence are in Section 7r; what belongs here is its effect on
+this section's *matching* budget, which has to be argued rather than
+assumed:
+
+- **Total drawn resistor body per leg is identical: 270 um x 1 um.** Before,
+  the leg was 270 um of coarse body *plus* 16 um of trim body carrying the
+  same current; now it is 250 + 20 of the same total. Random mismatch of a
+  poly resistor scales as `sigma(dR/R) = A_rho / sqrt(W*L)` over the body
+  that carries the current, so the leg's own 1-sigma is set by `W*L` =
+  270 um^2 either way. The change is area-neutral in the only variable that
+  term depends on. (Strictly, it is a small *improvement*: the old leg's
+  DC path was 286 um^2, i.e. `sqrt(286/270)` = 1.03x more area and therefore
+  ~1.5% *less* random mismatch — but 6% of the leg was length the schematic
+  never asked for, so trading that back is a spec fix, not a matching
+  regression, and the 1.5% is well inside the noise of the resistor term's
+  own 1.64-2.77 mV contribution above.)
+- **Both legs change identically, so the R2A/R2B *ratio* — the quantity
+  that matters — is untouched.** K = R2/R1 is set by matched *ratios*, and
+  both legs are drawn from the same two interdigitated arrays, at the same
+  unit counts, in the same fold. Nothing here is asymmetric between the
+  legs.
+- **The number of series units per leg is unchanged at 70** (was 54 + 16,
+  now 50 + 20), so the count of unit-to-unit series joints — the other
+  per-unit random term, contact resistance — is the same. What moves between
+  the two arrays is *which* array carries a given micron, not how many
+  junctions the current crosses.
+- **The one real cost is fill efficiency, and it is an area cost, not a
+  matching one.** A 1 um unit on a 0.5 um pitch spends 1/1.5 of its footprint
+  on body; a 5 um unit spends 5/5.5. Moving 4 um/leg from coarse to fine
+  therefore grows the composed cell slightly (45,508 -> 45,968 um^2, +1.0%,
+  still 8% inside the 0.05 mm^2 budget — Section 6). It does not change
+  `W*L`, which is what the mismatch term integrates.
+
+The net effect on this section's priority-3 allocation is therefore **nil**:
+the resistor network's contribution to the untrimmed spread (Section 1's
+1.64-2.77 mV) is unchanged, and no effort needs to be reallocated between
+the five matched groups.
+
 ## 2. Device inventory
 
 From `design/bandgap_core.sch` and `design/error_amp.sch` (read-only
@@ -106,9 +154,9 @@ references for this issue; not modified here):
 | Q1 | CTAT PNP | m=8 x `pnp_05v5_W0p68L0p68` (0.4624 um^2/unit) | itself (8x array) |
 | Q2 | PTAT PNP | m=8 x `pnp_05v5_W3p40L3p40` (11.56 um^2/unit) | itself (8x array) |
 | R1 | dVBE-to-current leg | `res_high_po`, W=1um, L=35um (7 x 5um unit segments) | R2A/R2B via the K=R2/R1 ratio |
-| R2A | VOUT-side divider leg (branch A) | `res_high_po`, W=1um, L=270um + trim (54 x 5um unit segments) | R2B |
-| R2B | VOUT-side divider leg (branch B) | `res_high_po`, W=1um, L=270um + trim (54 x 5um unit segments) | R2A |
-| trim taps | downward-only ladder-tap trim (DR-002) | `res_high_po`, W=1um, 1um/code, code 0..-16, both legs | integrated into the R2A/R2B array (this issue's acceptance criterion) |
+| R2A | VOUT-side divider leg (branch A) | `res_high_po`, W=1um, L=270um at DR-002 code 0, drawn as 50 x 5um coarse + 20 x 1um fine unit segments | R2B |
+| R2B | VOUT-side divider leg (branch B) | `res_high_po`, W=1um, L=270um at DR-002 code 0, drawn as 50 x 5um coarse + 20 x 1um fine unit segments | R2A |
+| trim taps | downward-only ladder-tap trim (DR-002) | `res_high_po`, W=1um, 1um/code, code 0..-16 certified (0..-20 drawn), both legs | the last 20um *of* each R2A/R2B leg, not an addition to it -- integrated into the same interdigitated array pair (this issue's acceptance criterion; see Sections 1a and 7r) |
 | MPOUT | core PMOS output mirror | mult=2 x W=8/L=2 `pfet_g5v0d10v5` | MPAMP |
 | MPAMP | core PMOS bias mirror | mult=2 x W=8/L=2 `pfet_g5v0d10v5` | MPOUT |
 | MP1/MP2 | amp PMOS input pair | mult=16 x W=20/L=10 `pfet_g5v0d10v5` | each other |
@@ -154,15 +202,31 @@ Row order (bottom to top, increasing y in the generated skeleton):
   therefore the die-gradient exposure difference) between "the CTAT leg's
   average location" and "the PTAT leg's average location," which is what
   actually matters for the VA/VB comparison the amplifier makes.
-- **Row 1 -- resistor network.** R2A/R2B as one interdigitated ladder
-  (alternating unit segments -- see "Skeleton vs. real target counts"
-  below for why the skeleton draws 16 of the real 108), R1 as its own
+- **Row 1 -- resistor network.** R2A/R2B as one interdigitated **coarse**
+  ladder (alternating unit segments -- see "Skeleton vs. real target counts"
+  below for why the skeleton draws 16 of the real 100), R1 as its own
   matched group (same flavor/orientation, not interdigitated with R2A/R2B
-  since it is a different nominal value with no same-value partner), and
-  the downward-only trim taps as a third array of the same flavor/
-  orientation, positioned to extend the R2A/R2B ladder (this issue's
-  acceptance criterion: trim segments integrated into the same array, not
-  a separate bolt-on structure).
+  since it is a different nominal value with no same-value partner), and the
+  downward-only trim taps as a second, **fine** array of the same flavor and
+  orientation, interdigitated the same way and carrying the last 20 um of
+  each leg (this issue's acceptance criterion: trim segments integrated into
+  the array, not a separate bolt-on structure).
+
+  **Interdigitation scheme, both arrays.** `bus_res_series` chains unit
+  index `i` into leg `i mod 2`: leg A owns the even indices, leg B the odd,
+  so the two legs alternate unit by unit across each array and share a
+  centroid to first order. That is true of the coarse array (100 units, 10
+  folded rows of 10) and of the fine one (40 units, 4 folded rows of 10)
+  alike, which is what makes the split of Section 1a matching-neutral: the
+  two legs are drawn from the *same* pair of interdigitated arrays at every
+  granularity, never one leg coarse and the other fine.
+
+  The split is **50 coarse + 20 fine per leg**, not 54 + 16 (issue #91).
+  The trim ladder is the leg's last 20 um, so the code-0 tap is exactly
+  the schematic's 270 um and every other tap subtracts; drawn the old way,
+  in series after a full-length leg, it made the leg 286 um and could only
+  add. Section 7r has the measurement; Section 1a has the matching-budget
+  argument.
 - **Row 2 -- amp input pair + NMOS loads.** MP1/MP2 (cross-quad
   common-centroid PMOS input pair, in an n-well, own guard ring) and
   MN1/MN2 (cross-quad common-centroid NMOS diode loads, own guard ring),
@@ -196,9 +260,9 @@ scale:
 | Block | Skeleton count | Real target | Why reduced |
 |---|---|---|---|
 | `pnp_ctat` / `pnp_ptat` | 8 units each (2x4) | 8 units each | drawn 1:1 |
-| `res_r2` (R2A/R2B) | 16 units (8/leg) -- **superseded, see below** | 108 units (54/leg) | *(historical, #15)* a single-row `res_array` at 108 units is ~710 um long (measured directly: `klt gen res_array --params '{"num":108,...}'` reports `bbox_um.x1 - x0 = 709.6`) -- pairing that with any other block in a floorplan forces the whole composition's bounding box past the 0.05 mm^2 budget on width alone, even though the segments' own drawn area is small. `klt gen res_array` had no row-folding/meander parameter to keep a long unit-resistor string's *footprint* compact the way `mos_array`/`bjt_array`'s `rows`/`cols` do -- filed as new friction, [2AMLogic/klayout-tools#415](https://github.com/2AMLogic/klayout-tools/issues/415). |
+| `res_r2` (R2A/R2B) | 16 units (8/leg) -- **superseded, see below** | 100 coarse units (50/leg), with `res_trim`'s 40 fine units carrying the rest of the same 270 um leg (was stated as 108 units (54/leg) before issue #91 re-decomposed the leg -- see Sections 1a and 7r) | *(historical, #15)* a single-row `res_array` at 108 units is ~710 um long (measured directly: `klt gen res_array --params '{"num":108,...}'` reports `bbox_um.x1 - x0 = 709.6`) -- pairing that with any other block in a floorplan forces the whole composition's bounding box past the 0.05 mm^2 budget on width alone, even though the segments' own drawn area is small. `klt gen res_array` had no row-folding/meander parameter to keep a long unit-resistor string's *footprint* compact the way `mos_array`/`bjt_array`'s `rows`/`cols` do -- filed as new friction, [2AMLogic/klayout-tools#415](https://github.com/2AMLogic/klayout-tools/issues/415). |
 | `res_r1` | 7 units | 7 units | drawn 1:1 (small enough to be tractable at full scale) |
-| `res_trim` | 32 units (16/leg) | 32 units (16/leg) | drawn 1:1 |
+| `res_trim` | 32 units (16/leg) | 40 units (20/leg) | drawn 1:1 -- 20 fine 1 um units per leg, the last 20 um *of* that leg, giving DR-002 codes 0..-20 of which 0..-16 are certified (issue #91; was 32 units (16/leg) wired in series *after* a full-length leg) |
 | `amp_input_pair` | mult=16 (splits=16) | mult=16 | drawn 1:1 |
 | `amp_nload` / `amp_nmirr` | mult=4 each | mult=4 each | drawn 1:1 |
 | `amp_pmirr` | mult=8 (splits=8) | mult=8 | drawn 1:1 |
@@ -209,21 +273,36 @@ scale:
 **2AMLogic/klayout-tools#415 landed** (merged upstream via
 klayout-tools#418), adding `res_array`'s `rows` fold parameter. The routed
 flow (`layout/bin/gen_bandgap_routed.py`) therefore draws the R2A/R2B ladder
-at its **real 108-unit count**, folded into 9 rows:
+at its **real full-length count** -- the schematic's whole 270 um per leg,
+never a reduced one:
 
-| | skeleton (#15) | routed (#62) |
-|---|---|---|
-| `res_r2` unit count | 16 | **108** (2 legs x n_r2=54) |
-| `res_r2` footprint | ~110 x 12 um | ~101 x 12 um (9 folded rows) |
-| composed cell bbox | 35,763 um^2 | **38,171 um^2** |
-| budget | 50,000 um^2 | 50,000 um^2 |
+| | skeleton (#15) | routed (#62) | routed, post-#91 |
+|---|---|---|---|
+| `res_r2` unit count | 16 | 108 (2 legs x 54 coarse) | **100** (2 legs x 50 coarse) |
+| `res_trim` unit count | 32 (2 legs x 16) | 32 (2 legs x 16), in series *after* the leg | **40** (2 legs x 20), the last 20 um *of* the leg |
+| drawn length per leg | -- | 286 um (spec: 270) | **270 um** (spec: 270) |
+| `res_r2` footprint | ~110 x 12 um, 1 row | 100.9 x 12.2 um, 9 folded rows | **75.6 x 13.6 um**, 10 folded rows |
+| `res_trim` footprint | -- | 22.9 x 5.2 um, 4 folded rows | 27.6 x 5.2 um, 4 folded rows |
+| composed cell bbox | 35,763 um^2 | 45,508 um^2 | **45,968 um^2** |
+| budget | 50,000 um^2 | 50,000 um^2 | 50,000 um^2 |
 
 Folding turns the ladder from the floorplan's width-dominating block into
-one of its smaller ones: 108 units cost ~1,231 um^2 of footprint, and the
-whole routed cell -- at the real count, with routing and the cell-level
-guard ring -- still lands ~24% inside the 0.05 mm^2 budget. `res_r1`
-(n_r1=7) and the trim ladder (32 taps) were already 1:1 and stay so; the
-trim ladder is now folded into 4 rows for the same footprint reason.
+one of its smaller ones: the whole routed cell -- at the real length, with
+routing and the cell-level guard ring -- still lands ~8% inside the
+0.05 mm^2 budget. `res_r1` (n_r1=7) was already 1:1 and stays so; the trim
+ladder is folded into 4 rows for the same footprint reason.
+
+The last column is issue #91's re-decomposition (Section 7r). Note what it
+does and does not move: the drawn *length* per leg goes 286 -> 270 um, which
+is the whole point, while the composed bbox goes **up** 1.0%. That is not a
+contradiction -- it is fill efficiency. Moving 4 um/leg from 5 um units
+(5/5.5 of their pitch is body) to 1 um units (1/1.5 is body) costs footprint
+even as it removes drawn resistor body, and the coarse array's own fold
+changed from 9 ragged rows to 10 even ones. The issue's own scope note
+predicted a small area *improvement* from the shorter leg; the measured
+result is a small increase, disclosed here rather than quietly restated.
+Both are far inside budget, and Section 1a argues the matching consequence
+(none).
 
 The area-budget claim in Section 6 was previously caveated as "does not yet
 include the R2A/R2B ladder at its real count". That caveat is now closed.
@@ -283,8 +362,10 @@ is still open. This flow therefore draws every intra-block bus itself with
 `klt draw`, on met1 over mcon -- the sky130 extraction deck's own second
 conductor and via, which `klt extract` already wires up generically. See
 `layout/bin/met1_bus.py` and `gen_bandgap_routed.py`'s `MET1_BUS_NOTE`. This
-is what turns the 108-unit ladder into two real series resistors and each
-8-unit PNP array into one real `m=8` device, instead of N unconnected units.
+is what turns the coarse ladder (108 units when this was written, 100 since
+issue #91 re-decomposed the leg) and its fine trim ladder into two real
+series resistors, and each 8-unit PNP array into one real `m=8` device,
+instead of N unconnected units.
 
 **Inter-block nets are now drawn on met1 too**, for the same routing-metal
 reason -- `gen-compose` only ever routed 2-pin nets between channel-adjacent
@@ -398,17 +479,22 @@ the fourth increment measures 9/12 and `mismatch_count` 106 -- Section 7b.)*
 | Core PNP + resistor + mirror devices, analytic (drawn/emitter area only) | ~735 um^2 (MPOUT+MPAMP 64, Q1 3.7, Q2 92.5, R1 35, R2A+R2B 540) |
 | **Analytic device total** | **~21,215 um^2** |
 | **Skeleton composed floorplan bbox** (measured, #15 -- includes guard rings, dummies, spacing, and the reduced R2A/R2B count from Section 4) | **35,763 um^2** (`layout/bandgap-core/reports/20260803-192947-e7a30b4/record.md`) |
-| **Routed composed floorplan bbox** (measured, #62 second increment -- includes intra-/inter-block met1 bussing, per-group **and** cell-level guard rings, and the **real 108-unit** R2A/R2B ladder) | **40,019 um^2** (`layout/bandgap-core/reports/LATEST/record.md`) |
+| **Routed composed floorplan bbox** (measured, #62 second increment -- includes intra-/inter-block met1 bussing, per-group **and** cell-level guard rings, and the R2A/R2B ladder at its real count) | 40,019 um^2 |
+| **Routed composed floorplan bbox, current** (measured -- adds the met2 escape plane of Section 7q and issue #91's coarse/fine leg decomposition) | **45,968 um^2** (`layout/bandgap-core/reports/LATEST/record.md`) |
 | **Budget** | **50,000 um^2 (0.05 mm^2)** |
 
 The skeleton's measured footprint (35,763 um^2) was within budget with ~29%
-margin, but did **not** include the R2A/R2B ladder at its real 108-unit
-count. Issue #62 closed that gap (Section 4a): the routed cell draws the
-full 108-unit ladder *and* its inter-block routing and measures 40,019 um^2
+margin, but did **not** include the R2A/R2B ladder at its real count. Issue
+#62 closed that gap (Section 4a): the routed cell draws the full ladder
+*and* its inter-block routing, and measured 40,019 um^2 at that increment
 -- ~20% inside the 50,000 um^2 budget (the second increment's restored
 per-group guard rings and met1 busing cost ~1,848 um^2 versus the first
 increment's ring-off, unbussed 38,171 um^2, still comfortably inside
-budget). The budget claim now covers the real device counts, not a
+budget). The current cell measures **45,968 um^2**, ~8% inside budget: the
+met2 escape plane (Section 7q) and issue #91's coarse/fine leg
+decomposition (Section 7r, +460 um^2 of fill inefficiency for the same
+270 um of drawn resistor body) account for the rest. The budget claim now
+covers the real device counts and the real drawn leg length, not a
 reduced-scale stand-in.
 `design/device-characterization-summary.md`'s own note on `MPOUT`/`MPAMP`
 sizing (a potential 6.25x per-unit-area increase to size E) is a small
@@ -1939,7 +2025,8 @@ and the second was invisible while the first was live.
 
 Fixed structurally, not by deleting labels at the call site: `INTER_BLOCK_MET1`
 entries carry an `internal: "<schematic device>"` field, `_route_one_net`
-skips `bus.label()` for them, and `trim_tap_pins()` still locates and
+skips `bus.label()` for them, and `trim_tap_pins()` (widened to
+`trim_tap_ladder()` in Section 7r) still locates and
 validates the DR-002 code taps every run but reports them into `record.md`
 instead of into `pins[]`. The taps are still documented; they are just no
 longer asserted to be device-level ports of this cell. Filed upstream as
@@ -2058,7 +2145,7 @@ caught by reading `EXTRACTION_DECK.metals` back and finding two levels. The
 | AC | before | after |
 | --- | --- | --- |
 | 1 (full inter-block routing) | PARTIAL, 9/12 | **MET, 12/12** |
-| 2 (real ladder unit count) | MET | MET (but see issue #91 -- the count is real, the *length* is 16 um over) |
+| 2 (real ladder unit count) | MET | MET (but see issue #91 -- the count is real, the *length* is 16 um over; **fixed in Section 7r**) |
 | 3 (device classes + pins) | MET | MET (pin_count 15 -> 11: the four internal-node labels are gone) |
 | 4 (`klt lvs` clean) | NOT MET, 32 | NOT MET, **18**; `device.unmatched` 19 -> 1, no connectivity mismatches left |
 | 5 (blocking gaps filed) | MET | MET (+#513, +#514; #508 closed via #511) |
@@ -2069,7 +2156,186 @@ layout defect. Of the rest, `MCC` is deliberate, the `res_high_po` head term
 is a model/extractor difference no drawn shape can close, and the PNP
 `ne`/area parameters are a reference-side transcription question that
 `design/bandgap_core.sch` does not itself answer (it states `m=8`, not an
-emitter area).
+emitter area). *(Done -- Section 7r.)*
+
+### 7r. Twentieth increment: the R2 leg is re-decomposed, not extended -- 286 um -> 270 um, the trim ladder trims downward, and the check that found it becomes a gate (issue #91)
+
+Section 7q's closing line named this as the next increment, and it is the
+one remaining AC4 cause that was a **layout defect** rather than a model or
+transcription difference. It is fixed here.
+
+#### What was wrong
+
+`design/bandgap_core.sch`'s `CORE_PARAMS` states each divider leg as
+`L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim = 5*54 + 1*0 = 270 um`. The layout
+drew `res_r2` at the full 54 coarse units per leg (270 um) and then wired
+`res_trim`'s 16 x 1 um leg **in series after it** -- `TRIM_A` joined
+`res_r2`'s tail to `res_trim`'s head, and `VA` picked up the far end of the
+trim chain. Drawn DC path: **286 um**.
+
+Two independent measurements agreed, both from Section 7q's own record:
+
+1. `klt lvs` (only able to pair R2A/R2B at all once Section 7q's four
+   interior labels came off) reported layout **91,462.8 ohm** against the
+   reference's 88,130. 91,462.8 / 319.8 ohm-per-square = **286 squares** at
+   W = 1 um.
+2. `r2_leg_length()` stated it from the flow's own constants: `drawn_um`
+   286, `spec_um` 270, `delta_um` +16, `effective_trim_code` **+16**.
+
+`R1` was the control: its drawn body read exactly right (35 um = 7 x 5 um),
+so the R2 delta was drawn length, not a modelling artifact.
+
+The direction mattered more than the 5.9%. With the ladder wired *after* a
+full-length leg, every tap short of the far end moved the leg further **up**
+from 270 -- so the drawn ladder implemented exactly the direction
+DR-002 rejects and could express none of the 16 downward codes it certifies.
+Issue #46 found `n_r2=55` (+5 um) loses the operating point above ~124 degC
+at ff/2.97 V and fs/2.97 V; `sim/trim-range-monotonicity/` finds +1/+2
+collapse as well. K = R2/R1 sets VOUT and its TC, so this was a first-order
+spec error.
+
+#### The fix: split the 270 um, do not add to it
+
+| | before | after |
+| --- | --- | --- |
+| `res_r2` | 54 coarse 5 um units/leg = 270 um | **50** = 250 um |
+| `res_trim` | 16 fine 1 um units/leg = 16 um, in series *after* | **20** = 20 um, the leg's *last* 20 um |
+| leg at the wired tap | 286 um | **270 um** |
+| codes expressible | +16 only (one wired option, upward) | **0..-20**, DR-002 certifies 0..-16 |
+| `r2_leg_length()` | `matches: false`, `delta_um: +16`, code +16 | `matches: true`, `delta_um: 0`, code 0 |
+
+50/20 is the minimal integral decomposition that keeps 270 um *and* reaches
+DR-002's -16 from inside it. 51 + 15 also totals 270 but stops at -15, one
+code short of the certified range; 52 + 10 stops at -10; and so on. The
+tap addressing follows from `bus_res_series`'s interdigitation directly:
+chain position `j` of leg `l` is segment `2j + l`, and its `_B` terminal has
+`j+1` fine units behind it, so code `-k` is chain position
+`N_R2_TRIM_UNITS - k - 1` and yields `270 - k` um. `trim_tap_port()` is that
+one line; `trim_tap_ladder()` enumerates all 21 codes, validates every port
+against the block's own reported `ports[]`, and computes each code's leg
+length from the tap index rather than asserting it -- so the record's tap
+table *is* the demonstration that the ladder runs downward, not a claim
+about it.
+
+Four of those taps (-17..-20, i.e. 253 down to 250 um) are outside DR-002's
+certified range. They exist in drawn metal, because a metal-option ladder's
+physical taps exist whether or not a code is certified, and they are
+reported **flagged out-of-certified-range** rather than silently offered:
+the alternative -- drawing them and not saying so -- is exactly the kind of
+quiet over-claim this record set exists to prevent.
+
+#### The check is now a gate, which is the part that stops the recurrence
+
+`r2_leg_length()` already existed (Section 7q added it) and already reported
+the defect correctly. It reached `record.md`'s table and nothing else, so a
+correct measurement sat in every record for an increment without failing
+anything. It is now the `r2_leg_length_matches` row of `flow_gate()`, so the
+flow's exit status carries it. `full_scale_ladder`, the pre-existing row, is
+not a substitute and never was: it checks the ladder's unit *count*, and the
+286 um leg passed it for nineteen increments.
+
+`layout/tests/test_routed_flow_gates.py` had, correspondingly, been *pinning
+the broken behaviour* (`assertFalse(matches)`, `delta_um=16.0`,
+`effective_trim_code=16`) -- deliberately, as Section 7q's evidence, but it
+meant the suite would have gone red only when the defect was fixed. Those
+assertions are flipped, and `TestTrimTapLadder` is new: it asserts the
+code-0 length, that every certified code subtracts exactly 1 um, that **no**
+tap can express a leg longer than the specified one, that the four
+uncertified taps are drawn-and-flagged, that the two legs interdigitate by
+parity, and that the port `VA`/`VB` are actually wired to is the code-0 tap.
+
+#### One incidental correctness fix, found by re-running the flow
+
+The new block geometry moved the floorplan, and the first re-run came back
+with a single `met1.space.1` violation, verbatim from that run's `drc.json`:
+
+```json
+{"rule": "met1.space.1", "check": "space", "layer": "met1.drawing",
+ "source_cell": "bandgap_core_bus__bandgap_core_bus",
+ "bbox": {"left": 39860, "bottom": 370, "right": 39972, "top": 490},
+ "polygon": [[39860, 370], [39860, 490], [39900, 490], [39972, 370]]}
+```
+
+That wedge is a 0.12 um gap between a met2 escape drop's via1 landing pad
+(0.32 um square, centred at 39.74, 0.65) and the wire directly below it
+(y 0.13..0.37) -- a wire **of its own net**. `_draw_guarded`
+already applied the same-node notch rule to wires (a first cut of the
+multi-track channel search had shipped exactly this shape once before), but
+`_met2_drop` applied only a *foreign*-node test to the landing pad. The pad
+is 0.32 um where the stub reaching it is 0.24, so it overhangs its own stub
+by 0.04 um on each side, and that overhang can land inside `met1.space.1` of
+a same-net wire the stub itself cleared by overlapping. `met1.space.1` does
+not exempt same-net edges -- only touching ones.
+
+`_met2_drop` now applies the same rule `_draw_guarded` does, on both landing
+pads, and walks to the next offset instead. Note which check caught it:
+`conflicts()` compares different nets only and was silent, and so was the
+met2 DRC checker; `klt drc` was the only thing that saw it. Both directions
+are now unit-tested (`test_met2_drop_backtracks_off_a_same_node_notch` and
+its negative control, a pad that legitimately overlaps its own wire).
+
+No new friction was filed upstream for this increment: nothing here is a
+`klt` gap. `res_array` already had every parameter the new decomposition
+needs (`num`, `rows`, `length_um`), the defect was this repo's own
+arithmetic, and the notch was this repo's own router.
+
+#### Measured result
+
+Record `20260804-231410-539e30b`. The clean flow was run twice in immediate
+succession and produced byte-identical `record.md` output modulo the record
+id, so only one of the two is checked in -- the same repeatability
+convention `layout/README.md` states for the trivial-cell flow. The
+DRC-failing run above is **not** checked in as a record directory: it was
+produced mid-increment, before this section's own cause-list prose was
+updated, so its `record.md` would state a defect its own leg-length table
+shows as fixed. Its one durable fact is quoted verbatim above, and the
+regression is pinned by unit test rather than by a 2 MB record:
+
+| | before (7q) | after |
+| --- | --- | --- |
+| drawn leg length | 286 um | **270 um** |
+| `klt lvs` R2A/R2B `r` | 91,462.8 vs 88,130 | **86,346 vs 88,130** |
+| DRC / met2 DRC | clean / clean | clean / clean |
+| schematic inter-block nets | 12/12 | 12/12 |
+| drawn shorts / split routed nodes | 0 / 0 | 0 / 0 |
+| composed bbox | 45,508 um^2 | 45,968 um^2 (budget 50,000) |
+| `mismatch_count` | 18 | 18 |
+| `device.unmatched` | 1 (MCC) | 1 (MCC) |
+
+`mismatch_count` did **not** move, and that is the honest and expected
+result rather than a disappointment: R2A/R2B still differ in `r`, but the
+residual is now *exactly* the `res_high_po` model difference `R1` has always
+shown, and the value proves it. The reference models a segment as
+`R ~ 380 + 325*L`; the extractor derives R from body squares alone at
+319.8 ohm/sq. So the difference on any leg should be `5.2*L + 380`:
+
+- `R1`: 11,755 - 11,193 = 562 = 5.2 x 35 + 380 ✓
+- `R2A`/`R2B`: 88,130 - 86,346 = 1,784 = 5.2 x 270 + 380 ✓
+
+Both close on the same two model constants, which is the arithmetic proof
+that the drawn length on each device is now exactly the schematic's -- 35 um
+and 270 um. Before the fix, R2's residual was +3,332.8 in the *other*
+direction and closed on nothing. What changed is the **kind** of the
+residual: AC4's remaining causes are now three, and none of them is a layout
+defect.
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | MET, 12/12 |
+| 2 (real ladder unit count) | MET (count real, *length* 16 um over) | **MET, and the length is right**: 100 coarse + 40 fine units = 270 um/leg, gated |
+| 3 (device classes + pins) | MET | MET (pin_count 11, unchanged) |
+| 4 (`klt lvs` clean) | NOT MET, 18 | NOT MET, 18 -- but every remaining cause is a model or reference-transcription difference, none a layout defect |
+| 5 (blocking gaps filed) | MET | MET (nothing new to file this increment) |
+
+**Suggested next increment**: AC4's three residual causes are all
+reference-side or model-side, so the next move on it is not a layout change
+at all -- it is deciding whether `reference.spice` should carry the PNP
+emitter geometry `design/bandgap_core.sch` does not state (cause 3), and
+whether the `res_high_po` head term (cause 2) is worth a `klt` feature
+request for a device-level series term the extractor could carry. Neither is
+a defect in the drawn cell.
 
 ## 8. Known limitations / follow-on work
 
@@ -2112,22 +2378,26 @@ emitter area).
   the unrouted trio (the met2 escape plane, on klayout-tools#511) and the
   trim ladder's *labelling* -- and **no remaining mismatch is a
   connectivity difference**; every one is a `device.property` value or the
-  single deliberately-undrawn device. The current causes are:
+  single deliberately-undrawn device.
+  **Update, twentieth increment (Section 7r)**: `mismatch_count` is
+  unchanged at **18**, and that is the intended result -- the R2 leg-length
+  defect is fixed, and what survives on those two devices is the same
+  `res_high_po` model difference `R1` always showed, now arithmetically
+  provable as such (both close on `5.2*L + 380`). One more cause is retired
+  and, for the first time, **none of the remaining causes is a layout
+  defect**. The current causes are:
   1. **MCC** is in the reference and deliberately not drawn (Section 6).
      The only `device.unmatched` entry left on either side.
-  2. **The R2 divider legs are drawn 286 um where the schematic states
-     270 um** -- `res_trim`'s 16 x 1 um leg is wired in series
-     unconditionally, so the drawn cell sits at DR-002 trim code **+16**, a
-     direction DR-002 rejects outright. A genuine layout defect, invisible
-     until the labelling fix let `klt lvs` pair these devices and report a
-     value. Filed as **issue #91** with the proposed 50-coarse + 20-fine
-     re-decomposition; `r2_leg_length()` now states it in every record.
-  3. **`res_high_po`'s per-device 380 ohm head term is not drawn geometry.**
-     The extractor derives R from body squares alone, so `R1` reads 11,193
-     ohm against 11,755 with its drawn body length exactly right. No drawn
-     shape can add a term the extractor's model does not carry -- unlike
-     cause 2, this is not a layout defect.
-  4. **The reference's PNP cards state no emitter count or geometry.**
+  2. **`res_high_po`'s resistance model is not drawn geometry.** The
+     reference models a segment as `R ~ 380 + 325*L`; the extractor derives
+     R from body squares alone at 319.8 ohm/sq. `R1` reads 11,193 against
+     11,755 and each R2 leg 86,346 against 88,130 -- differences of
+     `5.2*35 + 380` and `5.2*270 + 380` respectively, i.e. the same two
+     model constants on both devices, which is also the proof that each
+     drawn body length (35 um, 270 um) is exactly the schematic's. No drawn
+     shape can add a term the extractor's model does not carry, so this is
+     not a layout defect.
+  3. **The reference's PNP cards state no emitter count or geometry.**
      `Q1`/`Q2` now pair, and the comparer reports `ne` 8 (layout) vs 1
      (reference) plus zero-valued area/perimeter parameters. The schematic
      instantiates both at `m=8`, so the layout is right and the reference is
@@ -2157,11 +2427,17 @@ emitter area).
   nodes interior to R2A/R2B were splitting each leg into three unpairable
   pieces, measured in isolation at 26 -> 18 mismatches and 13 -> 1
   `device.unmatched`. What Section 7n's cause 3 had conflated with that
-  labelling artifact -- the trim ladder's real added *length* -- survives it
-  as cause 2 above, and is now a filed layout defect (issue #91) rather than
-  a structural stalemate.
+  labelling artifact -- the trim ladder's real added *length* -- survived it
+  as a filed layout defect (issue #91) rather than a structural stalemate.
+  **Retired as of Section 7r**: that length. Each leg is now decomposed into
+  50 coarse 5 um units plus 20 fine 1 um trim units, so the wired tap is
+  exactly the schematic's 270 um (DR-002 code 0) and every other tap
+  subtracts -- the direction DR-002 requires. `r2_leg_length()`'s verdict is
+  a `flow_gate()` row now, not a recorded number, so the class of defect
+  that hid here for nineteen increments fails the flow instead.
 - ~~**R2A/R2B ladder is at reduced scale**~~ -- **closed** by issue #62, see
-  Section 4a. The ladder is drawn at its real 108-unit count.
+  Section 4a. The ladder is drawn at its real full length: 100 coarse units
+  plus 40 fine trim units = the schematic's 270 um per leg.
 - ~~**Per-matched-group guard rings are off in the routed layout**~~ --
   **closed** by this increment, see Section 5a. klayout-tools#441 landed;
   every matched group now has its own ring **and** is wired.
