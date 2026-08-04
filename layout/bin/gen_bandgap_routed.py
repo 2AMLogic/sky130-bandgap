@@ -1270,8 +1270,10 @@ def route_inter_block_nets(
 
     # A port may terminate at most one node: two nodes contacting the same
     # pad would be a short that neither DRC nor the drawn-short check can
-    # see (they would be one net by construction).
-    used_ports: set[tuple[str, str]] = set()
+    # see (they would be one net by construction). Checked, not merely
+    # tracked -- INTER_BLOCK_MET1 names its device pads explicitly now, so a
+    # duplicate is a typo in that table and should stop the flow.
+    used_ports: dict[tuple[str, str], str] = {}
     results: list[dict[str, Any]] = []
     specs = {spec["net"]: spec for spec in INTER_BLOCK_MET1}
     sequence = order or [spec["net"] for spec in INTER_BLOCK_MET1]
@@ -1325,7 +1327,13 @@ def route_inter_block_nets(
                 if terminal.get("escape", True):
                     point["escape"] = (outward, py)
                 points.append(point)
-                used_ports.add((bid, terminal["port"]))
+                owner = used_ports.setdefault((bid, terminal["port"]), net)
+                if owner != net:
+                    raise ValueError(
+                        f"net {net}: {bid}.{terminal['port']} is already a "
+                        f"terminal of net {owner}; one pad cannot carry two "
+                        "schematic nodes"
+                    )
                 continue
             raise ValueError(f"net {net}: unrecognised terminal {terminal!r}")
 
