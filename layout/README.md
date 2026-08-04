@@ -86,14 +86,20 @@ this repo's side — see "Friction protocol" below. `mos_array` has no such
 gap and round-trips cleanly through the whole flow.
 
 **The reference netlist** (`trivial-cell/reference.spice`) is hand-written
-to match `mos_array`'s pinned-default topology: 8 independent unit NMOS
-devices (the 4 real + 4 dummy the default 2x2-array-with-1-dummy-column
-draws), each with its own isolated source/drain/gate net, bodies tied to
-one shared `vsubs` pin. `klt lvs`/`NetlistComparer` compares topology, not
+to match `mos_array`'s pinned-default topology: 4 independent *real* unit
+NMOS devices, each with its own isolated source/drain/gate net, bodies tied
+to one shared `vsubs` pin. `klt lvs`/`NetlistComparer` compares topology, not
 net *names* (see
 [`docs/cli/lvs.md`](https://github.com/2AMLogic/klayout-tools/blob/main/docs/cli/lvs.md)
 in the `klayout-tools` repo), so the reference's arbitrary net names do not
 need to match the extracted netlist's own arbitrary `$N`-style names.
+`mos_array` still physically draws 8 units (4 real + 4 dummy, the default
+2x2-array-with-1-dummy-column shape) -- since issue #62's fourteenth
+increment (2AMLogic/klayout-tools#490/#491, merged via #494/#495), sky130's
+curated deck recognizes the 4 dummy-column units as dummies (no schematic
+counterpart by construction) and `klt extract` drops them from the
+comparison, so the reference only needs to state the 4 that matter. See
+`trivial-cell/reference.spice`'s own header for the full history.
 
 **Two negative controls** (`reference.broken-device.spice`,
 `reference.broken-topology.spice`) prove the flow actually *fails* on a
