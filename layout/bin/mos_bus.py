@@ -137,10 +137,18 @@ def bus_diff_pair(
 
     `spec["devices"]` maps each reported device label (`M1`/`M2` for a mirror,
     `Q1`/`Q2` for a pair) to its `{"S": net, "D": net, "G": net}` schematic
-    nodes; `spec.get("ring_net")` names the node the block's guard-ring tap
-    belongs to (the well tie for a pfet group, the substrate tie for an nfet
-    one). Returns the evidence record for `bus-summary.json`, including the
-    met1 points every net is reachable at from outside the block.
+    nodes; `spec.get("device_labels")` names the schematic transistor each
+    label was bound to, carried through into the record so the binding is
+    evidence rather than a comment; `spec.get("ring_net")` names the node the
+    block's guard-ring tap belongs to (the well tie for a pfet group, the
+    substrate tie for an nfet one). Returns the evidence record for
+    `bus-summary.json`, including the met1 points every net is reachable at
+    from outside the block.
+
+    The device-set check below is the teeth of that binding: a spec naming a
+    device family this generator did not report is a caller that thinks it is
+    wiring one transistor while the geometry belongs to another, which no DRC
+    or drawn-short check can see.
     """
     units = _units(report)
     geom = _geometry(units)
@@ -383,6 +391,7 @@ def bus_diff_pair(
         "kind": "mos_diff_pair",
         "units": len(units),
         "device_width_um": round(w, 3),
+        "device_labels": dict(spec.get("device_labels") or {}),
         "lanes": lanes,
         "inboard_gate_net": in_core_gate,
         "outboard_gate_net": outer_gate,

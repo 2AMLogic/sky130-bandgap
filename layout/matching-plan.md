@@ -347,6 +347,78 @@ per-net version of this. Issue #62's criterion 1 is scored **PARTIAL** on it
 earlier revision bridged `AOUT`/`GDRV` with a 0-ohm device -- that stays
 removed).
 
+### 5b. Corrections and additions from the third increment (issue #62)
+
+The paragraph above was **not accurate**, and the third increment's first
+job was to find out how much of "blocked on the gate gap" was really the
+gate gap. Four things were not:
+
+1. **`VSS` was never gate-blocked -- it was simply failing to route.** Its
+   terminals are four NMOS sources and two PNP base ties; not one of them is
+   a gate. The single unrouted hop (bottom-left PNP trunk to the top-right
+   NMOS mirror) was losing its corridor to an earlier net, and the router
+   had no way to express the path that exists: out of the block into a free
+   vertical channel, across on a free horizontal band, and back in. Its
+   four-segment escapes only offered lateral shifts of 1.2-3.6 um. The
+   router now derives the floorplan's free channels and bands from the
+   placed block extents and tries paths through them (`free_channels()` /
+   `_channel_paths()`), and every declared net routes -- `unrouted: 0`,
+   still with zero drawn-short conflicts and clean DRC. It is also ~8x
+   faster, because the right path is now found immediately instead of after
+   a long blind offset sweep.
+2. **`GDRV` was never declared at all**, on the stated grounds that it is a
+   gate node. Two of its four terminals are gates (MPOUT/MPAMP); the other
+   two are MP4's and MN3's **drains**, ordinary li1 pads in two different
+   blocks. That link is drawn from this increment on, so `GDRV` is a
+   partially drawn node rather than a pair of disconnected labels. Its gate
+   end stays open and stays disclosed.
+3. **Bulk terminals were floating.** The reference puts every MOS bulk on a
+   supply (`... VDD VDD pfet` / `... VSS VSS nfet`). Each `diff_pair`'s
+   guard ring *is* that bulk tie and reports it as `TAP_*` on li1 -- nothing
+   about the gate gap applies -- but nothing connected them, so every PMOS
+   group's well extracted as an anonymous net. They are on the supply trunks
+   now; the extracted PMOS bulk terminal reads `VDD` instead of `$186`.
+   (The NMOS bulk still reads `vsubs`: sky130's deck ties every NMOS body to
+   its global substrate net by `connect_global` rather than deriving it from
+   drawn geometry. That is documented deck behaviour, and `klt lvs` reports
+   it as a coverage warning of its own -- not something this layout can
+   change by drawing more metal.)
+4. **The layout was asserting `VOUT` and `TAIL` are one node.** A `pins[]`
+   entry labels a *port*, i.e. a pad. The pin selector and the router kept
+   separate "already used" sets, so `VOUT`'s label landed on
+   `core_mirror.M2_1_D` -- MPAMP's drain, and the pad the drawn `TAIL` net
+   contacts. The previous increment's extracted netlist therefore contains a
+   net named `TAIL|VOUT`. DRC is clean and the drawn-short check passes,
+   because the collision is between *labels*, through a pad, not between
+   met1 rectangles. `klt extract` emits it with an empty `warnings[]` and
+   `klt lvs` compares it without comment -- filed upstream as
+   [klayout-tools#470](https://github.com/2AMLogic/klayout-tools/issues/470),
+   where the tool gap is the silence rather than the collision. The two
+   selectors now share one claimed-pad set, and the flow gates on a
+   scan of the extracted netlist for any `A|B` net name.
+
+**Device halves are now bound, once.** A `diff_pair` reports two port
+families (`M1_*`/`M2_*`) and which one is which schematic transistor is this
+flow's choice, not the generator's. Nothing was making that choice: each net
+took whichever pad sat nearest its own centroid. So `PN` and the `AOUT`
+label both landed on amp_pmirr's `M2` -- MP3's drain and MP4's drain on one
+physical transistor -- and amp_nload's `D1` route and `D1_GATE` label
+disagreed about which half is MN1. `MOS_HALVES` in
+`layout/bin/gen_bandgap_routed.py` binds every half to a named schematic
+device, and both routes and gate pin labels resolve through it. Neither
+error was visible to DRC or to the drawn-short check: every terminal
+involved is legal, well-separated metal.
+
+**Net effect on the acceptance criteria.** Criterion 1 stays **PARTIAL** at
+6/12 fully drawn -- the six that remain short are genuinely short, and this
+increment's honest gain is that the coverage table now credits partially
+routed nodes for the blocks they *do* join (union-find over the routed hops,
+largest connected component) instead of scoring an all-or-nothing net as
+zero. Criterion 4 stays **NOT MET**: `mismatch_count` 365 -> 355, with
+`devices.matched` still 0, because no split MOS group can collapse into the
+`m=N` device the schematic states while every gate is unreachable. That
+number will not move materially until klayout-tools#461 lands.
+
 ## 6. Area budget
 
 | Item | Area |
@@ -459,6 +531,17 @@ detail beyond a generic reproduction):
 
 **Third increment (this PR), filed while bussing the matched pairs:**
 
+- **[klayout-tools#470](https://github.com/2AMLogic/klayout-tools/issues/470)**
+  -- when two different net labels land on one electrical net, KLayout names
+  it `A|B`, and `klt extract` emits that net with an empty `warnings[]`
+  while `klt lvs` compares it without comment. The most dangerous error this
+  toolchain can produce -- "the layout asserts two schematic nodes are one"
+  -- is reported only as a punctuation mark inside a net name, invisible to
+  DRC (the collision is between labels, through a pad, not between wires).
+  Found because the second increment's own layout had shipped one; see
+  Section 5b item 4. The flow scans the extracted netlist for it and gates on
+  the result, but every caller having to reinvent a `"|" in name` check is
+  the gap.
 - **[klayout-tools#484](https://github.com/2AMLogic/klayout-tools/issues/484)**
   -- `diff_pair`'s guard-ring padding, inter-row spacing and ring width are
   module constants with no parameter, and the band they leave between the
@@ -469,6 +552,12 @@ detail beyond a generic reproduction):
   one. The other half of #461: #461 is "there is nowhere on the gate to put
   a contact", #484 is "there is nowhere beside it to put the wire that
   leaves it".
+
+None of #462/#463 moved upstream during the third increment, so none of their
+consequences changed. #461 has not moved either, but this increment stops
+waiting on it and draws the missing gate landing area itself (Section 5a) --
+so what changed most is how much is attributed to it: Section 5b lists the
+things that had been recorded as blocked by #461 and were not.
 
 Two gaps the first increment **picked up rather than filed**, having landed
 upstream in the interval: klayout-tools#415 (`res_array` row folding,
@@ -540,6 +629,17 @@ bump; #421's fix was verified effective before relying on it (an isolated
   device-class mismatch with no layout-side workaround.
 - **MCC is still not drawn** (analytic allocation only, Section 6) -- now
   the largest single un-budgeted item.
+- **The NMOS bulk terminal is compared against a synthesized net, not drawn
+  geometry.** Both NMOS groups' substrate guard-ring taps are wired to `VSS`
+  from the third increment on (Section 5b item 3), but sky130's extraction
+  deck ties every NMOS body to its global `vsubs` net by `connect_global`
+  rather than deriving it from the drawn tap, so the extracted nfet bulk
+  reads `vsubs` where the reference says `VSS`. This is documented deck
+  behaviour that `klt lvs` reports as a coverage warning of its own; no
+  amount of drawn metal changes it, and the reference is not edited to say
+  `vsubs`. The PMOS side *is* derived from drawn geometry (sky130's deck has
+  a real tap layer), which is why wiring the PMOS well rings changed the
+  extracted bulk from an anonymous net to `VDD`.
 
 ## 9. Evidence
 

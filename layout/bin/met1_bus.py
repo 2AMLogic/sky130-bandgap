@@ -309,6 +309,42 @@ class Met1Bus:
         """Name a met1 net so `klt extract` promotes it as a top-level pin."""
         self.labels.append({"layer": MET1_LABEL_LAYER, "text": net, "at_um": [x, y]})
 
+    # -- speculation -------------------------------------------------------
+    def mark(self) -> tuple[int, ...]:
+        """A restore point covering every mutable accumulator on this bus.
+
+        Callers use it to *try* a whole multi-hop net and take it back if it
+        does not route, which is what lets a router compare candidate
+        terminal orderings against real drawn geometry rather than against a
+        model of it.
+
+        Every accumulator is covered, the *derived* ones included: the
+        `met1_rects` spatial index (unwound by :meth:`truncate`) and the
+        self-drawn poly/gate-contact tallies. A restore point that missed one
+        would leave the collision checker reasoning about geometry the emitted
+        cell does not contain -- the exact failure speculation exists to avoid.
+        """
+        return (len(self.shapes), len(self.met1_rects), len(self.via_xy),
+                len(self.labels), self.via_count, self.wire_count,
+                len(self.poly_rects), self.gate_contact_count)
+
+    def restore(self, mark: tuple[int, ...]) -> None:
+        """Undo every shape, rectangle, via, label and poly added since `mark`."""
+        (shapes, rects, vias, labels, via_count, wire_count,
+         polys, gate_contacts) = mark
+        for net, x, y in self.via_xy[vias:]:
+            self._vias.discard((net, round(x, 4), round(y, 4)))
+        self.via_count = via_count
+        self.wire_count = wire_count
+        self.gate_contact_count = gate_contacts
+        # Shapes and met1 rectangles go through `truncate` so the grid index
+        # shrinks with them; deleting the lists directly would leave the index
+        # pointing at rectangles that no longer exist.
+        self.truncate(shapes, rects)
+        del self.via_xy[vias:]
+        del self.labels[labels:]
+        del self.poly_rects[polys:]
+
     # -- verification ------------------------------------------------------
     def conflicts(self, clearance_um: float = 0.14) -> list[dict[str, Any]]:
         """Every pair of met1 rectangles belonging to *different* nets that
