@@ -124,6 +124,7 @@ layout/
     setup-venv.sh             # create/refresh layout/.venv from requirements.txt
     run-trivial-cell-flow.sh  # the repeatable driver: gen -> drc -> extract -> lvs -> report
     render-record.py          # renders + verdict-checks a record's record.md
+  tests/                      # PDK-free unit coverage for the flows' own gates
   .venv/                      # gitignored -- `klt` install, created by setup-venv.sh
   trivial-cell/
     reference.spice                    # known-good LVS reference netlist
@@ -321,6 +322,53 @@ joined across every block they reach; `VOUT` never reaches the R2 ladder,
 undrawn, and the `VDD`/`VSS` trunks stop short of blocks they supply. The
 record's "Schematic inter-block nets: drawn vs. labelled only" table is the
 per-net version, and issue #62's criterion 1 is scored **PARTIAL** on it.
+
+### The flow's own gates, and their unit tests
+
+`run-bandgap-routed-flow.sh`'s exit status is not `klt`'s verdict — it is
+`gen_bandgap_routed.flow_gate()`, seven named conditions that must all hold
+(DRC clean, area within budget, ladder at full scale, every device class
+extracted, pins promoted, **no drawn shorts**, **no merged pin names**).
+`klt lvs`-clean and full schematic-net coverage are deliberately *not* gated:
+both are blocked on open upstream `klt` gaps, and gating on them would stop
+the flow producing the very record that measures how far short it falls.
+
+Two of those conditions are checks nothing else performs, and both catch the
+same class of defect — the layout claiming connectivity the schematic does
+not contain, which reads as a *better* LVS result and is therefore the one
+failure mode that must never pass silently:
+
+- **Drawn-short check** (`met1_bus.Met1Bus.conflicts()`). Every met1
+  rectangle this flow hand-draws is tagged with its electrical node, so two
+  nodes' wires touching — or sitting inside the deck's `met1.space.1` /
+  `mcon.space.1` thresholds — is detectable here rather than showing up as a
+  mystery LVS merge.
+- **Label-collision check**
+  (`gen_bandgap_routed.assert_no_merged_pin_names()`). A pin label landing on
+  a pad another node's metal already contacts renames *that* node, and
+  `klt extract` emits the result as a single `A|B` net with no diagnostic
+  ([2AMLogic/klayout-tools#470](https://github.com/2AMLogic/klayout-tools/issues/470)).
+  Invisible to DRC and to the drawn-short check — the shapes are legal and
+  well separated; it is the labels that collide.
+
+Alongside them, `schematic_net_coverage()` scores acceptance criterion 1
+against `design/bandgap_core.sch`'s own inter-block node list (never against
+this flow's `connectivity[]` declaration) and also drives the router's
+ordering search, so a scoring bug silently changes which layout gets drawn.
+
+```bash
+npm run test:unit    # or: python3 -m unittest discover -s layout/tests
+```
+
+`layout/tests/test_routed_flow_gates.py` covers all three plus the gate
+composition, in milliseconds, with **no `klt` install and no PDK** — so they
+run in `npm run check:ci` on every push. Before these existed the three were
+exercised only end-to-end, which meant their *failure* paths were never
+exercised at all: a passing flow run by construction never reaches them. The
+suite includes two regression cases read from this directory's own
+append-only evidence (the record whose `VOUT`/trim-tap labels really did
+collide, and the current clean one), so the gates are pinned against the
+exact netlists they were written to judge.
 
 `bandgap-core/reference.spice` is the schematic side of that comparison —
 transcribed from `design/bandgap_core.sch` + `design/error_amp.sch` and

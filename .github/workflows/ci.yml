@@ -4,8 +4,10 @@ name: CI
 # each one runs:
 #
 #   - `package.json` `check:ci` (JSON syntax of every sim/**/experiment.json
-#     and sim/**/records/*.json, plus shell/python syntax of the harness
-#     scripts) -> `checks` job below, every push/PR. Headless, no PDK needed.
+#     and sim/**/records/*.json, shell/python syntax of the harness scripts,
+#     plus `layout/tests/`'s unit coverage for the routed-layout flow's own
+#     pass/fail gates — drawn-short, label-collision, coverage scoring)
+#     -> `checks` job below, every push/PR. Headless, no PDK needed.
 #   - `sim/bin/corner-run.py sim/pdk-smoke` (the harness's own liveness test:
 #     proves the pinned sky130 PDK models load in ngspice, xschem netlists
 #     headlessly, and the PVT knobs actually reach the simulator) -> requires
