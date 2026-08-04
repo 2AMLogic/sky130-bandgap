@@ -53,4 +53,36 @@
 # layout/bin/run-trivial-cell-flow.sh unmodified after the bump still PASSes
 # with the identical verdict (see trivial-cell/reports/ for the refreshed
 # record).
-klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@680ee42edf2319aa944f66df1f6f7db3975a73c4
+# Bumped again for issue #62's LVS-closure increment. The prior pin
+# (680ee42edf2319aa944f66df1f6f7db3975a73c4) predates the three upstream
+# fixes for the friction PR #64 filed while building the routed layout:
+#
+#   * 2AMLogic/klayout-tools#432 -> merged via #440. `klt gen bjt_array` now
+#     draws sky130's bipolar device-recognition marker (82/44) and a well tap
+#     per unit device itself, so a `bjt_array` output extracts as `pnp`
+#     without help. This retires the local `klt draw` marker/tap overlay PR
+#     #64 had to compose -- the overlay is deleted here, not merely disabled,
+#     and the PNP count is re-measured from the generator's own geometry.
+#   * 2AMLogic/klayout-tools#433 -> merged via #439. `gen-compose` no longer
+#     certifies a self-net route that crosses another pad on the same block:
+#     it reports the net unroutable instead of silently drawing a short. This
+#     makes the "bus an array's units" failure mode *visible*, but it does
+#     NOT make bussing expressible -- upstream deliberately shipped the
+#     fail-visibly option only, leaving "expose a second routing metal + via
+#     role" and "via-drop routing" as follow-ups (see #439's own summary).
+#     `_PDK_ROLE_LAYERS["sky130"]` at this pin still has exactly one `metal`
+#     role (li1 67/20) and no via role. See gen_bandgap_routed.py's
+#     MET1_OVERLAY_NOTE for what this flow does about that.
+#   * 2AMLogic/klayout-tools#434 -> merged via #441. `guard_ring`/`diff_pair`/
+#     `bjt_array` accept `ring_gap_side`/`ring_gap_um`/`ring_gap_offset_um`,
+#     cutting one routing opening through a ring band and reporting it as a
+#     `GAP_<side>` port the router may cross. This fires the explicit revert
+#     trigger layout/matching-plan.md Section 5a recorded: the per-matched-
+#     group guard/collector rings PR #64 had to switch off are switched back
+#     on here.
+#
+# Additive to everything the earlier flows use: re-running
+# layout/bin/run-trivial-cell-flow.sh unmodified after the bump still PASSes
+# with the identical four-way verdict (see trivial-cell/reports/ for the
+# refreshed record).
+klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@6967be2d2c387b38243331ddfcc9d3495fa0bdb7

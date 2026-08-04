@@ -1,0 +1,2266 @@
+{
+  "pnp_ctat": {
+    "kind": "bjt_parallel",
+    "nets": [
+      {
+        "terminal": "E",
+        "net": "VA",
+        "columns": 4,
+        "pads": 8,
+        "trunk_y_um": 3.39,
+        "trunk_x0_um": 11.67,
+        "trunk_x1_um": 17.37
+      },
+      {
+        "terminal": "B",
+        "net": "VSS",
+        "columns": 4,
+        "pads": 8,
+        "trunk_y_um": 0.31,
+        "trunk_x0_um": 12.62,
+        "trunk_x1_um": 18.32
+      }
+    ]
+  },
+  "res_r2": {
+    "kind": "res_series",
+    "legs": 2,
+    "links": [
+      {
+        "leg": 0,
+        "from": "R0_B",
+        "to": "R2_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R2_B",
+        "to": "R4_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R4_B",
+        "to": "R6_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R6_B",
+        "to": "R8_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R8_B",
+        "to": "R10_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R10_B",
+        "to": "R12_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R12_B",
+        "to": "R14_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R14_B",
+        "to": "R16_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R16_B",
+        "to": "R18_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R18_B",
+        "to": "R20_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R20_B",
+        "to": "R22_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R22_B",
+        "to": "R24_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R24_B",
+        "to": "R26_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R26_B",
+        "to": "R28_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R28_B",
+        "to": "R30_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R30_B",
+        "to": "R32_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R32_B",
+        "to": "R34_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R34_B",
+        "to": "R36_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R36_B",
+        "to": "R38_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R38_B",
+        "to": "R40_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R40_B",
+        "to": "R42_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R42_B",
+        "to": "R44_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R44_B",
+        "to": "R46_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R46_B",
+        "to": "R48_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R48_B",
+        "to": "R50_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R50_B",
+        "to": "R52_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R52_B",
+        "to": "R54_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R54_B",
+        "to": "R56_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R56_B",
+        "to": "R58_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R58_B",
+        "to": "R60_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R60_B",
+        "to": "R62_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R62_B",
+        "to": "R64_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R64_B",
+        "to": "R66_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R66_B",
+        "to": "R68_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R68_B",
+        "to": "R70_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R70_B",
+        "to": "R72_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R72_B",
+        "to": "R74_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R74_B",
+        "to": "R76_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R76_B",
+        "to": "R78_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R78_B",
+        "to": "R80_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R80_B",
+        "to": "R82_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R82_B",
+        "to": "R84_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R84_B",
+        "to": "R86_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R86_B",
+        "to": "R88_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R88_B",
+        "to": "R90_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R90_B",
+        "to": "R92_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R92_B",
+        "to": "R94_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R94_B",
+        "to": "R96_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R96_B",
+        "to": "R98_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R98_B",
+        "to": "R100_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R100_B",
+        "to": "R102_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R102_B",
+        "to": "R104_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R104_B",
+        "to": "R106_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R1_B",
+        "to": "R3_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R3_B",
+        "to": "R5_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R5_B",
+        "to": "R7_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R7_B",
+        "to": "R9_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R9_B",
+        "to": "R11_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R11_B",
+        "to": "R13_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R13_B",
+        "to": "R15_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R15_B",
+        "to": "R17_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R17_B",
+        "to": "R19_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R19_B",
+        "to": "R21_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R21_B",
+        "to": "R23_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R23_B",
+        "to": "R25_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R25_B",
+        "to": "R27_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R27_B",
+        "to": "R29_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R29_B",
+        "to": "R31_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R31_B",
+        "to": "R33_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R33_B",
+        "to": "R35_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R35_B",
+        "to": "R37_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R37_B",
+        "to": "R39_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R39_B",
+        "to": "R41_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R41_B",
+        "to": "R43_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R43_B",
+        "to": "R45_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R45_B",
+        "to": "R47_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R47_B",
+        "to": "R49_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R49_B",
+        "to": "R51_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R51_B",
+        "to": "R53_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R53_B",
+        "to": "R55_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R55_B",
+        "to": "R57_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R57_B",
+        "to": "R59_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R59_B",
+        "to": "R61_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R61_B",
+        "to": "R63_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R63_B",
+        "to": "R65_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R65_B",
+        "to": "R67_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R67_B",
+        "to": "R69_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R69_B",
+        "to": "R71_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R71_B",
+        "to": "R73_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R73_B",
+        "to": "R75_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R75_B",
+        "to": "R77_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R77_B",
+        "to": "R79_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R79_B",
+        "to": "R81_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R81_B",
+        "to": "R83_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R83_B",
+        "to": "R85_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R85_B",
+        "to": "R87_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R87_B",
+        "to": "R89_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R89_B",
+        "to": "R91_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R91_B",
+        "to": "R93_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R93_B",
+        "to": "R95_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R95_B",
+        "to": "R97_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R97_B",
+        "to": "R99_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R99_B",
+        "to": "R101_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R101_B",
+        "to": "R103_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R103_B",
+        "to": "R105_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R105_B",
+        "to": "R107_A",
+        "routed": true
+      }
+    ]
+  },
+  "res_trim": {
+    "kind": "res_series",
+    "legs": 2,
+    "links": [
+      {
+        "leg": 0,
+        "from": "R0_B",
+        "to": "R2_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R2_B",
+        "to": "R4_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R4_B",
+        "to": "R6_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R6_B",
+        "to": "R8_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R8_B",
+        "to": "R10_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R10_B",
+        "to": "R12_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R12_B",
+        "to": "R14_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R14_B",
+        "to": "R16_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R16_B",
+        "to": "R18_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R18_B",
+        "to": "R20_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R20_B",
+        "to": "R22_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R22_B",
+        "to": "R24_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R24_B",
+        "to": "R26_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R26_B",
+        "to": "R28_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R28_B",
+        "to": "R30_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R1_B",
+        "to": "R3_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R3_B",
+        "to": "R5_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R5_B",
+        "to": "R7_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R7_B",
+        "to": "R9_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R9_B",
+        "to": "R11_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R11_B",
+        "to": "R13_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R13_B",
+        "to": "R15_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R15_B",
+        "to": "R17_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R17_B",
+        "to": "R19_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R19_B",
+        "to": "R21_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R21_B",
+        "to": "R23_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R23_B",
+        "to": "R25_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R25_B",
+        "to": "R27_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R27_B",
+        "to": "R29_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R29_B",
+        "to": "R31_A",
+        "routed": true
+      }
+    ]
+  },
+  "res_r1": {
+    "kind": "res_series",
+    "legs": 1,
+    "links": [
+      {
+        "leg": 0,
+        "from": "R0_B",
+        "to": "R1_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R1_B",
+        "to": "R2_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R2_B",
+        "to": "R3_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R3_B",
+        "to": "R4_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R4_B",
+        "to": "R5_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R5_B",
+        "to": "R6_A",
+        "routed": true
+      }
+    ]
+  },
+  "pnp_ptat": {
+    "kind": "bjt_parallel",
+    "nets": [
+      {
+        "terminal": "E",
+        "net": "VBQ",
+        "columns": 4,
+        "pads": 8,
+        "trunk_y_um": 7.47,
+        "trunk_x0_um": 269.77,
+        "trunk_x1_um": 283.63
+      },
+      {
+        "terminal": "B",
+        "net": "VSS",
+        "columns": 4,
+        "pads": 8,
+        "trunk_y_um": 1.67,
+        "trunk_x0_um": 272.08,
+        "trunk_x1_um": 285.94
+      }
+    ]
+  },
+  "_inter_block": [
+    {
+      "net": "TAIL",
+      "routed": true,
+      "schematic": "MPAMP drain to the amp input pair's common source",
+      "terminals": [
+        "core_mirror.M2_1_D",
+        "amp_input_pair.Q2_2_S"
+      ],
+      "blocks": [
+        "amp_input_pair",
+        "core_mirror"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              6.94,
+              45.27
+            ],
+            [
+              55.22,
+              45.27
+            ],
+            [
+              55.22,
+              39.27
+            ]
+          ],
+          "from": "core_mirror.M2_1_D",
+          "to": "amp_input_pair.Q2_2_S",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "D1",
+      "routed": true,
+      "schematic": "amp input-pair drain to its NMOS diode load",
+      "terminals": [
+        "amp_input_pair.Q2_7_D",
+        "amp_nload.M1_1_S"
+      ],
+      "blocks": [
+        "amp_input_pair",
+        "amp_nload"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              178.04,
+              39.27
+            ],
+            [
+              214.93,
+              39.27
+            ],
+            [
+              214.93,
+              45.27
+            ]
+          ],
+          "from": "amp_input_pair.Q2_7_D",
+          "to": "amp_nload.M1_1_S",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "D2",
+      "routed": true,
+      "schematic": "the amp input pair's other drain to its other NMOS diode load -- undrawable before this increment because `gen-compose` routes one 2-pin net per block-pair channel",
+      "terminals": [
+        "amp_input_pair.Q1_15_D",
+        "amp_nload.M2_3_S"
+      ],
+      "blocks": [
+        "amp_input_pair",
+        "amp_nload"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              178.04,
+              59.67
+            ],
+            [
+              214.93,
+              59.67
+            ],
+            [
+              214.93,
+              53.67
+            ]
+          ],
+          "from": "amp_input_pair.Q1_15_D",
+          "to": "amp_nload.M2_3_S",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "PN",
+      "routed": true,
+      "schematic": "amp NMOS mirror output to the PMOS mirror",
+      "terminals": [
+        "amp_pmirr.M2_8_D",
+        "amp_nmirr.M1_1_S"
+      ],
+      "blocks": [
+        "amp_nmirr",
+        "amp_pmirr"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              164.21,
+              99.06
+            ],
+            [
+              199.86,
+              99.06
+            ],
+            [
+              199.86,
+              91.66
+            ]
+          ],
+          "from": "amp_pmirr.M2_8_D",
+          "to": "amp_nmirr.M1_1_S",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VA",
+      "routed": true,
+      "schematic": "the R2A leg's low end (through its trim taps) to Q1's emitter bus -- the amp's VINN node",
+      "terminals": [
+        "pnp_ctat:VA trunk",
+        "res_trim.R30_B"
+      ],
+      "blocks": [
+        "pnp_ctat",
+        "res_trim"
+      ],
+      "hops": [
+        {
+          "detour_um": 1.2000000000000002,
+          "points": [
+            [
+              17.37,
+              3.39
+            ],
+            [
+              13.77,
+              3.39
+            ],
+            [
+              13.77,
+              12.65
+            ],
+            [
+              142.34,
+              12.65
+            ],
+            [
+              142.34,
+              11.45
+            ]
+          ],
+          "from": "pnp_ctat:VA trunk",
+          "to": "res_trim.R30_B",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "TRIM_A",
+      "routed": true,
+      "schematic": "R2A's low end into leg A of the downward-only trim ladder (DR-002)",
+      "terminals": [
+        "res_r2.R106_B",
+        "res_trim.R0_A"
+      ],
+      "blocks": [
+        "res_r2",
+        "res_trim"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              138.34,
+              11.45
+            ],
+            [
+              138.34,
+              7.25
+            ],
+            [
+              142.34,
+              7.25
+            ]
+          ],
+          "from": "res_r2.R106_B",
+          "to": "res_trim.R0_A",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VOUT",
+      "routed": true,
+      "schematic": "MPOUT's drain and the high ends of both divider legs -- the reference output. Undrawable before this increment: a cross-row net whose backbone has to pass over other blocks, which the single-metal router rejects and met1 does not care about",
+      "terminals": [
+        "core_mirror.M1_1_D",
+        "res_r2.R0_A",
+        "res_r2.R1_A"
+      ],
+      "blocks": [
+        "core_mirror",
+        "res_r2"
+      ],
+      "hops": [
+        {
+          "detour_um": -0.4,
+          "points": [
+            [
+              3.7,
+              45.27
+            ],
+            [
+              0.1,
+              45.27
+            ],
+            [
+              0.1,
+              -0.15
+            ],
+            [
+              29.4,
+              -0.15
+            ],
+            [
+              29.4,
+              0.25
+            ]
+          ],
+          "from": "core_mirror.M1_1_D",
+          "to": "res_r2.R0_A",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              29.4,
+              0.25
+            ],
+            [
+              29.4,
+              0.25
+            ],
+            [
+              29.4,
+              0.75
+            ]
+          ],
+          "from": "res_r2.R0_A",
+          "to": "res_r2.R1_A",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "TRIM_B",
+      "routed": true,
+      "schematic": "R2B's low end into leg B of the trim ladder",
+      "terminals": [
+        "res_r2.R107_B",
+        "res_trim.R1_A"
+      ],
+      "blocks": [
+        "res_r2",
+        "res_trim"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.4,
+          "points": [
+            [
+              138.34,
+              11.95
+            ],
+            [
+              141.94,
+              11.95
+            ],
+            [
+              141.94,
+              8.15
+            ],
+            [
+              142.34,
+              8.15
+            ],
+            [
+              142.34,
+              7.75
+            ]
+          ],
+          "from": "res_r2.R107_B",
+          "to": "res_trim.R1_A",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VB",
+      "routed": true,
+      "schematic": "the R2B leg's low end (through its trim taps) to R1's head -- the amp's VINP node",
+      "terminals": [
+        "res_trim.R31_B",
+        "res_r1.R0_A"
+      ],
+      "blocks": [
+        "res_r1",
+        "res_trim"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.4,
+          "points": [
+            [
+              151.23,
+              11.95
+            ],
+            [
+              151.23,
+              12.35
+            ],
+            [
+              173.64,
+              12.35
+            ],
+            [
+              173.64,
+              11.7
+            ],
+            [
+              177.24,
+              11.7
+            ]
+          ],
+          "from": "res_trim.R31_B",
+          "to": "res_r1.R0_A",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VBQ",
+      "routed": true,
+      "schematic": "R1's tail to Q2's emitter bus",
+      "terminals": [
+        "res_r1.R6_B",
+        "pnp_ptat:VBQ trunk"
+      ],
+      "blocks": [
+        "pnp_ptat",
+        "res_r1"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              254.48,
+              11.7
+            ],
+            [
+              283.63,
+              11.7
+            ],
+            [
+              283.63,
+              7.47
+            ]
+          ],
+          "from": "res_r1.R6_B",
+          "to": "pnp_ptat:VBQ trunk",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VDD",
+      "routed": true,
+      "schematic": "VDD trunk across all three PMOS groups",
+      "terminals": [
+        "core_mirror.M1_2_S",
+        "amp_pmirr.M1_2_S",
+        "amp_input_pair.Q2_11_S"
+      ],
+      "blocks": [
+        "amp_input_pair",
+        "amp_pmirr",
+        "core_mirror"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              4.52,
+              53.67
+            ],
+            [
+              58.83,
+              53.67
+            ],
+            [
+              58.83,
+              92.66
+            ]
+          ],
+          "from": "core_mirror.M1_2_S",
+          "to": "amp_pmirr.M1_2_S",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              58.83,
+              92.66
+            ],
+            [
+              66.46,
+              92.66
+            ],
+            [
+              66.46,
+              59.67
+            ]
+          ],
+          "from": "amp_pmirr.M1_2_S",
+          "to": "amp_input_pair.Q2_11_S",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VSS",
+      "routed": false,
+      "schematic": "VSS trunk: the amp's NMOS rail plus both PNP base ties (the diode-connected PNPs' base and collector both sit on VSS)",
+      "terminals": [
+        "pnp_ctat:VSS trunk",
+        "amp_nmirr.M1_1_D",
+        "amp_nload.M1_1_D",
+        "pnp_ptat:VSS trunk"
+      ],
+      "blocks": [
+        "amp_nload",
+        "amp_nmirr",
+        "pnp_ctat",
+        "pnp_ptat"
+      ],
+      "hops": [
+        {
+          "from": "pnp_ctat:VSS trunk",
+          "to": "amp_nmirr.M1_1_D",
+          "routed": false,
+          "blocked_by": "TAIL"
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              220.28,
+              91.66
+            ],
+            [
+              235.35,
+              91.66
+            ],
+            [
+              235.35,
+              45.27
+            ]
+          ],
+          "from": "amp_nmirr.M1_1_D",
+          "to": "amp_nload.M1_1_D",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              235.35,
+              45.27
+            ],
+            [
+              285.94,
+              45.27
+            ],
+            [
+              285.94,
+              1.67
+            ]
+          ],
+          "from": "amp_nload.M1_1_D",
+          "to": "pnp_ptat:VSS trunk",
+          "routed": true
+        }
+      ]
+    }
+  ],
+  "_route_order_attempts": [
+    {
+      "order": [
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "D1",
+        "D2",
+        "PN"
+      ],
+      "failed": [
+        "VSS",
+        "TAIL"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 14
+    },
+    {
+      "order": [
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "D1",
+        "D2",
+        "PN",
+        "VA"
+      ],
+      "failed": [
+        "TAIL",
+        "VA"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 14
+    },
+    {
+      "order": [
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A"
+      ],
+      "failed": [
+        "TAIL",
+        "VA"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 14
+    },
+    {
+      "order": [
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT"
+      ],
+      "failed": [
+        "VOUT"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 15
+    },
+    {
+      "order": [
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B"
+      ],
+      "failed": [
+        "VOUT",
+        "TRIM_B"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 14
+    },
+    {
+      "order": [
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB"
+      ],
+      "failed": [
+        "VOUT"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 15
+    },
+    {
+      "order": [
+        "VDD",
+        "VSS",
+        "TAIL",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ"
+      ],
+      "failed": [
+        "VOUT"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 15
+    },
+    {
+      "order": [
+        "VSS",
+        "TAIL",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD"
+      ],
+      "failed": [
+        "TAIL",
+        "PN",
+        "VA",
+        "VDD"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 3,
+      "hops_routed": 12
+    },
+    {
+      "order": [
+        "TAIL",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS"
+      ],
+      "failed": [
+        "VSS"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 6,
+      "hops_routed": 15
+    },
+    {
+      "order": [
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL"
+      ],
+      "failed": [
+        "VSS",
+        "TAIL"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 14
+    },
+    {
+      "order": [
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "D1"
+      ],
+      "failed": [
+        "VSS",
+        "TAIL"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 14
+    },
+    {
+      "order": [
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "D1",
+        "D2"
+      ],
+      "failed": [
+        "VSS",
+        "TAIL"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 14
+    },
+    {
+      "order": [
+        "VSS",
+        "TAIL",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "D1",
+        "D2",
+        "PN"
+      ],
+      "failed": [
+        "TAIL",
+        "VA",
+        "VDD",
+        "PN"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 3,
+      "hops_routed": 12
+    },
+    {
+      "order": [
+        "TAIL",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "D1",
+        "D2",
+        "PN"
+      ],
+      "failed": [
+        "VSS"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 6,
+      "hops_routed": 15
+    },
+    {
+      "order": [
+        "TAIL",
+        "VA",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "D1",
+        "D2",
+        "PN",
+        "TRIM_A"
+      ],
+      "failed": [
+        "VSS"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 6,
+      "hops_routed": 15
+    },
+    {
+      "order": [
+        "VOUT",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "TRIM_B",
+        "VB"
+      ],
+      "failed": [
+        "TAIL",
+        "VA"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 14
+    },
+    {
+      "order": [
+        "VOUT",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "TRIM_B",
+        "VB",
+        "VBQ"
+      ],
+      "failed": [
+        "TAIL",
+        "VA"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 14
+    },
+    {
+      "order": [
+        "TAIL",
+        "PN",
+        "VA",
+        "VDD",
+        "VSS",
+        "D1",
+        "D2",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ"
+      ],
+      "failed": [
+        "VOUT"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 15
+    },
+    {
+      "order": [
+        "VSS",
+        "TAIL",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "D1"
+      ],
+      "failed": [
+        "TAIL",
+        "PN",
+        "VA",
+        "VDD"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 3,
+      "hops_routed": 12
+    },
+    {
+      "order": [
+        "VSS",
+        "TAIL",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "D1",
+        "D2"
+      ],
+      "failed": [
+        "TAIL",
+        "PN",
+        "VA",
+        "VDD"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 3,
+      "hops_routed": 12
+    },
+    {
+      "order": [
+        "TAIL",
+        "VA",
+        "VDD",
+        "PN",
+        "VSS",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "D1",
+        "D2"
+      ],
+      "failed": [
+        "VOUT"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 15
+    },
+    {
+      "order": [
+        "VSS",
+        "TAIL",
+        "VA",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "D1",
+        "D2",
+        "PN",
+        "TRIM_A"
+      ],
+      "failed": [
+        "TAIL",
+        "VA",
+        "VDD",
+        "PN"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 3,
+      "hops_routed": 12
+    },
+    {
+      "order": [
+        "TAIL",
+        "VA",
+        "VOUT",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "D1",
+        "D2",
+        "PN",
+        "TRIM_A",
+        "TRIM_B",
+        "VB"
+      ],
+      "failed": [
+        "VSS"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 6,
+      "hops_routed": 15
+    },
+    {
+      "order": [
+        "TAIL",
+        "VA",
+        "VOUT",
+        "VDD",
+        "VSS",
+        "D1",
+        "D2",
+        "PN",
+        "TRIM_A",
+        "TRIM_B",
+        "VB",
+        "VBQ"
+      ],
+      "failed": [
+        "VSS"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 6,
+      "hops_routed": 15
+    },
+    {
+      "order": [
+        "VOUT",
+        "TAIL",
+        "PN",
+        "VA",
+        "VDD",
+        "VSS",
+        "D1",
+        "D2",
+        "TRIM_A",
+        "TRIM_B",
+        "VB",
+        "VBQ"
+      ],
+      "failed": [
+        "TRIM_A",
+        "TRIM_B"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 14
+    },
+    {
+      "order": [
+        "TAIL",
+        "PN",
+        "VA",
+        "VDD",
+        "VSS",
+        "D2",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "D1"
+      ],
+      "failed": [
+        "VOUT"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 15
+    },
+    {
+      "order": [
+        "TAIL",
+        "PN",
+        "VA",
+        "VDD",
+        "VSS",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "D1",
+        "D2"
+      ],
+      "failed": [
+        "VOUT"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 15
+    },
+    {
+      "order": [
+        "VOUT",
+        "TAIL",
+        "VA",
+        "VDD",
+        "PN",
+        "VSS",
+        "TRIM_A",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "D1",
+        "D2"
+      ],
+      "failed": [
+        "TRIM_A",
+        "TRIM_B"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 14
+    },
+    {
+      "order": [
+        "TAIL",
+        "VA",
+        "VDD",
+        "PN",
+        "VSS",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "D1",
+        "D2",
+        "TRIM_A"
+      ],
+      "failed": [
+        "VOUT"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 15
+    },
+    {
+      "order": [
+        "VSS",
+        "TAIL",
+        "VA",
+        "VOUT",
+        "VBQ",
+        "VDD",
+        "D1",
+        "D2",
+        "PN",
+        "TRIM_A",
+        "TRIM_B",
+        "VB"
+      ],
+      "failed": [
+        "TAIL",
+        "VA",
+        "VDD",
+        "PN"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 3,
+      "hops_routed": 12
+    },
+    {
+      "order": [
+        "VSS",
+        "TAIL",
+        "VA",
+        "VOUT",
+        "VDD",
+        "D1",
+        "D2",
+        "PN",
+        "TRIM_A",
+        "TRIM_B",
+        "VB",
+        "VBQ"
+      ],
+      "failed": [
+        "TAIL",
+        "VA",
+        "VDD",
+        "PN"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 3,
+      "hops_routed": 12
+    },
+    {
+      "order": [
+        "TRIM_A",
+        "TRIM_B",
+        "VOUT",
+        "TAIL",
+        "PN",
+        "VA",
+        "VDD",
+        "VSS",
+        "D1",
+        "D2",
+        "VB",
+        "VBQ"
+      ],
+      "failed": [
+        "VA"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 6,
+      "hops_routed": 15
+    },
+    {
+      "order": [
+        "VOUT",
+        "TAIL",
+        "PN",
+        "VA",
+        "VDD",
+        "VSS",
+        "D2",
+        "TRIM_A",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "D1"
+      ],
+      "failed": [
+        "TRIM_A",
+        "TRIM_B"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 14
+    },
+    {
+      "order": [
+        "VOUT",
+        "TAIL",
+        "PN",
+        "VA",
+        "VDD",
+        "VSS",
+        "TRIM_A",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "D1",
+        "D2"
+      ],
+      "failed": [
+        "TRIM_A",
+        "TRIM_B"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 5,
+      "hops_routed": 14
+    },
+    {
+      "order": [
+        "TRIM_A",
+        "TRIM_B",
+        "VOUT",
+        "TAIL",
+        "VA",
+        "VDD",
+        "PN",
+        "VSS",
+        "VB",
+        "VBQ",
+        "D1",
+        "D2"
+      ],
+      "failed": [
+        "VA"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 6,
+      "hops_routed": 15
+    }
+  ],
+  "_route_order_used": [
+    "TAIL",
+    "D1",
+    "D2",
+    "PN",
+    "VA",
+    "TRIM_A",
+    "VOUT",
+    "TRIM_B",
+    "VB",
+    "VBQ",
+    "VDD",
+    "VSS"
+  ],
+  "_conflicts": []
+}
