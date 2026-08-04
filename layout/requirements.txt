@@ -102,17 +102,19 @@
 #     terminate on a gate (`VA`, `VB`, `D1`, `D2`, `GDRV`, `PN`), MOS finger
 #     bussing, and therefore `devices.matched` moving off 0.
 #   * 2AMLogic/klayout-tools#462 -> merged via #471. The dummy-device marker
-#     suppression path was MOS-gate-only, so a matched array's dummy edge
-#     units always extracted as real devices with no schematic counterpart.
-#     It now covers resistors and bipolars, which is what lets this layout
-#     keep its dummies (a real matching property) without paying for them in
-#     the LVS device count.
+#     suppression path was MOS-gate-only; it now covers resistors and
+#     bipolars too. Measured at this pin: it changes nothing here, because
+#     the path keys off `ExtractionDeck.dummy` and the sky130 curated deck
+#     declares no such layer, no generator draws one, and `klt extract`
+#     exposes no override. Filed as the remaining half, #491.
 #   * 2AMLogic/klayout-tools#463 -> merged via #475. `gen res_array` on
 #     sky130 could only draw the base `res_generic_po` flavour, while the
 #     same tool's sky130 extraction deck recognises three. The schematic is
-#     built on `res_high_po`; the layout can now draw it, which is what makes
-#     the resistor blocks a matching device class *and* gives them the bulk
-#     terminal `VSS` needs (the last non-gate coverage gap).
+#     built on `res_high_po`; the layout draws it from this pin on, which is
+#     what makes the resistor blocks a matching device class. It does NOT
+#     give them a reachable bulk pad: the deck marks `res_high_po`
+#     `bulk_to_substrate` and ties that terminal to its synthesized `vsubs`
+#     global, which no drawn shape can join (filed as #490).
 #   * 2AMLogic/klayout-tools#454 -> merged via #468. `gen-compose` now
 #     exposes metal2/via1 routing roles with via-drop bussing, i.e. a second
 #     routing metal above the layer every generator draws its pads on. This
@@ -134,5 +136,9 @@
 # layout/bin/run-trivial-cell-flow.sh re-run unmodified still PASSes with the
 # identical four-way verdict (see trivial-cell/reports/ for the refreshed
 # record), and layout/bin/run-bandgap-routed-flow.sh re-run produces the
-# record this increment ships.
+# record this increment ships. One measured difference is expected and is
+# #474 itself: every MOS cell is 0.42 um taller, because the gate poly now
+# extends past the diffusion into its contact landing pad (the trivial cell's
+# bbox y1 goes 1.24 -> 2.08 um). Nothing else in either record moves that is
+# not this increment's own doing.
 klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@8c277eb94d6cdcb8b8b2fc02c801af3d7555e5b1
