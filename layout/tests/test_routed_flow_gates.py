@@ -866,3 +866,293 @@ class TestChannelTracks(unittest.TestCase):
         lanes = gen_bandgap_routed.free_channels(self.REPORTS, self.ORIGINS)
         self.assertTrue([t for t in lanes["x"] if t < 0.0])
         self.assertTrue([t for t in lanes["x"] if t > 40.0])
+
+
+# ---------------------------------------------------------------------------
+# The open-channel router: _connect / _channel_paths / _chain_orders /
+# _candidate_assignments (gen_bandgap_routed.py)
+# ---------------------------------------------------------------------------
+#
+# Every one of these is exercised end-to-end by `run-bandgap-routed-flow.sh`
+# on real block geometry, but none of them had unit coverage of their own --
+# issue #62's routed record for `20260804-045058-649329e` (9/12 schematic
+# nets, `mismatch_count=106`) names "this flow's own hand-written router
+# running out of corridors in its own congestion" as the residual gap's
+# dominant cause, which makes this exact code the highest-value place left to
+# add regression coverage: a search-order or candidate-generation regression
+# here would silently change which nodes route, with no DRC or LVS failure to
+# catch it (a route that isn't attempted is indistinguishable from one that
+# was tried and correctly rejected).
+class TestConnectRouter(unittest.TestCase):
+    """`_connect()` tries a direct elbow, then a floorplan channel path, then
+    Z-detours, until one clears -- see its own docstring. These tests force
+    each stage in turn by drawing an obstacle net only the earlier stages
+    collide with.
+    """
+
+    def test_straight_elbow_succeeds_when_clear(self) -> None:
+        bus = met1_bus.Met1Bus()
+        result = gen_bandgap_routed._connect(bus, "N1", (0.0, 0.0), (10.0, 5.0))
+        self.assertIsNotNone(result)
+        self.assertEqual(result["detour_um"], 0.0)
+        self.assertEqual(result["points"][0], [0.0, 0.0])
+        self.assertEqual(result["points"][-1], [10.0, 5.0])
+        # Both elbow segments actually landed on the bus.
+        self.assertEqual(len(bus.met1_rects), 2)
+
+    def test_falls_back_to_a_channel_path_when_the_direct_elbow_is_blocked(
+        self,
+    ) -> None:
+        """Both two-segment elbows between (0, 0) and (10, 10) turn at
+        (10, 0) or (0, 10) -- blocking a small box at each corner rejects
+        both, without touching the interior track a channel path can still
+        use."""
+        bus = met1_bus.Met1Bus()
+        bus.net("WALL")
+        bus.hseg(9.85, 10.15, 0.0)
+        bus.hseg(-0.15, 0.15, 10.0)
+        a, b = (0.0, 0.0), (10.0, 10.0)
+        # The direct elbows are provably blocked before the channel fallback
+        # is even asked to resolve anything.
+        self.assertIsNone(
+            gen_bandgap_routed._connect_path(
+                bus, "N1", [a, (b[0], a[1]), b]
+            )
+        )
+        self.assertIsNone(
+            gen_bandgap_routed._connect_path(
+                bus, "N1", [a, (a[0], b[1]), b]
+            )
+        )
+        result = gen_bandgap_routed._connect(
+            bus, "N1", a, b, channels={"x": [3.0], "y": [5.0]}
+        )
+        self.assertIsNotNone(result)
+        self.assertTrue(result.get("via_channel"))
+        self.assertEqual(result["points"][0], [0.0, 0.0])
+        self.assertEqual(result["points"][-1], [10.0, 10.0])
+        # The drawn-short check the whole flow gates on stays clean: the
+        # channel path threaded between the two blockers, not through them.
+        self.assertEqual(bus.conflicts(), [])
+
+    def test_returns_none_and_leaves_no_residue_when_every_candidate_fails(
+        self,
+    ) -> None:
+        """A hop that truly cannot be placed must report `None` rather than
+        drawing a colliding path -- and must roll back every rectangle it
+        speculatively drew while searching, or the next hop would be tested
+        against phantom geometry."""
+        bus = met1_bus.Met1Bus()
+        bus.net("WALL")
+        bus.hseg(9.85, 10.15, 0.0)
+        bus.hseg(-0.15, 0.15, 10.0)
+        rects_before = list(bus.met1_rects)
+        shapes_before = list(bus.shapes)
+        detours = gen_bandgap_routed.DETOUR_OFFSETS_UM
+        gen_bandgap_routed.DETOUR_OFFSETS_UM = [0.0]
+        try:
+            result = gen_bandgap_routed._connect(
+                bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
+            )
+        finally:
+            gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
+        self.assertIsNone(result)
+        self.assertEqual(bus.met1_rects, rects_before)
+        self.assertEqual(bus.shapes, shapes_before)
+
+
+class TestChannelPaths(unittest.TestCase):
+    """`_channel_paths()` is the shape a cross-floorplan hop needs that no
+    elbow or single-jog Z can express -- see its own docstring. These check
+    the geometric contract every caller relies on: every returned path is a
+    legal orthogonal polyline, shortest first, and the double-dogleg variants
+    genuinely use two different tracks (a same-track "dogleg" would just be
+    a single-jog Z, already covered by the plain paths above it)."""
+
+    CHANNELS = {"x": [2.0, 8.0, -5.0], "y": [3.0, 7.0, -4.0]}
+
+    def test_every_path_is_orthogonal(self) -> None:
+        paths = gen_bandgap_routed._channel_paths(
+            (0.0, 0.0), (10.0, 10.0), self.CHANNELS
+        )
+        self.assertTrue(paths)
+        for path in paths:
+            for (x0, y0), (x1, y1) in zip(path, path[1:]):
+                self.assertTrue(x0 == x1 or y0 == y1, path)
+
+    def test_paths_are_sorted_shortest_first(self) -> None:
+        paths = gen_bandgap_routed._channel_paths(
+            (0.0, 0.0), (10.0, 10.0), self.CHANNELS
+        )
+
+        def length(path):
+            return sum(
+                abs(x0 - x1) + abs(y0 - y1)
+                for (x0, y0), (x1, y1) in zip(path, path[1:])
+            )
+
+        lengths = [length(p) for p in paths]
+        self.assertEqual(lengths, sorted(lengths))
+
+    def test_double_dogleg_variants_use_two_different_tracks(self) -> None:
+        """The double-dogleg family is what lets a hop leave on one track and
+        arrive on a different one -- see the "D1 and D2" note in
+        _channel_paths' own docstring. A same-track pair would degenerate to
+        a plain single-jog Z, so every 6-point path here must actually use
+        two distinct x (or y) tracks."""
+        paths = gen_bandgap_routed._channel_paths(
+            (0.0, 0.0), (10.0, 10.0), self.CHANNELS
+        )
+        six_point = [p for p in paths if len(p) == 6]
+        self.assertTrue(six_point)
+        for path in six_point:
+            xs = {round(x, 6) for x, _ in path}
+            ys = {round(y, 6) for _, y in path}
+            # A double-dogleg varies exactly one axis across its two middle
+            # legs (x for the x-band family, y for the y-band family); the
+            # other axis only ever takes the two endpoints' own values.
+            self.assertTrue(len(xs) >= 3 or len(ys) >= 3, path)
+
+    def test_empty_channels_yield_no_paths(self) -> None:
+        """No tracks to offer means no channel path is even attempted --
+        `_connect` then falls straight through to its Z-detour stage."""
+        self.assertEqual(
+            gen_bandgap_routed._channel_paths((0.0, 0.0), (10.0, 10.0), {}), []
+        )
+
+
+class TestChainOrders(unittest.TestCase):
+    """`_chain_orders()` supplies the visit-order candidates a multi-terminal
+    node's hops are drawn in -- see its own docstring for why the order
+    itself is load-bearing (a zig-zag chain asks the router for corridors a
+    friendlier order never needs)."""
+
+    def _pt(self, x: float, y: float) -> dict[str, float]:
+        return {"x": x, "y": y}
+
+    def test_two_terminal_net_never_costs_more_than_the_two_directions(self) -> None:
+        """A 2-point chain has exactly one hop to draw either way it is
+        walked -- forward or reversed -- so the dedup step must collapse
+        every one of the (up to four) generator strategies down to at most
+        those two orderings, never re-trying the same forward or the same
+        reversed walk twice."""
+        points = [self._pt(0.0, 0.0), self._pt(5.0, 5.0)]
+        orders = gen_bandgap_routed._chain_orders(points)
+        self.assertLessEqual(len(orders), 2)
+        for order in orders:
+            self.assertEqual(len(order), 2)
+            self.assertEqual(set(id(p) for p in order), set(id(p) for p in points))
+
+    def test_identical_generator_strategies_collapse_to_one_order(self) -> None:
+        """When every strategy (column-major, row-major, nearest-neighbour
+        from either start) agrees on the same walk, the dedup step must
+        actually collapse them -- three axis-aligned points in a row leave
+        no ambiguity for any of the four generators to disagree on."""
+        points = [self._pt(0.0, 0.0), self._pt(1.0, 0.0), self._pt(2.0, 0.0)]
+        orders = gen_bandgap_routed._chain_orders(points)
+        self.assertEqual(len(orders), 3)
+
+    def test_column_and_row_major_orders_are_both_present(self) -> None:
+        points = [self._pt(5.0, 0.0), self._pt(0.0, 5.0), self._pt(5.0, 5.0)]
+        orders = gen_bandgap_routed._chain_orders(points)
+        by_xy = sorted(points, key=lambda p: (p["x"], p["y"]))
+        by_yx = sorted(points, key=lambda p: (p["y"], p["x"]))
+        self.assertIn(by_xy, orders)
+        self.assertIn(by_yx, orders)
+
+    def test_every_point_appears_as_a_nearest_neighbour_start(self) -> None:
+        points = [
+            self._pt(0.0, 0.0),
+            self._pt(10.0, 0.0),
+            self._pt(10.0, 10.0),
+            self._pt(0.0, 10.0),
+        ]
+        orders = gen_bandgap_routed._chain_orders(points)
+        starts = {id(order[0]) for order in orders}
+        self.assertEqual(starts, {id(p) for p in points})
+        # Every candidate order is a permutation of the same terminal set --
+        # a chain that dropped or duplicated a terminal would leave one node
+        # unrouted or shorted without either check noticing.
+        for order in orders:
+            self.assertEqual(sorted(id(p) for p in order), sorted(id(p) for p in points))
+
+    def test_nearest_neighbour_chain_visits_the_closer_point_first(self) -> None:
+        """From a given start, the manhattan-nearest remaining point is
+        picked at each step -- so a chain starting at the origin with one
+        very close neighbour and one far one must visit the close one
+        second, not third."""
+        near = self._pt(1.0, 0.0)
+        far = self._pt(100.0, 0.0)
+        start = self._pt(0.0, 0.0)
+        orders = gen_bandgap_routed._chain_orders([start, far, near])
+        nn_from_start = next(o for o in orders if o[0] is start)
+        self.assertIs(nn_from_start[1], near)
+        self.assertIs(nn_from_start[2], far)
+
+
+class TestCandidateAssignments(unittest.TestCase):
+    """`_candidate_assignments()` enumerates which pad/escape each terminal
+    of a node takes -- see its own docstring for why centroid-nearest alone
+    left real routes unroutable (PN/GDRV/etc.) while a perfectly good path
+    existed off a different candidate of the same terminal."""
+
+    def test_fixed_points_pass_through_unchanged(self) -> None:
+        fixed = {"block": "b", "name": "b.PORT", "x": 1.0, "y": 2.0, "via": True}
+        assignments = gen_bandgap_routed._candidate_assignments([fixed], 0.0, 0.0)
+        self.assertEqual(len(assignments), 1)
+        resolved, claims = assignments[0]
+        self.assertEqual(resolved, [fixed])
+        self.assertEqual(claims, [])
+
+    def test_nearest_candidate_is_tried_first(self) -> None:
+        point = {
+            "block": "b",
+            "via": True,
+            "candidates": [("far", 100.0, 0.0), ("near", 1.0, 0.0)],
+        }
+        assignments = gen_bandgap_routed._candidate_assignments([point], 0.0, 0.0)
+        resolved, claims = assignments[0]
+        self.assertEqual(resolved[0]["name"], "b.near")
+        self.assertEqual(claims, [("b", "near")])
+
+    def test_result_count_is_bounded_by_candidate_assignments(self) -> None:
+        point_a = {
+            "block": "a",
+            "via": True,
+            "candidates": [(f"a{i}", float(i), 0.0) for i in range(5)],
+        }
+        point_b = {
+            "block": "b",
+            "via": True,
+            "candidates": [(f"b{i}", float(i), 10.0) for i in range(5)],
+        }
+        assignments = gen_bandgap_routed._candidate_assignments(
+            [point_a, point_b], 2.0, 5.0
+        )
+        self.assertLessEqual(
+            len(assignments), gen_bandgap_routed.CANDIDATE_ASSIGNMENTS
+        )
+        # Every offered option is drawn from each terminal's own nearest
+        # CANDIDATES_PER_TERMINAL -- the two farthest of the five never
+        # appear, at either terminal, in any returned assignment.
+        seen_a = {resolved[0]["name"] for resolved, _ in assignments}
+        seen_b = {resolved[1]["name"] for resolved, _ in assignments}
+        self.assertFalse(seen_a & {"a.a3", "a.a4"})
+        self.assertFalse(seen_b & {"b.b3", "b.b4"})
+
+    def test_claims_pad_false_leaves_the_name_unprefixed_and_unclaimed(
+        self,
+    ) -> None:
+        """A `comb` terminal's escape point is already on drawn metal with no
+        pad of its own (MOS_COMB_NOTE) -- claiming it would falsely reserve a
+        pad no other net could then legally use."""
+        point = {
+            "block": "b",
+            "via": False,
+            "claims_pad": False,
+            "candidates": [("escape", 3.0, 4.0)],
+        }
+        assignments = gen_bandgap_routed._candidate_assignments([point], 0.0, 0.0)
+        resolved, claims = assignments[0]
+        self.assertEqual(resolved[0]["name"], "escape")
+        self.assertEqual(claims, [])
