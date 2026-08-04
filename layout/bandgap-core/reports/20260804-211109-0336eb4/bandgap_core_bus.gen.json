@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "generator": "draw",
+  "cell_name": "bandgap_core_bus",
+  "gds_path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260804-211109-0336eb4/bandgap_core_bus.gds",
+  "pdk": {
+    "name": "sky130A",
+    "variant": "sky130A",
+    "version": "open_pdks c6d73a35f524070e85faff4a6a9eef49553ebc2b"
+  },
+  "bbox_um": {
+    "x0": 0.0,
+    "y0": 0.0,
+    "x1": 0.0,
+    "y1": 0.0
+  },
+  "device_count": 0,
+  "ports": [],
+  "drc_hints": {
+    "min_spacing_um": null,
+    "matched_group_id": null,
+    "snapped_to_grid": false,
+    "notes": [
+      "Every intra-block bus and every inter-block net in this cell is drawn by this repo with `klt draw`, on met1 over mcon -- see layout/bin/met1_bus.py. That started as the only option: sky130's generator/router layer-role table exposed exactly one routing metal role (`metal` -> li1 67/20), the same layer every generator draws its device pads on, so `klt gen-compose` could not express a bus at all (klayout-tools#433; its fix #439 made the failure visible rather than expressible). klayout-tools#454 (merged via #468) has since added `metal2`/`via1` roles with via-drop bussing, and #508 (merged via #511) a third `metal3`/`via2` level, so the router *can* now plan wires above the pad layer. This flow has not moved its bussing onto them (its own met2 escape plane is hand-drawn too, MET2_ESCAPE_NOTE): the bussing here is a planar lane assignment derived from each block's own reported geometry (MOS_COMB_NOTE), and swapping it for router-planned routing is a rework to be measured on its own, not a parameter change to be slipped into an increment that is already changing the device topology. Hand-placing what a router could plan remains the residual gap."
+    ]
+  },
+  "warnings": [],
+  "met1_via_count": 535,
+  "met1_wire_count": 407,
+  "met1_label_count": 11,
+  "via1_count": 11,
+  "met2_rect_count": 26
+}

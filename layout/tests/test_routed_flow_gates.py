@@ -45,6 +45,7 @@ Standard library only (`unittest`), matching every other script under
 
 from __future__ import annotations
 
+import contextlib
 import sys
 import tempfile
 import unittest
@@ -55,6 +56,25 @@ sys.path.insert(0, str(REPO_ROOT / "layout" / "bin"))
 
 import gen_bandgap_routed  # noqa: E402  -- resolved from layout/bin, above
 import met1_bus  # noqa: E402
+
+
+@contextlib.contextmanager
+def met1_only():
+    """Disable `_connect`'s met2 escape for the duration of the block.
+
+    The met2 escape plane (MET2_ESCAPE_NOTE) is a last-resort fallback that
+    is available to essentially every hop, because met2 starts empty -- so
+    with it on, "the met1 search ran out of options" and "the router gave
+    up" stop being the same question. Every test below that asserts what the
+    *met1* search does when it is boxed in wraps itself in this, so it keeps
+    testing the thing it names. Tests of the escape itself do not.
+    """
+    previous = gen_bandgap_routed.MET2_ESCAPE_ENABLED
+    gen_bandgap_routed.MET2_ESCAPE_ENABLED = False
+    try:
+        yield
+    finally:
+        gen_bandgap_routed.MET2_ESCAPE_ENABLED = previous
 
 
 # ---------------------------------------------------------------------------
@@ -878,7 +898,7 @@ class TestCoverageScoringGate(unittest.TestCase):
 # ---------------------------------------------------------------------------
 class TestFlowGate(unittest.TestCase):
     """`flow_gate()` is the flow's exit status. Its job is to fail on any one
-    condition -- an "and" written as eight separate rows so a failing run can
+    condition -- an "and" written as nine separate rows so a failing run can
     name which.
     """
 
@@ -891,6 +911,7 @@ class TestFlowGate(unittest.TestCase):
         "met1_conflicts": [],
         "merged_pin_names": [],
         "split_routed": {},
+        "met2_drc_clean": True,
     }
 
     def test_all_conditions_met_passes(self) -> None:
@@ -910,6 +931,11 @@ class TestFlowGate(unittest.TestCase):
             "no_drawn_shorts": {"met1_conflicts": [{"nets": ["VDD", "VSS"]}]},
             "no_merged_pin_names": {"merged_pin_names": ["TAIL|VOUT"]},
             "no_split_routed_nets": {"split_routed": {"VDD": 2}},
+            # The escape plane's own DRC. `drc_clean` above is `klt drc`'s
+            # verdict, and the curated sky130 deck carries no met2/via rule
+            # at all -- so without this row a met2 short or a 10 nm-wide
+            # escape wire would pass the whole flow (MET2_ESCAPE_NOTE).
+            "met2_drc_clean": {"met2_drc_clean": False},
         }
         self.assertEqual(
             set(failures), set(gen_bandgap_routed.flow_gate(**self.PASSING)),
@@ -1264,9 +1290,10 @@ class TestConnectRouter(unittest.TestCase):
         detours = gen_bandgap_routed.DETOUR_OFFSETS_UM
         gen_bandgap_routed.DETOUR_OFFSETS_UM = [0.0]
         try:
-            result = gen_bandgap_routed._connect(
-                bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
-            )
+            with met1_only():
+                result = gen_bandgap_routed._connect(
+                    bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
+                )
         finally:
             gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
         self.assertIsNone(result)
@@ -1291,9 +1318,10 @@ class TestConnectRouter(unittest.TestCase):
         detours = gen_bandgap_routed.DETOUR_OFFSETS_UM
         gen_bandgap_routed.DETOUR_OFFSETS_UM = [0.0]
         try:
-            result = gen_bandgap_routed._connect(
-                bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
-            )
+            with met1_only():
+                result = gen_bandgap_routed._connect(
+                    bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
+                )
         finally:
             gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
         self.assertIsNone(result)
@@ -1354,7 +1382,8 @@ class TestDrawChainBlockedByCounts(unittest.TestCase):
             {"name": "P1", "pad": (10.0, 10.0), "via": False},
         ]
         try:
-            hops, routed = gen_bandgap_routed._draw_chain(bus, "N1", plan)
+            with met1_only():
+                hops, routed = gen_bandgap_routed._draw_chain(bus, "N1", plan)
         finally:
             gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
         self.assertFalse(routed)
@@ -1760,15 +1789,21 @@ class TestRepairUnroutedHops(unittest.TestCase):
         marks = []
         port_snapshots = []
         results = []
-        for net_name in sequence:
-            marks.append(bus.mark())
-            port_snapshots.append(set(used_ports))
-            results.append(
-                gen_bandgap_routed._route_one_net(
-                    bus, net_name, specs, {}, {}, trunks, {}, used_ports,
-                    channels,
+        # met1-only: this fixture's whole point is that `B` is boxed in on
+        # met1 and only a rip-up of `A` frees it. With the met2 escape on,
+        # `B` simply hops over `A` and the repair pass has nothing to repair
+        # -- a real and desirable property of the router, but not the one
+        # these tests are about (see met1_only()).
+        with met1_only():
+            for net_name in sequence:
+                marks.append(bus.mark())
+                port_snapshots.append(set(used_ports))
+                results.append(
+                    gen_bandgap_routed._route_one_net(
+                        bus, net_name, specs, {}, {}, trunks, {}, used_ports,
+                        channels,
+                    )
                 )
-            )
         return bus, specs, trunks, channels, used_ports, sequence, marks, \
             port_snapshots, results
 
@@ -1787,10 +1822,11 @@ class TestRepairUnroutedHops(unittest.TestCase):
         self.assertEqual(results[1]["hops"][0]["blocked_by"], "A")
         original_terminals = list(results[0]["terminals"])
 
-        gen_bandgap_routed._repair_unrouted_hops(
-            bus, sequence, specs, {}, {}, trunks, {}, used_ports, channels,
-            marks, port_snapshots, results,
-        )
+        with met1_only():
+            gen_bandgap_routed._repair_unrouted_hops(
+                bus, sequence, specs, {}, {}, trunks, {}, used_ports, channels,
+                marks, port_snapshots, results,
+            )
 
         self.assertTrue(results[0]["routed"])
         self.assertTrue(results[1]["routed"], results[1])
@@ -1825,19 +1861,21 @@ class TestRepairUnroutedHops(unittest.TestCase):
         sequence = ["B"]
         marks = [bus.mark()]
         port_snapshots = [set(used_ports)]
-        results = [
-            gen_bandgap_routed._route_one_net(
-                bus, "B", specs, {}, {}, trunks, {}, used_ports, channels,
-            )
-        ]
+        with met1_only():
+            results = [
+                gen_bandgap_routed._route_one_net(
+                    bus, "B", specs, {}, {}, trunks, {}, used_ports, channels,
+                )
+            ]
         self.assertFalse(results[0]["routed"])
         self.assertEqual(results[0]["hops"][0]["blocked_by"], "WALL")
 
         mark_before_repair = bus.mark()
-        gen_bandgap_routed._repair_unrouted_hops(
-            bus, sequence, specs, {}, {}, trunks, {}, used_ports, channels,
-            marks, port_snapshots, results,
-        )
+        with met1_only():
+            gen_bandgap_routed._repair_unrouted_hops(
+                bus, sequence, specs, {}, {}, trunks, {}, used_ports, channels,
+                marks, port_snapshots, results,
+            )
 
         self.assertFalse(results[0]["routed"])
         self.assertEqual(bus.mark(), mark_before_repair)
@@ -1860,12 +1898,264 @@ class TestRepairUnroutedHops(unittest.TestCase):
         original_terminals = list(results[0]["terminals"])
         mark_before_repair = bus.mark()
 
-        gen_bandgap_routed._repair_unrouted_hops(
-            bus, sequence, specs, {}, {}, trunks, {}, used_ports, channels,
-            marks, port_snapshots, results,
-        )
+        with met1_only():
+            gen_bandgap_routed._repair_unrouted_hops(
+                bus, sequence, specs, {}, {}, trunks, {}, used_ports, channels,
+                marks, port_snapshots, results,
+            )
 
         self.assertFalse(results[1]["routed"])
         self.assertEqual(results[0]["terminals"], original_terminals)
         self.assertEqual(bus.mark(), mark_before_repair)
         self.assertEqual(bus.conflicts(), [])
+
+
+# ---------------------------------------------------------------------------
+# The met2 escape plane (issue #62's eighteenth increment).
+#
+# This is the mechanism that closed acceptance criterion 1 after PRs #75-#88
+# exhausted every met1-side lever, so its own failure modes need the same
+# unit coverage the met1 gates have. Two of them are silent in exactly the
+# way this file exists to catch:
+#
+#   * a met2 wire drawn across another node's met2 is a short that `klt drc`
+#     cannot see at all -- the curated sky130 deck declares met2 as a
+#     connectivity level and carries no met2 rule (MET2_ESCAPE_NOTE);
+#   * a via1 stack that misses its own met1 leaves the node in two floating
+#     pieces while every per-plane component count still reads 1.
+# ---------------------------------------------------------------------------
+class TestMet2Escape(unittest.TestCase):
+    """`_connect_met2()` -- the last-resort lift onto met2."""
+
+    def _boxed_in(self) -> met1_bus.Met1Bus:
+        """A bus whose met1 is walled off at both ends of the hop, so no met1
+        form can clear (the same fixture `TestConnectRouter`'s "every
+        candidate fails" test uses)."""
+        bus = met1_bus.Met1Bus()
+        bus.net("WALL")
+        bus.hseg(9.85, 10.15, 0.0)
+        bus.hseg(-0.15, 0.15, 10.0)
+        return bus
+
+    def test_met1_is_tried_first_and_met2_is_not_touched_when_it_clears(
+        self,
+    ) -> None:
+        """The escape must stay an escape. A hop with a clear met1 path draws
+        no via1 and no met2 -- otherwise every hop would migrate onto the one
+        plane `klt drc` does not check."""
+        bus = met1_bus.Met1Bus()
+        result = gen_bandgap_routed._connect(
+            bus, "N1", (0.0, 0.0), (10.0, 5.0), channels={}
+        )
+        self.assertIsNotNone(result)
+        self.assertNotIn("met2", result)
+        self.assertEqual(bus.met2_rects, [])
+        self.assertEqual(bus.via1_count, 0)
+
+    def test_a_hop_met1_cannot_clear_escapes_onto_met2(self) -> None:
+        bus = self._boxed_in()
+        detours = gen_bandgap_routed.DETOUR_OFFSETS_UM
+        gen_bandgap_routed.DETOUR_OFFSETS_UM = [0.0]
+        try:
+            result = gen_bandgap_routed._connect(
+                bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
+            )
+        finally:
+            gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
+        self.assertIsNotNone(result)
+        self.assertTrue(result["met2"])
+        self.assertEqual(len(result["via1_drops"]), 2)
+        # One via1 stack per end, and met2 wire between them.
+        self.assertEqual(bus.via1_count, 2)
+        self.assertTrue(bus.met2_rects)
+        # And the escape did not itself short anything on either plane.
+        self.assertEqual(bus.conflicts(), [])
+
+    def test_the_escaped_node_is_one_conductor_across_both_planes(self) -> None:
+        """The whole point: `components()` must see the met1 stub, the met2
+        wire and the via1 stacks as ONE piece. If it counted planes
+        separately a met2 escape would score 2 and trip the split-node gate;
+        if it ignored met2 entirely it would score 2 as well, and the flow
+        would report a routed node it had actually drawn in two halves."""
+        bus = self._boxed_in()
+        detours = gen_bandgap_routed.DETOUR_OFFSETS_UM
+        gen_bandgap_routed.DETOUR_OFFSETS_UM = [0.0]
+        try:
+            gen_bandgap_routed._connect(
+                bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
+            )
+        finally:
+            gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
+        self.assertEqual(bus.components()["N1"], 1)
+
+    def test_a_via1_that_misses_its_met1_is_reported_as_a_split_node(
+        self,
+    ) -> None:
+        """The inverse, drawn by hand: met2 wire and met1 stub of one node
+        with the via1 stack somewhere else entirely. Per-plane counting would
+        say 1 for each plane; the cross-plane graph must say 2."""
+        bus = met1_bus.Met1Bus()
+        bus.net("N1")
+        bus.hseg(0.0, 5.0, 0.0)  # met1 stub
+        bus.hseg2(20.0, 30.0, 20.0)  # met2 wire, nowhere near it
+        self.assertEqual(bus.components()["N1"], 2)
+
+    def test_two_nodes_met2_crossing_is_a_conflict_klt_drc_cannot_see(
+        self,
+    ) -> None:
+        """`conflicts()` must score met2 as well as met1. Nothing downstream
+        does: `klt drc`'s curated deck has no met2 rule, and `klt extract`
+        would read the short as connectivity."""
+        bus = met1_bus.Met1Bus()
+        bus.net("A")
+        bus.hseg2(0.0, 10.0, 0.0)
+        bus.net("B")
+        bus.vseg2(5.0, -5.0, 5.0)
+        found = [c for c in bus.conflicts() if c.get("layer") == "met2"]
+        self.assertEqual(len(found), 1)
+        self.assertEqual(set(found[0]["nets"]), {"A", "B"})
+
+    def test_two_nodes_via1_cuts_too_close_is_a_conflict(self) -> None:
+        """sky130 `via.2` is 0.17 um. Two different nodes' cuts inside that
+        are effectively a short and are invisible to the curated deck."""
+        bus = met1_bus.Met1Bus()
+        bus.net("A")
+        bus.via1(0.0, 0.0)
+        bus.net("B")
+        bus.via1(0.2, 0.0)  # 0.05 um edge-to-edge, well under via.2
+        via_conflicts = [c for c in bus.conflicts() if "via_a" in c]
+        self.assertTrue(via_conflicts)
+
+    def test_met2_and_met1_of_different_nodes_may_overlap_freely(self) -> None:
+        """The reason the escape works at all: met2 crossing over another
+        node's met1 is ordinary routing, not a short, and `conflicts()` must
+        not confuse the two planes."""
+        bus = met1_bus.Met1Bus()
+        bus.net("A")
+        bus.hseg(0.0, 10.0, 0.0)
+        bus.net("B")
+        bus.hseg2(0.0, 10.0, 0.0)  # exactly on top, different plane
+        self.assertEqual(bus.conflicts(), [])
+
+    def test_a_failed_met2_escape_leaves_no_residue(self) -> None:
+        """Same contract as `_connect`'s met1 rollback: a met2 escape that
+        cannot be placed must restore every plane it speculatively drew on,
+        or the next hop is searched against phantom geometry."""
+        bus = met1_bus.Met1Bus()
+        bus.net("WALL")
+        bus.hseg(9.85, 10.15, 0.0)
+        bus.hseg(-0.15, 0.15, 10.0)
+        # Box the met1 drop points in too, so no via1 landing pad fits at
+        # either end and the escape cannot even be entered.
+        bus.net("PADWALL")
+        for dx in (-2.0, -1.6, -1.2, -0.8, -0.4, 0.0, 0.4, 0.8, 1.2, 1.6, 2.0):
+            bus.hseg(dx - 0.2, dx + 0.2, 0.4)
+            bus.hseg(dx - 0.2, dx + 0.2, -0.4)
+        mark = bus.mark()
+        detours = gen_bandgap_routed.DETOUR_OFFSETS_UM
+        gen_bandgap_routed.DETOUR_OFFSETS_UM = [0.0]
+        try:
+            result = gen_bandgap_routed._connect(
+                bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
+            )
+        finally:
+            gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
+        if result is None:
+            self.assertEqual(bus.mark(), mark)
+        else:
+            # If it did find room, it must at least still be short-free.
+            self.assertEqual(bus.conflicts(), [])
+
+    def test_mark_and_restore_cover_the_met2_accumulators(self) -> None:
+        bus = met1_bus.Met1Bus()
+        bus.net("N1")
+        mark = bus.mark()
+        bus.via1(0.0, 0.0)
+        bus.hseg2(0.0, 5.0, 0.0)
+        self.assertTrue(bus.met2_rects)
+        self.assertEqual(bus.via1_count, 1)
+        bus.restore(mark)
+        self.assertEqual(bus.met2_rects, [])
+        self.assertEqual(bus.via1_xy, [])
+        self.assertEqual(bus.via1_count, 0)
+        self.assertEqual(bus.shapes, [])
+        # And the de-dup ledger was rolled back too, so the same via can be
+        # drawn again rather than silently vanishing.
+        bus.via1(0.0, 0.0)
+        self.assertEqual(bus.via1_count, 1)
+
+
+class TestR2LegLength(unittest.TestCase):
+    """`r2_leg_length()` states the drawn-vs-specified R2 divider leg length
+    from the flow's own constants, so the defect it currently reports (and
+    any future regression in either constant) is in every record whether or
+    not `klt lvs` reaches those devices -- see RES_TRIM_LENGTH_NOTE."""
+
+    def test_reports_the_schematic_value_from_core_params(self) -> None:
+        report = gen_bandgap_routed.r2_leg_length()
+        self.assertEqual(report["spec_um"], 270.0)  # r_lseg=5 * n_r2=54
+
+    def test_drawn_length_counts_the_trim_ladder_because_it_is_in_series(
+        self,
+    ) -> None:
+        report = gen_bandgap_routed.r2_leg_length()
+        self.assertEqual(
+            report["drawn_um"], report["coarse_um"] + report["trim_um"]
+        )
+
+    def test_the_known_defect_is_reported_as_a_positive_dr002_code(self) -> None:
+        """DR-002 rejects every positive trim code. The layout currently sits
+        at one; this asserts the *reporting* of that, not that it is
+        acceptable -- when the ladder is re-decomposed, this test is what
+        catches a fix that silently changes the sign or the magnitude."""
+        report = gen_bandgap_routed.r2_leg_length()
+        self.assertFalse(report["matches"])
+        self.assertEqual(report["delta_um"], 16.0)
+        self.assertEqual(report["effective_trim_code"], 16)
+
+
+class TestInternalNetLabelling(unittest.TestCase):
+    """A net declared `internal` to a schematic device must not be labelled.
+
+    A labelled met1 net becomes a top-level pin, and `combine_devices` will
+    not fold a series chain through a pinned node -- so labelling a node
+    interior to R2A/R2B splits that device into unpairable pieces. See
+    INTERNAL_NODE_LABEL_NOTE.
+    """
+
+    def _spec(self, internal: str | None) -> dict[str, dict[str, object]]:
+        spec: dict[str, object] = {
+            "net": "T",
+            "schematic": "test net",
+            "terminals": [{"trunk": ("L", "T")}, {"trunk": ("R", "T")}],
+        }
+        if internal:
+            spec["internal"] = internal
+        return {"T": spec}
+
+    def _route(self, internal: str | None) -> met1_bus.Met1Bus:
+        bus = met1_bus.Met1Bus()
+        trunks = {("L", "T"): (0.0, 0.0), ("R", "T"): (10.0, 5.0)}
+        gen_bandgap_routed._route_one_net(
+            bus, "T", self._spec(internal), {}, {}, trunks, {}, set(), {},
+        )
+        return bus
+
+    def test_an_ordinary_net_is_labelled(self) -> None:
+        self.assertEqual(
+            [label["text"] for label in self._route(None).labels], ["T"]
+        )
+
+    def test_an_internal_net_is_not_labelled(self) -> None:
+        self.assertEqual(self._route("R2A").labels, [])
+
+    def test_the_declared_trim_nets_are_the_internal_ones(self) -> None:
+        """The two nets that were splitting R2A/R2B are declared internal in
+        INTER_BLOCK_MET1 itself, so this cannot silently regress by someone
+        re-adding a label at the call site."""
+        internal = {
+            spec["net"]: spec["internal"]
+            for spec in gen_bandgap_routed.INTER_BLOCK_MET1
+            if spec.get("internal")
+        }
+        self.assertEqual(internal, {"TRIM_A": "R2A", "TRIM_B": "R2B"})

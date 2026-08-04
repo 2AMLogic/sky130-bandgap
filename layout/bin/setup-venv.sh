@@ -18,6 +18,14 @@ fi
 echo "setup-venv.sh: creating $VENV"
 python3 -m venv "$VENV"
 "$VENV/bin/pip" install --quiet --upgrade pip
+# `--force-reinstall` is load-bearing on the `--force` path, and its absence
+# was a silent reproducibility hole: requirements.txt pins `klayout-tools` by
+# git *commit*, but the pinned commits share a package *version* (0.2.0), so
+# plain `pip install -r` sees the requirement as already satisfied and leaves
+# the OLD build in place. A pin bump then appears to install while changing
+# nothing, and the flow runs against a `klt` the repo no longer pins.
+"$VENV/bin/pip" install --quiet --force-reinstall --no-deps \
+  -r "$LAYOUT_DIR/requirements.txt"
 "$VENV/bin/pip" install --quiet -r "$LAYOUT_DIR/requirements.txt"
 
 echo "setup-venv.sh: installed"

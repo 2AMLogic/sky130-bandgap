@@ -18,14 +18,15 @@ deliberately left the two options that would make bussing *expressible*
 ("expose a metal2/via role", "via-drop routing") as follow-ups. So the router
 still cannot draw these wires.
 
-The same tool's sky130 **extraction** deck, however, already declares a full
-two-level stack:
+The same tool's sky130 **extraction** deck, however, already declares a
+multi-level stack. Since 2AMLogic/klayout-tools#508 (merged via #511) it is
+three levels deep:
 
-    metals = ((67, 20), (68, 20))   # li1.drawing, met1.drawing
-    vias   = ((67, 44),)            # mcon.drawing (li1 -> met1)
+    metals = ((67, 20), (68, 20), (69, 20))  # li1, met1, met2 (.drawing)
+    vias   = ((67, 44), (68, 44))            # mcon (li1->met1), via (met1->met2)
 
-and `klt extract` wires it up (`connect(metals[0], vias[0])`,
-`connect(vias[0], metals[1])`). A bus drawn on met1 with an mcon under each
+and `klt extract` wires it up (`connect(metals[i], vias[i])`,
+`connect(vias[i], metals[i+1])`). A bus drawn on met1 with an mcon under each
 landing pad is therefore ordinary, fully-modelled connectivity for the
 extractor -- and, being on a different layer from every device pad, it can
 cross a block's interior without touching anything. That is what this module
@@ -38,15 +39,56 @@ geometry this repo derives itself, where a router would plan them. Its limits
 are recorded in `gen_bandgap_routed.py`'s note constants and in the generated
 record.
 
-DRC budget (checked by the sky130 curated deck, see
-`klayout_tools.decks.sky130.DECK`)
+The met2 escape plane (new, klayout-tools#511)
 ----------------------------------------------------------------------------
+Every bus and every inter-block net above is drawn on met1, and on this
+floorplan met1 saturates: three schematic inter-block hops had no met1
+corridor left at all, whatever lane/margin/placement lever was pulled at them
+(`layout/matching-plan.md` Sections 7d-7o). Until #511 there was no other
+plane -- sky130's curated deck stopped at met1, so klayout-tools#454/#468's
+`"metal2"` role resolved to the *same* met1 layer this module already fills
+(ROUTING_PLANE_NOTE). #511 adds met2 as a genuine third connectivity level.
+
+:meth:`Met1Bus.via1` and :meth:`Met1Bus.hseg2`/:meth:`Met1Bus.vseg2` draw on
+it: a met1 landing pad, a `via.drawing` (68/44) cut, a met2 landing pad, and
+met2 wire between two such stacks. A met2 route is a strict *escape hatch*,
+tried only after every met1 form in `gen_bandgap_routed.py`'s `_connect` has
+been rolled back -- met1 stays the primary plane, so this adds an unshared
+corridor rather than moving the flow's routing onto a layer whose DRC the
+curated deck does not model (see below).
+
+DRC budget
+----------------------------------------------------------------------------
+Checked by the sky130 curated deck (`klayout_tools.decks.sky130.DECK`), i.e.
+proven by this flow's own `klt drc` stage:
+
 * `met1.width.1`  -- min met1 width 0.14 um    -> WIRE_WIDTH_UM = 0.24
 * `met1.space.1`  -- min met1 spacing 0.14 um  -> callers keep lanes >= 0.4 apart
 * `met1.enclosing.mcon.1` -- min met1 enclosure of mcon 0.03 um
                           -> LANDING_UM (0.24) around VIA_UM (0.17) = 0.035
 * `mcon.space.1`  -- min mcon spacing 0.19 um  -> callers place vias on the
                      block's own port pitch, which is far coarser
+
+**Not** checked by the curated deck, and therefore held by construction here
+and re-proved by this module's own :meth:`Met1Bus.conflicts`: the curated deck
+declares met2 as a connectivity level but carries no `met2.*`/`via.*` DRC
+rule at all, so `klt drc` is silent about every shape on the new plane. The
+sizes below are taken from the sky130A source deck the PDK install ships
+(`libs.tech/klayout/drc/sky130A_mr.drc`), not from convention:
+
+* `m2.1`   -- min met2 width 0.14 um            -> MET2_WIRE_WIDTH_UM = 0.32
+* `m2.2`   -- min met2 spacing 0.14 um          -> MET2_SPACE_UM, enforced by
+              :meth:`conflicts` and by the route guard, exactly as
+              `met1.space.1` is for met1
+* `m2.6`   -- min met2 area 0.0676 um^2         -> a 0.32 x 0.32 pad is
+              0.1024 um^2
+* `via.1a` -- via is exactly 0.15 x 0.15 um     -> VIA1_UM = 0.15
+* `via.2`  -- min via spacing 0.17 um           -> VIA1_SPACE_UM
+* `via.4a`/`via.5a` -- min met1 enclosure of via 0.055 um, 0.085 um on two
+              adjacent edges -> MET1_VIA1_LANDING_UM (0.32) gives 0.085 on
+              *all four*
+* `m2.4`/`m2.5` -- min met2 enclosure of via 0.055 um, 0.085 um on two
+              adjacent edges -> MET2_LANDING_UM (0.32) gives 0.085 on all four
 
 sky130 has no minimum li1 enclosure of mcon (`li.5` is 0.0 in the source
 deck), so a via landing flush on a narrow li1 pad -- a `bjt_array` emitter pad
@@ -76,6 +118,15 @@ MET1_LABEL_LAYER = [68, 5]
 #: `...EXTRACTION_DECK.contact` -- the poly/diff -> li1 contact. Drawn by this
 #: module only on a MOS **gate landing pad** (see :meth:`Met1Bus.gate_contact`).
 LICON_LAYER = [66, 44]
+#: `...EXTRACTION_DECK.vias[1]` -- `via.drawing`, the met1 -> met2 via. New
+#: with 2AMLogic/klayout-tools#508 (merged via #511); before it the sky130
+#: curated deck's connectivity graph stopped at met1.
+VIA1_LAYER = [68, 44]
+#: `...EXTRACTION_DECK.metals[2]` -- met2, the third conductor and the escape
+#: plane this module falls back to when met1 has no corridor left.
+MET2_LAYER = [69, 20]
+#: `...EXTRACTION_DECK.metal_labels[2]` -- met2.pin.
+MET2_LABEL_LAYER = [69, 5]
 
 #: mcon drawn size (um). sky130's mcon is a fixed 0.17 um square.
 VIA_UM = 0.17
@@ -98,6 +149,26 @@ GRID_UM = 8.0
 #: sky130 `li1.space.1` (um) -- the clearance :meth:`Met1Bus.conflicts` holds
 #: every pair of *different*-net li1 shapes this module draws to.
 LI1_SPACE_UM = 0.17
+
+# --- met2 escape plane (sky130A source-deck rules, see module docstring) ---
+#: sky130 `via.1a`: the met1 -> met2 via is exactly 0.15 um square.
+VIA1_UM = 0.15
+#: sky130 `via.2`: minimum via-to-via spacing (um).
+VIA1_SPACE_UM = 0.17
+#: met1 landing-pad side (um) around one via1. 0.32 encloses the 0.15 cut by
+#: 0.085 on all four edges -- the stricter of `via.4a` (0.055 all round) and
+#: `via.5a` (0.085 on two adjacent edges).
+MET1_VIA1_LANDING_UM = 0.32
+#: met2 landing-pad side (um) around one via1, sized by `m2.4`/`m2.5` the same
+#: way. Also clears `m2.6` (min met2 area 0.0676 um^2) on its own.
+MET2_LANDING_UM = 0.32
+#: met2 wire width (um): the landing pad's side, so a wire ending on a via
+#: satisfies the two-adjacent-edge enclosure along its own axis too. Well over
+#: `m2.1` (0.14).
+MET2_WIRE_WIDTH_UM = 0.32
+#: sky130 `m2.2` minimum met2 spacing (um) -- the clearance the met2 route
+#: guard and :meth:`Met1Bus.conflicts` hold between different nets.
+MET2_SPACE_UM = 0.14
 
 
 class Met1Bus:
@@ -133,6 +204,19 @@ class Met1Bus:
         self._grid: dict[tuple[int, int], list[int]] = {}
         self.gate_contact_count = 0
         self._vias: set[tuple[str, float, float]] = set()
+        #: (net_id, x0, y0, x1, y1) for every met2 rectangle drawn -- the same
+        #: drawn-short ledger `met1_rects` is, for the escape plane. It needs
+        #: its own, and needs it more: `klt drc`'s curated sky130 deck carries
+        #: no met2 rule at all (module docstring), so nothing downstream would
+        #: report two nodes' met2 touching.
+        self.met2_rects: list[tuple[str, float, float, float, float]] = []
+        #: (cell -> met2_rects indices) proximity index, see `met2_near`.
+        self._grid2: dict[tuple[int, int], list[int]] = {}
+        #: (net_id, x, y) per drawn via1, for the `via.2` proximity half of
+        #: :meth:`conflicts` and for :meth:`components`' cross-layer joins.
+        self.via1_xy: list[tuple[str, float, float]] = []
+        self.via1_count = 0
+        self._via1s: set[tuple[str, float, float]] = set()
         self._net = "?"
 
     def net(self, net_id: str) -> "Met1Bus":
@@ -146,6 +230,9 @@ class Met1Bus:
         if layer == MET1_LAYER:
             self._index_met1(len(self.met1_rects), x0, y0, x1, y1)
             self.met1_rects.append((self._net, x0, y0, x1, y1))
+        elif layer == MET2_LAYER:
+            self._index_met2(len(self.met2_rects), x0, y0, x1, y1)
+            self.met2_rects.append((self._net, x0, y0, x1, y1))
         elif layer == LI1_LAYER:
             self.li1_rects.append((self._net, x0, y0, x1, y1))
 
@@ -201,6 +288,49 @@ class Met1Bus:
                 elif bucket and position in bucket:
                     bucket.remove(position)
         del self.met1_rects[count:]
+
+    # -- met2 spatial index (same shape as met1's, separate plane) ---------
+    def _index_met2(self, position: int, x0: float, y0: float, x1: float, y1: float) -> None:
+        for cell in self._cells(x0, y0, x1, y1):
+            self._grid2.setdefault(cell, []).append(position)
+
+    def met2_near(
+        self, x0: float, y0: float, x1: float, y1: float, clearance: float
+    ):
+        """Every already-drawn met2 rectangle within `clearance` of the box.
+
+        Box (Chebyshev) proximity, i.e. slightly stricter than sky130's
+        Euclidean `m2.2`, for the same reason :meth:`met1_near` is stricter
+        than `met1.space.1`.
+        """
+        seen: set[int] = set()
+        for cell in self._cells(
+            x0 - clearance, y0 - clearance, x1 + clearance, y1 + clearance
+        ):
+            for position in self._grid2.get(cell, ()):  # noqa: B007
+                if position in seen:
+                    continue
+                seen.add(position)
+                net_b, bx0, by0, bx1, by1 = self.met2_rects[position]
+                if (
+                    x0 - clearance < bx1
+                    and bx0 - clearance < x1
+                    and y0 - clearance < by1
+                    and by0 - clearance < y1
+                ):
+                    yield (net_b, bx0, by0, bx1, by1)
+
+    def truncate_met2(self, count: int) -> None:
+        """Drop every met2 rectangle from `count` on, index included."""
+        for position in range(count, len(self.met2_rects)):
+            _net, x0, y0, x1, y1 = self.met2_rects[position]
+            for cell in self._cells(x0, y0, x1, y1):
+                bucket = self._grid2.get(cell)
+                if bucket and bucket[-1] == position:
+                    bucket.pop()
+                elif bucket and position in bucket:
+                    bucket.remove(position)
+        del self.met2_rects[count:]
 
     def via(self, x: float, y: float) -> None:
         """One mcon + its met1 landing pad, centred at (x, y).
@@ -264,6 +394,52 @@ class Met1Bus:
         self._rect(LI1_LAYER, x - w, y0 - w, x + w, y1 + w)
         self.gate_contact_count += 1
 
+    def via1(self, x: float, y: float) -> None:
+        """One met1 -> met2 via stack (met1 pad + `via.drawing` cut + met2
+        pad), centred at (x, y).
+
+        This is the primitive klayout-tools#508 (merged via #511) made
+        drawable: before it the sky130 curated deck's connectivity graph
+        stopped at met1, so a `via.drawing` cut and any met2 above it were
+        inert geometry the extractor would not traverse -- drawing them would
+        have produced a *disconnected* node that still looked routed, which is
+        exactly the failure mode :meth:`components` exists to catch.
+
+        The caller is responsible for (x, y) sitting on met1 the same net
+        already owns; every call site drops it on a point the met1 router has
+        just drawn to. A repeat call at a position already contacted by the
+        same net is a no-op, for the same reason :meth:`via` de-duplicates:
+        two coincident cuts are one via drawn twice and would trip `via.2`.
+        """
+        key = (self._net, round(x, 4), round(y, 4))
+        if key in self._via1s:
+            return
+        self._via1s.add(key)
+        self.via1_xy.append((self._net, x, y))
+        h = MET1_VIA1_LANDING_UM / 2.0
+        self._rect(MET1_LAYER, x - h, y - h, x + h, y + h)
+        h = VIA1_UM / 2.0
+        self._rect(VIA1_LAYER, x - h, y - h, x + h, y + h)
+        h = MET2_LANDING_UM / 2.0
+        self._rect(MET2_LAYER, x - h, y - h, x + h, y + h)
+        self.via1_count += 1
+
+    def hseg2(self, x0: float, x1: float, y: float) -> None:
+        """One horizontal met2 segment (no vias)."""
+        if x0 == x1:
+            return
+        h = MET2_WIRE_WIDTH_UM / 2.0
+        self._rect(MET2_LAYER, min(x0, x1), y - h, max(x0, x1), y + h)
+        self.wire_count += 1
+
+    def vseg2(self, x: float, y0: float, y1: float) -> None:
+        """One vertical met2 segment (no vias)."""
+        if y0 == y1:
+            return
+        h = MET2_WIRE_WIDTH_UM / 2.0
+        self._rect(MET2_LAYER, x - h, min(y0, y1), x + h, max(y0, y1))
+        self.wire_count += 1
+
     def hseg(self, x0: float, x1: float, y: float) -> None:
         """One horizontal met1 segment (no vias)."""
         if x0 == x1:
@@ -306,21 +482,27 @@ class Met1Bus:
         """
         return (len(self.shapes), len(self.met1_rects), len(self.via_xy),
                 len(self.labels), self.via_count, self.wire_count,
-                len(self.li1_rects), self.gate_contact_count)
+                len(self.li1_rects), self.gate_contact_count,
+                len(self.met2_rects), len(self.via1_xy), self.via1_count)
 
     def restore(self, mark: tuple[int, ...]) -> None:
         """Undo every shape, rectangle, via, gate contact and label added
         since `mark`."""
         (shapes, rects, vias, labels, via_count, wire_count, li1_rects,
-         gate_contacts) = mark
+         gate_contacts, met2_rects, via1s, via1_count) = mark
         for net, x, y in self.via_xy[vias:]:
             self._vias.discard((net, round(x, 4), round(y, 4)))
+        for net, x, y in self.via1_xy[via1s:]:
+            self._via1s.discard((net, round(x, 4), round(y, 4)))
         self.via_count = via_count
         self.wire_count = wire_count
         self.gate_contact_count = gate_contacts
+        self.via1_count = via1_count
         del self.shapes[shapes:]
         self.truncate_met1(rects)
+        self.truncate_met2(met2_rects)
         del self.via_xy[vias:]
+        del self.via1_xy[via1s:]
         del self.labels[labels:]
         del self.li1_rects[li1_rects:]
 
@@ -335,22 +517,34 @@ class Met1Bus:
         non-empty result is a flow failure, never a warning: a drawn short
         that DRC happens not to flag is exactly the class of false evidence
         this module exists to avoid producing.
+
+        met2 and its via1 cuts are checked here too, and for them this is not
+        a safety net but the *only* net: the curated sky130 deck declares met2
+        as a connectivity level (klayout-tools#511) without declaring a single
+        `met2.*`/`via.*` DRC rule, so `klt drc` reports nothing about the
+        escape plane's geometry. Thresholds come from the sky130A source deck
+        (`m2.2` 0.14 um, `via.2` 0.17 um).
         """
         found: list[dict[str, Any]] = []
         eps = clearance_um - 1e-9
         # mcon-to-mcon: sky130's `ct.2` minimum mcon spacing is 0.19 um, and
         # two vias of different nets that close are also very nearly a short.
-        via_space = 0.19 - 1e-9
-        for i, (net_a, ax, ay) in enumerate(self.via_xy):
-            for net_b, bx, by in self.via_xy[i + 1 :]:
-                if net_a == net_b:
-                    continue
-                if abs(ax - bx) < VIA_UM + via_space and abs(ay - by) < VIA_UM + via_space:
-                    found.append(
-                        {"nets": [net_a, net_b], "via_a": [ax, ay], "via_b": [bx, by]}
-                    )
+        # via1-to-via1: sky130's `via.2` is 0.17 um.
+        for cuts, size, space in (
+            (self.via_xy, VIA_UM, 0.19 - 1e-9),
+            (self.via1_xy, VIA1_UM, VIA1_SPACE_UM - 1e-9),
+        ):
+            for i, (net_a, ax, ay) in enumerate(cuts):
+                for net_b, bx, by in cuts[i + 1 :]:
+                    if net_a == net_b:
+                        continue
+                    if abs(ax - bx) < size + space and abs(ay - by) < size + space:
+                        found.append(
+                            {"nets": [net_a, net_b], "via_a": [ax, ay], "via_b": [bx, by]}
+                        )
         for layer, rects, clearance in (
             ("met1", self.met1_rects, eps),
+            ("met2", self.met2_rects, MET2_SPACE_UM - 1e-9),
             # The gate risers of `gate_contact` are the only li1 this module
             # draws, and they are checked against each other to sky130's
             # `li1.space.1`. Their clearance to the *generators'* own li1 pads
@@ -381,7 +575,8 @@ class Met1Bus:
         return found
 
     def components(self) -> dict[str, int]:
-        """How many disjoint pieces of met1 each net's drawn wiring falls into.
+        """How many disjoint pieces each net's drawn wiring falls into, across
+        both routing planes.
 
         A net drawn as two pieces that never touch is *not* a connected node,
         however confidently the net id says otherwise -- and unlike a drawn
@@ -390,13 +585,24 @@ class Met1Bus:
         the matching safety net to :meth:`conflicts`: 1 means the wiring this
         flow drew for that node is genuinely one conductor.
 
-        Rectangles are joined when they touch or overlap (a shared edge is a
-        connection on one metal layer). Nets that legitimately close through
-        li1 rather than met1 are the caller's business to exclude.
+        Rectangles are joined when they touch or overlap **on the same layer**
+        (a shared edge is a connection on one metal layer, and met1 crossing
+        under met2 is not). A met1 piece and a met2 piece are joined only
+        where a :meth:`via1` cut of the same net sits inside both -- which is
+        the whole point of counting the two planes in one graph rather than
+        two: a met2 escape whose via stack missed its own met1 would otherwise
+        score 1-per-plane and look connected while being two floating nets.
+        Nets that legitimately close through li1 rather than met1 are the
+        caller's business to exclude.
         """
-        by_net: dict[str, list[tuple[float, float, float, float]]] = {}
+        by_net: dict[str, list[tuple[int, float, float, float, float]]] = {}
         for net, x0, y0, x1, y1 in self.met1_rects:
-            by_net.setdefault(net, []).append((x0, y0, x1, y1))
+            by_net.setdefault(net, []).append((0, x0, y0, x1, y1))
+        for net, x0, y0, x1, y1 in self.met2_rects:
+            by_net.setdefault(net, []).append((1, x0, y0, x1, y1))
+        via1_by_net: dict[str, list[tuple[float, float]]] = {}
+        for net, x, y in self.via1_xy:
+            via1_by_net.setdefault(net, []).append((x, y))
         out: dict[str, int] = {}
         eps = 1e-9
         for net, rects in by_net.items():
@@ -408,24 +614,39 @@ class Met1Bus:
                     i = parent[i]
                 return i
 
+            def union(i: int, j: int) -> None:
+                ri, rj = find(i), find(j)
+                if ri != rj:
+                    parent[ri] = rj
+
             local: dict[tuple[int, int], list[int]] = {}
-            for i, (x0, y0, x1, y1) in enumerate(rects):
+            for i, (_plane, x0, y0, x1, y1) in enumerate(rects):
                 for cell in self._cells(x0 - eps, y0 - eps, x1 + eps, y1 + eps):
                     local.setdefault(cell, []).append(i)
             for bucket in local.values():
                 for pos, i in enumerate(bucket):
-                    ax0, ay0, ax1, ay1 = rects[i]
+                    aplane, ax0, ay0, ax1, ay1 = rects[i]
                     for j in bucket[pos + 1 :]:
-                        bx0, by0, bx1, by1 = rects[j]
+                        bplane, bx0, by0, bx1, by1 = rects[j]
+                        if aplane != bplane:
+                            continue
                         if (
                             ax0 - eps <= bx1
                             and bx0 - eps <= ax1
                             and ay0 - eps <= by1
                             and by0 - eps <= ay1
                         ):
-                            ri, rj = find(i), find(j)
-                            if ri != rj:
-                                parent[ri] = rj
+                            union(i, j)
+            # Cross-plane joins: one via1 cut welds every met1 rectangle it
+            # sits inside to every met2 rectangle it sits inside.
+            for vx, vy in via1_by_net.get(net, ()):
+                touching: dict[int, list[int]] = {0: [], 1: []}
+                for i, (plane, x0, y0, x1, y1) in enumerate(rects):
+                    if x0 - eps <= vx <= x1 + eps and y0 - eps <= vy <= y1 + eps:
+                        touching[plane].append(i)
+                for i in touching[0]:
+                    for j in touching[1]:
+                        union(i, j)
             out[net] = len({find(i) for i in range(len(rects))})
         return out
 
@@ -491,6 +712,8 @@ class Met1Bus:
             "met1_via_count": self.via_count,
             "met1_wire_count": self.wire_count,
             "met1_label_count": len(self.labels),
+            "via1_count": self.via1_count,
+            "met2_rect_count": len(self.met2_rects),
         }
         (out_dir / f"{cell_name}.gen.json").write_text(
             json.dumps(gen_report, indent=2) + "\n"

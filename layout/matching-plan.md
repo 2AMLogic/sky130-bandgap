@@ -1751,6 +1751,326 @@ re-evaluate whether the freed plane changes any of Section 7g's per-hop
 blocker tallies -- worth checking `blocked_by_counts` again rather than
 re-deriving it from scratch, since that diagnostic already exists.
 
+### 7p. Eighteenth increment: bumped the `klt` pin past klayout-tools#508's merge, picked up the third connectivity level, no routing change yet
+
+Section 7o's own closing line named the trigger for this increment:
+klayout-tools#508 landing. It has -- checked directly via `gh issue view
+508 --repo 2AMLogic/klayout-tools`, state `CLOSED`/`COMPLETED`, and via the
+GraphQL `closedByPullRequestsReferences` edge, which names the exact
+merged PR: [klayout-tools#511](https://github.com/2AMLogic/klayout-tools/pull/511)
+(`feat(decks): add sky130 met2 as a third connectivity level
+(metal3/via2)`), merged 2026-08-04T19:56:08Z at `af5791b`. `main` has no
+commits after it (`git ls-remote` confirms `af5791b` is still the tip), so
+this pin is current, not a partial bump.
+
+**What #511 actually ships**, read from its own PR body and re-verified
+against the pinned commit directly (not reconstructed from the PR
+description alone):
+
+- `klayout_tools.decks.sky130.EXTRACTION_DECK.metals` is now
+  `((67, 20), (68, 20), (69, 20))` -- li1.drawing, met1.drawing,
+  **met2.drawing** -- with `.vias` now `((67, 44), (68, 44))` (mcon.drawing,
+  and the new met1<->met2 via, `via.drawing`) and `.metal_labels` now
+  `((67, 5), (68, 5), (69, 5))`.
+- `klayout_tools.gen._PDK_ROLE_LAYERS["sky130"]` gains `"metal3": (69, 20)`
+  and `"via2": (68, 44)`, mirroring the existing `"metal2"`/`"via1"` pair
+  exactly (same shape `met1_bus.py`'s own `MET1_LAYER`/`MCON_LAYER`
+  constants already follow for the first level).
+- `gen_compose`'s router resolves the new role generically (confirmed by
+  #511's own Judge-facing description of `_resolve_route_layer`/
+  `_resolve_via_drop_layer` walking `deck.metals`/`.vias` by index, no
+  hardcoded role names) -- no `gen_compose.py` code change was needed
+  upstream for `"metal3"` to become selectable.
+- The via-drop restriction this repo has run into before is unchanged and
+  still applies to the new role: single-hop only. A `"metal3"` backbone
+  reaches a `"metal2"`(met1)-role pin one via hop away, not a
+  `"metal"`(li1)-role pin two hops away.
+
+**What this increment ships**: `layout/requirements.txt`'s pin only, bumped
+from `147602af31c47fb935383b1761e8ce2f21c534cf` to
+`af5791b557fc7c669c3981335a294256ccf37e6f`, plus updating every NOTE
+constant and generated `record.md` section in `gen_bandgap_routed.py` that
+named klayout-tools#508/#506 as open -- both are closed now (#506 as
+COMPLETED, independently of this repo's own needs; see RES_BULK_ARITY_NOTE)
+-- so a fresh record does not ship stale "still open" claims about gaps
+that no longer are. **No routing, floorplan, or router-logic change ships
+here.** `met1_bus.py` still draws every bus and inter-block net on met1
+only; the router's candidate-path search (`_channel_paths`/`_connect`/
+`_route_one_net`) is untouched.
+
+**Non-regression proof**: `layout/bin/run-trivial-cell-flow.sh` re-run
+unmodified still PASSes with the identical four-way verdict (see
+`trivial-cell/reports/` for the refreshed record); `layout/bin/
+run-bandgap-routed-flow.sh` re-run reproduces AC1/AC4's prior numbers
+unchanged -- 9/12 schematic nets, `mismatch_count=32`,
+`devices.matched=6`, `nets.matched=3` -- exactly as expected, since the
+newly available `"metal3"`/`"via2"` role is not yet referenced anywhere in
+this repo's own code.
+
+**What this does and does not move.** AC1/AC4 are unchanged in number.
+AC5 gains no new filing (nothing new to file -- the opposite: this
+increment is the friction-filing series' own upstream fix landing) and
+loses two "currently open" gaps from its own scoreboard: klayout-tools#506
+and #508 are both closed as of this record, so **no gap this flow has ever
+filed is open upstream any longer**. What changes is scope for the *next*
+increment: the metal-level capability constraint Sections 7d-7o spent
+eleven increments confirming was real and immovable from this repo's own
+side no longer holds. The next AC1 increment's job is concrete and
+narrower than "find a lever" -- it is "spend the lever that now exists":
+extend `met1_bus.py` (or a sibling module alongside it) to draw the
+still-unrouted `D1`/`GDRV`/`VSS` trio's hops on met2/via.drawing, which
+starts as a genuinely empty plane relative to every block's own met1
+interior bussing (`bus_mos_comb`'s finger trunks -- the "block-internal
+comb geometry the inter-block router cannot reorder at all" Section 7g's
+per-hop blocker tally named as two of the three hops' actual obstacle).
+That is real new geometry code (via1 landing-pad sizing against met2's own
+DRC thresholds, a second `conflicts()`/`components()` proof analogous to
+`Met1Bus`'s existing met1 ones, and deciding whether to route the whole
+hop on met2 or only the congested segment), not a parameter flip -- left
+for the next increment, per this issue's own one-lever-per-increment
+discipline.
+
+### 7q. Nineteenth increment: AC1 closes on a met2 escape plane built on Section 7p's pin, and removing four labels drops every remaining connectivity mismatch
+
+Section 7o's closing line said: "If `klayout-tools#508` lands (a third
+connectivity level curated for sky130 with its own `"metal3"`/`"via2"` role
+pair), the next AC1 increment should re-evaluate whether the freed plane
+changes any of Section 7g's per-hop blocker tallies." It landed --
+[klayout-tools#511](https://github.com/2AMLogic/klayout-tools/pull/511),
+merged 2026-08-04 -- and the answer is that the freed plane does not change
+the tallies, it makes them irrelevant.
+
+**Baseline re-measured first, not assumed.** The flow was re-run unmodified
+both at the pre-bump pin and, by Section 7p, at the post-bump one:
+`mismatch_count` 32, `unrouted` = `{D1, GDRV, VSS}`, one failed hop each,
+unchanged across the bump. Every number below is a delta against that
+measured baseline, not against a remembered one -- and Section 7p's own
+record is the controlled counterfactual for this section, since it is the
+same `klt` pin with none of the routing logic.
+
+#### AC1: MET, 12/12 -- and how
+
+`EXTRACTION_DECK.metals` on sky130 is now `((67,20), (68,20), (69,20))` with
+`vias = ((67,44), (68,44))` and `metal_labels = ((67,5), (68,5), (69,5))`.
+That is the fact Sections 7d and 7o said did not exist: a conductor above
+met1 that `klt extract` will traverse. `met1_bus.Met1Bus` gains `via1()`
+(met1 pad + `via.drawing` cut + met2 pad) and `hseg2()`/`vseg2()`, and
+`gen_bandgap_routed._connect_met2()` lifts a hop onto it.
+
+Three properties of the escape are deliberate:
+
+- **It is tried strictly last.** `_connect` runs every met1 form it always
+  did -- both elbows, every channel path, every Z-detour and four-segment
+  escape -- and only falls through to met2 when all of them have been drawn
+  and rolled back. met1 stays the primary plane, because met1 is the plane
+  the curated `klt drc` deck actually checks (below).
+- **The via1 drop point can walk.** The via stack's met1 landing pad is
+  0.32 um (sized by sky130's `via.4a`/`via.5a`), wider than the 0.24 um wire
+  that reaches it, so it can foul a neighbour the wire itself cleared.
+  `_met2_drop` walks the pad along a short guarded met1 stub through
+  `MET2_DROP_OFFSETS_UM` until one fits, rather than declaring the hop
+  unroutable because its exact endpoint was 0.04 um too tight.
+- **`components()` now spans both planes.** This is the load-bearing one. The
+  split-node gate counts connected components of each node's own drawn metal;
+  counting met1 and met2 separately would score a met2-escaped node as 2 and
+  fail the gate, and counting met1 alone would score it 2 as well. Rectangles
+  are joined only within a plane, and a met1 piece is joined to a met2 piece
+  only where a `via1` cut of the same net sits inside both -- so a via stack
+  that missed its own met1 is reported as the split node it is, instead of
+  reading as connected because each plane is individually in one piece.
+
+Result (`layout/bandgap-core/reports/20260804-211109-0336eb4/record.md`):
+**13/13 declared nets routed, 0 unrouted, 12/12 schematic inter-block nets
+fully drawn.** Seven hops use the escape -- the
+`D1`/`GDRV`/`VSS` trio Sections 7c-7o could not place, plus two `VDD` hops
+that met1 could only reach through long detours. Drawn-short conflicts 0,
+split routed nodes 0, DRC clean. The flow also got roughly 11x faster (8m13s
+-> 43s), because the search no longer exhausts its entire candidate set on
+three hops that had no met1 answer.
+
+**What this says about Sections 7e-7k in hindsight.** Nothing in them was
+wrong, and re-reading them was what made this increment cheap: they
+established that no lane, margin, placement or search-depth change moved the
+trio, which is precisely the signature of a capacity limit rather than a
+search limit. Section 7g's per-hop blocker tallies were the sharpest form of
+that evidence -- `VSS`'s hop vetoed by 20 distinct nets including thirteen
+segments of the resistor ladder's own bus is not a hop that one more detour
+shape was going to find. The one thing worth naming as a lesson: Section 7d
+found in the *sixth* increment that `metal2` was not a second plane on
+sky130, and that finding sat in this document, unfiled, until the
+seventeenth. Filing it is what got it fixed, in one day.
+
+#### AC4: 32 -> 18, and every remaining category is a value, not a connection
+
+Two changes, measured separately.
+
+**1. The unrouted trio closing (met2 escape alone): 32 -> 26.**
+`category_counts` goes `{device.unmatched: 19, net.merged: 3, net.split: 10}`
+-> `{device.property: 7, device.unmatched: 13, net.unmatched: 6}`, and
+`devices.matched` 6 -> 10. `net.split`/`net.merged` reach **0**: the nodes
+that were split in the layout where the reference has one are now joined.
+
+**2. Removing four `pins[]` labels: 26 -> 18.** This is the increment's
+second substantive finding, and it was isolated *before* being fixed, by
+re-running `klt lvs` on the byte-identical extracted netlist with only those
+four pins stripped from its `.SUBCKT` line.
+
+A labelled met1 net is promoted by `klt extract` to a top-level pin, and
+`klt lvs`'s `combine_devices` will not fold a series chain through a pinned
+node -- folding one away would delete an externally visible port. This flow
+labelled `TRIM_A`, `TRIM_B`, `TRIM_A_CODE_0` and `TRIM_B_CODE_0`. Every one
+of those sits on a node *interior to the schematic's own R2A/R2B device*,
+which at DR-002's code 0 the schematic does not have at all. So each divider
+leg was pinned into three pieces on the layout side, none of the three could
+pair with the reference's single R2A/R2B, and the orphaned nodes dragged
+`VBQ`, `R1` and `Q2` out of correspondence with them too.
+
+With them gone: `category_counts` = `{device.property: 17,
+device.unmatched: 1}`, `net.unmatched` **0**, layout nets 11 vs reference
+11. The single `device.unmatched` is `MCC`, the compensation cap this layout
+deliberately does not draw. **For the first time in this issue's history, no
+remaining mismatch is a connectivity difference.**
+
+Section 7n's cause list is correspondingly split in two. It had conflated
+"the trim ladder makes the layout look like it has extra devices" (a
+*labelling* artifact, fixed here) with "the trim ladder adds real length" (a
+*geometry* defect, below). They are different problems with different fixes,
+and the second was invisible while the first was live.
+
+Fixed structurally, not by deleting labels at the call site: `INTER_BLOCK_MET1`
+entries carry an `internal: "<schematic device>"` field, `_route_one_net`
+skips `bus.label()` for them, and `trim_tap_pins()` still locates and
+validates the DR-002 code taps every run but reports them into `record.md`
+instead of into `pins[]`. The taps are still documented; they are just no
+longer asserted to be device-level ports of this cell. Filed upstream as
+[klayout-tools#514](https://github.com/2AMLogic/klayout-tools/issues/514):
+the tool gap is that there is no way to name a net *without* promoting it,
+and no report anywhere attributes the resulting mismatches to the label.
+(klayout-tools#291's `--top-cell-pins` does not cover this -- it demotes by
+which cell a label was drawn in, and this flow draws every label into one
+overlay cell, so the flag is all-or-nothing.)
+
+#### The new defect this exposed: R2 legs are 286 um, not 270 um
+
+With R2A/R2B finally *paired*, the comparer reports a value for the first
+time: layout **91,462.8 ohm** vs reference 88,130. 91,462.8 / 319.8
+ohm-per-square = **286 squares**, i.e. a 286 um drawn leg at W = 1 um, where
+`design/bandgap_core.sch`'s `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim` at
+`n_r2=54, r_lseg=5, n_r2_trim=0` states 270 um.
+
+The 16 um is exactly `res_trim`'s 16 x 1 um leg, which this layout wires in
+series unconditionally. So the drawn cell sits at DR-002 trim code **+16** --
+and DR-002 rejects every positive code outright (issue #46 found `n_r2=55`,
+i.e. +5 um, already collapses the operating point at the ff/2.97 V and
+fs/2.97 V hot corners; `sim/trim-range-monotonicity/` finds +1/+2 collapse
+too). Worse, because the ladder hangs *after* the full-length `res_r2` leg,
+every tap short of the far end moves the leg further **up** from 270 -- the
+drawn ladder implements the direction DR-002 forbids and cannot express any
+of the 16 downward codes DR-002 certifies.
+
+`R1` is the control that rules out a modelling artifact: its drawn body reads
+exactly right (35 um = 7 x 5 um) and its only value difference is the
+`res_high_po` model's per-device 380 ohm head term, which the extractor's
+sheet-resistance model does not carry and no drawn shape can add.
+
+**Not fixed here, and deliberately.** The fix is a re-decomposition of each
+270 um leg -- 50 coarse 5 um units + 20 fine 1 um units is the minimal
+integral decomposition that keeps the specified total and still offers all 16
+downward codes (51 + 15 totals 270 but is one code short). That changes both
+matched arrays' unit counts and row folds, so it touches Sections 1 and 3's
+matching-effort argument and issue #62's AC2 evidence line, and it perturbs
+the floorplan and therefore the router. It is a design change that deserves
+its own before/after, not a rider on a routing increment. Filed as **issue
+#91** with the full evidence and proposed decomposition.
+
+What *is* shipped here is that it can never again be invisible:
+`r2_leg_length()` states drawn-vs-specified leg length from the flow's own
+constants in every record, unconditionally, whether or not `klt lvs` reaches
+those devices -- with the delta expressed in DR-002's own units
+(`effective_trim_code: +16`). It is reported, not yet gated, precisely
+because gating it today would stop the flow producing the record that
+measures it; issue #91's acceptance criteria promote it to a `flow_gate` row.
+
+#### The met2 plane is not checked by `klt drc`, and this flow checks it itself
+
+The flip side of #511: the curated sky130 **DRC** deck was not extended
+alongside the extraction deck. `klayout_tools.decks.sky130.DECK` has 10
+rules and its only routing-stack geometry rules are `li1.width.1`,
+`li1.space.1`, `met1.width.1`, `met1.space.1`, `met1.enclosing.mcon.1` --
+nothing mentioning `(69,20)` or `(68,44)` at all. So `klt drc --deck sky130`
+returns `violation_count: 0` on a layout whose met2 could be 10 nm wide.
+
+That is not inferred: `drc.json`'s own `coverage` block (the field
+klayout-tools#189 added) lists this run's `layers_in_stream_without_rules`,
+and `68/44` and `69/20` are both in it. The tool is honest about the gap; it
+simply has no rules to apply.
+
+`layout/bin/met2_drc.py` applies them, from the installed sky130A PDK's own
+source deck (`libs.tech/klayout/drc/sky130A_mr.drc`): `m2.1` width 0.14,
+`m2.2` spacing 0.14, `m2.6` area 0.0676, `via.1a` cut exactly 0.15, `via.2`
+spacing 0.17, `via.4a`/`via.5a` met1 enclosure, `m2.4`/`m2.5` met2
+enclosure, plus a via-with-no-metal-above-or-below check that is a
+connectivity error nothing else would report. It is a `flow_gate` row, and
+it comes back clean on this record (11 via1 cuts, 4 met2 polygons).
+
+Two notes worth keeping, both found by building the checker's own negative
+control rather than by reading:
+
+- `Region.with_area(min, max)` silently resolves to KLayout's *other*
+  two-argument overload, `with_area(area, inverse)`. The first cut of the
+  `m2.6` rule therefore read as "area exactly 0, inverted", returned every
+  polygon, and reported four area violations the layout did not have. The
+  three-argument `(min, max, inverse)` form is required. A checker that
+  passes everything and a checker that fails everything are equally useless;
+  only the negative control tells them apart, which is why
+  `layout/tests/test_met2_drc.py` exercises every rule in both directions.
+- `Met1Bus.conflicts()` now scores met2 and via1 alongside met1 and li1, and
+  for the new plane it is not a safety net but the only net -- there is no
+  deck rule behind it to fall back on.
+
+Filed upstream as
+[klayout-tools#513](https://github.com/2AMLogic/klayout-tools/issues/513):
+the curated deck's *rule* coverage now trails its own *extraction* coverage
+on sky130, the same shape klayout-tools#188 closed for gf180mcu's upper
+metals.
+
+#### One incidental correctness fix
+
+`_draw_guarded` rolled back a rejected path's shapes and rectangles but not
+`wire_count`, so the reported `met1_wire_count` tallied every *attempted*
+segment -- tens of thousands on a congested hop -- rather than the drawn
+layout. Both guards now restore it. Found by the met2 rollback test
+asserting full `mark()` equality, which the existing met1 rollback test did
+not.
+
+#### Also fixed: `setup-venv.sh --force` did not force
+
+`requirements.txt` pins `klayout-tools` by git commit, but the pinned commits
+share a package version (0.2.0), so plain `pip install -r` treats the
+requirement as already satisfied and leaves the *old* build in place. A pin
+bump appeared to install while changing nothing -- this increment's first
+attempt at the bump silently ran against the previous pin, and was only
+caught by reading `EXTRACTION_DECK.metals` back and finding two levels. The
+`--force` path now passes `--force-reinstall`.
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | PARTIAL, 9/12 | **MET, 12/12** |
+| 2 (real ladder unit count) | MET | MET (but see issue #91 -- the count is real, the *length* is 16 um over) |
+| 3 (device classes + pins) | MET | MET (pin_count 15 -> 11: the four internal-node labels are gone) |
+| 4 (`klt lvs` clean) | NOT MET, 32 | NOT MET, **18**; `device.unmatched` 19 -> 1, no connectivity mismatches left |
+| 5 (blocking gaps filed) | MET | MET (+#513, +#514; #508 closed via #511) |
+
+**Suggested next increment**: issue #91 (the R2 leg re-decomposition) is now
+the largest single remaining cause of AC4 and the only one that is a genuine
+layout defect. Of the rest, `MCC` is deliberate, the `res_high_po` head term
+is a model/extractor difference no drawn shape can close, and the PNP
+`ne`/area parameters are a reference-side transcription question that
+`design/bandgap_core.sch` does not itself answer (it states `m=8`, not an
+emitter area).
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five
@@ -1787,36 +2107,33 @@ re-deriving it from scratch, since that diagnostic already exists.
   did not move (still 32) -- tracing further shows the arity was never the
   *operative* blocker for these three devices; the DR-002 trim ladder's own
   always-drawn topology (new cause 3, below) is.
-  1. **Three schematic nodes are still not joined end to end** -- this
-     flow's own router running out of corridors, *not* a tool gap, and
-     confirmed by the fifth increment to survive a per-net rip-up-and-retry,
-     not just a whole-cell reorder. The ninth increment (Section 7g) went
-     further: the per-hop blocker tally now in every record shows each of
-     the three remaining hops rejecting *every* candidate path `_connect()`
-     can generate (5230-5636 per hop), against 3 to 20 distinct already-drawn
-     nets -- and that for two of them (`D1`, `GDRV`) the metal in the way is
-     block-internal comb geometry the inter-block router cannot reorder at
-     all. A real corridor deadlock, not a single-net or search-depth problem
-     a router-side change can still solve. It is the first time in this
-     issue's history that the top cause is this repo's own. **Update,
-     seventeenth increment (Section 7o)**: the one metal-level capability
-     that could still open a corridor here -- a genuine third routing plane
-     on sky130 -- does not exist upstream and had never been filed; now
-     filed as klayout-tools#508 (open).
-  2. **MCC** is in the reference and deliberately not drawn (Section 6).
-  3. **The DR-002 trim ladder is always physically drawn, at code 0 the
-     schematic has none at all.** `res_trim`'s 32 unit resistors exist as
-     real devices in the layout regardless of code (a metal-option tap
-     ladder, not a code-gated one), so the layout carries trim devices and
-     `TRIM_A`/`TRIM_B`(`_CODE_0`) nodes the untrimmed (`n_r2_trim=0`)
-     schematic does not instantiate at all -- not a value difference on an
-     otherwise-paired device, a genuine extra branch `combine_devices`
-     cannot fold away. This is what actually keeps R2A/R2B/R1 unmatched now
-     that the former cause 4 (the arity mismatch, retired below) is fixed;
-     see Section 7n. The schematic's
-     per-device 380 ohm head term (which the extractor's drawn-body-squares
-     model does not carry) is a secondary, still-unreached value
-     difference behind this structural one.
+  **Update, nineteenth increment (Section 7q)**: `mismatch_count` is now
+  **18** and `device.unmatched` is **1**. Two more causes are retired --
+  the unrouted trio (the met2 escape plane, on klayout-tools#511) and the
+  trim ladder's *labelling* -- and **no remaining mismatch is a
+  connectivity difference**; every one is a `device.property` value or the
+  single deliberately-undrawn device. The current causes are:
+  1. **MCC** is in the reference and deliberately not drawn (Section 6).
+     The only `device.unmatched` entry left on either side.
+  2. **The R2 divider legs are drawn 286 um where the schematic states
+     270 um** -- `res_trim`'s 16 x 1 um leg is wired in series
+     unconditionally, so the drawn cell sits at DR-002 trim code **+16**, a
+     direction DR-002 rejects outright. A genuine layout defect, invisible
+     until the labelling fix let `klt lvs` pair these devices and report a
+     value. Filed as **issue #91** with the proposed 50-coarse + 20-fine
+     re-decomposition; `r2_leg_length()` now states it in every record.
+  3. **`res_high_po`'s per-device 380 ohm head term is not drawn geometry.**
+     The extractor derives R from body squares alone, so `R1` reads 11,193
+     ohm against 11,755 with its drawn body length exactly right. No drawn
+     shape can add a term the extractor's model does not carry -- unlike
+     cause 2, this is not a layout defect.
+  4. **The reference's PNP cards state no emitter count or geometry.**
+     `Q1`/`Q2` now pair, and the comparer reports `ne` 8 (layout) vs 1
+     (reference) plus zero-valued area/perimeter parameters. The schematic
+     instantiates both at `m=8`, so the layout is right and the reference is
+     silent -- but a bipolar's emitter area is not a value
+     design/bandgap_core.sch states at all, so this is not the same
+     one-line transcription fix the resistor bulk terminal was.
   Rewriting the reference netlist to enumerate the layout's own shortfalls
   would make LVS compare the layout against itself and is explicitly not
   done. **Retired as of Section 7l**: the substrate correspondence no
@@ -1834,7 +2151,15 @@ re-deriving it from scratch, since that diagnostic already exists.
   not a reference edit to accommodate the layout, so this flow retires the
   cause without #506. #506 is left open on purpose: it remains the right
   ask for a reference that genuinely cannot state a bulk net, which this
-  one can.
+  one can. **Retired as of Section 7q**: the unrouted trio (`D1`/`GDRV`/
+  `VSS`), closed by the met2 escape plane that klayout-tools#511 made
+  possible; and the trim ladder's *labelling* -- four `pins[]` labels on
+  nodes interior to R2A/R2B were splitting each leg into three unpairable
+  pieces, measured in isolation at 26 -> 18 mismatches and 13 -> 1
+  `device.unmatched`. What Section 7n's cause 3 had conflated with that
+  labelling artifact -- the trim ladder's real added *length* -- survives it
+  as cause 2 above, and is now a filed layout defect (issue #91) rather than
+  a structural stalemate.
 - ~~**R2A/R2B ladder is at reduced scale**~~ -- **closed** by issue #62, see
   Section 4a. The ladder is drawn at its real 108-unit count.
 - ~~**Per-matched-group guard rings are off in the routed layout**~~ --
@@ -1848,8 +2173,18 @@ re-deriving it from scratch, since that diagnostic already exists.
   picks up full tape-out-ready layout, since it may be resolvable by a
   different placement of two `diff_pair` instances relative to each other
   rather than needing a new generator.
-- **Inter-block connectivity is now mostly drawn, but not complete** -- 9 of
-  12 schematic inter-block nets are joined across every block they reach (up
+- ~~**Inter-block connectivity is now mostly drawn, but not complete**~~ --
+  **closed by the nineteenth increment (Section 7q): 12 of 12 schematic
+  inter-block nets are joined across every block they reach, 0 unrouted.**
+  The whole history below is retained because it is the negative-result
+  record that identified the cause, and because it is the cautionary tale:
+  the sixth increment already found that sky130's curated deck had only two
+  metal levels and that `"metal2"` was therefore not a second plane, and that
+  finding sat here unfiled through six more increments of router-side
+  experiments that could not have worked. Filed as klayout-tools#508 in the
+  seventeenth increment, merged upstream as #511 within a day, and closed
+  here on the escape plane built on it. **Historical detail follows.** 9 of
+  12 schematic inter-block nets were joined across every block they reach (up
   from 6/12, and 4/12 before that), via met1 (Section 5a). **As of PR #78
   (Sections 7g/7h), the three still short are `D1`, `GDRV`,
   and `VSS`** (was `D1`, `VDD`, `VSS` through the eighth increment -- PR #78

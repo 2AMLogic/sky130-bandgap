@@ -183,4 +183,54 @@
 # routed-flow.sh re-run produces the record this increment ships -- see that
 # record and layout/matching-plan.md Section 7l for what moved and what did
 # not.
-klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@147602af31c47fb935383b1761e8ce2f21c534cf
+#
+# Bumped again for issue #62's eighteenth increment (2026-08-04). The prior
+# pin (147602af31c47fb935383b1761e8ce2f21c534cf) predates
+# 2AMLogic/klayout-tools#508 -> merged via #511, the friction filed by this
+# issue's own seventeenth increment (layout/matching-plan.md Section 7o):
+#
+#   * `klayout_tools.decks.sky130.EXTRACTION_DECK` gains a third
+#     connectivity level -- `metals` now `((67,20), (68,20), (69,20))`
+#     (li1.drawing, met1.drawing, met2.drawing), `vias` now
+#     `((67,44), (68,44))` (mcon.drawing, via.drawing -- the met1<->met2
+#     via), `metal_labels` now `((67,5), (68,5), (69,5))`.
+#   * `_PDK_ROLE_LAYERS["sky130"]` gains `"metal3": (69, 20)` and
+#     `"via2": (68, 44)`, mirroring the existing `"metal2"`/`"via1"` pair.
+#   * `gen_compose`'s router resolves `"metal3"` generically (no
+#     `gen_compose.py` code change was needed upstream) but its via-drop
+#     stays single-hop: a `"metal3"` backbone reaches a `"metal2"`(met1)
+#     -role pin one via hop away, not a `"metal"`(li1)-role pin two hops
+#     away.
+#
+# This is the metal-level capability Section 7o named as the only
+# remaining lever for AC1's `D1`/`GDRV`/`VSS` corridor deadlock -- a
+# genuinely independent second routing plane above the met1 bus this
+# flow's own `met1_bus.py` already hand-routes every other net on. Picking
+# it up here is deliberately scoped to the pin bump alone: extending
+# `met1_bus.py`/`gen_bandgap_routed.py`'s router to actually draw on
+# met2/via.drawing for the three still-unrouted hops is real new routing
+# logic (via1 landing-pad geometry, met2 DRC thresholds, a second
+# congestion-free candidate-path search), not a re-run, and is left for the
+# next increment per this issue's own established one-lever-per-increment
+# discipline (Sections 7d-7o).
+#
+# Non-regression proof for this bump: layout/bin/run-trivial-cell-flow.sh
+# re-run unmodified still PASSes with the identical four-way verdict (see
+# trivial-cell/reports/ for the refreshed record); layout/bin/run-bandgap-
+# routed-flow.sh re-run reproduces the prior record's AC1/AC4 numbers
+# unchanged (9/12 schematic nets, mismatch_count=32, devices.matched=6,
+# nets.matched=3) -- expected, since no routing code changed, only the
+# newly available metal3/via2 role is unused as of this pin.
+#
+# Update, nineteenth increment: the "left for the next increment" above is
+# done. `met1_bus.py` gains `via1()`/`hseg2()`/`vseg2()` and
+# `gen_bandgap_routed._connect_met2()` lifts a hop onto the new plane when
+# no met1 form clears, which closes AC1 at 12/12 schematic inter-block nets
+# (0 unrouted) and takes `mismatch_count` 32 -> 18. The pin is unchanged --
+# this is layout-side routing logic on the capability this bump picked up,
+# not another bump. One thing the bump did NOT bring: the curated sky130
+# *DRC* deck was not extended alongside the extraction deck and carries no
+# met2/via rule at all, so `layout/bin/met2_drc.py` checks the new plane
+# against the installed PDK's own source rules and the flow gates on it.
+# Filed upstream as 2AMLogic/klayout-tools#513. See matching-plan Section 7q.
+klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@af5791b557fc7c669c3981335a294256ccf37e6f

@@ -129,6 +129,8 @@ layout/
   bin/
     setup-venv.sh             # create/refresh layout/.venv from requirements.txt
     run-trivial-cell-flow.sh  # the repeatable driver: gen -> drc -> extract -> lvs -> report
+    met1_bus.py               # hand-drawn met1 bussing + the met2/via1 escape plane
+    met2_drc.py               # DRC for the met2 plane the curated deck has no rules for
     render-record.py          # renders + verdict-checks a record's record.md
   tests/                      # PDK-free unit coverage for the flows' own gates
   .venv/                      # gitignored -- `klt` install, created by setup-venv.sh
@@ -273,8 +275,8 @@ table, and a quantitative LVS mismatch analysis. Summary of what it measures:
 
 | | #15 skeleton | #62 routed |
 |---|---|---|
-| inter-block routing | none drawn | 9 routed 2-pin hops with net labels — **4/12 schematic inter-block nets fully joined** (criterion 1 PARTIAL) |
-| promoted top-level pins | 0 | 23 |
+| inter-block routing | none drawn | 13/13 declared nets routed — **12/12 schematic inter-block nets fully joined** (criterion 1 MET), 7 hops via the met2 escape plane |
+| promoted top-level pins | 0 | 11 |
 | R2A/R2B ladder | 16 units (reduced) | **108 units (real count)**, folded into 9 rows |
 | extracted `pnp` | 0 | 16 |
 | extracted `nfet` | 0 | 16 |
@@ -356,6 +358,24 @@ failure mode that must never pass silently:
   ([2AMLogic/klayout-tools#470](https://github.com/2AMLogic/klayout-tools/issues/470)).
   Invisible to DRC and to the drawn-short check — the shapes are legal and
   well separated; it is the labels that collide.
+- **met2 DRC** (`layout/bin/met2_drc.py`). Since
+  [klayout-tools#511](https://github.com/2AMLogic/klayout-tools/pull/511)
+  sky130's curated *extraction* deck has a third connectivity level (met2
+  over `via.drawing`), which is what lets the router escape a saturated met1
+  — but the curated *DRC* deck has no rule for that level at all, so
+  `klt drc` returns `violation_count: 0` on any met2 geometry whatsoever
+  (its own `coverage.layers_in_stream_without_rules` says so). This checker
+  applies the installed sky130A PDK's own source rules (`m2.1`, `m2.2`,
+  `m2.6`, `via.1a`, `via.2`, `via.4a`/`via.5a`, `m2.4`/`m2.5`) to the
+  composed stream instead. Filed upstream as
+  [klayout-tools#513](https://github.com/2AMLogic/klayout-tools/issues/513).
+- **Split-node check** (`met1_bus.Met1Bus.components()` scored by
+  `gen_bandgap_routed.split_routed_nets()`). The inverse of the drawn-short
+  check: a node this router reports as routed whose own metal is still in
+  two pieces. It spans both routing planes — a met1 piece counts as joined
+  to a met2 piece only where a via1 cut of the same net sits inside both —
+  so a via stack that missed its own met1 is reported rather than reading as
+  connected because each plane is individually in one piece.
 
 Alongside them, `schematic_net_coverage()` scores acceptance criterion 1
 against `design/bandgap_core.sch`'s own inter-block node list (never against
@@ -366,7 +386,7 @@ ordering search, so a scoring bug silently changes which layout gets drawn.
 npm run test:unit    # or: python3 -m unittest discover -s layout/tests
 ```
 
-`layout/tests/test_routed_flow_gates.py` covers all three plus the gate
+`layout/tests/test_routed_flow_gates.py` covers those plus the gate
 composition, in milliseconds, with **no `klt` install and no PDK** — so they
 run in `npm run check:ci` on every push. Before these existed the three were
 exercised only end-to-end, which meant their *failure* paths were never
