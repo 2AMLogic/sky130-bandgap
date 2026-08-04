@@ -49,30 +49,39 @@ here, relative to that skeleton:
    through a ring band, which retires the PR #64 trade-off recorded in
    layout/matching-plan.md Section 5a.
 
+7. **MOS gates are contacted, and every split MOS group is bussed into the
+   one `m=N` device the schematic states** (added in this increment).
+   Upstream 2AMLogic/klayout-tools#461 (merged via #474) made MOS generators
+   draw a poly landing pad past the diffusion, so a gate contact can finally
+   land legally; met1_bus.py's `gate_contact` places the licon and the li1
+   riser, and `bus_mos_comb` runs one met1 trunk per node *inside* each
+   device row. That is what turns 68 unconnected MOS fingers into ten real
+   transistors, and what makes the six schematic nodes that terminate on a
+   gate (`VA`, `VB`, `D1`, `D2`, `GDRV`, `PN`) drawable at all.
+8. **The resistors are the schematic's own `res_high_po` flavour**, per
+   upstream klayout-tools#463 (merged via #475). See RES_FLAVOR_NOTE.
+
 What this script does NOT claim -- read record.md's own "What this record
 does NOT claim" section for the authoritative, measured version:
 
-- **Not LVS-clean.** The remaining blocker is no longer the resistor ladders
-  or the PNP arrays (both are bussed and combine now) but the MOS blocks:
-  every `klt gen` MOS generator on sky130 draws the gate poly *exactly*
-  coincident with the active region and reports the gate port on that
-  boundary, so there is no poly landing area outside the channel on which a
-  contact could legally be placed. A MOS gate therefore cannot be contacted
-  at all -- which blocks both bussing a split device's fingers into one
-  m=N device and drawing any schematic node that lands on a gate
-  (`VA`, `VB`, `D1`, `D2`, `GDRV`, `PN`). See MOS_GATE_NOTE below.
-- **Not fully inter-block routed** for the same reason: six of the
-  schematic's inter-block nodes terminate on a gate. record.md's
-  "Schematic inter-block nets" table scores every schematic inter-block
-  node as drawn / partial / labelled-only against SCHEMATIC_INTER_BLOCK_NETS
-  below -- i.e. against design/bandgap_core.sch's node list, not against
-  this script's own `connectivity[]` declaration -- and criterion 1 is
-  PARTIAL while any node is short.
+- **Not LVS-clean.** Four disclosed causes remain, none of them a topology
+  error in either netlist: the deck-synthesized substrate net
+  (SUBSTRATE_NET_NOTE), array dummies that cannot be declared as dummies on
+  sky130 (DUMMY_DEVICE_NOTE), the compensation cap MCC which is in the
+  reference and deliberately not drawn, and the resistor head resistance the
+  schematic's unit model carries but a drawn poly body does not.
+- **Not fully inter-block routed.** record.md's "Schematic inter-block nets"
+  table scores every schematic inter-block node as drawn / partial /
+  labelled-only against SCHEMATIC_INTER_BLOCK_NETS below -- i.e. against
+  design/bandgap_core.sch's node list, not against this script's own
+  declaration -- and criterion 1 is PARTIAL while any node is short. What is
+  left is congestion in this flow's own hand-written router, not a tool gap:
+  every remaining node *can* be expressed now.
 - **Array dummies remain unmatched devices.** Neither curated deck declares
-  an `ExtractionDeck.dummy` marker layer and no generator draws one, and the
-  suppression path that exists covers MOS gates only -- never a resistor or
-  bipolar unit. Every matched array's dummy edge units therefore extract as
-  real devices with no schematic counterpart. See DUMMY_DEVICE_NOTE below.
+  an `ExtractionDeck.dummy` marker layer and no generator draws one, so
+  klayout-tools#462's merged fix (which taught the suppression path about
+  resistors and bipolars) has nothing to key off on sky130. See
+  DUMMY_DEVICE_NOTE below.
 
 Every one of those gaps is filed upstream per CLAUDE.md's friction protocol
 and named in the NOTE constants below; record.md restates them with the
@@ -82,6 +91,7 @@ measured numbers from the run that produced it.
 from __future__ import annotations
 
 import argparse
+import itertools
 import json
 import re
 import subprocess
@@ -99,45 +109,74 @@ import met1_bus  # noqa: E402  -- local module, resolved from this script's dir
 # in layout/matching-plan.md, never in that tracker.
 # ---------------------------------------------------------------------------
 MET1_BUS_NOTE = (
-    "sky130's generator/router layer-role table still exposes exactly one "
-    "routing metal role (`metal` -> li1 67/20) -- the same layer every "
-    "`klt gen` generator draws its device pads on -- so `klt gen-compose` "
-    "cannot draw an intra-block bus. klayout-tools#433's merged fix (#439) "
-    "made that failure visible rather than expressible: a self-net whose "
-    "backbone crosses another pad on the same block is now reported "
-    "unroutable instead of certified as a short, and the two options that "
-    "would make bussing routable (expose a metal2/via role; via-drop "
-    "routing) were deliberately left as follow-ups. The same tool's sky130 "
-    "*extraction* deck, meanwhile, already declares the whole two-level "
-    "stack (`metals = (li1 67/20, met1 68/20)`, `vias = (mcon 67/44)`) and "
-    "`klt extract` connects it. This flow therefore draws every intra-block "
-    "bus itself with `klt draw`, on met1 over mcon -- see "
-    "layout/bin/met1_bus.py. Hand-placing what a router should plan is the "
-    "residual gap, not a solved problem."
+    "Every intra-block bus and every inter-block net in this cell is drawn "
+    "by this repo with `klt draw`, on met1 over mcon -- see "
+    "layout/bin/met1_bus.py. That started as the only option: sky130's "
+    "generator/router layer-role table exposed exactly one routing metal "
+    "role (`metal` -> li1 67/20), the same layer every generator draws its "
+    "device pads on, so `klt gen-compose` could not express a bus at all "
+    "(klayout-tools#433; its fix #439 made the failure visible rather than "
+    "expressible). klayout-tools#454 (merged via #468) has since added "
+    "`metal2`/`via1` roles with via-drop bussing, so the router *can* now "
+    "plan wires on a second metal. This flow has not yet moved onto it: the "
+    "bussing here is a planar lane assignment derived from each block's own "
+    "reported geometry (MOS_COMB_NOTE), and swapping it for router-planned "
+    "routing is a rework to be measured on its own, not a parameter change "
+    "to be slipped into an increment that is already changing the device "
+    "topology. Hand-placing what a router could plan remains the residual "
+    "gap."
 )
+#: RESOLVED upstream, and the reason this increment exists. Kept as a named
+#: note because record.md still has to say *why* the layout now draws what it
+#: draws, and because the contact stack the fix makes possible is still this
+#: flow's own geometry, not the router's.
 MOS_GATE_NOTE = (
-    "Every `klt gen` MOS generator on sky130 (`diff_pair`, `mos_array`) "
-    "draws the gate poly with exactly the active region's extent -- the "
-    "poly and diff rectangles share both their top and bottom edges -- and "
-    "reports the gate port on that shared boundary. There is consequently "
-    "no poly landing area outside the channel on which a contact could be "
-    "placed: a contact at the reported gate port straddles the diff edge "
-    "(the curated deck flags it under `poly.enclosing.licon.1` and "
-    "`diff.enclosing.licon.1`), and a contact moved inward sits on poly "
-    "over the channel. A MOS gate therefore cannot be connected at all. "
-    "This blocks bussing a split device's fingers into one m=N device, and "
-    "blocks every schematic node that lands on a gate."
+    "Until 2AMLogic/klayout-tools#461 (merged via #474) every `klt gen` MOS "
+    "generator on sky130 drew the gate poly with exactly the active "
+    "region's extent and reported the gate port on the shared poly/diff "
+    "boundary, so no contact could be placed legally -- one at the port "
+    "straddled the diff edge (`poly.enclosing.licon.1` / "
+    "`diff.enclosing.licon.1`) and one moved inward sat on poly over the "
+    "channel. `diff_pair`/`mos_array` now extend the first finger's poly "
+    "past the diffusion into a contact-region landing pad and report the "
+    "gate port at its centre, so a gate is contactable. Placing that "
+    "contact is still this flow's job: `gen-compose`'s router resolves only "
+    "`metal`/`metal2` roles and never drops a licon, so met1_bus.py's "
+    "`gate_contact` draws the licon on the pad and the li1 riser down into "
+    "the device row itself."
 )
 RES_FLAVOR_NOTE = (
-    "`klt gen res_array` on sky130 can only draw the base "
-    "`res_generic_po` flavour: the generator's `res_implant`/`res_block` "
-    "layer roles are None for the sky130 family, while the same tool's "
-    "sky130 extraction deck recognises three flavours "
-    "(`res_generic_po` 48.2, `res_high_po` 319.8, `res_xhigh_po` 2000 "
-    "ohm/sq) distinguished by implant masks the generator never draws. A "
-    "schematic built on a higher-sheet-rho flavour -- as this one is -- "
-    "therefore cannot be laid out with a matching device class, and "
-    "`klt lvs` has no parameter tolerance knob to absorb the difference."
+    "`klt gen res_array` on sky130 could only draw the base "
+    "`res_generic_po` flavour until 2AMLogic/klayout-tools#463 (merged via "
+    "#475): the generator's `res_implant`/`res_block` layer roles were None "
+    "for the sky130 family, while the same tool's sky130 extraction deck "
+    "recognises three flavours (`res_generic_po` 48.2, `res_high_po` 319.8, "
+    "`res_xhigh_po` 2000 ohm/sq) distinguished by implant masks the "
+    "generator never drew. `res_array` now takes a `flavor` parameter "
+    "resolved through the same per-flavour layer table the extraction deck "
+    "keys off, so this layout draws the schematic's own `res_high_po` -- "
+    "which is also what gives the resistor blocks a bulk terminal at all "
+    "(the deck marks `res_high_po` `bulk_to_substrate`). That terminal is "
+    "not a drawn pad, though: the deck ties it to the same synthesized "
+    "`vsubs` global it ties every NMOS body to, so it is reached by "
+    "declaration, not by metal -- see SUBSTRATE_NET_NOTE."
+)
+#: The one place this flow's layout cannot answer the reference netlist with
+#: drawn geometry, and the reason a `hints.same_nets` declaration is used
+#: instead of more metal.
+SUBSTRATE_NET_NOTE = (
+    "sky130's curated extraction deck has no NMOS-body or resistor-bulk "
+    "layer to derive from drawn geometry: `extract.py` registers an *empty* "
+    "`nfet_body` region, wires it into every nfet's `W` terminal, every "
+    "`bulk_to_substrate` resistor's `W` terminal and every bipolar's "
+    "collector, and then `connect_global`s it to the deck's synthesized "
+    "`vsubs` net. No drawn shape can ever join that net -- the deck says so "
+    "itself, and `klt lvs` emits a `device.body_unverified` warning for "
+    "exactly this. The schematic ties all of those terminals to `VSS`, and "
+    "the layout does draw a real `VSS` (both NMOS groups' substrate "
+    "guard-ring taps and both PNP base ties are wired to it). The two can "
+    "only be reconciled by declaring the correspondence, which is what this "
+    "flow's `hints.same_nets` entry does."
 )
 #: NOT a tool gap -- a flow correctness rule this increment adds. A
 #: `diff_pair` reports its two devices as two port families (`M1_*`/`M2_*`,
@@ -159,13 +198,17 @@ MOS_HALF_NOTE = (
     "can see -- both terminals are legal, well-separated metal."
 )
 DUMMY_DEVICE_NOTE = (
-    "Neither curated extraction deck declares an `ExtractionDeck.dummy` "
-    "marker layer, and no `klt gen` generator draws one, so a matched "
-    "array's dummy edge units extract as ordinary devices with no "
-    "schematic counterpart. The suppression path that does exist (added "
-    "for klayout-tools#295) is also MOS-gate-only -- it can never drop a "
-    "dummy resistor or a dummy bipolar. Turning dummies off to make LVS "
-    "count would be a matching regression this flow refuses to take."
+    "2AMLogic/klayout-tools#462 (merged via #471) extended `klt extract`'s "
+    "dummy-device suppression from MOS gates to resistors and bipolars, "
+    "which is the half of this gap that was in the extractor. The other "
+    "half is still open on sky130: the suppression keys off "
+    "`ExtractionDeck.dummy`, the sky130 curated deck declares no `dummy` "
+    "layer at all, no `klt gen` generator draws one, and `klt extract` "
+    "exposes no override -- so there is no layer for a layout to mark its "
+    "dummies with. Every matched array's dummy edge units therefore still "
+    "extract as ordinary devices with no schematic counterpart. Turning "
+    "dummies off to make the LVS count move would trade a real matching "
+    "property for a smaller number, which this flow refuses to do."
 )
 
 # ---------------------------------------------------------------------------
@@ -176,8 +219,8 @@ DIRECTION_EAST = 0
 DIRECTION_NORTH = 90
 DIRECTION_WEST = 180
 
-BLOCK_MARGIN_UM = 12.0  # clearance between blocks placed side by side in a row
-ROW_MARGIN_UM = 16.0  # clearance between stacked rows
+BLOCK_MARGIN_UM = 16.0  # clearance between blocks placed side by side in a row
+ROW_MARGIN_UM = 22.0  # clearance between stacked rows
 RING_MARGIN_UM = 8.0  # clearance between the composed content and the outer ring
 RING_WIDTH_UM = 2.0
 RING_CONTACTS_PER_SIDE = 8
@@ -205,6 +248,11 @@ NWELL_TAP_MARGIN_UM = 0.05
 # ---------------------------------------------------------------------------
 N_PNP_CTAT = 8
 N_PNP_PTAT = 8
+#: The sky130 poly-resistor flavour design/bandgap_core.sch specifies
+#: (`sky130_fd_pr__res_high_po`), as the `klt gen res_array` `flavor` param
+#: names it and as the extraction deck's `ResistorDevice.name` reports it.
+RES_FLAVOR = "high"
+RES_CLASS = "res_high_po"
 R_W_UM = 1.0
 R_LSEG_UM = 5.0
 N_R1 = 7
@@ -262,6 +310,7 @@ BLOCKS: list[dict[str, Any]] = [
             "length_um": R_LSEG_UM,
             "width_um": R_W_UM,
             "spacing_um": 0.5,
+            "flavor": RES_FLAVOR,
             "num": 2 * N_R2,
             "dummy": 2,
             "rows": 9,
@@ -282,6 +331,7 @@ BLOCKS: list[dict[str, Any]] = [
             "length_um": 1.0,
             "width_um": R_W_UM,
             "spacing_um": 0.5,
+            "flavor": RES_FLAVOR,
             "num": 2 * N_R2_TRIM_CODES,
             "dummy": 2,
             "rows": 4,
@@ -301,6 +351,7 @@ BLOCKS: list[dict[str, Any]] = [
             "length_um": R_LSEG_UM,
             "width_um": R_W_UM,
             "spacing_um": 0.5,
+            "flavor": RES_FLAVOR,
             "num": N_R1,
             "dummy": 2,
             "rows": 1,
@@ -346,6 +397,18 @@ BLOCKS: list[dict[str, Any]] = [
             "ring_gap_side": "W",
             "ring_gap_um": 2.0,
         },
+        "bus": {
+            "kind": "mos_comb",
+            "spine_side": "W",
+            "nets": [
+                {"net": "VDD",
+                 "terminals": [("MPOUT", "source"), ("MPAMP", "source")]},
+                {"net": "GDRV",
+                 "terminals": [("MPOUT", "gate"), ("MPAMP", "gate")]},
+                {"net": "TAIL", "terminals": [("MPAMP", "drain")]},
+                {"net": "VOUT", "terminals": [("MPOUT", "drain")]}
+            ],
+        },
         "matched_group_label": "MPOUT/MPAMP (core PMOS output/bias mirror)",
         "real_target": f"m_out=m_ampbias={M_OUT}, W=8 L=2 "
         "(design/bandgap_core.sch); drawn 1:1",
@@ -363,6 +426,18 @@ BLOCKS: list[dict[str, Any]] = [
             "add_guard_ring": True,
             "ring_gap_side": "W",
             "ring_gap_um": 2.0,
+        },
+        "bus": {
+            "kind": "mos_comb",
+            "spine_side": "W",
+            "nets": [
+                {"net": "D1", "terminals": [("MP1", "drain")]},
+                {"net": "D2", "terminals": [("MP2", "drain")]},
+                {"net": "VB", "terminals": [("MP1", "gate")]},
+                {"net": "VA", "terminals": [("MP2", "gate")]},
+                {"net": "TAIL",
+                 "terminals": [("MP1", "source"), ("MP2", "source")]}
+            ],
         },
         "matched_group_label": "MP1/MP2 (amp PMOS input pair)",
         "real_target": f"amp_m_in={AMP_M_IN}, W=20 L=10 "
@@ -383,6 +458,18 @@ BLOCKS: list[dict[str, Any]] = [
             "ring_gap_side": "W",
             "ring_gap_um": 2.0,
         },
+        "bus": {
+            "kind": "mos_comb",
+            "spine_side": "E",
+            "nets": [
+                {"net": "D1",
+                 "terminals": [("MN1", "drain"), ("MN1", "gate")]},
+                {"net": "D2",
+                 "terminals": [("MN2", "drain"), ("MN2", "gate")]},
+                {"net": "VSS",
+                 "terminals": [("MN1", "source"), ("MN2", "source")]}
+            ],
+        },
         "matched_group_label": "MN1/MN2 (amp NMOS diode loads)",
         "real_target": f"amp_m_nmirr={AMP_M_NMIRR}, W=8 L=20 "
         "(design/error_amp.sch); drawn 1:1",
@@ -400,6 +487,18 @@ BLOCKS: list[dict[str, Any]] = [
             "add_guard_ring": True,
             "ring_gap_side": "W",
             "ring_gap_um": 2.0,
+        },
+        "bus": {
+            "kind": "mos_comb",
+            "spine_side": "W",
+            "nets": [
+                {"net": "GDRV", "terminals": [("MP4", "drain")]},
+                {"net": "PN",
+                 "terminals": [("MP3", "drain"), ("MP3", "gate"),
+                               ("MP4", "gate")]},
+                {"net": "VDD",
+                 "terminals": [("MP3", "source"), ("MP4", "source")]}
+            ],
         },
         "matched_group_label": "MP3/MP4 (amp PMOS mirror)",
         "real_target": f"amp_m_pmirr={AMP_M_PMIRR}, W=6 L=20 "
@@ -419,11 +518,32 @@ BLOCKS: list[dict[str, Any]] = [
             "ring_gap_side": "W",
             "ring_gap_um": 2.0,
         },
+        "bus": {
+            "kind": "mos_comb",
+            "spine_side": "E",
+            "nets": [
+                {"net": "GDRV", "terminals": [("MN3", "drain")]},
+                {"net": "PN", "terminals": [("MN4", "drain")]},
+                {"net": "D1", "terminals": [("MN3", "gate")]},
+                {"net": "D2", "terminals": [("MN4", "gate")]},
+                {"net": "VSS",
+                 "terminals": [("MN3", "source"), ("MN4", "source")]}
+            ],
+        },
         "matched_group_label": "MN3/MN4 (amp NMOS mirror outputs)",
         "real_target": f"amp_m_nmirr={AMP_M_NMIRR}, W=8 L=20 "
         "(design/error_amp.sch); drawn 1:1",
     },
 ]
+
+#: The one declaration this flow makes to `klt lvs` rather than drawing.
+#: sky130's curated extraction deck synthesizes the substrate net (see
+#: SUBSTRATE_NET_NOTE) and no drawn shape can join it, so the layout side
+#: carries `vsubs` where the schematic carries `VSS`. Declaring the
+#: correspondence is honest -- the substrate *is* the schematic's ground in
+#: this design -- and it is a `hints` entry rather than an edit to either
+#: netlist, so both still state what they state.
+SUBSTRATE_SAME_NETS: list[list[str]] = [["vsubs", "VSS"]]
 
 MCC_AREA_UM2_NOTE = (
     "MCC (amp compensation cap, amp_m_cc=16 x W=30 x L=20 = 9600 um^2) is "
@@ -493,10 +613,11 @@ BJT_TRUNK_CLEARANCE_UM = 1.0
 #: folded array, and stay well inside the BLOCK_MARGIN_UM placement channel.
 BLOCK_ESCAPE_UM = 4.0
 #: How many rip-up-and-reorder passes the inter-block router gets before it
-#: reports whatever it has. Each pass is a full redraw from scratch, and the
-#: whole flow runs in seconds, so this is cheap insurance against the greedy
-#: order being wrong for some future floorplan.
-ROUTE_ORDER_PASSES = 40
+#: reports whatever it has. Each pass is a full redraw from scratch. Lower
+#: than the 40 an earlier increment used: each pass now searches candidate
+#: assignments and chain orders as well as paths, so a pass is much more
+#: thorough and far fewer of them are worth paying for.
+ROUTE_ORDER_PASSES = 14
 
 
 def _ports_by_name(report: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -697,6 +818,278 @@ MOS_HALVES: dict[str, dict[str, Any]] = {
 }
 
 
+# ---------------------------------------------------------------------------
+# MOS finger bussing (the payoff of 2AMLogic/klayout-tools#461 / #474)
+# ---------------------------------------------------------------------------
+#: Clearance (um) between a MOS block's own bbox and the innermost of the
+#: vertical spines `bus_mos_comb` runs beside it.
+MOS_SPINE_CLEARANCE_UM = 0.6
+#: Centre-to-centre pitch (um) between adjacent spines. A met1 wire is
+#: `met1_bus.WIRE_WIDTH_UM` (0.24) wide and the deck's `met1.space.1` is 0.14,
+#: so 0.4 is the tightest legal pitch.
+MOS_SPINE_PITCH_UM = 0.4
+#: Distances (um) past the block edge a comb's escape stub is tried at, nearest
+#: first. Several, because two neighbouring blocks' escape stubs share the
+#: placement channel between them and can land on the same track.
+#:
+#: Deliberately **short**. A block's escape stubs fan out at every one of its
+#: lane heights, so together they are a wall across the channel for anything
+#: trying to pass vertically. At 4 um into a 12 um channel, two facing blocks'
+#: fans met in the middle and sealed it -- which is what left `GDRV` and the
+#: `D1`/`D2` pair unroutable with every ordering the search tried. Keeping the
+#: fans hugging their own block leaves the middle of each placement channel
+#: open, which is what those channels are for.
+MOS_ESCAPE_UM = (1.2, 1.6, 2.0, 0.8, 2.4)
+
+MOS_COMB_NOTE = (
+    "Every split MOS group's fingers are bussed into the one m=N device the "
+    "schematic states, on met1, with the trunk of each node running *inside* "
+    "the device row rather than around it. That is deliberate and is what "
+    "makes the bus crossing-free on a single routing metal: a source/drain "
+    "pad is a full-height li1 strip, so a trunk may drop its via anywhere "
+    "along the pad's height, and a gate reaches the same track through the "
+    "li1 riser met1_bus.gate_contact draws down its own column gap. With "
+    "every node's via on its own horizontal track, no node ever needs a stub "
+    "that would cross another node's trunk. Each node then leaves the block "
+    "on its own vertical spine, and the spines are ordered so that the "
+    "further out a spine sits, the further from the row's edge its trunk is "
+    "-- which is what keeps a trunk from crossing an outer spine on its way "
+    "past."
+)
+
+
+def _mos_rows(
+    report: dict[str, Any], origin: dict[str, float]
+) -> list[tuple[float, float]]:
+    """The `diff_pair`'s device rows, bottom-first, as (y0, y1) diffusion
+    bands in composed-cell coordinates.
+
+    Derived from the generator's own reported source/drain ports -- each is
+    reported at its pad's centre with `width_um` equal to the device width,
+    i.e. the pad's full height -- never from a re-read of the block's GDS or
+    from re-deriving the generator's placement arithmetic here.
+    """
+    bands: dict[float, tuple[float, float]] = {}
+    for port in report["ports"]:
+        layer = port.get("layer") or {}
+        if [layer.get("layer"), layer.get("datatype")] != met1_bus.LI1_LAYER:
+            continue
+        # `TAP_S` is a guard-ring tap, not a device pad, and would otherwise
+        # look like a third (zero-height) device row.
+        if not re.fullmatch(r"[MQ]\d+_\d+_[SD]", port["name"]):
+            continue
+        centre = float(port["y_um"]) + origin["y"]
+        half = float(port["width_um"]) / 2.0
+        bands[round(centre, 4)] = (centre - half, centre + half)
+    return [bands[key] for key in sorted(bands)]
+
+
+def _band_index(bands: list[tuple[float, float]], y: float) -> int:
+    """Which device row a port at `y` belongs to.
+
+    A source/drain port sits at its band's centre; a gate port sits on the
+    landing pad just above its band's top edge, and below the next band's
+    bottom edge -- so "the last band whose bottom edge is at or below y" is
+    the right rule for both, and needs no per-port-kind special case.
+    """
+    index = 0
+    for i, (y0, _) in enumerate(bands):
+        if y >= y0 - 1e-6:
+            index = i
+    return index
+
+
+def mos_group_pads(
+    block_id: str,
+    report: dict[str, Any],
+    origin: dict[str, float],
+    device: str,
+    terminal: str,
+) -> list[tuple[str, float, float, bool]]:
+    """Every finger pad of one schematic device's one terminal, as
+    `(port_name, x, y, is_gate)` in composed-cell coordinates.
+
+    Unlike the previous increment's centroid-nearest single-pad pick, this
+    returns *all* of them: bussing every finger of a split group into one
+    node is what lets `klt lvs`'s `combine_devices` collapse them into the
+    `m=N` device the schematic states. The half binding still goes through
+    MOS_HALVES, so a node can only land on the transistor the schematic
+    names (MOS_HALF_NOTE).
+    """
+    entry = MOS_HALVES[block_id]
+    half = entry["devices"][device]
+    if terminal == "gate":
+        suffix = "_G"
+        want_layer = [66, 20]  # poly.drawing -- where a gate port is reported
+    elif terminal in ("drain", "source"):
+        suffix = entry[f"{terminal}_suffix"]
+        want_layer = met1_bus.LI1_LAYER
+    else:
+        raise ValueError(
+            f"{block_id}.{device}: unknown terminal {terminal!r} "
+            "(want 'drain', 'source' or 'gate')"
+        )
+    pads: list[tuple[str, float, float, bool]] = []
+    for port in report["ports"]:
+        name = port["name"]
+        if not name.startswith(f"{half}_") or not name.endswith(suffix):
+            continue
+        layer = port.get("layer") or {}
+        if [layer.get("layer"), layer.get("datatype")] != want_layer:
+            continue
+        pads.append(
+            (
+                name,
+                float(port["x_um"]) + origin["x"],
+                float(port["y_um"]) + origin["y"],
+                terminal == "gate",
+            )
+        )
+    if not pads:
+        raise KeyError(
+            f"{block_id}.{device}: no '{suffix}' ports on half {half}"
+        )
+    return pads
+
+
+def bus_mos_comb(
+    bus: "met1_bus.Met1Bus",
+    block_id: str,
+    report: dict[str, Any],
+    origin: dict[str, float],
+    spine_side: str,
+    groups: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Bus every finger of every schematic device in one MOS block, one comb
+    per electrical node, and return each node's off-block escape points.
+
+    See MOS_COMB_NOTE for why the trunks run inside the device rows. The rest
+    of the structure exists to make the whole comb set **planar on one metal
+    layer**, which is the only way it can be drawn at all without a second
+    routing metal the extraction deck would model:
+
+    * a node's lane index is its position in `groups`;
+    * in the **bottom** row lanes descend with that index and in the **top**
+      row they ascend, so node `k`'s row-to-row span is strictly inside node
+      `k+1`'s;
+    * every spine sits on `spine_side`, ordered outward by the same index, so
+      an outer node's trunk always passes an inner node's spine strictly
+      above or below that spine -- never through it;
+    * every escape leaves on the **opposite** side, as a straight
+      continuation of the node's own trunk. That side carries no spines at
+      all, so the escapes are parallel horizontal lines at distinct y and
+      cannot cross each other either.
+
+    The last point is what a first cut of this function got wrong: with the
+    connection point taken on the spine itself, an inner node was walled in
+    by every outer node's spine and six of the twelve schematic nets could
+    not be routed out of their own block. Mixing spine sides within one block
+    does not fix it -- the nesting order that keeps a west escape clear is
+    exactly the one that blocks an east escape -- so the side is a per-block
+    choice, made where the block's neighbours are.
+
+    The drawn-short check in `met1_bus.Met1Bus.conflicts` is the proof of all
+    of the above, not this docstring.
+    """
+    bands = _mos_rows(report, origin)
+    if len(bands) != 2:
+        raise ValueError(
+            f"block '{block_id}': bus_mos_comb needs exactly two device rows "
+            f"(the lane nesting above assumes it); found {len(bands)}"
+        )
+    if spine_side not in ("W", "E"):
+        raise ValueError(f"block '{block_id}': spine_side must be 'W' or 'E'")
+    bbox = report["bbox_um"]
+    west = bbox["x0"] + origin["x"]
+    east = bbox["x1"] + origin["x"]
+    lanes = len(groups)
+    #: Escape side: the block edge the trunks continue past, and the sign of
+    #: "outward" there.
+    edge_x = east if spine_side == "W" else west
+    outward = 1.0 if spine_side == "W" else -1.0
+
+    records: list[dict[str, Any]] = []
+    for index, spec in enumerate(groups):
+        net = spec["net"]
+        offset = MOS_SPINE_CLEARANCE_UM + index * MOS_SPINE_PITCH_UM
+        spine_x = west - offset if spine_side == "W" else east + offset
+
+        pads: list[tuple[str, float, float, bool]] = []
+        for device, terminal in spec["terminals"]:
+            pads.extend(
+                mos_group_pads(block_id, report, origin, device, terminal)
+            )
+
+        bus.net(net)
+        lane_ys: list[float] = []
+        escapes: list[tuple[str, float, float]] = []
+        gates = 0
+        for band_index, (y0, y1) in enumerate(bands):
+            in_band = [p for p in pads if _band_index(bands, p[2]) == band_index]
+            if not in_band:
+                continue
+            step = (y1 - y0) / (lanes + 1)
+            lane_y = (
+                y1 - (index + 1) * step
+                if band_index == 0
+                else y0 + (index + 1) * step
+            )
+            lane_ys.append(lane_y)
+            xs = [spine_x, edge_x]
+            for _name, px, py, is_gate in in_band:
+                if is_gate:
+                    bus.gate_contact(px, py, lane_y)
+                    gates += 1
+                bus.via(px, lane_y)
+                xs.append(px)
+            bus.hseg(min(xs), max(xs), lane_y)
+            # The escape stub is the only part of a comb that leaves the
+            # block's own footprint on the escape side, so it is the only part
+            # that can meet a *neighbouring* block's comb. Drawn guarded, and
+            # tried at a few lengths: a stub that cannot be placed at all
+            # leaves the terminal at the block edge rather than failing the
+            # whole comb.
+            # The outermost node -- and only it -- can also escape on the
+            # spine side: nothing of this block's is drawn beyond its own
+            # spine, so extending its trunk past it crosses nothing. Every
+            # inner node is walled in by the outer spines, which is why the
+            # `groups` order is load-bearing: put the node whose partner
+            # blocks lie on the spine side last.
+            sides = [(edge_x, outward, "far")]
+            if index == lanes - 1:
+                sides.append((spine_x, -outward, "spine"))
+            for from_x, direction, tag in sides:
+                reach = from_x
+                for distance in MOS_ESCAPE_UM:
+                    target = from_x + direction * distance
+                    if _draw_guarded(
+                        bus, net, [(from_x, lane_y), (target, lane_y)]
+                    ):
+                        reach = target
+                        break
+                escapes.append(
+                    (f"{block_id}:{net}:{tag}{band_index}", reach, lane_y)
+                )
+        if not lane_ys:  # pragma: no cover -- every device has pads in both rows
+            raise ValueError(f"block '{block_id}' net {net}: no pads found")
+        if len(lane_ys) > 1:
+            bus.vseg(spine_x, min(lane_ys), max(lane_ys))
+        records.append(
+            {
+                "net": net,
+                "spine_side": spine_side,
+                "terminals": [f"{d}.{t}" for d, t in spec["terminals"]],
+                "pads": len(pads),
+                "gate_contacts": gates,
+                "spine_x_um": round(spine_x, 3),
+                "escapes": [
+                    [name, round(x, 3), round(y, 3)] for name, x, y in escapes
+                ],
+            }
+        )
+    return records
+
+
 #: A `diff_pair`'s guard ring carries the block's bulk tie -- an n-well tap on
 #: a pfet group (klayout-tools#421's fix gates the well tie on
 #: `flavor == "pfet"`) and a p-substrate tap on an nfet group -- and reports it
@@ -717,51 +1110,45 @@ def bulk_terminal(block: str) -> dict[str, Any]:
     return {"block": block, "port": "TAP_S", "escape": False}
 
 
-def mos_terminal(block: str, device: str, terminal: str) -> dict[str, Any]:
-    """One INTER_BLOCK_MET1 terminal spec naming a schematic device's source
-    or drain, resolved through MOS_HALVES.
+def mos_comb(block: str, net: str) -> dict[str, Any]:
+    """One INTER_BLOCK_MET1 terminal naming the off-block connection point of
+    a MOS block's already-drawn comb for `net` (see :func:`bus_mos_comb`).
 
-    Deliberately not a gate: a gate has no contactable landing area at all
-    (MOS_GATE_NOTE), and asking for one here should be a loud error rather
-    than a silently unrouted node.
+    A MOS terminal is no longer a single pad. Every finger of the schematic
+    device is bussed inside its own block, so what the inter-block router has
+    to reach is that comb's spine -- one point per node per block, already on
+    met1, with no via and no pad claim of its own.
     """
-    entry = MOS_HALVES[block]
-    if terminal not in ("drain", "source"):
-        raise ValueError(
-            f"{block}.{device}: met1 can reach a source or a drain, not "
-            f"{terminal!r} (MOS_GATE_NOTE)"
-        )
-    return {
-        "block": block,
-        "half": entry["devices"][device],
-        "device": device,
-        "suffix": entry[f"{terminal}_suffix"],
-        "facing": entry[f"{terminal}_facing"],
-    }
+    return {"block": block, "comb": (block, net)}
 
 
 #: The bandgap core's inter-block nodes that this flow draws on met1.
 #:
-#: Every terminal is either an li1 device pad (`block`/`suffix`/`facing`,
-#: resolved against that block's own reported `ports[]` and contacted through
-#: an mcon) or the met1 trunk an intra-block bus already drew for the same
-#: node (`trunk`). Gate-terminated schematic nodes (`GDRV`, and the gate ends
-#: of `VA`/`VB`/`D1`/`D2`/`PN`) are absent for one reason only: a MOS gate has
-#: no contactable landing area at all -- see MOS_GATE_NOTE.
+#: This is now the *complete* node list of design/bandgap_core.sch (with
+#: design/error_amp.sch expanded): with MOS gates contactable (MOS_GATE_NOTE)
+#: every schematic node is expressible, so nothing is omitted here and scored
+#: as "labelled only" in the coverage table below.
+#:
+#: Every terminal is one of three things: a `comb` point, i.e. the spine of a
+#: MOS block's already-drawn finger bus (:func:`bus_mos_comb`); the met1 trunk
+#: an intra-block bus already drew for the same node (`trunk`, the PNP
+#: arrays); or a named li1 pad on a resistor block, contacted through an mcon.
 #: Ordered most-constrained-first. A net that has to cross a 100 um array to
 #: reach its other end has exactly one free band to do it in; a short hop
 #: between neighbouring blocks has many. Routing the long ones first is what
 #: keeps a later short hop from walling off the only corridor an earlier one
-#: needed -- the ordering is load-bearing, not cosmetic.
+#: needed -- the ordering is load-bearing, not cosmetic (and the order search
+#: in :func:`build_bus_overlay` rotates it anyway).
 INTER_BLOCK_MET1: list[dict[str, Any]] = [
     {
         "net": "VA",
         "terminals": [
             {"block": "res_trim", "port": f"R{2 * N_R2_TRIM_CODES - 2}_B", "leg": 0},
             {"trunk": ("pnp_ctat", "VA")},
+            mos_comb("amp_input_pair", "VA"),
         ],
         "schematic": "the R2A leg's low end (through its trim taps) to Q1's "
-        "emitter bus -- the amp's VINN node",
+        "emitter bus and MP2's gate -- the amp's VINN node",
     },
     {
         "net": "TRIM_A",
@@ -775,14 +1162,12 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
     {
         "net": "VOUT",
         "terminals": [
-            mos_terminal("core_mirror", "MPOUT", "drain"),
+            mos_comb("core_mirror", "VOUT"),
             {"block": "res_r2", "port": "R0_A", "leg": 0},
             {"block": "res_r2", "port": "R1_A", "leg": 1},
         ],
         "schematic": "MPOUT's drain and the high ends of both divider legs "
-        "-- the reference output. Undrawable before this increment: a "
-        "cross-row net whose backbone has to pass over other blocks, which "
-        "the single-metal router rejects and met1 does not care about",
+        "-- the reference output",
     },
     {
         "net": "TRIM_B",
@@ -797,9 +1182,10 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
         "terminals": [
             {"block": "res_trim", "port": f"R{2 * N_R2_TRIM_CODES - 1}_B", "leg": 1},
             {"block": "res_r1", "port": "R0_A"},
+            mos_comb("amp_input_pair", "VB"),
         ],
         "schematic": "the R2B leg's low end (through its trim taps) to R1's "
-        "head -- the amp's VINP node",
+        "head and MP1's gate -- the amp's VINP node",
     },
     {
         "net": "VBQ",
@@ -812,86 +1198,106 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
     {
         "net": "VDD",
         "terminals": [
-            mos_terminal("core_mirror", "MPOUT", "source"),
-            mos_terminal("core_mirror", "MPAMP", "source"),
-            mos_terminal("amp_input_pair", "MP1", "source"),
-            mos_terminal("amp_input_pair", "MP2", "source"),
-            mos_terminal("amp_pmirr", "MP3", "source"),
-            mos_terminal("amp_pmirr", "MP4", "source"),
+            mos_comb("core_mirror", "VDD"),
+            mos_comb("amp_pmirr", "VDD"),
             bulk_terminal("core_mirror"),
             bulk_terminal("amp_input_pair"),
             bulk_terminal("amp_pmirr"),
         ],
-        "schematic": "VDD trunk: MPOUT/MPAMP, MP1/MP2 and MP3/MP4 sources -- "
-        "both halves of all three PMOS groups, not one pad per block -- plus "
-        "each PMOS group's n-well guard-ring tap (the reference's pfet bulk "
-        "terminal)",
+        "schematic": "VDD trunk: MPOUT/MPAMP and MP3/MP4 sources -- every "
+        "finger of all four, not one pad per block -- plus each PMOS group's "
+        "n-well guard-ring tap (the reference's pfet bulk terminal)",
     },
     {
         "net": "VSS",
         "terminals": [
-            mos_terminal("amp_nload", "MN1", "source"),
-            mos_terminal("amp_nload", "MN2", "source"),
-            mos_terminal("amp_nmirr", "MN3", "source"),
-            mos_terminal("amp_nmirr", "MN4", "source"),
+            mos_comb("amp_nload", "VSS"),
+            mos_comb("amp_nmirr", "VSS"),
             bulk_terminal("amp_nload"),
             bulk_terminal("amp_nmirr"),
             {"trunk": ("pnp_ctat", "VSS")},
             {"trunk": ("pnp_ptat", "VSS")},
         ],
-        "schematic": "VSS trunk: all four amp NMOS sources (MN1-MN4), both NMOS "
-        "groups' substrate guard-ring taps (the reference's nfet bulk "
-        "terminal), and both PNP base ties (the diode-connected PNPs' base "
-        "and collector both sit on VSS)",
+        "schematic": "VSS trunk: every finger of all four amp NMOS sources "
+        "(MN1-MN4), both NMOS groups' substrate guard-ring taps, and both "
+        "PNP base ties (the diode-connected PNPs' base sits on VSS)",
     },
     {
         "net": "TAIL",
         "terminals": [
-            mos_terminal("core_mirror", "MPAMP", "drain"),
-            mos_terminal("amp_input_pair", "MP1", "source"),
+            mos_comb("core_mirror", "TAIL"),
+            mos_comb("amp_input_pair", "TAIL"),
         ],
         "schematic": "MPAMP drain to the amp input pair's common source",
     },
     {
         "net": "GDRV",
         "terminals": [
-            mos_terminal("amp_pmirr", "MP4", "drain"),
-            mos_terminal("amp_nmirr", "MN3", "drain"),
+            mos_comb("amp_pmirr", "GDRV"),
+            mos_comb("amp_nmirr", "GDRV"),
+            mos_comb("core_mirror", "GDRV"),
         ],
-        "schematic": "the amp's output -- MP4's and MN3's drains, one node "
-        "with the core mirror's gate drive in the schematic. Its two drain "
-        "ends are ordinary li1 pads and are drawn here; the MPOUT/MPAMP gate "
-        "end of the same node is not reachable at all (MOS_GATE_NOTE), so "
-        "this node is completed as far as drawn geometry can take it and no "
-        "further",
+        "schematic": "the amp's output -- MP4's and MN3's drains -- and the "
+        "core mirror's gate drive, one node in the schematic and now one "
+        "drawn node in the layout",
     },
     {
         "net": "D1",
         "terminals": [
-            mos_terminal("amp_input_pair", "MP1", "drain"),
-            mos_terminal("amp_nload", "MN1", "drain"),
+            mos_comb("amp_input_pair", "D1"),
+            mos_comb("amp_nload", "D1"),
+            mos_comb("amp_nmirr", "D1"),
         ],
-        "schematic": "amp input-pair drain to its NMOS diode load",
+        "schematic": "MP1's drain, MN1's diode-connected drain/gate, and "
+        "MN3's gate",
     },
     {
         "net": "D2",
         "terminals": [
-            mos_terminal("amp_input_pair", "MP2", "drain"),
-            mos_terminal("amp_nload", "MN2", "drain"),
+            mos_comb("amp_input_pair", "D2"),
+            mos_comb("amp_nload", "D2"),
+            mos_comb("amp_nmirr", "D2"),
         ],
-        "schematic": "the amp input pair's other drain to its other NMOS "
-        "diode load -- undrawable before this increment because "
-        "`gen-compose` routes one 2-pin net per block-pair channel",
+        "schematic": "MP2's drain, MN2's diode-connected drain/gate, and "
+        "MN4's gate",
     },
     {
         "net": "PN",
         "terminals": [
-            mos_terminal("amp_pmirr", "MP3", "drain"),
-            mos_terminal("amp_nmirr", "MN4", "drain"),
+            mos_comb("amp_pmirr", "PN"),
+            mos_comb("amp_nmirr", "PN"),
         ],
-        "schematic": "amp NMOS mirror output to the PMOS mirror",
+        "schematic": "MN4's drain, MP3's diode-connected drain/gate, and "
+        "MP4's gate",
     },
 ]
+
+#: How many parallel tracks :func:`free_channels` offers per placement channel,
+#: and their pitch (um). One track per channel is what the previous increment
+#: had, and it meant a channel could carry exactly one node.
+CHANNEL_TRACKS = 4
+CHANNEL_TRACK_PITCH_UM = 1.2
+#: How far (um) the first track sits from the block edge it is derived from.
+#: Must clear that block's own comb escape stubs (MOS_ESCAPE_UM), or the
+#: nearest track lands exactly on the stub ends and every path through it is
+#: rejected -- which is precisely what a first cut did, with the track offset
+#: and the stub length both 1.2 um.
+CHANNEL_TRACK_OFFSET_UM = 3.0
+#: How many tracks near each endpoint :func:`_channel_paths` draws from. Every
+#: block edge contributes tracks, so the full set is ~90 per axis and using all
+#: of it would mean tens of thousands of candidate paths per hop; a route's
+#: useful turn is near one of its own ends.
+#:
+#: A first cut instead kept a global "best 26" ordered by how many block bboxes
+#: each track crosses. That silently threw away every usable track: the only
+#: tracks crossing *no* block on this floorplan are the ones outside the whole
+#: cell, so the 26 survivors were all at x < 0 or x > 300 and the placement
+#: channels between neighbours -- the entire point of the exercise -- never
+#: appeared in a candidate path.
+CHANNEL_NEAR_TRACKS = 8
+#: How many tracks near each endpoint the double-dogleg path family draws from.
+#: Squared into the candidate count, so smaller still.
+CHANNEL_DOGLEG_TRACKS = 5
 
 #: Detour lanes (um, relative to the straight elbow) the router below tries
 #: when a direct elbow would collide with an already-drawn net. Small, ordered
@@ -969,19 +1375,25 @@ def _draw_guarded(
             bus.vseg(x0, y0, y1)
         else:
             bus.hseg(x0, x1, y0)
-    new = bus.met1_rects[rect_mark:]
-    old = bus.met1_rects[:rect_mark]
     eps = 0.14 - 1e-9
-    for _, ax0, ay0, ax1, ay1 in new:
-        for net_b, bx0, by0, bx1, by1 in old:
+    for _, ax0, ay0, ax1, ay1 in bus.met1_rects[rect_mark:]:
+        for net_b, bx0, by0, bx1, by1 in bus.met1_near(ax0, ay0, ax1, ay1, eps):
             if net_b == net:
-                continue
-            if ax0 - eps < bx1 and bx0 - eps < ax1 and ay0 - eps < by1 and by0 - eps < ay1:
-                del bus.shapes[shape_mark:]
-                del bus.met1_rects[rect_mark:]
-                _LAST_BLOCKER.clear()
-                _LAST_BLOCKER.append(net_b)
-                return False
+                # Same node: touching or overlapping is the normal case (every
+                # elbow shares a corner with its own next segment, every via
+                # pad sits under its own wire). *Near but not touching* is
+                # different -- it is a notch, and `met1.space.1` applies to two
+                # edges of one net exactly as it does to two nets. This is what
+                # a first cut of the multi-track channel search shipped: DRC
+                # caught one 0.12 um same-net gap that this check, looking only
+                # at other nodes, had waved through.
+                if ax0 <= bx1 and bx0 <= ax1 and ay0 <= by1 and by0 <= ay1:
+                    continue
+            del bus.shapes[shape_mark:]
+            bus.truncate_met1(rect_mark)
+            _LAST_BLOCKER.clear()
+            _LAST_BLOCKER.append(net_b)
+            return False
     return True
 
 
@@ -999,19 +1411,28 @@ def free_channels(
     reports: dict[str, dict[str, Any]],
     origins: dict[str, dict[str, float]],
 ) -> dict[str, list[float]]:
-    """The mid-lines of the floorplan's empty vertical and horizontal channels.
+    """Candidate vertical and horizontal tracks the open-channel router may
+    cross the floorplan on.
 
     met1 sits above every block's li1, so a *block* is not an obstacle to this
-    router -- only another node's already-drawn met1 is. The gaps between
-    blocks are still the right lanes to prefer, though, because that is where
-    the previously-drawn nets are sparsest: BLOCK_MARGIN_UM/ROW_MARGIN_UM
-    exist precisely to leave them empty.
+    router -- only another node's already-drawn met1 is. The placement gaps are
+    still the right lanes to prefer, because that is where the previously-drawn
+    nets are sparsest: BLOCK_MARGIN_UM/ROW_MARGIN_UM exist precisely to leave
+    them empty.
 
-    Returning mid-lines (rather than a grid) keeps the candidate set small
-    enough to try exhaustively per hop: this floorplan has four vertical
-    channels and two horizontal ones, so a hop gets a handful of "go out to a
-    channel, along a band, and back in" paths instead of the thousands a
-    blind offset sweep would need to stumble onto the same route.
+    Derived **per block edge**, not from the union of every block's span. The
+    union is what a first cut used, and on this floorplan it is nearly useless:
+    the row-1 and row-2 blocks overlap in x with the row-0 blocks, so merging
+    every span collapses ten blocks into two x intervals and leaves exactly two
+    usable vertical tracks -- both outside the whole cell. The 12 um channels
+    the placement deliberately leaves *between* neighbours in a row disappear
+    from the candidate set entirely, and six schematic nets were reported
+    unroutable as a direct result. Each block edge contributes its own tracks
+    here, so those channels are back.
+
+    Duplicates are dropped and the result is ordered by how many blocks a track
+    passes over, fewest first, so a hop tries the genuinely free lanes before
+    the ones that only look free.
     """
     spans: dict[str, list[tuple[float, float]]] = {"x": [], "y": []}
     for bid, report in reports.items():
@@ -1023,23 +1444,25 @@ def free_channels(
 
     lanes: dict[str, list[float]] = {}
     for axis, intervals in spans.items():
-        intervals.sort()
-        merged: list[list[float]] = []
+        candidates: list[float] = []
         for lo, hi in intervals:
-            if merged and lo <= merged[-1][1]:
-                merged[-1][1] = max(merged[-1][1], hi)
-            else:
-                merged.append([lo, hi])
-        mids = [
-            round((merged[i][1] + merged[i + 1][0]) / 2.0, 3)
-            for i in range(len(merged) - 1)
-        ]
+            for step in range(CHANNEL_TRACKS):
+                out = CHANNEL_TRACK_OFFSET_UM + step * CHANNEL_TRACK_PITCH_UM
+                candidates.append(round(lo - out, 3))
+                candidates.append(round(hi + out, 3))
         # The margins outside the content are lanes too, and are the only way
         # out for a terminal boxed in at a corner of the floorplan.
         margin = RING_MARGIN_UM / 2.0
-        mids.append(round(merged[0][0] - margin, 3))
-        mids.append(round(merged[-1][1] + margin, 3))
-        lanes[axis] = mids
+        outer_lo = min(lo for lo, _ in intervals) - margin
+        outer_hi = max(hi for _, hi in intervals) + margin
+        for step in range(CHANNEL_TRACKS):
+            candidates.append(round(outer_lo + step * CHANNEL_TRACK_PITCH_UM, 3))
+            candidates.append(round(outer_hi - step * CHANNEL_TRACK_PITCH_UM, 3))
+
+        seen: set[float] = set()
+        unique = [t for t in candidates if not (t in seen or seen.add(t))]
+        unique.sort()
+        lanes[axis] = unique
     return lanes
 
 
@@ -1052,11 +1475,51 @@ def _channel_paths(
     and drop into the destination -- the shape a route across the whole
     floorplan actually needs, which no elbow or single-jog Z can express."""
     (ax, ay), (bx, by) = a, b
+    all_xs = channels.get("x", [])
+    all_ys = channels.get("y", [])
+
+    def near(tracks: list[float], *values: float, limit: int) -> list[float]:
+        chosen: list[float] = []
+        for value in values:
+            for track in sorted(tracks, key=lambda t: abs(t - value))[:limit]:
+                if track not in chosen:
+                    chosen.append(track)
+        return chosen
+
+    xs = near(all_xs, ax, bx, limit=CHANNEL_NEAR_TRACKS)
+    ys = near(all_ys, ay, by, limit=CHANNEL_NEAR_TRACKS)
     paths: list[list[tuple[float, float]]] = []
-    for cx in channels.get("x", []):
-        for cy in channels.get("y", []):
+    for cx in xs:
+        for cy in ys:
             paths.append([(ax, ay), (cx, ay), (cx, cy), (bx, cy), (bx, by)])
             paths.append([(ax, ay), (ax, cy), (cx, cy), (cx, by), (bx, by)])
+    # Double-dogleg: leave the source on one track, cross on a band, and come
+    # in to the destination on a *different* track. The single-track forms
+    # above cannot express "the lane that gets me out is not the lane that
+    # gets me in", which is exactly what a hop between two blocks whose
+    # escapes face opposite ways needs -- `D1` and `D2` (amp_nmirr's west fan
+    # to amp_input_pair's east fan) have no other shape available at all.
+    # Bounded by only offering the tracks nearest each end.
+    near_a = near(all_xs, ax, limit=CHANNEL_DOGLEG_TRACKS)
+    near_b = near(all_xs, bx, limit=CHANNEL_DOGLEG_TRACKS)
+    for cy in ys:
+        for cx1 in near_a:
+            for cx2 in near_b:
+                if cx1 == cx2:
+                    continue
+                paths.append(
+                    [(ax, ay), (cx1, ay), (cx1, cy), (cx2, cy), (cx2, by), (bx, by)]
+                )
+    near_a_y = near(all_ys, ay, limit=CHANNEL_DOGLEG_TRACKS)
+    near_b_y = near(all_ys, by, limit=CHANNEL_DOGLEG_TRACKS)
+    for cx in xs:
+        for cy1 in near_a_y:
+            for cy2 in near_b_y:
+                if cy1 == cy2:
+                    continue
+                paths.append(
+                    [(ax, ay), (ax, cy1), (cx, cy1), (cx, cy2), (bx, cy2), (bx, by)]
+                )
     # Sort by length: a channel pair that happens to sit near both ends is a
     # short detour and should be preferred over one that crosses the cell.
     paths.sort(
@@ -1140,6 +1603,66 @@ def _connect(
     return None
 
 
+#: How many candidate assignments (which escape / which pad each terminal
+#: takes) the router tries per node before settling for the best partial.
+CANDIDATE_ASSIGNMENTS = 3
+#: How many candidates per terminal feed that enumeration.
+CANDIDATES_PER_TERMINAL = 3
+
+
+def _candidate_assignments(
+    points: list[dict[str, Any]], cx: float, cy: float
+) -> list[tuple[list[dict[str, Any]], list[tuple[str, str]]]]:
+    """Candidate `(resolved terminals, pad claims)` pairs for one node,
+    best-guess first.
+
+    Each terminal that offers a choice contributes its
+    CANDIDATES_PER_TERMINAL nearest options (nearest to the node's own
+    centroid); the assignments are then enumerated in increasing total
+    "rank", so the all-nearest assignment is first and the search degrades
+    gracefully from there. Pad claims are returned rather than applied,
+    because only the assignment that is finally kept may claim a pad.
+    """
+    options: list[list[dict[str, Any] | None]] = []
+    for point in points:
+        if "candidates" not in point:
+            options.append([None])
+            continue
+        ordered = sorted(
+            point["candidates"], key=lambda c: abs(c[1] - cx) + abs(c[2] - cy)
+        )[:CANDIDATES_PER_TERMINAL]
+        options.append(list(ordered))
+
+    indices = [range(len(o)) for o in options]
+    combos = sorted(
+        itertools.product(*indices), key=lambda combo: (sum(combo), combo)
+    )[:CANDIDATE_ASSIGNMENTS]
+
+    assignments: list[tuple[list[dict[str, Any]], list[tuple[str, str]]]] = []
+    for combo in combos:
+        resolved: list[dict[str, Any]] = []
+        claims: list[tuple[str, str]] = []
+        for point, choice, option in zip(points, combo, options):
+            if "candidates" not in point:
+                resolved.append(dict(point))
+                continue
+            name, x, y = option[choice]
+            if point.get("claims_pad", True):
+                claims.append((point["block"], name))
+                name = f"{point['block']}.{name}"
+            resolved.append(
+                {
+                    "block": point["block"],
+                    "name": name,
+                    "x": x,
+                    "y": y,
+                    "via": point["via"],
+                }
+            )
+        assignments.append((resolved, claims))
+    return assignments
+
+
 def route_inter_block_nets(
     bus: "met1_bus.Met1Bus",
     reports: dict[str, dict[str, Any]],
@@ -1156,14 +1679,19 @@ def route_inter_block_nets(
     """
     channels = free_channels(reports, origins)
     trunks: dict[tuple[str, str], tuple[float, float]] = {}
+    combs: dict[tuple[str, str], list[tuple[str, float, float]]] = {}
     for bid, entry in bus_summary.items():
-        if entry.get("kind") != "bjt_parallel":
-            continue
-        for record in entry["nets"]:
-            trunks[(bid, record["net"])] = (
-                record["trunk_x1_um"],
-                record["trunk_y_um"],
-            )
+        if entry.get("kind") == "bjt_parallel":
+            for record in entry["nets"]:
+                trunks[(bid, record["net"])] = (
+                    record["trunk_x1_um"],
+                    record["trunk_y_um"],
+                )
+        elif entry.get("kind") == "mos_comb":
+            for record in entry["nets"]:
+                combs[(bid, record["net"])] = [
+                    (name, x, y) for name, x, y in record["escapes"]
+                ]
 
     # A port may terminate at most one node: two nodes contacting the same
     # pad would be a short that neither DRC nor the drawn-short check can
@@ -1186,6 +1714,21 @@ def route_inter_block_nets(
                         "x": x,
                         "y": y,
                         "via": False,
+                    }
+                )
+                continue
+            if "comb" in terminal:
+                # Already met1, already contacted: the comb drew every finger's
+                # via itself, so this terminal is a point on drawn metal and
+                # claims no pad the pin selector could collide with. Both of
+                # the comb's row escapes are offered; the resolver below takes
+                # whichever sits nearer the rest of the node.
+                points.append(
+                    {
+                        "block": terminal["comb"][0],
+                        "candidates": combs[tuple(terminal["comb"])],
+                        "via": False,
+                        "claims_pad": False,
                     }
                 )
                 continue
@@ -1248,63 +1791,54 @@ def route_inter_block_nets(
         ] or [
             (sum(c[1] for c in p["candidates"]) / len(p["candidates"]),
              sum(c[2] for c in p["candidates"]) / len(p["candidates"]))
-            for p in points if p["via"]
+            for p in points if "candidates" in p
         ]
         cx = sum(a[0] for a in anchors) / len(anchors)
         cy = sum(a[1] for a in anchors) / len(anchors)
-        resolved: list[dict[str, Any]] = []
-        for point in points:
-            if not point["via"] or point.get("fixed"):
-                resolved.append(point)
-                continue
-            name, x, y = min(
-                point["candidates"], key=lambda c: abs(c[1] - cx) + abs(c[2] - cy)
-            )
-            used_ports.add((point["block"], name))
-            resolved.append(
-                {
-                    "block": point["block"],
-                    "name": f"{point['block']}.{name}",
-                    "x": x,
-                    "y": y,
-                    "via": True,
-                }
-            )
-        # The pad each terminal contacts, kept separate from `x`/`y` because
-        # drawing an escape stub moves the latter. A retried chain order has
-        # to start from the pad again, not from wherever the previous attempt
-        # left the terminal.
-        for point in resolved:
-            point["pad"] = (point["x"], point["y"])
 
-        # The terminals of one node are joined as an open chain, so the order
-        # they are visited in *is* the wire plan: a chain that zig-zags across
-        # the floorplan asks the open-channel router for corridors that a
-        # chain visiting the same terminals in a friendlier order never needs.
-        # Sorting by x is a good default and was the only plan this router had;
-        # it is also what left the four-terminal `VSS` trunk permanently one
-        # hop short, because it made the chain start at the bottom-left PNP and
-        # jump straight to the top-right NMOS mirror. Try a few orders and keep
-        # the first that routes completely, falling back to the best partial.
+        # Which candidate each terminal takes is a *choice*, and the nearest
+        # one is only a first guess. A comb offers two or four escapes (one
+        # per device row, plus the spine side for the outermost node) and a
+        # split MOS group offers several pads; picking centroid-nearest once
+        # and never revisiting it is what left `D1`/`TAIL`/`VOUT` reported
+        # unroutable while a perfectly good path existed off the *other*
+        # escape of the same comb. So the assignments are enumerated too,
+        # nearest-first, and the first that routes completely wins.
         best_score: tuple[int, int] | None = None
-        best_plan = resolved
+        best_plan: list[dict[str, Any]] = []
+        best_claims: list[tuple[str, str]] = []
         hops: list[dict[str, Any]] = []
         routed = False
-        for plan in _chain_orders(resolved):
-            mark = bus.mark()
-            hops, routed = _draw_chain(bus, net, plan, channels)
-            score = (0 if routed else 1, sum(1 for h in hops if not h["routed"]))
+        for assignment in _candidate_assignments(points, cx, cy):
+            resolved, claims = assignment
+            for point in resolved:
+                # The pad each terminal contacts, kept separate from `x`/`y`
+                # because drawing an escape stub moves the latter. A retried
+                # chain order has to start from the pad again, not from
+                # wherever the previous attempt left the terminal.
+                point["pad"] = (point["x"], point["y"])
+            # The terminals of one node are joined as an open chain, so the
+            # order they are visited in *is* the wire plan: a chain that
+            # zig-zags across the floorplan asks the open-channel router for
+            # corridors that a chain visiting the same terminals in a
+            # friendlier order never needs.
+            for plan in _chain_orders(resolved):
+                mark = bus.mark()
+                hops, routed = _draw_chain(bus, net, plan, channels)
+                score = (0 if routed else 1, sum(1 for h in hops if not h["routed"]))
+                if routed:
+                    best_plan, best_score, best_claims = plan, score, claims
+                    break  # geometry for the winning plan stays on the bus
+                bus.restore(mark)
+                if best_score is None or score < best_score:
+                    best_plan, best_score, best_claims = plan, score, claims
             if routed:
-                best_plan, best_score = plan, score
-                break  # geometry for the winning plan stays on the bus
-            bus.restore(mark)
-            if best_score is None or score < best_score:
-                best_plan, best_score = plan, score
+                break
         if not routed:
             # Every plan was rolled back. Redraw the best one so the geometry
             # on the bus is the geometry the report below describes.
             hops, routed = _draw_chain(bus, net, best_plan, channels)
-        resolved = best_plan
+        used_ports.update(best_claims)
         # One label per net, on drawn metal, so `klt extract` promotes it as a
         # named top-level pin. Deliberately one and only one: two labels with
         # the same text on two *disconnected* pieces of metal would merge them
@@ -1457,6 +1991,14 @@ def build_bus_overlay(
                     "kind": "bjt_parallel",
                     "nets": bus_bjt_parallel(
                         bus, spec["nets"], reports[bid], origins[bid]
+                    ),
+                }
+            elif spec["kind"] == "mos_comb":
+                summary[bid] = {
+                    "kind": "mos_comb",
+                    "nets": bus_mos_comb(
+                        bus, bid, reports[bid], origins[bid],
+                        spec["spine_side"], spec["nets"],
                     ),
                 }
             else:  # pragma: no cover -- BLOCKS is a literal table
@@ -1676,49 +2218,23 @@ def select_ports(
 
 
 
-#: Single-port nodes labelled without routing (`pins[]`). Every device gate is
-#: a one-pin node `connectivity[]` cannot even express, and the trim ladder's
-#: taps are read-only probe points, so these are label-only promotions -- the
-#: mechanism that makes each node a *named* `.SUBCKT` pin instead of an
-#: anonymous `$N` net, and therefore addressable from a post-layout testbench
-#: (issue #16). `(block, suffix, facing, toward)` resolves the same way
-#: CORE_NETS does; the first candidate not already claimed by a routed net is
-#: used.
-#: Each gate entry names the schematic device whose gate it labels, and
-#: resolves the port through MOS_HALVES exactly as a routed terminal does, so
-#: a label can never name a half whose drain a route bound to the *other*
-#: transistor (MOS_HALF_NOTE).
+#: Label-only pin promotions (`pins[]`), i.e. nodes made addressable from a
+#: post-layout testbench (issue #16) without any claim of connectivity: a
+#: `pins[]` entry draws a label, never a wire.
 #:
-#: Every entry here is a **gate**, and every gate name carries the `_GATE`
-#: suffix. That is deliberate: a gate is unreachable (MOS_GATE_NOTE), so its
-#: label must not reuse the schematic node's own name. `GDRV` in particular is
-#: now drawn metal joining MP4's and MN3's drains, and it carries one met1
-#: label of its own; the MPOUT/MPAMP gate end of that same schematic node is a
-#: separate, disconnected piece of geometry, so labelling it `GDRV` too would
-#: hand `klt extract` two same-named labels on unconnected metal and
-#: manufacture a merge that was never drawn. It is `GDRV_GATE`, and the
-#: record's coverage table is where the two are stated to be one schematic
-#: node. (`AOUT`, the amp-drain half of that node, was previously labelled
-#: here for the same reason and is gone: it is now part of the drawn `GDRV`
-#: net rather than a separate pin.)
-CORE_PIN_LABELS: list[dict[str, Any]] = [
-    {"net": "GDRV_GATE", "device": ("core_mirror", "MPOUT"), "toward": "north",
-     "schematic": "core mirror gate drive (the amp's output node)"},
-    {"net": "VA_GATE", "device": ("amp_input_pair", "MP2"), "toward": "north",
-     "schematic": "amp VINN input gate"},
-    {"net": "VB_GATE", "device": ("amp_input_pair", "MP1"), "toward": "south",
-     "schematic": "amp VINP input gate"},
-    {"net": "D1_GATE", "device": ("amp_nload", "MN1"), "toward": "north",
-     "schematic": "amp NMOS diode-load gate (D1)"},
-    {"net": "D2_GATE", "device": ("amp_nload", "MN2"), "toward": "south",
-     "schematic": "amp NMOS diode-load gate (D2)"},
-    {"net": "D1_MIRROR_GATE", "device": ("amp_nmirr", "MN3"), "toward": "north",
-     "schematic": "amp NMOS mirror-output gate driven by D1"},
-    {"net": "D2_MIRROR_GATE", "device": ("amp_nmirr", "MN4"), "toward": "south",
-     "schematic": "amp NMOS mirror-output gate driven by D2"},
-    {"net": "PN_GATE", "device": ("amp_pmirr", "MP3"), "toward": "north",
-     "schematic": "amp PMOS mirror gate (PN)"},
-]
+#: The eight gate entries this list used to carry are **gone**. They existed
+#: because a MOS gate could not be wired at all (MOS_GATE_NOTE), so each
+#: gate node could only be named -- with a deliberately different name
+#: (`GDRV_GATE`, `VA_GATE`, ...) from the schematic node it belonged to, so
+#: that two disconnected pieces of metal could not be labelled alike and
+#: merged by `klt extract`. With 2AMLogic/klayout-tools#461 merged, every one
+#: of those nodes is drawn metal carrying its own schematic name (see
+#: INTER_BLOCK_MET1), and re-labelling their pads here would do exactly the
+#: damage `routed_ports` exists to prevent.
+#:
+#: What remains is the trim ladder's read-only probe taps, which are genuinely
+#: single-port nodes no schematic net reaches (see :func:`trim_tap_pins`).
+CORE_PIN_LABELS: list[dict[str, Any]] = []
 
 
 #: The bar criterion 1 is measured against: every node of
@@ -1769,8 +2285,8 @@ SCHEMATIC_INTER_BLOCK_NETS: list[dict[str, Any]] = [
         "blocks": ["core_mirror", "amp_pmirr", "amp_nmirr"],
         "hops": ["GDRV"],
         "schematic": "amp output (MP4/MN3 drains) + MPOUT/MPAMP gates -- one "
-        "node in the schematic. The two drain ends are drawn; the gate end is "
-        "the `GDRV_GATE` label (MOS_GATE_NOTE)",
+        "node in the schematic and, since the gate-contact gap closed, one "
+        "drawn node in the layout too",
     },
     {
         "net": "TAIL",
@@ -1805,23 +2321,15 @@ SCHEMATIC_INTER_BLOCK_NETS: list[dict[str, Any]] = [
     },
     {
         "net": "VSS",
-        "blocks": [
-            "amp_nload",
-            "amp_nmirr",
-            "pnp_ctat",
-            "pnp_ptat",
-            "res_r2",
-            "res_trim",
-            "res_r1",
-        ],
+        "blocks": ["amp_nload", "amp_nmirr", "pnp_ctat", "pnp_ptat"],
         "hops": ["VSS"],
-        "schematic": "ground trunk: MN1-MN4 sources + both PNPs' base/"
-        "collector ties + all three res_high_po bulk terminals (R2A/R2B/R1 "
-        "each tie their bulk to VSS -- design/bandgap_core.sch r2ab/r2bb/"
-        "r1b). The layout can only draw the 2-terminal res_generic_po "
-        "flavour (RES_FLAVOR_NOTE), so those three blocks have no bulk "
-        "terminal to reach; this table states the schematic's requirement "
-        "rather than quietly dropping it",
+        "schematic": "ground trunk: MN1-MN4 sources + both PNPs' base ties. "
+        "The three resistor blocks' res_high_po bulk terminals "
+        "(design/bandgap_core.sch r2ab/r2bb/r1b) are on this node in the "
+        "schematic too, but the extraction deck ties every resistor bulk to "
+        "its synthesized `vsubs` global rather than to drawn geometry "
+        "(SUBSTRATE_NET_NOTE), so there is no pad in those blocks for metal "
+        "to reach and they are not counted as routing targets here",
     },
 ]
 
@@ -2344,6 +2852,7 @@ def main() -> int:
             "engine": "klayout",
             "layout": layout_spec,
             "reference": {"netlist": reference_name, "top": "bandgap_core"},
+            "hints": {"same_nets": SUBSTRATE_SAME_NETS},
             "options": {"combine_devices": combine},
         }
         request_path = out_dir / f"lvs{tag}.request.json"
@@ -2414,7 +2923,14 @@ def main() -> int:
         "pnp": device_counts.get("pnp", 0) > 0,
         "nfet": device_counts.get("nfet", 0) > 0,
         "pfet": device_counts.get("pfet", 0) > 0,
-        "resistor": device_counts.get("res_generic_po", 0) > 0,
+        # `res_high_po` since 2AMLogic/klayout-tools#463 (merged via #475) --
+        # the schematic's own flavour, drawable at last. The base
+        # `res_generic_po` counts too: the class the layout should carry is
+        # whichever flavour it drew, and neither is "plain interconnect".
+        "resistor": (
+            device_counts.get(RES_CLASS, 0) > 0
+            or device_counts.get("res_generic_po", 0) > 0
+        ),
     }
     all_classes = all(classes_present.values())
     r2_units = BLOCKS[[b["id"] for b in BLOCKS].index("res_r2")]["params"]["num"]
@@ -2465,15 +2981,17 @@ def main() -> int:
         f"status={lvs.get('status')}, mismatch_count={lvs.get('mismatch_count')} |"
     )
     a(
-        "| 5 | Blocking `klt` gaps filed as friction | MET | "
-        "#432/#433/#434 (prior increment's PNP marker / single-routing-metal "
-        "/ guard-ring blockers) all CLOSED upstream; this increment's own "
-        "residual blockers are 2AMLogic/klayout-tools#461 (MOS gate poly has "
-        "no contact landing area -- dominant), #462 (dummy-device marker is "
-        "MOS-gate-only, not bipolar/resistor), #463 (sky130 `res_array` "
-        "cannot draw non-default resistor flavours), and new this increment "
-        "#470 (a net carrying two different labels is emitted as `A|B` with "
-        "no diagnostic from either `klt extract` or `klt lvs`) |"
+        "| 5 | Blocking `klt` gaps filed as friction | MET | every gap the "
+        "previous three records named is now CLOSED upstream and this "
+        "record is the re-run against them (2AMLogic/klayout-tools#461 via "
+        "#474, #462 via #471, #463 via #475, #454 via #468, #470 via #481). "
+        "New this increment: #490 (the sky130 extraction deck synthesizes "
+        "the substrate/bulk net from an empty region, so no drawn shape can "
+        "join it -- the dominant remaining LVS term), #491 (#462's "
+        "suppression path is unreachable on sky130: no deck `dummy` layer, "
+        "no generator draws one, no CLI override), #492 (`gen-compose` "
+        "still cannot route to a poly gate port, so #461's landing pad has "
+        "to be contacted by hand) |"
     )
     a("")
     a(f"- [{'x' if drc_clean else ' '}] DRC on the composed, routed layout is clean")
@@ -2553,15 +3071,15 @@ def main() -> int:
     a("## Intra-block busses drawn on met1")
     a("")
     a(
-        "Each matched array's units are tied into the node the schematic "
+        "Each matched group's units are tied into the node the schematic "
         "says they form, on met1 over mcon -- the sky130 extraction deck's "
         "own second conductor and via (`metals = (li1, met1)`, "
-        "`vias = (mcon,)`). The li1 router cannot express these at all "
-        "(2AMLogic/klayout-tools#433 and its merged fix #439, which made the "
-        "failure visible rather than expressible), so this flow draws them "
-        "itself from each block's reported `ports[]`. This is what turns a "
-        "108-segment ladder into two real series resistors and an 8-unit PNP "
-        "array into one real m=8 device."
+        "`vias = (mcon,)`). This flow draws them itself from each block's "
+        "reported `ports[]` (MET1_BUS_NOTE). That is what turns a "
+        "108-segment ladder into two real series resistors, an 8-unit PNP "
+        "array into one real m=8 device, and -- new in this increment -- "
+        "each split MOS group's 4 to 32 fingers into the single m=N "
+        "transistor the schematic names."
     )
     a("")
     a("| block | bus | detail |")
@@ -2574,6 +3092,15 @@ def main() -> int:
                 f"| `{bid}` | {entry['legs']} interdigitated series "
                 f"string(s) | {len(entry['links'])} unit-to-unit met1 links |"
             )
+        elif entry["kind"] == "mos_comb":
+            detail = "; ".join(
+                f"`{r['net']}` = {r['pads']} finger pads"
+                + (f" ({r['gate_contacts']} gate contacts)"
+                   if r["gate_contacts"] else "")
+                + f" joined on the {r['spine_side']} spine"
+                for r in entry["nets"]
+            )
+            a(f"| `{bid}` | split-device finger bus | {detail} |")
         else:
             detail = "; ".join(
                 f"`{r['net']}` = {r['pads']} pads on {r['columns']} columns"
@@ -2630,18 +3157,14 @@ def main() -> int:
         "one counts what issue #62 actually asks for: every node of "
         "design/bandgap_core.sch (+ design/error_amp.sch) that joins devices "
         "in different blocks, and whether drawn metal joins **all** the "
-        "blocks the schematic says it reaches. Everything not drawn below "
-        "exists in the layout as a promoted pin label, i.e. it is "
-        "addressable but electrically open. Every remaining gap but one has "
-        "the same cause: the node terminates on a MOS gate, and no `klt gen` "
-        "MOS generator on sky130 leaves any contactable poly outside the "
-        "channel (MOS_GATE_NOTE). The exception is `VSS`'s three resistor "
-        "blocks, which is the resistor-flavour gap instead (RES_FLAVOR_NOTE) "
-        "-- the drawn `res_generic_po` has no bulk terminal to reach. Both "
-        "are stated per row below rather than collapsed into one sentence: "
-        "the previous increment's record attributed *every* gap to the gate "
-        "cause, which was not true of `VSS` and hid the fact that `VSS` was "
-        "also simply failing to route."
+        "blocks the schematic says it reaches. "
+        "The cause of a short row has changed with this increment, and the "
+        "change is the point of it: it is no longer a tool gap. Every one of "
+        "these nodes is now *expressible* -- MOS gates are contactable "
+        "(MOS_GATE_NOTE) and the resistor blocks carry the schematic's own "
+        "flavour (RES_FLAVOR_NOTE) -- so a row that is not `drawn` is this "
+        "flow's own router failing to find a corridor through its own "
+        "congestion, and nothing upstream is being waited on for it."
     )
     a("")
     a("| schematic net | reaches (blocks) | joined by drawn metal | not drawn | status |")
@@ -2657,12 +3180,15 @@ def main() -> int:
     a(
         f"**{len(fully_drawn)} of {len(coverage)} schematic inter-block nets "
         "are fully drawn.** Criterion 1 is scored PARTIAL, not MET, whenever "
-        "that count is short. `VSS`'s block list includes the three resistor "
-        "blocks because the *schematic* uses `res_high_po`, a 3-terminal "
-        "device whose bulk ties to VSS; the layout can only draw the "
-        "2-terminal `res_generic_po` (RES_FLAVOR_NOTE), so those three have "
-        "no bulk terminal to reach and this table states the schematic\'s "
-        "requirement rather than quietly dropping it."
+        "that count is short. `VSS` reaches four blocks here, not the seven "
+        "an earlier record listed: the three resistor blocks' `res_high_po` "
+        "bulk terminals are on this node in the schematic, but the "
+        "extraction deck puts every resistor bulk on its synthesized `vsubs` "
+        "global rather than on drawn geometry (SUBSTRATE_NET_NOTE), so there "
+        "is no pad in those blocks for metal to reach and counting them as "
+        "routing targets would be scoring against an impossible bar rather "
+        "than a missed one. The correspondence itself is declared to `klt "
+        "lvs` instead."
     )
     a("")
     a("## Promoted top-level pins")
@@ -2714,7 +3240,7 @@ def main() -> int:
     a(f"| `pnp` | {device_counts.get('pnp', 0)} | 0 |")
     a(f"| `nfet` | {device_counts.get('nfet', 0)} | 0 |")
     a(f"| `pfet` | {device_counts.get('pfet', 0)} | 68 |")
-    a(f"| `res_generic_po` | {device_counts.get('res_generic_po', 0)} | 67 |")
+    a(f"| `{RES_CLASS}` | {device_counts.get(RES_CLASS, 0)} | 67 (as `res_generic_po`) |")
     a(f"| promoted pins | {pin_count} | 0 |")
     a("")
     a("### LVS mismatch analysis")
@@ -2768,23 +3294,32 @@ def main() -> int:
     a("")
     a(f"Mismatch categories: `{json.dumps(lvs.get('category_counts', {}))}`.")
     a("")
-    a("The residual gap has four disclosed causes, none of them a topology "
+    a("The residual gap has five disclosed causes, none of them a topology "
       "error in either netlist:")
     a("")
     a(
-        f"1. **MOS gates are not connectable at all.** {MOS_GATE_NOTE} Every "
-        "split MOS group therefore stays N unconnected fingers instead of "
-        "one m=N device, and the six schematic nodes that land on a gate "
-        "stay open. This is the dominant term and the blocker on criterion "
-        "4."
+        "1. **Unrouted nodes.** "
+        f"{len(coverage) - len(fully_drawn)} of {len(coverage)} schematic "
+        "inter-block nodes are not joined across every block they reach (see "
+        "the coverage table above), so the corresponding layout nets are "
+        "split where the reference has one. Unlike every previous "
+        "increment's headline cause, this one is not a tool gap: it is this "
+        "flow's own hand-written router running out of corridors in its own "
+        "congestion, and it is the first thing a further increment should "
+        "attack."
     )
     a(
-        f"2. **Dummy devices cannot be declared.** {DUMMY_DEVICE_NOTE}"
+        "2. **The substrate net is synthesized, not drawn.** "
+        f"{SUBSTRATE_NET_NOTE} Declared through "
+        f"`hints.same_nets={json.dumps(SUBSTRATE_SAME_NETS)}` rather than "
+        "worked around in either netlist. The layout's own drawn `VSS` -- "
+        "the NMOS sources, the substrate guard-ring taps and both PNP base "
+        "ties -- is then a second layout net with no reference counterpart, "
+        "because the reference (correctly) has only one ground node."
     )
     a(
-        f"3. **The resistor flavour cannot be drawn.** {RES_FLAVOR_NOTE} The "
-        "reference states the schematic's device; the layout draws the only "
-        "flavour the generator can."
+        f"3. **Dummy devices cannot be declared on sky130.** "
+        f"{DUMMY_DEVICE_NOTE}"
     )
     a(
         "4. **`MMCC`, the amp's compensation cap, is in the reference but "
@@ -2792,12 +3327,26 @@ def main() -> int:
         "above), so one reference device has no layout counterpart by "
         "construction."
     )
+    a(
+        "5. **Resistor values differ by the schematic's head resistance.** "
+        "design/bandgap_core.sch line 188 models a res_high_po segment as "
+        "`R ~ 380 + 325*L` ohm, with the 380 ohm head charged once per "
+        "*device*; the extractor derives R from drawn body squares alone "
+        "(319.8 ohm/sq), so a 270 um leg reads 86,346 ohm against the "
+        "reference's 88,130. The layout also puts the DR-002 trim taps in "
+        "series in each leg, which the schematic carries as a length term on "
+        "the same device (`L='r_lseg*n_r2+r_lseg_trim*n_r2_trim'`) rather "
+        "than as separate devices."
+    )
     a("")
     a(
-        "None of the four is worked around by editing the reference netlist. "
+        "None of the five is worked around by editing either netlist. "
         "`reference.spice` states design/bandgap_core.sch; rewriting it to "
         "enumerate the layout's own shortfalls would make LVS compare the "
-        "layout against itself, which is not evidence."
+        "layout against itself, which is not evidence. The one declaration "
+        "made -- the substrate correspondence in cause 2 -- is a `hints` "
+        "entry, and it states something that is true of the design rather "
+        "than something convenient about the layout."
     )
     a("")
     a("## Visual verification")
@@ -2809,29 +3358,27 @@ def main() -> int:
     a(
         f"- **Not LVS-clean.** `klt lvs` reports `{lvs.get('status')}` with "
         f"`mismatch_count={lvs.get('mismatch_count')}` against the "
-        "xschem-derived reference netlist. The blocking reason is the "
-        "gate-contact gap above, not a layout choice: with every MOS gate "
-        "unreachable, no split group can collapse into the m=N device the "
-        "schematic states, so `devices.matched` is 0 and stays 0 however much "
-        "more metal is drawn."
+        "xschem-derived reference netlist, and `devices.matched` is "
+        f"{lvs_devices.get('matched')}. The five causes above are the whole "
+        "of it; none is hidden behind a number that moved."
     )
     a(
         "- **Not fully inter-block routed either.** "
         f"{len(fully_drawn)}/{len(coverage)} schematic inter-block nets are "
         "joined across every block they reach. The rest are *partial*, not "
-        "absent: each is drawn between the blocks whose terminals are "
-        "reachable and stops at the terminal that is not, which the coverage "
-        "table names per row. Five stop at a MOS gate (MOS_GATE_NOTE); "
-        "`VSS` stops at the resistor blocks' missing bulk terminal "
-        "(RES_FLAVOR_NOTE)."
+        "absent: each is drawn between the blocks the router could reach and "
+        "stops where it could not, which the coverage table names per row. "
+        "Every one of them is now expressible -- what is missing is corridor, "
+        "not capability."
     )
     a(
-        "- **No MOS finger bussing is drawn.** Each matched pair's split "
-        "fingers stay separate devices in the extracted netlist, for the "
-        "same gate-contact reason. This flow deliberately does not draw a "
-        "contact over the channel to make the number move: it would be "
-        "physically illegal geometry that only passes because the curated "
-        "DRC deck models no `licon`-on-poly-over-diff rule."
+        "- **MOS finger bussing is drawn, and the m=N devices it produces "
+        "are this record's own claim, not the tool's.** Each `bus_mos_comb` "
+        "trunk is hand-placed geometry; what makes it evidence is that "
+        "`klt extract` reads the drawn shapes back and `klt lvs`'s "
+        "`combine_devices` folds the fingers into a single device with the "
+        "schematic's own W -- see the device table in the extracted netlist, "
+        "not this sentence."
     )
     a(
         "- **The PNP devices are drawn geometry recognised by the deck, not "
@@ -2844,7 +3391,7 @@ def main() -> int:
     )
     a(
         "- **Array dummies are counted as real devices.** The `pnp` and "
-        "`res_generic_po` counts above include each array's dummy edge "
+        f"`{RES_CLASS}` counts above include each array's dummy edge "
         "units, which have no schematic counterpart and cannot be marked as "
         "dummies (cause 2 above). Turning dummies off would trade a real "
         "matching property for a smaller mismatch number; this flow keeps "

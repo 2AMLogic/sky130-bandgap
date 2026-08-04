@@ -59,6 +59,13 @@
 * their untrimmed length `r_lseg * n_r2 = 270u`; the trim ladder's taps are
 * a metal option (DR-002) that does not change code-0 topology.
 *
+* The `res_high_po` model name on the R cards below is the schematic's own
+* device (design/bandgap_core.sch instantiates sky130_fd_pr__res_high_po on
+* every leg). An earlier revision named `res_generic_po` instead, because
+* that was the only flavour `klt gen res_array` could draw; the reference has
+* no business tracking the layout's tooling limits, and since
+* 2AMLogic/klayout-tools#463 merged there is no limit to track.
+*
 * Resistor values follow the schematic's own unit model, stated at
 * design/bandgap_core.sch line 188: a res_high_po segment of width r_w and
 * length L has R ~ 380 + 325*L ohm. The 380 ohm head is per *device*, i.e.
@@ -75,24 +82,29 @@
 *     schematic (`XAMP VB VA GDRV TAIL VDD VSS error_amp` ties error_amp's
 *     AOUT opin straight to bandgap_core's GDRV iopin); this file therefore
 *     names that single node `GDRV` throughout, with no device between the
-*     amp drain and the mirror gates. The current layout leaves them as two
-*     separate, unrouted labelled pins (`AOUT` on amp_pmirr, `GDRV` on
-*     core_mirror) -- see the routed record's schematic-inter-block-net
-*     table. A previous revision of this file bridged them with a 0-ohm
+*     amp drain and the mirror gates. A previous revision of this file
+*     bridged the layout's then-separate `AOUT`/`GDRV` pins with a 0-ohm
 *     `RGDRV AOUT GDRV 0` card, which made the reference a 17-device netlist
 *     with a device the schematic does not contain, purely to accommodate the
-*     layout. That is removed: the reference states the schematic, and the
-*     record states the layout's gap.
+*     layout. That is removed, and the layout now draws the node as one:
+*     the reference states the schematic, and the record states the layout.
 *   - `VOUT` likewise joins MPOUT's drain and both R2A/R2B tops here, as in
-*     the schematic; in the layout `VOUT` is a labelled pin on core_mirror
-*     only and is not yet routed to the ladder (2AMLogic/klayout-tools#433).
-*     Not accommodated here either.
+*     the schematic. Whether the layout draws that join is stated in the
+*     routed record's own coverage table, not accommodated here.
+*   - The layout's device *bulk* terminals for every nfet, every poly
+*     resistor and both PNP collectors are extracted onto sky130's
+*     deck-synthesized `vsubs` global, not onto the drawn `VSS` this file
+*     names, because the curated extraction deck registers an empty
+*     `nfet_body` region for them and `connect_global`s it. No drawn shape
+*     can join that net. Stated here, and declared to `klt lvs` through a
+*     `hints.same_nets` entry by the flow -- NOT worked around by renaming
+*     the schematic's ground node.
 *
 * Terminal orders follow KLayout's SPICE reader defaults for each device
 * class the sky130 extraction deck registers:
 *   M<name> D G S B <model>            (nfet/pfet)
 *   Q<name> C B E <model>              (pnp)
-*   R<name> A B <value> <model>        (res_generic_po)
+*   R<name> A B <value> <model>        (res_high_po)
 
 .subckt bandgap_core VOUT GDRV VDD VSS
 * ---- core PMOS mirror (MPOUT / MPAMP), W=8 L=2, mult=2 each -------------
@@ -112,11 +124,11 @@ MMP3  PN   PN   VDD  VDD pfet L=20U W=6U  m=8
 MMCC  VDD  GDRV VDD  VDD pfet L=20U W=30U m=16
 * ---- divider legs: R2A/R2B, W=1 L=270 (n_r2=54 x r_lseg=5) -------------
 * 380 + 325*270 = 88130 (see the unit-model note above)
-RR2A VA  VOUT 88130 res_generic_po
-RR2B VB  VOUT 88130 res_generic_po
+RR2A VA  VOUT 88130 res_high_po
+RR2B VB  VOUT 88130 res_high_po
 * ---- dVBE leg: R1, W=1 L=35 (n_r1=7 x r_lseg=5) ------------------------
 * 380 + 325*35 = 11755
-RR1  VBQ VB   11755 res_generic_po
+RR1  VBQ VB   11755 res_high_po
 * ---- PNP pair, diode-connected (base and collector to VSS) -------------
 QQ1 VSS VSS VA  pnp m=8
 QQ2 VSS VSS VBQ pnp m=8
