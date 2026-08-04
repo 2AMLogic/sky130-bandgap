@@ -610,6 +610,102 @@ middle. No new upstream friction filed this increment -- the gap this
 increment closes (a router capability, not a `klt` capability) and the gap
 it leaves open (floorplan congestion) are both this repo's own.
 
+### 7d. Sixth increment: both remaining candidates investigated -- one ruled out, one narrowed, no code shipped
+
+The fifth increment's own record left two candidates for closing AC1: take
+up klayout-tools#468's metal2/via1 roles, or split `amp_input_pair`. This
+increment investigated both against `origin/main` (`a969fee`) before
+committing to either, and found the first is not viable at all and the
+second would not, by itself, be sufficient -- so no router or floorplan
+change is shipped here. Both findings are worth recording so a future
+increment does not re-spend time re-discovering them.
+
+**klayout-tools#468 is already merged, already in this repo's pinned `klt`
+commit, and does not add routing capacity for this design.**
+`2AMLogic/klayout-tools#468` (`de334e5`, closing issue #454) merged
+2026-08-04, and `git merge-base --is-ancestor` against the two commits
+confirms it is an *ancestor* of `8c277eb` -- the commit this repo's
+`layout/requirements.txt` already pins as of PR #71 -- so no pin bump is
+needed to have it. But reading `klayout_tools.gen._PDK_ROLE_LAYERS` and
+`klayout_tools.decks.sky130.EXTRACTION_DECK` directly (source, not the PR
+description) shows why it does not help here: for the `sky130` family,
+`"metal2"` resolves to `(68, 20)` and `"via1"` to `(67, 44)` -- i.e.
+`EXTRACTION_DECK.metals[1]`/`.vias[0]`, which are exactly met1 and mcon,
+the same two layers `met1_bus.py` already hand-draws every bus and
+inter-block net on (MET1_BUS_NOTE). sky130's curated extraction deck
+declares only two metal levels in total (`metals=((67,20),(68,20))` --
+li1, met1); there is no third physical layer for `"metal2"` to expose. The
+role lets `gen-compose`'s own router *plan* wires on met1 with via-drops to
+li1 pads -- capability this repo's hand-written router already has and
+already fully exercises. Separately, `gen_compose.route_two_pin` is a
+two-pin-only Manhattan-backbone planner (one jog, five diagnostic checks);
+it has no equivalent of this repo's own per-net candidate-assignment
+search, multi-order chain routing, or the channel-track/detour search
+`_connect`/`_channel_paths` run. Swapping onto it would trade a more
+capable per-net router for a less capable one, on the same physical layer,
+for zero new capacity. **Ruled out**: klayout-tools#468 is not a lever for
+AC1 closure on this floorplan, and no further increment should re-evaluate
+it without new evidence (e.g. a *third* metal level being curated for
+sky130 upstream, which #468 is not).
+
+**Widening this repo's own router search by 2-3x reproduces the identical
+result, at roughly double the runtime.** As a second, independent
+experiment (not committed -- see below), `CANDIDATE_ASSIGNMENTS` (3->6),
+`CANDIDATES_PER_TERMINAL` (3->5), `REPAIR_MAX_SKIPS_PER_NET` (3->8) and
+`REPAIR_MAX_ATTEMPTS` (8->24) were all raised together and the full flow
+re-run against the unmodified floorplan. Runtime went from ~13 min to
+26:04 (`time` total); the result was byte-identical to the fifth
+increment's own record in every gated field: `mismatch_count=106`,
+9/12 schematic nets drawn, and the same three hops unrouted with the same
+`blocked_by` attributions (`D1` by `D2`, `VDD` by `GDRV`/`TAIL`, `VSS` by
+`VOUT`). This is stronger evidence than the fifth increment's own (which
+tried a bounded `skip_first<=3` search) that the remaining congestion is a
+genuine floorplan free-corridor deadlock, not a search-depth limit -- and
+it is not worth carrying as a permanent cost (2x runtime, zero
+improvement), so the parameter changes were reverted rather than kept.
+**Ruled out**: increasing this router's own search depth, at least up to
+this multiple, is not a lever either.
+
+**New data narrowing the floorplan-split candidate itself.** Reading
+`bus-summary.json`'s `_inter_block` records (not just the coverage table)
+for the three still-unrouted hops shows the floorplan-split candidate is
+not sufficient on its own, even if it works:
+
+- `VDD`'s two failing hops are blocked by `GDRV` and `TAIL` respectively,
+  both of which are drawn *after* `VDD` in the winning net order. The
+  repair pass's own eligibility rule
+  (`net_index[blocker] < net_index[failing_net]`, `_repair_unrouted_hops`)
+  permanently excludes a later-drawn blocker from ever being a rip-up
+  target -- so no amount of `REPAIR_MAX_SKIPS_PER_NET`/`REPAIR_MAX_ATTEMPTS`
+  budget could ever free `VDD` via this mechanism, independent of the
+  search-depth finding above. A structural note, not a tuning one.
+- `VSS`'s failing hop (`pnp_ptat:VSS trunk` -> `pnp_ctat:VSS trunk`,
+  blocked by `VOUT`) is entirely within **row 0** (the resistor/PNP row,
+  `pnp_ctat` at x~7 to `pnp_ptat` at x~280) -- physically unrelated to
+  `amp_input_pair`, which lives in row 1. **A floorplan revision that
+  splits `amp_input_pair` would, even if fully successful, close at most
+  `D1` and `VDD` -- it cannot touch `VSS`'s hop**, which competes with
+  `VOUT`'s own route for the same row-0 corridor near the floorplan's
+  bottom margin. Full AC1 closure needs two independent floorplan fixes,
+  not one: a row-1/row-2 corridor (the `amp_input_pair` split already
+  proposed) *and* a separate row-0 corridor fix between `pnp_ctat` and
+  `pnp_ptat`.
+
+**Why no code change ships in this increment.** Splitting `amp_input_pair`
+is a real floorplan/matching redesign (today it is one `diff_pair`
+instance interdigitating MP1/MP2 for common-centroid matching; no
+generator param exists to place it as two gapped halves, so doing this
+means either a new upstream generator capability or two separate
+`diff_pair` instances placed by hand -- the latter changes the device's own
+matching topology, `matching-plan.md` Section 1's "dominant mismatch
+contributor" device, and is not a change to make inside a search-and-
+report increment). Combined with the row-0 finding above (the split alone
+would not even complete AC1), attempting it as this increment's own scope
+would not fit the same bounded, single-lever pattern every prior increment
+here has followed. Recorded as ruled-in-scope-but-not-attempted for
+whoever picks it up next, with the two-separate-corridors framing above so
+it is scoped correctly from the start.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed three
@@ -673,11 +769,22 @@ it leaves open (floorplan congestion) are both this repo's own.
   the first candidate the fourth increment's own record proposed here -- a
   per-hop rip-up-and-reroute instead of the whole-cell per-order one -- and
   it did not free any of the three hops, which is real evidence the limit is
-  the floorplan's free corridor, not a single net's choice of path. The two
-  candidates left, in rough order of expected return: taking up
-  klayout-tools#468's metal2/via1 roles so the router (not this repo) plans
-  the wires; or a floorplan revision that breaks `amp_input_pair` into two
-  stacked halves so something can cross the middle of the cell.
+  the floorplan's free corridor, not a single net's choice of path. The
+  sixth increment (Section 7d) investigated both candidates the fifth
+  increment left open and ruled one out: klayout-tools#468 merged and is
+  already in this repo's pinned `klt` commit, but its `"metal2"` role
+  resolves to the *same* met1 layer `met1_bus.py` already hand-routes on
+  (sky130's curated deck has only two metal levels total), and
+  `gen-compose`'s own router is a less capable two-pin planner than this
+  repo's own -- no new capacity, so **not a lever**. Widening this repo's
+  own router search 2-3x (candidate assignments, chain orders, repair
+  budget) also reproduced the identical result at ~2x runtime -- **also not
+  a lever**. What is left is a floorplan revision that breaks
+  `amp_input_pair` into two stacked halves so something can cross the
+  middle of row 1 -- but Section 7d's per-hop data shows this can close at
+  most `D1`/`VDD`; `VSS`'s blocked hop is entirely within row 0, unrelated
+  to `amp_input_pair`, and needs its own, separate corridor fix between
+  `pnp_ctat` and `pnp_ptat`.
 - **Intra-block bussing is drawn for every device family**, on met1
   (Section 5a) -- PNP arrays, resistor ladders, and (from the fourth
   increment) MOS fingers. Each split MOS group now extracts and combines
