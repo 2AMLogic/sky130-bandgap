@@ -2337,6 +2337,96 @@ whether the `res_high_po` head term (cause 2) is worth a `klt` feature
 request for a device-level series term the extractor could carry. Neither is
 a defect in the drawn cell.
 
+### 7s. Twenty-first increment: the PNP `ae`/`pe`/`ne` transcription gap, closed the same way RES_BULK_ARITY_NOTE closed the resistor bulk terminal -- `mismatch_count` 18 -> 4
+
+Section 7q's own closing line called the PNP `ne`/area gap "a reference-side
+transcription question that `design/bandgap_core.sch` does not itself answer
+(it states `m=8`, not an emitter area)". That framing undersold what the
+schematic *does* answer: it states which vendor macro to instantiate
+(`model=pnp_05v5_W0p68L0p68` / `_W3p40L3p40`), and SkyWater's own naming
+convention for those fixed, non-parametric cells states the emitter's `W`
+and `L` directly -- independent of anything this repo's own `bjt_array`
+generator draws. That is knowable without touching the layout at all, the
+same shape as RES_BULK_ARITY_NOTE's resistor bulk-terminal fix (sixteenth
+increment): a value the schematic's own reference *could* state, and a prior
+record's premise that it could not was wrong.
+
+**What was actually missing.** `klt lvs`'s SPICE reader has no notion of a
+`M`/`mult` field for `DeviceClassBJT3Transistor` at all. Confirmed directly
+with `klayout.db.NetlistSpiceReader`: a `Q` card carrying only `pnp m=8`
+parses to `NE=1` (the class default), with `AE`/`PE`/`AB`/`PB`/`AC`/`PC` all
+0 -- `m=8` is silently dropped, not folded into anything. That is unlike
+`DeviceClassMOS3Transistor`, where a bare `m=` folds directly into `W` at
+read time (also confirmed directly: `pfet L=2U W=8U m=2` reads back as
+`W=16.0`) -- which is why the eleven MOS device cards in `reference.spice`
+never needed this fix and the two PNP cards did.
+
+**The fix.** `layout/bandgap-core/reference.spice`'s `QQ1`/`QQ2` cards now
+state `AE`/`PE`/`NE` computed from the vendor macro's own W/L (`AE=W*L`,
+`PE=2*(W+L)`, standard SPICE rectangular-junction geometry) times the
+schematic's own `m=8`, matching exactly what `klt lvs`'s `combine_devices`
+produces on the layout side when it folds 8 parallel unit devices into one
+(confirmed against the combined-LVS device table: layout Q1 reads
+`AE=3.6992 PE=21.76 NE=8`, Q2 reads `AE=92.48 PE=108.8 NE=8`, both exactly
+`8 * unit value`). `AB`/`PB`/`AC`/`PC` (base/collector area/perimeter) are
+deliberately left unstated: unlike the emitter, that geometry is not part of
+the vendor's fixed macro -- `klt gen bjt_array` draws its own
+matching-faithful base/collector floorplan from base layers, not an instance
+of `sky130_fd_pr__pnp_05v5_W*` -- so stating a value there would mean
+deriving it from this layout's own drawn geometry to make LVS pass, which is
+exactly the reference-accommodates-the-layout shape this file's own
+convention refuses. See PNP_EMITTER_GEOMETRY_NOTE in
+`layout/bin/gen_bandgap_routed.py` and the corresponding note in
+`reference.spice` for the full derivation.
+
+**Measured effect, including one result not predicted going in.**
+`mismatch_count` drops 18 -> 4, `device.property` 17 -> 3, and every mismatch
+on both `Q1`/`Q2` is gone -- all seven parameters each (`ae`/`pe`/`ab`/`pb`/
+`ac`/`pc`/`ne`), not just the three (`ae`/`pe`/`ne`) this fix states. That
+is not evidence the base/collector geometry also matches (it does not, on
+either device: the layout's `AB`/`AC` are non-zero, the reference's stay at
+the class default 0) -- it is that KLayout's own `NetlistComparer` decides
+whether to flag a device-property mismatch at all using only that device
+class's `is_primary` parameters. Checked directly via
+`DeviceClassBJT3Transistor().parameter_definitions()`: `AE` and `NE` are
+`is_primary=True`; `PE`/`AB`/`PB`/`AC`/`PC` are not. Before this fix `NE`
+(primary) differed, so the comparer flagged the pair and this repo's own
+`klt lvs` wrapper (`_classify_param_mismatch` in
+`2AMLogic/klayout-tools`) then enumerated every parameter that differed,
+secondary ones included -- which is why `pe`/`ab`/`pb`/`ac`/`pc` all showed
+up as mismatches even though nothing about this increment touched them.
+After the fix, `AE`/`NE` agree, the comparer's own equivalence check never
+flags the pair at all, and the secondary parameters are never compared --
+not fixed, not evidence they match, simply outside what the tool's device
+equivalence exercises for this class. Both `AB`/`PB`/`AC`/`PC` remaining 0 in
+`reference.spice` are disclosed as such in PNP_EMITTER_GEOMETRY_NOTE rather
+than left to look silently resolved.
+
+No `klt` capability gap was found or filed this increment: the fix is a
+`reference.spice` transcription correction, not a tool limitation.
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | MET, 12/12 (unchanged) |
+| 2 (real ladder unit count) | MET (length fixed in Section 7r) | MET (unchanged) |
+| 3 (device classes + pins) | MET | MET (unchanged) |
+| 4 (`klt lvs` clean) | NOT MET, 18 | NOT MET, **4**; `device.property` 17 -> 3, both PNP devices fully clear |
+| 5 (blocking gaps filed) | MET | MET (unchanged; no new gap filed) |
+
+**Remaining causes, all disclosed, none worked around**: `res_high_po`'s
+per-device 380 ohm head-resistance term (an extractor modelling gap, not a
+layout defect -- it is the whole of the residual `r` difference on all three
+resistors, `R1` and both R2 legs, each closing on the same `5.2*L + 380`)
+and `MMCC` (deliberately undrawn, per issue #15). Section 7r's R2 leg
+re-decomposition (issue #91) landed on `main` before this increment did, and
+it did **not** reduce `mismatch_count`: it changed the *kind* of the R2
+residual from a drawn-length defect to the same model term `R1` always
+showed. So with both increments in, neither remaining cause is a layout
+defect, and neither is closable by drawing anything -- `mismatch_count=4` is
+1 deliberately-undrawn device plus 3 model-term value differences.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five
@@ -2435,6 +2525,19 @@ a defect in the drawn cell.
   subtracts -- the direction DR-002 requires. `r2_leg_length()`'s verdict is
   a `flow_gate()` row now, not a recorded number, so the class of defect
   that hid here for nineteen increments fails the flow instead.
+  **Retired as of Section 7s**: the PNP `ne`/area transcription gap (former
+  cause 4), the same way cause 4's resistor counterpart (Section 7n) was --
+  `reference.spice`'s `QQ1`/`QQ2` cards now state `AE`/`PE`/`NE`, derived
+  from the vendor's own fixed `pnp_05v5_W0p68L0p68`/`_W3p40L3p40` macro
+  geometry, not from anything this layout's own generator draws. Both PNP
+  devices clear entirely (all seven parameters each, not just the three this
+  fix states -- see Section 7s for why `AB`/`PB`/`AC`/`PC` disagreeing is
+  not itself surfaced by `klt lvs`). The current causes, now two:
+  1. **MCC** is in the reference and deliberately not drawn (Section 6).
+     The only `device.unmatched` entry left on either side.
+  2. **`res_high_po`'s per-device 380 ohm head term is not drawn
+     geometry** -- unchanged, still an inherent extractor-model limit, and
+     since Section 7r the whole of every remaining `r` difference.
 - ~~**R2A/R2B ladder is at reduced scale**~~ -- **closed** by issue #62, see
   Section 4a. The ladder is drawn at its real full length: 100 coarse units
   plus 40 fine trim units = the schematic's 270 um per leg.

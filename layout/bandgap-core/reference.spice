@@ -137,6 +137,61 @@
 *                                        against this flow's own extracted
 *                                        netlist, e.g. `R$85 VOUT $6 VSS
 *                                        1599 res_high_po`)
+*
+* PNP EMITTER-GEOMETRY CORRECTION (issue #62, twenty-first increment): the
+* QQ1/QQ2 cards below now carry `AE`/`PE`/`NE`, matching KLayout's own
+* `DeviceClassBJT3Transistor` parameter set (`AE` emitter area, `PE` emitter
+* perimeter, `NE` emitter count -- `klt lvs`'s SPICE reader has no notion of
+* a `M`/`mult` field for this device class at all; unlike `DeviceClassMOS3Transistor`,
+* where a bare `m=` IS folded into `W` at read time (confirmed directly with
+* `klayout.db.NetlistSpiceReader`), a Q-card's `m=8` is silently dropped and
+* every unstated BJT3 parameter defaults to its class default (`AE`/`PE`/`AB`/
+* `PB`/`AC`/`PC` = 0, `NE` = 1) -- which is exactly the shape `klt lvs`
+* reported before this fix: `ne` 8 (layout) vs 1 (reference), plus zero-valued
+* `ae`/`pe`/`ab`/`pb`/`ac`/`pc`.
+*
+* `AE`/`PE` ARE knowable independent of this repo's own layout generator: the
+* instantiated model name IS the vendor's geometry declaration --
+* `sky130_fd_pr__pnp_05v5_W0p68L0p68`/`_W3p40L3p40` are SkyWater's own fixed,
+* non-parametric macro cells (`sky130_fd_pr/pnp_05v5.sym`'s netlist format is
+* `... sky130_fd_pr__@model m=@m`, with no W/L/area argument at all -- the
+* `.subckt`s in libs.ref/sky130_fd_pr/spice/sky130_fd_pr__pnp_05v5_W*.model.spice
+* take only `Collector Base Emitter` plus a `mult` param; every geometry-
+* dependent SPICE parameter, e.g. `is`/`bf`, is baked into that specific
+* model's own `.subckt`/`.model` cards). The vendor's own naming convention
+* encodes the emitter's W and L directly, so the standard SPICE
+* rectangular-junction formulae give
+*   AE = W*L,  PE = 2*(W+L)
+* per unit, and the schematic's own `m='n_pnp_ctat'`/`m='n_pnp_ptat'` (= 8,
+* design/bandgap_core.sch line 186-187) states the parallel count, which
+* `klt lvs`'s `combine_devices` sums into `AE`/`PE` (not just `NE`) when it
+* folds the layout's own 8 parallel unit devices into one -- confirmed
+* directly against this flow's own combined-LVS device table, where the
+* layout's post-fold Q1 reads `AE=3.6992 PE=21.76 NE=8` and Q2 reads
+* `AE=92.48 PE=108.8 NE=8`, i.e. exactly `8 * unit_AE` / `8 * unit_PE`, not
+* `unit_AE` unscaled:
+*   Q1 (W0p68L0p68): unit AE = 0.68*0.68  = 0.4624 um^2, unit PE = 2*(0.68+0.68) = 2.72 um
+*                    x8:      AE = 3.6992 um^2,                PE = 21.76 um
+*   Q2 (W3p40L3p40): unit AE = 3.40*3.40  = 11.56  um^2, unit PE = 2*(3.40+3.40) = 13.6  um
+*                    x8:      AE = 92.48  um^2,                PE = 108.8  um
+* Verified with `klayout.db.NetlistSpiceReader` directly: a Q-card carrying
+* these `AE`/`PE`/`NE` values round-trips to the identical parameter table
+* the layout's combined device reports, closing all three of `ae`/`pe`/`ne`
+* per device (6 of the 14 device.property mismatches these two devices carried).
+*
+* `AB`/`PB`/`AC`/`PC` (base/collector area/perimeter) are deliberately left
+* unstated (0, the class default) and remain mismatched. Unlike the emitter,
+* base/collector geometry is NOT part of the vendor's fixed macro at all --
+* this layout does not instantiate `sky130_fd_pr__pnp_05v5_W*` as a vendor
+* cell; `klt gen bjt_array` draws a "matching-faithful floorplan from base
+* layers" (see the routed record's own "What this record does NOT claim"
+* section), so the drawn base/collector geometry (well/tap margins, etc.) is
+* this repository's own generator's choice, not something
+* design/bandgap_core.sch's `model=pnp_05v5_W*` name declares or could ever
+* declare. Stating a value here would mean deriving it from the layout to
+* make the comparison pass -- the workaround this file's own convention
+* (see the RESISTOR BULK-TERMINAL CORRECTION note above) refuses. See
+* layout/matching-plan.md Section 7r.
 
 .subckt bandgap_core VOUT GDRV VDD VSS
 * ---- core PMOS mirror (MPOUT / MPAMP), W=8 L=2, mult=2 each -------------
@@ -164,6 +219,9 @@ RR2B VB  VOUT VSS 88130 res_high_po
 * Bulk (3rd node) = VSS, per design/bandgap_core.sch `r1b` lab_pin.
 RR1  VBQ VB   VSS 11755 res_high_po
 * ---- PNP pair, diode-connected (base and collector to VSS) -------------
-QQ1 VSS VSS VA  pnp m=8
-QQ2 VSS VSS VBQ pnp m=8
+* AE/PE/NE per the PNP EMITTER-GEOMETRY CORRECTION note above (derived from
+* the vendor's own fixed W0p68L0p68/W3p40L3p40 macro geometry, x8 units);
+* AB/PB/AC/PC deliberately left unstated (0, this device class's default).
+QQ1 VSS VSS VA  pnp AE=3.6992P PE=21.76U NE=8
+QQ2 VSS VSS VBQ pnp AE=92.48P  PE=108.8U NE=8
 .ends bandgap_core

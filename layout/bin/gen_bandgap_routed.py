@@ -150,6 +150,21 @@ here, relative to that skeleton:
     drawn code with the leg length it yields -- flagging the four taps
     (-17..-20) that exist in metal but outside DR-002's certified range.
     See RES_TRIM_LENGTH_NOTE and matching-plan Section 7r.
+17. **The PNP `ae`/`pe`/`ne` transcription gap is fixed** (issue #62's
+    twenty-first increment). `reference.spice`'s `QQ1`/`QQ2` cards now state
+    `AE`/`PE`/`NE` derived from the vendor's own fixed
+    `pnp_05v5_W0p68L0p68`/`_W3p40L3p40` macro geometry (`AE=W*L`,
+    `PE=2*(W+L)`, `NE=m`) instead of the bare `m=` this device class's SPICE
+    reader does not recognise at all (unlike MOS, where a bare `m=` folds
+    into `W` at read time). `mismatch_count` drops 18 -> 4: the two devices'
+    entire seven-parameter mismatch (`ae`/`pe`/`ab`/`pb`/`ac`/`pc`/`ne`) is
+    gone, not just the three parameters this fix states, because KLayout's
+    own `NetlistComparer` only exercises a device class's `is_primary`
+    parameters (`AE`/`NE` for `DeviceClassBJT3Transistor`) when deciding
+    whether to flag a property difference at all -- once those two agree,
+    the non-primary `PE`/`AB`/`PB`/`AC`/`PC` differences are never surfaced,
+    including the base/collector geometry this fix deliberately leaves
+    unstated. See PNP_EMITTER_GEOMETRY_NOTE and matching-plan Section 7s.
 
 What this script does NOT claim -- read record.md's own "What this record
 does NOT claim" section for the authoritative, measured version:
@@ -158,13 +173,13 @@ does NOT claim" section for the authoritative, measured version:
   in either netlist and -- new with the eighteenth increment -- none of them
   a connectivity difference either: the compensation cap MCC, which is in
   the reference and deliberately not drawn (the only `device.unmatched`
-  entry left on either side); `res_high_po`'s per-device 380 ohm head term,
-  which the extractor's sheet-resistance model does not carry and no drawn
-  shape can add; and the reference's PNP cards stating no emitter count or
-  geometry. The deck-synthesized substrate net, undeclarable array dummies,
-  the resistor device-class arity mismatch, unrouted schematic nodes and --
-  as of item 16 -- the R2 leg length are all **retired** as causes; see
-  items 9-16 above. klayout-tools#506
+  entry left on either side), and `res_high_po`'s per-device 380 ohm head
+  term, which the extractor's sheet-resistance model does not carry and no
+  drawn shape can add. The deck-synthesized substrate net, undeclarable
+  array dummies, the resistor device-class arity mismatch, unrouted
+  schematic nodes, the R2 leg length (item 16) and -- as of item 17 -- the
+  reference's PNP cards stating no emitter count or geometry are all
+  **retired** as causes; see items 9-17 above. klayout-tools#506
   (filed by the fifteenth increment) asked upstream for a generic
   reconciliation of the arity shape and is now CLOSED as COMPLETED
   (`reference.device_bulk` exists on `klt lvs` upstream); this flow
@@ -434,6 +449,68 @@ RES_BULK_ARITY_NOTE = (
     "now retired, but was never the operative blocker for these three "
     "devices; RES_TRIM_TOPOLOGY_NOTE's structural gap is. See "
     "layout/matching-plan.md Section 7n."
+)
+#: Fixed in issue #62's twenty-first increment: the same transcription-gap shape
+#: RES_BULK_ARITY_NOTE closed for the resistor bulk terminal, applied to the
+#: PNP pair's emitter geometry.
+PNP_EMITTER_GEOMETRY_NOTE = (
+    "`klt lvs`'s SPICE reader recognises `AE`/`PE`/`AB`/`PB`/`AC`/`PC`/`NE` "
+    "on a `Q` card (KLayout's `DeviceClassBJT3Transistor` parameter set) but "
+    "has no notion of a `M`/`mult` field for that class at all -- unlike "
+    "`DeviceClassMOS3Transistor`, where a bare `m=` folds directly into `W` "
+    "at read time (confirmed directly with `klayout.db.NetlistSpiceReader`), "
+    "a Q-card's `m=8` is silently dropped and every unstated parameter "
+    "defaults to its class default (`AE`/`PE`/`AB`/`PB`/`AC`/`PC` = 0, "
+    "`NE` = 1). That is exactly the shape `klt lvs` reported before this fix: "
+    "`ne` 8 (layout) vs 1 (reference), plus zero-valued `ae`/`pe`/`ab`/`pb`/"
+    "`ac`/`pc`. `AE`/`PE` are knowable independent of this repo's own layout "
+    "generator: the instantiated model name IS the vendor's geometry "
+    "declaration. `sky130_fd_pr__pnp_05v5_W0p68L0p68`/`_W3p40L3p40` are "
+    "SkyWater's own fixed, non-parametric macro cells -- "
+    "`sky130_fd_pr/pnp_05v5.sym`'s netlist format is "
+    "`... sky130_fd_pr__@model m=@m`, with no W/L/area argument at all, and "
+    "the corresponding `.subckt`s in "
+    "libs.ref/sky130_fd_pr/spice/sky130_fd_pr__pnp_05v5_W*.model.spice take "
+    "only `Collector Base Emitter` plus a `mult` param; every geometry-"
+    "dependent SPICE parameter (`is`/`bf`/...) is baked into that specific "
+    "model's own cards. The vendor's own naming convention states the "
+    "emitter's W and L directly, so the standard SPICE rectangular-junction "
+    "formulae give `AE = W*L`, `PE = 2*(W+L)` per unit, and the schematic's "
+    "own `m='n_pnp_ctat'`/`m='n_pnp_ptat'` (= 8, design/bandgap_core.sch "
+    "lines 186-187) states the parallel count, which `klt lvs`'s "
+    "`combine_devices` sums into `AE`/`PE` (not just `NE`) when it folds the "
+    "layout's own 8 parallel unit devices into one -- confirmed directly "
+    "against this flow's own combined-LVS device table, where the layout's "
+    "post-fold Q1 reads `AE=3.6992 PE=21.76 NE=8` and Q2 reads "
+    "`AE=92.48 PE=108.8 NE=8`, i.e. exactly `8 * unit_AE` / `8 * unit_PE`, "
+    "not the unscaled per-unit value: Q1 (W0p68L0p68) unit AE = "
+    "0.68*0.68 = 0.4624 um^2, unit PE = 2*(0.68+0.68) = 2.72 um, x8 = "
+    "3.6992 um^2 / 21.76 um; Q2 (W3p40L3p40) unit AE = 3.40*3.40 = 11.56 "
+    "um^2, unit PE = 2*(3.40+3.40) = 13.6 um, x8 = 92.48 um^2 / 108.8 um. "
+    "`AB`/`PB`/`AC`/`PC` (base/collector area/perimeter) are deliberately "
+    "left unstated (0, the class default): unlike the emitter, base/"
+    "collector geometry is not part of the vendor's fixed macro at all -- "
+    "this layout does not instantiate `sky130_fd_pr__pnp_05v5_W*` as a "
+    "vendor cell; `klt gen bjt_array` draws a matching-faithful floorplan "
+    "from base layers (this record's own \"What this record does NOT "
+    "claim\" section), so the drawn base/collector geometry is this "
+    "repository's own generator's choice, not something "
+    "design/bandgap_core.sch's `model=pnp_05v5_W*` name declares or could "
+    "ever declare -- stating a value here would mean deriving it from the "
+    "layout to make the comparison pass, the workaround "
+    "RES_BULK_ARITY_NOTE's own convention refuses. Measured effect: fixing "
+    "only `AE`/`PE`/`NE` (leaving `AB`/`PB`/`AC`/`PC` unstated) drops "
+    "`mismatch_count` 18 -> 4 and removes every mismatch on both PNP "
+    "devices, all seven parameters, not just the three this fix states -- "
+    "because KLayout's own `NetlistComparer` decides whether a matched "
+    "device pair has a property difference using only that device class's "
+    "`is_primary` parameters (`AE` and `NE` for `DeviceClassBJT3Transistor`, "
+    "confirmed directly via `parameter_definitions()`'s own `is_primary` "
+    "flag); once those two agree, `PE`/`AB`/`PB`/`AC`/`PC` are never "
+    "compared at all, so this is not evidence that the base/collector "
+    "geometry also matches -- it does not, on either device -- only that "
+    "the tool's own equivalence check does not exercise it. See "
+    "layout/matching-plan.md Section 7s."
 )
 #: What actually keeps R2A/R2B/R1 unpaired now that RES_BULK_ARITY_NOTE's
 #: class mismatch is fixed -- found while measuring that fix's (null) effect
@@ -4161,9 +4238,9 @@ def main() -> int:
         "record is the re-run "
         "against them: 2AMLogic/klayout-tools#461 via #474, #462 via #471, "
         "#463 via #475, #454 via #468, #470 via #481, #490 via #495, #491 "
-        "via #494, #492 via #497/#498, #504 via #505, and -- the one this "
-        "increment turns on -- **#508 via #511** (sky130's curated deck "
-        "gains met2 as a third connectivity level, which is what makes "
+        "via #494, #492 via #497/#498, #504 via #505, and -- turned on by "
+        "the nineteenth increment -- **#508 via #511** (sky130's curated "
+        "deck gains met2 as a third connectivity level, which is what makes "
         "criterion 1's escape plane real connectivity rather than inert "
         "geometry; see ROUTING_PLANE_NOTE / MET2_ESCAPE_NOTE). "
         "2AMLogic/klayout-tools#506 (the generic arity reconciliation #505 "
@@ -4171,7 +4248,7 @@ def main() -> int:
         "COMPLETED too -- this flow never needed it, because its own "
         "reference can state the bulk net directly. **Every gap this flow "
         "has ever filed as blocking is now closed upstream.** Two "
-        "new gaps are filed this increment, neither blocking: "
+        "non-blocking gaps were filed by the nineteenth increment: "
         "**klayout-tools#513** is the flip side of #511 -- the curated "
         "sky130 **DRC** deck was not extended alongside the extraction "
         "deck, so `klt drc` returns violation_count=0 on any met2 geometry "
@@ -4181,7 +4258,11 @@ def main() -> int:
         "INTERNAL_NODE_LABEL_NOTE describes: there is no way to name a net "
         "without promoting it to a pin, and a pin on a node interior to a "
         "schematic device silently blocks `combine_devices` with nothing "
-        "attributing the resulting mismatches to it |"
+        "attributing the resulting mismatches to it. **This (twenty-first) "
+        "increment files no new gap**: the PNP `ae`/`pe`/`ne` fix "
+        "(PNP_EMITTER_GEOMETRY_NOTE) needed no `klt` capability that did "
+        "not already exist -- it is a `reference.spice` transcription fix, "
+        "the same shape as RES_BULK_ARITY_NOTE's |"
     )
     a("")
     a(f"- [{'x' if drc_clean else ' '}] DRC on the composed, routed layout is clean")
@@ -4699,15 +4780,16 @@ def main() -> int:
     a(f"Mismatch categories: `{json.dumps(lvs.get('category_counts', {}))}`.")
     a("")
     a(
-        "The residual gap has three disclosed causes, none of them a "
-        "topology error in either netlist, **none of them a connectivity "
-        "difference** and -- since issue #91 -- **none of them a layout "
+        "The residual gap has two disclosed causes, neither of them a "
+        "topology error in either netlist, **neither of them a connectivity "
+        "difference** and -- since issue #91 -- **neither of them a layout "
         "defect**: every remaining category is `device.property` (a value "
         "the extractor's model states differently from the schematic's) or "
-        "the single deliberately-undrawn device. Five causes tracked by "
+        "the single deliberately-undrawn device. Six causes tracked by "
         "prior records -- the deck-synthesized substrate net, undeclarable "
         "array dummies, the resistor device-class arity mismatch, "
-        "unrouted schematic nodes, and the R2 divider leg length -- are "
+        "unrouted schematic nodes, the R2 divider leg length, and (as of "
+        "this increment) the PNP `ae`/`pe`/`ne` transcription gap -- are "
         "**retired**; see \"Retired since the last increment\" below."
     )
     a("")
@@ -4735,21 +4817,9 @@ def main() -> int:
         "does not carry, so this is a model difference, not a layout "
         "defect."
     )
-    a(
-        "3. **The reference's PNP cards state no emitter count or "
-        "geometry.** `Q1`/`Q2` now *pair* with their layout counterparts, "
-        "and the comparer reports `ne` 8 (layout) vs 1 (reference) plus "
-        "zero-valued `ae`/`pe`/`ab`/`pb`/`ac`/`pc`. The schematic "
-        "instantiates both as `m='n_pnp_ctat'` / `m='n_pnp_ptat'` = 8, so "
-        "the layout's 8 is right and the reference is silent rather than "
-        "contradicting -- the same transcription shape as the resistor bulk "
-        "terminal RES_BULK_ARITY_NOTE fixed, not yet fixed here because a "
-        "bipolar's emitter area/perimeter are not values "
-        "design/bandgap_core.sch states at all."
-    )
     a("")
     a(
-        "None of the three is worked around by editing either netlist to "
+        "Neither is worked around by editing either netlist to "
         "match the layout. `reference.spice` states "
         "design/bandgap_core.sch; rewriting it to enumerate the layout's own "
         "shortfalls would make LVS compare the layout against itself, which "
@@ -4795,6 +4865,10 @@ def main() -> int:
         "- **The resistor device-class arity mismatch is fixed, not just "
         f"diagnosed.** {RES_BULK_ARITY_NOTE}"
     )
+    a(
+        "- **The PNP `ae`/`pe`/`ne` transcription gap is fixed.** "
+        f"{PNP_EMITTER_GEOMETRY_NOTE}"
+    )
     a("")
     a("## Visual verification")
     a("")
@@ -4806,8 +4880,8 @@ def main() -> int:
         f"- **Not LVS-clean.** `klt lvs` reports `{lvs.get('status')}` with "
         f"`mismatch_count={lvs.get('mismatch_count')}` against the "
         "xschem-derived reference netlist, and `devices.matched` is "
-        f"{lvs_devices.get('matched')}. The three causes above are the whole "
-        "of it; none is hidden behind a number that moved. The count did "
+        f"{lvs_devices.get('matched')}. The two causes above are the whole "
+        "of it; neither is hidden behind a number that moved. The count did "
         "**not** move when issue #91 fixed the R2 leg length, and that is "
         "the honest result: the `r` difference on those two devices "
         "survives as the same `res_high_po` model term `R1` always showed, "
