@@ -210,6 +210,29 @@ DUMMY_DEVICE_NOTE = (
     "dummies off to make the LVS count move would trade a real matching "
     "property for a smaller number, which this flow refuses to do."
 )
+#: Why no resistor can be paired by `klt lvs` at all, whatever the routing
+#: does -- found while isolating issue #72's 0/0 correspondence regression and
+#: filed as 2AMLogic/klayout-tools#504.
+RES_BULK_ARITY_NOTE = (
+    "The sky130 deck marks `res_high_po` `bulk_to_substrate`, so `klt "
+    "extract` writes a **three-node** R card "
+    "(`R<name> <a> <b> <bulk> <value> <model>`), which KLayout's SPICE "
+    "reader turns into `DeviceClassResistorWithBulk` (terminals A/B/W). "
+    "`reference.spice` states the schematic, where a poly resistor is a "
+    "two-node device, so the same reader turns its R cards into "
+    "`DeviceClassResistor` (terminals A/B). Same model name on both sides, "
+    "different terminal count -- `NetlistComparer` cannot pair them, and it "
+    "says so only as generic `device.unmatched` entries, with no "
+    "`device_class_mismatch` event and nothing in `device_classes[]` "
+    "distinguishing the two. `klt lvs` offers no request-side hook to "
+    "reconcile the arity (`hints.same_nets` reconciles a *net*, which is "
+    "enough for MOS bodies because M cards carry four nodes on both sides). "
+    "The only workaround available today is to add a bulk node to the "
+    "reference's R cards, i.e. to stop the reference being a transcription "
+    "of the schematic -- which this flow refuses to do for the same reason "
+    "it refuses every other reference edit. Filed upstream as "
+    "2AMLogic/klayout-tools#504."
+)
 
 # ---------------------------------------------------------------------------
 # Floorplan geometry constants (um)
@@ -1098,8 +1121,26 @@ def bus_mos_comb(
 #: leaving these unconnected is not a neutral omission: it leaves each group's
 #: bulk as an anonymous floating net in the extracted netlist. They are
 #: contactable ordinary li1 pads -- nothing about MOS_GATE_NOTE applies -- and
-#: are drawn from this increment on. `TAP_S` on every block: it faces the free
-#: band below each row, which is where this router has somewhere to go.
+#: are drawn from this increment on.
+#:
+#: All three taps are offered as *candidates*, not just `TAP_S`. Pinning every
+#: block to its south tap was the previous increment's choice ("it faces the
+#: free band below each row"), and it is what left `VDD` two hops short: from
+#: `core_mirror.TAP_S`, at the bottom edge of a 8 x 19 um block, the only ways
+#: out cross that block's own comb escape stubs, and from `amp_pmirr.TAP_S` the
+#: south tap of `amp_input_pair` is on the far side of the whole input pair.
+#: Both blocks have taps that are *not* boxed in -- their north taps face the
+#: free band the amp PMOS mirror already routes along, and `core_mirror.TAP_E`
+#: sits 1.6 um clear of that block's own VDD comb escape row -- so which tap
+#: to take is a routing choice like any other and belongs to the candidate
+#: search, not to this table. The search takes `TAP_N` on both, and `VDD`
+#: routes end to end; every PMOS bulk then extracts onto `VDD` instead of onto
+#: an anonymous floating net, which is what `klt lvs` needs before it can seed
+#: any correspondence at all (issue #72). Cost: `bulk` terminals lose their
+#: fixed position and join the `_candidate_assignments` enumeration.
+BULK_TAP_PORTS = ("TAP_S", "TAP_N", "TAP_E")
+
+
 def bulk_terminal(block: str) -> dict[str, Any]:
     """The guard-ring bulk tap of one MOS group, as a supply-net terminal.
 
@@ -1107,7 +1148,7 @@ def bulk_terminal(block: str) -> dict[str, Any]:
     block's outer edge facing open floorplan, so the general router can leave
     from the pad itself.
     """
-    return {"block": block, "port": "TAP_S", "escape": False}
+    return {"block": block, "ports": list(BULK_TAP_PORTS), "escape": False}
 
 
 def mos_comb(block: str, net: str) -> dict[str, Any]:
@@ -1731,6 +1772,30 @@ def _route_one_net(
             )
             continue
         bid = terminal["block"]
+        if "ports" in terminal:
+            # Several *named* pads of one block, any one of which satisfies
+            # this terminal -- the guard-ring bulk taps (BULK_TAP_PORTS).
+            # Unlike the `suffix`/`facing` form below, the names are given
+            # explicitly, because the taps of one ring do not share a facing
+            # (`TAP_S` faces 270 deg, `TAP_N` 90, `TAP_E` 0) and picking one
+            # facing is exactly the pinning this shape exists to undo.
+            by_name = _ports_by_name(reports[bid])
+            candidates = [
+                (
+                    pname,
+                    float(by_name[pname]["x_um"]) + origins[bid]["x"],
+                    float(by_name[pname]["y_um"]) + origins[bid]["y"],
+                )
+                for pname in terminal["ports"]
+                if pname in by_name and (bid, pname) not in used_ports
+            ]
+            if not candidates:
+                raise KeyError(
+                    f"net {net}: block {bid} has none of the ports "
+                    f"{terminal['ports']} free"
+                )
+            points.append({"block": bid, "candidates": candidates, "via": True})
+            continue
         if "port" in terminal:
             port = _ports_by_name(reports[bid])[terminal["port"]]
             lane = 0.0
@@ -2356,6 +2421,17 @@ def build_bus_overlay(
     # flow's exit status gates on it.
     summary["_conflicts"] = conflicts
 
+    # --- split-node proof (the opposite failure) ---------------------------
+    # `conflicts()` catches two *different* nodes' metal touching. This
+    # catches one node's own metal NOT touching: a net drawn as two pieces
+    # that never meet is not a connected node, and nothing downstream reports
+    # it -- `klt extract` simply sees two anonymous nets and DRC sees two
+    # legal wires. Recorded per net, and gated only for the nets this router
+    # claims it fully routed (see :func:`split_routed_nets`): a net that came
+    # up a hop short is *expected* to be in more than one piece, and is
+    # already scored as such in the coverage table.
+    summary["_components"] = bus.components()
+
     report = bus.emit(klt, out_dir, "bandgap_core_bus", pdk_info, MET1_BUS_NOTE)
     (out_dir / "bus-summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     return report, summary
@@ -2787,6 +2863,33 @@ def assert_no_merged_pin_names(netlist_path: Path) -> list[str]:
     return merged
 
 
+def split_routed_nets(
+    routes: list[dict[str, Any]], components: dict[str, int]
+) -> dict[str, int]:
+    """Every node the router reports as fully `routed` whose drawn met1 is
+    nonetheless in more than one piece, as `{net: piece count}`.
+
+    `Met1Bus.components()` counts the connected components of each node's own
+    met1. One is the only honest answer for a node this router claims it
+    joined end to end -- two means the flow drew a node it *believes* is one
+    conductor as two islands that never touch, which is the exact inverse of
+    the drawn-short failure and is invisible to every downstream check: DRC
+    sees two legal wires, `klt extract` sees two anonymous nets with nothing
+    in `warnings[]`, and the coverage table -- which scores the router's own
+    hop bookkeeping, not the geometry -- still reports the node as drawn.
+
+    Restricted to `routed` nodes on purpose. A node that came up a hop short
+    is *supposed* to be in more than one piece; gating on it would only
+    re-report what the coverage table already says, and would make this check
+    fire on every partial run instead of on the bug it exists to catch.
+    """
+    return {
+        route["net"]: components[route["net"]]
+        for route in routes
+        if route.get("routed") and components.get(route["net"], 1) != 1
+    }
+
+
 def flow_gate(
     *,
     drc_clean: bool,
@@ -2796,6 +2899,7 @@ def flow_gate(
     pin_count: int,
     met1_conflicts: list[Any],
     merged_pin_names: list[str],
+    split_routed: dict[str, int],
 ) -> dict[str, bool]:
     """The flow's pass/fail gate, as a named condition per row.
 
@@ -2811,11 +2915,14 @@ def flow_gate(
     gating on them would only mean the flow never runs to completion, which
     hides the evidence rather than producing it.
 
-    The two that ARE gated and are not about the tool's own verdicts --
-    `no_drawn_shorts` and `no_merged_pin_names` -- are this flow's own
-    honesty checks: each catches a way the layout could claim connectivity
-    the schematic does not contain (through metal, and through a pin label
-    respectively), and neither is visible to DRC.
+    The three that ARE gated and are not about the tool's own verdicts --
+    `no_drawn_shorts`, `no_merged_pin_names` and `no_split_routed_nets` --
+    are this flow's own honesty checks. The first two catch a way the layout
+    could claim connectivity the schematic does not contain (through metal,
+    and through a pin label respectively); the third catches the inverse, a
+    node this flow's own bookkeeping calls routed while the drawn metal is
+    still in two pieces (see :func:`split_routed_nets`). None of the three is
+    visible to DRC.
     """
     return {
         "drc_clean": drc_clean,
@@ -2825,6 +2932,7 @@ def flow_gate(
         "pins_promoted": pin_count > 0,
         "no_drawn_shorts": not met1_conflicts,
         "no_merged_pin_names": not merged_pin_names,
+        "no_split_routed_nets": not split_routed,
     }
 
 
@@ -3004,6 +3112,8 @@ def main() -> int:
     )
     met1_routes = bus_summary["_inter_block"]
     met1_conflicts = bus_summary["_conflicts"]
+    met1_components = bus_summary["_components"]
+    met1_split_routed = split_routed_nets(met1_routes, met1_components)
 
     # A hand-written `generator_report` for the routed inner cell so the
     # second pass can place it: `gen-compose`'s own response already carries
@@ -3285,7 +3395,10 @@ def main() -> int:
         "suppression path is unreachable on sky130: no deck `dummy` layer, "
         "no generator draws one, no CLI override), #492 (`gen-compose` "
         "still cannot route to a poly gate port, so #461's landing pad has "
-        "to be contacted by hand) |"
+        "to be contacted by hand), #504 (a `bulk_to_substrate` resistor "
+        "extracts with one more terminal than the same device read from a "
+        "plain-element reference, so no resistor can ever be paired and the "
+        "compare says so only as generic `device.unmatched`) |"
     )
     a("")
     a(f"- [{'x' if drc_clean else ' '}] DRC on the composed, routed layout is clean")
@@ -3412,6 +3525,44 @@ def main() -> int:
     )
     a("")
     a(
+        "Split-node proof (the inverse check): every node's own met1 is "
+        "counted into connected components, and **"
+        f"{len(met1_split_routed)}** of the nodes this router reports as "
+        "fully routed are drawn in more than one piece"
+        + (
+            " ("
+            + ", ".join(
+                f"`{net}` = {n} pieces"
+                for net, n in sorted(met1_split_routed.items())
+            )
+            + ")"
+            if met1_split_routed
+            else ""
+        )
+        + ". The flow fails on any nonzero count. A node drawn as two islands "
+        "that never touch is not a connected node, and unlike a drawn short "
+        "*nothing downstream reports it*: DRC sees two legal wires, `klt "
+        "extract` sees two anonymous nets with nothing in `warnings[]`, and "
+        "the coverage table below scores this flow's own hop bookkeeping "
+        "rather than the geometry, so it would still call the node drawn. "
+        "Nodes that came up a hop short are excluded on purpose -- they are "
+        "*supposed* to be in more than one piece, and the coverage table "
+        "already says so. Their piece counts, and every other node's, are in "
+        "`bus-summary.json`'s `_components`"
+        + (
+            ": "
+            + ", ".join(
+                f"`{net}` = {n}"
+                for net, n in sorted(met1_components.items())
+                if n != 1
+            )
+            if any(n != 1 for n in met1_components.values())
+            else " (every node is a single piece)"
+        )
+        + "."
+    )
+    a("")
+    a(
         "Label-collision proof: **"
         f"{len(merged_pin_names)}** extracted net(s) carry more than one "
         "label"
@@ -3509,7 +3660,8 @@ def main() -> int:
     a(
         f"| met1 routing | {'routed' if not unrouted else 'partial'} | "
         f"nets={len(met1_routes)}, unrouted={len(unrouted)}, "
-        f"drawn-short conflicts={len(met1_conflicts)} |"
+        f"drawn-short conflicts={len(met1_conflicts)}, "
+        f"split routed nodes={len(met1_split_routed)} |"
     )
     a(f"| DRC | {drc.get('status')} | violation_count={drc.get('violation_count')} |")
     a(
@@ -3588,7 +3740,7 @@ def main() -> int:
     a("")
     a(f"Mismatch categories: `{json.dumps(lvs.get('category_counts', {}))}`.")
     a("")
-    a("The residual gap has five disclosed causes, none of them a topology "
+    a("The residual gap has six disclosed causes, none of them a topology "
       "error in either netlist:")
     a("")
     a(
@@ -3632,9 +3784,15 @@ def main() -> int:
         "the same device (`L='r_lseg*n_r2+r_lseg_trim*n_r2_trim'`) rather "
         "than as separate devices."
     )
+    a(
+        "6. **No resistor can be paired at all: the two sides' resistor "
+        f"device class has a different terminal count.** {RES_BULK_ARITY_NOTE} "
+        "This is why cause 5's value difference has never actually been "
+        "reached -- the comparer stops one step earlier, at the arity."
+    )
     a("")
     a(
-        "None of the five is worked around by editing either netlist. "
+        "None of the six is worked around by editing either netlist. "
         "`reference.spice` states design/bandgap_core.sch; rewriting it to "
         "enumerate the layout's own shortfalls would make LVS compare the "
         "layout against itself, which is not evidence. The one declaration "
@@ -3653,7 +3811,7 @@ def main() -> int:
         f"- **Not LVS-clean.** `klt lvs` reports `{lvs.get('status')}` with "
         f"`mismatch_count={lvs.get('mismatch_count')}` against the "
         "xschem-derived reference netlist, and `devices.matched` is "
-        f"{lvs_devices.get('matched')}. The five causes above are the whole "
+        f"{lvs_devices.get('matched')}. The six causes above are the whole "
         "of it; none is hidden behind a number that moved."
     )
     a(
@@ -3726,7 +3884,10 @@ def main() -> int:
     # another node's is a short, and a short that reads as connectivity is
     # exactly the false evidence this flow must never produce. So is the
     # label-collision check, which catches the same failure arriving through a
-    # pad rather than through metal (see assert_no_merged_pin_names).
+    # pad rather than through metal (see assert_no_merged_pin_names). So is
+    # the split-node check, the inverse of the drawn-short one: a node this
+    # router reports as fully routed whose metal is still in two pieces (see
+    # split_routed_nets).
     gate = flow_gate(
         drc_clean=drc_clean,
         within_budget=within_budget,
@@ -3735,6 +3896,7 @@ def main() -> int:
         pin_count=pin_count,
         met1_conflicts=met1_conflicts,
         merged_pin_names=merged_pin_names,
+        split_routed=met1_split_routed,
     )
     failed = [name for name, passed in gate.items() if not passed]
     if failed:

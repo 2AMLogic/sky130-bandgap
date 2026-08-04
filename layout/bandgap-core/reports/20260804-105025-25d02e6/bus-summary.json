@@ -1,0 +1,2817 @@
+{
+  "pnp_ctat": {
+    "kind": "bjt_parallel",
+    "nets": [
+      {
+        "terminal": "E",
+        "net": "VA",
+        "columns": 4,
+        "pads": 8,
+        "trunk_y_um": 3.39,
+        "trunk_x0_um": 7.67,
+        "trunk_x1_um": 13.37
+      },
+      {
+        "terminal": "B",
+        "net": "VSS",
+        "columns": 4,
+        "pads": 8,
+        "trunk_y_um": 0.31,
+        "trunk_x0_um": 8.62,
+        "trunk_x1_um": 14.32
+      }
+    ]
+  },
+  "res_r2": {
+    "kind": "res_series",
+    "legs": 2,
+    "links": [
+      {
+        "leg": 0,
+        "from": "R0_B",
+        "to": "R2_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R2_B",
+        "to": "R4_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R4_B",
+        "to": "R6_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R6_B",
+        "to": "R8_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R8_B",
+        "to": "R10_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R10_B",
+        "to": "R12_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R12_B",
+        "to": "R14_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R14_B",
+        "to": "R16_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R16_B",
+        "to": "R18_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R18_B",
+        "to": "R20_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R20_B",
+        "to": "R22_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R22_B",
+        "to": "R24_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R24_B",
+        "to": "R26_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R26_B",
+        "to": "R28_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R28_B",
+        "to": "R30_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R30_B",
+        "to": "R32_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R32_B",
+        "to": "R34_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R34_B",
+        "to": "R36_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R36_B",
+        "to": "R38_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R38_B",
+        "to": "R40_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R40_B",
+        "to": "R42_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R42_B",
+        "to": "R44_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R44_B",
+        "to": "R46_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R46_B",
+        "to": "R48_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R48_B",
+        "to": "R50_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R50_B",
+        "to": "R52_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R52_B",
+        "to": "R54_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R54_B",
+        "to": "R56_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R56_B",
+        "to": "R58_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R58_B",
+        "to": "R60_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R60_B",
+        "to": "R62_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R62_B",
+        "to": "R64_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R64_B",
+        "to": "R66_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R66_B",
+        "to": "R68_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R68_B",
+        "to": "R70_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R70_B",
+        "to": "R72_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R72_B",
+        "to": "R74_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R74_B",
+        "to": "R76_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R76_B",
+        "to": "R78_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R78_B",
+        "to": "R80_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R80_B",
+        "to": "R82_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R82_B",
+        "to": "R84_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R84_B",
+        "to": "R86_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R86_B",
+        "to": "R88_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R88_B",
+        "to": "R90_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R90_B",
+        "to": "R92_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R92_B",
+        "to": "R94_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R94_B",
+        "to": "R96_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R96_B",
+        "to": "R98_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R98_B",
+        "to": "R100_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R100_B",
+        "to": "R102_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R102_B",
+        "to": "R104_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R104_B",
+        "to": "R106_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R1_B",
+        "to": "R3_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R3_B",
+        "to": "R5_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R5_B",
+        "to": "R7_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R7_B",
+        "to": "R9_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R9_B",
+        "to": "R11_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R11_B",
+        "to": "R13_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R13_B",
+        "to": "R15_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R15_B",
+        "to": "R17_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R17_B",
+        "to": "R19_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R19_B",
+        "to": "R21_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R21_B",
+        "to": "R23_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R23_B",
+        "to": "R25_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R25_B",
+        "to": "R27_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R27_B",
+        "to": "R29_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R29_B",
+        "to": "R31_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R31_B",
+        "to": "R33_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R33_B",
+        "to": "R35_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R35_B",
+        "to": "R37_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R37_B",
+        "to": "R39_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R39_B",
+        "to": "R41_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R41_B",
+        "to": "R43_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R43_B",
+        "to": "R45_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R45_B",
+        "to": "R47_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R47_B",
+        "to": "R49_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R49_B",
+        "to": "R51_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R51_B",
+        "to": "R53_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R53_B",
+        "to": "R55_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R55_B",
+        "to": "R57_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R57_B",
+        "to": "R59_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R59_B",
+        "to": "R61_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R61_B",
+        "to": "R63_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R63_B",
+        "to": "R65_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R65_B",
+        "to": "R67_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R67_B",
+        "to": "R69_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R69_B",
+        "to": "R71_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R71_B",
+        "to": "R73_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R73_B",
+        "to": "R75_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R75_B",
+        "to": "R77_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R77_B",
+        "to": "R79_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R79_B",
+        "to": "R81_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R81_B",
+        "to": "R83_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R83_B",
+        "to": "R85_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R85_B",
+        "to": "R87_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R87_B",
+        "to": "R89_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R89_B",
+        "to": "R91_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R91_B",
+        "to": "R93_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R93_B",
+        "to": "R95_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R95_B",
+        "to": "R97_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R97_B",
+        "to": "R99_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R99_B",
+        "to": "R101_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R101_B",
+        "to": "R103_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R103_B",
+        "to": "R105_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R105_B",
+        "to": "R107_A",
+        "routed": true
+      }
+    ]
+  },
+  "res_trim": {
+    "kind": "res_series",
+    "legs": 2,
+    "links": [
+      {
+        "leg": 0,
+        "from": "R0_B",
+        "to": "R2_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R2_B",
+        "to": "R4_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R4_B",
+        "to": "R6_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R6_B",
+        "to": "R8_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R8_B",
+        "to": "R10_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R10_B",
+        "to": "R12_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R12_B",
+        "to": "R14_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R14_B",
+        "to": "R16_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R16_B",
+        "to": "R18_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R18_B",
+        "to": "R20_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R20_B",
+        "to": "R22_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R22_B",
+        "to": "R24_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R24_B",
+        "to": "R26_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R26_B",
+        "to": "R28_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R28_B",
+        "to": "R30_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R1_B",
+        "to": "R3_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R3_B",
+        "to": "R5_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R5_B",
+        "to": "R7_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R7_B",
+        "to": "R9_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R9_B",
+        "to": "R11_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R11_B",
+        "to": "R13_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R13_B",
+        "to": "R15_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R15_B",
+        "to": "R17_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R17_B",
+        "to": "R19_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R19_B",
+        "to": "R21_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R21_B",
+        "to": "R23_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R23_B",
+        "to": "R25_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R25_B",
+        "to": "R27_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R27_B",
+        "to": "R29_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R29_B",
+        "to": "R31_A",
+        "routed": true
+      }
+    ]
+  },
+  "res_r1": {
+    "kind": "res_series",
+    "legs": 1,
+    "links": [
+      {
+        "leg": 0,
+        "from": "R0_B",
+        "to": "R1_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R1_B",
+        "to": "R2_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R2_B",
+        "to": "R3_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R3_B",
+        "to": "R4_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R4_B",
+        "to": "R5_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R5_B",
+        "to": "R6_A",
+        "routed": true
+      }
+    ]
+  },
+  "pnp_ptat": {
+    "kind": "bjt_parallel",
+    "nets": [
+      {
+        "terminal": "E",
+        "net": "VBQ",
+        "columns": 4,
+        "pads": 8,
+        "trunk_y_um": 7.47,
+        "trunk_x0_um": 281.77,
+        "trunk_x1_um": 295.63
+      },
+      {
+        "terminal": "B",
+        "net": "VSS",
+        "columns": 4,
+        "pads": 8,
+        "trunk_y_um": 1.67,
+        "trunk_x0_um": 284.08,
+        "trunk_x1_um": 297.94
+      }
+    ]
+  },
+  "core_mirror": {
+    "kind": "mos_comb",
+    "nets": [
+      {
+        "net": "VDD",
+        "spine_side": "W",
+        "terminals": [
+          "MPOUT.source",
+          "MPAMP.source"
+        ],
+        "pads": 4,
+        "gate_contacts": 0,
+        "spine_x_um": -0.6,
+        "escapes": [
+          [
+            "core_mirror:VDD:far0",
+            9.42,
+            53.67
+          ],
+          [
+            "core_mirror:VDD:far1",
+            9.42,
+            57.69
+          ]
+        ]
+      },
+      {
+        "net": "GDRV",
+        "spine_side": "W",
+        "terminals": [
+          "MPOUT.gate",
+          "MPAMP.gate"
+        ],
+        "pads": 4,
+        "gate_contacts": 4,
+        "spine_x_um": -1.0,
+        "escapes": [
+          [
+            "core_mirror:GDRV:far0",
+            9.42,
+            52.07
+          ],
+          [
+            "core_mirror:GDRV:far1",
+            9.42,
+            59.29
+          ]
+        ]
+      },
+      {
+        "net": "TAIL",
+        "spine_side": "W",
+        "terminals": [
+          "MPAMP.drain"
+        ],
+        "pads": 2,
+        "gate_contacts": 0,
+        "spine_x_um": -1.4,
+        "escapes": [
+          [
+            "core_mirror:TAIL:far0",
+            9.42,
+            50.47
+          ],
+          [
+            "core_mirror:TAIL:far1",
+            9.42,
+            60.89
+          ]
+        ]
+      },
+      {
+        "net": "VOUT",
+        "spine_side": "W",
+        "terminals": [
+          "MPOUT.drain"
+        ],
+        "pads": 2,
+        "gate_contacts": 0,
+        "spine_x_um": -1.8,
+        "escapes": [
+          [
+            "core_mirror:VOUT:far0",
+            9.42,
+            48.87
+          ],
+          [
+            "core_mirror:VOUT:spine0",
+            -3.0,
+            48.87
+          ],
+          [
+            "core_mirror:VOUT:far1",
+            9.42,
+            62.49
+          ],
+          [
+            "core_mirror:VOUT:spine1",
+            -3.0,
+            62.49
+          ]
+        ]
+      }
+    ]
+  },
+  "amp_input_pair": {
+    "kind": "mos_comb",
+    "nets": [
+      {
+        "net": "D1",
+        "spine_side": "W",
+        "terminals": [
+          "MP1.drain"
+        ],
+        "pads": 16,
+        "gate_contacts": 0,
+        "spine_x_um": 23.62,
+        "escapes": [
+          [
+            "amp_input_pair:D1:far0",
+            207.0,
+            51.937
+          ],
+          [
+            "amp_input_pair:D1:far1",
+            207.0,
+            59.423
+          ]
+        ]
+      },
+      {
+        "net": "D2",
+        "spine_side": "W",
+        "terminals": [
+          "MP2.drain"
+        ],
+        "pads": 16,
+        "gate_contacts": 0,
+        "spine_x_um": 23.22,
+        "escapes": [
+          [
+            "amp_input_pair:D2:far0",
+            207.0,
+            48.603
+          ],
+          [
+            "amp_input_pair:D2:far1",
+            207.0,
+            62.757
+          ]
+        ]
+      },
+      {
+        "net": "VB",
+        "spine_side": "W",
+        "terminals": [
+          "MP1.gate"
+        ],
+        "pads": 16,
+        "gate_contacts": 16,
+        "spine_x_um": 22.82,
+        "escapes": [
+          [
+            "amp_input_pair:VB:far0",
+            207.0,
+            45.27
+          ],
+          [
+            "amp_input_pair:VB:far1",
+            207.0,
+            66.09
+          ]
+        ]
+      },
+      {
+        "net": "VA",
+        "spine_side": "W",
+        "terminals": [
+          "MP2.gate"
+        ],
+        "pads": 16,
+        "gate_contacts": 16,
+        "spine_x_um": 22.42,
+        "escapes": [
+          [
+            "amp_input_pair:VA:far0",
+            207.0,
+            41.937
+          ],
+          [
+            "amp_input_pair:VA:far1",
+            207.0,
+            69.423
+          ]
+        ]
+      },
+      {
+        "net": "TAIL",
+        "spine_side": "W",
+        "terminals": [
+          "MP1.source",
+          "MP2.source"
+        ],
+        "pads": 32,
+        "gate_contacts": 0,
+        "spine_x_um": 22.02,
+        "escapes": [
+          [
+            "amp_input_pair:TAIL:far0",
+            207.0,
+            38.603
+          ],
+          [
+            "amp_input_pair:TAIL:spine0",
+            20.82,
+            38.603
+          ],
+          [
+            "amp_input_pair:TAIL:far1",
+            207.0,
+            72.757
+          ],
+          [
+            "amp_input_pair:TAIL:spine1",
+            20.82,
+            72.757
+          ]
+        ]
+      }
+    ]
+  },
+  "amp_nload": {
+    "kind": "mos_comb",
+    "nets": [
+      {
+        "net": "D1",
+        "spine_side": "E",
+        "terminals": [
+          "MN1.drain",
+          "MN1.gate"
+        ],
+        "pads": 8,
+        "gate_contacts": 4,
+        "spine_x_um": 308.8,
+        "escapes": [
+          [
+            "amp_nload:D1:far0",
+            220.6,
+            53.27
+          ],
+          [
+            "amp_nload:D1:far1",
+            220.6,
+            58.09
+          ]
+        ]
+      },
+      {
+        "net": "D2",
+        "spine_side": "E",
+        "terminals": [
+          "MN2.drain",
+          "MN2.gate"
+        ],
+        "pads": 8,
+        "gate_contacts": 4,
+        "spine_x_um": 309.2,
+        "escapes": [
+          [
+            "amp_nload:D2:far0",
+            220.6,
+            51.27
+          ],
+          [
+            "amp_nload:D2:far1",
+            220.6,
+            60.09
+          ]
+        ]
+      },
+      {
+        "net": "VSS",
+        "spine_side": "E",
+        "terminals": [
+          "MN1.source",
+          "MN2.source"
+        ],
+        "pads": 8,
+        "gate_contacts": 0,
+        "spine_x_um": 309.6,
+        "escapes": [
+          [
+            "amp_nload:VSS:far0",
+            220.6,
+            49.27
+          ],
+          [
+            "amp_nload:VSS:spine0",
+            310.8,
+            49.27
+          ],
+          [
+            "amp_nload:VSS:far1",
+            220.6,
+            62.09
+          ],
+          [
+            "amp_nload:VSS:spine1",
+            310.8,
+            62.09
+          ]
+        ]
+      }
+    ]
+  },
+  "amp_pmirr": {
+    "kind": "mos_comb",
+    "nets": [
+      {
+        "net": "GDRV",
+        "spine_side": "W",
+        "terminals": [
+          "MP4.drain"
+        ],
+        "pads": 8,
+        "gate_contacts": 0,
+        "spine_x_um": 16.47,
+        "escapes": [
+          [
+            "amp_pmirr:GDRV:far0",
+            189.93,
+            107.0
+          ],
+          [
+            "amp_pmirr:GDRV:far1",
+            189.93,
+            110.82
+          ]
+        ]
+      },
+      {
+        "net": "PN",
+        "spine_side": "W",
+        "terminals": [
+          "MP3.drain",
+          "MP3.gate",
+          "MP4.gate"
+        ],
+        "pads": 24,
+        "gate_contacts": 16,
+        "spine_x_um": 16.07,
+        "escapes": [
+          [
+            "amp_pmirr:PN:far0",
+            189.93,
+            105.5
+          ],
+          [
+            "amp_pmirr:PN:far1",
+            189.93,
+            112.32
+          ]
+        ]
+      },
+      {
+        "net": "VDD",
+        "spine_side": "W",
+        "terminals": [
+          "MP3.source",
+          "MP4.source"
+        ],
+        "pads": 16,
+        "gate_contacts": 0,
+        "spine_x_um": 15.67,
+        "escapes": [
+          [
+            "amp_pmirr:VDD:far0",
+            189.93,
+            104.0
+          ],
+          [
+            "amp_pmirr:VDD:spine0",
+            14.47,
+            104.0
+          ],
+          [
+            "amp_pmirr:VDD:far1",
+            189.93,
+            113.82
+          ],
+          [
+            "amp_pmirr:VDD:spine1",
+            14.47,
+            113.82
+          ]
+        ]
+      }
+    ]
+  },
+  "amp_nmirr": {
+    "kind": "mos_comb",
+    "nets": [
+      {
+        "net": "GDRV",
+        "spine_side": "E",
+        "terminals": [
+          "MN3.drain"
+        ],
+        "pads": 4,
+        "gate_contacts": 0,
+        "spine_x_um": 291.73,
+        "escapes": [
+          [
+            "amp_nmirr:GDRV:far0",
+            203.53,
+            107.167
+          ],
+          [
+            "amp_nmirr:GDRV:far1",
+            203.53,
+            110.653
+          ]
+        ]
+      },
+      {
+        "net": "PN",
+        "spine_side": "E",
+        "terminals": [
+          "MN4.drain"
+        ],
+        "pads": 4,
+        "gate_contacts": 0,
+        "spine_x_um": 292.13,
+        "escapes": [
+          [
+            "amp_nmirr:PN:far0",
+            203.53,
+            105.833
+          ],
+          [
+            "amp_nmirr:PN:far1",
+            203.53,
+            111.987
+          ]
+        ]
+      },
+      {
+        "net": "D1",
+        "spine_side": "E",
+        "terminals": [
+          "MN3.gate"
+        ],
+        "pads": 4,
+        "gate_contacts": 4,
+        "spine_x_um": 292.53,
+        "escapes": [
+          [
+            "amp_nmirr:D1:far0",
+            203.53,
+            104.5
+          ],
+          [
+            "amp_nmirr:D1:far1",
+            203.53,
+            113.32
+          ]
+        ]
+      },
+      {
+        "net": "D2",
+        "spine_side": "E",
+        "terminals": [
+          "MN4.gate"
+        ],
+        "pads": 4,
+        "gate_contacts": 4,
+        "spine_x_um": 292.93,
+        "escapes": [
+          [
+            "amp_nmirr:D2:far0",
+            203.53,
+            103.167
+          ],
+          [
+            "amp_nmirr:D2:far1",
+            203.53,
+            114.653
+          ]
+        ]
+      },
+      {
+        "net": "VSS",
+        "spine_side": "E",
+        "terminals": [
+          "MN3.source",
+          "MN4.source"
+        ],
+        "pads": 8,
+        "gate_contacts": 0,
+        "spine_x_um": 293.33,
+        "escapes": [
+          [
+            "amp_nmirr:VSS:far0",
+            203.53,
+            101.833
+          ],
+          [
+            "amp_nmirr:VSS:spine0",
+            294.53,
+            101.833
+          ],
+          [
+            "amp_nmirr:VSS:far1",
+            203.53,
+            115.987
+          ],
+          [
+            "amp_nmirr:VSS:spine1",
+            294.53,
+            115.987
+          ]
+        ]
+      }
+    ]
+  },
+  "_inter_block": [
+    {
+      "net": "D2",
+      "routed": true,
+      "schematic": "MP2's drain, MN2's diode-connected drain/gate, and MN4's gate",
+      "terminals": [
+        "amp_input_pair:D2:far1",
+        "amp_nload:D2:far1",
+        "amp_nmirr:D2:far0"
+      ],
+      "blocks": [
+        "amp_input_pair",
+        "amp_nload",
+        "amp_nmirr"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              207.0,
+              62.757
+            ],
+            [
+              207.0,
+              60.09
+            ],
+            [
+              220.6,
+              60.09
+            ]
+          ],
+          "from": "amp_input_pair:D2:far1",
+          "to": "amp_nload:D2:far1",
+          "routed": true
+        },
+        {
+          "detour_um": null,
+          "via_channel": true,
+          "points": [
+            [
+              220.6,
+              60.09
+            ],
+            [
+              218.8,
+              60.09
+            ],
+            [
+              218.8,
+              98.43
+            ],
+            [
+              201.73,
+              98.43
+            ],
+            [
+              201.73,
+              103.167
+            ],
+            [
+              203.53,
+              103.167
+            ]
+          ],
+          "from": "amp_nload:D2:far1",
+          "to": "amp_nmirr:D2:far0",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "PN",
+      "routed": true,
+      "schematic": "MN4's drain, MP3's diode-connected drain/gate, and MP4's gate",
+      "terminals": [
+        "amp_pmirr:PN:far0",
+        "amp_nmirr:PN:far0"
+      ],
+      "blocks": [
+        "amp_nmirr",
+        "amp_pmirr"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.4,
+          "points": [
+            [
+              189.93,
+              105.5
+            ],
+            [
+              189.93,
+              105.9
+            ],
+            [
+              199.93,
+              105.9
+            ],
+            [
+              199.93,
+              105.833
+            ],
+            [
+              203.53,
+              105.833
+            ]
+          ],
+          "from": "amp_pmirr:PN:far0",
+          "to": "amp_nmirr:PN:far0",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VA",
+      "routed": true,
+      "schematic": "the R2A leg's low end (through its trim taps) to Q1's emitter bus and MP2's gate -- the amp's VINN node",
+      "terminals": [
+        "pnp_ctat:VA trunk",
+        "res_trim.R30_B",
+        "amp_input_pair:VA:far0"
+      ],
+      "blocks": [
+        "amp_input_pair",
+        "pnp_ctat",
+        "res_trim"
+      ],
+      "hops": [
+        {
+          "detour_um": null,
+          "via_channel": true,
+          "points": [
+            [
+              13.37,
+              3.39
+            ],
+            [
+              14.07,
+              3.39
+            ],
+            [
+              14.07,
+              13.34
+            ],
+            [
+              146.34,
+              13.34
+            ],
+            [
+              146.34,
+              11.45
+            ]
+          ],
+          "from": "pnp_ctat:VA trunk",
+          "to": "res_trim.R30_B",
+          "routed": true
+        },
+        {
+          "detour_um": null,
+          "via_channel": true,
+          "points": [
+            [
+              146.34,
+              11.45
+            ],
+            [
+              146.34,
+              13.34
+            ],
+            [
+              208.8,
+              13.34
+            ],
+            [
+              208.8,
+              40.95
+            ],
+            [
+              207.0,
+              40.95
+            ],
+            [
+              207.0,
+              41.937
+            ]
+          ],
+          "from": "res_trim.R30_B",
+          "to": "amp_input_pair:VA:far0",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "TRIM_A",
+      "routed": true,
+      "schematic": "R2A's low end into leg A of the downward-only trim ladder (DR-002)",
+      "terminals": [
+        "res_r2.R106_B",
+        "res_trim.R0_A"
+      ],
+      "blocks": [
+        "res_r2",
+        "res_trim"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              138.34,
+              11.45
+            ],
+            [
+              138.34,
+              7.25
+            ],
+            [
+              146.34,
+              7.25
+            ]
+          ],
+          "from": "res_r2.R106_B",
+          "to": "res_trim.R0_A",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VOUT",
+      "routed": true,
+      "schematic": "MPOUT's drain and the high ends of both divider legs -- the reference output",
+      "terminals": [
+        "core_mirror:VOUT:far0",
+        "res_r2.R0_A",
+        "res_r2.R1_A"
+      ],
+      "blocks": [
+        "core_mirror",
+        "res_r2"
+      ],
+      "hops": [
+        {
+          "detour_um": -0.4,
+          "points": [
+            [
+              9.42,
+              48.87
+            ],
+            [
+              5.82,
+              48.87
+            ],
+            [
+              5.82,
+              -0.15
+            ],
+            [
+              29.4,
+              -0.15
+            ],
+            [
+              29.4,
+              0.25
+            ]
+          ],
+          "from": "core_mirror:VOUT:far0",
+          "to": "res_r2.R0_A",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              29.4,
+              0.25
+            ],
+            [
+              29.4,
+              0.25
+            ],
+            [
+              29.4,
+              0.75
+            ]
+          ],
+          "from": "res_r2.R0_A",
+          "to": "res_r2.R1_A",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "TRIM_B",
+      "routed": true,
+      "schematic": "R2B's low end into leg B of the trim ladder",
+      "terminals": [
+        "res_r2.R107_B",
+        "res_trim.R1_A"
+      ],
+      "blocks": [
+        "res_r2",
+        "res_trim"
+      ],
+      "hops": [
+        {
+          "detour_um": null,
+          "via_channel": true,
+          "points": [
+            [
+              138.34,
+              11.95
+            ],
+            [
+              139.74,
+              11.95
+            ],
+            [
+              139.74,
+              10.3
+            ],
+            [
+              146.34,
+              10.3
+            ],
+            [
+              146.34,
+              7.75
+            ]
+          ],
+          "from": "res_r2.R107_B",
+          "to": "res_trim.R1_A",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VB",
+      "routed": true,
+      "schematic": "the R2B leg's low end (through its trim taps) to R1's head and MP1's gate -- the amp's VINP node",
+      "terminals": [
+        "res_trim.R31_B",
+        "res_r1.R0_A",
+        "amp_input_pair:VB:far0"
+      ],
+      "blocks": [
+        "amp_input_pair",
+        "res_r1",
+        "res_trim"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.4,
+          "points": [
+            [
+              155.23,
+              11.95
+            ],
+            [
+              155.23,
+              12.35
+            ],
+            [
+              181.64,
+              12.35
+            ],
+            [
+              181.64,
+              11.7
+            ],
+            [
+              185.24,
+              11.7
+            ]
+          ],
+          "from": "res_trim.R31_B",
+          "to": "res_r1.R0_A",
+          "routed": true
+        },
+        {
+          "detour_um": null,
+          "via_channel": true,
+          "points": [
+            [
+              185.24,
+              11.7
+            ],
+            [
+              185.24,
+              12.14
+            ],
+            [
+              210.0,
+              12.14
+            ],
+            [
+              210.0,
+              43.35
+            ],
+            [
+              207.0,
+              43.35
+            ],
+            [
+              207.0,
+              45.27
+            ]
+          ],
+          "from": "res_r1.R0_A",
+          "to": "amp_input_pair:VB:far0",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VBQ",
+      "routed": true,
+      "schematic": "R1's tail to Q2's emitter bus",
+      "terminals": [
+        "res_r1.R6_B",
+        "pnp_ptat:VBQ trunk"
+      ],
+      "blocks": [
+        "pnp_ptat",
+        "res_r1"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              262.48,
+              11.7
+            ],
+            [
+              295.63,
+              11.7
+            ],
+            [
+              295.63,
+              7.47
+            ]
+          ],
+          "from": "res_r1.R6_B",
+          "to": "pnp_ptat:VBQ trunk",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VDD",
+      "routed": true,
+      "schematic": "VDD trunk: MPOUT/MPAMP and MP3/MP4 sources -- every finger of all four, not one pad per block -- plus each PMOS group's n-well guard-ring tap (the reference's pfet bulk terminal)",
+      "terminals": [
+        "core_mirror.TAP_N",
+        "core_mirror:VDD:far1",
+        "amp_pmirr:VDD:spine0",
+        "amp_pmirr.TAP_S",
+        "amp_input_pair.TAP_N"
+      ],
+      "blocks": [
+        "amp_input_pair",
+        "amp_pmirr",
+        "core_mirror"
+      ],
+      "hops": [
+        {
+          "detour_um": null,
+          "via_channel": true,
+          "points": [
+            [
+              4.11,
+              65.22
+            ],
+            [
+              4.11,
+              68.43
+            ],
+            [
+              10.47,
+              68.43
+            ],
+            [
+              10.47,
+              57.69
+            ],
+            [
+              9.42,
+              57.69
+            ]
+          ],
+          "from": "core_mirror.TAP_N",
+          "to": "core_mirror:VDD:far1",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              9.42,
+              57.69
+            ],
+            [
+              14.47,
+              57.69
+            ],
+            [
+              14.47,
+              104.0
+            ]
+          ],
+          "from": "core_mirror:VDD:far1",
+          "to": "amp_pmirr:VDD:spine0",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              14.47,
+              104.0
+            ],
+            [
+              102.9,
+              104.0
+            ],
+            [
+              102.9,
+              101.79
+            ]
+          ],
+          "from": "amp_pmirr:VDD:spine0",
+          "to": "amp_pmirr.TAP_S",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              102.9,
+              101.79
+            ],
+            [
+              115.01,
+              101.79
+            ],
+            [
+              115.01,
+              77.22
+            ]
+          ],
+          "from": "amp_pmirr.TAP_S",
+          "to": "amp_input_pair.TAP_N",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VSS",
+      "routed": false,
+      "schematic": "VSS trunk: every finger of all four amp NMOS sources (MN1-MN4), both NMOS groups' substrate guard-ring taps, and both PNP base ties (the diode-connected PNPs' base sits on VSS)",
+      "terminals": [
+        "amp_nload:VSS:far0",
+        "amp_nload.TAP_S",
+        "amp_nmirr.TAP_S",
+        "amp_nmirr:VSS:far0",
+        "pnp_ptat:VSS trunk",
+        "pnp_ctat:VSS trunk"
+      ],
+      "blocks": [
+        "amp_nload",
+        "amp_nmirr",
+        "pnp_ctat",
+        "pnp_ptat"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              220.6,
+              49.27
+            ],
+            [
+              265.0,
+              49.27
+            ],
+            [
+              265.0,
+              46.56
+            ]
+          ],
+          "from": "amp_nload:VSS:far0",
+          "to": "amp_nload.TAP_S",
+          "routed": true
+        },
+        {
+          "detour_um": 45.2,
+          "points": [
+            [
+              265.0,
+              46.56
+            ],
+            [
+              310.2,
+              46.56
+            ],
+            [
+              310.2,
+              99.79
+            ],
+            [
+              247.93,
+              99.79
+            ]
+          ],
+          "from": "amp_nload.TAP_S",
+          "to": "amp_nmirr.TAP_S",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              247.93,
+              99.79
+            ],
+            [
+              203.53,
+              99.79
+            ],
+            [
+              203.53,
+              101.833
+            ]
+          ],
+          "from": "amp_nmirr.TAP_S",
+          "to": "amp_nmirr:VSS:far0",
+          "routed": true
+        },
+        {
+          "detour_um": 12.8,
+          "points": [
+            [
+              203.53,
+              101.833
+            ],
+            [
+              310.74,
+              101.833
+            ],
+            [
+              310.74,
+              1.67
+            ],
+            [
+              297.94,
+              1.67
+            ]
+          ],
+          "from": "amp_nmirr:VSS:far0",
+          "to": "pnp_ptat:VSS trunk",
+          "routed": true
+        },
+        {
+          "from": "pnp_ptat:VSS trunk",
+          "to": "pnp_ctat:VSS trunk",
+          "routed": false,
+          "blocked_by": "VOUT"
+        }
+      ]
+    },
+    {
+      "net": "TAIL",
+      "routed": true,
+      "schematic": "MPAMP drain to the amp input pair's common source",
+      "terminals": [
+        "core_mirror:TAIL:far0",
+        "amp_input_pair:TAIL:spine1"
+      ],
+      "blocks": [
+        "amp_input_pair",
+        "core_mirror"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              9.42,
+              50.47
+            ],
+            [
+              20.82,
+              50.47
+            ],
+            [
+              20.82,
+              72.757
+            ]
+          ],
+          "from": "core_mirror:TAIL:far0",
+          "to": "amp_input_pair:TAIL:spine1",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "GDRV",
+      "routed": false,
+      "schematic": "the amp's output -- MP4's and MN3's drains -- and the core mirror's gate drive, one node in the schematic and now one drawn node in the layout",
+      "terminals": [
+        "core_mirror:GDRV:far1",
+        "amp_pmirr:GDRV:far0",
+        "amp_nmirr:GDRV:far0"
+      ],
+      "blocks": [
+        "amp_nmirr",
+        "amp_pmirr",
+        "core_mirror"
+      ],
+      "hops": [
+        {
+          "from": "core_mirror:GDRV:far1",
+          "to": "amp_pmirr:GDRV:far0",
+          "routed": false,
+          "blocked_by": "TAIL"
+        },
+        {
+          "detour_um": 0.4,
+          "points": [
+            [
+              189.93,
+              107.0
+            ],
+            [
+              189.93,
+              107.4
+            ],
+            [
+              199.93,
+              107.4
+            ],
+            [
+              199.93,
+              107.167
+            ],
+            [
+              203.53,
+              107.167
+            ]
+          ],
+          "from": "amp_pmirr:GDRV:far0",
+          "to": "amp_nmirr:GDRV:far0",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "D1",
+      "routed": false,
+      "schematic": "MP1's drain, MN1's diode-connected drain/gate, and MN3's gate",
+      "terminals": [
+        "amp_nmirr:D1:far0",
+        "amp_input_pair:D1:far1",
+        "amp_nload:D1:far1"
+      ],
+      "blocks": [
+        "amp_input_pair",
+        "amp_nload",
+        "amp_nmirr"
+      ],
+      "hops": [
+        {
+          "from": "amp_nmirr:D1:far0",
+          "to": "amp_input_pair:D1:far1",
+          "routed": false,
+          "blocked_by": "D2"
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              207.0,
+              59.423
+            ],
+            [
+              207.0,
+              58.09
+            ],
+            [
+              220.6,
+              58.09
+            ]
+          ],
+          "from": "amp_input_pair:D1:far1",
+          "to": "amp_nload:D1:far1",
+          "routed": true
+        }
+      ]
+    }
+  ],
+  "_route_order_attempts": [
+    {
+      "order": [
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "PN"
+      ],
+      "failed": [
+        "VSS",
+        "GDRV",
+        "D1",
+        "D2"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 8,
+      "hops_routed": 20
+    },
+    {
+      "order": [
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "PN",
+        "VA"
+      ],
+      "failed": [
+        "GDRV",
+        "D1",
+        "D2",
+        "VA"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 8,
+      "hops_routed": 19
+    },
+    {
+      "order": [
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A"
+      ],
+      "failed": [
+        "GDRV",
+        "D1",
+        "D2",
+        "VA"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 8,
+      "hops_routed": 19
+    },
+    {
+      "order": [
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT"
+      ],
+      "failed": [
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "VA"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 7,
+      "hops_routed": 18
+    },
+    {
+      "order": [
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B"
+      ],
+      "failed": [
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "VA"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 7,
+      "hops_routed": 18
+    },
+    {
+      "order": [
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB"
+      ],
+      "failed": [
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "VA"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 7,
+      "hops_routed": 19
+    },
+    {
+      "order": [
+        "VDD",
+        "VSS",
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ"
+      ],
+      "failed": [
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "VA"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 7,
+      "hops_routed": 19
+    },
+    {
+      "order": [
+        "VSS",
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD"
+      ],
+      "failed": [
+        "TAIL",
+        "D1",
+        "D2",
+        "VA",
+        "VDD"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 7,
+      "hops_routed": 18
+    },
+    {
+      "order": [
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS"
+      ],
+      "failed": [
+        "GDRV",
+        "D2",
+        "VDD",
+        "VSS"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 9,
+      "hops_routed": 21
+    },
+    {
+      "order": [
+        "GDRV",
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL"
+      ],
+      "failed": [
+        "D1",
+        "D2",
+        "PN",
+        "VDD",
+        "VSS",
+        "TAIL"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 6,
+      "hops_routed": 20
+    },
+    {
+      "order": [
+        "D1",
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "GDRV"
+      ],
+      "failed": [
+        "D2",
+        "VSS",
+        "GDRV"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 9,
+      "hops_routed": 22
+    },
+    {
+      "order": [
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "GDRV",
+        "D1"
+      ],
+      "failed": [
+        "VSS",
+        "GDRV",
+        "D1"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 9,
+      "hops_routed": 23
+    },
+    {
+      "order": [
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2"
+      ],
+      "failed": [
+        "VSS",
+        "GDRV",
+        "D1",
+        "D2"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 8,
+      "hops_routed": 20
+    },
+    {
+      "order": [
+        "VSS",
+        "GDRV",
+        "D1",
+        "D2",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "TAIL",
+        "PN"
+      ],
+      "failed": [
+        "D1",
+        "D2",
+        "VA",
+        "VDD",
+        "TAIL"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 7,
+      "hops_routed": 18
+    },
+    {
+      "order": [
+        "D2",
+        "PN",
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "GDRV",
+        "D1"
+      ],
+      "failed": [
+        "VSS",
+        "GDRV",
+        "D1"
+      ],
+      "conflicts": 0,
+      "schematic_nets_drawn": 9,
+      "hops_routed": 23,
+      "repair_pass": true,
+      "kept": false
+    }
+  ],
+  "_route_order_used": [
+    "D2",
+    "PN",
+    "VA",
+    "TRIM_A",
+    "VOUT",
+    "TRIM_B",
+    "VB",
+    "VBQ",
+    "VDD",
+    "VSS",
+    "TAIL",
+    "GDRV",
+    "D1"
+  ],
+  "_conflicts": [],
+  "_components": {
+    "VA": 1,
+    "VSS": 2,
+    "res_r2:leg0:0-2": 1,
+    "res_r2:leg0:2-4": 1,
+    "res_r2:leg0:4-6": 1,
+    "res_r2:leg0:6-8": 1,
+    "res_r2:leg0:8-10": 1,
+    "res_r2:leg0:10-12": 1,
+    "res_r2:leg0:12-14": 1,
+    "res_r2:leg0:14-16": 1,
+    "res_r2:leg0:16-18": 1,
+    "res_r2:leg0:18-20": 1,
+    "res_r2:leg0:20-22": 1,
+    "res_r2:leg0:22-24": 1,
+    "res_r2:leg0:24-26": 1,
+    "res_r2:leg0:26-28": 1,
+    "res_r2:leg0:28-30": 1,
+    "res_r2:leg0:30-32": 1,
+    "res_r2:leg0:32-34": 1,
+    "res_r2:leg0:34-36": 1,
+    "res_r2:leg0:36-38": 1,
+    "res_r2:leg0:38-40": 1,
+    "res_r2:leg0:40-42": 1,
+    "res_r2:leg0:42-44": 1,
+    "res_r2:leg0:44-46": 1,
+    "res_r2:leg0:46-48": 1,
+    "res_r2:leg0:48-50": 1,
+    "res_r2:leg0:50-52": 1,
+    "res_r2:leg0:52-54": 1,
+    "res_r2:leg0:54-56": 1,
+    "res_r2:leg0:56-58": 1,
+    "res_r2:leg0:58-60": 1,
+    "res_r2:leg0:60-62": 1,
+    "res_r2:leg0:62-64": 1,
+    "res_r2:leg0:64-66": 1,
+    "res_r2:leg0:66-68": 1,
+    "res_r2:leg0:68-70": 1,
+    "res_r2:leg0:70-72": 1,
+    "res_r2:leg0:72-74": 1,
+    "res_r2:leg0:74-76": 1,
+    "res_r2:leg0:76-78": 1,
+    "res_r2:leg0:78-80": 1,
+    "res_r2:leg0:80-82": 1,
+    "res_r2:leg0:82-84": 1,
+    "res_r2:leg0:84-86": 1,
+    "res_r2:leg0:86-88": 1,
+    "res_r2:leg0:88-90": 1,
+    "res_r2:leg0:90-92": 1,
+    "res_r2:leg0:92-94": 1,
+    "res_r2:leg0:94-96": 1,
+    "res_r2:leg0:96-98": 1,
+    "res_r2:leg0:98-100": 1,
+    "res_r2:leg0:100-102": 1,
+    "res_r2:leg0:102-104": 1,
+    "res_r2:leg0:104-106": 1,
+    "res_r2:leg1:1-3": 1,
+    "res_r2:leg1:3-5": 1,
+    "res_r2:leg1:5-7": 1,
+    "res_r2:leg1:7-9": 1,
+    "res_r2:leg1:9-11": 1,
+    "res_r2:leg1:11-13": 1,
+    "res_r2:leg1:13-15": 1,
+    "res_r2:leg1:15-17": 1,
+    "res_r2:leg1:17-19": 1,
+    "res_r2:leg1:19-21": 1,
+    "res_r2:leg1:21-23": 1,
+    "res_r2:leg1:23-25": 1,
+    "res_r2:leg1:25-27": 1,
+    "res_r2:leg1:27-29": 1,
+    "res_r2:leg1:29-31": 1,
+    "res_r2:leg1:31-33": 1,
+    "res_r2:leg1:33-35": 1,
+    "res_r2:leg1:35-37": 1,
+    "res_r2:leg1:37-39": 1,
+    "res_r2:leg1:39-41": 1,
+    "res_r2:leg1:41-43": 1,
+    "res_r2:leg1:43-45": 1,
+    "res_r2:leg1:45-47": 1,
+    "res_r2:leg1:47-49": 1,
+    "res_r2:leg1:49-51": 1,
+    "res_r2:leg1:51-53": 1,
+    "res_r2:leg1:53-55": 1,
+    "res_r2:leg1:55-57": 1,
+    "res_r2:leg1:57-59": 1,
+    "res_r2:leg1:59-61": 1,
+    "res_r2:leg1:61-63": 1,
+    "res_r2:leg1:63-65": 1,
+    "res_r2:leg1:65-67": 1,
+    "res_r2:leg1:67-69": 1,
+    "res_r2:leg1:69-71": 1,
+    "res_r2:leg1:71-73": 1,
+    "res_r2:leg1:73-75": 1,
+    "res_r2:leg1:75-77": 1,
+    "res_r2:leg1:77-79": 1,
+    "res_r2:leg1:79-81": 1,
+    "res_r2:leg1:81-83": 1,
+    "res_r2:leg1:83-85": 1,
+    "res_r2:leg1:85-87": 1,
+    "res_r2:leg1:87-89": 1,
+    "res_r2:leg1:89-91": 1,
+    "res_r2:leg1:91-93": 1,
+    "res_r2:leg1:93-95": 1,
+    "res_r2:leg1:95-97": 1,
+    "res_r2:leg1:97-99": 1,
+    "res_r2:leg1:99-101": 1,
+    "res_r2:leg1:101-103": 1,
+    "res_r2:leg1:103-105": 1,
+    "res_r2:leg1:105-107": 1,
+    "res_trim:leg0:0-2": 1,
+    "res_trim:leg0:2-4": 1,
+    "res_trim:leg0:4-6": 1,
+    "res_trim:leg0:6-8": 1,
+    "res_trim:leg0:8-10": 1,
+    "res_trim:leg0:10-12": 1,
+    "res_trim:leg0:12-14": 1,
+    "res_trim:leg0:14-16": 1,
+    "res_trim:leg0:16-18": 1,
+    "res_trim:leg0:18-20": 1,
+    "res_trim:leg0:20-22": 1,
+    "res_trim:leg0:22-24": 1,
+    "res_trim:leg0:24-26": 1,
+    "res_trim:leg0:26-28": 1,
+    "res_trim:leg0:28-30": 1,
+    "res_trim:leg1:1-3": 1,
+    "res_trim:leg1:3-5": 1,
+    "res_trim:leg1:5-7": 1,
+    "res_trim:leg1:7-9": 1,
+    "res_trim:leg1:9-11": 1,
+    "res_trim:leg1:11-13": 1,
+    "res_trim:leg1:13-15": 1,
+    "res_trim:leg1:15-17": 1,
+    "res_trim:leg1:17-19": 1,
+    "res_trim:leg1:19-21": 1,
+    "res_trim:leg1:21-23": 1,
+    "res_trim:leg1:23-25": 1,
+    "res_trim:leg1:25-27": 1,
+    "res_trim:leg1:27-29": 1,
+    "res_trim:leg1:29-31": 1,
+    "res_r1:leg0:0-1": 1,
+    "res_r1:leg0:1-2": 1,
+    "res_r1:leg0:2-3": 1,
+    "res_r1:leg0:3-4": 1,
+    "res_r1:leg0:4-5": 1,
+    "res_r1:leg0:5-6": 1,
+    "VBQ": 1,
+    "VDD": 1,
+    "GDRV": 2,
+    "TAIL": 1,
+    "VOUT": 1,
+    "D1": 2,
+    "D2": 1,
+    "VB": 1,
+    "PN": 1,
+    "TRIM_A": 1,
+    "TRIM_B": 1
+  }
+}

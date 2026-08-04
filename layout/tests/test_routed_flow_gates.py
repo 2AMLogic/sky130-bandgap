@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Unit coverage for the routed-flow's own gates (issue #62).
 
-`layout/bin/run-bandgap-routed-flow.sh` decides pass/fail on three checks
+`layout/bin/run-bandgap-routed-flow.sh` decides pass/fail on four checks
 that no external tool performs for it:
 
 1. **The drawn-short check** -- `met1_bus.Met1Bus.conflicts()`. Every met1
@@ -22,8 +22,15 @@ that no external tool performs for it:
    declaration, so a net the flow simply forgot to declare still shows up as
    a miss. It also drives the router's ordering search, so a scoring bug
    silently changes which layout gets drawn.
+4. **The split-node check** -- `met1_bus.Met1Bus.components()` scored by
+   `gen_bandgap_routed.split_routed_nets()`. The exact inverse of check 1: a
+   node this router reports as fully routed whose own met1 is still in two
+   pieces that never touch. Invisible to all three checks above and to DRC --
+   `klt extract` just emits two anonymous nets, and check 3 scores the
+   router's hop bookkeeping rather than the geometry, so it would still call
+   the node drawn (issue #72).
 
-Until now all three were exercised only end-to-end, by a flow run that needs
+Until now all of them were exercised only end-to-end, by a flow run that needs
 a `klt` install and a ~1 GB PDK and takes minutes -- so their *failure*
 paths (the ones that matter) were never exercised at all, because a passing
 run by construction never reaches them. These tests exercise both paths in
@@ -176,6 +183,310 @@ class TestDrawnShortGate(unittest.TestCase):
             sorted(sorted(c["nets"]) for c in found),
             [["VDD", "VOUT"], ["VDD", "VSS"]],
         )
+
+
+class TestComponentsGate(unittest.TestCase):
+    """`Met1Bus.components()` -- the matching safety net to `conflicts()`
+    (issue #72's port from the closed `feature/issue-62` branch,
+    `git show 91996e0045d2ce783483ebc790ffcfdc4d99ae1c:layout/bin/met1_bus.py`).
+
+    `conflicts()` catches two *different* nodes' metal touching; this catches
+    the opposite failure -- one node's own wiring drawn as two pieces that
+    never touch, which nothing downstream reports (`klt extract` just sees
+    two anonymous nets with no error). A component count of 1 means the
+    wiring this flow drew for that node is genuinely one conductor.
+    """
+
+    def test_empty_bus_has_no_components(self) -> None:
+        """No met1 drawn at all -- an empty result, not a KeyError or a
+        spurious zero-count entry for a net nobody touched."""
+        bus = met1_bus.Met1Bus()
+        self.assertEqual(bus.components(), {})
+
+    def test_single_connected_run_is_one_component(self) -> None:
+        """A bus is a chain of touching same-net rectangles by construction
+        -- an elbow's two segments share a corner, and a via's landing pad
+        sits under the wire that reaches it. Real bussing must read as 1."""
+        bus = met1_bus.Met1Bus()
+        bus.net("VSS")
+        bus.via(0.0, 0.0)
+        bus.elbow(0.0, 0.0, 5.0, 5.0)
+        bus.via(5.0, 5.0)
+        self.assertEqual(bus.components(), {"VSS": 1})
+
+    def test_disjoint_pieces_of_one_net_are_separate_components(self) -> None:
+        """The core case: one electrical node drawn as two met1 islands that
+        never touch. `conflicts()` reports nothing here (there is only one
+        net, so there is no *different*-net pair to flag) -- this is the
+        check that catches it instead."""
+        bus = met1_bus.Met1Bus()
+        bus.net("D2")
+        bus.hseg(0.0, 1.0, 0.0)
+        bus.hseg(100.0, 101.0, 100.0)  # far away, same net, unconnected
+        self.assertEqual(bus.components(), {"D2": 2})
+
+    def test_touching_rectangles_merge_into_one_component(self) -> None:
+        """Two same-net rectangles that only share an edge (no area overlap)
+        still count as one conductor -- a shared edge is a real connection
+        on a single metal layer."""
+        bus = met1_bus.Met1Bus()
+        bus.net("VOUT")
+        bus.hseg(0.0, 1.0, 0.0)
+        bus.vseg(1.0, -1.0, 1.0)  # touches the hseg's right edge at x=1.0
+        self.assertEqual(bus.components(), {"VOUT": 1})
+
+    def test_multiple_nets_are_scored_independently(self) -> None:
+        """One net's split pieces must not affect another net's count, even
+        when their geometry is interleaved in the drawing order -- this is
+        the synthetic reconstruction of the historical finding that
+        motivated this port (four nodes, several still split as two or
+        three pieces): `{"D2": 3, "VB": 2, "VOUT": 2, "VSS": 3}`."""
+        bus = met1_bus.Met1Bus()
+        bus.net("D2")
+        bus.hseg(0.0, 1.0, 0.0)
+        bus.hseg(10.0, 11.0, 0.0)
+        bus.hseg(20.0, 21.0, 0.0)
+        bus.net("VB")
+        bus.hseg(0.0, 1.0, 10.0)
+        bus.hseg(10.0, 11.0, 10.0)
+        bus.net("VOUT")
+        bus.hseg(0.0, 1.0, 20.0)
+        bus.hseg(10.0, 11.0, 20.0)
+        bus.net("VSS")
+        bus.hseg(0.0, 1.0, 30.0)
+        bus.hseg(10.0, 11.0, 30.0)
+        bus.hseg(20.0, 21.0, 30.0)
+        self.assertEqual(
+            bus.components(), {"D2": 3, "VB": 2, "VOUT": 2, "VSS": 3}
+        )
+
+    def test_components_spans_the_grid_index_cell_boundary(self) -> None:
+        """Two rectangles that touch exactly at a `GRID_UM` cell boundary
+        must still merge -- `components()` shares the same spatial index
+        `met1_near`/`conflicts` use, and a bucketing bug there would split a
+        real connection at every cell edge."""
+        bus = met1_bus.Met1Bus()
+        bus.net("VDD")
+        x = met1_bus.GRID_UM  # exactly on a cell boundary
+        bus.hseg(x - 1.0, x, 0.0)
+        bus.hseg(x, x + 1.0, 0.0)
+        self.assertEqual(bus.components(), {"VDD": 1})
+
+
+class TestSplitRoutedNetsGate(unittest.TestCase):
+    """`split_routed_nets()` is what turns `Met1Bus.components()` from a
+    number in a JSON file into the flow's fourth pass/fail gate (issue #72).
+
+    A node this router reports as fully `routed` whose met1 is still in two
+    pieces is a bug in the router's own bookkeeping, and nothing else in the
+    flow can see it: DRC passes (two legal wires), `klt extract` emits two
+    anonymous nets with nothing in `warnings[]`, `conflicts()` finds nothing
+    (there is only one net, so no *different*-net pair), and
+    `schematic_net_coverage()` scores the hop records rather than the
+    geometry, so it would still call the node drawn.
+    """
+
+    def test_a_routed_net_in_one_piece_is_not_reported(self) -> None:
+        """The normal case. Every routed node is one conductor, so the gate
+        has nothing to say."""
+        routes = [{"net": "VDD", "routed": True}, {"net": "TAIL", "routed": True}]
+        self.assertEqual(
+            gen_bandgap_routed.split_routed_nets(routes, {"VDD": 1, "TAIL": 1}), {}
+        )
+
+    def test_a_routed_net_in_two_pieces_is_reported_with_its_count(self) -> None:
+        """The bug the gate exists for -- and the count is carried through so
+        a failing run says how badly, not only that."""
+        routes = [{"net": "VDD", "routed": True}]
+        self.assertEqual(
+            gen_bandgap_routed.split_routed_nets(routes, {"VDD": 3}), {"VDD": 3}
+        )
+
+    def test_an_unrouted_net_in_two_pieces_is_not_reported(self) -> None:
+        """Load-bearing exclusion: a node that came up a hop short is
+        *supposed* to be in more than one piece. Gating on it would fire on
+        every partial run and would only restate the coverage table."""
+        routes = [{"net": "VSS", "routed": False}]
+        self.assertEqual(gen_bandgap_routed.split_routed_nets(routes, {"VSS": 2}), {})
+
+    def test_only_the_offending_nets_are_reported(self) -> None:
+        """A mixed run: one clean routed node, one split routed node, one
+        split unrouted node."""
+        routes = [
+            {"net": "TAIL", "routed": True},
+            {"net": "VDD", "routed": True},
+            {"net": "VSS", "routed": False},
+        ]
+        self.assertEqual(
+            gen_bandgap_routed.split_routed_nets(
+                routes, {"TAIL": 1, "VDD": 2, "VSS": 4}
+            ),
+            {"VDD": 2},
+        )
+
+    def test_a_net_with_no_drawn_met1_at_all_is_not_reported(self) -> None:
+        """`components()` only has an entry for nets that drew met1. A routed
+        node missing from it must read as "nothing to report", not as a
+        KeyError that takes the whole flow down at the last step."""
+        routes = [{"net": "GDRV", "routed": True}]
+        self.assertEqual(gen_bandgap_routed.split_routed_nets(routes, {}), {})
+
+    def test_end_to_end_against_real_drawn_geometry(self) -> None:
+        """The two halves wired together on a real `Met1Bus`, not on a hand-
+        written component map: one node drawn as a connected elbow, one drawn
+        as two islands, and only the second is reported."""
+        bus = met1_bus.Met1Bus()
+        bus.net("TAIL")
+        bus.elbow(0.0, 0.0, 5.0, 5.0)
+        bus.net("VDD")
+        bus.hseg(20.0, 21.0, 20.0)
+        bus.hseg(80.0, 81.0, 80.0)  # never reaches the first piece
+        routes = [{"net": "TAIL", "routed": True}, {"net": "VDD", "routed": True}]
+        self.assertEqual(
+            gen_bandgap_routed.split_routed_nets(routes, bus.components()),
+            {"VDD": 2},
+        )
+
+
+class TestBulkTapTerminals(unittest.TestCase):
+    """`bulk_terminal()` offers every guard-ring tap of a MOS group as a
+    routing candidate rather than pinning the node to `TAP_S` (issue #72).
+
+    This is the fix for the 0/0 LVS correspondence regression: with `TAP_S`
+    hardcoded, the `VDD` trunk could not reach `core_mirror`'s or
+    `amp_input_pair`'s n-well tap, so both PMOS groups' body terminals
+    extracted onto anonymous floating nets instead of onto `VDD`, and
+    `NetlistComparer` could not seed a single device or net correspondence
+    from a netlist whose PMOS bulks are all on nets the reference does not
+    contain.
+    """
+
+    @staticmethod
+    def _report(**ports: tuple[float, float]) -> dict[str, object]:
+        return {
+            "ports": [
+                {
+                    "name": name,
+                    "x_um": x,
+                    "y_um": y,
+                    "width_um": 0.5,
+                    "direction_deg": 270,
+                    "layer": {"layer": 67, "datatype": 20, "name": None},
+                }
+                for name, (x, y) in ports.items()
+            ]
+        }
+
+    def test_every_tap_of_the_ring_is_offered(self) -> None:
+        """Not one tap, and not a tap chosen here: the whole set, so which one
+        is taken stays a routing decision."""
+        terminal = gen_bandgap_routed.bulk_terminal("core_mirror")
+        self.assertEqual(terminal["block"], "core_mirror")
+        self.assertEqual(terminal["ports"], list(gen_bandgap_routed.BULK_TAP_PORTS))
+        self.assertNotIn("port", terminal, "a single pinned tap is the bug")
+
+    def test_the_offered_set_is_the_generators_own_tap_names(self) -> None:
+        """`klt gen diff_pair` reports its ring taps as `TAP_N`/`TAP_S`/
+        `TAP_E`; a typo here would silently drop a candidate."""
+        self.assertEqual(
+            set(gen_bandgap_routed.BULK_TAP_PORTS), {"TAP_N", "TAP_S", "TAP_E"}
+        )
+
+    def test_no_escape_stub(self) -> None:
+        """A ring tap already sits on the block's outer edge facing open
+        floorplan, so the router leaves from the pad itself."""
+        self.assertFalse(gen_bandgap_routed.bulk_terminal("amp_pmirr")["escape"])
+
+    def test_every_bulk_terminal_names_a_real_block(self) -> None:
+        """The declared inter-block table is hand-written; a bulk terminal on
+        a block that is not placed would raise deep inside the router."""
+        block_ids = {b["id"] for b in gen_bandgap_routed.BLOCKS}
+        for spec in gen_bandgap_routed.INTER_BLOCK_MET1:
+            for terminal in spec["terminals"]:
+                if "ports" in terminal:
+                    with self.subTest(net=spec["net"], block=terminal["block"]):
+                        self.assertIn(terminal["block"], block_ids)
+
+    def test_the_router_resolves_a_ports_terminal_to_one_of_its_taps(self) -> None:
+        """The `ports` terminal shape end to end: `_route_one_net` turns it
+        into candidates, picks one, claims exactly that pad, and names it
+        `<block>.<port>` -- the form `routed_ports()` parses."""
+        reports = {
+            "blk": self._report(
+                TAP_S=(10.0, 0.0), TAP_N=(10.0, 40.0), TAP_E=(20.0, 20.0)
+            ),
+            "other": self._report(TAP_S=(10.0, 100.0)),
+        }
+        origins = {"blk": {"x": 0.0, "y": 0.0}, "other": {"x": 0.0, "y": 0.0}}
+        specs = {
+            "VDD": {
+                "net": "VDD",
+                "schematic": "two ring taps",
+                "terminals": [
+                    gen_bandgap_routed.bulk_terminal("blk"),
+                    gen_bandgap_routed.bulk_terminal("other"),
+                ],
+            }
+        }
+        used: set[tuple[str, str]] = set()
+        route = gen_bandgap_routed._route_one_net(
+            met1_bus.Met1Bus(), "VDD", specs, reports, origins, {}, {}, used, {}
+        )
+        self.assertTrue(route["routed"], route)
+        self.assertEqual(sorted(route["blocks"]), ["blk", "other"])
+        for name in route["terminals"]:
+            block, _, port = name.partition(".")
+            self.assertIn(port, gen_bandgap_routed.BULK_TAP_PORTS)
+            self.assertIn((block, port), used)
+        # One pad per block, not one per offered candidate.
+        self.assertEqual(len(used), 2)
+
+    def test_an_already_claimed_tap_is_not_offered_again(self) -> None:
+        """Pad claims are shared with the pin selector, so a tap another node
+        already took must drop out of the candidate set rather than be
+        double-booked."""
+        reports = {
+            "blk": self._report(TAP_S=(10.0, 0.0), TAP_N=(10.0, 40.0)),
+            "other": self._report(TAP_S=(10.0, 100.0)),
+        }
+        origins = {"blk": {"x": 0.0, "y": 0.0}, "other": {"x": 0.0, "y": 0.0}}
+        specs = {
+            "VDD": {
+                "net": "VDD",
+                "schematic": "two ring taps",
+                "terminals": [
+                    gen_bandgap_routed.bulk_terminal("blk"),
+                    gen_bandgap_routed.bulk_terminal("other"),
+                ],
+            }
+        }
+        used = {("blk", "TAP_S")}
+        route = gen_bandgap_routed._route_one_net(
+            met1_bus.Met1Bus(), "VDD", specs, reports, origins, {}, {}, used, {}
+        )
+        self.assertIn("blk.TAP_N", route["terminals"])
+        self.assertNotIn("blk.TAP_S", route["terminals"])
+
+    def test_a_block_with_no_free_tap_raises_rather_than_routing_nowhere(
+        self,
+    ) -> None:
+        """Silently dropping the terminal would leave the group's bulk
+        floating again -- the exact regression this change fixes -- with the
+        route still reported as `routed`."""
+        reports = {"blk": self._report(TAP_S=(10.0, 0.0))}
+        origins = {"blk": {"x": 0.0, "y": 0.0}}
+        specs = {
+            "VDD": {
+                "net": "VDD",
+                "schematic": "one ring tap",
+                "terminals": [gen_bandgap_routed.bulk_terminal("blk")],
+            }
+        }
+        with self.assertRaises(KeyError):
+            gen_bandgap_routed._route_one_net(
+                met1_bus.Met1Bus(), "VDD", specs, reports, origins, {}, {},
+                {("blk", "TAP_S")}, {},
+            )
 
 
 class TestBusSpeculation(unittest.TestCase):
@@ -567,7 +878,7 @@ class TestCoverageScoringGate(unittest.TestCase):
 # ---------------------------------------------------------------------------
 class TestFlowGate(unittest.TestCase):
     """`flow_gate()` is the flow's exit status. Its job is to fail on any one
-    condition -- an "and" written as seven separate rows so a failing run can
+    condition -- an "and" written as eight separate rows so a failing run can
     name which.
     """
 
@@ -579,6 +890,7 @@ class TestFlowGate(unittest.TestCase):
         "pin_count": 23,
         "met1_conflicts": [],
         "merged_pin_names": [],
+        "split_routed": {},
     }
 
     def test_all_conditions_met_passes(self) -> None:
@@ -597,6 +909,7 @@ class TestFlowGate(unittest.TestCase):
             "pins_promoted": {"pin_count": 0},
             "no_drawn_shorts": {"met1_conflicts": [{"nets": ["VDD", "VSS"]}]},
             "no_merged_pin_names": {"merged_pin_names": ["TAIL|VOUT"]},
+            "no_split_routed_nets": {"split_routed": {"VDD": 2}},
         }
         self.assertEqual(
             set(failures), set(gen_bandgap_routed.flow_gate(**self.PASSING)),
