@@ -706,6 +706,57 @@ here has followed. Recorded as ruled-in-scope-but-not-attempted for
 whoever picks it up next, with the two-separate-corridors framing above so
 it is scoped correctly from the start.
 
+### 7e. Seventh increment: the channel-search-window lever, run to completion -- not a monotonic win, ruled out
+
+Section 7d's same-day follow-up pass named one still-untried, apparently
+"safe" lever and could not verify it: widening `CHANNEL_NEAR_TRACKS` (8->16)
+and `CHANNEL_DOGLEG_TRACKS` (5->9) in `gen_bandgap_routed.py`'s
+`_channel_paths` -- the per-*hop* path-search candidate window, distinct
+from the whole-cell net-order/repair search Section 7d's other experiment
+widened. That pass reasoned the change was "monotonic (a strict superset of
+the current candidate paths, so it can only match or improve on the current
+result, never regress it)" for a single hop in isolation, made the edit,
+started a flow run, and reverted unverified when the run did not finish
+within that session.
+
+This increment made the identical edit and ran `run-bandgap-routed-flow.sh`
+to completion (`20260804-100209-f3b4908`, 24m19s wall time, DRC clean,
+`device_counts`/`pin_count` unchanged) to get a real answer. **The
+single-hop monotonicity reasoning does not extend to the whole-cell
+result**, and the run demonstrates why: widening the window changes which
+paths are *available* to the per-net candidate search, which changes which
+whole-cell net order wins `gen_bandgap_routed.py`'s own order-search scoring
+(the same order/repair search Section 7c's repair pass and Section 7d's
+other experiment operate over) -- so a wider per-hop window can free one hop
+by routing an *earlier* net differently, at the cost of consuming the
+corridor a *later* net's now-unrouted hop needed. That is exactly what
+happened:
+
+| net | baseline (`496ab43`) | this experiment (`f3b4908` + window widened) |
+| --- | --- | --- |
+| `VDD` | NO (blocked by `GDRV`/`TAIL`) | **yes** -- now fully drawn |
+| `TAIL` | yes (fully drawn) | **NO** -- blocked by `VOUT` |
+| `D1` | NO (blocked by `D2`) | NO (blocked by `D2`, unchanged) |
+| `VSS` | NO (blocked by `VOUT`) | NO (blocked by `VOUT`, unchanged) |
+
+`VDD` gained; `TAIL` -- previously one of the 9 fully-drawn nets -- lost.
+Schematic inter-block coverage stayed at **9/12** (membership shifted, count
+did not), `mismatch_count` moved **106 -> 105** (one fewer mismatch, not a
+material change against the causes catalogued in the routed record's "LVS
+mismatch analysis"), and runtime nearly doubled (24m19s vs. the ~13 min
+baseline). `VSS`'s hop is unaffected either way, consistent with Section
+7d's finding that it is a row-0 corridor problem unrelated to this window.
+
+**Ruled out, and reverted (not shipped)**: a wider per-hop candidate window
+is not a lever for AC1 closure on this floorplan -- it is a lateral trade
+between hops chosen by the whole-cell order search, not a net gain, and it
+costs real runtime. This closes out the last lever named in the issue
+thread as "genuinely untested"; the remaining candidate is unchanged from
+Section 7d: a floorplan revision splitting `amp_input_pair` (for `D1`/`VDD`)
+plus a separate row-0 corridor fix between `pnp_ctat` and `pnp_ptat` (for
+`VSS`) -- both real floorplan/matching redesigns, not parameter tuning, and
+still not attempted.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed three
@@ -784,7 +835,15 @@ it is scoped correctly from the start.
   middle of row 1 -- but Section 7d's per-hop data shows this can close at
   most `D1`/`VDD`; `VSS`'s blocked hop is entirely within row 0, unrelated
   to `amp_input_pair`, and needs its own, separate corridor fix between
-  `pnp_ctat` and `pnp_ptat`.
+  `pnp_ctat` and `pnp_ptat`. The seventh increment (Section 7e) ran the one
+  remaining candidate -- widening the per-hop channel-search window -- to
+  completion (the sixth increment's own same-day follow-up had tried this
+  but could not verify it) and found it is **not** a lever either: it
+  freed `VDD` but broke a previously-drawn net (`TAIL`) in trade, net
+  schematic coverage unchanged at 9/12, `mismatch_count` 106 -> 105 (not
+  material), runtime nearly doubled. Reverted, not shipped. The
+  floorplan-split-plus-row-0-fix pair above remains the only unexplored
+  path to closing AC1.
 - **Intra-block bussing is drawn for every device family**, on met1
   (Section 5a) -- PNP arrays, resistor ladders, and (from the fourth
   increment) MOS fingers. Each split MOS group now extracts and combines
