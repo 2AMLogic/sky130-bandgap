@@ -1,0 +1,84 @@
+{
+  "attempts": [
+    {
+      "round": 0,
+      "nets": {
+        "VA": false,
+        "TRIM": true,
+        "VB": false,
+        "VBQ": true,
+        "TAIL": true,
+        "D1": true,
+        "PN": true,
+        "VDD": false,
+        "VSS": false
+      }
+    },
+    {
+      "round": 1,
+      "nets": {
+        "VA": true,
+        "TRIM": true,
+        "VB": true,
+        "VBQ": true,
+        "TAIL": true,
+        "D1": true,
+        "PN": true,
+        "VDD": false,
+        "VSS": false
+      }
+    },
+    {
+      "round": 2,
+      "nets": {
+        "VA": true,
+        "TRIM": true,
+        "VB": true,
+        "VBQ": true,
+        "TAIL": true,
+        "D1": true,
+        "PN": true,
+        "VDD": true,
+        "VSS": true
+      }
+    }
+  ],
+  "chosen": {
+    "VA": [
+      "Q3_E",
+      "R24_A"
+    ],
+    "TRIM": [
+      "R11_B",
+      "R0_A"
+    ],
+    "VB": [
+      "R23_B",
+      "R1_A"
+    ],
+    "VBQ": [
+      "R6_B",
+      "Q1_E"
+    ],
+    "TAIL": [
+      "M2_1_D",
+      "Q1_1_S"
+    ],
+    "D1": [
+      "Q2_8_D",
+      "M1_1_S"
+    ],
+    "PN": [
+      "M1_1_S",
+      "M2_4_D"
+    ],
+    "VDD": [
+      "M2_1_S",
+      "Q2_1_S"
+    ],
+    "VSS": [
+      "M1_2_D",
+      "M1_2_D"
+    ]
+  }
+}
