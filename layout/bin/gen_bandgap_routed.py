@@ -1976,7 +1976,10 @@ def _draw_guarded_met2(
     """
     shape_mark = len(bus.shapes)
     rect_mark = len(bus.met2_rects)
-    wire_mark = bus.wire_count  # see _draw_guarded
+    # Restored on rollback along with the geometry, for the same reason
+    # _draw_guarded's wire_mark is: without it `met2_wire_count` would tally
+    # every attempted segment rather than the ones that survive.
+    wire_mark = bus.met2_wire_count
     bus.net(net)
     for (x0, y0), (x1, y1) in zip(points, points[1:]):
         if x0 != x1 and y0 != y1:
@@ -1994,7 +1997,7 @@ def _draw_guarded_met2(
                     continue
             del bus.shapes[shape_mark:]
             bus.truncate_met2(rect_mark)
-            bus.wire_count = wire_mark
+            bus.met2_wire_count = wire_mark
             _LAST_BLOCKER.clear()
             _LAST_BLOCKER.append(net_b)
             _BLOCKER_COUNTS[f"met2:{net_b}"] += 1
@@ -2013,9 +2016,21 @@ def _met2_drop(
     the wire itself cleared; the offsets walk the pad along a short guarded
     met1 stub until one fits, rather than declaring the hop unroutable
     because its exact endpoint was 0.04 um too tight.
+
+    Checks the whole via1 stack against a foreign node before committing an
+    offset, not just the met1 half of it: the met2 landing pad (`m2.4`/
+    `m2.5`) and the via1 cut itself (`via.2`) can each foul a neighbour the
+    met1 pad clears. `conflicts()` and `met2_drc.py` both still gate the
+    flow, so an unchecked stack could never *ship*, but it could turn a
+    backtrackable case into a hard flow failure instead of trying the next
+    offset -- the same reason the met1 pad is checked here rather than left
+    to those later gates.
     """
     half = met1_bus.MET1_VIA1_LANDING_UM / 2.0
     eps = 0.14 - 1e-9
+    met2_half = met1_bus.MET2_LANDING_UM / 2.0
+    met2_eps = met1_bus.MET2_SPACE_UM - 1e-9
+    via1_gap = met1_bus.VIA1_UM + met1_bus.VIA1_SPACE_UM - 1e-9
     for axis in ("x", "y"):
         for offset in MET2_DROP_OFFSETS_UM:
             dx, dy = (offset, 0.0) if axis == "x" else (0.0, offset)
@@ -2026,7 +2041,8 @@ def _met2_drop(
             if offset != 0.0 and not _draw_guarded(bus, net, [(x, y), (px, py)]):
                 bus.restore(mark)
                 continue
-            # Does the wider landing pad itself fit?
+            # Does the wider landing pad itself fit, on either plane -- and
+            # does the via1 cut itself clear another node's cut?
             fouled = False
             for net_b, *_ in bus.met1_near(
                 px - half, py - half, px + half, py + half, eps
@@ -2035,6 +2051,25 @@ def _met2_drop(
                     fouled = True
                     _BLOCKER_COUNTS[f"met2drop:{net_b}"] += 1
                     break
+            if not fouled:
+                for net_b, *_ in bus.met2_near(
+                    px - met2_half, py - met2_half,
+                    px + met2_half, py + met2_half, met2_eps,
+                ):
+                    if net_b != net:
+                        fouled = True
+                        _BLOCKER_COUNTS[f"met2drop:{net_b}"] += 1
+                        break
+            if not fouled:
+                for net_b, vx, vy in bus.via1_xy:
+                    if (
+                        net_b != net
+                        and abs(px - vx) < via1_gap
+                        and abs(py - vy) < via1_gap
+                    ):
+                        fouled = True
+                        _BLOCKER_COUNTS[f"met2drop:{net_b}"] += 1
+                        break
             if fouled:
                 bus.restore(mark)
                 continue
@@ -3330,9 +3365,9 @@ def trim_tap_pins(reports: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
     last_a = 2 * N_R2_TRIM_CODES - 2
     last_b = 2 * N_R2_TRIM_CODES - 1
     wanted = [
-        ("TRIM_A_CODE_0", f"R0_B"),
+        ("TRIM_A_CODE_0", "R0_B"),
         (f"TRIM_A_CODE_MINUS{N_R2_TRIM_CODES}", f"R{last_a}_B"),
-        ("TRIM_B_CODE_0", f"R1_B"),
+        ("TRIM_B_CODE_0", "R1_B"),
         (f"TRIM_B_CODE_MINUS{N_R2_TRIM_CODES}", f"R{last_b}_B"),
     ]
     pins = []
