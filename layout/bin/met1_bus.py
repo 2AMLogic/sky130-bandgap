@@ -73,6 +73,12 @@ MET1_LAYER = [68, 20]
 #: `...EXTRACTION_DECK.metal_labels[1]` -- names a met1 net for `klt extract`'s
 #: pin promotion.
 MET1_LABEL_LAYER = [68, 5]
+#: `...EXTRACTION_DECK.poly` -- the gate conductor. Drawn by this module only
+#: to give a gate contact a landing area outside the channel (see
+#: :meth:`Met1Bus.gate_contact`).
+POLY_LAYER = [66, 20]
+#: `...EXTRACTION_DECK.contact` -- the poly/active -> li1 contact.
+LICON_LAYER = [66, 44]
 
 #: mcon drawn size (um). sky130's mcon is a fixed 0.17 um square.
 VIA_UM = 0.17
@@ -82,6 +88,37 @@ LANDING_UM = 0.24
 #: met1 wire width (um): same as the landing pad, so a wire ending on a via
 #: satisfies the enclosure rule along its own axis too.
 WIRE_WIDTH_UM = 0.24
+
+# --- gate-contact stack (the layout-side answer to klayout-tools#461) ------
+#: licon side (um). sky130's licon1 is a fixed square; 0.22 is the same size
+#: `klt gen`'s own source/drain contacts use, so this draws nothing the
+#: generator does not already draw elsewhere in the cell.
+LICON_UM = 0.22
+#: Poly enclosure of the licon (um) on every side. The sky130 curated deck's
+#: `poly.enclosing.licon.1` threshold is 0.05; 0.06 clears it with margin.
+LICON_POLY_ENCLOSURE_UM = 0.06
+#: How far the gate poly is extended past the active edge (um) so the licon
+#: above has somewhere legal to land: enclosure + licon + enclosure.
+GATE_POLY_EXT_UM = LICON_UM + 2 * LICON_POLY_ENCLOSURE_UM
+#: Distance (um) from the active edge to the gate contact's centre.
+GATE_CONTACT_OFFSET_UM = GATE_POLY_EXT_UM / 2.0
+#: li1 landing pad side (um) over the gate licon. Wider than the deck's
+#: `li1.width.1` (0.17) minimum and wide enough to cover the licon.
+GATE_LI1_PAD_UM = 0.30
+
+
+#: Side (um) of one spatial-index bucket. Comfortably larger than any wire
+#: this module draws, so a rectangle lands in one or two buckets.
+GRID_UM = 4.0
+
+
+def _cells(x0: float, y0: float, x1: float, y1: float):
+    """Every grid bucket a box touches."""
+    i0, i1 = int(x0 // GRID_UM), int(x1 // GRID_UM)
+    j0, j1 = int(y0 // GRID_UM), int(y1 // GRID_UM)
+    for i in range(i0, i1 + 1):
+        for j in range(j0, j1 + 1):
+            yield (i, j)
 
 
 class Met1Bus:
@@ -104,10 +141,23 @@ class Met1Bus:
         #: this record is the safety net that makes hand-placed bussing
         #: honest evidence rather than a hope.
         self.met1_rects: list[tuple[str, float, float, float, float]] = []
+        #: Uniform-grid index over `met1_rects`, so a proximity query costs a
+        #: handful of bucket lookups instead of a scan. Without it the
+        #: rip-up-and-retry router below is quadratic in the number of drawn
+        #: rectangles *per attempted path*, which a fully bussed floorplan
+        #: (thousands of rectangles, thousands of candidate paths) turns into
+        #: minutes of wall time per pass.
+        self._grid: dict[tuple[int, int], list[int]] = {}
         #: (net_id, x, y) per drawn mcon, for the `mcon.space.1` proximity
         #: half of :func:`conflicts`.
         self.via_xy: list[tuple[str, float, float]] = []
         self._vias: set[tuple[str, float, float]] = set()
+        #: (net_id, x0, y0, x1, y1) per drawn poly extension, so a caller can
+        #: prove no two gate nets' self-drawn poly comes within sky130's real
+        #: `poly.2` minimum poly spacing -- a rule the curated DRC deck does
+        #: not model, and therefore one this flow has to check itself.
+        self.poly_rects: list[tuple[str, float, float, float, float]] = []
+        self.gate_contact_count = 0
         self._net = "?"
 
     def net(self, net_id: str) -> "Met1Bus":
@@ -119,7 +169,92 @@ class Met1Bus:
     def _rect(self, layer: list[int], x0: float, y0: float, x1: float, y1: float) -> None:
         self.shapes.append({"layer": layer, "rect_um": [x0, y0, x1, y1]})
         if layer == MET1_LAYER:
+            index = len(self.met1_rects)
             self.met1_rects.append((self._net, x0, y0, x1, y1))
+            for cell in _cells(x0, y0, x1, y1):
+                self._grid.setdefault(cell, []).append(index)
+        elif layer == POLY_LAYER:
+            self.poly_rects.append((self._net, x0, y0, x1, y1))
+
+    def near(
+        self, x0: float, y0: float, x1: float, y1: float, pad: float = 0.0
+    ) -> set[int]:
+        """Indices into `met1_rects` whose grid cells touch the padded box."""
+        found: set[int] = set()
+        for cell in _cells(x0 - pad, y0 - pad, x1 + pad, y1 + pad):
+            found.update(self._grid.get(cell, ()))
+        return found
+
+    def truncate(self, shape_mark: int, met1_mark: int) -> None:
+        """Undo every shape drawn since a mark, index included.
+
+        The router draws a candidate path optimistically and rolls it back
+        when it collides; the grid has to shrink with it or a later query
+        would report ghosts.
+        """
+        for index in range(met1_mark, len(self.met1_rects)):
+            _net, x0, y0, x1, y1 = self.met1_rects[index]
+            for cell in _cells(x0, y0, x1, y1):
+                bucket = self._grid.get(cell)
+                if bucket and bucket[-1] == index:
+                    bucket.pop()
+                elif bucket and index in bucket:
+                    bucket.remove(index)
+        del self.met1_rects[met1_mark:]
+        del self.shapes[shape_mark:]
+
+    def li1_rect(self, x0: float, y0: float, x1: float, y1: float) -> None:
+        """One li1 rectangle.
+
+        li1 is the layer every `klt gen` device pad already sits on, so a
+        shape drawn here is *the same conductor* as any pad it overlaps or
+        abuts -- no via, no second metal, and nothing for :func:`components`
+        to reconcile. Used only where the two ends belong to the same node by
+        construction (a diode-connected device's gate landing pad and that
+        unit's own pad, a few tenths of a micron apart); anything longer
+        belongs on met1, above the pads.
+        """
+        self._rect(LI1_LAYER, x0, y0, x1, y1)
+
+    def gate_landing(
+        self, x: float, edge_y: float, poly_width_um: float, outward: int
+    ) -> tuple[float, float]:
+        """Give one MOS gate a contactable landing area outside the channel.
+
+        `klt gen`'s sky130 MOS generators draw the gate poly with *exactly*
+        the active region's extent and report the gate port on that shared
+        boundary, so there is no poly outside the channel for a contact to
+        land on and a gate cannot be wired to anything at all
+        (2AMLogic/klayout-tools#461). Real transistor layouts always draw a
+        poly extension past the active edge for precisely this purpose, so
+        this method draws the missing piece from the generator's own reported
+        gate port: a poly rectangle of the port's own reported width extended
+        `GATE_POLY_EXT_UM` past `edge_y` in direction `outward` (+1 = north,
+        -1 = south), a licon centred in it, and an li1 pad over the licon.
+
+        Deliberately *not* a contact on the reported port position: that
+        straddles the diff edge and is DRC-illegal (`poly.enclosing.licon.1`
+        and `diff.enclosing.licon.1`), and one moved inward sits on poly over
+        the channel. Both are what makes the upstream gap a gap; drawing
+        either to make a number move would be false evidence.
+
+        Returns the li1 landing pad's centre. The caller decides how the node
+        leaves it -- :meth:`via` up to met1, or :meth:`li1_rect` sideways to a
+        pad of the same node on the same layer.
+        """
+        half_poly = poly_width_um / 2.0
+        ext_far = edge_y + outward * GATE_POLY_EXT_UM
+        self._rect(
+            POLY_LAYER, x - half_poly, min(edge_y, ext_far), x + half_poly,
+            max(edge_y, ext_far),
+        )
+        cy = edge_y + outward * GATE_CONTACT_OFFSET_UM
+        half = LICON_UM / 2.0
+        self._rect(LICON_LAYER, x - half, cy - half, x + half, cy + half)
+        half = GATE_LI1_PAD_UM / 2.0
+        self._rect(LI1_LAYER, x - half, cy - half, x + half, cy + half)
+        self.gate_contact_count += 1
+        return (x, cy)
 
     def via(self, x: float, y: float) -> None:
         """One mcon + its met1 landing pad, centred at (x, y).
@@ -191,15 +326,57 @@ class Met1Bus:
         # mcon-to-mcon: sky130's `ct.2` minimum mcon spacing is 0.19 um, and
         # two vias of different nets that close are also very nearly a short.
         via_space = 0.19 - 1e-9
-        for i, (net_a, ax, ay) in enumerate(self.via_xy):
-            for net_b, bx, by in self.via_xy[i + 1 :]:
+        via_reach = VIA_UM + via_space
+        via_grid: dict[tuple[int, int], list[int]] = {}
+        for i, (_net, x, y) in enumerate(self.via_xy):
+            for cell in _cells(x - via_reach, y - via_reach, x + via_reach, y + via_reach):
+                via_grid.setdefault(cell, []).append(i)
+        seen_pairs: set[tuple[int, int]] = set()
+        for bucket in via_grid.values():
+            for pos, i in enumerate(bucket):
+                net_a, ax, ay = self.via_xy[i]
+                for j in bucket[pos + 1 :]:
+                    if (i, j) in seen_pairs:
+                        continue
+                    seen_pairs.add((i, j))
+                    net_b, bx, by = self.via_xy[j]
+                    if net_a == net_b:
+                        continue
+                    if abs(ax - bx) < via_reach and abs(ay - by) < via_reach:
+                        found.append(
+                            {"nets": [net_a, net_b], "via_a": [ax, ay], "via_b": [bx, by]}
+                        )
+        rects = self.met1_rects
+        for i, (net_a, ax0, ay0, ax1, ay1) in enumerate(rects):
+            for j in self.near(ax0, ay0, ax1, ay1, clearance_um):
+                if j <= i:
+                    continue
+                net_b, bx0, by0, bx1, by1 = rects[j]
                 if net_a == net_b:
                     continue
-                if abs(ax - bx) < VIA_UM + via_space and abs(ay - by) < VIA_UM + via_space:
+                if ax0 - eps < bx1 and bx0 - eps < ax1 and ay0 - eps < by1 and by0 - eps < ay1:
                     found.append(
-                        {"nets": [net_a, net_b], "via_a": [ax, ay], "via_b": [bx, by]}
+                        {
+                            "nets": [net_a, net_b],
+                            "a": [ax0, ay0, ax1, ay1],
+                            "b": [bx0, by0, bx1, by1],
+                        }
                     )
-        rects = self.met1_rects
+        return found
+
+    def poly_conflicts(self, clearance_um: float = 0.21) -> list[dict[str, Any]]:
+        """Every pair of *self-drawn* poly rectangles of different nets closer
+        than `clearance_um`.
+
+        The sky130 curated DRC deck models `poly.width.1` but no poly spacing
+        rule, so `klt drc` cannot see a gate-extension pair drawn too close
+        together. The real sky130 rule (`poly.2`, minimum poly spacing) is
+        0.21 um; this check applies it to the geometry this module adds so a
+        gate-contact extension can never quietly short two gate nets.
+        """
+        found: list[dict[str, Any]] = []
+        eps = clearance_um - 1e-9
+        rects = self.poly_rects
         for i, (net_a, ax0, ay0, ax1, ay1) in enumerate(rects):
             for net_b, bx0, by0, bx1, by1 in rects[i + 1 :]:
                 if net_a == net_b:
@@ -213,6 +390,55 @@ class Met1Bus:
                         }
                     )
         return found
+
+    def components(self) -> dict[str, int]:
+        """How many disjoint pieces of met1 each net's drawn wiring falls into.
+
+        A net drawn as two pieces that never touch is *not* a connected node,
+        however confidently the net id says otherwise -- and unlike a drawn
+        short, nothing downstream reports it as an error: `klt extract` simply
+        sees two anonymous nets. Counting connected components per net id is
+        the matching safety net to :func:`conflicts`: 1 means the wiring this
+        flow drew for that node is genuinely one conductor.
+
+        Rectangles are joined when they touch or overlap (a shared edge is a
+        connection on one metal layer). Nets that legitimately close through
+        li1 rather than met1 are the caller's business to exclude.
+        """
+        by_net: dict[str, list[tuple[float, float, float, float]]] = {}
+        for net, x0, y0, x1, y1 in self.met1_rects:
+            by_net.setdefault(net, []).append((x0, y0, x1, y1))
+        out: dict[str, int] = {}
+        eps = 1e-9
+        for net, rects in by_net.items():
+            parent = list(range(len(rects)))
+
+            def find(i: int) -> int:
+                while parent[i] != i:
+                    parent[i] = parent[parent[i]]
+                    i = parent[i]
+                return i
+
+            local: dict[tuple[int, int], list[int]] = {}
+            for i, (x0, y0, x1, y1) in enumerate(rects):
+                for cell in _cells(x0 - eps, y0 - eps, x1 + eps, y1 + eps):
+                    local.setdefault(cell, []).append(i)
+            for bucket in local.values():
+                for pos, i in enumerate(bucket):
+                    ax0, ay0, ax1, ay1 = rects[i]
+                    for j in bucket[pos + 1 :]:
+                        bx0, by0, bx1, by1 = rects[j]
+                        if (
+                            ax0 - eps <= bx1
+                            and bx0 - eps <= ax1
+                            and ay0 - eps <= by1
+                            and by0 - eps <= ay1
+                        ):
+                            ri, rj = find(i), find(j)
+                            if ri != rj:
+                                parent[ri] = rj
+            out[net] = len({find(i) for i in range(len(rects))})
+        return out
 
     # -- emit --------------------------------------------------------------
     def emit(
@@ -276,6 +502,7 @@ class Met1Bus:
             "met1_via_count": self.via_count,
             "met1_wire_count": self.wire_count,
             "met1_label_count": len(self.labels),
+            "gate_contact_count": self.gate_contact_count,
         }
         (out_dir / f"{cell_name}.gen.json").write_text(
             json.dumps(gen_report, indent=2) + "\n"
