@@ -281,4 +281,55 @@
 # routed-flow.sh re-run produces the record this increment ships -- see that
 # record for the measured effect on `mismatch_count` and the resistor
 # `device.property` mismatches.
-klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@39bdbc4c10f5005f0eb984a5ef89329159f9f7e2
+#
+# Bumped again for issue #62's twenty-seventh increment (2026-08-05). The
+# prior pin (39bdbc4c10f5005f0eb984a5ef89329159f9f7e2) is exactly what
+# klayout-tools#559 (filed by the twenty-third increment above) predates:
+#
+#   * 2AMLogic/klayout-tools#559 -> merged via #583
+#     (48849358a1691d97445fa5f89bd3bf727b1c90d6). `options.combine_devices`
+#     folds N series-connected drawn resistor primitives into one logical
+#     device by summing each primitive's R -- but #519/#526's
+#     `fixed_offset_ohm` head/end-resistance correction was already baked
+#     into each primitive's R at extraction time, so the fold summed it N
+#     times instead of once. #583 defers the resistor correction until
+#     after `combine_devices()` runs, applying it once per surviving
+#     (post-fold) device object instead. This is exactly this flow's own
+#     `res_r2`/`res_trim`/`res_r1` trim-tap decomposition's shape (70/70/7
+#     drawn primitives per logical R2A/R2B/R1 device, RES_HEAD_RESISTANCE_NOTE)
+#     -- the twenty-third increment's disclosed, measured AC4 floor.
+#
+#   Picking this up does NOT close AC4 either, for a different reason than
+#   the twenty-third increment's: #583's deferred correction only runs on
+#   `klt lvs`'s inline-extraction request shape (`layout.file`+`layout.
+#   deck`); this flow's own combined-LVS step must use the pre-extracted
+#   `layout.netlist` shape instead (to avoid a separate, pre-existing
+#   `combine_devices()` reliability issue on this cell's bipolar array), and
+#   `layout.deck` is silently ignored on that shape. Confirmed by hand that
+#   the mechanism itself is correct once reachable (R2A/R2B land within
+#   0.05% of the reference via the inline shape) but that switching this
+#   flow to the inline shape is a net regression for an unrelated reason
+#   (PNP combine breaks, `mismatch_count` 4 -> 28). Filed as friction:
+#   2AMLogic/klayout-tools#585. See layout/matching-plan.md Section 7x.
+#
+# Checked the range for anything else worth picking up in this bump:
+# `git log 39bdbc4..4884935` (klayout-tools main tip as of this writing) adds
+# 17 more commits ahead of the prior pin; `git diff --stat` over that range
+# shows only `#583` itself touches `extract.py`/`lvs.py` (`docs/cli/extract.md`,
+# `docs/cli/lvs.md`, `src/klayout_tools/extract.py`, `src/klayout_tools/lvs.py`,
+# `tests/test_lvs.py`). The other 16 commits are gf180mcu deck DRC/extract
+# curation, a new `DiodeDevice` extraction family, `klt pdk macros`/`klt pdk
+# corners`/`--top` CLI additions, and a `synthesize` Yosys-version guard --
+# none touch `decks/sky130.py` or this flow's resistor path. Pinning at
+# 4884935 (== #583's own merge commit, also klayout-tools main tip as of
+# this writing) rather than an intermediate SHA, per this repo's own
+# deliberate-bump discipline: it is the exact commit this increment's fix
+# needs and nothing more.
+#
+# Non-regression proof for this bump: layout/bin/run-trivial-cell-flow.sh
+# re-run unmodified still PASSes with the identical four-way verdict (see
+# trivial-cell/reports/ for the refreshed record); layout/bin/run-bandgap-
+# routed-flow.sh re-run produces the record this increment ships -- see that
+# record for the measured effect on `mismatch_count` and the resistor
+# `device.property` mismatches.
+klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@48849358a1691d97445fa5f89bd3bf727b1c90d6

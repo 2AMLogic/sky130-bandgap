@@ -350,9 +350,20 @@ The two causes:
    primitives — required so every DR-002 trim tap lands on real, individually
    contacted metal — and `klt lvs`'s `combine_devices` sums the per-instance
    offset once per primitive when it folds the series chain, not once for
-   the logical device. No drawn shape can fix this without removing the
-   functional trim taps. Filed generically as
+   the logical device. Filed generically as
    [klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559),
+   **closed** via
+   [klayout-tools#583](https://github.com/2AMLogic/klayout-tools/pull/583)
+   (merged 2026-08-05): `combine_devices()` now defers the correction until
+   after folding, applying it once per combined device — confirmed by hand
+   to work, landing `R2A`/`R2B` within 0.05% of the reference. But the fix
+   only runs on `klt lvs`'s inline-extraction request shape
+   (`layout.file`+`layout.deck`); this flow's own combined-LVS step must use
+   the pre-extracted shape (`layout.netlist`) instead, to avoid a separate,
+   pre-existing `combine_devices()` reliability issue on this cell's
+   bipolar array — and `layout.deck` is silently ignored on that shape, so
+   the now-fixed correction is still unreachable here. Filed as
+   [klayout-tools#585](https://github.com/2AMLogic/klayout-tools/issues/585),
    open.
 
 **Cause 2 is not merely an LVS-comparison quirk — issue #98 confirmed it is
@@ -371,12 +382,12 @@ margin-thin. Ratified in
 the corrective `n_r1`/`n_r2` resize is scoped to follow-up issue #99 (open),
 outside issue #62's own layout-routing/LVS-closure scope. Closing *this*
 issue's AC4 (the LVS comparison itself) still needs the tool-side fix —
-klayout-tools#559, above — independent of whether #99's resize lands.
+klayout-tools#585, above — independent of whether #99's resize lands.
 
-Closing AC4 the rest of the way needs klayout-tools#559 upstream (or a new
+Closing AC4 the rest of the way needs klayout-tools#585 upstream (or a new
 `klt gen` continuous-poly-with-taps resistor capability) plus a decision on
 `MCC`, both outside this repo's own layout — see `layout/matching-plan.md`
-Section 7u (and Section 7v for the issue #98 materiality finding) for the
+Section 7x (and Section 7v for the issue #98 materiality finding) for the
 current, fully-reasoned status and what it means for issue #62 and for
 issue #16 (the post-layout extracted verification-suite re-run this issue
 exists to unblock).

@@ -19,9 +19,11 @@ evidence is a real, material electrical effect of the layout's own folded
 topology (not an LVS-extraction artifact) — ratified in
 [DR-003](spec/decision-records/DR-003-res-array-head-resistance-sizing.md)
 and tracked for a design-level resize by issue #99 (open); closing the LVS
-comparison itself still needs an upstream `combine_devices` accounting fix,
-filed as
-[klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559)
+comparison itself still needs an upstream `combine_devices` accounting fix
+— [klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559)
+closed via a real fix (klayout-tools#583), confirmed to work (measured to
+0.05%), but unreachable from this flow's own request shape, filed as
+[klayout-tools#585](https://github.com/2AMLogic/klayout-tools/issues/585)
 (open); see
 [`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)
 for the full record. Nothing here has been taped out or measured in

@@ -2783,13 +2783,75 @@ lint, xschem quote check).
 | 4 (`klt lvs` clean) | NOT MET, 4 | unchanged -- no code or measurement change this increment |
 | 5 (blocking gaps filed) | MET | unchanged (no new gap to file; #513 was already closed, this increment only caught this repo's own code up to that fact) |
 
-**Suggested next increment**: keep re-checking klayout-tools#559 for
-movement (the only remaining lever on AC4's `device.property` causes); no
-other repo-side mitigation exists that doesn't tune the reference or
-compromise R2A/R2B's common-centroid matching (Section 1a). If a third
-consecutive increment finds nothing new there either, this is a genuine
-external-blocker floor -- release the claim per this issue's own established
-pattern rather than opening a busywork PR.
+**Suggested next increment (superseded by Section 7x)**: keep re-checking
+klayout-tools#559 for movement -- see Section 7x for what changed.
+
+### 7x. Twenty-seventh increment: klayout-tools#559 lands upstream (#583) -- confirmed real, confirmed unreachable from this flow's own request shape, `mismatch_count` unchanged
+
+[klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559)
+closed via
+[#583](https://github.com/2AMLogic/klayout-tools/pull/583), merged
+2026-08-05T20:15:46Z: `combine_devices()` now defers the resistor
+`fixed_offset_ohm` correction until after folding series primitives,
+applying it once per combined device instead of once per drawn primitive
+-- exactly the fix Section 7u's own finding asked for. `layout/
+requirements.txt`'s `klt` pin is bumped past it (non-regressing:
+`layout/bin/run-trivial-cell-flow.sh` re-run still PASSes identically).
+
+**It does not move `mismatch_count` (stays 4)**, for a reason distinct
+from every prior "the fix doesn't apply to this flow's topology" finding:
+#583's deferred correction only runs on the **inline-extraction**
+`request.layout` shape (`{file, deck, top}`). This flow's own combined LVS
+run has always used the **pre-extracted** shape (`{netlist, top}`,
+`run_lvs(..., from_netlist=True)` in `gen_bandgap_routed.py`) -- a
+deliberate choice from early in this issue's history (the SPICE
+round-trip is what avoids `Netlist.combine_devices()`'s known internal-
+consistency abort on this cell's bipolar array, RES_TRIM_TOPOLOGY_NOTE) --
+and `klt lvs`'s `_resolve_layout` never reads `layout.deck` on that shape,
+silently ignoring it rather than erroring.
+
+Confirmed by hand (outside this flow's committed code, against this
+increment's own `.gds`): switching just the request shape to inline
+extraction does make the deferred correction land almost exactly right --
+`R2A`/`R2B` read **88,083.06 ohm against the reference's 88,130** (0.05%
+off; the residual is design/bandgap_core.sch's own simplified `R ~ 380 +
+325*L` model's rounded coefficients against the deck's precise
+`sheet_rho_ohm_sq=324.827244`/`fixed_offset_ohm=379.705147`, not a
+combine/offset bug). But the same run also folds the PNP array
+*incompletely* (`devices.matched` 12 -> 10; `Q1`/`Q2` revert to their
+unfolded per-unit `AE`/`NE`, the exact gap Section 7s closed) -- a
+`combine_devices()` reliability difference unrelated to #559/#583, and one
+this increment did not have scope to chase down. Net effect of adopting
+the inline shape: `mismatch_count` 4 -> **28**, a regression, not an
+adoption.
+
+Filed as friction:
+[klayout-tools#585](https://github.com/2AMLogic/klayout-tools/issues/585)
+-- `layout.deck` reachable alongside `layout.netlist` (for the deferred
+correction only, not to trigger extraction) is the narrowest lever left
+that would let this flow's own already-reliable SPICE-round-trip path
+receive #583's fix without needing inline extraction's less reliable
+combine behavior at all.
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET | unchanged |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, 4 | unchanged -- `klt` pin bumped past a real upstream fix this flow cannot yet reach; see klayout-tools#585 |
+| 5 (blocking gaps filed) | MET | unchanged (klayout-tools#559 retired as an open gap; klayout-tools#585 filed in its place, non-blocking) |
+
+**Suggested next increment**: watch klayout-tools#585, not #559 (now
+closed) -- if `layout.deck` becomes reachable alongside `layout.netlist`,
+re-run this flow's combined LVS step unmodified and `mismatch_count`
+should drop close to **1** (the deliberately-undrawn `MCC`), per the
+0.05%-accurate value confirmed above. No other repo-side mitigation exists
+that doesn't tune the reference or compromise R2A/R2B's common-centroid
+matching (Section 1a). If a further increment finds no movement on #585
+either, this is a genuine external-blocker floor -- release the claim per
+this issue's own established pattern rather than opening a busywork PR.
 
 ## 8. Known limitations / follow-on work
 
@@ -2923,6 +2985,11 @@ pattern rather than opening a busywork PR.
   **Update, twenty-sixth increment (Section 7w)**: re-checked #559 directly
   -- still open, no movement; see Section 7w for what this increment found
   instead.
+  **Update, twenty-seventh increment (Section 7x)**: #559 closed via #583 --
+  the deferred-correction mechanism is confirmed correct (measured to
+  0.05%) but unreachable from this flow's own pre-extracted `layout.netlist`
+  request shape, so `mismatch_count` stays **4**. See Section 7x and
+  [klayout-tools#585](https://github.com/2AMLogic/klayout-tools/issues/585).
 - ~~**R2A/R2B ladder is at reduced scale**~~ -- **closed** by issue #62, see
   Section 4a. The ladder is drawn at its real full length: 100 coarse units
   plus 40 fine trim units = the schematic's 270 um per leg.

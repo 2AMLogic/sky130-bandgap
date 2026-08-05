@@ -184,6 +184,37 @@ here, relative to that skeleton:
     disclosed `r` delta gets *larger*, not smaller. See
     RES_HEAD_RESISTANCE_NOTE and 2AMLogic/klayout-tools#559 (filed this
     increment).
+19. **2AMLogic/klayout-tools#559 closed upstream (via PR #583) -- and still
+    does not close AC4, for a newly-disclosed reason** (issue #62's
+    twenty-seventh increment). #583 defers the `fixed_offset_ohm` correction
+    until after `combine_devices()` folds series primitives, applying it
+    once per *combined* device instead of once per drawn primitive -- but
+    only on the **inline-extraction** `request.layout` shape
+    (`{"file", "deck", "top"}`); `_resolve_layout` never reads `layout.deck`
+    on the pre-extracted `{"netlist", "top"}` shape this flow's own
+    `run_lvs(".combined", True, from_netlist=True)` call uses (item 12's
+    RES_TRIM_TOPOLOGY_NOTE explains why: inline extraction's
+    `combine_devices()` is not reliable enough on this cell to use
+    directly). Re-running `klt lvs` by hand against this record's own `.gds`
+    with the inline-extraction shape confirms the deferred correction
+    mechanism itself is correct once it runs -- `R2A`/`R2B` land at
+    88,083.06 ohm against the reference's 88,130 ohm (0.05% off, the tiny
+    residual being design/bandgap_core.sch's own simplified `R ~ 380 +
+    325*L` model's rounded coefficients vs. the deck's precise SPICE-fit
+    `sheet_rho_ohm_sq=324.827244`/`fixed_offset_ohm=379.705147`, not a
+    combine/offset bug) -- but that same inline-extraction run also folds
+    the PNP array *incompletely* (`devices.matched` 12 -> 10, `Q1`/`Q2`
+    revert to their unfolded per-unit `AE`/`NE`), a `combine_devices()`
+    outcome difference unrelated to #559/#583 that makes switching this
+    flow's `run_lvs` call to the inline shape a net regression (`mismatch_
+    count` 4 -> 28), not an adoption. Filed as friction:
+    2AMLogic/klayout-tools#585 (`layout.deck` unreachable alongside
+    `layout.netlist`) -- the closest lever left, since it would let this
+    flow's own already-reliable SPICE-round-trip path receive the
+    correction without needing inline extraction's less reliable combine
+    behavior at all. `klt pin` bumped past #583 anyway (a non-regressing,
+    real upstream fix, even though this flow cannot yet reach it) --
+    non-regression re-confirmed against layout/trivial-cell/reports/.
 
 What this script does NOT claim -- read record.md's own "What this record
 does NOT claim" section for the authoritative, measured version:
@@ -674,7 +705,33 @@ RES_HEAD_RESISTANCE_NOTE = (
     "contacts instead of `res_array`'s discrete unit-per-primitive "
     "geometry, is a `klt gen` capability this repo does not have "
     "(`res_array` has no continuous-body-with-taps mode). Filed as "
-    "friction: 2AMLogic/klayout-tools#559."
+    "friction: 2AMLogic/klayout-tools#559.\n\n"
+    "Update, issue #62's twenty-seventh increment: #559 closed upstream via "
+    "2AMLogic/klayout-tools#583, which defers the fixed-offset correction "
+    "until after `combine_devices()` folds the series chain, applying it "
+    "once per combined device -- but only on the inline-extraction "
+    "`request.layout` shape (`{file, deck, top}`); `klt lvs`'s "
+    "`_resolve_layout` never reads `layout.deck` on the pre-extracted "
+    "`{netlist, top}` shape this flow's own `run_lvs(...,from_netlist=True)`"
+    " call uses (RES_TRIM_TOPOLOGY_NOTE explains why this flow needs that "
+    "shape: inline extraction's `combine_devices()` is not reliable enough "
+    "on this cell to call directly). Confirmed by hand against this "
+    "record's own `.gds`, outside this flow's committed code: switching "
+    "just the request shape to inline extraction does make the deferred "
+    "correction land almost exactly right -- `R2A`/`R2B` read 88,083.06 ohm "
+    "against the reference's 88,130 ohm (0.05% off, attributable to design/"
+    "bandgap_core.sch's own simplified `R ~ 380 + 325*L` model's rounded "
+    "coefficients against the deck's precise `sheet_rho_ohm_sq=324.827244`/"
+    "`fixed_offset_ohm=379.705147`, not a combine/offset bug) -- but the "
+    "same run also folds the PNP array incompletely (`devices.matched` 12 "
+    "-> 10, `Q1`/`Q2` revert to unfolded per-unit `AE`/`NE`), a "
+    "`combine_devices()` outcome difference unrelated to #559/#583 that "
+    "turns the net effect of adopting inline extraction into a regression "
+    "(`mismatch_count` 4 -> 28), not a fix. This flow's `klt` pin is bumped "
+    "past #583 anyway (non-regressing; layout/trivial-cell/reports/ still "
+    "PASSes identically) since it is a real upstream fix even though this "
+    "flow cannot yet reach it, and the reachability gap itself is filed as "
+    "2AMLogic/klayout-tools#585."
 )
 
 # ---------------------------------------------------------------------------
@@ -4418,7 +4475,16 @@ def main() -> int:
         "charged once per drawn primitive, not once per logical device, "
         "so `combine_devices` folding a caller's own multi-primitive series "
         "decomposition (this flow's trim-tap ladder) sums it once per "
-        "primitive instead of once for the schematic-level device. See "
+        "primitive instead of once for the schematic-level device. **This "
+        "(twenty-seventh) increment picks up 2AMLogic/klayout-tools#559's "
+        "own fix, #583** (deferring the correction until after "
+        "`combine_devices()` runs) and, having measured that the fix is "
+        "real but unreachable from this flow's own request shape, files "
+        "one further non-blocking gap: **klayout-tools#585** -- "
+        "`layout.deck` is silently ignored (not an error) alongside "
+        "`layout.netlist`, so a caller supplying a pre-extracted netlist "
+        "(this flow's own necessary shape -- RES_TRIM_TOPOLOGY_NOTE) has "
+        "no way to reach #583's deferred correction at all. See "
         "RES_HEAD_RESISTANCE_NOTE |"
     )
     a("")
