@@ -13,8 +13,14 @@ pins. `klt lvs` is not yet clean (`mismatch_count: 4` against the
 xschem-derived reference netlist), but every remaining cause is disclosed
 and is **not** a connectivity, topology, or routing defect: one
 deliberately-undrawn device (the error amp's compensation cap, single-ended
-by design since issue #15) and one inherent resistor-extraction-model gap
-with no drawn-geometry fix, filed upstream as
+by design since issue #15) and the routed R2A/R2B/R1 array's per-instance
+head resistance, which issue #98 confirmed with independent real-SPICE
+evidence is a real, material electrical effect of the layout's own folded
+topology (not an LVS-extraction artifact) — ratified in
+[DR-003](spec/decision-records/DR-003-res-array-head-resistance-sizing.md)
+and tracked for a design-level resize by issue #99 (open); closing the LVS
+comparison itself still needs an upstream `combine_devices` accounting fix,
+filed as
 [klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559)
 (open); see
 [`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)
