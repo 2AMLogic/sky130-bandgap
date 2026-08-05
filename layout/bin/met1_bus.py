@@ -69,11 +69,16 @@ proven by this flow's own `klt drc` stage:
 * `mcon.space.1`  -- min mcon spacing 0.19 um  -> callers place vias on the
                      block's own port pitch, which is far coarser
 
-**Not** checked by the curated deck, and therefore held by construction here
-and re-proved by this module's own :meth:`Met1Bus.conflicts`: the curated deck
-declares met2 as a connectivity level but carries no `met2.*`/`via.*` DRC
-rule at all, so `klt drc` is silent about every shape on the new plane. The
-sizes below are taken from the sky130A source deck the PDK install ships
+Held by construction here and re-proved by this module's own
+:meth:`Met1Bus.conflicts` regardless of what the curated deck checks:
+klayout-tools#513 (merged via #515) gave the curated deck met2/via1 width,
+spacing and enclosure rules, but not the met2 min-area rule (`m2.6`, left
+out because the curated deck's rule vocabulary has no `area` check
+primitive) and not a net-aware short check (`m2.2`'s width/space rule sees
+geometry, not electrical identity, so two different nodes' met2 that
+actually *touch* -- no gap between them -- is not a spacing violation for
+`klt drc` to catch; :meth:`conflicts` is what does). The sizes below are
+taken from the sky130A source deck the PDK install ships
 (`libs.tech/klayout/drc/sky130A_mr.drc`), not from convention:
 
 * `m2.1`   -- min met2 width 0.14 um            -> MET2_WIRE_WIDTH_UM = 0.32
@@ -211,9 +216,11 @@ class Met1Bus:
         self._vias: set[tuple[str, float, float]] = set()
         #: (net_id, x0, y0, x1, y1) for every met2 rectangle drawn -- the same
         #: drawn-short ledger `met1_rects` is, for the escape plane. It needs
-        #: its own, and needs it more: `klt drc`'s curated sky130 deck carries
-        #: no met2 rule at all (module docstring), so nothing downstream would
-        #: report two nodes' met2 touching.
+        #: its own even though `klt drc`'s curated sky130 deck now carries
+        #: met2 width/space/enclosure rules (klayout-tools#513/#515): those
+        #: are single-layer geometric rules, not net-aware, so two different
+        #: nodes' met2 touching (no gap between them) is not a spacing
+        #: violation and nothing downstream but this ledger would report it.
         self.met2_rects: list[tuple[str, float, float, float, float]] = []
         #: (cell -> met2_rects indices) proximity index, see `met2_near`.
         self._grid2: dict[tuple[int, int], list[int]] = {}

@@ -355,12 +355,31 @@ The two causes:
    [klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559),
    open.
 
+**Cause 2 is not merely an LVS-comparison quirk — issue #98 confirmed it is
+real and material, independent of the LVS numbers themselves.** A
+standalone SPICE testbench
+(`sim/res-array-head-resistance/run_res_array_head_resistance.py`) chains
+real `sky130_fd_pr__res_high_po` unit-device model instances at the routed
+array's own N/L shapes and reproduces `klt`'s LVS-extracted `R1`/`R2A`/`R2B`
+values to 5-6 significant figures via a completely independent mechanism —
+ruling out an extraction-only bookkeeping artifact. Substituting the same
+chained topology into the real core testbench pushes `VOUT(27 °C)` outside
+the draft ±1% window at all 5 PVT corners checked, and collapses regulation
+entirely at the two hot corners issue #46/#91 already flagged as
+margin-thin. Ratified in
+[DR-003](../spec/decision-records/DR-003-res-array-head-resistance-sizing.md);
+the corrective `n_r1`/`n_r2` resize is scoped to follow-up issue #99 (open),
+outside issue #62's own layout-routing/LVS-closure scope. Closing *this*
+issue's AC4 (the LVS comparison itself) still needs the tool-side fix —
+klayout-tools#559, above — independent of whether #99's resize lands.
+
 Closing AC4 the rest of the way needs klayout-tools#559 upstream (or a new
 `klt gen` continuous-poly-with-taps resistor capability) plus a decision on
 `MCC`, both outside this repo's own layout — see `layout/matching-plan.md`
-Section 7u for the current, fully-reasoned status and what it means for
-issue #62 and for issue #16 (the post-layout extracted verification-suite
-re-run this issue exists to unblock).
+Section 7u (and Section 7v for the issue #98 materiality finding) for the
+current, fully-reasoned status and what it means for issue #62 and for
+issue #16 (the post-layout extracted verification-suite re-run this issue
+exists to unblock).
 
 ### The flow's own gates, and their unit tests
 

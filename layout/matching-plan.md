@@ -2725,6 +2725,72 @@ used, following
 `spec/decision-records/DR-003-res-array-head-resistance-sizing.md`'s
 "Consequences" section.
 
+### 7w. Twenty-sixth increment: no new lever on klayout-tools#559, but a stale/self-contradictory met2-DRC-coverage claim found and fixed
+
+Followed Section 7u/7v's own suggested next steps: re-checked
+[klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559)
+directly (`gh issue view 559 --repo 2AMLogic/klayout-tools`) -- still open,
+0 comments, no linked PR, no movement since it was filed. No new lever found
+in `klt`'s own `lvs.py`/`hints.*` API either (the exhaustive search this and
+the two prior increments already ran). `mismatch_count` stays **4**.
+
+What this increment did find: [klayout-tools#513](https://github.com/2AMLogic/klayout-tools/issues/513)
+(the curated *DRC* deck's missing met2/via rule coverage, filed by the
+nineteenth increment, Section 7q) closed via
+[#515](https://github.com/2AMLogic/klayout-tools/pull/515) the day before
+this increment ran, adding `met2.width.1`, `met2.space.1`, `via.width.1`,
+`via.space.1`, `met1.enclosing.via.1` and `met2.enclosing.via.1` -- and the
+fix was *already* inside this repo's own `klt` pin (`39bdbc4`, bumped for
+#526 shortly after #515 merged, per Section 7u). `drc.json`'s own
+`coverage.layers_in_stream_without_rules` in every record since confirms
+`68/44`/`69/20` are no longer unchecked -- but the code narrating that fact
+had not caught up. `gen_bandgap_routed.py` hardcoded "the curated deck
+carries no met2.\*/via.\* rule at all" in six places (module docstring,
+`MET2_ESCAPE_NOTE`, `flow_gate`'s docstring, two record.md step
+descriptions, and record.md's own coverage paragraph); `layout/bin/
+met2_drc.py`'s docstring and JSON `"reason"` field said the same, as did
+`met1_bus.py`'s DRC-budget docstring.
+
+**One of those was a live self-contradiction, not just stale prose.**
+record.md's coverage paragraph asserted "`klt drc` does not check any of
+this geometry" one sentence before quoting its own `coverage` list, which
+by that point named *neither* escape-plane layer as unchecked -- e.g.
+`layout/bandgap-core/reports/20260805-105719-f126dca/record.md` states both
+in the same breath. Fixed by extracting the paragraph into a new pure
+function, `gen_bandgap_routed.met2_drc_coverage_note(unchecked)`, which
+states what the run's own `coverage` list actually measured rather than a
+hardcoded increment-era fact -- unit-tested for both the "still gapped" and
+"now covered" branches (`TestMet2DrcCoverageNote`, 4 cases,
+`layout/tests/test_routed_flow_gates.py`). Every other stale comment now
+states the real, narrower remaining gap: `klt drc` checks met2/via1
+width/spacing/enclosure; only the met2 min-area rule (`m2.6`) is still
+uncovered upstream (#515 deliberately left it out -- the curated deck's
+rule vocabulary has no `area` check primitive), which is why
+`layout/bin/met2_drc.py` still has a reason to exist, just a narrower one
+than before.
+
+Prose/comment accuracy only -- no generator, gate, or threshold logic
+changed; `npm run check:ci` green (163 unit tests, py_compile, JSON/bash
+lint, xschem quote check).
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET | unchanged |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, 4 | unchanged -- no code or measurement change this increment |
+| 5 (blocking gaps filed) | MET | unchanged (no new gap to file; #513 was already closed, this increment only caught this repo's own code up to that fact) |
+
+**Suggested next increment**: keep re-checking klayout-tools#559 for
+movement (the only remaining lever on AC4's `device.property` causes); no
+other repo-side mitigation exists that doesn't tune the reference or
+compromise R2A/R2B's common-centroid matching (Section 1a). If a third
+consecutive increment finds nothing new there either, this is a genuine
+external-blocker floor -- release the claim per this issue's own established
+pattern rather than opening a busywork PR.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five
@@ -2854,6 +2920,9 @@ used, following
   offset is charged once per primitive rather than once per logical
   device when `combine_devices` folds the chain. Filed generically as
   [klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559).
+  **Update, twenty-sixth increment (Section 7w)**: re-checked #559 directly
+  -- still open, no movement; see Section 7w for what this increment found
+  instead.
 - ~~**R2A/R2B ladder is at reduced scale**~~ -- **closed** by issue #62, see
   Section 4a. The ladder is drawn at its real full length: 100 coarse units
   plus 40 fine trim units = the schematic's 270 um per leg.

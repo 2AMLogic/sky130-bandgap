@@ -939,9 +939,10 @@ class TestFlowGate(unittest.TestCase):
             "no_merged_pin_names": {"merged_pin_names": ["TAIL|VOUT"]},
             "no_split_routed_nets": {"split_routed": {"VDD": 2}},
             # The escape plane's own DRC. `drc_clean` above is `klt drc`'s
-            # verdict, and the curated sky130 deck carries no met2/via rule
-            # at all -- so without this row a met2 short or a 10 nm-wide
-            # escape wire would pass the whole flow (MET2_ESCAPE_NOTE).
+            # verdict, and the curated sky130 deck still carries no met2
+            # min-area rule (`m2.6`, klayout-tools#513/#515 left it out) --
+            # so without this row an undersized met2 area would pass the
+            # whole flow (MET2_ESCAPE_NOTE).
             "met2_drc_clean": {"met2_drc_clean": False},
         }
         self.assertEqual(
@@ -1917,6 +1918,56 @@ class TestRepairUnroutedHops(unittest.TestCase):
         self.assertEqual(bus.conflicts(), [])
 
 
+class TestMet2DrcCoverageNote(unittest.TestCase):
+    """`gen_bandgap_routed.met2_drc_coverage_note()` -- record.md's prose on
+    whether `klt drc` itself checked the escape plane, issue #62's
+    twenty-sixth increment.
+
+    Extracted from an inline block that used to hardcode "`klt drc` does not
+    check any of this geometry" unconditionally, one sentence before quoting
+    the run's own `coverage.layers_in_stream_without_rules` list -- which,
+    once klayout-tools#513 (merged via #515) added the met2/via1 DRC rules,
+    started naming *neither* escape-plane layer as unchecked, so the record
+    contradicted itself in the same paragraph. This function makes the claim
+    track the measured `coverage` list instead of a fixed increment-era fact,
+    and these tests exercise both branches directly -- something the old
+    inline form, buried in `main()`'s klt-and-PDK-dependent flow, could not
+    be given without a full flow run.
+    """
+
+    def test_both_escape_layers_unchecked_reports_the_gap(self) -> None:
+        note = gen_bandgap_routed.met2_drc_coverage_note(["68/44", "69/20"])
+        self.assertIn("does not fully check", note)
+        self.assertIn("68/44, 69/20", note)
+
+    def test_one_escape_layer_unchecked_is_still_reported_as_a_gap(self) -> None:
+        """Partial coverage (e.g. a `klt` regression that drops just the via
+        rule) must not read as fully clean."""
+        note = gen_bandgap_routed.met2_drc_coverage_note(["68/44"])
+        self.assertIn("does not fully check", note)
+        self.assertIn("**68/44**", note)
+        self.assertNotIn("69/20**", note)
+
+    def test_neither_escape_layer_unchecked_reports_current_coverage(self) -> None:
+        """The state as of klayout-tools#513/#515: `coverage` no longer
+        names either escape-plane layer, so the note must say `klt drc` now
+        checks them (not the removed "does not check any" claim) and must
+        still name the one rule (`m2.6`) neither `klt drc` nor this
+        function's own claim of "checked" covers."""
+        note = gen_bandgap_routed.met2_drc_coverage_note(
+            ["64/20", "65/44", "66/13", "68/5", "82/44", "83/20", "86/20", "94/20"]
+        )
+        self.assertIn("now checks most", note)
+        self.assertNotIn("does not fully check", note)
+        self.assertIn("m2.6", note)
+
+    def test_empty_unchecked_list_still_names_the_m2_6_gap(self) -> None:
+        note = gen_bandgap_routed.met2_drc_coverage_note([])
+        self.assertIn("now checks most", note)
+        self.assertIn("m2.6", note)
+        self.assertIn("`--`", note)  # the empty coverage list itself is quoted
+
+
 # ---------------------------------------------------------------------------
 # The met2 escape plane (issue #62's eighteenth increment).
 #
@@ -1926,8 +1977,9 @@ class TestRepairUnroutedHops(unittest.TestCase):
 # way this file exists to catch:
 #
 #   * a met2 wire drawn across another node's met2 is a short that `klt drc`
-#     cannot see at all -- the curated sky130 deck declares met2 as a
-#     connectivity level and carries no met2 rule (MET2_ESCAPE_NOTE);
+#     cannot see -- its met2 rules (klayout-tools#513/#515) are geometric,
+#     not net-aware, so two touching nets are not a spacing violation
+#     (MET2_ESCAPE_NOTE);
 #   * a via1 stack that misses its own met1 leaves the node in two floating
 #     pieces while every per-plane component count still reads 1.
 # ---------------------------------------------------------------------------
@@ -2011,8 +2063,11 @@ class TestMet2Escape(unittest.TestCase):
         self,
     ) -> None:
         """`conflicts()` must score met2 as well as met1. Nothing downstream
-        does: `klt drc`'s curated deck has no met2 rule, and `klt extract`
-        would read the short as connectivity."""
+        does: `klt drc`'s curated met2 rules (klayout-tools#513/#515) are
+        geometric spacing/width/enclosure checks, not net-aware -- two
+        different nets' met2 that actually touch have no gap to measure, so
+        no spacing rule fires -- and `klt extract` would read the short as
+        connectivity."""
         bus = met1_bus.Met1Bus()
         bus.net("A")
         bus.hseg2(0.0, 10.0, 0.0)
