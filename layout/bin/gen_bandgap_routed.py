@@ -165,6 +165,25 @@ here, relative to that skeleton:
     the non-primary `PE`/`AB`/`PB`/`AC`/`PC` differences are never surfaced,
     including the base/collector geometry this fix deliberately leaves
     unstated. See PNP_EMITTER_GEOMETRY_NOTE and matching-plan Section 7s.
+18. **Bumped past the upstream fix for the remaining `res_high_po` cause --
+    and found it does not close AC4** (issue #62's twenty-third increment).
+    2AMLogic/klayout-tools#518 (merged via #519) gives `res_high_po` the
+    fixed per-instance head/end-resistance term item 17's own list named as
+    the last disclosed cause; #521 (merged via #526) was needed alongside it
+    to make the correction reach the written `.spice` this flow's `klt lvs`
+    step actually reads, not just `klt extract`'s JSON report. Picking up
+    both does not reduce `mismatch_count` (still 4, still `device.property`:
+    3 / `device.unmatched`: 1): the fixed offset is charged once per *drawn*
+    resistor primitive, and this repo's own `res_array`-drawn trim ladder
+    represents each schematic `R1`/`R2A`/`R2B` device as many separately-
+    contacted series primitives (70 per R2 leg, 7 for R1) so that
+    `klt draw`'s met1 jumpers can reach every DR-002 trim tap
+    (RES_TRIM_LENGTH_NOTE) -- so `combine_devices`'s series fold sums the
+    offset 70 (or 7) times, not once for the logical device
+    design/bandgap_core.sch's own `R ~ 380 + 325*L` model states. The
+    disclosed `r` delta gets *larger*, not smaller. See
+    RES_HEAD_RESISTANCE_NOTE and 2AMLogic/klayout-tools#559 (filed this
+    increment).
 
 What this script does NOT claim -- read record.md's own "What this record
 does NOT claim" section for the authoritative, measured version:
@@ -173,18 +192,19 @@ does NOT claim" section for the authoritative, measured version:
   in either netlist and -- new with the eighteenth increment -- none of them
   a connectivity difference either: the compensation cap MCC, which is in
   the reference and deliberately not drawn (the only `device.unmatched`
-  entry left on either side), and `res_high_po`'s per-device 380 ohm head
-  term, which the extractor's sheet-resistance model does not carry and no
-  drawn shape can add. The deck-synthesized substrate net, undeclarable
-  array dummies, the resistor device-class arity mismatch, unrouted
-  schematic nodes, the R2 leg length (item 16) and -- as of item 17 -- the
-  reference's PNP cards stating no emitter count or geometry are all
-  **retired** as causes; see items 9-17 above. klayout-tools#506
-  (filed by the fifteenth increment) asked upstream for a generic
-  reconciliation of the arity shape and is now CLOSED as COMPLETED
-  (`reference.device_bulk` exists on `klt lvs` upstream); this flow
-  still does not depend on it, because its own reference can state the
-  bulk net directly -- see RES_BULK_ARITY_NOTE.
+  entry left on either side), and `res_high_po`'s value -- since item 18,
+  no longer because the extractor's model omits a term, but because this
+  flow's own multi-primitive trim ladder makes that term apply the wrong
+  number of times when the series chain is folded into one device. The
+  deck-synthesized substrate net, undeclarable array dummies, the resistor
+  device-class arity mismatch, unrouted schematic nodes, the R2 leg length
+  (item 16) and -- as of item 17 -- the reference's PNP cards stating no
+  emitter count or geometry are all **retired** as causes; see items 9-17
+  above. klayout-tools#506 (filed by the fifteenth increment) asked
+  upstream for a generic reconciliation of the arity shape and is now
+  CLOSED as COMPLETED (`reference.device_bulk` exists on `klt lvs`
+  upstream); this flow still does not depend on it, because its own
+  reference can state the bulk net directly -- see RES_BULK_ARITY_NOTE.
 - **Fully inter-block routed, but not on one plane, and not on a plane
   `klt drc` checks.** record.md's "Schematic inter-block nets" table scores
   every schematic inter-block node against SCHEMATIC_INTER_BLOCK_NETS below
@@ -594,6 +614,58 @@ RES_TRIM_LENGTH_NOTE = (
     "**gated** flow condition (`r2_leg_length_matches`) rather than a "
     "recorded number, so this cannot silently regress. See "
     "layout/matching-plan.md Section 7r."
+)
+#: What issue #62's twenty-third increment found after bumping past
+#: 2AMLogic/klayout-tools#518/#519 (merged) and #521/#526 (merged): the
+#: fixed per-instance head-resistance term the extractor now applies does
+#: NOT close this cause -- it makes the disclosed `r` delta larger, because
+#: this repo's own `res_array`-drawn trim ladder represents one schematic
+#: resistor as many separately-contacted series primitives. Filed as
+#: 2AMLogic/klayout-tools#559.
+RES_HEAD_RESISTANCE_NOTE = (
+    "2AMLogic/klayout-tools#518 (merged via #519) added `ResistorDevice."
+    "fixed_offset_ohm`, a per-instance fixed head/end-resistance term "
+    "measured against the real `sky130_fd_pr__res_high_po` two-term SPICE "
+    "model (`sheet_rho_ohm_sq=324.827244`, `fixed_offset_ohm=379.705147`, "
+    "both on by default for this flavour -- no opt-in flag this repo's own "
+    "code needs to pass). 2AMLogic/klayout-tools#521 (merged via #526) was "
+    "needed alongside it: #519's correction was applied only inside `klt "
+    "extract`'s JSON-report path, not to the `kdb.Netlist` the written "
+    "`.spice` file -- and therefore this flow's own `klt lvs` step, which "
+    "compares two already-written `.spice` files -- actually reads. "
+    "Picking up both closes that JSON-vs-netlist gap cleanly, but does NOT "
+    "close this cause: it makes the disclosed `r` delta *larger*, not "
+    "smaller. The fixed offset is charged once per *drawn* resistor "
+    "primitive, and `res_array`'s trim ladder represents each schematic "
+    "`R1`/`R2A`/`R2B` device as many separate, individually-contacted "
+    "series primitives -- 50 coarse 5um + 20 fine 1um = 70 per R2 leg, 7 "
+    "for R1 -- so that `klt draw`'s met1 jumpers can reach every DR-002 "
+    "trim tap (RES_TRIM_LENGTH_NOTE). `klt lvs`'s `combine_devices` folds "
+    "that series chain into the one lumped device the schematic states, "
+    "summing the corrected `r` of every primitive -- which sums the offset "
+    "once per primitive, not once for the logical device design/"
+    "bandgap_core.sch's own `R ~ 380 + 325*L` model states. Measured "
+    "exactly: each R2 leg now reads 114,282.71617 ohm (= 324.827244 x 270 "
+    "+ 70 x 379.705147, to the ohm) against the reference's 88,130, and R1 "
+    "reads 14,026.889569 (= 324.827244 x 35 + 7 x 379.705147) against "
+    "11,755 -- both exact to the digit, confirmed directly against "
+    "`lvs.combined.json`. The `r` delta is now larger than the pre-bump "
+    "body-only shortfall it replaced (R2: 26,152.7 ohm over vs. 1,784 ohm "
+    "under; R1: 2,271.9 ohm over vs. 562 ohm under), though "
+    "`mismatch_count` and `category_counts` are unchanged (still 4; still "
+    "`device.property`: 3, `device.unmatched`: 1) -- the *count* the flow "
+    "gates on did not regress, but the *reason* moved from 'no per-device "
+    "term at all' to 'the wrong number of per-device terms for this flow's "
+    "own drawn topology'. Not worked around here: rewriting design/"
+    "bandgap_core.sch's simplified single-device `R` model to account for "
+    "this flow's own multi-primitive decomposition would be exactly the "
+    "reference-edit-to-accommodate-the-layout CLAUDE.md and "
+    "RES_BULK_ARITY_NOTE's own convention refuse -- and the alternative, "
+    "drawing the ladder as one continuous poly body with intermediate tap "
+    "contacts instead of `res_array`'s discrete unit-per-primitive "
+    "geometry, is a `klt gen` capability this repo does not have "
+    "(`res_array` has no continuous-body-with-taps mode). Filed as "
+    "friction: 2AMLogic/klayout-tools#559."
 )
 
 # ---------------------------------------------------------------------------
@@ -4258,11 +4330,21 @@ def main() -> int:
         "INTERNAL_NODE_LABEL_NOTE describes: there is no way to name a net "
         "without promoting it to a pin, and a pin on a node interior to a "
         "schematic device silently blocks `combine_devices` with nothing "
-        "attributing the resulting mismatches to it. **This (twenty-first) "
-        "increment files no new gap**: the PNP `ae`/`pe`/`ne` fix "
-        "(PNP_EMITTER_GEOMETRY_NOTE) needed no `klt` capability that did "
-        "not already exist -- it is a `reference.spice` transcription fix, "
-        "the same shape as RES_BULK_ARITY_NOTE's |"
+        "attributing the resulting mismatches to it. The twenty-first "
+        "increment filed no new gap (the PNP `ae`/`pe`/`ne` fix was a "
+        "`reference.spice` transcription fix, needing no new `klt` "
+        "capability). **This (twenty-third) increment picks up "
+        "2AMLogic/klayout-tools#518 via #519 and #521 via #526** (the "
+        "`res_high_po` fixed head/end-resistance term, and the fix that "
+        "makes it reach the written netlist `klt lvs` compares) and, "
+        "having measured that picking them up does not close AC4's "
+        "resistor cause, files one new non-blocking gap: "
+        "**klayout-tools#559** -- `ResistorDevice.fixed_offset_ohm` is "
+        "charged once per drawn primitive, not once per logical device, "
+        "so `combine_devices` folding a caller's own multi-primitive series "
+        "decomposition (this flow's trim-tap ladder) sums it once per "
+        "primitive instead of once for the schematic-level device. See "
+        "RES_HEAD_RESISTANCE_NOTE |"
     )
     a("")
     a(f"- [{'x' if drc_clean else ' '}] DRC on the composed, routed layout is clean")
@@ -4801,21 +4883,26 @@ def main() -> int:
         "either side."
     )
     a(
-        "2. **`res_high_po`'s resistance model is not drawn geometry.** "
-        "design/bandgap_core.sch line 188 models a segment as "
-        "`R ~ 380 + 325*L` ohm, with the 380 ohm head charged once per "
-        "*device*; the extractor derives R from drawn body squares alone "
-        "(319.8 ohm/sq). Every resistor's remaining `r` difference is "
-        "exactly those two model terms and nothing else, on all three "
-        "devices at once: `R1`'s 35 um leg reads 11,193 = 319.8 x 35 "
-        "against 325 x 35 + 380 = 11,755, and each R2 leg reads 86,346 = "
-        "319.8 x 270 against 325 x 270 + 380 = 88,130. Both differences "
-        "resolve to the same `5.2*L + 380`, which is the check that the "
-        "*drawn length* on either device is exactly right -- 35 um and "
-        "270 um, the schematic's own numbers. No drawn shape can add a "
-        "contact-resistance term the extractor's sheet-resistance model "
-        "does not carry, so this is a model difference, not a layout "
-        "defect."
+        "2. **`res_high_po`'s value still differs -- and, as of this "
+        "increment, for a more precisely disclosed reason.** Through the "
+        "twenty-first increment the cause was that `klt extract`'s "
+        "sheet-resistance-only model had no term for the vendor device's "
+        "fixed per-instance head/end resistance at all. That upstream gap "
+        "closed this increment (2AMLogic/klayout-tools#518/#519, #521/#526, "
+        "see RES_HEAD_RESISTANCE_NOTE), and it did **not** close this "
+        "cause: it made the disclosed `r` delta larger, not smaller. The "
+        "correction is charged once per *drawn* resistor primitive, and "
+        "this repo's own `res_array`-drawn trim ladder represents each "
+        "schematic `R1`/`R2A`/`R2B` device as many separately-contacted "
+        "series primitives (70 per R2 leg, 7 for R1) so that the DR-002 "
+        "trim taps are reachable -- so `combine_devices`'s series fold "
+        "sums the offset 70 (or 7) times, not once for the logical device "
+        "design/bandgap_core.sch's own `R ~ 380 + 325*L` model states. "
+        "Measured: each R2 leg now reads 114,282.71617 against the "
+        "reference's 88,130 (26,152.7 ohm over, where the pre-bump body-"
+        "only value was 1,784 ohm under), and R1 reads 14,026.889569 "
+        "against 11,755 (2,271.9 ohm over, where it was 562 ohm under). "
+        "See RES_HEAD_RESISTANCE_NOTE for the full derivation."
     )
     a("")
     a(
@@ -4825,7 +4912,13 @@ def main() -> int:
         "shortfalls would make LVS compare the layout against itself, which "
         "is not evidence. The one cause that *was* a layout defect -- the R2 "
         "leg length -- was fixed in the layout (issue #91), not relaxed in "
-        "the reference."
+        "the reference. The res_high_po cause is not a candidate for a "
+        "reference-side fix either: design/bandgap_core.sch's `R ~ 380 + "
+        "325*L` model is the schematic's own honestly-simplified statement "
+        "of a single resistor instance, and stretching it to account for "
+        "this flow's own choice of a 70-primitive (or 7-primitive) trim-tap "
+        "decomposition would be tuning the reference to the layout's "
+        "implementation detail, not stating the design."
     )
     a("")
     a("### Retired since the last increment")
@@ -4885,13 +4978,19 @@ def main() -> int:
         "moved 18 -> 4 only because `reference.spice`'s PNP cards now state "
         "the emitter geometry the comparer needs (a transcription fix, not "
         "a change to any drawn shape -- see the retired causes below). It "
-        "did **not** move when issue #91 fixed the R2 leg length, and that "
-        "too is "
-        "the honest result: the `r` difference on those two devices "
-        "survives as the same `res_high_po` model term `R1` always showed, "
-        "so what changed is the *kind* of the residual (a model difference, "
-        "not a drawn-length defect), which the value itself now proves -- "
-        "86,346 = 319.8 x 270."
+        "did **not** move when issue #91 fixed the R2 leg length, nor when "
+        "this (twenty-third) increment picked up klayout-tools#518/#519/"
+        "#521/#526 -- and this time the honest result is not that the "
+        "delta held steady, but that it got **worse**: the corrected `r` "
+        "on `R1`/`R2A`/`R2B` moved from a body-only under-count "
+        "(86,346 = 319.8 x 270 against the reference's 88,130) to an "
+        "over-counted 114,282.71617, because this flow's own trim-tap "
+        "decomposition charges the extractor's new per-instance offset "
+        "once per drawn primitive rather than once per logical device -- "
+        "`mismatch_count` and `category_counts` are unchanged (still 4; "
+        "still `device.property`: 3, `device.unmatched`: 1), so the gated "
+        "condition did not regress, but AC4's practical floor is not this "
+        "increment's finding either. See RES_HEAD_RESISTANCE_NOTE."
     )
     if full_connectivity:
         a(

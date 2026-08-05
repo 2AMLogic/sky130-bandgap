@@ -233,4 +233,52 @@
 # met2/via rule at all, so `layout/bin/met2_drc.py` checks the new plane
 # against the installed PDK's own source rules and the flow gates on it.
 # Filed upstream as 2AMLogic/klayout-tools#513. See matching-plan Section 7q.
-klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@af5791b557fc7c669c3981335a294256ccf37e6f
+#
+# Bumped again for issue #62's twenty-second increment (2026-08-05). The
+# prior pin (af5791b557fc7c669c3981335a294256ccf37e6f) predates the two
+# upstream fixes that close AC4's `res_high_po` value-model cause (the last
+# record's only remaining `device.property` category):
+#
+#   * 2AMLogic/klayout-tools#518 -> merged via #519. `ResistorDevice` gains a
+#     `fixed_offset_ohm` coefficient (mirrors `CapacitorDevice.perim_cap_f_um`
+#     from #512/#517): `R = L / W * sheet_rho_ohm_sq + fixed_offset_ohm`,
+#     applied in `_describe_devices`. sky130's curated deck sets
+#     `res_high_po`'s `sheet_rho_ohm_sq=324.827244` /
+#     `fixed_offset_ohm=379.705147` (measured against the real
+#     `sky130_fd_pr__res_high_po` two-term SPICE model at the `tt` corner,
+#     `rel=1e-6` fit at 4 lengths plus an independent held-out cross-check --
+#     see the deck's own provenance comment). This is *on by default* for
+#     `res_high_po` -- no opt-in flag this repo's own code needs to pass.
+#   * 2AMLogic/klayout-tools#521 -> merged via #526. #519's correction was
+#     applied only inside `_describe_devices`, i.e. only to `klt extract`'s
+#     JSON report -- the `kdb.Netlist` itself (what `NetlistSpiceWriter`
+#     writes to the `.spice` file this flow's own `klt lvs` step reads back
+#     in) kept KLayout's uncorrected single-term value. Without this second
+#     fix, #519 would have been invisible to this flow's LVS comparison even
+#     though the JSON report looked corrected: this flow's own
+#     `bandgap_core_routed.extract.spice` is written by `klt extract` and fed
+#     to `klt lvs` as two already-extracted netlists (Flow step 5/6 in every
+#     prior record), not compared via `klt lvs`'s inline-extraction path --
+#     but both paths share the same `kdb.Netlist`-mutation fix, so this pin
+#     is required either way. Confirmed by diffing `klt extract`'s written
+#     `.spice` before/after this pin: R1/R2A/R2B's `R` cards move from the
+#     uncorrected body-only value to the corrected two-term value.
+#
+# Checked the range for anything else worth picking up in the same bump:
+# `git log 2b592b5..127b52d` (klayout-tools main tip as of this writing) adds
+# four more commits, none touching `decks/sky130.py`, `extract.py` or
+# `lvs.py` (`git diff --stat` over that range confirms zero overlap) --
+# `klt pdk macros`/`klt pdk cells` gf180mcu-model-recognition/IHP-Open-PDK
+# feature work and a `.claude/commands/loom/champion-epic.md` housekeeping
+# fix, unrelated to this flow's sky130 resistor extraction. Pinning at
+# 39bdbc4 (immediately after #526) rather than tip, per this repo's own
+# deliberate-bump discipline: it is the exact commit this increment's fix
+# needs and nothing more.
+#
+# Non-regression proof for this bump: layout/bin/run-trivial-cell-flow.sh
+# re-run unmodified still PASSes with the identical four-way verdict (see
+# trivial-cell/reports/ for the refreshed record); layout/bin/run-bandgap-
+# routed-flow.sh re-run produces the record this increment ships -- see that
+# record for the measured effect on `mismatch_count` and the resistor
+# `device.property` mismatches.
+klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@39bdbc4c10f5005f0eb984a5ef89329159f9f7e2

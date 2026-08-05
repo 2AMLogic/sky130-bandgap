@@ -2525,6 +2525,114 @@ deliberately undrawn per issue #15. `mismatch_count` cannot go below 4 from
 this side: closing it needs klayout-tools#518 upstream (extractor-side head
 resistance) plus a decision on `MCC`, both out of this repo's hands.
 
+### 7u. Twenty-third increment: bumped past klayout-tools#518/#519 and #521/#526 -- and found the fix does not close AC4, because this flow's own trim-tap decomposition breaks the per-instance offset's assumption
+
+Section 7t named klayout-tools#518 as "closing it needs #518 upstream ...
+out of this repo's hands." It landed: 2AMLogic/klayout-tools#518 merged via
+[#519](https://github.com/2AMLogic/klayout-tools/pull/519) on 2026-08-04,
+adding `ResistorDevice.fixed_offset_ohm` (mirrors `CapacitorDevice.
+perim_cap_f_um` from #512/#517) and setting sky130's `res_high_po` deck
+entry to the measured `sheet_rho_ohm_sq=324.827244` /
+`fixed_offset_ohm=379.705147` (both on by default -- no opt-in flag this
+repo's own code needs to pass). Checking the range past #519 for anything
+else worth picking up in the same bump surfaced a second, necessary fix:
+2AMLogic/klayout-tools#521, merged via
+[#526](https://github.com/2AMLogic/klayout-tools/pull/526), which found
+that #519's correction was applied only inside `klt extract`'s JSON-report
+path (`_describe_devices`), not to the `kdb.Netlist` itself -- so the
+`.spice` file `NetlistSpiceWriter` writes (which is exactly what this
+flow's own `klt lvs` step reads back in as both sides of the comparison,
+Flow step 5/6 in every prior record) still carried the uncorrected
+body-only value. Without #526, #519 would have been invisible to this
+flow's own LVS result even though `klt extract`'s JSON report looked
+corrected. `git log 2b592b5..127b52d` (klayout-tools main tip as of this
+writing) adds four more commits past #526, none touching
+`decks/sky130.py`/`extract.py`/`lvs.py` (confirmed via `git diff --stat`
+over that range) -- gf180mcu/IHP-Open-PDK feature work and a Loom-repo
+housekeeping fix, unrelated to this flow. Pinned `layout/requirements.txt`
+at `39bdbc4` (immediately after #526), not tip, per this repo's own
+deliberate-bump discipline.
+
+**Non-regression proof, same discipline as every pin bump**:
+`layout/bin/run-trivial-cell-flow.sh` re-run unmodified still PASSes with
+the identical four-way verdict.
+
+**Re-ran `run-bandgap-routed-flow.sh` and measured the effect directly --
+it does not close this cause; it makes the disclosed `r` delta larger.**
+`mismatch_count` and `category_counts` are unchanged (still 4; still
+`device.property`: 3, `device.unmatched`: 1), but the underlying `r` values
+on `R1`/`R2A`/`R2B` moved further from the reference, not closer:
+
+| device | pre-bump (body-only) | reference | post-bump | reference |
+| --- | --- | --- | --- | --- |
+| `R2A`/`R2B` (each leg) | 86,346 (1,784 under) | 88,130 | 114,282.71617 (26,152.7 over) | 88,130 |
+| `R1` | 11,193 (562 under) | 11,755 | 14,026.889569 (2,271.9 over) | 11,755 |
+
+**Root cause, confirmed exactly, not inferred.** The fixed offset is
+charged once per *drawn* resistor primitive before `klt lvs`'s
+`combine_devices` folds a series chain into one device. This repo's own
+`res_array`-drawn trim ladder does not represent `R2A`/`R2B`/`R1` as one
+drawn primitive each: it draws 50 coarse 5um + 20 fine 1um = **70** separate,
+individually-contacted primitives per R2 leg (and **7** for R1), joined by
+`met1_bus.py`'s unit-to-unit jumpers, specifically so that DR-002's trim
+taps land on real, contactable metal (RES_TRIM_LENGTH_NOTE / Section 7r).
+`combine_devices` sums each primitive's already-corrected `r`, which sums
+the fixed offset 70 (or 7) times, not once for the logical device
+design/bandgap_core.sch's own `R ~ 380 + 325*L` model states for the whole
+leg. Verified to the digit against `lvs.combined.json`:
+`324.827244 x 270 + 70 x 379.705147 = 114,282.71617` (R2, either leg) and
+`324.827244 x 35 + 7 x 379.705147 = 14,026.889569` (R1) -- both match the
+comparer's reported `r` exactly.
+
+**Not worked around.** Rewriting `design/bandgap_core.sch`'s simplified
+single-device `R ~ 380 + 325*L` model to account for this repo's own choice
+of a 70-primitive (or 7-primitive) trim-tap decomposition would be tuning
+the reference to the layout's own implementation detail, the same
+reference-edit-to-accommodate-the-layout RES_BULK_ARITY_NOTE and every
+prior AC4 increment in this section refuse. The alternative -- drawing the
+ladder as one continuous poly body with intermediate tap contacts instead
+of `res_array`'s discrete unit-per-primitive geometry -- is a `klt gen`
+capability this repo does not have.
+
+**Filed upstream, generic, no design-specific detail**: searched the
+tracker first for `fixed_offset_ohm`, "combine_devices resistor", "head
+resistance series", "res_array taps" -- no existing filing for this shape
+(the closest hits, #500/#514/#518/#521, are all different gaps, already
+cited above or in prior sections). Filed as
+[klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559):
+a per-instance fixed-offset correction and a `combine_devices`-style series
+fold have no shared notion of "these N drawn primitives are one logical
+device for the purpose of this correction" vs. "N independent device
+instances that happen to be wired in series" -- the body/sheet-resistance
+term folds correctly under series combination because it is linear in
+length; the fixed offset is not that kind of term, and nothing currently
+distinguishes the two cases.
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET | unchanged |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, 4 | unchanged, **4** -- `r` deltas larger, category counts and `mismatch_count` unchanged |
+| 5 (blocking gaps filed) | MET | MET (+#559, non-blocking) |
+
+**Practical floor, as far as this flow can currently determine.** AC4's
+`mismatch_count=4` (1 deliberately-undrawn `MCC` + 3 `device.property` on
+the resistor triple) has now survived three consecutive increments (7t,
+this one) that each closed a real upstream gap without moving it, for two
+different structural reasons in turn: first "the extractor's model has no
+term for this," now "this repo's own trim-tap decomposition doesn't match
+what a per-instance term assumes." Closing it further needs either a new
+`klt gen` capability (a continuous-poly-with-taps resistor generator) or a
+`combine_devices`-side per-logical-device accounting mode (klayout-tools#559)
+-- both out of this repo's hands, same as Section 7t's own conclusion.
+Whether `mismatch_count=4` (MCC undrawn + a now-precisely-understood
+resistor model/topology interaction) constitutes acceptable closure for
+issue #62's AC4 is a decision this flow does not make for itself; it reports
+the measured floor and defers the ruling.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five
@@ -2644,6 +2752,16 @@ resistance) plus a decision on `MCC`, both out of this repo's hands.
   structural and has no layout-side fix. Filed generically as
   [klayout-tools#518](https://github.com/2AMLogic/klayout-tools/issues/518).
   `mismatch_count` is unchanged at **4**.
+  **Update, twenty-third increment (Section 7u)**: #518 landed (merged via
+  #519), and the companion fix that makes the correction reach the netlist
+  `klt lvs` actually compares (#521, merged via #526) is picked up in the
+  same bump. Neither closes cause 2 -- `mismatch_count` stays **4**, but
+  the `r` delta on `R1`/`R2A`/`R2B` gets *larger*, not smaller, because
+  this repo's own trim-tap decomposition draws each device as many
+  (70, or 7) separately-contacted series primitives, and the per-instance
+  offset is charged once per primitive rather than once per logical
+  device when `combine_devices` folds the chain. Filed generically as
+  [klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559).
 - ~~**R2A/R2B ladder is at reduced scale**~~ -- **closed** by issue #62, see
   Section 4a. The ladder is drawn at its real full length: 100 coarse units
   plus 40 fine trim units = the schematic's 270 um per leg.

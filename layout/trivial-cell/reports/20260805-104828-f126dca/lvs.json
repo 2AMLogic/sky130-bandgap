@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "engine": "klayout",
+  "layout": "trivial_mos_array.gds",
+  "reference": "reference.spice",
+  "top": "trivial_mos_array",
+  "status": "match",
+  "mismatch_count": 8,
+  "category_counts": {
+    "device.body_unverified": 1,
+    "topology": 7
+  },
+  "counts": {
+    "nets": {
+      "layout": 13,
+      "reference": 13,
+      "matched": 13
+    },
+    "devices": {
+      "layout": 4,
+      "reference": 4,
+      "matched": 4
+    },
+    "pins": {
+      "layout": 1,
+      "reference": 1,
+      "matched": 1
+    }
+  },
+  "device_classes": [
+    "nfet",
+    "pfet",
+    "pnp",
+    "sky130_fd_pr__model__cap_mim",
+    "sky130_fd_pr__model__cap_mim_m4",
+    "resistor"
+  ],
+  "environment": {
+    "engine": "klayout",
+    "engine_version": "0.30.10",
+    "layout_sha256": "1808215c56ef69edf5baa08ad7362f9617eab90e57f58b189937093e50f44521",
+    "reference_sha256": "8bd4348616ab2042bf8cf511fe27be97e695d4fae55c5aa05279f4a5ccd326aa",
+    "extracted_netlist": null
+  },
+  "provenance": {
+    "klt_version": "0.2.0",
+    "klayout_version": "0.30.10",
+    "pdk": null,
+    "deck": {
+      "name": "sky130",
+      "content_hash": "sha256:adc357814939d11203fad151bbb5258deddd65516195f4519514c314df8d453f"
+    },
+    "input": null
+  },
+  "mismatches": [
+    {
+      "category": "device.body_unverified",
+      "severity": "warning",
+      "description": "4 NMOS device body terminal(s) were compared against the 'vsubs' deck-synthesized substrate net, not a real schematic net -- no drawn substrate-tap geometry resolved these device(s)' body terminal to a real net (see docs/cli/extract.md, \"Coverage\")",
+      "side": "layout",
+      "net": null,
+      "device": {
+        "layout": null,
+        "reference": null,
+        "class": "nfet"
+      },
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "topology",
+      "severity": "warning",
+      "description": "nets were paired ambiguously; the comparer resolved it structurally (consider a hints.same_nets entry to pin this down)",
+      "side": "both",
+      "net": {
+        "layout": "$11",
+        "reference": "D3"
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "topology",
+      "severity": "warning",
+      "description": "nets were paired ambiguously; the comparer resolved it structurally (consider a hints.same_nets entry to pin this down)",
+      "side": "both",
+      "net": {
+        "layout": "$13",
+        "reference": "D4"
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "topology",
+      "severity": "warning",
+      "description": "nets were paired ambiguously; the comparer resolved it structurally (consider a hints.same_nets entry to pin this down)",
+      "side": "both",
+      "net": {
+        "layout": "$14",
+        "reference": "S4"
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "topology",
+      "severity": "warning",
+      "description": "nets were paired ambiguously; the comparer resolved it structurally (consider a hints.same_nets entry to pin this down)",
+      "side": "both",
+      "net": {
+        "layout": "$3",
+        "reference": "D1"
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "topology",
+      "severity": "warning",
+      "description": "nets were paired ambiguously; the comparer resolved it structurally (consider a hints.same_nets entry to pin this down)",
+      "side": "both",
+      "net": {
+        "layout": "$5",
+        "reference": "D2"
+      },
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "topology",
+      "severity": "warning",
+      "description": "device class has no counterpart on the other side, but no devices of this class were extracted either -- not a real topology mismatch",
+      "side": "layout",
+      "net": null,
+      "device": null,
+      "property": null,
+      "details": null
+    },
+    {
+      "category": "topology",
+      "severity": "warning",
+      "description": "device class has no counterpart on the other side, but no devices of this class were extracted either -- not a real topology mismatch",
+      "side": "layout",
+      "net": null,
+      "device": null,
+      "property": null,
+      "details": null
+    }
+  ],
+  "net_correspondence": [
+    {
+      "layout": "$3",
+      "reference": "D1",
+      "pin": false
+    },
+    {
+      "layout": "$5",
+      "reference": "D2",
+      "pin": false
+    },
+    {
+      "layout": "$11",
+      "reference": "D3",
+      "pin": false
+    },
+    {
+      "layout": "$13",
+      "reference": "D4",
+      "pin": false
+    },
+    {
+      "layout": "$17",
+      "reference": "G1",
+      "pin": false
+    },
+    {
+      "layout": "$18",
+      "reference": "G2",
+      "pin": false
+    },
+    {
+      "layout": "$19",
+      "reference": "G3",
+      "pin": false
+    },
+    {
+      "layout": "$20",
+      "reference": "G4",
+      "pin": false
+    },
+    {
+      "layout": "$4",
+      "reference": "S1",
+      "pin": false
+    },
+    {
+      "layout": "$6",
+      "reference": "S2",
+      "pin": false
+    },
+    {
+      "layout": "$12",
+      "reference": "S3",
+      "pin": false
+    },
+    {
+      "layout": "$14",
+      "reference": "S4",
+      "pin": false
+    },
+    {
+      "layout": "vsubs",
+      "reference": "VSUBS",
+      "pin": true
+    }
+  ]
+}
