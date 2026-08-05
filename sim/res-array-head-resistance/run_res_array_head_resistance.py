@@ -61,6 +61,19 @@ Two phases, one record:
   refuses to run if that check fails (a schematic edit since that snapshot
   was taken would silently invalidate the comparison).
 
+SUPERSEDED-INPUT NOTICE (issue #99): this script is pinned to the PRE-#99
+sizing and modelling of `design/bandgap_core.sch` -- `n_r1=7`, `n_r2=54`, and
+one lumped `res_high_po` device per divider leg (see `EXPECTED_PARAMS` and
+`PHASE_B_TARGET_LINES` below, both of which describe that schematic, not the
+current one). That is deliberate: its record is the evidence for DR-003's
+finding *about* that schematic, and re-pointing it at the resized, chained
+schematic would destroy the comparison it exists to make (Phase B's whole
+point is single-device baseline vs. chained substitution, and the current
+schematic models the chained topology natively, so the substitution would be
+a no-op). Re-running it today still reproduces its own record from the
+checked-in snapshot it reads. For the resized design's own verification, see
+`sim/res-array-resize/` instead.
+
 Usage
 -----
     sim/res-array-head-resistance/run_res_array_head_resistance.py
@@ -316,11 +329,12 @@ PHASE_B_TARGET_LINES = {
     "XR1": "XR1 VBQ VB VSS sky130_fd_pr__res_high_po W='r_w' L='r_lseg*n_r1' mult=1 m=1",
 }
 
-# The current schematic's .param values that must match BASE_SNAPSHOT's own
-# .param lines byte-for-byte -- guards against silent drift between the
-# snapshot (last taken 2026-08-03) and design/bandgap_core.sch's present
-# content, since Phase B cannot re-netlist via xschem in this run
-# environment (see module docstring).
+# The .param values BASE_SNAPSHOT's own .param lines must carry byte-for-
+# byte. These are the PRE-#99 schematic's values (n_r1=7 / n_r2=54, one
+# lumped device per leg) and are pinned here on purpose -- see the
+# SUPERSEDED-INPUT NOTICE in the module docstring. The check guards the
+# snapshot this script actually reads, not the current schematic, so it
+# keeps this record reproducible after design/bandgap_core.sch moved on.
 EXPECTED_PARAMS = {
     ".param n_pnp_ctat=8",
     ".param n_pnp_ptat=8",

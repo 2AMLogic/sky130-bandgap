@@ -35,3 +35,33 @@ A repo-hygiene check enforces this: `.loom/scripts/check-xschem-embedded-quotes.
 scans every tracked `.sch`/`.sym` file for an embedded literal `"` inside a
 quoted text-attribute block and fails with a `file:line` pointer on
 detection. It runs as part of `npm run check:ci`.
+
+## Put a custom netlist `format` on a **symbol**, never on an instance
+
+When a device needs a netlist line the PDK symbol's own `format="..."` cannot
+express, add a project-local `.sym` (see `res_high_po_series.sym`) rather than
+overriding `format=` in the instance's attribute block in the `.sch`.
+
+Measured on xschem 3.4.7 (issue #99): a schematic carrying **more than one**
+instance-level `format=` attribute makes batch netlisting
+(`xschem -n -q -x -s`) exit with status **10**, even though the netlist it
+writes is complete and correct. One such instance exits 0; two or more exit
+10. `sim/bin/corner-run.py`'s `netlist_with_xschem()` treats any non-zero
+xschem exit as a hard harness error — correctly, since it must not silently
+trust a netlister that reported failure — so the whole `sim/` harness stops
+working. A symbol-level `format=` is the supported shape and netlists cleanly
+at any instance count.
+
+The concrete case: `bandgap_core.sch` needs `mult` and `m` to carry
+*different* values on `sky130_fd_pr__res_high_po` (`mult` = the real series
+unit count, which the PDK model card uses only in its Pelgrom mismatch terms;
+`m` = `1/mult`, which is how a series chain of identical units is expressed
+as one SPICE instance). The PDK's own `res_high_po.sym` emits `m=@mult`, tying
+them together. `res_high_po_series.sym` is a verbatim copy of that symbol
+whose only change is a `format=` emitting the two independently — see its
+header comment for the full rationale.
+
+Note also that a `format=` string's `@token` substitution does **not** nest:
+`m='1/@n_series'` netlists as a truncated `m='1/`, silently losing the rest
+of the line. State the reciprocal as its own instance attribute
+(`m_series='1/n_r1'`) and reference it directly (`m=@m_series`).

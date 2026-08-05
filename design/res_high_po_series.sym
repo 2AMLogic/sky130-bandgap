@@ -1,0 +1,74 @@
+v {xschem version=3.4.7 file_version=1.2
+* design/res_high_po_series.sym -- a divider leg drawn as `n_series`
+* separately-contacted `sky130_fd_pr__res_high_po` unit instances IN SERIES
+* (issue #99 / spec/decision-records/DR-003-res-array-head-resistance-sizing.md).
+*
+* Geometry and graphics are a verbatim copy of the PDK's own
+* `sky130_fd_pr/res_high_po.sym` (same three pin boxes, same pin order, same
+* device class), so an instance of this symbol is pin-for-pin interchangeable
+* with the PDK one. Exactly one thing differs -- the netlist `format` string:
+*
+*   PDK symbol : ... mult=@mult m=@mult
+*   this symbol: ... mult=@n_series m='1/@n_series'
+*
+* WHY THAT MATTERS. `sky130_fd_pr__res_high_po`'s model card uses its two
+* multiplicity handles for two DIFFERENT things:
+*   - `m` (the SPICE instance multiplicity) puts `m` copies in parallel, so
+*     it scales resistance by 1/m. `m = 1/n_series` therefore scales one
+*     unit's resistance UP by `n_series` -- which is exactly the resistance
+*     of `n_series` of those units in series (the model is linear in this
+*     regime; sim/res-array-resize/ measures the reciprocal-multiplicity form
+*     against an explicit N-instance chain in every run and gates on it).
+*   - `mult` appears ONLY inside the model card's `MC_MM_SWITCH`-gated
+*     Pelgrom mismatch terms (`body_pelgrom/sqrt(w*l*mult)`,
+*     `head_pelgrom/sqrt((w+0.525)*num_con_row*mult)`), where it states how
+*     many real unit devices the mismatch is averaged over. That must stay
+*     the true instance count `n_series`, so `sim/monte-carlo-untrimmed/`'s
+*     resistor-family isolation (the basis of DR-002's trim sizing) keeps
+*     measuring the leg's real matching area.
+* The PDK symbol emits `m=@mult`, i.e. ties the two together, so it cannot
+* express "n units in series" at all -- with `mult=n` it draws n units in
+* PARALLEL. Hence this symbol.
+*
+* WHY NOT AN INSTANCE-LEVEL `format=` OVERRIDE (the obvious alternative):
+* xschem 3.4.7 exits non-zero (rc 10) when netlisting a schematic carrying
+* more than one instance-level `format=` attribute, even though the emitted
+* netlist is correct -- and `sim/bin/corner-run.py`'s
+* `netlist_with_xschem()` treats a non-zero xschem exit as a hard harness
+* error (correctly: it must not silently trust a netlister that reported
+* failure). Putting the format on a SYMBOL is the supported shape and
+* netlists cleanly.
+*
+* Instance attributes (see design/bandgap_core.sch for live use):
+*   W         unit width (um)         -- the DRAWN width of one unit
+*   L         unit length (um)        -- the DRAWN length of ONE unit, not
+*                                        the whole leg
+*   n_series  unit instances in series
+*   model     res_high_po (the only flavour this cell uses)
+}
+G {}
+K {type=high_precision_poly_resistor
+format="@spiceprefix@name @pinlist sky130_fd_pr__@model W=@W L=@L mult=@n_series m=@m_series"
+template="name=R1 W=1 L=1 n_series=1 m_series=1 model=res_high_po spiceprefix=X"
+}
+V {}
+S {}
+E {}
+L 4 0 20 0 30 {}
+L 4 0 20 7.5 17.5 {}
+L 4 -7.5 12.5 7.5 17.5 {}
+L 4 -7.5 12.5 7.5 7.5 {}
+L 4 -7.5 2.5 7.5 7.5 {}
+L 4 -7.5 2.5 7.5 -2.5 {}
+L 4 -7.5 -7.5 7.5 -2.5 {}
+L 4 -7.5 -7.5 7.5 -12.5 {}
+L 4 -7.5 -17.5 7.5 -12.5 {}
+L 4 -7.5 -17.5 0 -20 {}
+L 4 0 -30 0 -20 {}
+B 5 -2.5 27.5 2.5 32.5 {name=M dir=inout propag=1 pinnumber=2}
+B 5 -2.5 -32.5 2.5 -27.5 {name=P dir=inout propag=0 pinnumber=1}
+B 5 -22.5 -2.5 -17.5 2.5 {name=B dir=inout pinnumber=1}
+T {B} -15 -12.5 0 1 0.15 0.15 {layer=7}
+T {@name} 15 -27.5 0 0 0.2 0.2 {}
+T {@n_series x @W / @L} 15 13.75 0 0 0.2 0.2 {layer=13}
+T {@model} 15 -13.75 0 0 0.2 0.2 {}

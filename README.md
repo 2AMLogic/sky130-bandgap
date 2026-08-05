@@ -17,10 +17,17 @@ by design since issue #15) and the routed R2A/R2B/R1 array's per-instance
 head resistance, which issue #98 confirmed with independent real-SPICE
 evidence is a real, material electrical effect of the layout's own folded
 topology (not an LVS-extraction artifact) — ratified in
-[DR-003](spec/decision-records/DR-003-res-array-head-resistance-sizing.md)
-and tracked for a design-level resize by issue #99 (open); closing the LVS
-comparison itself still needs an upstream `combine_devices` accounting fix,
-filed as
+[DR-003](spec/decision-records/DR-003-res-array-head-resistance-sizing.md).
+Issue #99 has since acted on that: `design/bandgap_core.sch` now *models*
+the drawn series array rather than one lumped device per leg, and its
+divider is resized against it (`n_r1` 7→6, `n_r2` 54→42), which puts
+VOUT(27 °C) back inside the ±1% window at all 15 PVT points
+(`sim/res-array-resize/`). The layout still draws the pre-resize array, so
+propagating the new counts into `gen_bandgap_routed.py` — and re-running
+DRC/LVS against them — is the next layout increment (issue #108); expect the LVS
+`mismatch_count` to move in the meantime, by design, since the resistor
+values now differ deliberately. Closing the LVS comparison itself also
+still needs an upstream `combine_devices` accounting fix, filed as
 [klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559)
 (open); see
 [`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)

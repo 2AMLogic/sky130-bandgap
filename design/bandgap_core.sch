@@ -44,16 +44,54 @@ v {xschem version=3.4.7 file_version=1.2
 *   MOS       sky130_fd_pr__{n,p}fet_g5v0d10v5 only (5 V thick oxide) -- no
 *             1.8 V core devices anywhere in this cell, per DR-001.
 *
+* HOW THE RESISTOR LEGS ARE MODELLED (issue #99, DR-003) -- read this before
+* the sizing numbers below. Each divider leg is drawn, and is now modelled,
+* as N SEPARATELY-CONTACTED res_high_po unit instances in series, not as one
+* device at the leg's total length. That is what layout/bin/
+* gen_bandgap_routed.py's res_r2/res_trim/res_r1 blocks actually draw
+* (bus_res_series contacts every internal unit boundary), and
+* sim/res-array-head-resistance/ proved with real SPICE that a real device
+* pays the PDK model card's per-INSTANCE rhead/fringe term once per
+* instance: one 5 um unit measures 2003.84 ohm and one 1 um trim unit
+* 704.53 ohm at tt/27 degC -- i.e. the R ~ 380 + 325*L unit model below,
+* applied once PER UNIT, which is where the 380 ohm head really lands.
+* R1/R2A/R2B below are therefore stated on design/res_high_po_series.sym
+* (one UNIT-length symbol carrying the series count; see that symbol's
+* header for the mult/m split), and every sim record taken from this
+* schematic from now on measures the topology the layout builds. Before
+* issue #99 this cell modelled one long device per leg -- one head per LEG
+* rather than per unit -- so the drawn array really builds R1 19.4% and
+* R2A/R2B 29.7% higher than this cell used to model, and K = R2/R1 8.67%
+* higher (the deltas are unequal, so it is not a common scale factor) --
+* enough to
+* put VOUT(27 degC) outside the draft +/-1% window at every corner checked
+* (spec/decision-records/DR-003-res-array-head-resistance-sizing.md).
+*
 * Sizing rationale (design/device-characterization-summary.md sections 1/4,
 * record 20260801-041501-48ac24d, tt / 27 degC):
-*   - Both PNP arrays are 8 units, so each unit carries ~0.66 uA at the ~5.3
+*   - Both PNP arrays are 8 units, so each unit carries ~0.65 uA at the ~5.2
 *     uA branch current. That keeps ideality n <~ 1.1 over -40..125 degC on
 *     the small unit (the summary caps the small unit at ~1 uA) and takes
 *     sigma(dVBE) from 0.48 mV to ~0.17 mV via the model's 1/sqrt(mult) term.
-*   - dVBE for this pair at that per-unit current is ~62.3 mV, so
-*     R1 = 62.3 mV / 5.3 uA ~ 11.8 kohm = 7 unit segments (5 um each, W=1 um:
-*     R(L) = 380 + 325*L ohm).
-*   - n_r2 (issue #46 investigation -- n_r2 stays 54, see conclusion below):
+*   - dVBE for this pair at that per-unit current is ~62.4 mV, so R1 has to
+*     be ~11.8-12.0 kohm. On the chained array that is n_r1 = 6 unit
+*     segments (6 x 2003.84 = 12,023.05 ohm, branch current 5.194 uA, -2.0%
+*     of the 5.3 uA the PNP/amp/Iq characterizations were taken at). It was
+*     7 segments while this cell modelled one device per leg (7 x 5 um at
+*     R(L) = 380 + 325*L ~ 11.75 kohm); carried onto the real array those
+*     same 7 instances draw 14,026.89 ohm, 19.4% high -- see issue #99.
+*   - n_r2 = 42 (38 coarse 5 um units + 20 fine 1 um trim units per leg =
+*     90,236.6 ohm, K = 7.5053) is issue #99's re-derivation against those
+*     chained values: the integer pair that lands VOUT(27 degC) closest to
+*     1.200 V (1.19934 V at tt/3.30 V) while holding the branch current on
+*     the anchor above. Verified over the full 15-point PVT matrix in
+*     sim/res-array-resize/. The 54 in the issue #46 discussion below is the
+*     PRE-#99 value, sized against the single-device model; it is retained
+*     verbatim because #46's floor finding (K alone cannot close the TC gap,
+*     and the hot corners have no headroom for a K INCREASE) is a statement
+*     about the loop, not about the resistor model, and survives the resize.
+*   - n_r2 (issue #46 investigation -- historical, at n_r1=7/n_r2=54 on the
+*     single-device model):
 *     the original n_r2=54 (K = R2/R1 ~ 7.5, R2 ~ 88 kohm) was sized only to
 *     hit VOUT(27 degC) ~ 1.20 V from the single-point dVBE(27 degC) figure
 *     above -- it never used the *slope* of the measured dVBE, so it
@@ -169,9 +207,14 @@ V {}
 S {}
 E {}
 T {bandgap_core -- Kuijk-style CMOS bandgap core (issue #8)
-VOUT = VBE(Q1) + (n_r2/n_r1) * dVBE(Q1,Q2); amplifier forces VA = VB.
+VOUT = VBE(Q1) + (R2/R1) * dVBE(Q1,Q2); amplifier forces VA = VB. R2/R1 is
+NOT n_r2/n_r1 -- every unit segment carries its own head resistance, so see
+the CORE_PARAMS block for the real ratio.
 PNP area ratio is built from paralleled fixed-geometry unit devices.
-All resistors are integer multiples of one res_high_po unit segment.
+All resistors are integer multiples of one res_high_po unit segment, drawn
+AND modelled as that many separately-contacted units in series (issue #99 /
+DR-003) -- each R2 leg is a coarse block (R2AC/R2BC) plus the trim ladder's
+fine block (R2AF/R2BF), joined at TRIMA/TRIMB.
 R2A/R2B carry a downward-only ladder-tap length trim, n_r2_trim (issue #13,
 metal option, code 0..-16); code 0 is untrimmed and matches #8/#11/#12
 exactly. Positive codes are rejected -- see the CORE_PARAMS block below.
@@ -185,36 +228,62 @@ C {devices/code_shown.sym} 100 -1250 0 0 {name=CORE_PARAMS only_toplevel=false v
 * per-unit current and sigma(dVBE); raise n_pnp_ptat alone for more PTAT.
 .param n_pnp_ctat=8
 .param n_pnp_ptat=8
-* res_high_po unit segment: W = r_w um, L = r_lseg um (R ~ 380 + 325*L ohm)
+* res_high_po unit segment: W = r_w um, L = r_lseg um (R ~ 380 + 325*L ohm).
+* That 380 ohm head is per DEVICE, and the routed array draws every unit as
+* its own separately-contacted device -- so it is paid per unit segment, not
+* once per leg. Measured (tt/27 degC, sim/res-array-resize/): 2003.84 ohm per
+* r_lseg unit, 704.53 ohm per r_lseg_trim unit.
 .param r_w=1
 .param r_lseg=5
-* segment counts. K = R2/R1 (each leg has its own 380 ohm head resistance,
-* so K != n_r2/n_r1 exactly -- see the header comment). n_r2 stays 54:
-* issue #46 investigated raising it to 55, the accuracy-constrained
-* ceiling, but a full 15-corner run found it loses the bandgap operating
-* point above ~124 degC at the ff/2.97 V and fs/2.97 V corners -- a worse
-* regression than the TC miss it was meant to fix. See the header comment's
-* the Sizing rationale section for the full investigation and floor finding.
-* EPISTEMIC STATUS (issue #98 / DR-003, issue #99 open): n_r1/n_r2 below are
-* sized and PVT-verified against ONE res_high_po device per leg at this L
-* (what this schematic and every existing sim record simulate). The routed
-* layout instead draws each leg as N separately-contacted unit instances in
-* series (layout/bin/gen_bandgap_routed.py), which real-SPICE evidence
-* (sim/res-array-head-resistance/) shows pays real per-instance head
-* resistance -- R1 +19.4%, R2A/R2B +29.7%, K=R2/R1 +8.7% over the single-
-* device numbers this file's own params target. That is enough to push
-* VOUT(27 degC) outside the draft +/-1% window at every corner checked
-* (spec/decision-records/DR-003-res-array-head-resistance-sizing.md). n_r1/
-* n_r2 below are NOT yet re-derived against the routed layout's real
-* topology -- issue #99 tracks that resize.
-.param n_r1=7
-.param n_r2=54
+* Segment counts, in UNIT SEGMENTS of the routed array (issue #99 / DR-003).
+* Each divider leg is n unit res_high_po instances IN SERIES, so its total
+* resistance is n*(rhead + rbody(unit)), not one device drawn at n*r_lseg --
+* the routed layout contacts every internal unit boundary and therefore pays
+* the model card's per-instance rhead term n times (real-SPICE evidence in
+* sim/res-array-head-resistance/, ratified by DR-003; this cell models it
+* via design/res_high_po_series.sym). K = R2/R1 is therefore NOT
+* (380 + 325*r_lseg*n_r2)/(380 + 325*r_lseg*n_r1); it is
+*   K = (n_r2_coarse*u5 + n_r2_fine_used*u1) / (n_r1*u5)
+* with u5 / u1 the measured per-unit values above.
+* n_r1=6 / n_r2=42 is issue #99's re-derivation against THOSE values: the
+* integer pair that lands VOUT(27 degC) closest to 1.200 V (1.19934 V at
+* tt/3.30 V; R1 = 12,023.05 ohm, R2A = R2B = 90,236.6 ohm, K = 7.5053) while
+* holding the branch current at 5.194 uA, within 2.0% of the 5.3 uA
+* operating point every other block in this design (PNP ideality #4/#35, amp
+* offset budget #9, quiescent current #15) was characterized at. See the
+* header's Sizing rationale and sim/res-array-resize/ for the derivation
+* table and the full 15-point PVT verification.
+* The previous n_r1=7 / n_r2=54 pair was sized against a SINGLE-device model
+* of each leg; carried onto the real array it reads K = 8.1474 (+8.7%) and
+* VOUT(27 degC) ~ 1.233 V, outside the draft +/-1% window at every corner
+* checked, with hot-corner regulation collapse at ff/2.97 V and fs/2.97 V
+* (DR-003). It is not restored by any change here.
+.param n_r1=6
+.param n_r2=42
+* Routed-array decomposition of an R2 leg (layout/bin/gen_bandgap_routed.py's
+* res_r2 + res_trim blocks, issue #91's coarse/fine split): the leg is
+* n_r2_coarse units of r_lseg um followed by the DR-002 trim ladder's
+* n_r2_fine units of r_lseg_trim um, and trim code n_r2_trim (<= 0) taps out
+* |n_r2_trim| of the fine units. Total drawn length is therefore still
+* r_lseg*n_r2 + r_lseg_trim*n_r2_trim, exactly as before; what changed is
+* that the instance COUNT is now modelled, not just the length. n_r2_fine
+* stays at the 20 units the layout already draws, so DR-002's certified
+* 0..-16 code range keeps the same 4 units of drawn margin. The two derived
+* counts are declared at the END of this block, after the trim params they
+* depend on -- SPICE resolves .param lines in textual order.
+.param n_r2_fine=20
 * PMOS mirror multiplicities (unit device W=8u L=2u)
 .param m_out=2
 .param m_ampbias=2
 * ---- Trim network (issue #13), DOWNWARD ONLY -- see DR-002 ----
 * Ladder-tap length added to R2A/R2B equally (metal option, no switches).
-* n_r2_trim: valid range 0..-16 only. r_lseg_trim: 1 um/code (~1.7 mV/code).
+* n_r2_trim: valid range 0..-16 only. r_lseg_trim: 1 um/code. Each code taps
+* out one separately-contacted fine unit per leg, i.e. 704.53 ohm (not the
+* 325 ohm the single-device model implied), so the step is ~3.7 mV/code and
+* the certified 0..-16 range spans ~58 mV -- issue #99 re-ran DR-002's own
+* corner set against the resized baseline and found the range still covers
+* the 15.62 mV worst-case 3-sigma spread it was sized for, with ~3.7x margin
+* instead of ~1.7x. See sim/res-array-resize/ Phase 3 and DR-003's closure.
 * Positive codes are REJECTED: this is the same R2/R1 ratio issue #46 found
 * causes ff/2.97V, fs/2.97V hot-corner (>~123C) operating-point collapse at
 * even a +5 um increase (n_r2=55). sim/trim-range-monotonicity/ reconfirms
@@ -225,6 +294,12 @@ C {devices/code_shown.sym} 100 -1250 0 0 {name=CORE_PARAMS only_toplevel=false v
 * to -16 across corners. See DR-002 and the sim record for the full case.
 .param n_r2_trim=0
 .param r_lseg_trim=1
+* Derived unit counts (must follow n_r2_trim / r_lseg_trim above -- SPICE
+* resolves .param in textual order). n_r2_coarse is the res_r2 block's unit
+* count per leg; n_r2_fine_used is how many of the res_trim ladder's fine
+* units are still in circuit at the selected trim code.
+.param n_r2_coarse='n_r2-n_r2_fine*r_lseg_trim/r_lseg'
+.param n_r2_fine_used='n_r2_fine+n_r2_trim'
 "}
 C {devices/opin.sym} 100 -830 0 0 {name=p_vout lab=VOUT}
 C {devices/iopin.sym} 100 -790 0 0 {name=p_gdrv lab=GDRV}
@@ -259,24 +334,44 @@ C {devices/lab_pin.sym} 950 -600 0 0 {name=ampo lab=GDRV}
 C {devices/lab_pin.sym} 890 -650 0 0 {name=ampt lab=TAIL}
 C {devices/lab_pin.sym} 910 -650 0 0 {name=ampvdd lab=VDD}
 C {devices/lab_pin.sym} 900 -550 0 0 {name=ampvss lab=VSS}
-C {sky130_fd_pr/res_high_po.sym} 300 -600 0 0 {name=R2A
+C {design/res_high_po_series.sym} 300 -660 0 0 {name=R2AC
 W='r_w'
-L='r_lseg*n_r2+r_lseg_trim*n_r2_trim'
+L='r_lseg'
+n_series='n_r2_coarse'
+m_series='1/n_r2_coarse'
 model=res_high_po
-spiceprefix=X
-mult=1}
-C {devices/lab_pin.sym} 300 -630 0 0 {name=r2ap lab=VOUT}
-C {devices/lab_pin.sym} 300 -570 0 0 {name=r2am lab=VA}
-C {devices/lab_pin.sym} 280 -600 0 0 {name=r2ab lab=VSS}
-C {sky130_fd_pr/res_high_po.sym} 500 -600 0 0 {name=R2B
+spiceprefix=X}
+C {devices/lab_pin.sym} 300 -690 0 0 {name=r2acp lab=VOUT}
+C {devices/lab_pin.sym} 300 -630 0 0 {name=r2acm lab=TRIMA}
+C {devices/lab_pin.sym} 280 -660 0 0 {name=r2acb lab=VSS}
+C {design/res_high_po_series.sym} 300 -600 0 0 {name=R2AF
 W='r_w'
-L='r_lseg*n_r2+r_lseg_trim*n_r2_trim'
+L='r_lseg_trim'
+n_series='n_r2_fine_used'
+m_series='1/n_r2_fine_used'
 model=res_high_po
-spiceprefix=X
-mult=1}
-C {devices/lab_pin.sym} 500 -630 0 0 {name=r2bp lab=VOUT}
-C {devices/lab_pin.sym} 500 -570 0 0 {name=r2bm lab=VB}
-C {devices/lab_pin.sym} 480 -600 0 0 {name=r2bb lab=VSS}
+spiceprefix=X}
+C {devices/lab_pin.sym} 300 -570 0 0 {name=r2afm lab=VA}
+C {devices/lab_pin.sym} 280 -600 0 0 {name=r2afb lab=VSS}
+C {design/res_high_po_series.sym} 500 -660 0 0 {name=R2BC
+W='r_w'
+L='r_lseg'
+n_series='n_r2_coarse'
+m_series='1/n_r2_coarse'
+model=res_high_po
+spiceprefix=X}
+C {devices/lab_pin.sym} 500 -690 0 0 {name=r2bcp lab=VOUT}
+C {devices/lab_pin.sym} 500 -630 0 0 {name=r2bcm lab=TRIMB}
+C {devices/lab_pin.sym} 480 -660 0 0 {name=r2bcb lab=VSS}
+C {design/res_high_po_series.sym} 500 -600 0 0 {name=R2BF
+W='r_w'
+L='r_lseg_trim'
+n_series='n_r2_fine_used'
+m_series='1/n_r2_fine_used'
+model=res_high_po
+spiceprefix=X}
+C {devices/lab_pin.sym} 500 -570 0 0 {name=r2bfm lab=VB}
+C {devices/lab_pin.sym} 480 -600 0 0 {name=r2bfb lab=VSS}
 C {sky130_fd_pr/pnp_05v5.sym} 300 -400 0 0 {name=Q1
 model=pnp_05v5_W0p68L0p68
 m='n_pnp_ctat'
@@ -284,12 +379,13 @@ spiceprefix=X}
 C {devices/lab_pin.sym} 320 -370 0 0 {name=q1c lab=VSS}
 C {devices/lab_pin.sym} 280 -400 0 0 {name=q1b lab=VSS}
 C {devices/lab_pin.sym} 320 -430 0 0 {name=q1e lab=VA}
-C {sky130_fd_pr/res_high_po.sym} 500 -400 0 0 {name=R1
+C {design/res_high_po_series.sym} 500 -400 0 0 {name=R1
 W='r_w'
-L='r_lseg*n_r1'
+L='r_lseg'
+n_series='n_r1'
+m_series='1/n_r1'
 model=res_high_po
-spiceprefix=X
-mult=1}
+spiceprefix=X}
 C {devices/lab_pin.sym} 500 -430 0 0 {name=r1p lab=VB}
 C {devices/lab_pin.sym} 500 -370 0 0 {name=r1m lab=VBQ}
 C {devices/lab_pin.sym} 480 -400 0 0 {name=r1b lab=VSS}

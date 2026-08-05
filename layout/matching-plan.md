@@ -2791,6 +2791,103 @@ consecutive increment finds nothing new there either, this is a genuine
 external-blocker floor -- release the claim per this issue's own established
 pattern rather than opening a busywork PR.
 
+### 7x. Twenty-seventh increment: the schematic is resized against the drawn array and now MODELS it (issue #99) -- VOUT back in spec at all 15 PVT points, and the layout becomes the stale side
+
+**No layout code change this increment** -- the change is on the schematic
+side, but it is recorded here because it inverts the schematic-vs-layout
+relationship Sections 7t/7u/7v spent three increments characterizing, and it
+hands the layout a concrete follow-up.
+
+Section 7v (issue #98, `spec/decision-records/DR-003-res-array-head-
+resistance-sizing.md`) established with independent real-SPICE evidence that
+`res_r2`/`res_trim`/`res_r1`'s folded array pays the `res_high_po` model
+card's per-*instance* head/fringe term once per drawn unit -- so the drawn
+legs really are R1 +19.4 % / R2A/R2B +29.7 % over the single-device model
+`design/bandgap_core.sch` carried, K = R2/R1 +8.67 %, and `VOUT(27 °C)` out
+of the draft ±1 % window at all 5 corners checked. Issue #99 is the
+corrective resize DR-003 scoped out to a follow-up.
+
+**What #99 did.** Two things, in this order:
+
+1. **Made the schematic model the array.** A new project-local symbol
+   `design/res_high_po_series.sym` states a leg as ONE unit-length
+   `sky130_fd_pr__res_high_po` instance with `mult = n` (the real series unit
+   count -- the PDK model card uses `mult` only in its `MC_MM_SWITCH`-gated
+   Pelgrom terms, so this keeps `sim/monte-carlo-untrimmed/`'s
+   resistor-family isolation measuring the leg's true matching area) and
+   `m = 1/n` (the SPICE instance multiplicity, which scales one unit's
+   resistance *up* by `n` -- the series value). The PDK's own symbol emits
+   `m=@mult`, tying the two together, so it cannot express a series chain at
+   all. Each R2 leg is now a coarse block plus the DR-002 trim ladder's fine
+   block joined at `TRIMA`/`TRIMB`, mirroring this generator's own
+   `res_r2` + `res_trim` split. Every run of the new
+   `sim/res-array-resize/` harness gates on the reciprocal-multiplicity form
+   agreeing with an explicit N-instance chain measured in the same ngspice
+   invocation (R1 12,023.05 Ω both ways; R2 90,236.61 vs 90,236.52 Ω,
+   1.0e-6).
+2. **Resized against the resulting values**: `n_r1` 7 → **6**, `n_r2`
+   54 → **42** (38 coarse 5 µm units + the unchanged 20 fine 1 µm trim
+   units per leg). K = **7.5053** (vs 8.1474 for the old counts on the same
+   array), branch current 5.1934 µA (−2.0 % of the 5.3 µA anchor the PNP /
+   amp-offset / Iq characterizations were taken at). `VOUT(27 °C)` =
+   **1.19904–1.20094 V across all 15 PVT points**, inside the ±1 % window
+   with ≥ 11 mV of margin, and with no hot-corner regulation collapse at
+   `ff`/2.97 V or `fs`/2.97 V. DR-002's certified 0..−16 trim range still
+   covers its 15.62 mV 3σ requirement with 3.74× margin (58.5 mV span), at a
+   coarser 3.66–3.68 mV/code step. Full tables, the 15-candidate derivation
+   grid and the per-check verdicts:
+   `sim/res-array-resize/records/20260805-213454-2c83c7a.md`; the
+   decision-record closure is DR-003's own "Closure (issue #99)" section.
+
+**Why this section exists in the LAYOUT plan: the stale side has swapped.**
+This generator still draws the **pre-resize** array --
+`N_R1 = 7`, `N_R2_COARSE = 50`, `SCH_N_R2 = 54`, 270 µm/leg -- and
+`layout/bandgap-core/reference.spice` still transcribes the pre-resize
+values (`RR2A`/`RR2B` 88,130 Ω, `RR1` 11,755 Ω). Until that is propagated:
+
+- The schematic is the design of record and meets spec; **the layout draws a
+  superseded sizing.** That is a strictly better gap than the one Section 7v
+  described (where the *schematic* modelled a topology nobody builds), but it
+  is a real one.
+- **AC4's `mismatch_count` should be expected to move** on the next routed-
+  flow run, because the resistor *values* now differ by design (schematic
+  R1 = 12,023.05 Ω / R2 = 90,236.61 Ω against the drawn array's 14,026.89 Ω
+  / 114,282.70 Ω). Any `klt lvs` reading taken between this increment and the
+  layout regeneration says nothing about klayout-tools#559 or about this
+  flow's own correctness -- it is measuring a deliberate, disclosed sizing
+  difference. **Do not read a `mismatch_count` regression in that window as a
+  routing or extraction defect.**
+
+**Why it was not propagated in the same increment.** Redrawing the array is
+its own lever with its own evidence requirements, exactly the discipline
+Sections 7a-7v have applied throughout: `2 × 38` coarse units no longer
+divides into `res_r2`'s current `rows: 10` fold; the composed area changes
+(the array shrinks by ~24 % of its coarse units and one R1 unit), so the
+< 0.05 mm² budget needs re-measuring; issue #91's `r2_leg_length()`
+drawn-vs-specified gate and roughly ten assertions in
+`layout/tests/test_routed_flow_gates.py` are written against the 270 µm
+figure; and the result needs its own `klt drc` / `klt extract` / `klt lvs`
+record. Bundling that into a sizing PR would have made both halves harder to
+audit -- the same reason DR-003 refused to fold the resize into issue #98's
+investigation PR.
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET | unchanged **against the pre-resize spec** -- the drawn count now tracks a superseded `n_r2`; re-establishing it against `n_r2=42` is the follow-up |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, 4 | not re-measured this increment (no layout change); expect it to move once the resize is drawn -- see the warning above |
+| 5 (blocking gaps filed) | MET | unchanged (no new `klt` gap -- the only tool-shaped finding this increment was an *xschem* netlister quirk, documented in `design/README.md`, and this repo's friction protocol is scoped to klayout-tools) |
+
+**Suggested next increment**: propagate `n_r1 = 6` / `n_r2 = 42` into
+`gen_bandgap_routed.py` (`N_R1`, `N_R2_COARSE`, the `SCH_*` transcription
+constants, `res_r2`'s `rows` fold), update `reference.spice`'s resistor
+values, re-run the routed flow for a fresh DRC / area / LVS record, and
+update the tests and Section 4's count tables to match -- filed as issue
+#108.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five

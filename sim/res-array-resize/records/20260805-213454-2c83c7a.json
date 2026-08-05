@@ -1,0 +1,783 @@
+{
+  "author": "unknown",
+  "checks": [
+    {
+      "detail": "R1: explicit series chain = 12023.0500 ohm vs. the schematic's single-symbol m='1/n' model = 12023.0500 ohm, relative diff 0.000e+00 (tolerance 1e-4) -- the whole resize rests on these being the same device",
+      "name": "reciprocal_multiplicity_models_chain[R1]",
+      "pass": true
+    },
+    {
+      "detail": "R2: explicit series chain = 90236.5200 ohm vs. the schematic's single-symbol m='1/n' model = 90236.6100 ohm, relative diff 9.974e-07 (tolerance 1e-4) -- the whole resize rests on these being the same device",
+      "name": "reciprocal_multiplicity_models_chain[R2]",
+      "pass": true
+    },
+    {
+      "detail": "design/bandgap_core.sch declares n_r1=6, n_r2=42; this run's derivation selected n_r1=6, n_r2=42",
+      "name": "schematic_carries_selected_sizing",
+      "pass": true
+    },
+    {
+      "detail": "design/bandgap_core.sch declares n_r2_fine=20; the layout draws 20 fine units per leg and DR-002's certified 0..-16 range is sized against that count",
+      "name": "schematic_fine_ladder_unchanged",
+      "pass": true
+    },
+    {
+      "detail": "branch current 5.1934 uA vs. the 5.3 uA the PNP/amp/Iq characterizations were taken at (-2.01%, tolerance +/-5%)",
+      "name": "selected_branch_current_near_anchor",
+      "pass": true
+    },
+    {
+      "detail": "K = R2/R1 = 7.5053 on the chained array (R1 = 12023.05 ohm = 6 x 2003.84; R2 = 90236.61 ohm = 38 x 2003.84 + 20 x 704.53) -- vs. 8.1474 for the old n_r1=7/n_r2=54 sizing carried onto the same array (DR-003), and 7.4973 for the single-device model it was originally sized against (reported, not gated)",
+      "name": "selected_k_from_chained_units",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 = 1.199330 V vs. draft window (1.188, 1.212)",
+      "name": "pvt_vref27_in_spec[tt_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref over -40..125 degC spans 1.172446..1.207576 V (sanity band (1.1, 1.3)); leaving it is the hot-corner operating-point collapse signature issue #46/#91/DR-003 all found for a positive K excursion",
+      "name": "pvt_no_regulation_collapse[tt_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points = 16 (expected 16) -- guards against a silently collapsed sweep reporting 0 ppm/degC",
+      "name": "pvt_temp_grid_intact[tt_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 = 1.199328 V vs. draft window (1.188, 1.212)",
+      "name": "pvt_vref27_in_spec[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref over -40..125 degC spans 1.172427..1.207582 V (sanity band (1.1, 1.3)); leaving it is the hot-corner operating-point collapse signature issue #46/#91/DR-003 all found for a positive K excursion",
+      "name": "pvt_no_regulation_collapse[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points = 16 (expected 16) -- guards against a silently collapsed sweep reporting 0 ppm/degC",
+      "name": "pvt_temp_grid_intact[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 = 1.199339 V vs. draft window (1.188, 1.212)",
+      "name": "pvt_vref27_in_spec[tt_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref over -40..125 degC spans 1.172431..1.207595 V (sanity band (1.1, 1.3)); leaving it is the hot-corner operating-point collapse signature issue #46/#91/DR-003 all found for a positive K excursion",
+      "name": "pvt_no_regulation_collapse[tt_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points = 16 (expected 16) -- guards against a silently collapsed sweep reporting 0 ppm/degC",
+      "name": "pvt_temp_grid_intact[tt_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 = 1.199748 V vs. draft window (1.188, 1.212)",
+      "name": "pvt_vref27_in_spec[ss_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref over -40..125 degC spans 1.172807..1.208162 V (sanity band (1.1, 1.3)); leaving it is the hot-corner operating-point collapse signature issue #46/#91/DR-003 all found for a positive K excursion",
+      "name": "pvt_no_regulation_collapse[ss_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points = 16 (expected 16) -- guards against a silently collapsed sweep reporting 0 ppm/degC",
+      "name": "pvt_temp_grid_intact[ss_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 = 1.199744 V vs. draft window (1.188, 1.212)",
+      "name": "pvt_vref27_in_spec[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref over -40..125 degC spans 1.172788..1.208165 V (sanity band (1.1, 1.3)); leaving it is the hot-corner operating-point collapse signature issue #46/#91/DR-003 all found for a positive K excursion",
+      "name": "pvt_no_regulation_collapse[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points = 16 (expected 16) -- guards against a silently collapsed sweep reporting 0 ppm/degC",
+      "name": "pvt_temp_grid_intact[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 = 1.199757 V vs. draft window (1.188, 1.212)",
+      "name": "pvt_vref27_in_spec[ss_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref over -40..125 degC spans 1.172800..1.208179 V (sanity band (1.1, 1.3)); leaving it is the hot-corner operating-point collapse signature issue #46/#91/DR-003 all found for a positive K excursion",
+      "name": "pvt_no_regulation_collapse[ss_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points = 16 (expected 16) -- guards against a silently collapsed sweep reporting 0 ppm/degC",
+      "name": "pvt_temp_grid_intact[ss_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 = 1.199040 V vs. draft window (1.188, 1.212)",
+      "name": "pvt_vref27_in_spec[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref over -40..125 degC spans 1.172193..1.207140 V (sanity band (1.1, 1.3)); leaving it is the hot-corner operating-point collapse signature issue #46/#91/DR-003 all found for a positive K excursion",
+      "name": "pvt_no_regulation_collapse[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points = 16 (expected 16) -- guards against a silently collapsed sweep reporting 0 ppm/degC",
+      "name": "pvt_temp_grid_intact[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 = 1.199040 V vs. draft window (1.188, 1.212)",
+      "name": "pvt_vref27_in_spec[ff_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref over -40..125 degC spans 1.172176..1.207146 V (sanity band (1.1, 1.3)); leaving it is the hot-corner operating-point collapse signature issue #46/#91/DR-003 all found for a positive K excursion",
+      "name": "pvt_no_regulation_collapse[ff_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points = 16 (expected 16) -- guards against a silently collapsed sweep reporting 0 ppm/degC",
+      "name": "pvt_temp_grid_intact[ff_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 = 1.199052 V vs. draft window (1.188, 1.212)",
+      "name": "pvt_vref27_in_spec[ff_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref over -40..125 degC spans 1.172185..1.207161 V (sanity band (1.1, 1.3)); leaving it is the hot-corner operating-point collapse signature issue #46/#91/DR-003 all found for a positive K excursion",
+      "name": "pvt_no_regulation_collapse[ff_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points = 16 (expected 16) -- guards against a silently collapsed sweep reporting 0 ppm/degC",
+      "name": "pvt_temp_grid_intact[ff_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 = 1.200939 V vs. draft window (1.188, 1.212)",
+      "name": "pvt_vref27_in_spec[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref over -40..125 degC spans 1.174961..1.208091 V (sanity band (1.1, 1.3)); leaving it is the hot-corner operating-point collapse signature issue #46/#91/DR-003 all found for a positive K excursion",
+      "name": "pvt_no_regulation_collapse[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points = 16 (expected 16) -- guards against a silently collapsed sweep reporting 0 ppm/degC",
+      "name": "pvt_temp_grid_intact[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 = 1.200934 V vs. draft window (1.188, 1.212)",
+      "name": "pvt_vref27_in_spec[sf_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref over -40..125 degC spans 1.174936..1.208096 V (sanity band (1.1, 1.3)); leaving it is the hot-corner operating-point collapse signature issue #46/#91/DR-003 all found for a positive K excursion",
+      "name": "pvt_no_regulation_collapse[sf_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points = 16 (expected 16) -- guards against a silently collapsed sweep reporting 0 ppm/degC",
+      "name": "pvt_temp_grid_intact[sf_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 = 1.200942 V vs. draft window (1.188, 1.212)",
+      "name": "pvt_vref27_in_spec[sf_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref over -40..125 degC spans 1.174934..1.208107 V (sanity band (1.1, 1.3)); leaving it is the hot-corner operating-point collapse signature issue #46/#91/DR-003 all found for a positive K excursion",
+      "name": "pvt_no_regulation_collapse[sf_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points = 16 (expected 16) -- guards against a silently collapsed sweep reporting 0 ppm/degC",
+      "name": "pvt_temp_grid_intact[sf_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 = 1.199593 V vs. draft window (1.188, 1.212)",
+      "name": "pvt_vref27_in_spec[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref over -40..125 degC spans 1.172164..1.208558 V (sanity band (1.1, 1.3)); leaving it is the hot-corner operating-point collapse signature issue #46/#91/DR-003 all found for a positive K excursion",
+      "name": "pvt_no_regulation_collapse[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points = 16 (expected 16) -- guards against a silently collapsed sweep reporting 0 ppm/degC",
+      "name": "pvt_temp_grid_intact[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 = 1.199594 V vs. draft window (1.188, 1.212)",
+      "name": "pvt_vref27_in_spec[fs_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref over -40..125 degC spans 1.172151..1.208566 V (sanity band (1.1, 1.3)); leaving it is the hot-corner operating-point collapse signature issue #46/#91/DR-003 all found for a positive K excursion",
+      "name": "pvt_no_regulation_collapse[fs_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points = 16 (expected 16) -- guards against a silently collapsed sweep reporting 0 ppm/degC",
+      "name": "pvt_temp_grid_intact[fs_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 = 1.199608 V vs. draft window (1.188, 1.212)",
+      "name": "pvt_vref27_in_spec[fs_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref over -40..125 degC spans 1.172163..1.208581 V (sanity band (1.1, 1.3)); leaving it is the hot-corner operating-point collapse signature issue #46/#91/DR-003 all found for a positive K excursion",
+      "name": "pvt_no_regulation_collapse[fs_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points = 16 (expected 16) -- guards against a silently collapsed sweep reporting 0 ppm/degC",
+      "name": "pvt_temp_grid_intact[fs_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 at codes 0: 1.199328 V, -8: 1.170061 V, -16: 1.140793 V -- each more negative code must lower VOUT (DR-002's downward-only claim)",
+      "name": "trim_monotonic_downward[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "every code in (0, -8, -16) kept vref_max inside (1.1, 1.3)",
+      "name": "trim_collapse_free[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 at codes 0: 1.199744 V, -8: 1.170477 V, -16: 1.141210 V -- each more negative code must lower VOUT (DR-002's downward-only claim)",
+      "name": "trim_monotonic_downward[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "every code in (0, -8, -16) kept vref_max inside (1.1, 1.3)",
+      "name": "trim_collapse_free[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 at codes 0: 1.199040 V, -8: 1.169764 V, -16: 1.140488 V -- each more negative code must lower VOUT (DR-002's downward-only claim)",
+      "name": "trim_monotonic_downward[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "every code in (0, -8, -16) kept vref_max inside (1.1, 1.3)",
+      "name": "trim_collapse_free[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 at codes 0: 1.200939 V, -8: 1.171485 V, -16: 1.142031 V -- each more negative code must lower VOUT (DR-002's downward-only claim)",
+      "name": "trim_monotonic_downward[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "every code in (0, -8, -16) kept vref_max inside (1.1, 1.3)",
+      "name": "trim_collapse_free[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 at codes 0: 1.199593 V, -8: 1.170350 V, -16: 1.141107 V -- each more negative code must lower VOUT (DR-002's downward-only claim)",
+      "name": "trim_monotonic_downward[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "every code in (0, -8, -16) kept vref_max inside (1.1, 1.3)",
+      "name": "trim_collapse_free[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "worst-corner 0..-16 downward range = 58.49 mV (best 58.91 mV) vs. the 15.62 mV worst-case 3-sigma spread DR-002 sized the range to cover -- margin 3.74x",
+      "name": "trim_range_still_covers_dr002_requirement",
+      "pass": true
+    },
+    {
+      "detail": "mean LSB 3.68 mV/code (worst corner) vs. the 24 mV spec window -- DR-002's own resolution requirement is that a code step stay small against that window (it was ~1.72 mV/code on the single-device model; each fine 1 um unit now carries its own per-instance head term, so the step is expected to grow)",
+      "name": "trim_lsb_resolves_spec_window",
+      "pass": true
+    }
+  ],
+  "determination": "**Resized to `n_r1=6` / `n_r2=42` (38 coarse 5 \u00b5m units + 20 fine 1 \u00b5m units per R2 leg, 6 coarse units for R1), derived against the routed layout's real chained-array values.** On the chained array this reads R1 = 12023.05 \u03a9, R2A = R2B = 90236.61 \u03a9, K = 7.5053 \u2014 against K = 8.1474 for the old `n_r1=7`/`n_r2=54` sizing carried onto the same array (DR-003's measurement), and K = 7.4973 for the single-device model that sizing was originally derived from. The branch current lands at 5.1934 \u00b5A (-2.01% of the 5.3 \u00b5A operating point the PNP ideality, error-amp offset and quiescent-current characterizations were all taken at), so the resize restores the divider ratio without moving the operating point those characterizations depend on.\n\n**AC2 met**: VOUT(27 \u00b0C) is inside the draft \u00b11% window (1.188-1.212 V) at all 15 PVT points, and no point shows the hot-corner regulation collapse DR-003 measured at `ff`/2.97 V and `fs`/2.97 V \u2014 the -40..125 \u00b0C excursion stays inside the (1.1, 1.3) sanity band everywhere.\n\n**AC3 answered \u2014 DR-002's certified 0..-16 code range does not need to widen.** Re-run (not re-cited) against the resized baseline it spans 58.49-58.91 mV of downward correction, against the 15.62 mV worst-case 3\u03c3 untrimmed spread DR-002 sized it for \u2014 3.74\u00d7 margin at the worst corner, up from the ~1.6-1.8\u00d7 DR-002 recorded on the single-device model, and monotonic and collapse-free at every corner and code tested. The *resolution* coarsens in the same proportion \u2014 3.66-3.68 mV/code against DR-002's ~1.72 mV/code \u2014 because each separately-contacted fine 1 \u00b5m unit now carries its own head/fringe term (704.5 \u03a9, not the 325 \u03a9 the single-device approximation implied). That is a resolution cost, not a coverage gap: the step is still \u00b10.15% of 1.20 V of quantization error inside a \u00b11% window.",
+  "git": {
+    "branch": "feature/issue-99",
+    "dirty": true,
+    "sha": "2c83c7a"
+  },
+  "links": {
+    "corners_dir": "sim/res-array-resize/corners/20260805-213454-2c83c7a/",
+    "json": "sim/res-array-resize/records/20260805-213454-2c83c7a.json",
+    "netlist_snapshot": "sim/res-array-resize/netlist-snapshots/20260805-213454-2c83c7a.spice",
+    "record": "sim/res-array-resize/records/20260805-213454-2c83c7a.md"
+  },
+  "overall_pass": true,
+  "pdk": {
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "lib_file": "/home/ubuntu/.volare/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "variant": "sky130A"
+  },
+  "phase_0": {
+    "r1_chain_ohm": 12023.05,
+    "r1_model_ohm": 12023.05,
+    "r2_chain_ohm": 90236.52,
+    "r2_model_ohm": 90236.61,
+    "u1_ohm": 704.5324,
+    "u5_ohm": 2003.841
+  },
+  "phase_1": [
+    {
+      "branch_ok": false,
+      "branch_ua": 6.258828919060944,
+      "in_spec": false,
+      "k": 7.00636387817197,
+      "n_r1": 5,
+      "n_r2": 32,
+      "r1_ohm": 10019.205,
+      "r2_ohm": 70198.196,
+      "vref": 1.175214
+    },
+    {
+      "branch_ok": false,
+      "branch_ua": 6.258807959314138,
+      "in_spec": false,
+      "k": 7.20636387817197,
+      "n_r1": 5,
+      "n_r2": 33,
+      "r1_ohm": 10019.205,
+      "r2_ohm": 72202.037,
+      "vref": 1.187753
+    },
+    {
+      "branch_ok": false,
+      "branch_ua": 6.258789993816875,
+      "in_spec": true,
+      "k": 7.4063638781719705,
+      "n_r1": 5,
+      "n_r2": 34,
+      "r1_ohm": 10019.205,
+      "r2_ohm": 74205.878,
+      "vref": 1.200294
+    },
+    {
+      "branch_ok": false,
+      "branch_ua": 6.258774024485975,
+      "in_spec": false,
+      "k": 7.606363878171971,
+      "n_r1": 5,
+      "n_r2": 35,
+      "r1_ohm": 10019.205,
+      "r2_ohm": 76209.719,
+      "vref": 1.212834
+    },
+    {
+      "branch_ok": false,
+      "branch_ua": 6.2587580551550746,
+      "in_spec": false,
+      "k": 7.806363878171971,
+      "n_r1": 5,
+      "n_r2": 36,
+      "r1_ohm": 10019.205,
+      "r2_ohm": 78213.56,
+      "vref": 1.225374
+    },
+    {
+      "branch_ok": true,
+      "branch_ua": 5.193448482189956,
+      "in_spec": false,
+      "k": 7.171969898476643,
+      "n_r1": 6,
+      "n_r2": 40,
+      "r1_ohm": 12023.045999999998,
+      "r2_ohm": 86228.924,
+      "vref": 1.178529
+    },
+    {
+      "branch_ok": true,
+      "branch_ua": 5.193436006150189,
+      "in_spec": true,
+      "k": 7.33863656514331,
+      "n_r1": 6,
+      "n_r2": 41,
+      "r1_ohm": 12023.045999999998,
+      "r2_ohm": 88232.765,
+      "vref": 1.188935
+    },
+    {
+      "branch_ok": true,
+      "branch_ua": 5.193424361846407,
+      "in_spec": true,
+      "k": 7.505303231809976,
+      "n_r1": 6,
+      "n_r2": 42,
+      "r1_ohm": 12023.045999999998,
+      "r2_ohm": 90236.606,
+      "vref": 1.19934
+    },
+    {
+      "branch_ok": true,
+      "branch_ua": 5.1934135492786115,
+      "in_spec": true,
+      "k": 7.671969898476643,
+      "n_r1": 6,
+      "n_r2": 43,
+      "r1_ohm": 12023.045999999998,
+      "r2_ohm": 92240.447,
+      "vref": 1.209746
+    },
+    {
+      "branch_ok": true,
+      "branch_ua": 5.193402736710814,
+      "in_spec": false,
+      "k": 7.83863656514331,
+      "n_r1": 6,
+      "n_r2": 44,
+      "r1_ohm": 12023.045999999998,
+      "r2_ohm": 94244.288,
+      "vref": 1.220152
+    },
+    {
+      "branch_ok": false,
+      "branch_ua": 4.436810533940996,
+      "in_spec": false,
+      "k": 7.147402770122837,
+      "n_r1": 7,
+      "n_r2": 47,
+      "r1_ohm": 14026.886999999999,
+      "r2_ohm": 100255.811,
+      "vref": 1.171193
+    },
+    {
+      "branch_ok": false,
+      "branch_ua": 4.436801978942299,
+      "in_spec": false,
+      "k": 7.290259912979979,
+      "n_r1": 7,
+      "n_r2": 48,
+      "r1_ohm": 14026.886999999999,
+      "r2_ohm": 102259.652,
+      "vref": 1.180083
+    },
+    {
+      "branch_ok": false,
+      "branch_ua": 4.436793423943603,
+      "in_spec": true,
+      "k": 7.433117055837123,
+      "n_r1": 7,
+      "n_r2": 49,
+      "r1_ohm": 14026.886999999999,
+      "r2_ohm": 104263.493,
+      "vref": 1.188972
+    },
+    {
+      "branch_ok": false,
+      "branch_ua": 4.4367848689449065,
+      "in_spec": true,
+      "k": 7.575974198694266,
+      "n_r1": 7,
+      "n_r2": 50,
+      "r1_ohm": 14026.886999999999,
+      "r2_ohm": 106267.334,
+      "vref": 1.197862
+    },
+    {
+      "branch_ok": false,
+      "branch_ua": 4.436777739779326,
+      "in_spec": true,
+      "k": 7.718831341551408,
+      "n_r1": 7,
+      "n_r2": 51,
+      "r1_ohm": 14026.886999999999,
+      "r2_ohm": 108271.175,
+      "vref": 1.206751
+    }
+  ],
+  "phase_2": {
+    "ff:2.97": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 176.6442,
+      "vref_27": 1.19904,
+      "vref_max": 1.20714,
+      "vref_min": 1.172193
+    },
+    "ff:3.3": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 176.7593,
+      "vref_27": 1.19904,
+      "vref_max": 1.207146,
+      "vref_min": 1.172176
+    },
+    "ff:3.63": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 176.7847,
+      "vref_27": 1.199052,
+      "vref_max": 1.207161,
+      "vref_min": 1.172185
+    },
+    "fs:2.97": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 183.8727,
+      "vref_27": 1.199593,
+      "vref_max": 1.208558,
+      "vref_min": 1.172164
+    },
+    "fs:3.3": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 183.9767,
+      "vref_27": 1.199594,
+      "vref_max": 1.208566,
+      "vref_min": 1.172151
+    },
+    "fs:3.63": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 183.9924,
+      "vref_27": 1.199608,
+      "vref_max": 1.208581,
+      "vref_min": 1.172163
+    },
+    "sf:2.97": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 167.1939,
+      "vref_27": 1.200939,
+      "vref_max": 1.208091,
+      "vref_min": 1.174961
+    },
+    "sf:3.3": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 167.3455,
+      "vref_27": 1.200934,
+      "vref_max": 1.208096,
+      "vref_min": 1.174936
+    },
+    "sf:3.63": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 167.4069,
+      "vref_27": 1.200942,
+      "vref_max": 1.208107,
+      "vref_min": 1.174934
+    },
+    "ss:2.97": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 178.5987,
+      "vref_27": 1.199748,
+      "vref_max": 1.208162,
+      "vref_min": 1.172807
+    },
+    "ss:3.3": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 178.7099,
+      "vref_27": 1.199744,
+      "vref_max": 1.208165,
+      "vref_min": 1.172788
+    },
+    "ss:3.63": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 178.7179,
+      "vref_27": 1.199757,
+      "vref_max": 1.208179,
+      "vref_min": 1.1728
+    },
+    "tt:2.97": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 177.5258,
+      "vref_27": 1.19933,
+      "vref_max": 1.207576,
+      "vref_min": 1.172446
+    },
+    "tt:3.3": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 177.6504,
+      "vref_27": 1.199328,
+      "vref_max": 1.207582,
+      "vref_min": 1.172427
+    },
+    "tt:3.63": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 177.6908,
+      "vref_27": 1.199339,
+      "vref_max": 1.207595,
+      "vref_min": 1.172431
+    }
+  },
+  "phase_3": {
+    "ff:2.97:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 341.0293,
+      "vref_27": 1.140488,
+      "vref_max": 1.160792,
+      "vref_min": 1.096617
+    },
+    "ff:2.97:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 256.502,
+      "vref_27": 1.169764,
+      "vref_max": 1.183912,
+      "vref_min": 1.134404
+    },
+    "ff:2.97:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 176.6442,
+      "vref_27": 1.19904,
+      "vref_max": 1.20714,
+      "vref_min": 1.172193
+    },
+    "fs:2.97:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 348.4392,
+      "vref_27": 1.141107,
+      "vref_max": 1.162301,
+      "vref_min": 1.096696
+    },
+    "fs:2.97:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 264.0975,
+      "vref_27": 1.17035,
+      "vref_max": 1.185429,
+      "vref_min": 1.13443
+    },
+    "fs:2.97:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 183.8727,
+      "vref_27": 1.199593,
+      "vref_max": 1.208558,
+      "vref_min": 1.172164
+    },
+    "sf:2.97:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 330.4471,
+      "vref_27": 1.142031,
+      "vref_max": 1.161246,
+      "vref_min": 1.098978
+    },
+    "sf:2.97:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 245.8801,
+      "vref_27": 1.171485,
+      "vref_max": 1.184497,
+      "vref_min": 1.13697
+    },
+    "sf:2.97:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 167.1939,
+      "vref_27": 1.200939,
+      "vref_max": 1.208091,
+      "vref_min": 1.174961
+    },
+    "ss:3.3:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 343.3924,
+      "vref_27": 1.14121,
+      "vref_max": 1.161895,
+      "vref_min": 1.097234
+    },
+    "ss:3.3:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 258.9576,
+      "vref_27": 1.170477,
+      "vref_max": 1.185023,
+      "vref_min": 1.135011
+    },
+    "ss:3.3:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 178.7099,
+      "vref_27": 1.199744,
+      "vref_max": 1.208165,
+      "vref_min": 1.172788
+    },
+    "tt:3.3:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 342.1798,
+      "vref_27": 1.140793,
+      "vref_max": 1.161279,
+      "vref_min": 1.09687
+    },
+    "tt:3.3:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 257.6938,
+      "vref_27": 1.170061,
+      "vref_max": 1.184399,
+      "vref_min": 1.134648
+    },
+    "tt:3.3:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 177.6504,
+      "vref_27": 1.199328,
+      "vref_max": 1.207582,
+      "vref_min": 1.172427
+    }
+  },
+  "record_id": "20260805-213454-2c83c7a",
+  "schematic_params": {
+    "n_r1": 6,
+    "n_r2": 42,
+    "n_r2_fine": 20,
+    "n_r2_trim": 0
+  },
+  "selected": {
+    "branch_ua": 5.193424361846407,
+    "k": 7.505303231809976,
+    "n_r1": 6,
+    "n_r2": 42,
+    "n_r2_coarse": 38,
+    "n_r2_fine": 20,
+    "r1_ohm": 12023.045999999998,
+    "r2_ohm": 90236.606,
+    "vref": 1.19934
+  },
+  "selection_reason": "3/15 candidate(s) satisfied both the branch-current anchor and the nominal-corner spec window; selected n_r1=6, n_r2=42 on smallest |VOUT - 1.200 V| (-0.66 mV)",
+  "supersedes": "",
+  "timestamp": "2026-08-05T21:34:54Z",
+  "tools": {
+    "ngspice": "ngspice-46 : Circuit level simulation program",
+    "platform": "Linux 6.17.0-1019-aws x86_64",
+    "python": "3.12.3",
+    "xschem": "XSCHEM V3.4.7"
+  },
+  "trim_stats": {
+    "max_lsb_v": 0.0036817499999999975,
+    "max_range_v": 0.05890799999999996,
+    "min_lsb_v": 0.0036553749999999885,
+    "min_range_v": 0.058485999999999816,
+    "per_corner": {
+      "ff:2.97": {
+        "lsb_v": 0.00365950000000001,
+        "range_v": 0.05855200000000016
+      },
+      "fs:2.97": {
+        "lsb_v": 0.0036553749999999885,
+        "range_v": 0.058485999999999816
+      },
+      "sf:2.97": {
+        "lsb_v": 0.0036817499999999975,
+        "range_v": 0.05890799999999996
+      },
+      "ss:3.3": {
+        "lsb_v": 0.0036583749999999915,
+        "range_v": 0.058533999999999864
+      },
+      "tt:3.3": {
+        "lsb_v": 0.0036584375000000002,
+        "range_v": 0.058535000000000004
+      }
+    }
+  }
+}
