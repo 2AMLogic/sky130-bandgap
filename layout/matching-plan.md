@@ -2633,6 +2633,98 @@ resistor model/topology interaction) constitutes acceptable closure for
 issue #62's AC4 is a decision this flow does not make for itself; it reports
 the measured floor and defers the ruling.
 
+### 7v. Real-SPICE check of the folded array's head resistance (issue #98) -- reading 2 confirmed, and material: K=R2/R1 shifts +8.67%, VOUT leaves the ±1% window at all 5 corners checked
+
+No layout code change this increment (investigation only, per issue #98's
+own scope). Section 7u above (issue #62's own klt-pin-bump increment, PR
+#97, merged) measured that picking up 2AMLogic/klayout-tools#518/#519/#526
+upstream makes `klt lvs`'s extracted `R1`/`R2A`/`R2B` read +19.3%/+29.7%
+higher than `design/bandgap_core.sch`'s single-`res_high_po`-device model,
+because `res_r2`/`res_trim`/`res_r1`'s folded array draws each divider leg
+as N separately-contacted unit instances (7 for R1, 70 for R2A/R2B) wired in
+series through real drawn metal+via (`bus_res_series`), not one lumped
+device. Issue #98 asked whether that is a real electrical property of the
+fabricated part or an LVS/extraction-only bookkeeping artifact, and -- if
+real -- whether it moves `K = R2/R1` (and therefore `VOUT`/TC) enough to
+matter.
+
+**Reading 2, confirmed by independent real-SPICE evidence, not just
+re-reading the LVS numbers.** `sim/res-array-head-resistance/` chains N real
+`sky130_fd_pr__res_high_po` unit-device SPICE model instances (the PDK's own
+nonlinear `rhead`/`rbody` semiconductor-resistor cards, via ideal
+zero-resistance wires) at the layout's own N/L shapes and measures the total
+two-terminal resistance directly in ngspice -- a completely independent
+mechanism from `klt`'s own analytic `L/W*sheet_rho + fixed_offset`
+extraction formula. The result reproduces `klt`'s reported LVS values to
+5-6 significant figures (chained R1 = 14,026.89 ohm vs. klt's 14,026.89;
+chained R2A/R2B = 114,282.70 ohm vs. klt's 114,282.72), which rules out
+"extractor bookkeeping artifact": two unrelated computations landing on the
+same number to that precision means both are measuring the same real
+electrical quantity. The model card's own structure explains the mechanism:
+`sky130_fd_pr__res_high_po`'s `rhead` sub-resistor has a *hardcoded*
+`l=1.0`, independent of the caller's drawn body length -- a real device pays
+this term once per physically separate, individually-contacted instance,
+not once per logical divider leg. The routed layout's `bus_res_series` draws
+real contacts and metal risers at every one of the array's internal unit
+boundaries (not just at the two ends of the logical leg), which is exactly
+the structure this model term represents. **A real fabricated part built
+from this layout really does pay N times the head/fringe resistance term.**
+
+**Material**: K shifts from 7.4973 (the single-device model
+`design/bandgap_core.sch` and every existing PVT sim record in this repo
+actually simulates today) to 8.1474 under the routed layout's real chained
+topology (+8.67%) -- not a uniform scale factor on both resistors, since
+R1's delta (+19.39%) and R2A/R2B's delta (+29.74%) differ, exactly the
+asymmetry issue #98's Problem section flagged as the concern. Substituting
+the chained-array topology into the real core testbench (same schematic
+`sim/output-voltage-tc/testbench/tb_vref_tc.sch`, same box-method
+`-40..125 degC` TC sweep `sim/trim-range-monotonicity/` already uses) pushes
+`VOUT(27 degC)` outside the draft ±1% spec window (1.188-1.212 V) at **all
+5** of the (process, supply) corners checked -- `tt`/3.30 V, `ss`/3.30 V,
+`ff`/2.97 V, `sf`/2.97 V, `fs`/2.97 V -- landing around 1.233-1.235 V. At the
+two corners issue #46/#91 already flagged as margin-thin (`ff`/2.97 V,
+`fs`/2.97 V), the shift is worse than an accuracy miss: it reproduces the
+*exact* regulation-collapse signature #46 and `sim/trim-range-monotonicity/`
+found for a positive R2/K increase (`VOUT` pinned near 2.85 V, box TC
+~8,000 ppm/°C) -- the same hot-corner operating-point bifurcation, triggered
+here not by a trim code or a resize, but by the routed layout's own real
+electrical topology at the untrimmed, as-shipped `n_r2_trim=0` code. Full
+per-corner table, checks, and the standalone Phase A comparison:
+`sim/res-array-head-resistance/records/20260805-113409-6caa9f8.md`.
+
+**What this does NOT mean**: it is not evidence that the fabricated part
+would ship broken with no possibility of correction -- DR-002's own
+downward-only trim ladder (`n_r2_trim`) is exactly the lever that corrects a
+K/VOUT that reads too high, and this shift is entirely in that direction (K
+increases, `VOUT` increases). What it does mean is that
+`design/bandgap_core.sch`'s sizing (`n_r1=7`, `n_r2=54`, chosen against the
+single-device model) and every existing PVT/trim-range verification record
+in this repo were computed against a resistor model the routed layout does
+not actually build, and the untrimmed operating point silently relies on
+that mismatch not existing. See `spec/decision-records/DR-003-res-array-
+head-resistance-sizing.md` for the ratified finding and the follow-up scope
+this hands to issue #99, the resizing issue (not undertaken here, per this
+issue's own investigation-only scope and this project's one-lever-per-
+increment discipline -- see Sections 7a-7u above).
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET (issue #91 landed as Section 7r) | unchanged |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, 4 | unchanged -- no code change this increment |
+| 5 (blocking gaps filed) | MET | unchanged (no new `klt` gap -- the finding is this design's own array-folding choice interacting with a now-correct extractor, per issue #98's own provenance note, not a tool gap) |
+
+**Suggested next increment**: issue #99, a resizing issue against
+`design/bandgap_core.sch`'s `n_r1`/`n_r2` (or an alternative that reduces
+the number of separately-contacted `res_high_po` unit instances the routed
+array draws), re-verified against the same full PVT corner set issue #46
+used, following
+`spec/decision-records/DR-003-res-array-head-resistance-sizing.md`'s
+"Consequences" section.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five

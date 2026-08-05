@@ -1,0 +1,218 @@
+{
+  "author": "agent-1@2amlogic.com",
+  "checks": [
+    {
+      "detail": "R1: chained (N=7) = 14026.89 ohm vs single-instance-at-combined-L (35 um) = 11748.66 ohm, delta +19.39%",
+      "name": "r1_chain_exceeds_single_device_model",
+      "pass": true
+    },
+    {
+      "detail": "R2A/R2B: chained (N=70) = 114282.70 ohm vs single-instance-at-combined-L (270 um) = 88083.06 ohm, delta +29.74%",
+      "name": "r2_chain_exceeds_single_device_model",
+      "pass": true
+    },
+    {
+      "detail": "chained R1 = 14026.89 ohm vs klt-extracted 14026.89 ohm (2AMLogic/klayout-tools#518/#519/#526), relative diff 0.0000% (tolerance 0.10%)",
+      "name": "r1_chain_reproduces_klt_extraction",
+      "pass": true
+    },
+    {
+      "detail": "chained R2A/R2B = 114282.70 ohm vs klt-extracted 114282.72 ohm (2AMLogic/klayout-tools#518/#519/#526), relative diff 0.0000% (tolerance 0.10%)",
+      "name": "r2_chain_reproduces_klt_extraction",
+      "pass": true
+    },
+    {
+      "detail": "single-instance R1 (L=35um) = 11748.66 ohm vs design/bandgap_core.sch approximation 11755.00 ohm, diff 0.054%",
+      "name": "r1_single_device_matches_schematic_approximation",
+      "pass": true
+    },
+    {
+      "detail": "single-instance R2A/R2B (L=270um) = 88083.06 ohm vs design/bandgap_core.sch approximation 88130.00 ohm, diff 0.053%",
+      "name": "r2_single_device_matches_schematic_approximation",
+      "pass": true
+    },
+    {
+      "detail": "baseline (single-device) vref_27=1.199721 V",
+      "name": "baseline_sane[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "chained-array vref_27=1.233408 V vs draft spec window (1.188, 1.212) (baseline was 1.199721 V) -- OUT OF SPEC",
+      "name": "chained_vref27_in_spec[tt_3.30v]",
+      "pass": false
+    },
+    {
+      "detail": "chained-array vref_max=1.236474 V (sanity band (1.1, 1.3); outside it would mean the operating point collapsed, per issue #46/#91's own regulation-loss signature)",
+      "name": "chained_still_regulating[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "baseline (single-device) vref_27=1.200103 V",
+      "name": "baseline_sane[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "chained-array vref_27=1.233779 V vs draft spec window (1.188, 1.212) (baseline was 1.200103 V) -- OUT OF SPEC",
+      "name": "chained_vref27_in_spec[ss_3.30v]",
+      "pass": false
+    },
+    {
+      "detail": "chained-array vref_max=1.236963 V (sanity band (1.1, 1.3); outside it would mean the operating point collapsed, per issue #46/#91's own regulation-loss signature)",
+      "name": "chained_still_regulating[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "baseline (single-device) vref_27=1.199468 V",
+      "name": "baseline_sane[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "chained-array vref_27=1.233175 V vs draft spec window (1.188, 1.212) (baseline was 1.199468 V) -- OUT OF SPEC",
+      "name": "chained_vref27_in_spec[ff_2.97v]",
+      "pass": false
+    },
+    {
+      "detail": "chained-array vref_max=2.853040 V (sanity band (1.1, 1.3); outside it would mean the operating point collapsed, per issue #46/#91's own regulation-loss signature)",
+      "name": "chained_still_regulating[ff_2.97v]",
+      "pass": false
+    },
+    {
+      "detail": "baseline (single-device) vref_27=1.201321 V",
+      "name": "baseline_sane[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "chained-array vref_27=1.235324 V vs draft spec window (1.188, 1.212) (baseline was 1.201321 V) -- OUT OF SPEC",
+      "name": "chained_vref27_in_spec[sf_2.97v]",
+      "pass": false
+    },
+    {
+      "detail": "chained-array vref_max=1.237742 V (sanity band (1.1, 1.3); outside it would mean the operating point collapsed, per issue #46/#91's own regulation-loss signature)",
+      "name": "chained_still_regulating[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "baseline (single-device) vref_27=1.199991 V",
+      "name": "baseline_sane[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "chained-array vref_27=1.233610 V vs draft spec window (1.188, 1.212) (baseline was 1.199991 V) -- OUT OF SPEC",
+      "name": "chained_vref27_in_spec[fs_2.97v]",
+      "pass": false
+    },
+    {
+      "detail": "chained-array vref_max=2.858942 V (sanity band (1.1, 1.3); outside it would mean the operating point collapsed, per issue #46/#91's own regulation-loss signature)",
+      "name": "chained_still_regulating[fs_2.97v]",
+      "pass": false
+    }
+  ],
+  "determination": "**Reading 2 (a real electrical effect), confirmed.** Chaining 7 real `sky130_fd_pr__res_high_po` unit instances via ideal wires (R1's shape) measures +19.39% higher than one instance drawn at the same 35 um combined length; chaining 70 units (R2A/R2B's shape) measures +29.74% higher. Both numbers reproduce `klt`'s own LVS-extracted values to within 0.10% using an independent mechanism (real ngspice evaluation of the PDK's nonlinear `rhead`/`rbody` model cards through ideal interconnect, not `klt`'s own analytic extraction formula) -- so the gap 2AMLogic/klayout-tools#518/#519/#526 measures at LVS time is not an extractor bookkeeping artifact. The model card's own structure explains why: `rhead`'s width is a fixed function of `w` and its length is a hardcoded `l=1.0`, *independent of the caller's drawn body length* -- so a real device really does pay this term once per physically separate, individually-contacted instance, and `rbody`'s own `leff = l + 0.247` fringe term adds a further per-instance length markup. The routed layout's `bus_res_series` draws real contacts and metal risers at every one of the array's internal unit boundaries (issue #98's Problem section), which is exactly the structure this model term represents -- so real fabricated silicon built from this layout really does pay N times the head/fringe term, not once per logical divider leg.\n\nK = R2/R1 shifts from 7.4973 (single-device model -- what `design/bandgap_core.sch` and every existing PVT sim record in this repo actually simulates today) to 8.1474 under the routed layout's real chained topology (+8.67%), because R1's delta (+19.39%) and R2A/R2B's delta (+29.74%) differ -- confirming the concern issue #98's Problem section raised: this is not a uniform scale factor on both resistors.\n\n**Material.** Substituting the chained-array topology into the real core testbench (Phase B) pushes VOUT(27 degC) outside the draft +/-1% spec window (1.188-1.212 V) at 5/5 corner points: tt/3.30V, ss/3.30V, ff/2.97V, sf/2.97V, fs/2.97V. This is the same class of finding issue #46 (operating-point collapse from a +1.4% R2 error) and issue #91 (drawn-length mismatch) treated as real and actionable, not a rounding-level effect to wave off.",
+  "git": {
+    "branch": "feature/issue-98",
+    "dirty": true,
+    "sha": "6caa9f8"
+  },
+  "links": {
+    "corners_dir": "sim/res-array-head-resistance/corners/20260805-113409-6caa9f8/",
+    "json": "sim/res-array-head-resistance/records/20260805-113409-6caa9f8.json",
+    "netlist_snapshot": "sim/res-array-head-resistance/netlist-snapshots/20260805-113409-6caa9f8.spice",
+    "record": "sim/res-array-head-resistance/records/20260805-113409-6caa9f8.md"
+  },
+  "overall_pass": false,
+  "pdk": {
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "lib_file": "/Users/rwalters/.volare/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "variant": "sky130A"
+  },
+  "phase_a": {
+    "r1_chain_ohm": 14026.89,
+    "r1_single_ohm": 11748.66,
+    "r2_chain_ohm": 114282.7,
+    "r2_single_ohm": 88083.06
+  },
+  "phase_b": {
+    "ff:2.97": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 8037.045,
+      "vref_27": 1.233175,
+      "vref_max": 2.85304,
+      "vref_min": 1.217712
+    },
+    "fs:2.97": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 8046.966,
+      "vref_27": 1.23361,
+      "vref_max": 2.858942,
+      "vref_min": 1.221017
+    },
+    "sf:2.97": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 88.63267,
+      "vref_27": 1.235324,
+      "vref_max": 1.237742,
+      "vref_min": 1.219676
+    },
+    "ss:3.3": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 97.7873,
+      "vref_27": 1.233779,
+      "vref_max": 1.236963,
+      "vref_min": 1.217056
+    },
+    "tt:3.3": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 96.84434,
+      "vref_27": 1.233408,
+      "vref_max": 1.236474,
+      "vref_min": 1.216765
+    }
+  },
+  "phase_b_baseline": {
+    "ff:2.97": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 162.2985,
+      "vref_27": 1.199468,
+      "vref_max": 1.206904,
+      "vref_min": 1.174783
+    },
+    "fs:2.97": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 169.1873,
+      "vref_27": 1.199991,
+      "vref_max": 1.208212,
+      "vref_min": 1.174714
+    },
+    "sf:2.97": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 152.8877,
+      "vref_27": 1.201321,
+      "vref_max": 1.207814,
+      "vref_min": 1.177509
+    },
+    "ss:3.3": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 164.5277,
+      "vref_27": 1.200103,
+      "vref_max": 1.207871,
+      "vref_min": 1.175291
+    },
+    "tt:3.3": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 163.3891,
+      "vref_27": 1.199721,
+      "vref_max": 1.207316,
+      "vref_min": 1.174973
+    }
+  },
+  "record_id": "20260805-113409-6caa9f8",
+  "supersedes": "",
+  "timestamp": "2026-08-05T11:34:09Z",
+  "tools": {
+    "ngspice": "ngspice-46 : Circuit level simulation program",
+    "platform": "Darwin 25.6.0 arm64",
+    "python": "3.14.6",
+    "xschem": "not found"
+  }
+}
