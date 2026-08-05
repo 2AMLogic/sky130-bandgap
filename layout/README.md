@@ -283,8 +283,9 @@ table, and a quantitative LVS mismatch analysis. Summary of what it measures:
 | DRC | clean | clean |
 | LVS | not attempted | runs; **mismatch**, see below |
 
-Three changes make that possible, each backed by a `klt` pin bump
-(`requirements.txt`) or a local workaround:
+Getting from the #15 skeleton to this state took roughly twenty-three
+increments (the full history is `layout/matching-plan.md` Sections 7a-7u,
+not repeated here); a few changes are worth knowing before reading a record:
 
 1. **Full-length ladder.** `res_array` gained a `rows` fold parameter
    (2AMLogic/klayout-tools#415, merged upstream), so the real R2A/R2B ladder
@@ -293,46 +294,73 @@ Three changes make that possible, each backed by a `klt` pin bump
    1 µm trim units, so the trim taps *subtract* from the specified length
    rather than adding to it (issue #91; it drew 286 µm before). The whole
    routed cell is 45,968 µm², inside the 50,000 µm² budget.
-2. **PNP recognition overlay.** `klt gen bjt_array` draws no bipolar
-   device-recognition marker on sky130 and no well tap for its base pads, so
-   its output extracts as *zero* devices — filed as
-   [2AMLogic/klayout-tools#432](https://github.com/2AMLogic/klayout-tools/issues/432).
-   The flow composes a `klt draw` overlay (82/44 marker per functional
-   emitter pad, 65/44 nwell tap per base pad, positioned from the
-   generator's own reported `ports[]`) to close it locally.
-3. **Router-oracle port selection.** `klt gen-compose` rejects a net whose
-   Manhattan backbone would cross a block's interior but offers no "which
-   port should I have used?" query, and a 100-segment ladder exposes 200
-   ports. `gen_bandgap_routed.py` drives `gen-compose` itself as the
-   pass/fail oracle over an ordered, geometry-derived candidate list rather
-   than hardcoding port indices.
+2. **PNP recognition is drawn by the generator itself now.** `klt gen
+   bjt_array` originally drew no bipolar device-recognition marker on sky130
+   and no well tap for its base pads, so its output extracted as *zero*
+   devices — filed as
+   [2AMLogic/klayout-tools#432](https://github.com/2AMLogic/klayout-tools/issues/432),
+   resolved via [#440](https://github.com/2AMLogic/klayout-tools/issues/440):
+   `bjt_array` now draws sky130's bipolar marker and a well tap per unit
+   device on its own. The local `klt draw` overlay this flow used to compose
+   to close the gap is retired.
+3. **A met2 escape plane for inter-block hops met1 has no corridor for.**
+   sky130's curated deck originally exposed exactly one routing metal above
+   the device pads (`li1`/met1, the same layer every generator draws its own
+   pads on) — filed as
+   [2AMLogic/klayout-tools#433](https://github.com/2AMLogic/klayout-tools/issues/433),
+   resolved via [#508](https://github.com/2AMLogic/klayout-tools/issues/508)
+   (merged via #511): the curated *extraction* deck now has a met2/via1
+   level too, which `gen_bandgap_routed.py`'s router uses as a last-resort
+   escape for the three hops (`D1`, `GDRV`, `VSS`) that had no met1 corridor
+   under any router lever tried (search depth, channel window, row-0
+   margin/re-placement, a genuine 2D row split — `matching-plan.md` Sections
+   7d-7o). The escape plane's own DRC is checked by this repo's own
+   `layout/bin/met2_drc.py` against the installed PDK's source rules, since
+   the curated *DRC* deck's met2/via coverage is still incomplete:
+   [klayout-tools#513](https://github.com/2AMLogic/klayout-tools/issues/513)
+   (closed, merged via #515) added the met2/via width, spacing, and
+   via-enclosure rules, but the met2 min-area rule (`m2.6`) is still missing.
 
-**LVS is not clean, and the record says so rather than working around it.**
-The blocker is upstream, not a layout choice: sky130's generator/router
-layer-role table exposes exactly one routing metal (`li1`), the same layer
-every generator draws its device pads on, and the router is documented as
-unaware of a block's internal geometry — so any wire crossing a block shorts
-to every pad it passes over. That makes intra-block bussing (tying an array's
-8 emitters, or a ladder's 108 series segments, into one node) inexpressible,
-so the layout's 243 devices cannot collapse into the reference netlist's 16.
-Filed as
-[2AMLogic/klayout-tools#433](https://github.com/2AMLogic/klayout-tools/issues/433);
-the related "no way to route into a guard-ringed block" gap is
-[#434](https://github.com/2AMLogic/klayout-tools/issues/434). The flow
-deliberately does **not** draw those intra-block wires: `gen-compose` would
-certify them `routed: true` while producing an electrical short, and a
-certified short is worse evidence than an open node.
+**All 12 of 12 schematic inter-block nets are joined across every block they
+reach — criterion 1 is MET, not partial.** Measured against
+`design/bandgap_core.sch`'s own inter-block node list, not just the flow's
+own `connectivity[]` declaration; the record's "Schematic inter-block nets:
+drawn vs. labelled only" table is the per-net evidence.
 
-**Inter-block routing is partial too, for the same reason.** `gen-compose`
-routes 2-pin nets, and only between blocks adjacent across an empty channel,
-so a supply trunk is a chain of hops and a non-adjacent pair cannot be joined
-at all. Measured against `design/bandgap_core.sch`'s own inter-block node
-list — not against the flow's `connectivity[]` declaration — 4 of 12 nets are
-joined across every block they reach; `VOUT` never reaches the R2 ladder,
-`AOUT`/`GDRV` are two labelled pins where the schematic has one node, `D2` is
-undrawn, and the `VDD`/`VSS` trunks stop short of blocks they supply. The
-record's "Schematic inter-block nets: drawn vs. labelled only" table is the
-per-net version, and issue #62's criterion 1 is scored **PARTIAL** on it.
+**LVS is not clean, but every remaining cause is disclosed, non-topology,
+and out of this repo's own layout to fix.** `mismatch_count` reached **4**
+as of issue #62's twenty-first increment and has not moved since (an
+independent re-run from a clean checkout reproduces it byte-for-byte —
+`matching-plan.md` Section 7u); `devices.matched` is 12, and there is no
+`device.class`, `net.split`, `net.merged`, or `net.unmatched` mismatch left.
+The two causes:
+
+1. **`MCC`** (the error amp's compensation cap) is in the schematic and
+   deliberately not drawn — a single-ended layout omission documented since
+   issue #15's own area-budget section, not a defect. The only
+   `device.unmatched` entry.
+2. **`res_high_po`'s per-device head/contact resistance is charged once per
+   drawn primitive, not once per logical device.** sky130's real
+   `sky130_fd_pr__res_high_po` SPICE model card has a fixed per-instance
+   head/end-resistance term in addition to its length-scaling term, and
+   `klt extract` now models that term too
+   ([klayout-tools#518](https://github.com/2AMLogic/klayout-tools/issues/518),
+   merged). But this repo's own trim-tap ladder draws each schematic
+   `R1`/`R2A`/`R2B` device as many (70, or 7) separately-contacted series
+   primitives — required so every DR-002 trim tap lands on real, individually
+   contacted metal — and `klt lvs`'s `combine_devices` sums the per-instance
+   offset once per primitive when it folds the series chain, not once for
+   the logical device. No drawn shape can fix this without removing the
+   functional trim taps. Filed generically as
+   [klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559),
+   open.
+
+Closing AC4 the rest of the way needs klayout-tools#559 upstream (or a new
+`klt gen` continuous-poly-with-taps resistor capability) plus a decision on
+`MCC`, both outside this repo's own layout — see `layout/matching-plan.md`
+Section 7u for the current, fully-reasoned status and what it means for
+issue #62 and for issue #16 (the post-layout extracted verification-suite
+re-run this issue exists to unblock).
 
 ### The flow's own gates, and their unit tests
 
@@ -366,14 +394,18 @@ failure mode that must never pass silently:
 - **met2 DRC** (`layout/bin/met2_drc.py`). Since
   [klayout-tools#511](https://github.com/2AMLogic/klayout-tools/pull/511)
   sky130's curated *extraction* deck has a third connectivity level (met2
-  over `via.drawing`), which is what lets the router escape a saturated met1
-  — but the curated *DRC* deck has no rule for that level at all, so
-  `klt drc` returns `violation_count: 0` on any met2 geometry whatsoever
-  (its own `coverage.layers_in_stream_without_rules` says so). This checker
-  applies the installed sky130A PDK's own source rules (`m2.1`, `m2.2`,
-  `m2.6`, `via.1a`, `via.2`, `via.4a`/`via.5a`, `m2.4`/`m2.5`) to the
-  composed stream instead. Filed upstream as
-  [klayout-tools#513](https://github.com/2AMLogic/klayout-tools/issues/513).
+  over `via.drawing`), which is what lets the router escape a saturated met1.
+  [klayout-tools#513](https://github.com/2AMLogic/klayout-tools/issues/513)
+  (closed, merged via #515) has since added the width/spacing/enclosure rules
+  for that level to the curated *DRC* deck (`met2.width.1`, `met2.space.1`,
+  `via.width.1`, `via.space.1`, `met1.enclosing.via.1`, `met2.enclosing.via.1`),
+  so `klt drc` now checks met2/via1 width, spacing, and via enclosure. What it
+  still can't check is the met2 min-area rule (`m2.6`): #515 left it out because
+  no `area` check primitive exists in the curated deck's rule vocabulary. This
+  checker applies the installed sky130A PDK's own source rules (`m2.1`, `m2.2`,
+  `m2.6`, `via.1a`, `via.2`, `via.4a`/`via.5a`, `m2.4`/`m2.5`) to the composed
+  stream instead — its remaining reason to exist is the uncovered `m2.6` area
+  gate.
 - **R2 leg-length check** (`gen_bandgap_routed.r2_leg_length()`). The drawn
   divider leg's length against `design/bandgap_core.sch`'s own
   `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim`. `klt lvs` can only report a
