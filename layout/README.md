@@ -316,9 +316,10 @@ not repeated here); a few changes are worth knowing before reading a record:
    margin/re-placement, a genuine 2D row split — `matching-plan.md` Sections
    7d-7o). The escape plane's own DRC is checked by this repo's own
    `layout/bin/met2_drc.py` against the installed PDK's source rules, since
-   the curated *DRC* deck still carries no met2/via rule
-   ([klayout-tools#513](https://github.com/2AMLogic/klayout-tools/issues/513),
-   open).
+   the curated *DRC* deck's met2/via coverage is still incomplete:
+   [klayout-tools#513](https://github.com/2AMLogic/klayout-tools/issues/513)
+   (closed, merged via #515) added the met2/via width, spacing, and
+   via-enclosure rules, but the met2 min-area rule (`m2.6`) is still missing.
 
 **All 12 of 12 schematic inter-block nets are joined across every block they
 reach — criterion 1 is MET, not partial.** Measured against
@@ -393,14 +394,18 @@ failure mode that must never pass silently:
 - **met2 DRC** (`layout/bin/met2_drc.py`). Since
   [klayout-tools#511](https://github.com/2AMLogic/klayout-tools/pull/511)
   sky130's curated *extraction* deck has a third connectivity level (met2
-  over `via.drawing`), which is what lets the router escape a saturated met1
-  — but the curated *DRC* deck has no rule for that level at all, so
-  `klt drc` returns `violation_count: 0` on any met2 geometry whatsoever
-  (its own `coverage.layers_in_stream_without_rules` says so). This checker
-  applies the installed sky130A PDK's own source rules (`m2.1`, `m2.2`,
-  `m2.6`, `via.1a`, `via.2`, `via.4a`/`via.5a`, `m2.4`/`m2.5`) to the
-  composed stream instead. Filed upstream as
-  [klayout-tools#513](https://github.com/2AMLogic/klayout-tools/issues/513).
+  over `via.drawing`), which is what lets the router escape a saturated met1.
+  [klayout-tools#513](https://github.com/2AMLogic/klayout-tools/issues/513)
+  (closed, merged via #515) has since added the width/spacing/enclosure rules
+  for that level to the curated *DRC* deck (`met2.width.1`, `met2.space.1`,
+  `via.width.1`, `via.space.1`, `met1.enclosing.via.1`, `met2.enclosing.via.1`),
+  so `klt drc` now checks met2/via1 width, spacing, and via enclosure. What it
+  still can't check is the met2 min-area rule (`m2.6`): #515 left it out because
+  no `area` check primitive exists in the curated deck's rule vocabulary. This
+  checker applies the installed sky130A PDK's own source rules (`m2.1`, `m2.2`,
+  `m2.6`, `via.1a`, `via.2`, `via.4a`/`via.5a`, `m2.4`/`m2.5`) to the composed
+  stream instead — its remaining reason to exist is the uncovered `m2.6` area
+  gate.
 - **R2 leg-length check** (`gen_bandgap_routed.r2_leg_length()`). The drawn
   divider leg's length against `design/bandgap_core.sch`'s own
   `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim`. `klt lvs` can only report a
