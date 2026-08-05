@@ -2430,21 +2430,27 @@ defect, and neither is closable by drawing anything -- `mismatch_count=4` is
 ### 7t. Twenty-second increment: confirmed the remaining `res_high_po` cause against the PDK's own model card (not just this repo's schematic-side approximation of it), filed it upstream
 
 No code change; this increment ran concurrently with Section 7s's (same
-starting record, `20260804-223242-539e30b`) and is rebased on top of it
+starting baseline, the `mismatch_count: 18` of the then-latest checked-in
+record `20260804-211109-0336eb4`) and is rebased on top of it
 rather than duplicating it — see the concurrency note at the end of this
 section. Section 7s closed cause 4 (PNP `ae`/`pe`/`ne`); this increment
 investigates the two causes Section 7s's own scoreboard names as still
-open: cause 3 (`res_high_po`'s head-resistance term) and cause 2 (issue
-#91, deliberately left to its own concurrent claim, not duplicated here).
+open: `res_high_po`'s head-resistance term, and the R2 leg length (issue
+#91, deliberately left to its own concurrent claim, not duplicated here --
+it has since landed as Section 7r).
 
 **Re-verified the baseline.** Reinstalled `layout/.venv` at the checked-in
 pin (`--force`) and re-ran `run-bandgap-routed-flow.sh` before Section 7s's
 fix landed in this session's own working tree: reproduced `mismatch_count:
-18` byte-for-byte against the last checked-in record at that point. After
-rebasing onto Section 7s's fix, the current checked-in record
-(`20260804-224713-539e30b`) is `mismatch_count: 4` — cited directly here
-rather than re-run again, since no code changed between that record and
-this section.
+18` byte-for-byte against the last checked-in record at that point. Sections
+7s and 7t were then rebased onto Section 7r (issue #91, merged to `main`
+first) and the full flow re-run twice on that combined tree: both runs
+reproduce `mismatch_count: 4`, recorded as `20260805-102026-19c521f`, which
+is the record this section and Section 7s cite. Section 7r's own
+re-decomposition does **not** change the count -- it changes each R2 leg's
+extracted `r` from 91,462.8 (a drawn-length defect) to 86,346 (the same
+`res_high_po` head term `R1` always showed), which is precisely the cause
+this section then goes on to verify against the PDK's own model card.
 
 **Cause 3, checked against the PDK model directly, not just the schematic's
 own restatement of it.** The existing record compares the layout's
@@ -2490,7 +2496,8 @@ compare epsilon (`_PARAM_ABS_EPSILON`/`_PARAM_REL_EPSILON` in
 request document can widen.
 
 **Concurrency note.** This section and Section 7s were both branched from
-`20260804-223242-539e30b` by separate sessions at nearly the same time; a
+the same `mismatch_count: 18` baseline by separate sessions at nearly the
+same time; a
 build hiccup on this session's side briefly force-pushed over Section 7s's
 commit on the shared branch before being caught and corrected by rebasing
 this section on top of it (same recovery shape as PR #71/#92's own
@@ -2502,19 +2509,21 @@ additive to Section 7s's, not a redo of it.
 | AC | before | after |
 | --- | --- | --- |
 | 1 (full inter-block routing) | MET, 12/12 | unchanged |
-| 2 (real ladder unit count) | MET (see issue #91) | unchanged; issue #91 in flight |
+| 2 (real ladder unit count) | MET (issue #91 landed as Section 7r) | unchanged |
 | 3 (device classes + pins) | MET | unchanged |
 | 4 (`klt lvs` clean) | NOT MET, 4 | unchanged, **4** — no code change this increment |
 | 5 (blocking gaps filed) | MET | MET (+#518) |
 
-**Suggested next increment**: issue #91 (already in flight under a separate
-claim) is the only actionable AC4 lever left in this repo's own layout.
-Once it lands, `mismatch_count` should drop from 4 to 2 (`MCC` and `R1`'s
-head term survive; `R2A`/`R2B`'s head term will newly appear once their
-length is correct, unless klayout-tools#518 lands first). Cause 3 is now
-independently confirmed (not just asserted) to have no layout-side fix
-available, and its upstream half is filed and out of this repo's hands
-until it lands.
+**Suggested next increment**: there is no actionable AC4 lever left in this
+repo's own layout. Issue #91 has landed (Section 7r) and, as this section's
+own baseline re-run confirms, it does not move `mismatch_count`: it converts
+`R2A`/`R2B`'s residual from a drawn-length defect into the same
+head-resistance model term `R1` already carried, which is exactly the
+prediction this section made before it landed. All 3 remaining
+`device.property` mismatches are now that one term, and the 4th is `MCC`,
+deliberately undrawn per issue #15. `mismatch_count` cannot go below 4 from
+this side: closing it needs klayout-tools#518 upstream (extractor-side head
+resistance) plus a decision on `MCC`, both out of this repo's hands.
 
 ## 8. Known limitations / follow-on work
 
