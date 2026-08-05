@@ -2791,6 +2791,71 @@ consecutive increment finds nothing new there either, this is a genuine
 external-blocker floor -- release the claim per this issue's own established
 pattern rather than opening a busywork PR.
 
+### 7x. The sizing resize DR-003 unlocked lands in the schematic (issue #99): n_r2 54 -> 50 re-centres the routed chained array's K, back in spec at all 5 corners with no hot-corner collapse -- layout-generator transcription is the next lever
+
+No layout code change this increment -- the resize lands in
+`design/bandgap_core.sch`'s sizing parameter and its own full-PVT
+verification, and the routed generator's re-transcription is deliberately
+deferred to the next increment (see the scoreboard note). Section 7v (issue
+#98, DR-003) established with real-SPICE evidence that the folded
+`res_r2`/`res_trim`/`res_r1` array pays real per-instance head resistance,
+which raises the *routed* part's `K = R2/R1` from the single-device model's
+7.4973 to **8.1474** at the shipped `n_r2=54` -- enough to push
+`VOUT(27 °C)` to ~1.233 V, outside the draft ±1 % window (1.188-1.212 V) at
+all 5 (process, supply) corners, and to collapse regulation at ff/2.97 V and
+fs/2.97 V. DR-003 deferred the corrective resize to issue #99 so it would get
+the same full-corner rigor issue #46 applied to the original sizing.
+
+**Issue #99 performed and verified that resize.** A new harness,
+`sim/res-array-resize/run_res_array_resize.py`, extends Section 7v's own
+Phase B pattern -- it chains real `sky130_fd_pr__res_high_po` unit instances
+into the core testbench at the routed layout's own decomposition
+(`gen_bandgap_routed.py`'s `N_R1`/`N_R2_COARSE`/`N_R2_TRIM_UNITS`), but
+parameterized on arbitrary `n_r1`/`n_r2` so a resize can be searched and then
+verified against the real chained topology rather than the single-device
+model. The adopted resize is a **pure `n_r2` change, 54 -> 50, with `n_r1`
+held at 7** (holding R1 fixes the branch current, so `K` is corrected without
+raising the hot-corner headroom demand the collapse depends on). Against the
+real chained topology this brings `K` back to **7.576** and `VOUT(27 °C)` to
+**1.1976-1.1995 V across all 5 corners -- in spec, and collapse-free** (ff/fs
+`VOUT`max ≈ 1.206-1.208 V, on the operating branch, vs. the shipped sizing's
+~2.85 V pin). DR-002's downward `0..-16` trim range, re-run (not re-cited) on
+the resized baseline, still covers -- the resize corrects the deterministic
+head-resistance offset at the sizing lever, leaving the metal-option trim for
+the per-die mismatch it was scoped for. Full per-corner tables, the shipped-
+sizing control that reproduces Section 7v's collapse, and the trim recheck:
+`sim/res-array-resize/records/` and
+`spec/decision-records/DR-003-res-array-head-resistance-sizing.md`'s
+"Closure" section.
+
+**Consequence for this layout.** `gen_bandgap_routed.py` still transcribes
+the old sizing (`N_R1=7`, `SCH_N_R2=54`, `N_R2_COARSE=50`) and therefore still
+draws the `n_r2=54` array -- so as of this increment the schematic carries the
+resized sizing (`n_r2=50`) and the drawn layout carries the old one. That is
+an intentional, documented transient, the same class of schematic-vs-layout
+gap Section 7v opened DR-003 to close, now pointing the other way and scoped
+to one follow-up: re-transcribe `N_R2_COARSE` 50 -> 46 (the 20-unit fine trim
+ladder unchanged; `r2_leg_length()`'s `spec_um` and its gate move 270 -> 250)
+and re-verify through `klt drc`/`klt lvs`. That step needs klayout (not
+available in issue #99's run environment, which is why the resize decision and
+the redraw are split), so it is the next increment rather than folded in here.
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET | unchanged -- still drawn at `n_r2=54`; the re-transcription to `n_r2=50` is the next increment |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, 4 | unchanged -- no layout/measurement change this increment |
+| 5 (blocking gaps filed) | MET | unchanged (no new gap -- the sizing move is verified in `sim/`, the redraw is a scoped follow-on, not a tool gap) |
+
+**Suggested next increment**: re-transcribe `gen_bandgap_routed.py` to the
+`n_r2=50` decomposition (`N_R2_COARSE` 50 -> 46, `SCH_N_R2` 54 -> 50, the
+`r2_leg_length()` gate and its `test_routed_flow_gates.py` assertions moving
+with it) and re-run `klt drc`/`klt lvs` to confirm the fabricated cell matches
+the resized schematic -- the layout half of DR-003's closure.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five
