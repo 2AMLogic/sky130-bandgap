@@ -6,12 +6,18 @@ open PDK, designed end-to-end by AI agents driving
 xschem + ngspice analog flow.
 
 **Status: active development.** Simulation and device characterization work
-is underway, and bandgap-core layout is DRC-clean and partially routed —
-extracted PNP/MOS/resistor devices, 4 of 12 schematic inter-block nets
-routed — with full LVS blocked on upstream `klayout-tools` gaps
-([#433](https://github.com/2AMLogic/klayout-tools/issues/433),
-[#434](https://github.com/2AMLogic/klayout-tools/issues/434)) rather than
-unattempted; see [`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)
+is underway, and bandgap-core layout is DRC-clean and fully routed — all 12
+of 12 schematic inter-block nets joined across every block they reach,
+extracted PNP/MOS/resistor devices, and 11 correctly promoted top-level
+pins. `klt lvs` is not yet clean (`mismatch_count: 4` against the
+xschem-derived reference netlist), but every remaining cause is disclosed
+and is **not** a connectivity, topology, or routing defect: one
+deliberately-undrawn device (the error amp's compensation cap, single-ended
+by design since issue #15) and one inherent resistor-extraction-model gap
+with no drawn-geometry fix, filed upstream as
+[klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559)
+(open); see
+[`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)
 for the full record. Nothing here has been taped out or measured in
 silicon yet. See the maturity ladder below for where things currently
 stand.
@@ -43,8 +49,8 @@ two PDKs is the portability proof.
 
 Maturity ladder: simulation-complete → layout DRC/LVS-clean → shuttle
 seat → measured silicon over temperature. Current position: mid-ladder —
-bandgap-core layout is DRC-clean but not yet LVS-clean (blocked upstream,
-see Status above).
+bandgap-core layout is DRC-clean and fully routed but not yet LVS-clean
+(two disclosed, non-topology causes remain; see Status above).
 
 ## Environment setup
 
