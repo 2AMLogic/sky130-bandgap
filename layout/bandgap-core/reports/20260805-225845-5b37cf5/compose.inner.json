@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "cell_name": "bandgap_core_routed_inner",
+  "gds_path": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-108/layout/bandgap-core/reports/20260805-225845-5b37cf5/bandgap_core_routed_inner.gds",
+  "pdk": {
+    "name": "sky130A",
+    "variant": "sky130A",
+    "version": "open_pdks c6d73a35f524070e85faff4a6a9eef49553ebc2b"
+  },
+  "bbox_um": {
+    "x0": 0.0,
+    "y0": 0.0,
+    "x1": 308.2,
+    "y1": 120.05999999999999
+  },
+  "blocks": [
+    {
+      "id": "pnp_ctat",
+      "generator": "bjt_array",
+      "offset_um": {
+        "x": 17.669999999999984,
+        "y": 0.97
+      },
+      "bbox_um": {
+        "x0": 14.799999999999983,
+        "y0": 0.0,
+        "x1": 27.739999999999984,
+        "y1": 3.7
+      }
+    },
+    {
+      "id": "res_r2",
+      "generator": "res_array",
+      "offset_um": {
+        "x": 56.41999999999998,
+        "y": 0.0
+      },
+      "bbox_um": {
+        "x0": 43.73999999999998,
+        "y0": 0.0,
+        "x1": 119.31999999999998,
+        "y1": 13.6
+      }
+    },
+    {
+      "id": "res_trim",
+      "generator": "res_array",
+      "offset_um": {
+        "x": 140.0,
+        "y": 8.399999999999999
+      },
+      "bbox_um": {
+        "x0": 135.32,
+        "y0": 8.399999999999999,
+        "x1": 162.9,
+        "y1": 13.599999999999998
+      }
+    },
+    {
+      "id": "res_r1",
+      "generator": "res_array",
+      "offset_um": {
+        "x": 191.57999999999998,
+        "y": 12.6
+      },
+      "bbox_um": {
+        "x0": 178.89999999999998,
+        "y0": 12.6,
+        "x1": 248.14,
+        "y1": 13.6
+      }
+    },
+    {
+      "id": "pnp_ptat",
+      "generator": "bjt_array",
+      "offset_um": {
+        "x": 269.72999999999996,
+        "y": 0.97
+      },
+      "bbox_um": {
+        "x0": 264.14,
+        "y0": 0.0,
+        "x1": 293.4,
+        "y1": 9.14
+      }
+    },
+    {
+      "id": "core_mirror",
+      "generator": "diff_pair",
+      "offset_um": {
+        "x": 1.07,
+        "y": 48.67
+      },
+      "bbox_um": {
+        "x0": 0.0,
+        "y0": 47.6,
+        "x1": 8.22,
+        "y1": 66.98
+      }
+    },
+    {
+      "id": "amp_input_pair",
+      "generator": "diff_pair",
+      "offset_um": {
+        "x": 25.29,
+        "y": 36.67
+      },
+      "bbox_um": {
+        "x0": 24.22,
+        "y0": 35.6,
+        "x1": 205.79999999999998,
+        "y1": 78.98
+      }
+    },
+    {
+      "id": "amp_nload",
+      "generator": "diff_pair",
+      "offset_um": {
+        "x": 222.71999999999997,
+        "y": 48.67
+      },
+      "bbox_um": {
+        "x0": 221.79999999999998,
+        "y0": 47.75,
+        "x1": 308.2,
+        "y1": 66.83
+      }
+    },
+    {
+      "id": "amp_pmirr",
+      "generator": "diff_pair",
+      "offset_um": {
+        "x": 18.139999999999993,
+        "y": 103.89999999999998
+      },
+      "bbox_um": {
+        "x0": 17.069999999999993,
+        "y0": 102.82999999999998,
+        "x1": 188.73,
+        "y1": 118.20999999999998
+      }
+    },
+    {
+      "id": "amp_nmirr",
+      "generator": "diff_pair",
+      "offset_um": {
+        "x": 205.64999999999998,
+        "y": 101.89999999999999
+      },
+      "bbox_um": {
+        "x0": 204.73,
+        "y0": 100.97999999999999,
+        "x1": 291.13,
+        "y1": 120.05999999999999
+      }
+    },
+    {
+      "id": "bandgap_core_bus",
+      "generator": "draw",
+      "offset_um": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "bbox_um": {
+        "x0": 0.0,
+        "y0": 0.0,
+        "x1": 0.0,
+        "y1": 0.0
+      }
+    }
+  ],
+  "nets": [],
+  "pins": [],
+  "unrouted_nets": [],
+  "drc_hints": {
+    "min_spacing_um": null,
+    "matched_groups": [
+      {
+        "matched_group_id": "bjt_array:2x4:common_centroid:ratio8",
+        "blocks": [
+          "pnp_ctat",
+          "pnp_ptat"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "res_array:92",
+        "blocks": [
+          "res_r2"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "res_array:40",
+        "blocks": [
+          "res_trim"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "res_array:7",
+        "blocks": [
+          "res_r1"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "diff_pair:mirror:2",
+        "blocks": [
+          "core_mirror"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "diff_pair:pair:16",
+        "blocks": [
+          "amp_input_pair"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "diff_pair:mirror:4",
+        "blocks": [
+          "amp_nload",
+          "amp_nmirr"
+        ],
+        "placement_symmetric": null
+      },
+      {
+        "matched_group_id": "diff_pair:mirror:8",
+        "blocks": [
+          "amp_pmirr"
+        ],
+        "placement_symmetric": null
+      }
+    ],
+    "notes": []
+  },
+  "warnings": []
+}

@@ -14,15 +14,17 @@ stays untouched as the placement-only DRC record it always was. What is new
 here, relative to that skeleton:
 
 1. **The R2A/R2B ladder is drawn at its real full-length count** -- the
-   schematic's 270 um per leg, as 50 coarse 5 um units plus 20 fine 1 um
-   trim units (item 16 below re-decomposed this; it was 54 coarse units
-   plus a 16-unit ladder in series), not the skeleton's reduced 16. `klt
-   gen res_array` gained a `rows` fold parameter
-   (2AMLogic/klayout-tools#415, merged upstream via klayout-tools#418), so
-   the coarse ladder folds into 10 rows and occupies ~1,030 um^2 instead of
-   the ~710 um-long single row that forced the skeleton's reduction. The
-   area-budget line in layout/matching-plan.md Section 4/6 is closed by
-   this, not deferred.
+   schematic's 250 um per leg, as 46 coarse 5 um units plus 20 fine 1 um
+   trim units (item 16 below re-decomposed the leg this way at the
+   pre-resize n_r2=54/270 um sizing; item 19 re-transcribed the same
+   decomposition to the resized n_r2=50/250 um sizing issue #99 adopted --
+   it was 54 coarse units plus a 16-unit ladder in series before item 16),
+   not the skeleton's reduced 16. `klt gen res_array` gained a `rows` fold
+   parameter (2AMLogic/klayout-tools#415, merged upstream via
+   klayout-tools#418), so the coarse ladder folds into 10 rows and occupies
+   less area than the ~610 um-long single row that would otherwise force
+   the skeleton's reduction. The area-budget line in layout/matching-plan.md
+   Section 4/6 is closed by this, not deferred.
 2. **PNP devices actually extract**, from the generator's own geometry.
    `klt gen bjt_array` used to draw neither the sky130 bipolar
    device-recognition marker (`pnp.drawing` 82/44) its own `klt extract`
@@ -184,6 +186,37 @@ here, relative to that skeleton:
     disclosed `r` delta gets *larger*, not smaller. See
     RES_HEAD_RESISTANCE_NOTE and 2AMLogic/klayout-tools#559 (filed this
     increment).
+19. **The n_r2 54->50 resize (issue #99/DR-003's closure, PR #105) is
+    propagated into the drawn array, and `klt lvs` goes from 4 mismatches
+    to 1** (issue #108). `N_R1` stays 7 (DR-003 deliberately left it fixed);
+    `N_R2_COARSE` moves 50 -> 46 and `SCH_N_R2` 54 -> 50, re-transcribing
+    issue #91's coarse/fine leg decomposition to the resized 250 um/leg
+    (46 coarse + 20 unchanged fine units, still reaching all of DR-002's
+    certified 0..-16 downward codes). `res_r2`'s `rows` fold stays at 10,
+    unchanged from the pre-resize count -- re-verified empirically against
+    the new 92-unit count rather than re-derived from a divisibility rule,
+    because every true divisor of 92 (2, 4, 23, 46) pushed the composed
+    cell over the 50,000 um^2 budget, and this repo's own fold-turn bus
+    router (`bus_res_series`) turned out not to be fold-shape-agnostic at
+    every non-divisor count either (9 and 11 each left leg-1 fold-turn
+    links unrouted, splitting R2A/R2B's series chain and pushing
+    `mismatch_count` to 15-18 -- a genuine connectivity defect, not a value
+    mismatch); 10 re-verified clean (0 unrouted links, 0 drawn-short
+    conflicts) at the resized count. See RES_RESIZE_NOTE and the `res_r2`
+    block's own `rows` comment. Separately, this increment settles the
+    single-device-vs-chained transcription-convention question DR-003's
+    closure and issue #99 left open for `reference.spice`: it now states
+    the CHAINED value (the sum every drawn unit primitive pays, using the
+    real `sky130_fd_pr__res_high_po` model's own two-term form) rather than
+    design/bandgap_core.sch's single-device approximation, because that is
+    what `klt lvs`'s own `combine_devices` actually sums the layout side
+    to (RES_HEAD_RESISTANCE_NOTE) and what issue #99's own PVT
+    re-verification was sized against -- closing all three `device.property`
+    mismatches item 18 disclosed, not just reducing them. `mismatch_count`
+    moves 4 -> 1 (the deliberately-undrawn `MMCC` is the only mismatch
+    left), and the composed cell lands at 45,968 um^2 against the
+    50,000 um^2 budget, matching the pre-resize figure almost exactly. See
+    layout/matching-plan.md Section 7y.
 
 What this script does NOT claim -- read record.md's own "What this record
 does NOT claim" section for the authoritative, measured version:
@@ -676,6 +709,37 @@ RES_HEAD_RESISTANCE_NOTE = (
     "(`res_array` has no continuous-body-with-taps mode). Filed as "
     "friction: 2AMLogic/klayout-tools#559."
 )
+#: Why n_r2 (and only n_r2) moved from 54 to 50, and why this file's own
+#: drawn decomposition had to follow it. Not a layout-side finding --
+#: transcribes issue #99/DR-003's sizing decision, made against the same
+#: chained-array topology RES_HEAD_RESISTANCE_NOTE quantifies.
+RES_RESIZE_NOTE = (
+    "RES_HEAD_RESISTANCE_NOTE's finding -- that this flow's own multi-"
+    "primitive R2A/R2B/R1 decomposition pays the fixed per-instance head "
+    "offset once per drawn primitive, not once per logical device -- is a "
+    "real electrical effect on the fabricated part, not just an LVS "
+    "value mismatch (issue #98/DR-003, sim/res-array-head-resistance/). "
+    "At the pre-resize n_r2=54 that makes the REAL chained topology's "
+    "K = R2/R1 read 8.1474 against design/bandgap_core.sch's single-"
+    "device model of 7.4973, pushing VOUT(27 degC) to ~1.233 V (outside "
+    "the draft +/-1% window) at all 5 PVT corners and collapsing "
+    "regulation at ff/2.97 V and fs/2.97 V. Issue #99 (DR-003's closure, "
+    "PR #105) resizes n_r2 54 -> 50 in design/bandgap_core.sch against "
+    "that real chained topology -- verified with a real-SPICE harness "
+    "that chains res_high_po unit instances at this flow's own "
+    "decomposition into the core testbench, not the single-device model "
+    "-- bringing K back to 7.576 and VOUT(27 degC) to ~1.198 V, in-spec "
+    "and collapse-free at all 5 corners (sim/res-array-resize/records/"
+    "20260805-204809-2c83c7a.md). n_r1 stays at 7: holding R1 (and so the "
+    "branch current) fixed corrects K without raising the hot-corner "
+    "headroom demand the collapse depends on. That record's own "
+    "'Layout follow-up' explicitly deferred re-transcribing this file's "
+    "N_R1/N_R2_COARSE/SCH_N_R2 to the resized decomposition and re-"
+    "running DRC/LVS as the next increment, per this project's one-lever-"
+    "per-increment discipline -- done here, issue #108. See item 19 in "
+    "this module's own docstring and layout/matching-plan.md Section 7y "
+    "for the drawn-side consequence (rows fold, LVS mismatch delta)."
+)
 
 # ---------------------------------------------------------------------------
 # Floorplan geometry constants (um)
@@ -723,26 +787,34 @@ R_W_UM = 1.0
 R_LSEG_UM = 5.0
 #: Fine trim-unit body length (um), design/bandgap_core.sch's `r_lseg_trim=1`.
 R_LSEG_TRIM_UM = 1.0
+#: Held at 7, unchanged by issue #99/#108's n_r2 resize: DR-003's closure
+#: deliberately left n_r1 fixed so the resize corrects K = R2/R1 without
+#: raising the branch current (and therefore the hot-corner headroom the
+#: ff/2.97V, fs/2.97V regulation-collapse margin depends on). See
+#: RES_RESIZE_NOTE.
 N_R1 = 7
-#: The R2 divider leg's **drawn** decomposition (issue #91). The schematic
-#: states one length per leg -- `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim`
-#: = 5*54 + 1*0 = 270 um at DR-002's untrimmed code 0 -- and the layout has
-#: to reproduce *that* number while still offering DR-002's downward-only
-#: trim codes. It does so by splitting the 270 um, not by adding to it:
-#: 50 coarse 5 um units (250 um) in `res_r2` plus 20 fine 1 um units (20 um)
-#: in `res_trim`. Joining the leg's low node at the far end of the fine chain
-#: is then exactly 270 um = code 0, and every tap short of that end
-#: *subtracts* 1 um per skipped unit -- the only direction DR-002 permits.
+#: The R2 divider leg's **drawn** decomposition (issue #91, re-transcribed
+#: to the resized sizing by issue #108). The schematic states one length
+#: per leg -- `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim` = 5*50 + 1*0 =
+#: 250 um at DR-002's untrimmed code 0 (n_r2=50 since issue #99/PR #105;
+#: it was 54/270 um before) -- and the layout has to reproduce *that*
+#: number while still offering DR-002's downward-only trim codes. It does
+#: so by splitting the 250 um, not by adding to it: 46 coarse 5 um units
+#: (230 um) in `res_r2` plus 20 fine 1 um units (20 um) in `res_trim`.
+#: Joining the leg's low node at the far end of the fine chain is then
+#: exactly 250 um = code 0, and every tap short of that end *subtracts*
+#: 1 um per skipped unit -- the only direction DR-002 permits.
 #:
-#: Before issue #91 the coarse leg was drawn at the full 54 units (270 um)
-#: and the fine ladder was wired in series *after* it, so the drawn leg was
-#: 286 um and every tap moved it further up: trim code +16, which DR-002
-#: rejects outright. See RES_TRIM_LENGTH_NOTE.
+#: Before issue #91 the coarse leg was drawn at the full pre-resize count
+#: (54 units, 270 um) and the fine ladder was wired in series *after* it,
+#: so the drawn leg was 286 um and every tap moved it further up: trim
+#: code +16, which DR-002 rejects outright. See RES_TRIM_LENGTH_NOTE.
 #:
-#: 50/20 is the minimal integral decomposition that keeps 270 um and still
-#: offers all 16 of DR-002's downward codes (51 coarse + 15 fine also totals
-#: 270 but reaches only -15).
-N_R2_COARSE = 50
+#: 46/20 is the minimal integral decomposition that keeps 250 um and still
+#: reaches DR-002's -16 (47 coarse + 15 fine also totals 250 but stops at
+#: -15) -- the same shape issue #91's 50/20 (at the pre-resize 270 um)
+#: reasoned from. See RES_RESIZE_NOTE for why the leg length itself moved.
+N_R2_COARSE = 46
 N_R2_TRIM_UNITS = 20
 #: DR-002's **certified** downward code range (0..-16, per leg). The drawn
 #: ladder can express 0..-20 -- codes -17..-20 are drawn metal but outside
@@ -757,10 +829,12 @@ N_R2_TRIM_CODES = 16
 #: that the drawn decomposition and the specified length are independent
 #: statements that must agree.
 SCH_R_LSEG_UM = 5.0  # .param r_lseg=5
-SCH_N_R2 = 54  # .param n_r2=54
+#: 54 -> 50 by issue #99/PR #105 (DR-003's closure); see RES_RESIZE_NOTE.
+SCH_N_R2 = 50  # .param n_r2=50
 SCH_R_LSEG_TRIM_UM = 1.0  # .param r_lseg_trim=1
 SCH_N_R2_TRIM = 0  # .param n_r2_trim=0 (DR-002's untrimmed code)
-#: The per-leg length design/bandgap_core.sch specifies, in um (270.0).
+#: The per-leg length design/bandgap_core.sch specifies, in um (250.0 as of
+#: the issue #99/#108 resize; was 270.0 before).
 R2_LEG_SPEC_UM = SCH_R_LSEG_UM * SCH_N_R2 + SCH_R_LSEG_TRIM_UM * SCH_N_R2_TRIM
 M_OUT = 2
 M_AMPBIAS = 2
@@ -774,8 +848,10 @@ AMP_M_PMIRR = 8
 # listed. Relative to gen_bandgap_floorplan.py's BLOCKS this list differs in
 # exactly three ways, each of them load-bearing for this issue:
 #
-#   * `res_r2` is at its real full-length count (100 coarse units, 10 rows;
-#     with `res_trim`'s 40 fine units that is the schematic's 270 um/leg).
+#   * `res_r2` is at its real full-length count (92 coarse units, still 10
+#     rows; with `res_trim`'s 40 fine units that is the schematic's 250
+#     um/leg, the issue #99/#108-resized sizing -- was 100 coarse units and
+#     270 um/leg before, same 10-row fold both times).
 #   * every guard/collector ring is back **on**, each with a routing opening
 #     (upstream klayout-tools#441's `ring_gap_side`), retiring the PR #64
 #     trade-off recorded in layout/matching-plan.md Section 5a.
@@ -818,6 +894,28 @@ BLOCKS: list[dict[str, Any]] = [
             "flavor": RES_FLAVOR,
             "num": 2 * N_R2_COARSE,
             "dummy": 2,
+            # Kept at 10 (unchanged from the pre-resize 100-unit count),
+            # empirically re-verified against the resized 92-unit count
+            # rather than re-derived from a divisibility rule. `res_array`'s
+            # `rows` fold (2AMLogic/klayout-tools#415/#418) does NOT require
+            # an exact divisor of `num` -- klt happily folds a remainder into
+            # a shorter last row -- but this repo's OWN `bus_res_series`
+            # (below), which draws the fold-TURN met1 jumper at each row
+            # boundary as a hand-routed corner hop, is not guaranteed
+            # fold-shape-agnostic: re-running the full routed flow at every
+            # divisor of 92 (2, 4, 23, 46) put the composed cell over the
+            # 50,000 um^2 budget in every case, and a scan of nearby
+            # non-divisor counts found two (9, 11) where a subset of leg-1
+            # fold-turn hops fail to route (bus-summary.json's `res_r2.links`
+            # reports `"routed": false`), splitting R2B's series chain and
+            # taking `klt lvs`'s `mismatch_count` from 1 to 15-18 -- a real
+            # connectivity defect, not a value mismatch. 10 was re-verified
+            # (this issue) to still route all 90 fold-turn links with zero
+            # failures, zero drawn-short conflicts, DRC clean, and
+            # `mismatch_count=1` (just the deliberately-undrawn MCC) at the
+            # resized 92-unit count; the composed cell also lands at
+            # 45,968 um^2, matching the pre-resize figure almost exactly.
+            # See RES_RESIZE_NOTE for why N_R2_COARSE itself moved.
             "rows": 10,
         },
         "bus": {"kind": "res_series", "legs": 2},
@@ -1726,7 +1824,7 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
             {"block": "res_r2", "port": f"R{2 * N_R2_COARSE - 2}_B", "leg": 0},
             {"block": "res_trim", "port": "R0_A", "leg": 0},
         ],
-        "schematic": "R2A's coarse 250 um into leg A of the fine trim ladder "
+        "schematic": "R2A's coarse 230 um into leg A of the fine trim ladder "
         "that carries the leg's last 20 um (DR-002, downward-only)",
     },
     {
@@ -1746,7 +1844,7 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
             {"block": "res_r2", "port": f"R{2 * N_R2_COARSE - 1}_B", "leg": 1},
             {"block": "res_trim", "port": "R1_A", "leg": 1},
         ],
-        "schematic": "R2B's coarse 250 um into leg B of the same fine ladder",
+        "schematic": "R2B's coarse 230 um into leg B of the same fine ladder",
     },
     {
         "net": "VB",
@@ -4911,63 +5009,33 @@ def main() -> int:
     a(f"Mismatch categories: `{json.dumps(lvs.get('category_counts', {}))}`.")
     a("")
     a(
-        "The residual gap has two disclosed causes, neither of them a "
-        "topology error in either netlist, **neither of them a connectivity "
-        "difference** and -- since issue #91 -- **neither of them a layout "
-        "defect**: every remaining category is `device.property` (a value "
-        "the extractor's model states differently from the schematic's) or "
-        "the single deliberately-undrawn device. Six causes tracked by "
-        "prior records -- the deck-synthesized substrate net, undeclarable "
-        "array dummies, the resistor device-class arity mismatch, "
-        "unrouted schematic nodes, the R2 divider leg length, and (as of "
-        "this increment) the PNP `ae`/`pe`/`ne` transcription gap -- are "
-        "**retired**; see \"Retired since the last increment\" below."
+        "The residual gap has exactly **one** disclosed cause left, as of "
+        "this (issue #108) increment, and it is neither a topology error "
+        "in either netlist, a connectivity difference, nor a layout "
+        "defect: the single deliberately-undrawn device. Seven causes "
+        "tracked by prior records -- the deck-synthesized substrate net, "
+        "undeclarable array dummies, the resistor device-class arity "
+        "mismatch, unrouted schematic nodes, the R2 divider leg length, "
+        "the PNP `ae`/`pe`/`ne` transcription gap, and (as of this "
+        "increment) the `res_high_po` per-instance head-resistance value "
+        "gap -- are **retired**; see \"Retired since the last increment\" "
+        "below."
     )
     a("")
     a(
         "1. **`MMCC`, the amp's compensation cap, is in the reference but "
         "deliberately not drawn in this layout** (see the Blocks note "
         "above), so one reference device has no layout counterpart by "
-        "construction. This is now the *only* `device.unmatched` entry on "
-        "either side."
-    )
-    a(
-        "2. **`res_high_po`'s value still differs -- and, as of this "
-        "increment, for a more precisely disclosed reason.** Through the "
-        "twenty-first increment the cause was that `klt extract`'s "
-        "sheet-resistance-only model had no term for the vendor device's "
-        "fixed per-instance head/end resistance at all. That upstream gap "
-        "closed this increment (2AMLogic/klayout-tools#518/#519, #521/#526, "
-        "see RES_HEAD_RESISTANCE_NOTE), and it did **not** close this "
-        "cause: it made the disclosed `r` delta larger, not smaller. The "
-        "correction is charged once per *drawn* resistor primitive, and "
-        "this repo's own `res_array`-drawn trim ladder represents each "
-        "schematic `R1`/`R2A`/`R2B` device as many separately-contacted "
-        "series primitives (70 per R2 leg, 7 for R1) so that the DR-002 "
-        "trim taps are reachable -- so `combine_devices`'s series fold "
-        "sums the offset 70 (or 7) times, not once for the logical device "
-        "design/bandgap_core.sch's own `R ~ 380 + 325*L` model states. "
-        "Measured: each R2 leg now reads 114,282.71617 against the "
-        "reference's 88,130 (26,152.7 ohm over, where the pre-bump body-"
-        "only value was 1,784 ohm under), and R1 reads 14,026.889569 "
-        "against 11,755 (2,271.9 ohm over, where it was 562 ohm under). "
-        "See RES_HEAD_RESISTANCE_NOTE for the full derivation."
+        "construction. This is the *only* mismatch on either side."
     )
     a("")
     a(
-        "Neither is worked around by editing either netlist to "
-        "match the layout. `reference.spice` states "
-        "design/bandgap_core.sch; rewriting it to enumerate the layout's own "
-        "shortfalls would make LVS compare the layout against itself, which "
-        "is not evidence. The one cause that *was* a layout defect -- the R2 "
-        "leg length -- was fixed in the layout (issue #91), not relaxed in "
-        "the reference. The res_high_po cause is not a candidate for a "
-        "reference-side fix either: design/bandgap_core.sch's `R ~ 380 + "
-        "325*L` model is the schematic's own honestly-simplified statement "
-        "of a single resistor instance, and stretching it to account for "
-        "this flow's own choice of a 70-primitive (or 7-primitive) trim-tap "
-        "decomposition would be tuning the reference to the layout's "
-        "implementation detail, not stating the design."
+        "Not worked around by editing either netlist to match the other. "
+        "`reference.spice` states design/bandgap_core.sch; rewriting it to "
+        "enumerate the layout's own shortfalls would make LVS compare the "
+        "layout against itself, which is not evidence. `MMCC` is a "
+        "deliberate scope choice (a single-ended compensation cap this "
+        "layout does not draw), not a defect either side could fix."
     )
     a("")
     a("### Retired since the last increment")
@@ -5011,6 +5079,24 @@ def main() -> int:
         "- **The PNP `ae`/`pe`/`ne` transcription gap is fixed.** "
         f"{PNP_EMITTER_GEOMETRY_NOTE}"
     )
+    a(
+        "- **`res_high_po`'s per-instance head-resistance value gap is "
+        "closed** (issue #108). RES_HEAD_RESISTANCE_NOTE's finding still "
+        "holds -- this flow's own multi-primitive R2A/R2B/R1 decomposition "
+        "genuinely pays the fixed per-instance offset once per drawn "
+        "primitive, not once per logical device -- but `reference.spice` "
+        "previously stated design/bandgap_core.sch's single-device "
+        "approximation (`380 + 325*L` once per leg), which is not what "
+        "`klt lvs`'s own `combine_devices` sums the layout side to. This "
+        "increment settles that transcription-convention question by "
+        "stating the CHAINED value instead (RES_RESIZE_NOTE and "
+        "reference.spice's own RESISTOR VALUE CONVENTION note), computed "
+        "from the same real `sky130_fd_pr__res_high_po` model constants "
+        "RES_HEAD_RESISTANCE_NOTE cites -- exactly reproducing what "
+        "`combine_devices` sums the layout side to. Measured: `R1`/`R2A`/"
+        "`R2B` all move from `device.property` mismatches to full matches, "
+        "`mismatch_count` moving from 4 (pre-resize) to the 1 above."
+    )
     a("")
     a("## Visual verification")
     a("")
@@ -5022,24 +5108,22 @@ def main() -> int:
         f"- **Not LVS-clean.** `klt lvs` reports `{lvs.get('status')}` with "
         f"`mismatch_count={lvs.get('mismatch_count')}` against the "
         "xschem-derived reference netlist, and `devices.matched` is "
-        f"{lvs_devices.get('matched')}. The two causes above are the whole "
-        "of it; neither is hidden behind a number that moved. The count "
-        "moved 18 -> 4 only because `reference.spice`'s PNP cards now state "
-        "the emitter geometry the comparer needs (a transcription fix, not "
-        "a change to any drawn shape -- see the retired causes below). It "
-        "did **not** move when issue #91 fixed the R2 leg length, nor when "
-        "this (twenty-third) increment picked up klayout-tools#518/#519/"
-        "#521/#526 -- and this time the honest result is not that the "
-        "delta held steady, but that it got **worse**: the corrected `r` "
-        "on `R1`/`R2A`/`R2B` moved from a body-only under-count "
-        "(86,346 = 319.8 x 270 against the reference's 88,130) to an "
-        "over-counted 114,282.71617, because this flow's own trim-tap "
-        "decomposition charges the extractor's new per-instance offset "
-        "once per drawn primitive rather than once per logical device -- "
-        "`mismatch_count` and `category_counts` are unchanged (still 4; "
-        "still `device.property`: 3, `device.unmatched`: 1), so the gated "
-        "condition did not regress, but AC4's practical floor is not this "
-        "increment's finding either. See RES_HEAD_RESISTANCE_NOTE."
+        f"{lvs_devices.get('matched')}. The one cause above (`MMCC`, "
+        "deliberately not drawn) is the whole of it. The count moved "
+        "18 -> 4 when reference.spice's PNP cards gained emitter geometry "
+        "(a transcription fix, not a drawn-shape change), held at 4 across "
+        "issue #91's R2-leg-length fix and picking up klayout-tools#518/"
+        "#519/#521/#526's `res_high_po` head-resistance correction (which "
+        "made the disclosed `r` delta *larger*, not smaller, because this "
+        "flow's own trim-tap decomposition charges the fixed per-instance "
+        "offset once per drawn primitive rather than once per logical "
+        "device -- see RES_HEAD_RESISTANCE_NOTE), and now moves 4 -> 1 "
+        "with issue #108's resize propagation: reference.spice now states "
+        "the CHAINED value for `R1`/`R2A`/`R2B` (RES_RESIZE_NOTE, "
+        "reference.spice's own RESISTOR VALUE CONVENTION note) instead of "
+        "the single-device approximation, which is what `combine_devices` "
+        "actually sums the layout side to -- so the three `device.property` "
+        "mismatches this cause carried are gone, not just smaller."
     )
     if full_connectivity:
         a(

@@ -277,7 +277,7 @@ table, and a quantitative LVS mismatch analysis. Summary of what it measures:
 |---|---|---|
 | inter-block routing | none drawn | 13/13 declared nets routed — **12/12 schematic inter-block nets fully joined** (criterion 1 MET), 7 hops via the met2 escape plane |
 | promoted top-level pins | 0 | 11 |
-| R2A/R2B ladder | 16 units (reduced) | **270 µm/leg (the real length)** — 100 coarse 5 µm units folded into 10 rows, plus 40 fine 1 µm trim units in 4 rows carrying each leg's last 20 µm |
+| R2A/R2B ladder | 16 units (reduced) | **250 µm/leg (the real length, issue #99/#108-resized; was 270 µm before)** — 46 coarse 5 µm units folded into 10 rows, plus 40 fine 1 µm trim units in 4 rows carrying each leg's last 20 µm |
 | extracted `pnp` | 0 | 16 |
 | extracted `nfet` | 0 | 16 |
 | DRC | clean | clean |
@@ -289,11 +289,12 @@ not repeated here); a few changes are worth knowing before reading a record:
 
 1. **Full-length ladder.** `res_array` gained a `rows` fold parameter
    (2AMLogic/klayout-tools#415, merged upstream), so the real R2A/R2B ladder
-   folds into a compact block instead of a ~710 µm-long single row. It draws
-   the schematic's whole 270 µm per leg — 50 coarse 5 µm units plus 20 fine
-   1 µm trim units, so the trim taps *subtract* from the specified length
-   rather than adding to it (issue #91; it drew 286 µm before). The whole
-   routed cell is 45,968 µm², inside the 50,000 µm² budget.
+   folds into a compact block instead of a ~610 µm-long single row. It draws
+   the schematic's whole 250 µm per leg (issue #99/#108's resize; was 270 µm
+   before) — 46 coarse 5 µm units plus 20 fine 1 µm trim units, so the trim
+   taps *subtract* from the specified length rather than adding to it (issue
+   #91; it drew 286 µm before that fix). The whole routed cell is
+   45,968 µm², inside the 50,000 µm² budget.
 2. **PNP recognition is drawn by the generator itself now.** `klt gen
    bjt_array` originally drew no bipolar device-recognition marker on sky130
    and no well tap for its base pads, so its output extracted as *zero*
@@ -327,56 +328,64 @@ reach — criterion 1 is MET, not partial.** Measured against
 own `connectivity[]` declaration; the record's "Schematic inter-block nets:
 drawn vs. labelled only" table is the per-net evidence.
 
-**LVS is not clean, but every remaining cause is disclosed, non-topology,
-and out of this repo's own layout to fix.** `mismatch_count` reached **4**
-as of issue #62's twenty-first increment and has not moved since (an
-independent re-run from a clean checkout reproduces it byte-for-byte —
-`matching-plan.md` Section 7u); `devices.matched` is 12, and there is no
-`device.class`, `net.split`, `net.merged`, or `net.unmatched` mismatch left.
-The two causes:
+**LVS is not clean, but the one remaining cause is disclosed, non-topology,
+and a deliberate scope choice, not a defect.** `mismatch_count` is **1** as
+of issue #108 (was **4** from issue #62's twenty-first increment through
+issue #98/#99's head-resistance investigation and resize); `devices.matched`
+is 15, and there is no `device.class`, `net.split`, `net.merged`, or
+`net.unmatched` mismatch left. The one cause:
 
 1. **`MCC`** (the error amp's compensation cap) is in the schematic and
    deliberately not drawn — a single-ended layout omission documented since
    issue #15's own area-budget section, not a defect. The only
    `device.unmatched` entry.
-2. **`res_high_po`'s per-device head/contact resistance is charged once per
-   drawn primitive, not once per logical device.** sky130's real
-   `sky130_fd_pr__res_high_po` SPICE model card has a fixed per-instance
-   head/end-resistance term in addition to its length-scaling term, and
-   `klt extract` now models that term too
-   ([klayout-tools#518](https://github.com/2AMLogic/klayout-tools/issues/518),
-   merged). But this repo's own trim-tap ladder draws each schematic
-   `R1`/`R2A`/`R2B` device as many (70, or 7) separately-contacted series
-   primitives — required so every DR-002 trim tap lands on real, individually
-   contacted metal — and `klt lvs`'s `combine_devices` sums the per-instance
-   offset once per primitive when it folds the series chain, not once for
-   the logical device. No drawn shape can fix this without removing the
-   functional trim taps. Filed generically as
-   [klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559),
-   open.
 
-**Cause 2 is not merely an LVS-comparison quirk — issue #98 confirmed it is
-real and material, independent of the LVS numbers themselves.** A
-standalone SPICE testbench
-(`sim/res-array-head-resistance/run_res_array_head_resistance.py`) chains
-real `sky130_fd_pr__res_high_po` unit-device model instances at the routed
-array's own N/L shapes and reproduces `klt`'s LVS-extracted `R1`/`R2A`/`R2B`
-values to 5-6 significant figures via a completely independent mechanism —
-ruling out an extraction-only bookkeeping artifact. Substituting the same
-chained topology into the real core testbench pushes `VOUT(27 °C)` outside
-the draft ±1% window at all 5 PVT corners checked, and collapses regulation
-entirely at the two hot corners issue #46/#91 already flagged as
-margin-thin. Ratified in
+**A second cause was open through issue #62's twenty-third increment and is
+now closed (issue #108): `res_high_po`'s per-device head/contact resistance
+was charged once per drawn primitive, not once per logical device.**
+sky130's real `sky130_fd_pr__res_high_po` SPICE model card has a fixed
+per-instance head/end-resistance term in addition to its length-scaling
+term, and `klt extract` models that term
+([klayout-tools#518](https://github.com/2AMLogic/klayout-tools/issues/518),
+merged). This repo's own trim-tap ladder draws each schematic `R1`/`R2A`/
+`R2B` device as many (66, or 7) separately-contacted series primitives —
+required so every DR-002 trim tap lands on real, individually contacted
+metal — and `klt lvs`'s `combine_devices` sums the per-instance offset once
+per primitive when it folds the series chain, not once for the logical
+device (filed generically as
+[klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559),
+still open as a **request for a continuous-poly-with-taps generator
+capability**, not as a live blocker of this repo's own LVS result). What
+closed the cause on this repo's side, without needing #559: `reference.spice`
+now states the CHAINED value (the sum of every drawn primitive's own
+sheet-resistance-plus-head-offset, using the real device model's own two
+constants) instead of design/bandgap_core.sch's single-device approximation
+— exactly what `combine_devices` sums the layout side to, and exactly the
+value issue #99's own resize was PVT-verified against. See
+`layout/bandgap-core/reference.spice`'s own RESISTOR VALUE CONVENTION note
+and `layout/matching-plan.md` Section 7y.
+
+**The underlying real-electrical finding behind that cause is still true and
+is why the resize happened at all — issue #98 confirmed it is real and
+material, independent of the LVS numbers themselves.** A standalone SPICE
+testbench (`sim/res-array-head-resistance/run_res_array_head_resistance.py`)
+chains real `sky130_fd_pr__res_high_po` unit-device model instances at the
+routed array's own N/L shapes and reproduces `klt`'s LVS-extracted
+`R1`/`R2A`/`R2B` values to 5-6 significant figures via a completely
+independent mechanism — ruling out an extraction-only bookkeeping artifact.
+At the pre-resize sizing this pushed `VOUT(27 °C)` outside the draft ±1%
+window at all 5 PVT corners checked and collapsed regulation entirely at the
+two hot corners issue #46/#91 already flagged as margin-thin. Ratified in
 [DR-003](../spec/decision-records/DR-003-res-array-head-resistance-sizing.md);
-the corrective `n_r1`/`n_r2` resize is scoped to follow-up issue #99 (open),
-outside issue #62's own layout-routing/LVS-closure scope. Closing *this*
-issue's AC4 (the LVS comparison itself) still needs the tool-side fix —
-klayout-tools#559, above — independent of whether #99's resize lands.
+the corrective resize (`n_r2` 54 -> 50, `n_r1` held at 7) landed in
+`design/bandgap_core.sch` via issue #99 (PR #105) and was propagated into
+this drawn layout, its `reference.spice` and this record by issue #108 —
+DR-003's closure section and `layout/matching-plan.md` Section 7y have the
+full before/after.
 
-Closing AC4 the rest of the way needs klayout-tools#559 upstream (or a new
-`klt gen` continuous-poly-with-taps resistor capability) plus a decision on
-`MCC`, both outside this repo's own layout — see `layout/matching-plan.md`
-Section 7u (and Section 7v for the issue #98 materiality finding) for the
+`MCC` is the only thing left between this layout and an LVS-clean result,
+and it is a deliberate scope choice (see above), not something either
+netlist needs a fix for — see `layout/matching-plan.md` Section 7y for the
 current, fully-reasoned status and what it means for issue #62 and for
 issue #16 (the post-layout extracted verification-suite re-run this issue
 exists to unblock).
@@ -462,8 +471,12 @@ collide, and the current clean one), so the gates are pinned against the
 exact netlists they were written to judge.
 
 `bandgap-core/reference.spice` is the schematic side of that comparison —
-transcribed from `design/bandgap_core.sch` + `design/error_amp.sch` and
-corroborated by the checked-in `n_r2=54` xschem snapshot its header cites
-(`sim/output-voltage-tc/netlist-snapshots/`), never derived from the layout.
+transcribed from `design/bandgap_core.sch` + `design/error_amp.sch`
+(topology corroborated by the checked-in `n_r2=54` xschem snapshot its
+header cites (`sim/output-voltage-tc/netlist-snapshots/`), which predates
+issue #99's resize but is still correct evidence for the topology; the R2A/
+R2B/R1 *values* are transcribed from the resized `n_r2=50` chained-array
+sizing instead, per `sim/res-array-resize/records/` and the file's own
+RESISTOR VALUE CONVENTION note), never derived from the layout.
 It states the schematic even where the layout falls short of it: there is no
 0-ohm bridge device standing in for the unrouted `AOUT`→`GDRV` net.
