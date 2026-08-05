@@ -195,6 +195,18 @@ C {devices/code_shown.sym} 100 -1250 0 0 {name=CORE_PARAMS only_toplevel=false v
 * point above ~124 degC at the ff/2.97 V and fs/2.97 V corners -- a worse
 * regression than the TC miss it was meant to fix. See the header comment's
 * the Sizing rationale section for the full investigation and floor finding.
+* EPISTEMIC STATUS (issue #98 / DR-003, issue #99 open): n_r1/n_r2 below are
+* sized and PVT-verified against ONE res_high_po device per leg at this L
+* (what this schematic and every existing sim record simulate). The routed
+* layout instead draws each leg as N separately-contacted unit instances in
+* series (layout/bin/gen_bandgap_routed.py), which real-SPICE evidence
+* (sim/res-array-head-resistance/) shows pays real per-instance head
+* resistance -- R1 +19.4%, R2A/R2B +29.7%, K=R2/R1 +8.7% over the single-
+* device numbers this file's own params target. That is enough to push
+* VOUT(27 degC) outside the draft +/-1% window at every corner checked
+* (spec/decision-records/DR-003-res-array-head-resistance-sizing.md). n_r1/
+* n_r2 below are NOT yet re-derived against the routed layout's real
+* topology -- issue #99 tracks that resize.
 .param n_r1=7
 .param n_r2=54
 * PMOS mirror multiplicities (unit device W=8u L=2u)
