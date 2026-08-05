@@ -206,14 +206,16 @@ does NOT claim" section for the authoritative, measured version:
   upstream); this flow still does not depend on it, because its own
   reference can state the bulk net directly -- see RES_BULK_ARITY_NOTE.
 - **Fully inter-block routed, but not on one plane, and not on a plane
-  `klt drc` checks.** record.md's "Schematic inter-block nets" table scores
-  every schematic inter-block node against SCHEMATIC_INTER_BLOCK_NETS below
-  -- i.e. against design/bandgap_core.sch's node list, not against this
-  script's own declaration -- and criterion 1 is PARTIAL while any node is
-  short. Several of the hops that close it are drawn on met2, whose
-  connectivity is the curated extraction deck's (klayout-tools#511) but
-  whose DRC is this repo's own (`layout/bin/met2_drc.py`), because the
-  curated DRC deck carries no met2 rule at all.
+  `klt drc` fully checks.** record.md's "Schematic inter-block nets" table
+  scores every schematic inter-block node against SCHEMATIC_INTER_BLOCK_NETS
+  below -- i.e. against design/bandgap_core.sch's node list, not against
+  this script's own declaration -- and criterion 1 is PARTIAL while any node
+  is short. Several of the hops that close it are drawn on met2, whose
+  connectivity is the curated extraction deck's (klayout-tools#511); its
+  width/spacing/enclosure DRC rules are too (klayout-tools#513, merged via
+  #515), but the met2 min-area rule (`m2.6`) is not, so this repo's own
+  `layout/bin/met2_drc.py` still checks the full sky130A source-deck
+  threshold set independently.
 
 Every gap still open is filed upstream per CLAUDE.md's friction protocol and
 named in the NOTE constants below; record.md restates them with the measured
@@ -331,17 +333,24 @@ MET2_ESCAPE_NOTE = (
     "at each endpoint and met2 wire between them, all hand-drawn by "
     "met1_bus.py exactly as the met1 routing is. met2 is tried strictly "
     "last, after every met1 elbow, channel path and Z-detour has been rolled "
-    "back, because met1 is the plane the curated `klt drc` deck actually "
-    "checks: that deck now declares met2 as a *connectivity* level "
-    "(klayout-tools#511) but carries no `met2.*`/`via.*` DRC rule at all, so "
-    "`klt drc` is silent about every shape on the new plane. This flow holds "
-    "the sky130A source deck's own thresholds by construction instead "
+    "back. That deck declares met2 as a *connectivity* level "
+    "(klayout-tools#511); its *DRC* rule coverage for the level was added "
+    "later and is still partial -- klayout-tools#513 (merged via #515) gave "
+    "`klt drc` the met2/via1 width, spacing and enclosure rules "
+    "(`met2.width.1`, `met2.space.1`, `via.width.1`, `via.space.1`, "
+    "`met1.enclosing.via.1`, `met2.enclosing.via.1`), but not the met2 "
+    "min-area rule (`m2.6`) -- #515 left it out because the curated deck's "
+    "rule vocabulary has no `area` check primitive. This flow holds the "
+    "sky130A source deck's own full threshold set by construction instead "
     "(`m2.1`/`m2.2`/`m2.6`, `via.1a`/`via.2`/`via.4a`/`via.5a` -- see "
     "met1_bus.py's DRC-budget docstring) and re-proves the spacing half with "
-    "`Met1Bus.conflicts()`, which now scores met2 and via1 alongside met1 "
-    "and li1. The DRC-rule half of the new level is the residual gap and is "
-    "filed generically upstream; connectivity itself is the tool's, and is "
-    "what `klt extract` reads back."
+    "`Met1Bus.conflicts()`, which scores met2 and via1 alongside met1 and "
+    "li1 for a *net-aware* short that a plain width/space DRC rule cannot "
+    "see (two different nets' met2 touching is not a spacing violation --"
+    " there is no gap to measure). The residual `m2.6` gap was deliberately "
+    "scoped out of #515 rather than left unfiled -- see that PR's own "
+    "summary; connectivity itself is the tool's, and is what `klt extract` "
+    "reads back."
 )
 #: Historical note, kept for context: through issue #62's thirteenth
 #: increment, sky130's curated extraction deck had no NMOS-body or
@@ -3811,8 +3820,10 @@ def flow_gate(
     while the drawn metal is still in two pieces (see
     :func:`split_routed_nets`); the fourth checks the met2 escape plane
     against sky130's own source DRC rules, because the curated deck `drc_clean`
-    above reports on carries none for it (MET2_ESCAPE_NOTE). None of the four
-    is visible to `klt drc`.
+    above reports on is missing only the met2 min-area rule (`m2.6`) for it
+    (MET2_ESCAPE_NOTE) -- the width/spacing/enclosure rules landed via
+    klayout-tools#513/#515 and are part of `drc_clean` itself now. None of
+    the first three is visible to `klt drc` at all.
 
     `r2_leg_length_matches` is the fifth of that kind, and the newest (issue
     #91). `full_scale_ladder` above only checks that the ladder is drawn at
@@ -3835,6 +3846,68 @@ def flow_gate(
         "no_merged_pin_names": not merged_pin_names,
         "no_split_routed_nets": not split_routed,
     }
+
+
+#: The escape plane's two layers, in the (gds-label, role-layer-tuple) shape
+#: `drc.json["coverage"]["layers_in_stream_without_rules"]` reports them.
+ESCAPE_PLANE_LAYERS: tuple[tuple[str, tuple[int, int]], ...] = (
+    ("68/44", met1_bus.VIA1_LAYER),
+    ("69/20", met1_bus.MET2_LAYER),
+)
+
+
+def met2_drc_coverage_note(unchecked: list[str]) -> str:
+    """record.md's prose for the "does `klt drc` see the escape plane"
+    question, driven by `drc.json`'s own `coverage.layers_in_stream_without_rules`
+    rather than a hardcoded claim.
+
+    A pure function of that one list -- not inlined at the call site -- for
+    the same reason as :func:`flow_gate`: it is unit-testable without a
+    `klt` install, and it is the one place this flow used to state, as fact,
+    that `klt drc`'s curated sky130 deck "carries no met2.*/via.* rule at
+    all" unconditionally. That was true through issue #62's twenty-third
+    increment; klayout-tools#513 (merged via #515) added the met2/via1
+    width, spacing and enclosure rules, so the correct claim now depends on
+    what this run's own `coverage` block says, not on a fixed increment-era
+    fact -- a stale hardcoded version of this text once printed "does not
+    check any of this geometry" one sentence before quoting a `coverage`
+    list that named *neither* escape-plane layer as unchecked, contradicting
+    itself in the same paragraph.
+    """
+    escape_unchecked = [
+        gds for gds, layer in ESCAPE_PLANE_LAYERS
+        if f"{layer[0]}/{layer[1]}" in unchecked
+    ]
+    if escape_unchecked:
+        return (
+            "**`klt drc` does not fully check this geometry, and says so.** "
+            "The curated sky130 deck's `coverage` block "
+            "(klayout-tools#189) lists this run's unchecked stream layers as "
+            f"`{', '.join(unchecked) or '--'}`, which includes "
+            f"**{', '.join(escape_unchecked)}** of the escape plane's two "
+            "layers (`via.drawing` 68/44, `met2.drawing` 69/20) -- so its "
+            "`violation_count` above is *silent* about at least one of them "
+            "rather than clean about it. This flow checks them itself "
+            "against the installed sky130A PDK's own source deck "
+            "(`libs.tech/klayout/drc/sky130A_mr.drc`: `m2.1`, `m2.2`, "
+            "`m2.6`, `via.1a`, `via.2`, `via.4a`/`via.5a`, `m2.4`/`m2.5`) "
+            "in `layout/bin/met2_drc.py`, and gates on it -- see the met2 "
+            "DRC row in Results and [`met2-drc.json`](met2-drc.json)."
+        )
+    return (
+        "**`klt drc` now checks most of this geometry.** klayout-tools#513 "
+        "(merged via #515) added met2/via1 width, spacing and enclosure "
+        "rules to the curated sky130 deck, and `drc.json`'s own `coverage` "
+        "block (klayout-tools#189) confirms neither escape-plane layer "
+        "(`via.drawing` 68/44, `met2.drawing` 69/20) is in this run's "
+        f"unchecked-layer list (`{', '.join(unchecked) or '--'}`). What "
+        "`klt drc` still cannot check is the met2 min-area rule (`m2.6`) -- "
+        "#515 left it out because the curated deck's rule vocabulary has no "
+        "`area` check primitive. `layout/bin/met2_drc.py` re-checks the "
+        "full sky130A source-deck threshold set (including `m2.6`) "
+        "independently and gates on it -- see the met2 DRC row in Results "
+        "and [`met2-drc.json`](met2-drc.json)."
+    )
 
 
 def compose_inner(
@@ -4106,12 +4179,14 @@ def main() -> int:
     )
     (out_dir / "drc.json").write_text(json.dumps(drc, indent=2) + "\n")
 
-    # --- 6b. met2 DRC, because the curated deck does not do it ---------------
-    # `klt drc --deck sky130` above returns `violation_count: 0` on a layout
-    # whose met2 could be 10 nm wide: the curated deck declares met2 as a
-    # *connectivity* level (klayout-tools#511) and carries no met2.*/via.*
-    # rule. Everything this flow draws on the escape plane would therefore be
-    # unchecked evidence. See MET2_ESCAPE_NOTE and layout/bin/met2_drc.py.
+    # --- 6b. met2 DRC, because the curated deck's own coverage is partial ---
+    # `klt drc --deck sky130` above now checks met2/via1 width, spacing and
+    # enclosure (klayout-tools#513, merged via #515) -- but not the met2
+    # min-area rule (`m2.6`), which #515 deliberately left out. This module
+    # re-checks the full sky130A source-deck threshold set (including
+    # `m2.6`) so the escape plane's evidence never depends on which subset
+    # the curated deck happens to cover. See MET2_ESCAPE_NOTE and
+    # layout/bin/met2_drc.py.
     met2_drc = run_met2_drc(klt, Path(compose["gds_path"]), cell, out_dir)
 
     # --- 7. Extract ---------------------------------------------------------
@@ -4375,7 +4450,8 @@ def main() -> int:
     a("4. `klt drc <composed> --deck sky130`.")
     a(
         "4b. `layout/bin/met2_drc.py <composed>` -- the escape plane's own "
-        "DRC, because the curated deck step 4 runs has no met2 rule."
+        "DRC, because the curated deck step 4 runs is still missing the "
+        "met2 min-area rule (`m2.6`; klayout-tools#513/#515 added the rest)."
     )
     a(f"5. `klt extract <composed> --deck sky130 --top {cell}`.")
     a(
@@ -4593,34 +4669,7 @@ def main() -> int:
             )
         a("")
     unchecked = drc.get("coverage", {}).get("layers_in_stream_without_rules", [])
-    escape_unchecked = [
-        gds
-        for gds, layer in (
-            ("68/44", met1_bus.VIA1_LAYER),
-            ("69/20", met1_bus.MET2_LAYER),
-        )
-        if f"{layer[0]}/{layer[1]}" in unchecked
-    ]
-    a(
-        "**`klt drc` does not check any of this geometry, and says so.** The "
-        "curated sky130 deck declares met2 as a connectivity level and "
-        "carries no `met2.*`/`via.*` rule at all, so its `violation_count` "
-        "above is *silent* about the escape plane rather than clean about "
-        "it. That is not inferred here -- `drc.json`'s own `coverage` block "
-        "(klayout-tools#189) lists this run's unchecked stream layers as "
-        f"`{', '.join(unchecked) or '--'}`, which includes "
-        f"**{', '.join(escape_unchecked) or 'neither'}** of the escape "
-        "plane's two layers (`via.drawing` 68/44, `met2.drawing` 69/20). "
-        "This flow checks them itself against the installed sky130A PDK's "
-        "own source deck (`libs.tech/klayout/drc/sky130A_mr.drc`: `m2.1`, "
-        "`m2.2`, `m2.6`, `via.1a`, `via.2`, `via.4a`/`via.5a`, `m2.4`/"
-        "`m2.5`) in `layout/bin/met2_drc.py`, and gates on it -- see the "
-        "met2 DRC row in Results and [`met2-drc.json`](met2-drc.json). The "
-        "missing DRC half is filed upstream as friction this increment; the "
-        "curated deck's *rule* coverage now trails its own *extraction* "
-        "coverage on sky130, the same shape klayout-tools#188 closed for "
-        "gf180mcu's upper metals."
-    )
+    a(met2_drc_coverage_note(unchecked))
     a("")
     a("## Schematic inter-block nets: drawn vs. labelled only")
     a("")
@@ -4998,12 +5047,13 @@ def main() -> int:
             f"{len(fully_drawn)}/{len(coverage)} schematic inter-block nets "
             "are joined across every block they reach -- and "
             f"{len(met2_hop_rows)} of the hops that get them there are drawn "
-            "on met2, not met1. That plane's geometry is checked by this "
-            "repo's own `layout/bin/met2_drc.py` against the installed PDK's "
-            "source rules, **not** by `klt drc`, whose curated deck carries "
-            "no met2 rule; the connectivity itself is the extractor's, since "
-            "klayout-tools#511 made met2 a level of the curated extraction "
-            "deck's own graph."
+            "on met2, not met1. Most of that plane's geometry is now checked "
+            "by `klt drc` itself (klayout-tools#513, merged via #515); this "
+            "repo's own `layout/bin/met2_drc.py` covers the one rule that "
+            "isn't (`m2.6`, met2 min area) against the installed PDK's "
+            "source rules. The connectivity itself is the extractor's, "
+            "since klayout-tools#511 made met2 a level of the curated "
+            "extraction deck's own graph."
         )
     else:
         a(

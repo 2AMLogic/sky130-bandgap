@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """layout/bin/met2_drc.py -- check the met2/via escape plane against sky130's
-own source DRC rules, because the curated `klt drc` deck does not.
+own source DRC rules, because the curated `klt drc` deck's own coverage is
+still partial.
 
 Why this exists
 ---------------
@@ -8,12 +9,18 @@ Why this exists
 **extraction** deck as a third connectivity level, which is what makes
 `layout/bin/met1_bus.py`'s escape plane real connectivity rather than inert
 geometry (see `gen_bandgap_routed.py`'s MET2_ESCAPE_NOTE). The curated **DRC**
-deck (`klayout_tools.decks.sky130.DECK`) was not extended alongside it: it
-carries `met1.width.1`, `met1.space.1` and `met1.enclosing.mcon.1`, and no
-`met2.*` or `via.*` rule at all. So `klt drc --deck sky130` returns
-`violation_count: 0` on a layout whose met2 could be 10 nm wide, and this
-flow's evidence discipline ("no claim without a testbench") does not allow a
-silent rule to stand in for a checked one.
+deck (`klayout_tools.decks.sky130.DECK`) was not extended alongside it at
+first: through issue #62's twenty-third increment it carried `met1.width.1`,
+`met1.space.1` and `met1.enclosing.mcon.1`, and no `met2.*` or `via.*` rule
+at all. 2AMLogic/klayout-tools#513 (merged via #515) closed most of that gap
+-- `klt drc --deck sky130` now checks `met2.width.1`, `met2.space.1`,
+`via.width.1`, `via.space.1`, `met1.enclosing.via.1` and
+`met2.enclosing.via.1` -- but not the met2 min-area rule (`m2.6`): #515 left
+it out because the curated deck's rule vocabulary has no `area` check
+primitive. This flow's evidence discipline ("no claim without a testbench")
+does not allow that one remaining silent rule to stand in for a checked one,
+so this module still re-checks the full threshold set independently rather
+than relying on `klt drc` for the subset it now covers.
 
 This module checks the new plane directly, on the composed GDS, with the same
 `klayout.db.Region` primitives a DRC deck uses, against the thresholds the
@@ -172,9 +179,9 @@ def check(gds_path: Path, top: str | None = None) -> dict[str, Any]:
         "top": cell.name,
         "source": "sky130A_mr.drc (installed PDK), see module docstring",
         "reason": (
-            "the curated klt sky130 DRC deck declares met2 as a connectivity "
-            "level but carries no met2.*/via.* rule, so `klt drc` is silent "
-            "about this plane"
+            "the curated klt sky130 DRC deck now checks met2/via1 width, "
+            "spacing, and enclosure (klayout-tools#513, merged via #515) "
+            "but not the met2 min-area rule (m2.6), which #515 left out"
         ),
         "counts": {
             "met1_polygons": int(met1.count()),
