@@ -711,6 +711,21 @@ NWELL_TAP_MARGIN_UM = 0.05
 # Schematic parameters, transcribed from design/bandgap_core.sch's CORE_PARAMS
 # and design/error_amp.sch. Every block's generator params below are derived
 # from these, so a schematic parameter change is a one-line edit here.
+#
+# STALE AS OF ISSUE #99 -- read before trusting `N_R1` / `SCH_N_R2` below.
+# design/bandgap_core.sch now carries `n_r1=6` / `n_r2=42`, re-derived against
+# the routed array's REAL chained-instance resistance (issue #99, closing
+# spec/decision-records/DR-003-res-array-head-resistance-sizing.md and
+# verified in sim/res-array-resize/). The constants below still state the
+# PRE-#99 sizing (7 / 54) on purpose: they describe the geometry this
+# generator actually draws today, and `r2_leg_length()`'s
+# drawn-equals-specified check is only meaningful while both sides describe
+# the same increment. Re-drawing the array at the new counts (R1 7 -> 6 units,
+# R2 50+20 -> 38+20) is its own layout increment -- it moves block extents,
+# the met1 busses, and every routed corridor, so it needs its own
+# route/DRC/LVS run rather than a constant edit here. Tracked in
+# layout/matching-plan.md Section 7x; do NOT bump these three constants
+# without regenerating and re-verifying the layout in the same increment.
 # ---------------------------------------------------------------------------
 N_PNP_CTAT = 8
 N_PNP_PTAT = 8

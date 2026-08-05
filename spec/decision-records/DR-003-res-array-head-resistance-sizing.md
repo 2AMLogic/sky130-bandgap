@@ -1,7 +1,9 @@
 # DR-003: The routed R2A/R2B/R1 array's per-instance head resistance is real and material — sizing must be re-derived against it
 
-- **Status**: proposed (input to spec ratification, see #1; unlocks a
-  follow-up resizing issue, not undertaken by this record)
+- **Status**: proposed (input to spec ratification, see #1). The follow-up
+  resizing issue this record unlocked (#99) has landed — see
+  "Closure (issue #99)" at the end of this record. The finding itself is
+  unchanged; nothing in the sections below is amended.
 - **Date**: 2026-08-05
 - **Decided by**: Loom agent (issue #98), citing
   `sim/res-array-head-resistance/records/20260805-113409-6caa9f8.md`,
@@ -166,3 +168,99 @@ sizing-scope record, not a spec-value change.
   provenance note, the finding is this design's own array-folding choice
   interacting with a now-correct extractor (2AMLogic/klayout-tools#518/#519/
   #526 are doing exactly what they should) — not a tool gap.
+
+## Closure (issue #99, 2026-08-05)
+
+The corrective resize this record's "Consequences" handed to issue #99 has
+landed. Evidence:
+`sim/res-array-resize/records/20260805-211755-2c83c7a.md`
+(runner `sim/res-array-resize/run_res_array_resize.py`, which extends
+`sim/res-array-head-resistance/`'s Phase B chained-topology harness with a
+candidate screen, the full PVT matrix, a fine hot-corner sweep, DR-002's trim
+ladder, and a single-device control — 45 real ngspice points, no re-cited
+numbers).
+
+**The pure-resize path closed the gap; the topology change was not needed.**
+`design/bandgap_core.sch` now carries `n_r1=6` / `n_r2=42` (was 7 / 54). Sized
+against the routed array's *real* chained values, not the single-device model:
+
+| quantity | single-device model @ 7/54 | routed chain @ 7/54 (this record's finding) | routed chain @ 6/42 (shipped) |
+| --- | --- | --- | --- |
+| R1 | 11,748.66 Ω | 14,026.89 Ω | 12,023.0 Ω |
+| R2A/R2B | 88,083.06 Ω | 114,282.70 Ω | 90,236.6 Ω |
+| K = R2/R1 | 7.4973 | 8.1474 | 7.5053 |
+| VOUT(27 °C), tt/3.30 V | 1.199721 V | 1.233408 V (**out of window**) | 1.199328 V |
+
+K lands within 0.11 % of the 7.4973 the original single-device sizing
+targeted, and R1 within +2.34 % of its single-device value (against the
+as-drawn chain's +19.39 %), so the branch current returns to the ~5.3 µA the
+PNP pair was characterized at. The screen re-ran the as-drawn 7/54 control
+through the same harness and measured 1.233408 V at tt/3.30 V — reproducing
+this record's own number, so the resize was chosen in the same frame of
+reference the finding was measured in.
+
+**Full PVT re-verification (issue #46's rigor bar): passes.** 5 process × 3
+supply = 15 points, each a box-method `-40..125 °C` sweep. VOUT(27 °C) is
+inside the draft ±1 % window (1.188-1.212 V) at **every** point (worst case
+1.199040 V at ff/2.97 V, −0.08 % of nominal), and no point leaves the sanity
+band anywhere in the sweep. The two corners this record found collapsing
+(ff/2.97 V, fs/2.97 V) were additionally swept at 1 °C resolution from 110 to
+140 °C — 15 °C past the qualified ceiling — with no bifurcation: VOUT stays in
+1.1698-1.1755 V throughout.
+
+Box TC over the matrix is 167.2-184.0 ppm/°C, the same family as the
+pre-existing single-device baseline (152.9-169.3 ppm/°C) and still far above
+the draft's < 50 ppm/°C target — for the reason issue #46 already established
+as a floor on this lever, not because of this resize. Note the as-drawn,
+*out-of-spec* 7/54 chain measured a **better** TC (96.8 ppm/°C at tt)
+precisely because its K was 8.7 % too high; buying that TC costs the ±1 %
+accuracy line, which this project does not trade away to make a result pass.
+
+**The trim-range question this record flagged is answered — and splits in
+two.** DR-002's downward 0..−16 ladder was re-run (not re-cited) on the
+resized chained baseline at its own five corners:
+
+- **Range: still covers.** The span is 58.5-58.9 mV (vs ~27.6 mV under the
+  single-device model), against DR-002's own criterion of ≥ 1.5 × the 15.62 mV
+  worst-case 3σ mismatch spread = 23.4 mV. Monotonic in code at every corner,
+  collapse-free at the −16 extreme. So the concern this record raised — that
+  the shift might eat the mismatch headroom DR-002 sized for — does **not**
+  materialize: after the resize there is no sizing shift left for the ladder to
+  absorb, and the ladder keeps its full budget for mismatch.
+- **Granularity: no longer within DR-002's comfort bound.** The LSB is
+  3.655-3.682 mV/code against DR-002's own ≤ 3.000 mV/code bound (25 % of the
+  window half-width), because a trim code in the *chained* ladder removes a
+  whole unit **instance** — its head/fringe terms as well as its 1 µm of body —
+  roughly doubling the step DR-002 assumed. That is a DR-002 revision, not a
+  sizing question; filed as issue #106.
+
+**What is still open after this closure** (stated so no reader takes the
+resize as making the schematic and the layout agree):
+
+- **The schematic's own netlist now under-reads.** `design/bandgap_core.sch`
+  still netlists ONE `res_high_po` device per leg, so a schematic-only
+  simulation of the shipped sizing measures +39.0…+39.4 mV *below* the chained
+  topology it is sized for (measured at the same five corners, reported but not
+  gated in the record). Every schematic-only bench under `sim/` inherits that
+  offset. This is a **modelling** gap, not a trim target — it is in the
+  direction DR-002's downward-only ladder cannot correct — and closing it needs
+  either issue #101's topology change (fewer, longer instances per leg, which
+  makes the single-device model correct again) or a schematic device-model
+  change. It is stated in the schematic's own `EPISTEMIC STATUS` block.
+- **The drawn layout still implements the pre-#99 counts.**
+  `layout/bin/gen_bandgap_routed.py`'s `N_R1` / `SCH_N_R2` / `N_R2_COARSE` were
+  deliberately left at 7 / 54 / 50: re-drawing the array moves block extents,
+  the met1 busses, and every routed corridor, so it is its own layout increment
+  with its own route/DRC/LVS run. Filed as issue #107, narrated in
+  `layout/matching-plan.md` Section 7x, and flagged in the generator itself.
+- **Issue #101's premise has moved.** The topology alternative was filed as a
+  way to stop the head resistance from pushing VOUT out of spec; the resize has
+  done that. Its remaining value is the *modelling* gap above (making the
+  single-device schematic model correct again) plus whatever it does to issue
+  #106's LSB — a different case than the one it was filed on, and one that
+  should be re-argued before it is built.
+- **No numeric spec value is amended by this closure**, exactly as the
+  "Spec lines affected" table above states. The untrimmed ±1 % row is now met
+  at all 15 PVT points *against the routed layout's resistor topology*, which
+  is new evidence for #1's ratification to weigh — not a spec change made by an
+  agent.

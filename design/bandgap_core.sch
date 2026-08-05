@@ -51,9 +51,13 @@ v {xschem version=3.4.7 file_version=1.2
 *     the small unit (the summary caps the small unit at ~1 uA) and takes
 *     sigma(dVBE) from 0.48 mV to ~0.17 mV via the model's 1/sqrt(mult) term.
 *   - dVBE for this pair at that per-unit current is ~62.3 mV, so
-*     R1 = 62.3 mV / 5.3 uA ~ 11.8 kohm = 7 unit segments (5 um each, W=1 um:
-*     R(L) = 380 + 325*L ohm).
-*   - n_r2 (issue #46 investigation -- n_r2 stays 54, see conclusion below):
+*     R1 = 62.3 mV / 5.3 uA ~ 11.8 kohm. On the SINGLE-DEVICE model that is
+*     7 unit segments (5 um each, W=1 um: R(L) = 380 + 325*L ohm); on the
+*     routed layout's real chained array it is 6 (issue #99 / DR-003 below,
+*     which is the shipped basis -- every count in the #46/#55 discussion
+*     that follows is in single-device-model units).
+*   - n_r2 (issue #46 investigation -- n_r2 stayed 54 on the single-device
+*     basis; see the issue #99 / DR-003 entry below for the shipped count):
 *     the original n_r2=54 (K = R2/R1 ~ 7.5, R2 ~ 88 kohm) was sized only to
 *     hit VOUT(27 degC) ~ 1.20 V from the single-point dVBE(27 degC) figure
 *     above -- it never used the *slope* of the measured dVBE, so it
@@ -120,9 +124,9 @@ v {xschem version=3.4.7 file_version=1.2
 *     (10 degC past the qualified range) at the identical ff/2.97 V corner.
 *     Trading a ~150 ppm/degC TC miss for a corner that stops regulating at
 *     all above ~124 degC is a worse regression than the problem #46 set out
-*     to fix, so **n_r2 stays at 54** -- the record above is kept as
-*     append-only evidence of why the attempted resize was rejected, not as
-*     the shipped design.
+*     to fix, so **n_r2 stayed at 54 on the single-device basis** -- the
+*     record above is kept as append-only evidence of why the attempted
+*     resize was rejected, not as the shipped design.
 *   - Conclusion (issue #46's floor finding): on this device menu and this
 *     error-amp/core loop, R2/R1 alone cannot close the TC gap. The
 *     accuracy-safe ceiling (n_r2=55) already erodes hot-corner loop margin
@@ -138,6 +142,40 @@ v {xschem version=3.4.7 file_version=1.2
 *     to be re-solved together) or widening the error amp's own headroom
 *     margin (#9) so a larger K does not cost hot-corner regulation --
 *     all out of scope here, flagged for follow-up.
+*   - THE SHIPPED BASIS (issue #99, closing DR-003): every count above is in
+*     single-device-model units -- one res_high_po device per leg at the
+*     combined length, which is what this schematic netlists and what every
+*     sim record before issue #99 simulated. The routed layout draws each leg
+*     as a chain of separately-contacted unit instances instead, and real
+*     SPICE (sim/res-array-head-resistance/, issue #98) measures that chain
+*     paying the model card's rhead term (fixed l=1.0, independent of the
+*     drawn body length) plus an leff = l + 0.247 fringe markup ONCE PER
+*     INSTANCE: R(N units, L um total) = N*379.705 + 324.827*L ohm. At the
+*     old n_r1=7/n_r2=54 that is R1 = 14,026.9 ohm (+19.4%), R2 = 114,282.7
+*     ohm (+29.7%), K = 8.147 (+8.7%) -- enough to put VOUT(27 degC) at
+*     ~1.233 V, outside the +/-1% window, at every corner checked, with
+*     hot-corner regulation collapse at ff/2.97 V and fs/2.97 V. n_r1/n_r2
+*     are therefore re-derived against the CHAINED values (sim/
+*     res-array-resize/, issue #99):
+*       R1 = n_r1 x 2,003.84 ohm per 5 um unit; R2 = (n_r2 - 4) coarse 5 um
+*       units + 20 fine 1 um trim units (the layout's own decomposition,
+*       layout/bin/gen_bandgap_routed.py) = (n_r2-4)*2,003.84 + 20*704.53 ohm.
+*     n_r1 = 6, n_r2 = 42 gives R1 = 12,023.0 ohm, R2 = 90,236.5 ohm,
+*     K = 7.5053 -- within 0.11% of the K = 7.4973 the single-device sizing
+*     targeted, with the branch current back at ~5.2 uA (the ~5.3 uA the PNP
+*     characterization sized the pair for; the as-drawn chain had dropped it
+*     to ~4.4 uA). Verified over the full 5 process x 3 supply matrix with
+*     the -40..125 degC box sweep, plus a 1 degC 110..140 degC hot-corner
+*     sweep at ff/2.97 V and fs/2.97 V -- see sim/res-array-resize/records/.
+*     CONSEQUENCE, read before quoting any schematic-only VREF number: this
+*     schematic still netlists ONE device per leg, so its own netlist now
+*     UNDER-predicts VREF by ~35-40 mV against the layout it is sized for.
+*     Closing that modelling gap is either issue #101 (draw fewer, longer
+*     instances per leg, which makes the single-device model correct again)
+*     or a schematic device-model change -- not a trim setting: the gap is in
+*     the direction DR-002's downward-only ladder cannot correct. The routed
+*     layout's own drawn counts still implement the OLD sizing until it is
+*     regenerated (layout/matching-plan.md Section 7x).
 *   - This is *untrimmed* (n_r2_trim=0) first-pass sizing for a nominal
 *     operating point. The +/-1% spec claim over the full PVT matrix is
 *     issue #11's job; the offset budget that may re-size the amp is #9.
@@ -188,27 +226,35 @@ C {devices/code_shown.sym} 100 -1250 0 0 {name=CORE_PARAMS only_toplevel=false v
 * res_high_po unit segment: W = r_w um, L = r_lseg um (R ~ 380 + 325*L ohm)
 .param r_w=1
 .param r_lseg=5
-* segment counts. K = R2/R1 (each leg has its own 380 ohm head resistance,
-* so K != n_r2/n_r1 exactly -- see the header comment). n_r2 stays 54:
-* issue #46 investigated raising it to 55, the accuracy-constrained
-* ceiling, but a full 15-corner run found it loses the bandgap operating
-* point above ~124 degC at the ff/2.97 V and fs/2.97 V corners -- a worse
-* regression than the TC miss it was meant to fix. See the header comment's
-* the Sizing rationale section for the full investigation and floor finding.
-* EPISTEMIC STATUS (issue #98 / DR-003, issue #99 open): n_r1/n_r2 below are
-* sized and PVT-verified against ONE res_high_po device per leg at this L
-* (what this schematic and every existing sim record simulate). The routed
-* layout instead draws each leg as N separately-contacted unit instances in
-* series (layout/bin/gen_bandgap_routed.py), which real-SPICE evidence
-* (sim/res-array-head-resistance/) shows pays real per-instance head
-* resistance -- R1 +19.4%, R2A/R2B +29.7%, K=R2/R1 +8.7% over the single-
-* device numbers this file's own params target. That is enough to push
-* VOUT(27 degC) outside the draft +/-1% window at every corner checked
-* (spec/decision-records/DR-003-res-array-head-resistance-sizing.md). n_r1/
-* n_r2 below are NOT yet re-derived against the routed layout's real
-* topology -- issue #99 tracks that resize.
-.param n_r1=7
-.param n_r2=54
+* segment counts. K = R2/R1 (each drawn unit instance has its own ~380 ohm
+* head resistance, so K != n_r2/n_r1 exactly -- see the header comment).
+* SIZING BASIS (issue #99, closing DR-003): these two counts are sized
+* against the ROUTED LAYOUT's real chained array -- N separately-contacted
+* res_high_po unit instances per leg, each paying the model card's rhead and
+* leff fringe terms once (R = N*379.705 + 324.827*L ohm, measured in real
+* SPICE by sim/res-array-head-resistance/ and reproducing klt's own LVS
+* extraction to 0.0001%). At n_r1=6 / n_r2=42 the chain gives R1 = 12,023.0
+* ohm and R2 = 90,236.5 ohm (38 coarse 5 um + 20 fine 1 um units per leg),
+* K = 7.5053, VOUT(27 degC) inside the draft +/-1% window at all 15 PVT
+* points with no hot-corner collapse -- sim/res-array-resize/. They are NOT
+* the counts a single-device reading of this schematic would pick: issue
+* #46's own single-device investigation landed on n_r1=7 / n_r2=54 (and
+* rejected n_r2=55 for hot-corner regulation collapse above ~124 degC at
+* ff/2.97 V and fs/2.97 V); the header's Sizing rationale keeps that
+* investigation, in its own units, as the record of why the accuracy-vs-TC
+* trade-off is floored on this lever.
+* EPISTEMIC STATUS (issue #99 shipped; issue #101 open): this schematic
+* still netlists ONE res_high_po device per leg at L = r_lseg*n_r2 (resp.
+* r_lseg*n_r1), so a SCHEMATIC-ONLY simulation of this cell now under-reads
+* VREF by ~35-40 mV against the chained layout these counts target. Do not
+* quote a schematic-only VREF/TC number as the design's operating point
+* without saying which topology produced it; the chained numbers are in
+* sim/res-array-resize/records/. Closing the gap is issue #101 (fewer,
+* longer instances per leg -> the single-device model becomes correct again)
+* or a schematic device-model change. The drawn layout still implements the
+* pre-#99 counts until it is regenerated (layout/matching-plan.md Sec. 7x).
+.param n_r1=6
+.param n_r2=42
 * PMOS mirror multiplicities (unit device W=8u L=2u)
 .param m_out=2
 .param m_ampbias=2

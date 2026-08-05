@@ -2791,6 +2791,95 @@ consecutive increment finds nothing new there either, this is a genuine
 external-blocker floor -- release the claim per this issue's own established
 pattern rather than opening a busywork PR.
 
+### 7x. Twenty-seventh increment: DR-003's sizing gap closed by a pure resize (`n_r1` 7 -> 6, `n_r2` 54 -> 42) -- the schematic now targets the array this flow really draws, and the drawn counts are the part that is now stale
+
+No layout code change this increment either, but for the opposite reason to
+Sections 7v/7w: the lever moved on the *schematic* side. Section 7v (issue
+#98, DR-003) established with real-SPICE evidence that this flow's folded
+array pays the `res_high_po` model card's head/fringe terms once per
+separately-contacted unit instance, that this is a real electrical property
+of the fabricated part and not an extraction artifact, and that at the
+then-shipped `n_r1=7`/`n_r2=54` it pushes `K = R2/R1` +8.67% and `VOUT(27
+degC)` outside the draft +/-1% window at all 5 corners checked -- with the
+issue #46 hot-corner regulation-collapse signature at `ff`/2.97 V and
+`fs`/2.97 V. It deliberately left the corrective resize to issue #99. That
+resize has now landed.
+
+**`design/bandgap_core.sch` now carries `n_r1=6` / `n_r2=42`**, re-derived
+against the chained values this flow's own geometry produces rather than
+against the single-`res_high_po`-device model the schematic netlists:
+
+| quantity | single-device model @ 7/54 | this flow's chain @ 7/54 | this flow's chain @ 6/42 (shipped) |
+| --- | --- | --- | --- |
+| R1 | 11,748.66 ohm | 14,026.89 ohm | 12,023.0 ohm |
+| R2A/R2B | 88,083.06 ohm | 114,282.70 ohm | 90,236.6 ohm |
+| K = R2/R1 | 7.4973 | 8.1474 | 7.5053 |
+| VOUT(27 degC), tt/3.30 V | 1.199721 V | 1.233408 V (**out of window**) | 1.199328 V |
+
+Verified at issue #46's rigor bar: the full 5 process x 3 supply matrix, each
+a box-method `-40..125 degC` sweep, VOUT(27 degC) inside the draft window at
+**all 15** points (worst case 1.199040 V at `ff`/2.97 V), plus a 1 degC-grid
+110..140 degC sweep at the two collapse-prone corners showing no bifurcation
+15 degC past the qualified ceiling. DR-002's downward ladder was re-run (not
+re-cited) on the resized baseline: the **range** still covers (58.5-58.9 mV
+span vs the 23.4 mV DR-002 requires), the **granularity** does not (LSB
+3.66-3.68 mV/code vs DR-002's <= 3.00 mV bound), because a code in the
+chained ladder removes a whole unit *instance*, head and all, not 1 um of
+body -- filed as issue #106. Full tables, checks and per-corner logs:
+`sim/res-array-resize/records/20260805-211755-2c83c7a.md`; closure narrative in
+`spec/decision-records/DR-003-res-array-head-resistance-sizing.md`.
+
+**What this means for this flow, stated plainly: the drawn counts are now the
+stale side of the comparison.** `gen_bandgap_routed.py` still draws `N_R1 =
+7` and `N_R2_COARSE = 50` + `N_R2_TRIM_UNITS = 20` (270 um/leg), and
+`SCH_N_R2 = 54` still transcribes the pre-#99 schematic so `r2_leg_length()`'s
+drawn-equals-specified gate keeps comparing two statements about the *same*
+increment rather than going red on a change it cannot act on. Bumping those
+three constants is not a constant edit: R1 loses a unit, the coarse R2 leg
+drops from 50 to 38 units per leg, and that moves `res_r1`/`res_r2` block
+extents, their intra-block met1 busses, and every routed corridor around them
+-- so it needs its own place/route/DRC/LVS run, which is exactly the
+one-lever-per-increment discipline Sections 7a-7w have followed throughout.
+Filed as issue #107, and the generator now says so at the point of definition
+(a `STALE AS OF ISSUE #99` note above the transcribed-parameter block) so the
+next reader cannot mistake `# .param n_r2=54` for a current fact -- the same
+failure mode Section 7w's met2-DRC-coverage fix was about.
+
+Two further consequences worth recording here, because they change what the
+numbers in this file mean:
+
+- **A schematic-only simulation now under-reads VOUT by ~39 mV** against the
+  array this flow draws (measured at 5 corners, reported in the record above).
+  The schematic still netlists one device per leg; the layout does not. Any
+  VREF/TC number quoted from `sim/` has to say which topology produced it.
+- **Issue #101's premise has moved.** It was filed as the topology-side
+  alternative to this resize -- draw fewer, longer instances per leg to cut
+  the head-resistance count. The resize has already restored the operating
+  point, so #101's remaining value is the modelling gap above (it would make
+  the single-device schematic model correct again) and whatever it does to
+  #106's LSB, not "VOUT is out of spec". That is a different case than the one
+  it was filed on and should be re-argued before it is built.
+
+`npm run check:ci` green (159 unit tests, py_compile, JSON/bash lint, xschem
+quote check). No generator, gate, or threshold logic changed.
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET | unchanged -- still MET against the counts this flow draws; issue #107 tracks re-drawing them at the post-#99 sizing |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, 4 | unchanged -- no code or measurement change this increment |
+| 5 (blocking gaps filed) | MET | unchanged (no new `klt` gap; the sizing gap was this design's own, and it is now closed rather than filed) |
+
+**Suggested next increment**: sequence #106 (trim granularity -- it can change
+`N_R2_TRIM_UNITS` or the fine unit length) and #101 (topology -- it can change
+the whole decomposition) *before* #107's regeneration, so the array is
+re-drawn once against a settled decomposition rather than three times. On AC4
+itself nothing has changed: klayout-tools#559 is still the only lever, and
+Section 7w's floor-release guidance still applies.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five

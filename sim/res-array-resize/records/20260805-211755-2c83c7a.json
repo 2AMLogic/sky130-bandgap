@@ -1,0 +1,846 @@
+{
+  "author": "ci@loom.test",
+  "checks": [
+    {
+      "detail": "screen winner n_r1=6/n_r2=42; design/bandgap_core.sch (netlisted fresh) carries n_r1=6/n_r2=42",
+      "gated": true,
+      "name": "winner_is_the_shipped_sizing",
+      "pass": true
+    },
+    {
+      "detail": "design/bandgap_core.sch ships n_r2_trim=0 (must be 0: the resize is a sizing decision, not a trim setting)",
+      "gated": true,
+      "name": "shipped_trim_code_is_zero",
+      "pass": true
+    },
+    {
+      "detail": "as-drawn n_r1=7/n_r2=54 with the chained topology measures vref_27=1.233408 V at tt/3.30 V -- outside the draft window (1.188, 1.212), reproducing DR-003's record 20260805-113409-6caa9f8 (1.233408 V at this corner)",
+      "gated": true,
+      "name": "as_drawn_control_reproduces_dr003",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.199040 V vs draft window (1.188, 1.212)",
+      "gated": true,
+      "name": "pvt_vref27_in_spec[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_max=1.207140 V over -40..125 degC (regulation-loss threshold 1.5 V -- the hot-end collapse signature issue #46/DR-003 found)",
+      "gated": true,
+      "name": "pvt_regulating[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "gated": true,
+      "name": "pvt_n_temp_points[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.199040 V vs draft window (1.188, 1.212)",
+      "gated": true,
+      "name": "pvt_vref27_in_spec[ff_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_max=1.207146 V over -40..125 degC (regulation-loss threshold 1.5 V -- the hot-end collapse signature issue #46/DR-003 found)",
+      "gated": true,
+      "name": "pvt_regulating[ff_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "gated": true,
+      "name": "pvt_n_temp_points[ff_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.199052 V vs draft window (1.188, 1.212)",
+      "gated": true,
+      "name": "pvt_vref27_in_spec[ff_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_max=1.207161 V over -40..125 degC (regulation-loss threshold 1.5 V -- the hot-end collapse signature issue #46/DR-003 found)",
+      "gated": true,
+      "name": "pvt_regulating[ff_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "gated": true,
+      "name": "pvt_n_temp_points[ff_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.199593 V vs draft window (1.188, 1.212)",
+      "gated": true,
+      "name": "pvt_vref27_in_spec[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_max=1.208558 V over -40..125 degC (regulation-loss threshold 1.5 V -- the hot-end collapse signature issue #46/DR-003 found)",
+      "gated": true,
+      "name": "pvt_regulating[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "gated": true,
+      "name": "pvt_n_temp_points[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.199594 V vs draft window (1.188, 1.212)",
+      "gated": true,
+      "name": "pvt_vref27_in_spec[fs_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_max=1.208566 V over -40..125 degC (regulation-loss threshold 1.5 V -- the hot-end collapse signature issue #46/DR-003 found)",
+      "gated": true,
+      "name": "pvt_regulating[fs_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "gated": true,
+      "name": "pvt_n_temp_points[fs_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.199608 V vs draft window (1.188, 1.212)",
+      "gated": true,
+      "name": "pvt_vref27_in_spec[fs_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_max=1.208581 V over -40..125 degC (regulation-loss threshold 1.5 V -- the hot-end collapse signature issue #46/DR-003 found)",
+      "gated": true,
+      "name": "pvt_regulating[fs_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "gated": true,
+      "name": "pvt_n_temp_points[fs_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.200939 V vs draft window (1.188, 1.212)",
+      "gated": true,
+      "name": "pvt_vref27_in_spec[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_max=1.208091 V over -40..125 degC (regulation-loss threshold 1.5 V -- the hot-end collapse signature issue #46/DR-003 found)",
+      "gated": true,
+      "name": "pvt_regulating[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "gated": true,
+      "name": "pvt_n_temp_points[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.200934 V vs draft window (1.188, 1.212)",
+      "gated": true,
+      "name": "pvt_vref27_in_spec[sf_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_max=1.208096 V over -40..125 degC (regulation-loss threshold 1.5 V -- the hot-end collapse signature issue #46/DR-003 found)",
+      "gated": true,
+      "name": "pvt_regulating[sf_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "gated": true,
+      "name": "pvt_n_temp_points[sf_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.200942 V vs draft window (1.188, 1.212)",
+      "gated": true,
+      "name": "pvt_vref27_in_spec[sf_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_max=1.208107 V over -40..125 degC (regulation-loss threshold 1.5 V -- the hot-end collapse signature issue #46/DR-003 found)",
+      "gated": true,
+      "name": "pvt_regulating[sf_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "gated": true,
+      "name": "pvt_n_temp_points[sf_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.199748 V vs draft window (1.188, 1.212)",
+      "gated": true,
+      "name": "pvt_vref27_in_spec[ss_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_max=1.208162 V over -40..125 degC (regulation-loss threshold 1.5 V -- the hot-end collapse signature issue #46/DR-003 found)",
+      "gated": true,
+      "name": "pvt_regulating[ss_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "gated": true,
+      "name": "pvt_n_temp_points[ss_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.199744 V vs draft window (1.188, 1.212)",
+      "gated": true,
+      "name": "pvt_vref27_in_spec[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_max=1.208165 V over -40..125 degC (regulation-loss threshold 1.5 V -- the hot-end collapse signature issue #46/DR-003 found)",
+      "gated": true,
+      "name": "pvt_regulating[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "gated": true,
+      "name": "pvt_n_temp_points[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.199757 V vs draft window (1.188, 1.212)",
+      "gated": true,
+      "name": "pvt_vref27_in_spec[ss_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_max=1.208179 V over -40..125 degC (regulation-loss threshold 1.5 V -- the hot-end collapse signature issue #46/DR-003 found)",
+      "gated": true,
+      "name": "pvt_regulating[ss_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "gated": true,
+      "name": "pvt_n_temp_points[ss_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.199330 V vs draft window (1.188, 1.212)",
+      "gated": true,
+      "name": "pvt_vref27_in_spec[tt_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_max=1.207576 V over -40..125 degC (regulation-loss threshold 1.5 V -- the hot-end collapse signature issue #46/DR-003 found)",
+      "gated": true,
+      "name": "pvt_regulating[tt_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "gated": true,
+      "name": "pvt_n_temp_points[tt_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.199328 V vs draft window (1.188, 1.212)",
+      "gated": true,
+      "name": "pvt_vref27_in_spec[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_max=1.207582 V over -40..125 degC (regulation-loss threshold 1.5 V -- the hot-end collapse signature issue #46/DR-003 found)",
+      "gated": true,
+      "name": "pvt_regulating[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "gated": true,
+      "name": "pvt_n_temp_points[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27=1.199339 V vs draft window (1.188, 1.212)",
+      "gated": true,
+      "name": "pvt_vref27_in_spec[tt_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_max=1.207595 V over -40..125 degC (regulation-loss threshold 1.5 V -- the hot-end collapse signature issue #46/DR-003 found)",
+      "gated": true,
+      "name": "pvt_regulating[tt_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=16.0, expected 16",
+      "gated": true,
+      "name": "pvt_n_temp_points[tt_3.63v]",
+      "pass": true
+    },
+    {
+      "detail": "1 degC sweep 110..140 degC: vref_max=1.175500 V, vref_min=1.169847 V (no bifurcation to ~2.8 V anywhere, including 15 degC past the qualified 125 degC ceiling)",
+      "gated": true,
+      "name": "hot_margin_regulating[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=31.0, expected 31",
+      "gated": true,
+      "name": "hot_margin_points[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "1 degC sweep 110..140 degC: vref_max=1.175511 V, vref_min=1.169795 V (no bifurcation to ~2.8 V anywhere, including 15 degC past the qualified 125 degC ceiling)",
+      "gated": true,
+      "name": "hot_margin_regulating[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "n_temp_points=31.0, expected 31",
+      "gated": true,
+      "name": "hot_margin_points[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.140793), (-8, 1.170061), (0, 1.199328)]",
+      "gated": true,
+      "name": "trim_monotonic[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "downward span (code 0..-16) = 58.535 mV, required >= 1.5 x 15.620 mV = 23.430 mV (DR-002's own criterion)",
+      "gated": true,
+      "name": "trim_range_covers_mc_spread[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=3.6584 mV/code, DR-002's comfort bound is <= 25% of the window half-width (3.000 mV) -- in the chained topology a code removes a whole unit INSTANCE (body + head), not just 1 um of body",
+      "gated": true,
+      "name": "trim_lsb_comfortable[tt_3.30v]",
+      "pass": false
+    },
+    {
+      "detail": "code -16 vref_max=1.161279 V",
+      "gated": true,
+      "name": "trim_regulating_at_extreme[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.14121), (-8, 1.170477), (0, 1.199744)]",
+      "gated": true,
+      "name": "trim_monotonic[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "downward span (code 0..-16) = 58.534 mV, required >= 1.5 x 15.620 mV = 23.430 mV (DR-002's own criterion)",
+      "gated": true,
+      "name": "trim_range_covers_mc_spread[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=3.6584 mV/code, DR-002's comfort bound is <= 25% of the window half-width (3.000 mV) -- in the chained topology a code removes a whole unit INSTANCE (body + head), not just 1 um of body",
+      "gated": true,
+      "name": "trim_lsb_comfortable[ss_3.30v]",
+      "pass": false
+    },
+    {
+      "detail": "code -16 vref_max=1.161895 V",
+      "gated": true,
+      "name": "trim_regulating_at_extreme[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.140488), (-8, 1.169764), (0, 1.19904)]",
+      "gated": true,
+      "name": "trim_monotonic[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "downward span (code 0..-16) = 58.552 mV, required >= 1.5 x 15.620 mV = 23.430 mV (DR-002's own criterion)",
+      "gated": true,
+      "name": "trim_range_covers_mc_spread[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=3.6595 mV/code, DR-002's comfort bound is <= 25% of the window half-width (3.000 mV) -- in the chained topology a code removes a whole unit INSTANCE (body + head), not just 1 um of body",
+      "gated": true,
+      "name": "trim_lsb_comfortable[ff_2.97v]",
+      "pass": false
+    },
+    {
+      "detail": "code -16 vref_max=1.160792 V",
+      "gated": true,
+      "name": "trim_regulating_at_extreme[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.142031), (-8, 1.171485), (0, 1.200939)]",
+      "gated": true,
+      "name": "trim_monotonic[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "downward span (code 0..-16) = 58.908 mV, required >= 1.5 x 15.620 mV = 23.430 mV (DR-002's own criterion)",
+      "gated": true,
+      "name": "trim_range_covers_mc_spread[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=3.6817 mV/code, DR-002's comfort bound is <= 25% of the window half-width (3.000 mV) -- in the chained topology a code removes a whole unit INSTANCE (body + head), not just 1 um of body",
+      "gated": true,
+      "name": "trim_lsb_comfortable[sf_2.97v]",
+      "pass": false
+    },
+    {
+      "detail": "code -16 vref_max=1.161246 V",
+      "gated": true,
+      "name": "trim_regulating_at_extreme[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.141107), (-8, 1.17035), (0, 1.199593)]",
+      "gated": true,
+      "name": "trim_monotonic[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "downward span (code 0..-16) = 58.486 mV, required >= 1.5 x 15.620 mV = 23.430 mV (DR-002's own criterion)",
+      "gated": true,
+      "name": "trim_range_covers_mc_spread[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=3.6554 mV/code, DR-002's comfort bound is <= 25% of the window half-width (3.000 mV) -- in the chained topology a code removes a whole unit INSTANCE (body + head), not just 1 um of body",
+      "gated": true,
+      "name": "trim_lsb_comfortable[fs_2.97v]",
+      "pass": false
+    },
+    {
+      "detail": "code -16 vref_max=1.162301 V",
+      "gated": true,
+      "name": "trim_regulating_at_extreme[fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "chained (routed layout) vref_27=1.199328 V vs single-device (schematic netlist) vref_27=1.160289 V -- gap +39.039 mV; the schematic's own one-device-per-leg model now UNDER-predicts, in the direction DR-002's downward-only ladder cannot correct (a modelling gap, not a trim target)",
+      "gated": false,
+      "name": "model_gap_reported[tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "chained (routed layout) vref_27=1.199744 V vs single-device (schematic netlist) vref_27=1.160712 V -- gap +39.032 mV; the schematic's own one-device-per-leg model now UNDER-predicts, in the direction DR-002's downward-only ladder cannot correct (a modelling gap, not a trim target)",
+      "gated": false,
+      "name": "model_gap_reported[ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "chained (routed layout) vref_27=1.199040 V vs single-device (schematic netlist) vref_27=1.159983 V -- gap +39.057 mV; the schematic's own one-device-per-leg model now UNDER-predicts, in the direction DR-002's downward-only ladder cannot correct (a modelling gap, not a trim target)",
+      "gated": false,
+      "name": "model_gap_reported[ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "chained (routed layout) vref_27=1.200939 V vs single-device (schematic netlist) vref_27=1.161551 V -- gap +39.388 mV; the schematic's own one-device-per-leg model now UNDER-predicts, in the direction DR-002's downward-only ladder cannot correct (a modelling gap, not a trim target)",
+      "gated": false,
+      "name": "model_gap_reported[sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "chained (routed layout) vref_27=1.199593 V vs single-device (schematic netlist) vref_27=1.160627 V -- gap +38.966 mV; the schematic's own one-device-per-leg model now UNDER-predicts, in the direction DR-002's downward-only ladder cannot correct (a modelling gap, not a trim target)",
+      "gated": false,
+      "name": "model_gap_reported[fs_2.97v]",
+      "pass": true
+    }
+  ],
+  "determination": "**A pure integer resize closes DR-003's gap: n_r1=6, n_r2=42.** Against the routed layout's real chained topology that is R1 = 12023.0 ohm (6 x 5 um units) and R2 = 90236.6 ohm (38 coarse x 5 um + 20 fine x 1 um units), K = 7.5053 -- within 0.11% of the K = 7.4973 the single-device sizing originally targeted, and with the branch current back at the ~5.3 uA the PNP characterization (design/device-characterization-summary.md section 1) sized the pair for: R1 moves +2.34% against the single-device model's own 11,748.66 ohm, instead of the as-drawn chain's +19.39 %.\n\nThe as-drawn control (7/54) in the same screen measures 1.233408 V at tt/3.30 V, reproducing DR-003's own 1.233408 V -- so the screen's frame of reference is the same one DR-003 measured, not a new one.\n\n**Full PVT (15 points, 5 process x 3 supply, box-method -40..125 degC): VREF(27 degC) is inside the draft +/-1 % window (1.188-1.212 V) at every point**, worst case 1.199040 V at ff/2.97 V (-0.08% of nominal). No point leaves the sanity band anywhere in the sweep, and the two corners DR-003 found collapsing (ff/2.97 V, fs/2.97 V) stay on the intended branch through a 1 degC-resolution sweep 110..140 degC -- 15 degC past the qualified ceiling.\n\nBox TC over the matrix is 167.2..184.0 ppm/degC. That is the same family as the pre-existing single-device baseline (152.9-169.3 ppm/degC, issue #11 record 20260803-115356-7759435) and still far above the draft's < 50 ppm/degC target -- for the reason issue #46 already established as a floor on this lever (R2/R1 alone cannot close the TC gap on this device menu), not because of this resize. Note that the as-drawn, OUT-OF-SPEC chained sizing measured a *better* TC (96.8 ppm/degC at tt) precisely because its K was 8.7 % too high; buying that TC costs the +/-1 % accuracy line, which CLAUDE.md does not permit trading away.\n\n**Trim (AC3, re-run not re-cited)**: on this resized chained baseline DR-002's downward 0..-16 ladder spans 58.5..58.9 mV across the five corners (vs ~27.6 mV under the single-device model), monotonic in code at every corner and collapse-free at the -16 extreme. The range criterion (>= 1.5 x the 15.62 mV worst-case 3-sigma MC spread = 23.4 mV) is met with room to spare. The RESOLUTION criterion is not: the LSB is 3.66..3.68 mV/code against DR-002's own <= 3.0 mV/code comfort bound -- because a trim code in the real chained ladder removes a whole unit INSTANCE (its head as well as its 1 um of body), roughly doubling the step. The trim RANGE therefore still covers the resize's needs and DR-002's mismatch target; the trim GRANULARITY is the part that must change (a finer ladder unit or a different tap scheme), and that is a DR-002 revision, not a sizing question.\n\n**Residual model gap (reported, not gated)**: at the shipped sizing the schematic's own one-device-per-leg netlist measures +39.0..+39.4 mV away from the chained topology it is now sized for (the chain reads HIGHER). Every schematic-only bench in `sim/` therefore now under-reads VREF against the layout it targets. This is a modelling gap, not a trim target -- it is in the direction DR-002's downward-only ladder cannot correct -- and closing it needs either issue #101's topology change (fewer, longer instances per leg, which would make the single-device model correct again) or a schematic device-model change. It is stated in `design/bandgap_core.sch`'s own EPISTEMIC STATUS block so no reader takes a schematic-only VREF number at face value.",
+  "git": {
+    "branch": "feature/issue-99",
+    "dirty": true,
+    "sha": "2c83c7a"
+  },
+  "hot": [
+    {
+      "n_temp_points": 31.0,
+      "process": "ff",
+      "supply_v": 2.97,
+      "tc_ppm": 160.3017,
+      "vref_27": 1.1755,
+      "vref_max": 1.1755,
+      "vref_min": 1.169847
+    },
+    {
+      "n_temp_points": 31.0,
+      "process": "fs",
+      "supply_v": 2.97,
+      "tc_ppm": 162.0746,
+      "vref_27": 1.175511,
+      "vref_max": 1.175511,
+      "vref_min": 1.169795
+    }
+  ],
+  "links": {
+    "corners_dir": "sim/res-array-resize/corners/20260805-211755-2c83c7a/",
+    "json": "sim/res-array-resize/records/20260805-211755-2c83c7a.json",
+    "netlist_snapshot": "sim/res-array-resize/netlist-snapshots/20260805-211755-2c83c7a.spice",
+    "record": "sim/res-array-resize/records/20260805-211755-2c83c7a.md"
+  },
+  "overall_pass": false,
+  "pdk": {
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "lib_file": "/home/ubuntu/.volare/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "variant": "sky130A"
+  },
+  "pvt": [
+    {
+      "n_temp_points": 16.0,
+      "process": "tt",
+      "supply_v": 2.97,
+      "tc_ppm": 177.5258,
+      "vref_27": 1.19933,
+      "vref_max": 1.207576,
+      "vref_min": 1.172446
+    },
+    {
+      "n_temp_points": 16.0,
+      "process": "tt",
+      "supply_v": 3.3,
+      "tc_ppm": 177.6504,
+      "vref_27": 1.199328,
+      "vref_max": 1.207582,
+      "vref_min": 1.172427
+    },
+    {
+      "n_temp_points": 16.0,
+      "process": "tt",
+      "supply_v": 3.63,
+      "tc_ppm": 177.6908,
+      "vref_27": 1.199339,
+      "vref_max": 1.207595,
+      "vref_min": 1.172431
+    },
+    {
+      "n_temp_points": 16.0,
+      "process": "ss",
+      "supply_v": 2.97,
+      "tc_ppm": 178.5987,
+      "vref_27": 1.199748,
+      "vref_max": 1.208162,
+      "vref_min": 1.172807
+    },
+    {
+      "n_temp_points": 16.0,
+      "process": "ss",
+      "supply_v": 3.3,
+      "tc_ppm": 178.7099,
+      "vref_27": 1.199744,
+      "vref_max": 1.208165,
+      "vref_min": 1.172788
+    },
+    {
+      "n_temp_points": 16.0,
+      "process": "ss",
+      "supply_v": 3.63,
+      "tc_ppm": 178.7179,
+      "vref_27": 1.199757,
+      "vref_max": 1.208179,
+      "vref_min": 1.1728
+    },
+    {
+      "n_temp_points": 16.0,
+      "process": "ff",
+      "supply_v": 2.97,
+      "tc_ppm": 176.6442,
+      "vref_27": 1.19904,
+      "vref_max": 1.20714,
+      "vref_min": 1.172193
+    },
+    {
+      "n_temp_points": 16.0,
+      "process": "ff",
+      "supply_v": 3.3,
+      "tc_ppm": 176.7593,
+      "vref_27": 1.19904,
+      "vref_max": 1.207146,
+      "vref_min": 1.172176
+    },
+    {
+      "n_temp_points": 16.0,
+      "process": "ff",
+      "supply_v": 3.63,
+      "tc_ppm": 176.7847,
+      "vref_27": 1.199052,
+      "vref_max": 1.207161,
+      "vref_min": 1.172185
+    },
+    {
+      "n_temp_points": 16.0,
+      "process": "sf",
+      "supply_v": 2.97,
+      "tc_ppm": 167.1939,
+      "vref_27": 1.200939,
+      "vref_max": 1.208091,
+      "vref_min": 1.174961
+    },
+    {
+      "n_temp_points": 16.0,
+      "process": "sf",
+      "supply_v": 3.3,
+      "tc_ppm": 167.3455,
+      "vref_27": 1.200934,
+      "vref_max": 1.208096,
+      "vref_min": 1.174936
+    },
+    {
+      "n_temp_points": 16.0,
+      "process": "sf",
+      "supply_v": 3.63,
+      "tc_ppm": 167.4069,
+      "vref_27": 1.200942,
+      "vref_max": 1.208107,
+      "vref_min": 1.174934
+    },
+    {
+      "n_temp_points": 16.0,
+      "process": "fs",
+      "supply_v": 2.97,
+      "tc_ppm": 183.8727,
+      "vref_27": 1.199593,
+      "vref_max": 1.208558,
+      "vref_min": 1.172164
+    },
+    {
+      "n_temp_points": 16.0,
+      "process": "fs",
+      "supply_v": 3.3,
+      "tc_ppm": 183.9767,
+      "vref_27": 1.199594,
+      "vref_max": 1.208566,
+      "vref_min": 1.172151
+    },
+    {
+      "n_temp_points": 16.0,
+      "process": "fs",
+      "supply_v": 3.63,
+      "tc_ppm": 183.9924,
+      "vref_27": 1.199608,
+      "vref_max": 1.208581,
+      "vref_min": 1.172163
+    }
+  ],
+  "record_id": "20260805-211755-2c83c7a",
+  "schematic_params": {
+    "n_r1": 6.0,
+    "n_r2": 42.0,
+    "n_r2_trim": 0.0,
+    "r_lseg": 5.0,
+    "r_lseg_trim": 1.0,
+    "r_w": 1.0
+  },
+  "screen": [
+    {
+      "k": 7.6063636026334205,
+      "n_r1": 5,
+      "n_r2": 35,
+      "n_temp_points": 16.0,
+      "r1_ohm": 10019.206835,
+      "r2_ohm": 76209.730197,
+      "tc_ppm": 138.1504,
+      "vref_27": 1.212821,
+      "vref_max": 1.218318,
+      "vref_min": 1.190672
+    },
+    {
+      "k": 7.806363602633422,
+      "n_r1": 5,
+      "n_r2": 36,
+      "n_temp_points": 16.0,
+      "r1_ohm": 10019.206835,
+      "r2_ohm": 78213.57156400001,
+      "tc_ppm": 108.3431,
+      "vref_27": 1.225361,
+      "vref_max": 1.229045,
+      "vref_min": 1.20714
+    },
+    {
+      "k": 7.338636335527851,
+      "n_r1": 6,
+      "n_r2": 41,
+      "n_temp_points": 16.0,
+      "r1_ohm": 12023.048202,
+      "r2_ohm": 88232.778399,
+      "tc_ppm": 206.9042,
+      "vref_27": 1.188923,
+      "vref_max": 1.199365,
+      "vref_min": 1.158776
+    },
+    {
+      "k": 7.505303002194518,
+      "n_r1": 6,
+      "n_r2": 42,
+      "n_temp_points": 16.0,
+      "r1_ohm": 12023.048202,
+      "r2_ohm": 90236.619766,
+      "tc_ppm": 177.6504,
+      "vref_27": 1.199328,
+      "vref_max": 1.207582,
+      "vref_min": 1.172427
+    },
+    {
+      "k": 7.671969668861185,
+      "n_r1": 6,
+      "n_r2": 43,
+      "n_temp_points": 16.0,
+      "r1_ohm": 12023.048202,
+      "r2_ohm": 92240.461133,
+      "tc_ppm": 150.517,
+      "vref_27": 1.209734,
+      "vref_max": 1.216122,
+      "vref_min": 1.186078
+    },
+    {
+      "k": 7.4331168590238725,
+      "n_r1": 7,
+      "n_r2": 49,
+      "n_temp_points": 16.0,
+      "r1_ohm": 14026.889569,
+      "r2_ohm": 104263.50933500001,
+      "tc_ppm": 210.0133,
+      "vref_27": 1.18896,
+      "vref_max": 1.199693,
+      "vref_min": 1.158493
+    },
+    {
+      "k": 7.575974001881015,
+      "n_r1": 7,
+      "n_r2": 50,
+      "n_temp_points": 16.0,
+      "r1_ohm": 14026.889569,
+      "r2_ohm": 106267.350702,
+      "tc_ppm": 184.7614,
+      "vref_27": 1.19785,
+      "vref_max": 1.206665,
+      "vref_min": 1.170147
+    },
+    {
+      "k": 8.147402573309586,
+      "n_r1": 7,
+      "n_r2": 54,
+      "n_temp_points": 16.0,
+      "r1_ohm": 14026.889569,
+      "r2_ohm": 114282.71617,
+      "tc_ppm": 96.84434,
+      "vref_27": 1.233408,
+      "vref_max": 1.236474,
+      "vref_min": 1.216765
+    }
+  ],
+  "single": [
+    {
+      "chained_vref_27": 1.199328,
+      "gap_mv": 39.039000000000044,
+      "process": "tt",
+      "single_vref_27": 1.160289,
+      "supply_v": 3.3
+    },
+    {
+      "chained_vref_27": 1.199744,
+      "gap_mv": 39.031999999999954,
+      "process": "ss",
+      "single_vref_27": 1.160712,
+      "supply_v": 3.3
+    },
+    {
+      "chained_vref_27": 1.19904,
+      "gap_mv": 39.057000000000116,
+      "process": "ff",
+      "single_vref_27": 1.159983,
+      "supply_v": 2.97
+    },
+    {
+      "chained_vref_27": 1.200939,
+      "gap_mv": 39.38799999999998,
+      "process": "sf",
+      "single_vref_27": 1.161551,
+      "supply_v": 2.97
+    },
+    {
+      "chained_vref_27": 1.199593,
+      "gap_mv": 38.96599999999984,
+      "process": "fs",
+      "single_vref_27": 1.160627,
+      "supply_v": 2.97
+    }
+  ],
+  "supersedes": "",
+  "timestamp": "2026-08-05T21:17:55Z",
+  "tools": {
+    "ngspice": "ngspice-46 : Circuit level simulation program",
+    "platform": "Linux 7.0.0-1009-aws x86_64",
+    "python": "3.12.3",
+    "xschem": "XSCHEM V3.4.7"
+  },
+  "trim": [
+    {
+      "lsb_mv": 3.6584375000000002,
+      "process": "tt",
+      "span_mv": 58.535000000000004,
+      "supply_v": 3.3,
+      "v0": 1.199328,
+      "v16": 1.140793,
+      "v8": 1.170061
+    },
+    {
+      "lsb_mv": 3.6583749999999915,
+      "process": "ss",
+      "span_mv": 58.533999999999864,
+      "supply_v": 3.3,
+      "v0": 1.199744,
+      "v16": 1.14121,
+      "v8": 1.170477
+    },
+    {
+      "lsb_mv": 3.65950000000001,
+      "process": "ff",
+      "span_mv": 58.55200000000016,
+      "supply_v": 2.97,
+      "v0": 1.19904,
+      "v16": 1.140488,
+      "v8": 1.169764
+    },
+    {
+      "lsb_mv": 3.6817499999999974,
+      "process": "sf",
+      "span_mv": 58.90799999999996,
+      "supply_v": 2.97,
+      "v0": 1.200939,
+      "v16": 1.142031,
+      "v8": 1.171485
+    },
+    {
+      "lsb_mv": 3.6553749999999887,
+      "process": "fs",
+      "span_mv": 58.48599999999982,
+      "supply_v": 2.97,
+      "v0": 1.199593,
+      "v16": 1.141107,
+      "v8": 1.17035
+    }
+  ],
+  "winner": {
+    "n_r1": 6,
+    "n_r2": 42
+  }
+}
