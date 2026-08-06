@@ -343,10 +343,9 @@
 #
 # Bumped again for issue #62's twenty-eighth increment (2026-08-06). The
 # prior pin (48849358a1691d97445fa5f89bd3bf727b1c90d6, == #583) is bumped
-# past 2AMLogic/klayout-tools#587 -> merged as acb0ae6 (also klayout-tools
-# main tip as of this writing). This bump corrects the twenty-seventh
-# increment's diagnosis and settles what the resistor mismatches actually
-# are:
+# past 2AMLogic/klayout-tools#587 -> merged as acb0ae6. This bump corrects
+# the twenty-seventh increment's diagnosis and settles what the resistor
+# mismatches actually are:
 #
 #   * 2AMLogic/klayout-tools#587 (closes #585/#586). #583 alone did not reach
 #     this flow's pre-extracted `layout.netlist` shape -- NOT because
@@ -358,7 +357,13 @@
 #     missed. #587 normalizes that lookup case-insensitively AND adds
 #     `run_extract(apply_resistor_fixed_offset=False)`. With this pin, the
 #     once-per-combined-device correction IS reachable on this flow's own
-#     request shape (measured by hand: R2A/R2B land at 88,083 ohm).
+#     request shape. Measured, not asserted, by
+#     `layout/bin/measure_fixed_offset_variants.py` (evidence under
+#     `layout/bandgap-core/fixed-offset-variants/`): deferring at extraction
+#     and passing `layout.deck` lands R2A/R2B at 88,083.061027 ohm and R1 at
+#     11,748.658687 -- but `mismatch_count` is 4 in ALL FOUR accounting
+#     variants, so the deferral changes only which resistance `klt lvs`
+#     prints, never AC4's number.
 #
 #   It is deliberately NOT adopted. DR-003 (issue #98) ratified, with
 #   independent real-SPICE evidence, that this layout physically pays the
@@ -377,6 +382,16 @@
 #
 # Range check: `git log 4884935..acb0ae6` adds only #587 touching
 # `extract.py`/`lvs.py`; nothing else on this flow's sky130 resistor path.
+#
+# Upstream tip check (re-run at Doctor time, 2026-08-06): klayout-tools main
+# has since moved to 162a258. `git log acb0ae6..162a258` is two commits --
+# 71d46d0 (a loom housekeeping resync) and 162a258 (#590, which exposes
+# `--defer-resistor-fixed-offset` on the `klt extract` *CLI*). Neither touches
+# the Python `run_extract`/`run_lvs` API this flow and
+# `measure_fixed_offset_variants.py` call, so the pin is deliberately held at
+# acb0ae6 -- the commit every measurement in this increment's records was
+# actually taken against -- rather than floated to a tip that would invalidate
+# that provenance without changing a single measured number.
 #
 # Non-regression proof for this bump: layout/bin/run-trivial-cell-flow.sh
 # re-run unmodified still PASSes with the identical four-way verdict (see
