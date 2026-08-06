@@ -2255,7 +2255,7 @@ class TestR2LegLength(unittest.TestCase):
 
     def test_reports_the_schematic_value_from_core_params(self) -> None:
         report = gen_bandgap_routed.r2_leg_length()
-        self.assertEqual(report["spec_um"], 270.0)  # r_lseg=5 * n_r2=54
+        self.assertEqual(report["spec_um"], 250.0)  # r_lseg=5 * n_r2=50
 
     def test_drawn_length_counts_the_trim_ladder_because_it_is_in_series(
         self,
@@ -2280,9 +2280,11 @@ class TestR2LegLength(unittest.TestCase):
     def test_the_split_is_coarse_plus_fine_not_coarse_plus_extra(self) -> None:
         """The specific decomposition matters, not just the total: the fine
         ladder has to be long enough to reach DR-002's -16 code from inside
-        the 270 um, which is what rules out e.g. 53 coarse + 5 fine."""
+        the 250 um (issue #108's resize of issue #91's decomposition), which
+        is what rules out e.g. 47 coarse + 15 fine (also totals 250 um but
+        only reaches code -15)."""
         report = gen_bandgap_routed.r2_leg_length()
-        self.assertEqual(report["coarse_um"], 250.0)
+        self.assertEqual(report["coarse_um"], 230.0)
         self.assertEqual(report["trim_um"], 20.0)
         self.assertGreaterEqual(
             gen_bandgap_routed.N_R2_TRIM_UNITS,
@@ -2312,9 +2314,11 @@ class TestTrimTapLadder(unittest.TestCase):
     """The trim ladder's *direction*, from the block's own reported ports.
 
     DR-002 certifies codes 0..-16 and rejects every positive one, so it is
-    not enough that the leg is 270 um at code 0: selecting a tap has to make
-    the leg shorter, monotonically, one um per code. Before issue #91 the
-    ladder was wired after a full-length leg and every tap made it longer.
+    not enough that the leg is 250 um at code 0 (issue #91's decomposition,
+    re-transcribed to the resized n_r2=50 sizing by issue #108): selecting a
+    tap has to make the leg shorter, monotonically, one um per code. Before
+    issue #91 the ladder was wired after a full-length leg and every tap
+    made it longer.
     """
 
     #: A `res_array` report stub carrying exactly the ports the real block
@@ -2342,7 +2346,8 @@ class TestTrimTapLadder(unittest.TestCase):
 
     def test_every_certified_code_subtracts_exactly_one_um(self) -> None:
         """Acceptance criterion 3 of issue #91, stated as an assertion:
-        selecting tap k yields `270 - k` um for k in 0..16."""
+        selecting tap k yields `spec_um - k` um for k in 0..16 (spec_um is
+        250 as of issue #108's resize; was 270 before)."""
         rows = {row["code"]: row for row in gen_bandgap_routed.trim_tap_ladder(
             self._reports()
         )}
@@ -2362,10 +2367,11 @@ class TestTrimTapLadder(unittest.TestCase):
                 self.assertLessEqual(row["code"], 0)
 
     def test_taps_past_dr002s_range_are_drawn_but_flagged(self) -> None:
-        """The 50/20 split draws four taps past DR-002's certified -16. They
-        exist in metal (a metal-option ladder's taps always do), so they are
-        reported -- explicitly marked out of certified range, not silently
-        offered as valid codes."""
+        """The 46/20 split (issue #108's resize of issue #91's 50/20) draws
+        four taps past DR-002's certified -16. They exist in metal (a
+        metal-option ladder's taps always do), so they are reported --
+        explicitly marked out of certified range, not silently offered as
+        valid codes."""
         rows = gen_bandgap_routed.trim_tap_ladder(self._reports())
         uncertified = [row["code"] for row in rows if not row["certified"]]
         self.assertEqual(uncertified, [-17, -18, -19, -20])
@@ -2412,8 +2418,8 @@ class TestTrimTapLadder(unittest.TestCase):
         self,
     ) -> None:
         """`TRIM_A`/`TRIM_B` join `res_r2`'s tail to `res_trim`'s head, so the
-        coarse and fine parts are in series and the whole 270 um is one
-        device per leg."""
+        coarse and fine parts are in series and the whole 250 um (issue
+        #108's resize of issue #91's 270 um) is one device per leg."""
         trims = {
             spec["net"]: {t["block"]: t["port"] for t in spec["terminals"]}
             for spec in gen_bandgap_routed.INTER_BLOCK_MET1
