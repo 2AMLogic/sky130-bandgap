@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "file": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-62/layout/trivial-cell/reports/20260806-055840-3a4293a/trivial_mos_array.gds",
+  "deck": "sky130",
+  "dbu_um": 0.001,
+  "status": "clean",
+  "violation_count": 0,
+  "rule_counts": {},
+  "violations": [],
+  "coverage": {
+    "deck_layers": [
+      "65/20",
+      "66/20",
+      "66/44",
+      "67/20",
+      "67/44",
+      "68/20",
+      "68/44",
+      "69/20"
+    ],
+    "layers_checked": [
+      "65/20",
+      "66/20",
+      "66/44",
+      "67/20"
+    ],
+    "layers_in_stream_without_rules": [
+      "83/20"
+    ],
+    "rules_skipped": [
+      "mcon.space.1",
+      "met1.enclosing.mcon.1",
+      "met1.enclosing.via.1",
+      "met1.space.1",
+      "met1.width.1",
+      "met2.enclosing.via.1",
+      "met2.space.1",
+      "met2.width.1",
+      "via.space.1",
+      "via.width.1"
+    ],
+    "voltage_domain_warnings": []
+  },
+  "provenance": {
+    "klt_version": "0.2.0",
+    "klayout_version": "0.30.10",
+    "pdk": null,
+    "deck": {
+      "name": "sky130",
+      "content_hash": "sha256:aa7aca655f2602ca087aee637afa0d1887ac4c623252ed7f1de6bbf559990859"
+    },
+    "input": {
+      "content_hash": "sha256:1808215c56ef69edf5baa08ad7362f9617eab90e57f58b189937093e50f44521"
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "harness": "layout/bin/measure_fixed_offset_variants.py",
+  "record_id": "20260806-055811-3a4293a",
+  "source_record": "layout/bandgap-core/reports/20260806-055811-3a4293a",
+  "repo_sha": "3a4293a956cd4eb465de439e9d21747c42875762",
+  "klt_pin": "klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@acb0ae6c11e667eb93ee7de272d64298517f7fab",
+  "cell": "bandgap_core_routed",
+  "reference_r": {
+    "R2B": 106267.35,
+    "R2A": 106267.35,
+    "R1": 14026.89
+  },
+  "variants": [
+    {
+      "variant": "primary_nodeck",
+      "extraction_fixed_offset": "per_primitive",
+      "lvs_layout_deck": null,
+      "status": "mismatch",
+      "mismatch_count": 1,
+      "category_counts": {
+        "device.unmatched": 1
+      },
+      "devices_matched": 15,
+      "nets_matched": 9,
+      "resistor_r": {}
+    },
+    {
+      "variant": "primary_deck",
+      "extraction_fixed_offset": "per_primitive",
+      "lvs_layout_deck": "sky130",
+      "status": "mismatch",
+      "mismatch_count": 4,
+      "category_counts": {
+        "device.property": 3,
+        "device.unmatched": 1
+      },
+      "devices_matched": 12,
+      "nets_matched": 4,
+      "resistor_r": {
+        "R2B": {
+          "layout": 106647.05584900004,
+          "reference": 106267.35
+        },
+        "R2A": {
+          "layout": 106647.05584900004,
+          "reference": 106267.35
+        },
+        "R1": {
+          "layout": 14406.594716000003,
+          "reference": 14026.89
+        }
+      }
+    },
+    {
+      "variant": "deferred_nodeck",
+      "extraction_fixed_offset": "deferred",
+      "lvs_layout_deck": null,
+      "status": "mismatch",
+      "mismatch_count": 4,
+      "category_counts": {
+        "device.property": 3,
+        "device.unmatched": 1
+      },
+      "devices_matched": 12,
+      "nets_matched": 4,
+      "resistor_r": {
+        "R2B": {
+          "layout": 81206.811,
+          "reference": 106267.35
+        },
+        "R2A": {
+          "layout": 81206.811,
+          "reference": 106267.35
+        },
+        "R1": {
+          "layout": 11368.95354,
+          "reference": 14026.89
+        }
+      }
+    },
+    {
+      "variant": "deferred_deck",
+      "extraction_fixed_offset": "deferred",
+      "lvs_layout_deck": "sky130",
+      "status": "mismatch",
+      "mismatch_count": 4,
+      "category_counts": {
+        "device.property": 3,
+        "device.unmatched": 1
+      },
+      "devices_matched": 12,
+      "nets_matched": 4,
+      "resistor_r": {
+        "R2B": {
+          "layout": 81586.516147,
+          "reference": 106267.35
+        },
+        "R2A": {
+          "layout": 81586.516147,
+          "reference": 106267.35
+        },
+        "R1": {
+          "layout": 11748.658687000001,
+          "reference": 14026.89
+        }
+      }
+    }
+  ],
+  "mismatch_counts_summary": "1/4"
+}
