@@ -2886,12 +2886,34 @@ resistor `device.property` findings actually are.
    bumped past #587 (`acb0ae6`; non-regressing --
    `layout/bin/run-trivial-cell-flow.sh` re-run still PASSes identically).
 
-2. **Reaching the correction is not the goal -- adopting it would mask a real
-   defect.** With the pin past #587, the once-per-combined-device correction
-   *is* now reachable on this flow's own `layout.netlist` + `layout.deck` +
-   `combine_devices` shape (measured by hand against this increment's `.gds`:
-   R2A/R2B land at 88,083.06 ohm, R1 at 11,748.66). It is **deliberately not
-   adopted.** DR-003 (issue #98) ratified, with independent real-SPICE
+2. **Reaching the correction is not the goal -- it moves no number, and
+   adopting it would mask a real defect.** With the pin past #587, the
+   once-per-combined-device correction *is* now reachable on this flow's own
+   `layout.netlist` + `layout.deck` + `combine_devices` shape. That is
+   measured, not asserted: `layout/bin/measure_fixed_offset_variants.py`
+   re-runs `klt lvs` against this increment's own drawn `.gds` under all four
+   accounting combinations and writes the result to
+   `layout/bandgap-core/fixed-offset-variants/`.
+
+   | variant | extraction offset | `layout.deck` | `mismatch_count` | `devices.matched` | R2A/R2B `r` (Ω) | R1 `r` (Ω) |
+   | --- | --- | --- | --- | --- | --- | --- |
+   | `primary_nodeck` (shipped) | per primitive | absent | **4** | 12 | 114,282.716170 | 14,026.889569 |
+   | `primary_deck` | per primitive | `sky130` | **4** | 12 | 114,662.421317 | 14,406.594716 |
+   | `deferred_nodeck` | deferred | absent | **4** | 12 | 87,703.355880 | 11,368.953540 |
+   | `deferred_deck` (#587's pairing) | deferred | `sky130` | **4** | 12 | 88,083.061027 | 11,748.658687 |
+
+   Reference-side values are 88,130 / 11,755 in every variant. Two results
+   follow. First, **`mismatch_count` is 4 in all four variants** -- the
+   deferral is not a lever on AC4's number at all, because `klt lvs` compares
+   device parameters exactly (~1e-6 relative) and even the deferred 88,083.06
+   is 0.053% off the schematic's rounded `380 + 325*L` reference. Adopting it
+   would change only *which* resistance the record prints. (`primary_deck`
+   also shows the pairing that would be wrong the other way: the extractor
+   already baked the offset into every primitive, so passing `layout.deck`
+   without deferring adds it once more, 114,662.42.)
+
+   Second, it is **deliberately not adopted.** DR-003 (issue #98) ratified,
+   with independent real-SPICE
    evidence, that this layout physically pays the head/end resistance once per
    separately-contacted instance -- R2A/R2B = **114,282 ohm** is the genuine
    value (Phase A reproduces it to 5-6 sig figs by chaining real
@@ -2924,7 +2946,7 @@ compensation cap `MCC` (single-ended by design, issue #15).
 | 1 (full inter-block routing) | MET, 12/12 | unchanged |
 | 2 (real ladder unit count) | MET | unchanged |
 | 3 (device classes + pins) | MET | unchanged |
-| 4 (`klt lvs` clean) | NOT MET, 4 | unchanged -- but the 3 resistor findings are now correctly attributed to a real design sizing defect (issue #99), not a reachable LVS-accounting fix; the tool fix (#583/#587) exists and is reachable but is not adopted because it would mask DR-003's ratified head resistance |
+| 4 (`klt lvs` clean) | NOT MET, 4 | **NOT MET, 4** -- re-measured, not carried over. The 3 resistor findings are now correctly attributed to a real design sizing defect (issue #99), not a reachable LVS-accounting fix; the tool fix (#583/#587) exists and is reachable, and was measured under all four accounting variants -- `mismatch_count` is 4 in every one, so adopting it would not move AC4 even setting aside that it would mask DR-003's ratified head resistance |
 | 5 (blocking gaps filed) | MET | unchanged (klayout-tools#559/#585/#586 all closed upstream; no new blocking tool gap -- the remaining lever is design-side, issue #99) |
 
 **Suggested next increment**: AC4's resistor findings are now a design-side

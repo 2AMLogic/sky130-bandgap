@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "harness": "layout/bin/measure_fixed_offset_variants.py",
+  "record_id": "20260806-051430-48f352b",
+  "source_record": "layout/bandgap-core/reports/20260806-051430-48f352b",
+  "repo_sha": "48f352b1bd6480968238331e378cee0b801cc12b",
+  "klt_pin": "klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@acb0ae6c11e667eb93ee7de272d64298517f7fab",
+  "cell": "bandgap_core_routed",
+  "reference_r": {
+    "R2B": 88130.0,
+    "R2A": 88130.0,
+    "R1": 11755.0
+  },
+  "variants": [
+    {
+      "variant": "primary_nodeck",
+      "extraction_fixed_offset": "per_primitive",
+      "lvs_layout_deck": null,
+      "status": "mismatch",
+      "mismatch_count": 4,
+      "category_counts": {
+        "device.property": 3,
+        "device.unmatched": 1
+      },
+      "devices_matched": 12,
+      "nets_matched": 4,
+      "resistor_r": {
+        "R2B": {
+          "layout": 114282.71617000003,
+          "reference": 88130.0
+        },
+        "R2A": {
+          "layout": 114282.71617000003,
+          "reference": 88130.0
+        },
+        "R1": {
+          "layout": 14026.889569000003,
+          "reference": 11755.0
+        }
+      }
+    },
+    {
+      "variant": "primary_deck",
+      "extraction_fixed_offset": "per_primitive",
+      "lvs_layout_deck": "sky130",
+      "status": "mismatch",
+      "mismatch_count": 4,
+      "category_counts": {
+        "device.property": 3,
+        "device.unmatched": 1
+      },
+      "devices_matched": 12,
+      "nets_matched": 4,
+      "resistor_r": {
+        "R2B": {
+          "layout": 114662.42131700003,
+          "reference": 88130.0
+        },
+        "R2A": {
+          "layout": 114662.42131700003,
+          "reference": 88130.0
+        },
+        "R1": {
+          "layout": 14406.594716000003,
+          "reference": 11755.0
+        }
+      }
+    },
+    {
+      "variant": "deferred_nodeck",
+      "extraction_fixed_offset": "deferred",
+      "lvs_layout_deck": null,
+      "status": "mismatch",
+      "mismatch_count": 4,
+      "category_counts": {
+        "device.property": 3,
+        "device.unmatched": 1
+      },
+      "devices_matched": 12,
+      "nets_matched": 4,
+      "resistor_r": {
+        "R2B": {
+          "layout": 87703.35588,
+          "reference": 88130.0
+        },
+        "R2A": {
+          "layout": 87703.35588,
+          "reference": 88130.0
+        },
+        "R1": {
+          "layout": 11368.95354,
+          "reference": 11755.0
+        }
+      }
+    },
+    {
+      "variant": "deferred_deck",
+      "extraction_fixed_offset": "deferred",
+      "lvs_layout_deck": "sky130",
+      "status": "mismatch",
+      "mismatch_count": 4,
+      "category_counts": {
+        "device.property": 3,
+        "device.unmatched": 1
+      },
+      "devices_matched": 12,
+      "nets_matched": 4,
+      "resistor_r": {
+        "R2B": {
+          "layout": 88083.061027,
+          "reference": 88130.0
+        },
+        "R2A": {
+          "layout": 88083.061027,
+          "reference": 88130.0
+        },
+        "R1": {
+          "layout": 11748.658687000001,
+          "reference": 11755.0
+        }
+      }
+    }
+  ],
+  "mismatch_counts_summary": "4"
+}

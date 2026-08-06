@@ -27,8 +27,9 @@ issue #99's resize, not an LVS-accounting change. An upstream
 ([klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559),
 closed via [#583](https://github.com/2AMLogic/klayout-tools/pull/583)/[#587](https://github.com/2AMLogic/klayout-tools/pull/587))
 _would_ make `klt lvs` re-report those resistors at the single-device value
-(88,083 Ω) instead, but this flow deliberately does **not** adopt it: doing so
-would mask the ratified-real head resistance to make the number look better.
+(88,083 Ω) instead, but it is measured to leave `mismatch_count` at 4 either
+way, and this flow deliberately does **not** adopt it: doing so would mask the
+ratified-real head resistance without moving a single verification number.
 See
 [`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)
 for the full record. Nothing here has been taped out or measured in

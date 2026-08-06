@@ -204,8 +204,15 @@ here, relative to that skeleton:
     #585/#586) normalizes that lookup case-insensitively and adds
     `run_extract(apply_resistor_fixed_offset=False)`. This increment bumps the
     pin past #587, which makes the once-per-combined-device correction
-    reachable on this flow's own shape (measured by hand: it lands R2A/R2B at
-    88,083.06 ohm, R1 at 11,748.66). It is NOT adopted: DR-003 (issue #98)
+    reachable on this flow's own shape. Measured -- not by hand -- with
+    `layout/bin/measure_fixed_offset_variants.py`, which re-runs `klt lvs`
+    against this record's own drawn `.gds` under all four accounting
+    combinations (see `layout/bandgap-core/fixed-offset-variants/`):
+    deferring at extraction and passing `layout.deck` lands R2A/R2B at
+    88,083.061027 ohm and R1 at 11,748.658687. **`mismatch_count` is 4 in
+    all four variants** -- the deferral is not a lever on AC4's number at
+    all, it only changes which resistance `klt lvs` prints. It is NOT
+    adopted: DR-003 (issue #98)
     ratified, with independent real-SPICE evidence, that this layout
     physically pays the head/end resistance once per separately-contacted
     instance (R2A/R2B = 114,282 ohm, the value the flow keeps reporting), so
@@ -726,9 +733,17 @@ RES_HEAD_RESISTANCE_NOTE = (
     "`run_extract(apply_resistor_fixed_offset=False)`. Bumping the pin past "
     "#587 makes the deferred, once-per-combined-device correction reachable "
     "on this flow's own `layout.netlist` + `layout.deck` + `combine_devices` "
-    "shape; measured by hand against this record's `.gds`, it lands R2A/R2B "
-    "at 88,083.061027 ohm and R1 at 11,748.658687. But this flow deliberately "
-    "does NOT adopt it: 88,083 is the single-device value, and DR-003 already "
+    "shape. `layout/bin/measure_fixed_offset_variants.py` re-runs `klt lvs` "
+    "against this record's own drawn `.gds` under all four accounting "
+    "combinations and writes the result to "
+    "`layout/bandgap-core/fixed-offset-variants/` (per-primitive offset with "
+    "and without `layout.deck`: 114,282.716170 / 114,662.421317 ohm -- the "
+    "latter double-counts; deferred with and without it: 87,703.355880 / "
+    "88,083.061027). Two things follow. First, `mismatch_count` is 4 in ALL "
+    "FOUR variants, so the deferral is not a lever on AC4's number -- it "
+    "only changes which resistance `klt lvs` prints. Second, this flow "
+    "deliberately does NOT adopt it: 88,083 is the single-device value, and "
+    "DR-003 already "
     "ratified that this layout physically has the once-per-instance 114,282 "
     "-- so making `klt lvs` report 88,083 would mask a real, ratified design "
     "defect to make the number look better, exactly the "
@@ -4506,8 +4521,12 @@ def main() -> int:
         "pre-extracted shape (NOT `layout.deck` being silently ignored, as "
         "the twenty-seventh-increment record wrongly stated -- `layout_deck` "
         "resolves unconditionally), closing klayout-tools#585/#586. The "
-        "once-per-combined-device correction is now reachable (measured by "
-        "hand: R2A/R2B land at 88,083 ohm) but **deliberately NOT adopted**: "
+        "once-per-combined-device correction is now reachable -- measured "
+        "with `layout/bin/measure_fixed_offset_variants.py` across all four "
+        "accounting combinations (`layout/bandgap-core/"
+        "fixed-offset-variants/`): R2A/R2B land at 88,083.061027 ohm, and "
+        "`mismatch_count` is **4 in every variant**, so the deferral moves "
+        "no AC4 number. It is **deliberately NOT adopted**: "
         "DR-003 ratified, with independent real-SPICE evidence, that this "
         "layout physically pays the head resistance once per separately-"
         "contacted instance (114,282 ohm is genuine, not an artifact), so "

@@ -366,7 +366,14 @@ The two causes:
    `layout_deck` resolves unconditionally in `run_lvs`; the case-sensitivity
    bug was the real reason.)
 
-   **This flow deliberately does not adopt that correction.** It would
+   **Adopting that correction moves no number, and this flow deliberately
+   does not adopt it.** `layout/bin/measure_fixed_offset_variants.py` re-runs
+   `klt lvs` against the shipped record's own drawn `.gds` under all four
+   accounting combinations (`layout/bandgap-core/fixed-offset-variants/`):
+   `mismatch_count` is **4 in every one**, because `klt lvs` compares device
+   parameters exactly and even the deferred 88,083.06 Ω is 0.053% off the
+   schematic's rounded reference. All the correction changes is *which*
+   resistance the record prints. It would
    re-report `R2A`/`R2B` at the single-device 88,083 Ω instead of the folded
    array's physical 114,282 Ω — and DR-003 (below) ratified, with independent
    real-SPICE evidence, that 114,282 Ω is the layout's *genuine* resistance,
