@@ -355,16 +355,27 @@ The two causes:
    **closed** via
    [klayout-tools#583](https://github.com/2AMLogic/klayout-tools/pull/583)
    (merged 2026-08-05): `combine_devices()` now defers the correction until
-   after folding, applying it once per combined device — confirmed by hand
-   to work, landing `R2A`/`R2B` within 0.05% of the reference. But the fix
-   only runs on `klt lvs`'s inline-extraction request shape
-   (`layout.file`+`layout.deck`); this flow's own combined-LVS step must use
-   the pre-extracted shape (`layout.netlist`) instead, to avoid a separate,
-   pre-existing `combine_devices()` reliability issue on this cell's
-   bipolar array — and `layout.deck` is silently ignored on that shape, so
-   the now-fixed correction is still unreachable here. Filed as
-   [klayout-tools#585](https://github.com/2AMLogic/klayout-tools/issues/585),
-   open.
+   after folding, applying it once per combined device.
+   [klayout-tools#587](https://github.com/2AMLogic/klayout-tools/pull/587)
+   (merged, closes #585/#586) then made that once-per-device correction
+   reachable on this flow's own pre-extracted (`layout.netlist` +
+   `layout.deck`) shape, by fixing a case-sensitive device-class lookup that
+   had silently missed the `NetlistSpiceReader`-uppercased `RES_HIGH_PO`
+   class name. (The twenty-seventh increment's claim that `layout.deck` was
+   "silently ignored" on the pre-extracted shape was **factually wrong** —
+   `layout_deck` resolves unconditionally in `run_lvs`; the case-sensitivity
+   bug was the real reason.)
+
+   **This flow deliberately does not adopt that correction.** It would
+   re-report `R2A`/`R2B` at the single-device 88,083 Ω instead of the folded
+   array's physical 114,282 Ω — and DR-003 (below) ratified, with independent
+   real-SPICE evidence, that 114,282 Ω is the layout's *genuine* resistance,
+   not an extraction artifact. Reporting 88,083 Ω would mask a real, ratified
+   sizing defect to make the LVS number look better — exactly the
+   relax-to-pass this repo's `CLAUDE.md` refuses. The operative issue is not
+   the `combine_devices` over-count `#559` described, but that the layout
+   physically has ~29.7% more head resistance than the schematic models,
+   fixed by resizing the array (issue #99), not by an LVS-accounting change.
 
 **Cause 2 is not merely an LVS-comparison quirk — issue #98 confirmed it is
 real and material, independent of the LVS numbers themselves.** A
@@ -380,13 +391,19 @@ entirely at the two hot corners issue #46/#91 already flagged as
 margin-thin. Ratified in
 [DR-003](../spec/decision-records/DR-003-res-array-head-resistance-sizing.md);
 the corrective `n_r1`/`n_r2` resize is scoped to follow-up issue #99 (open),
-outside issue #62's own layout-routing/LVS-closure scope. Closing *this*
-issue's AC4 (the LVS comparison itself) still needs the tool-side fix —
-klayout-tools#585, above — independent of whether #99's resize lands.
+outside issue #62's own layout-routing/LVS-closure scope. Because the head
+resistance is real, closing *this* issue's AC4 for the resistors is **not** a
+tool-side LVS-accounting fix — the once-per-device `combine_devices` correction
+(klayout-tools#559/#583/#587) is reachable but would mask the effect, so it is
+not adopted. It needs the design/topology to change so the layout's *real*
+resistance matches the schematic: issue #99's resize, and/or a `klt gen`
+continuous-poly-with-taps resistor capability that would draw each divider leg
+as one physically-continuous device (one head-resistance term) instead of many
+separately-contacted units.
 
-Closing AC4 the rest of the way needs klayout-tools#585 upstream (or a new
-`klt gen` continuous-poly-with-taps resistor capability) plus a decision on
-`MCC`, both outside this repo's own layout — see `layout/matching-plan.md`
+Closing AC4 the rest of the way therefore needs issue #99's design-side resize
+(or that new `klt gen` continuous-poly-with-taps capability) plus a decision on
+`MCC`, both outside this repo's own current layout — see `layout/matching-plan.md`
 Section 7x (and Section 7v for the issue #98 materiality finding) for the
 current, fully-reasoned status and what it means for issue #62 and for
 issue #16 (the post-layout extracted verification-suite re-run this issue

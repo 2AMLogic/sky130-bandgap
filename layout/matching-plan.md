@@ -2788,6 +2788,17 @@ klayout-tools#559 for movement -- see Section 7x for what changed.
 
 ### 7x. Twenty-seventh increment: klayout-tools#559 lands upstream (#583) -- confirmed real, confirmed unreachable from this flow's own request shape, `mismatch_count` unchanged
 
+> **CORRECTED by Section 7y (twenty-eighth increment).** The diagnosis below
+> -- that `klt lvs`'s `_resolve_layout` "silently ignores `layout.deck`" on
+> the pre-extracted shape -- is **factually wrong**: `layout_deck` resolves
+> unconditionally in `run_lvs`, independent of layout shape. The real reason
+> #583 alone did not reach this flow was a case-sensitivity bug, fixed by
+> klayout-tools#587. More importantly, Section 7y establishes that adopting
+> the once-per-device correction at all would **mask** the ratified-real head
+> resistance (DR-003), so it is deliberately not adopted. Read Section 7y for
+> the corrected analysis; this section is retained only as the record of what
+> the twenty-seventh increment claimed.
+
 [klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559)
 closed via
 [#583](https://github.com/2AMLogic/klayout-tools/pull/583), merged
@@ -2843,15 +2854,87 @@ combine behavior at all.
 | 4 (`klt lvs` clean) | NOT MET, 4 | unchanged -- `klt` pin bumped past a real upstream fix this flow cannot yet reach; see klayout-tools#585 |
 | 5 (blocking gaps filed) | MET | unchanged (klayout-tools#559 retired as an open gap; klayout-tools#585 filed in its place, non-blocking) |
 
-**Suggested next increment**: watch klayout-tools#585, not #559 (now
-closed) -- if `layout.deck` becomes reachable alongside `layout.netlist`,
-re-run this flow's combined LVS step unmodified and `mismatch_count`
-should drop close to **1** (the deliberately-undrawn `MCC`), per the
-0.05%-accurate value confirmed above. No other repo-side mitigation exists
-that doesn't tune the reference or compromise R2A/R2B's common-centroid
-matching (Section 1a). If a further increment finds no movement on #585
-either, this is a genuine external-blocker floor -- release the claim per
-this issue's own established pattern rather than opening a busywork PR.
+**Suggested next increment** ~~watch klayout-tools#585~~: **superseded --
+see Section 7y.** The premise that reaching #583's correction would drop
+`mismatch_count` toward 1 is wrong: the 88,083 single-device value it would
+report is not the layout's real resistance (DR-003), so reaching it is not
+the goal.
+
+### 7y. Twenty-eighth increment: diagnosis corrected, klt pin bumped past #587, once-per-device correction reachable but deliberately NOT adopted (it would mask DR-003's ratified-real head resistance)
+
+This increment corrects Section 7x's diagnosis and settles what the
+resistor `device.property` findings actually are.
+
+**Two things Section 7x got wrong.**
+
+1. **`layout.deck` is not "silently ignored" on the pre-extracted shape.**
+   Reading klayout-tools' own `src/klayout_tools/lvs.py` at the pinned commit:
+   `layout_deck_name = layout_spec.get("deck")` /
+   `layout_deck = get_extraction_deck(layout_deck_name) if layout_deck_name
+   else None` resolves **unconditionally** from the request dict in `run_lvs`,
+   independent of layout shape -- it is not gated behind any `layout.file`
+   branch. The real reason #583 alone did not reach this flow's pre-extracted
+   netlist was a **case-sensitivity bug**:
+   `apply_resistor_fixed_offset_corrections` keyed its lookup by the deck's
+   lowercase class name (`res_high_po`), while a netlist round-tripped through
+   `kdb.NetlistSpiceReader` (exactly the `layout.netlist` form this flow feeds
+   `klt lvs`) reports class names UPPERCASED (`RES_HIGH_PO`), so the lookup
+   silently missed.
+   [klayout-tools#587](https://github.com/2AMLogic/klayout-tools/pull/587)
+   (merged, closes #585/#586) normalizes that lookup case-insensitively **and**
+   adds `run_extract(apply_resistor_fixed_offset=False)`. The `klt` pin is
+   bumped past #587 (`acb0ae6`; non-regressing --
+   `layout/bin/run-trivial-cell-flow.sh` re-run still PASSes identically).
+
+2. **Reaching the correction is not the goal -- adopting it would mask a real
+   defect.** With the pin past #587, the once-per-combined-device correction
+   *is* now reachable on this flow's own `layout.netlist` + `layout.deck` +
+   `combine_devices` shape (measured by hand against this increment's `.gds`:
+   R2A/R2B land at 88,083.06 ohm, R1 at 11,748.66). It is **deliberately not
+   adopted.** DR-003 (issue #98) ratified, with independent real-SPICE
+   evidence, that this layout physically pays the head/end resistance once per
+   separately-contacted instance -- R2A/R2B = **114,282 ohm** is the genuine
+   value (Phase A reproduces it to 5-6 sig figs by chaining real
+   `sky130_fd_pr__res_high_po` unit models; the model card's `rhead` is a
+   hardcoded `l=1.0` paid once per instance), and the +29.7%/+19.4% shift
+   pushes `VOUT` outside the draft +/-1% window at all 5 corners checked.
+   Reporting the single-device 88,083 would therefore mask a real, ratified
+   sizing defect to make the LVS number look better -- exactly the
+   reference-edit-/relax-to-pass this repo's CLAUDE.md refuses. The flow keeps
+   reporting the physically-honest 114,282; the combined-LVS request shape is
+   unchanged (`{netlist, top}`, no `deck`).
+
+The inline-extraction shape (which auto-defers the correction) was also
+re-measured at this pin and still folds the PNP array incompletely
+(`devices.matched` 12 -> 10, `mismatch_count` 4 -> 28), so it too stays
+unadopted -- now for two independent reasons.
+
+**What the 4 mismatches are, correctly attributed.** 3 x `device.property`
+on R1/R2A/R2B: a real layout-vs-schematic **sizing** defect (the folded array
+has more head resistance than the single-device schematic models), closed by
+issue #99's resize -- or by a `klt gen` continuous-poly-with-taps resistor
+capability drawing each leg as one physically-continuous device -- **not** by
+an LVS-accounting change. 1 x `device.unmatched`: the deliberately-undrawn
+compensation cap `MCC` (single-ended by design, issue #15).
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET | unchanged |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, 4 | unchanged -- but the 3 resistor findings are now correctly attributed to a real design sizing defect (issue #99), not a reachable LVS-accounting fix; the tool fix (#583/#587) exists and is reachable but is not adopted because it would mask DR-003's ratified head resistance |
+| 5 (blocking gaps filed) | MET | unchanged (klayout-tools#559/#585/#586 all closed upstream; no new blocking tool gap -- the remaining lever is design-side, issue #99) |
+
+**Suggested next increment**: AC4's resistor findings are now a design-side
+lever (issue #99's resize), not a tool-side one -- there is no upstream `klt`
+fix left to watch for them. The only tool-adjacent option would be a `klt gen`
+continuous-poly-with-taps resistor capability (one head-resistance term per
+leg), which is a substantial new generator feature, not an increment. Absent
+either, this is a genuine design-decision floor (issue #99) plus the `MCC`
+decision -- release the claim per this issue's established pattern rather than
+opening a busywork PR.
 
 ## 8. Known limitations / follow-on work
 
@@ -2990,6 +3073,16 @@ this issue's own established pattern rather than opening a busywork PR.
   0.05%) but unreachable from this flow's own pre-extracted `layout.netlist`
   request shape, so `mismatch_count` stays **4**. See Section 7x and
   [klayout-tools#585](https://github.com/2AMLogic/klayout-tools/issues/585).
+  **Update, twenty-eighth increment (Section 7y -- CORRECTS 7x)**: the pin is
+  bumped past [#587](https://github.com/2AMLogic/klayout-tools/pull/587), which
+  makes the once-per-device correction reachable on this flow's own shape (7x's
+  "`layout.deck` silently ignored" reason was factually wrong; the real reason
+  was a case-sensitivity bug #587 fixed). But it is **not adopted**: DR-003
+  ratified that the layout physically has the once-per-instance 114,282 ohm, so
+  reporting the single-device 88,083 would mask a real, ratified sizing defect.
+  Cause 2 is therefore a real design sizing gap (fixed by issue #99's resize),
+  not an extractor-model limit or an LVS-accounting gap. `mismatch_count` stays
+  **4**.
 - ~~**R2A/R2B ladder is at reduced scale**~~ -- **closed** by issue #62, see
   Section 4a. The ladder is drawn at its real full length: 100 coarse units
   plus 40 fine trim units = the schematic's 270 um per leg.

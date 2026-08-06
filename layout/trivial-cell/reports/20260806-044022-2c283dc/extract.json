@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "file": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/trivial-cell/reports/20260805-203150-2c83c7a/trivial_mos_array.gds",
+  "file": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/trivial-cell/reports/20260806-044022-2c283dc/trivial_mos_array.gds",
   "deck": "sky130",
   "top": "trivial_mos_array",
   "dbu_um": 0.001,
-  "netlist_path": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/trivial-cell/reports/20260805-203150-2c83c7a/trivial_mos_array.extract.spice",
+  "netlist_path": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/trivial-cell/reports/20260806-044022-2c283dc/trivial_mos_array.extract.spice",
   "netlist_sha256": "30806f340dd553220f3003e8ef22aa2920d8015a577d3bcf805f6edaf829cef9",
   "status": "extracted",
   "device_count": 4,

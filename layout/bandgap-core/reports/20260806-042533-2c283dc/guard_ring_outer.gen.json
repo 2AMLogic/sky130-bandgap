@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "guard_ring",
   "cell_name": "guard_ring_outer",
-  "gds_path": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260805-203859-2c83c7a/guard_ring_outer.gds",
+  "gds_path": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/reports/20260806-042533-2c283dc/guard_ring_outer.gds",
   "pdk": {
     "name": "sky130A",
     "variant": "sky130A",

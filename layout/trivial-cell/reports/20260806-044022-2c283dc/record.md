@@ -1,4 +1,4 @@
-# Layout DRC/LVS record: 20260805-203150-2c83c7a
+# Layout DRC/LVS record: 20260806-044022-2c283dc
 
 Trivial-cell proof of the `klt`-driven DRC/LVS flow (issue #14) -- **not** bandgap-core layout, which is a later issue's scope.
 
@@ -40,12 +40,12 @@ The good-reference LVS run's `mismatch_count` (8) is nonzero but `status` is `"m
 
 ## Provenance
 
-- Record ID: `20260805-203150-2c83c7a`
+- Record ID: `20260806-044022-2c283dc`
 - `klt` version: `klt 0.2.0` (pinned commit, see `layout/requirements.txt`)
 - KLayout engine version: `0.30.10`
 - PDK: `sky130A`, `open_pdks c6d73a35f524070e85faff4a6a9eef49553ebc2b`
 - PDK pin cross-check: compare `version` above against `sim/pdk.json`'s `open_pdks_commit` -- this flow does not itself enforce the pin (unlike `sim/bin/corner-run.py`), so a mismatch here is a manual reproducibility note, not a hard failure.
-- Repo state: `2c83c7aa6d071f448dc96609147fc3a379349306` on `feature/issue-62` (dirty)
+- Repo state: `2c283dc8b4835e94e165ac452b713e53fbdb2684` on `feature/issue-62` (dirty)
 
 ## Links
 

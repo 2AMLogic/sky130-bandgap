@@ -184,36 +184,39 @@ here, relative to that skeleton:
     disclosed `r` delta gets *larger*, not smaller. See
     RES_HEAD_RESISTANCE_NOTE and 2AMLogic/klayout-tools#559 (filed this
     increment).
-19. **2AMLogic/klayout-tools#559 closed upstream (via PR #583) -- and still
-    does not close AC4, for a newly-disclosed reason** (issue #62's
-    twenty-seventh increment). #583 defers the `fixed_offset_ohm` correction
-    until after `combine_devices()` folds series primitives, applying it
-    once per *combined* device instead of once per drawn primitive -- but
-    only on the **inline-extraction** `request.layout` shape
-    (`{"file", "deck", "top"}`); `_resolve_layout` never reads `layout.deck`
-    on the pre-extracted `{"netlist", "top"}` shape this flow's own
-    `run_lvs(".combined", True, from_netlist=True)` call uses (item 12's
-    RES_TRIM_TOPOLOGY_NOTE explains why: inline extraction's
-    `combine_devices()` is not reliable enough on this cell to use
-    directly). Re-running `klt lvs` by hand against this record's own `.gds`
-    with the inline-extraction shape confirms the deferred correction
-    mechanism itself is correct once it runs -- `R2A`/`R2B` land at
-    88,083.06 ohm against the reference's 88,130 ohm (0.05% off, the tiny
-    residual being design/bandgap_core.sch's own simplified `R ~ 380 +
-    325*L` model's rounded coefficients vs. the deck's precise SPICE-fit
-    `sheet_rho_ohm_sq=324.827244`/`fixed_offset_ohm=379.705147`, not a
-    combine/offset bug) -- but that same inline-extraction run also folds
-    the PNP array *incompletely* (`devices.matched` 12 -> 10, `Q1`/`Q2`
-    revert to their unfolded per-unit `AE`/`NE`), a `combine_devices()`
-    outcome difference unrelated to #559/#583 that makes switching this
-    flow's `run_lvs` call to the inline shape a net regression (`mismatch_
-    count` 4 -> 28), not an adoption. Filed as friction:
-    2AMLogic/klayout-tools#585 (`layout.deck` unreachable alongside
-    `layout.netlist`) -- the closest lever left, since it would let this
-    flow's own already-reliable SPICE-round-trip path receive the
-    correction without needing inline extraction's less reliable combine
-    behavior at all. `klt pin` bumped past #583 anyway (a non-regressing,
-    real upstream fix, even though this flow cannot yet reach it) --
+19. **2AMLogic/klayout-tools#559's fix (#583) made reachable by #587 --
+    the prior record's diagnosis is corrected, but the once-per-device
+    correction is deliberately NOT adopted** (issue #62's twenty-eighth
+    increment). #583 defers the `fixed_offset_ohm` correction until after
+    `combine_devices()` folds series primitives, applying it once per
+    *combined* device. #583 alone did not reach this flow's pre-extracted
+    request shape -- but NOT because "`_resolve_layout` ignores `layout.deck`
+    on the pre-extracted shape," as this issue's twenty-seventh-increment
+    record wrongly claimed. `layout_deck` resolves unconditionally in
+    `run_lvs`, independent of layout shape (verified against klayout-tools'
+    own `lvs.py` at the pinned commit, corroborated by klayout-tools#585/#586).
+    The real cause was a case-sensitivity bug: `apply_resistor_fixed_offset_
+    corrections` keyed its lookup by the deck's lowercase class name
+    (`res_high_po`), while a netlist round-tripped through
+    `kdb.NetlistSpiceReader` -- the pre-extracted `{"netlist", "top"}` form
+    this flow feeds `klt lvs` -- reports class names UPPERCASED
+    (`RES_HIGH_PO`), so the lookup silently missed. #587 (merged, closes
+    #585/#586) normalizes that lookup case-insensitively and adds
+    `run_extract(apply_resistor_fixed_offset=False)`. This increment bumps the
+    pin past #587, which makes the once-per-combined-device correction
+    reachable on this flow's own shape (measured by hand: it lands R2A/R2B at
+    88,083.06 ohm, R1 at 11,748.66). It is NOT adopted: DR-003 (issue #98)
+    ratified, with independent real-SPICE evidence, that this layout
+    physically pays the head/end resistance once per separately-contacted
+    instance (R2A/R2B = 114,282 ohm, the value the flow keeps reporting), so
+    reporting the single-device 88,083 would mask a real, ratified design
+    defect -- the reference-edit-/relax-to-pass CLAUDE.md refuses. The 3
+    resistor `device.property` findings are that real sizing defect (fixed by
+    issue #99's resize, not an LVS change); the 4th (`device.unmatched`,
+    reference PFET `MCC`) is a separate pre-existing gap. The inline-
+    extraction shape (auto-defers) was re-measured at this pin and still folds
+    the PNP array incompletely (`devices.matched` 12 -> 10, `mismatch_count`
+    4 -> 28), so it too stays unadopted. `mismatch_count` stays 4;
     non-regression re-confirmed against layout/trivial-cell/reports/.
 
 What this script does NOT claim -- read record.md's own "What this record
@@ -655,13 +658,19 @@ RES_TRIM_LENGTH_NOTE = (
     "recorded number, so this cannot silently regress. See "
     "layout/matching-plan.md Section 7r."
 )
-#: What issue #62's twenty-third increment found after bumping past
-#: 2AMLogic/klayout-tools#518/#519 (merged) and #521/#526 (merged): the
-#: fixed per-instance head-resistance term the extractor now applies does
-#: NOT close this cause -- it makes the disclosed `r` delta larger, because
-#: this repo's own `res_array`-drawn trim ladder represents one schematic
-#: resistor as many separately-contacted series primitives. Filed as
-#: 2AMLogic/klayout-tools#559.
+#: The fixed per-instance head-resistance term the extractor applies is charged
+#: once per *drawn, separately-contacted* resistor primitive -- and DR-003
+#: ratified (issue #98, with independent real-SPICE evidence) that this is the
+#: layout's genuine physical resistance, NOT an LVS-extraction artifact: this
+#: repo's `res_array`-drawn trim ladder represents each schematic `R1`/`R2A`/
+#: `R2B` device as many separately-contacted series primitives, and each pays
+#: the head/end term once. So `combine_devices` folding the chain and summing
+#: each primitive's corrected `r` yields the physically-honest total (R2A/R2B
+#: = 114,282 ohm). klayout-tools#587's deferred correction (which would report
+#: the single-device 88,083 instead) is measured but deliberately NOT adopted
+#: -- reporting 88,083 would mask the real +29.7% head-resistance defect
+#: DR-003 ratified, which is fixed by resizing the array (issue #99), not by an
+#: LVS-accounting change. Filed (historical): 2AMLogic/klayout-tools#559.
 RES_HEAD_RESISTANCE_NOTE = (
     "2AMLogic/klayout-tools#518 (merged via #519) added `ResistorDevice."
     "fixed_offset_ohm`, a per-instance fixed head/end-resistance term "
@@ -674,64 +683,66 @@ RES_HEAD_RESISTANCE_NOTE = (
     "`.spice` file -- and therefore this flow's own `klt lvs` step, which "
     "compares two already-written `.spice` files -- actually reads. "
     "Picking up both closes that JSON-vs-netlist gap cleanly, but does NOT "
-    "close this cause: it makes the disclosed `r` delta *larger*, not "
-    "smaller. The fixed offset is charged once per *drawn* resistor "
-    "primitive, and `res_array`'s trim ladder represents each schematic "
-    "`R1`/`R2A`/`R2B` device as many separate, individually-contacted "
-    "series primitives -- 50 coarse 5um + 20 fine 1um = 70 per R2 leg, 7 "
-    "for R1 -- so that `klt draw`'s met1 jumpers can reach every DR-002 "
-    "trim tap (RES_TRIM_LENGTH_NOTE). `klt lvs`'s `combine_devices` folds "
-    "that series chain into the one lumped device the schematic states, "
-    "summing the corrected `r` of every primitive -- which sums the offset "
-    "once per primitive, not once for the logical device design/"
-    "bandgap_core.sch's own `R ~ 380 + 325*L` model states. Measured "
-    "exactly: each R2 leg now reads 114,282.71617 ohm (= 324.827244 x 270 "
-    "+ 70 x 379.705147, to the ohm) against the reference's 88,130, and R1 "
-    "reads 14,026.889569 (= 324.827244 x 35 + 7 x 379.705147) against "
-    "11,755 -- both exact to the digit, confirmed directly against "
-    "`lvs.combined.json`. The `r` delta is now larger than the pre-bump "
-    "body-only shortfall it replaced (R2: 26,152.7 ohm over vs. 1,784 ohm "
-    "under; R1: 2,271.9 ohm over vs. 562 ohm under), though "
-    "`mismatch_count` and `category_counts` are unchanged (still 4; still "
-    "`device.property`: 3, `device.unmatched`: 1) -- the *count* the flow "
-    "gates on did not regress, but the *reason* moved from 'no per-device "
-    "term at all' to 'the wrong number of per-device terms for this flow's "
-    "own drawn topology'. Not worked around here: rewriting design/"
-    "bandgap_core.sch's simplified single-device `R` model to account for "
-    "this flow's own multi-primitive decomposition would be exactly the "
-    "reference-edit-to-accommodate-the-layout CLAUDE.md and "
-    "RES_BULK_ARITY_NOTE's own convention refuse -- and the alternative, "
-    "drawing the ladder as one continuous poly body with intermediate tap "
-    "contacts instead of `res_array`'s discrete unit-per-primitive "
-    "geometry, is a `klt gen` capability this repo does not have "
-    "(`res_array` has no continuous-body-with-taps mode). Filed as "
-    "friction: 2AMLogic/klayout-tools#559.\n\n"
-    "Update, issue #62's twenty-seventh increment: #559 closed upstream via "
-    "2AMLogic/klayout-tools#583, which defers the fixed-offset correction "
-    "until after `combine_devices()` folds the series chain, applying it "
-    "once per combined device -- but only on the inline-extraction "
-    "`request.layout` shape (`{file, deck, top}`); `klt lvs`'s "
-    "`_resolve_layout` never reads `layout.deck` on the pre-extracted "
-    "`{netlist, top}` shape this flow's own `run_lvs(...,from_netlist=True)`"
-    " call uses (RES_TRIM_TOPOLOGY_NOTE explains why this flow needs that "
-    "shape: inline extraction's `combine_devices()` is not reliable enough "
-    "on this cell to call directly). Confirmed by hand against this "
-    "record's own `.gds`, outside this flow's committed code: switching "
-    "just the request shape to inline extraction does make the deferred "
-    "correction land almost exactly right -- `R2A`/`R2B` read 88,083.06 ohm "
-    "against the reference's 88,130 ohm (0.05% off, attributable to design/"
-    "bandgap_core.sch's own simplified `R ~ 380 + 325*L` model's rounded "
-    "coefficients against the deck's precise `sheet_rho_ohm_sq=324.827244`/"
-    "`fixed_offset_ohm=379.705147`, not a combine/offset bug) -- but the "
-    "same run also folds the PNP array incompletely (`devices.matched` 12 "
-    "-> 10, `Q1`/`Q2` revert to unfolded per-unit `AE`/`NE`), a "
-    "`combine_devices()` outcome difference unrelated to #559/#583 that "
-    "turns the net effect of adopting inline extraction into a regression "
-    "(`mismatch_count` 4 -> 28), not a fix. This flow's `klt` pin is bumped "
-    "past #583 anyway (non-regressing; layout/trivial-cell/reports/ still "
-    "PASSes identically) since it is a real upstream fix even though this "
-    "flow cannot yet reach it, and the reachability gap itself is filed as "
-    "2AMLogic/klayout-tools#585."
+    "close AC4. The fixed offset is charged once per *drawn, separately-"
+    "contacted* resistor primitive, and `res_array`'s trim ladder represents "
+    "each schematic `R1`/`R2A`/`R2B` device as many separate, individually-"
+    "contacted series primitives -- 50 coarse 5um + 20 fine 1um = 70 per R2 "
+    "leg, 7 for R1 -- so that `klt draw`'s met1 jumpers can reach every "
+    "DR-002 trim tap (RES_TRIM_LENGTH_NOTE). `klt lvs`'s `combine_devices` "
+    "folds that series chain into one device and sums each primitive's "
+    "corrected `r`, so the head/end term is counted once per drawn instance: "
+    "each R2 leg reads 114,282.71617 ohm (= 324.827244 x 270 + 70 x "
+    "379.705147) against the reference's single-device 88,130, and R1 "
+    "14,026.889569 (= 324.827244 x 35 + 7 x 379.705147) against 11,755 -- "
+    "confirmed against this record's `lvs.combined.json`. DR-003 (issue #98) "
+    "ratified, with independent real-SPICE evidence (Phase A chains real "
+    "`sky130_fd_pr__res_high_po` unit-device models and reproduces these "
+    "exact totals to 5-6 sig figs; the model card's `rhead` is a hardcoded "
+    "`l=1.0` paid once per physically separate instance), that 114,282 is the "
+    "layout's GENUINE physical resistance, NOT an LVS-extraction artifact -- "
+    "and that the +29.7%/+19.4% shift pushes `VOUT` outside the draft +/-1% "
+    "window at all 5 corners checked. So the 3 `device.property` findings are "
+    "a real layout-vs-schematic sizing defect (the fix is to reduce the "
+    "array's per-instance-contact count -- issue #99's resize -- not an LVS "
+    "change). Filed as friction: 2AMLogic/klayout-tools#559.\n\n"
+    "Update, issue #62's twenty-eighth increment (diagnosis corrected; klt "
+    "pin bumped past #587; deferred correction measured but NOT adopted): "
+    "#559 closed upstream via 2AMLogic/klayout-tools#583, which defers the "
+    "fixed-offset correction until after `combine_devices()` folds the "
+    "series chain and applies it once per combined device. #583 alone did "
+    "not reach this flow's pre-extracted request shape -- but NOT for the "
+    "reason the twenty-seventh increment's record claimed. That record "
+    "asserted `klt lvs`'s `_resolve_layout` silently ignores `layout.deck` "
+    "on the pre-extracted `{netlist, top}` shape; that is factually wrong. "
+    "`layout_deck` resolves unconditionally from the request dict in "
+    "`run_lvs`, independent of layout shape (verified by reading "
+    "klayout-tools' own `lvs.py` at the pinned commit, corroborated by "
+    "klayout-tools#585/#586). The real reason was a case-sensitivity bug: "
+    "`apply_resistor_fixed_offset_corrections` keyed its lookup by the deck's "
+    "lowercase class name (`res_high_po`), while a netlist round-tripped "
+    "through `kdb.NetlistSpiceReader` reports class names UPPERCASED "
+    "(`RES_HIGH_PO`), so the lookup silently missed. #587 (merged, closes "
+    "#585/#586) normalizes that lookup case-insensitively AND adds "
+    "`run_extract(apply_resistor_fixed_offset=False)`. Bumping the pin past "
+    "#587 makes the deferred, once-per-combined-device correction reachable "
+    "on this flow's own `layout.netlist` + `layout.deck` + `combine_devices` "
+    "shape; measured by hand against this record's `.gds`, it lands R2A/R2B "
+    "at 88,083.061027 ohm and R1 at 11,748.658687. But this flow deliberately "
+    "does NOT adopt it: 88,083 is the single-device value, and DR-003 already "
+    "ratified that this layout physically has the once-per-instance 114,282 "
+    "-- so making `klt lvs` report 88,083 would mask a real, ratified design "
+    "defect to make the number look better, exactly the "
+    "reference-edit-/relax-to-pass CLAUDE.md refuses. The flow keeps "
+    "reporting the physically-honest 114,282; `mismatch_count` stays 4 (3 "
+    "resistor `device.property` for the real head-resistance sizing gap, plus "
+    "the pre-existing `device.unmatched` reference PFET `MCC`). The inline-"
+    "extraction shape (which auto-defers) was also re-measured at this pin "
+    "and still folds the PNP array incompletely (`devices.matched` 12 -> 10, "
+    "`mismatch_count` 4 -> 28), so it too stays unadopted, now for two "
+    "independent reasons. `klt extract`'s CLI still exposes no flag for the "
+    "deferral (a `run_extract` Python-API parameter only as of #587); noted "
+    "generically as klayout-tools#588 for completeness, though this flow does "
+    "not need it. See RES_TRIM_TOPOLOGY_NOTE and DR-003."
 )
 
 # ---------------------------------------------------------------------------
@@ -4285,6 +4296,16 @@ def main() -> int:
     (out_dir / reference_name).write_text(args.reference.read_text())
 
     def run_lvs(tag: str, combine: bool, from_netlist: bool = False) -> dict[str, Any]:
+        # The pre-extracted (`from_netlist`) shape reads the once-per-primitive
+        # `{cell}.extract.spice` and does NOT name `layout.deck`. Naming the
+        # deck here would make `klt lvs` apply the resistor `fixed_offset_ohm`
+        # correction once per post-combine device (klayout-tools#559/#585 via
+        # #583/#587) -- deliberately NOT done: DR-003 ratified, with
+        # independent real-SPICE evidence, that this layout's chained array
+        # physically pays the head/end resistance once per separately-contacted
+        # instance (R2A/R2B = 114,282 ohm, not the single-device 88,083), so
+        # the once-per-device value would mask a real, ratified design defect.
+        # See RES_HEAD_RESISTANCE_NOTE and DR-003.
         layout_spec: dict[str, Any] = (
             {"netlist": f"{cell}.extract.spice", "top": cell}
             if from_netlist
@@ -4476,16 +4497,24 @@ def main() -> int:
         "so `combine_devices` folding a caller's own multi-primitive series "
         "decomposition (this flow's trim-tap ladder) sums it once per "
         "primitive instead of once for the schematic-level device. **This "
-        "(twenty-seventh) increment picks up 2AMLogic/klayout-tools#559's "
-        "own fix, #583** (deferring the correction until after "
-        "`combine_devices()` runs) and, having measured that the fix is "
-        "real but unreachable from this flow's own request shape, files "
-        "one further non-blocking gap: **klayout-tools#585** -- "
-        "`layout.deck` is silently ignored (not an error) alongside "
-        "`layout.netlist`, so a caller supplying a pre-extracted netlist "
-        "(this flow's own necessary shape -- RES_TRIM_TOPOLOGY_NOTE) has "
-        "no way to reach #583's deferred correction at all. See "
-        "RES_HEAD_RESISTANCE_NOTE |"
+        "(twenty-eighth) increment bumps the klt pin past #587, which "
+        "makes #559's own fix (#583) reachable on this flow's own "
+        "pre-extracted request shape** -- and corrects the prior record's "
+        "diagnosis. #587 fixed the real reason #583 alone did not reach it: "
+        "a case-sensitive device-class lookup that missed the "
+        "`NetlistSpiceReader`-uppercased `RES_HIGH_PO` name on the "
+        "pre-extracted shape (NOT `layout.deck` being silently ignored, as "
+        "the twenty-seventh-increment record wrongly stated -- `layout_deck` "
+        "resolves unconditionally), closing klayout-tools#585/#586. The "
+        "once-per-combined-device correction is now reachable (measured by "
+        "hand: R2A/R2B land at 88,083 ohm) but **deliberately NOT adopted**: "
+        "DR-003 ratified, with independent real-SPICE evidence, that this "
+        "layout physically pays the head resistance once per separately-"
+        "contacted instance (114,282 ohm is genuine, not an artifact), so "
+        "reporting the single-device 88,083 would mask the real +29.7% "
+        "sizing defect DR-003 identified (fixed by issue #99's resize, not "
+        "an LVS change). The flow keeps reporting the physically-honest "
+        "114,282. See RES_HEAD_RESISTANCE_NOTE and DR-003 |"
     )
     a("")
     a(f"- [{'x' if drc_clean else ' '}] DRC on the composed, routed layout is clean")

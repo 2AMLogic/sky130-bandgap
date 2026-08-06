@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "mos_array",
   "cell_name": "trivial_mos_array",
-  "gds_path": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/trivial-cell/reports/20260805-203150-2c83c7a/trivial_mos_array.gds",
+  "gds_path": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-62/layout/trivial-cell/reports/20260806-044022-2c283dc/trivial_mos_array.gds",
   "pdk": {
     "name": "sky130A",
     "variant": "sky130A",

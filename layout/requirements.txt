@@ -312,6 +312,14 @@
 #   (PNP combine breaks, `mismatch_count` 4 -> 28). Filed as friction:
 #   2AMLogic/klayout-tools#585. See layout/matching-plan.md Section 7x.
 #
+#   [CORRECTED by the twenty-eighth increment below.] The "`layout.deck` is
+#   silently ignored on that shape" claim above is FACTUALLY WRONG:
+#   `layout_deck` resolves unconditionally in `run_lvs`. The real reason #583
+#   alone did not reach this flow was a case-sensitivity bug (fixed by #587),
+#   and -- more importantly -- reaching the once-per-device correction is not
+#   even the goal (DR-003: 114,282 ohm is this layout's genuine resistance).
+#   See the twenty-eighth increment block below.
+#
 # Checked the range for anything else worth picking up in this bump:
 # `git log 39bdbc4..4884935` (klayout-tools main tip as of this writing) adds
 # 17 more commits ahead of the prior pin; `git diff --stat` over that range
@@ -332,4 +340,47 @@
 # routed-flow.sh re-run produces the record this increment ships -- see that
 # record for the measured effect on `mismatch_count` and the resistor
 # `device.property` mismatches.
-klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@48849358a1691d97445fa5f89bd3bf727b1c90d6
+#
+# Bumped again for issue #62's twenty-eighth increment (2026-08-06). The
+# prior pin (48849358a1691d97445fa5f89bd3bf727b1c90d6, == #583) is bumped
+# past 2AMLogic/klayout-tools#587 -> merged as acb0ae6 (also klayout-tools
+# main tip as of this writing). This bump corrects the twenty-seventh
+# increment's diagnosis and settles what the resistor mismatches actually
+# are:
+#
+#   * 2AMLogic/klayout-tools#587 (closes #585/#586). #583 alone did not reach
+#     this flow's pre-extracted `layout.netlist` shape -- NOT because
+#     `_resolve_layout` "ignores `layout.deck`" (that claim was factually
+#     wrong; `layout_deck` resolves unconditionally in `run_lvs`), but because
+#     `apply_resistor_fixed_offset_corrections` keyed its device-class lookup
+#     case-sensitively (`res_high_po`) while a SPICE-round-tripped netlist
+#     reports the class UPPERCASED (`RES_HIGH_PO`), so the lookup silently
+#     missed. #587 normalizes that lookup case-insensitively AND adds
+#     `run_extract(apply_resistor_fixed_offset=False)`. With this pin, the
+#     once-per-combined-device correction IS reachable on this flow's own
+#     request shape (measured by hand: R2A/R2B land at 88,083 ohm).
+#
+#   It is deliberately NOT adopted. DR-003 (issue #98) ratified, with
+#   independent real-SPICE evidence, that this layout physically pays the
+#   head/end resistance once per separately-contacted instance -- R2A/R2B =
+#   114,282 ohm is the genuine value, not an LVS-extraction artifact -- and
+#   that the shift pushes VOUT outside the draft +/-1% window at every corner
+#   checked. So reporting the single-device 88,083 would mask a real, ratified
+#   design defect to make the number look better, exactly the relax-to-pass
+#   CLAUDE.md refuses. The flow's LVS request shape is UNCHANGED (pre-extracted
+#   `{netlist, top}`, no `deck`); it keeps reporting the physically-honest
+#   114,282, and the 3 resistor `device.property` findings are a real sizing
+#   defect fixed by issue #99's resize, not an LVS-accounting change. The only
+#   flow diff this increment ships is this pin bump and the narrative
+#   corrections (README.md, layout/README.md, matching-plan.md Section 7y,
+#   gen_bandgap_routed.py) -- no generator, gate, or LVS-request logic changed.
+#
+# Range check: `git log 4884935..acb0ae6` adds only #587 touching
+# `extract.py`/`lvs.py`; nothing else on this flow's sky130 resistor path.
+#
+# Non-regression proof for this bump: layout/bin/run-trivial-cell-flow.sh
+# re-run unmodified still PASSes with the identical four-way verdict (see
+# trivial-cell/reports/ for the refreshed record); layout/bin/run-bandgap-
+# routed-flow.sh re-run reproduces `mismatch_count=4` (3 resistor
+# `device.property` + 1 `device.unmatched` MCC), devices.matched=12, unchanged.
+klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@acb0ae6c11e667eb93ee7de272d64298517f7fab
