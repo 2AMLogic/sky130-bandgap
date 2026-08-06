@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "file": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/bandgap_core_routed.gds",
+  "output_dir": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders",
+  "width": 1600,
+  "height": 900,
+  "background": "#ffffff",
+  "overview": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/overview.png",
+  "layer_count": 16,
+  "rendered_count": 16,
+  "layers": [
+    {
+      "layer": 64,
+      "datatype": 20,
+      "name": null,
+      "shapes": 8,
+      "annotation": false,
+      "path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/64_20.png",
+      "rendered": true
+    },
+    {
+      "layer": 65,
+      "datatype": 20,
+      "name": null,
+      "shapes": 118,
+      "annotation": false,
+      "path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/65_20.png",
+      "rendered": true
+    },
+    {
+      "layer": 65,
+      "datatype": 44,
+      "name": null,
+      "shapes": 30,
+      "annotation": false,
+      "path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/65_44.png",
+      "rendered": true
+    },
+    {
+      "layer": 66,
+      "datatype": 13,
+      "name": null,
+      "shapes": 155,
+      "annotation": false,
+      "path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/66_13.png",
+      "rendered": true
+    },
+    {
+      "layer": 66,
+      "datatype": 20,
+      "name": null,
+      "shapes": 291,
+      "annotation": false,
+      "path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/66_20.png",
+      "rendered": true
+    },
+    {
+      "layer": 66,
+      "datatype": 44,
+      "name": null,
+      "shapes": 666,
+      "annotation": false,
+      "path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/66_44.png",
+      "rendered": true
+    },
+    {
+      "layer": 67,
+      "datatype": 20,
+      "name": null,
+      "shapes": 570,
+      "annotation": false,
+      "path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/67_20.png",
+      "rendered": true
+    },
+    {
+      "layer": 67,
+      "datatype": 44,
+      "name": null,
+      "shapes": 527,
+      "annotation": false,
+      "path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/67_44.png",
+      "rendered": true
+    },
+    {
+      "layer": 68,
+      "datatype": 5,
+      "name": null,
+      "shapes": 11,
+      "annotation": false,
+      "path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/68_5.png",
+      "rendered": true
+    },
+    {
+      "layer": 68,
+      "datatype": 20,
+      "name": null,
+      "shapes": 937,
+      "annotation": false,
+      "path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/68_20.png",
+      "rendered": true
+    },
+    {
+      "layer": 68,
+      "datatype": 44,
+      "name": null,
+      "shapes": 12,
+      "annotation": false,
+      "path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/68_44.png",
+      "rendered": true
+    },
+    {
+      "layer": 69,
+      "datatype": 20,
+      "name": null,
+      "shapes": 26,
+      "annotation": false,
+      "path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/69_20.png",
+      "rendered": true
+    },
+    {
+      "layer": 82,
+      "datatype": 44,
+      "name": null,
+      "shapes": 24,
+      "annotation": false,
+      "path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/82_44.png",
+      "rendered": true
+    },
+    {
+      "layer": 83,
+      "datatype": 20,
+      "name": null,
+      "shapes": 20,
+      "annotation": false,
+      "path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/83_20.png",
+      "rendered": true
+    },
+    {
+      "layer": 86,
+      "datatype": 20,
+      "name": null,
+      "shapes": 155,
+      "annotation": false,
+      "path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/86_20.png",
+      "rendered": true
+    },
+    {
+      "layer": 94,
+      "datatype": 20,
+      "name": null,
+      "shapes": 155,
+      "annotation": false,
+      "path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-112/layout/bandgap-core/reports/20260806-094830-90ef982/renders/94_20.png",
+      "rendered": true
+    }
+  ]
+}

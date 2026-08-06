@@ -277,7 +277,7 @@ table, and a quantitative LVS mismatch analysis. Summary of what it measures:
 |---|---|---|
 | inter-block routing | none drawn | 13/13 declared nets routed — **12/12 schematic inter-block nets fully joined** (criterion 1 MET), 7 hops via the met2 escape plane |
 | promoted top-level pins | 0 | 11 |
-| R2A/R2B ladder | 16 units (reduced) | **250 µm/leg (the real length, issue #99/#108-resized; was 270 µm before)** — 46 coarse 5 µm units folded into 10 rows, plus 40 fine 1 µm trim units in 4 rows carrying each leg's last 20 µm |
+| R2A/R2B ladder | 16 units (reduced) | **250 µm/leg (the real length, issue #99/#108-resized; was 270 µm before)** — 48 coarse 5 µm units folded into 10 rows, plus 40 fine 0.5 µm trim units in 4 rows carrying each leg's last 10 µm (issue #106/#112 halved the fine unit body length; was 46 coarse/20 fine 1 µm units before) |
 | extracted `pnp` | 0 | 16 |
 | extracted `nfet` | 0 | 16 |
 | DRC | clean | clean |
@@ -291,10 +291,12 @@ not repeated here); a few changes are worth knowing before reading a record:
    (2AMLogic/klayout-tools#415, merged upstream), so the real R2A/R2B ladder
    folds into a compact block instead of a ~610 µm-long single row. It draws
    the schematic's whole 250 µm per leg (issue #99/#108's resize; was 270 µm
-   before) — 46 coarse 5 µm units plus 20 fine 1 µm trim units, so the trim
-   taps *subtract* from the specified length rather than adding to it (issue
-   #91; it drew 286 µm before that fix). The whole routed cell is
-   45,968 µm², inside the 50,000 µm² budget.
+   before) — 48 coarse 5 µm units plus 20 fine 0.5 µm trim units (issue
+   #106/#112 halved the fine unit body length, forcing the coarse count
+   46 -> 48 to hold the leg fixed; was 46 coarse/20 fine 1 µm units before),
+   so the trim taps *subtract* from the specified length rather than adding
+   to it (issue #91; it drew 286 µm before that fix). The whole routed cell
+   is 45,968 µm², inside the 50,000 µm² budget.
 2. **PNP recognition is drawn by the generator itself now.** `klt gen
    bjt_array` originally drew no bipolar device-recognition marker on sky130
    and no well tap for its base pads, so its output extracted as *zero*
@@ -333,7 +335,10 @@ and a deliberate scope choice, not a defect.** `mismatch_count` is **1** as
 of issue #108 (was **4** from issue #62's twenty-first increment through
 issue #98/#99's head-resistance investigation and resize); `devices.matched`
 is 15, and there is no `device.class`, `net.split`, `net.merged`, or
-`net.unmatched` mismatch left. The one cause:
+`net.unmatched` mismatch left. Issue #112's `r_lseg_trim` propagation
+(re-partitioning the R2A/R2B coarse/fine split and re-deriving
+`reference.spice`'s chained values to match) re-measured this at the new
+decomposition and holds it at 1 — not a carried-over number. The one cause:
 
 1. **`MCC`** (the error amp's compensation cap) is in the schematic and
    deliberately not drawn — a single-ended layout omission documented since
