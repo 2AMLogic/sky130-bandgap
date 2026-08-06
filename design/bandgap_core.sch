@@ -243,17 +243,44 @@ C {devices/code_shown.sym} 100 -1250 0 0 {name=CORE_PARAMS only_toplevel=false v
 .param m_ampbias=2
 * ---- Trim network (issue #13), DOWNWARD ONLY -- see DR-002 ----
 * Ladder-tap length added to R2A/R2B equally (metal option, no switches).
-* n_r2_trim: valid range 0..-16 only. r_lseg_trim: 1 um/code (~1.7 mV/code).
-* Positive codes are REJECTED: this is the same R2/R1 ratio issue #46 found
-* causes ff/2.97V, fs/2.97V hot-corner (>~123C) operating-point collapse at
-* even a +5 um increase (n_r2=55). sim/trim-range-monotonicity/ reconfirms
-* it for trim and finds codes +1/+2 ALSO collapse (VOUT -> ~2.8V) while +3/
-* +4 happen not to -- non-monotonic-in-code, i.e. no positive code is a
-* certified-safe point, not a safe zone at +3/+4. Only downward (R2
-* decrease) moves away from that edge; confirmed monotonic, collapse-free
-* to -16 across corners. See DR-002 and the sim record for the full case.
+* n_r2_trim: valid range 0..-16 only. r_lseg_trim: 1 um/code (~1.7 mV/code)
+* in DR-002's original SINGLE-DEVICE model. Positive codes are REJECTED:
+* this is the same R2/R1 ratio issue #46 found causes ff/2.97V, fs/2.97V
+* hot-corner (>~123C) operating-point collapse at even a +5 um increase
+* (n_r2=55). sim/trim-range-monotonicity/ reconfirms it for trim and finds
+* codes +1/+2 ALSO collapse (VOUT -> ~2.8V) while +3/+4 happen not to --
+* non-monotonic-in-code, i.e. no positive code is a certified-safe point,
+* not a safe zone at +3/+4. Only downward (R2 decrease) moves away from
+* that edge; confirmed monotonic, collapse-free to -16 across corners. See
+* DR-002 and the sim record for the full case.
+* LSB REVISION (issue #106, DR-002 revision): the routed layout's fine trim
+* chain does NOT draw one length-tapped device -- it chains N separately-
+* contacted res_high_po unit instances (layout/bin/gen_bandgap_routed.py's
+* bus_res_series), each paying a real per-instance head/fringe resistance
+* term this schematic's single-device XR2A/XR2B lines do not model (DR-003,
+* sim/res-array-head-resistance/). Re-deriving DR-002's <=3.000 mV/code LSB
+* comfort bound against that REAL chained topology at the adopted
+* n_r1=7/n_r2=50 sizing (sim/trim-lsb-chained/) found the shipped
+* r_lseg_trim=1 per-code step reads 3.12-3.15 mV/code across all 5 corners
+* -- a real, measured violation of the comfort bound (smaller than an
+* earlier, now-superseded estimate against an abandoned n_r1=6/n_r2=42
+* sizing, but still a violation). Halving the fine unit's drawn length to
+* 0.5 um fixes it: the per-instance head-resistance term (~379.7 ohm, the
+* DOMINANT piece of the per-code step) is a PDK-model-card constant
+* independent of the unit's drawn length, so only the smaller `rbody`
+* fringe term shrinks -- re-verified at r_lseg_trim=0.5 to read
+* 2.40-2.42 mV/code, PASS at all 5 corners, with the same certified 0..-16
+* code range and downward span still clearing DR-002's 1.5x-of-3sigma
+* coverage target. See sim/trim-lsb-chained/records/ for the full
+* re-derivation. NEXT INCREMENT (not done here, per one-lever-per-
+* increment): layout/bin/gen_bandgap_routed.py's
+* R_LSEG_TRIM_UM/SCH_R_LSEG_TRIM_UM (currently still transcribing 1 um)
+* must be re-transcribed to 0.5 um and the routed cell re-verified through
+* klayout DRC/LVS -- klayout's extraction backend is not available in this
+* run environment, so that is a follow-up issue, the same split issue #99
+* used for #107/#108.
 .param n_r2_trim=0
-.param r_lseg_trim=1
+.param r_lseg_trim=0.5
 "}
 C {devices/opin.sym} 100 -830 0 0 {name=p_vout lab=VOUT}
 C {devices/iopin.sym} 100 -790 0 0 {name=p_gdrv lab=GDRV}

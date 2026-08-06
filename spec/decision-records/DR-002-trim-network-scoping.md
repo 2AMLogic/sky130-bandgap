@@ -1,6 +1,9 @@
 # DR-002: Trim network scoping — needed, but safely usable in one direction only
 
-- **Status**: proposed (input to spec ratification, see #1)
+- **Status**: proposed (input to spec ratification, see #1). The fine-trim
+  ladder's per-code LSB has been **revised** against the routed layout's real
+  chained topology — see "Revision (issue #106 — chained fine-trim LSB)" at
+  the end of this record; range and monotonicity are unaffected.
 - **Date**: 2026-08-03
 - **Decided by**: Loom agent (issue #13), citing #12's Monte Carlo mismatch
   evidence (`sim/monte-carlo-untrimmed/records/20260803-142259-544cc5e.md`),
@@ -91,9 +94,18 @@ confirmed monotonic and collapse-free.
 only (see `sim/trim-range-monotonicity/records/` for the simulated
 confirmation):
 - Per-code step (LSB): ~1.72 mV at the core's nominal ~5.3 µA branch current
-  (one `r_lseg_trim` = 1 µm unit segment on both R2A and R2B). Well inside
-  the ±12 mV (±1 %) window — comfortably resolvable, not snapping across
-  it.
+  (one `r_lseg_trim` = 1 µm unit segment on both R2A and R2B), against the
+  **single-device** resistor model this design-phase record simulates. Well
+  inside the ±12 mV (±1 %) window — comfortably resolvable, not snapping
+  across it. **Superseded for the real chained topology**: the routed
+  layout does not draw one length-tapped device per leg, it chains
+  separately-contacted unit instances that each pay a real per-instance
+  head/fringe resistance term (DR-003) this single-device model omits —
+  against that real topology the per-code step reads ~3.1–3.2 mV/code at
+  the shipped `r_lseg_trim=1 µm`, which **fails** this record's own
+  `<= 3.000 mV/code` comfort bound (see "Revision (issue #106)" below,
+  which halves the fine unit's drawn length to `r_lseg_trim=0.5 µm` to
+  restore it to ~2.4 mV/code).
 - Code range: **0 (untrimmed) down to −16**, giving ~27.6 mV of downward
   correction range — covers the worst-case 3 σ spread found above
   (15.62 mV at 125 °C) with ~1.6–1.8× margin. This is enough range to
@@ -211,3 +223,84 @@ list.
   half of that list (trim) is itself gated by the second (#9's headroom
   margin) in the upward direction — the two issues are more coupled than
   #46's text implied.
+
+## Revision (issue #106 — chained fine-trim LSB)
+
+This record's original LSB derivation (~1.72 mV/code, "Range and
+resolution" above) simulated the fine trim ladder as **one length-tapped
+`res_high_po` device per leg** — the schematic-level approximation
+`design/bandgap_core.sch`'s `XR2A`/`XR2B` lines still draw. The routed
+layout does not build that: `layout/bin/gen_bandgap_routed.py`'s fine-trim
+block (`res_trim`) chains `N_R2_TRIM_UNITS=20` separately-contacted unit
+instances per leg (the same `bus_res_series` topology DR-003 / issue #98
+found pays a real per-instance head/fringe resistance term the
+single-device model omits — `sim/res-array-head-resistance/`). A downward
+trim code does not shorten one device's body by 1 µm; it removes a whole
+separately-contacted unit instance, paying that instance's head/fringe term
+in addition to its 1 µm of body. Issue #106 asked whether this makes the
+per-code step exceed this record's own `<= 3.000 mV/code` (25 % of the
+±1 % window's 12 mV half-width) comfort bound at the sizing that was
+actually adopted (`n_r1=7`, `n_r2=50` — issue #99 / PR #105), since an
+earlier estimate against an abandoned `n_r1=6`/`n_r2=42` alternative
+(never merged) had reported a larger 3.655–3.682 mV/code violation.
+
+`sim/trim-lsb-chained/run_trim_lsb_chained.py` re-derives all three of this
+record's own criteria (monotonic-in-code, downward span, LSB) against the
+real chained topology at the adopted sizing, over the same 5-corner PVT set
+`sim/trim-range-monotonicity/` and issue #99's AC3 used, at two fine-unit
+lengths:
+
+| `r_lseg_trim` | per-code step (analytic, ohm) | measured LSB (mV/code, all 5 corners) | monotonic? | span >= 1.5×3σ? | LSB <= 3.000 mV? |
+|---|---|---|---|---|---|
+| 1.0 µm (shipped, as drawn) | 704.53 | 3.123–3.146 | yes | yes (49.96–50.33 mV) | **NO** |
+| 0.5 µm (revised) | 542.12 | 2.403–2.421 | yes | yes (38.44–38.73 mV) | yes |
+
+**Finding: the shipped `r_lseg_trim=1 µm` chained topology fails this
+record's own LSB comfort bound at all 5 corners**, even at the adopted
+`n_r1=7`/`n_r2=50` sizing (a smaller violation than the abandoned sizing's
+estimate — because the resized sizing's own untrimmed operating point sits
+closer to spec center, so its trim span itself is smaller — but a real,
+measured one, not merely a carried-over assumption). Monotonicity and the
+downward-span coverage target are unaffected and continue to PASS,
+confirming DR-003's own prediction that the fine chain's per-instance
+head-resistance term is unchanged between the two competing #99 resizes
+(both keep 20 fine units of 1 µm each; only the coarse leg count differed).
+
+**Revision: `r_lseg_trim` 1 µm → 0.5 µm.** The per-instance head-resistance
+term (`rhead`, ~379.7 Ω) is a PDK model-card constant fixed per removed
+unit instance, independent of the unit's drawn body length — only the
+smaller `rbody` sheet/fringe term (~324.8 Ω/µm) scales with it. Halving the
+fine unit's drawn length from 1.0 to 0.5 µm therefore does not halve the
+per-code step, but it removes enough of the `rbody` contribution to bring
+the step from 704.53 Ω/code (shipped) down to 542.12 Ω/code (revised) —
+enough to restore the LSB to 2.40–2.42 mV/code, comfortably under the
+3.000 mV/code bound at every corner. The fine ladder's unit **count**
+(`N_R2_TRIM_UNITS=20`) and therefore this record's certified `0..-16` code
+range are unchanged — this is a pure re-partition of the fixed `5*n_r2` µm
+leg length between its coarse and fine segments (coarse count moves from
+46 to 48 units to hold the untrimmed leg length fixed), not a resize of
+`n_r1`/`n_r2` (issue #99's lever) or a change to the certified code range.
+`design/bandgap_core.sch`'s `.param r_lseg_trim` moves from `1` to `0.5`
+accordingly.
+
+**Scope of this revision.** This lands the schematic-level parameterization
+and its full chained-topology, 5-corner re-verification
+(`sim/trim-lsb-chained/records/`). It does **not** regenerate or
+re-DRC/LVS-verify the routed layout: `layout/bin/gen_bandgap_routed.py`'s
+`R_LSEG_TRIM_UM`/`SCH_R_LSEG_TRIM_UM` constants still transcribe the old
+1 µm fine-unit length, and `klayout`'s extraction/DRC backend is not
+importable in this run environment (`python3 -c "import klayout"` fails),
+so the routed cell cannot be re-verified here. Per the same
+one-lever-per-increment discipline DR-003 used to split issue #99 from
+#107/#108 (sizing decision + sim verification first, layout
+re-transcription + klayout DRC/LVS as a separate next increment), that
+propagation is left as a follow-up issue.
+
+- **Links**:
+  - `sim/trim-lsb-chained/run_trim_lsb_chained.py` (runner)
+  - `sim/trim-lsb-chained/records/` (append-only evidence, this revision)
+  - `sim/res-array-resize/records/20260805-204809-2c83c7a.md` (adopted
+    sizing, `n_r1=7`/`n_r2=50`, issue #99 / PR #105)
+  - `sim/res-array-head-resistance/records/20260805-113409-6caa9f8.md`
+    (chained-array head resistance is real and material, DR-003)
+  - `spec/decision-records/DR-003-res-array-head-resistance-sizing.md`
