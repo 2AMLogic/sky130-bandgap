@@ -46,6 +46,18 @@ v {xschem version=3.4.7 file_version=1.2
 *
 * Sizing rationale (design/device-characterization-summary.md sections 1/4,
 * record 20260801-041501-48ac24d, tt / 27 degC):
+*   NOTE (issue #99, RESOLVED -- read before the n_r2 discussion below): the
+*   n_r2 rationale in this section is the ORIGINAL issue #46 investigation
+*   against the single-res_high_po-device-per-leg model, which set n_r2=54.
+*   n_r2 has since been RESIZED to 50 against the ROUTED LAYOUT's real
+*   chained-array topology -- issue #98/DR-003 established that chained
+*   topology (not the single-device model) is what the fabricated part
+*   actually experiences. See the CORE_PARAMS "RESIZE STATUS (issue #99)"
+*   block below for the current sizing, the reason, and its full PVT + trim
+*   re-verification (sim/res-array-resize/). The #46 material below is
+*   retained unchanged as the single-device-model rationale it always was;
+*   every "n_r2 stays 54" statement in it is a correct statement about that
+*   single-device investigation, now superseded by the routed-topology resize.
 *   - Both PNP arrays are 8 units, so each unit carries ~0.66 uA at the ~5.3
 *     uA branch current. That keeps ideality n <~ 1.1 over -40..125 degC on
 *     the small unit (the summary caps the small unit at ~1 uA) and takes
@@ -188,27 +200,44 @@ C {devices/code_shown.sym} 100 -1250 0 0 {name=CORE_PARAMS only_toplevel=false v
 * res_high_po unit segment: W = r_w um, L = r_lseg um (R ~ 380 + 325*L ohm)
 .param r_w=1
 .param r_lseg=5
-* segment counts. K = R2/R1 (each leg has its own 380 ohm head resistance,
-* so K != n_r2/n_r1 exactly -- see the header comment). n_r2 stays 54:
-* issue #46 investigated raising it to 55, the accuracy-constrained
-* ceiling, but a full 15-corner run found it loses the bandgap operating
-* point above ~124 degC at the ff/2.97 V and fs/2.97 V corners -- a worse
-* regression than the TC miss it was meant to fix. See the header comment's
-* the Sizing rationale section for the full investigation and floor finding.
-* EPISTEMIC STATUS (issue #98 / DR-003, issue #99 open): n_r1/n_r2 below are
-* sized and PVT-verified against ONE res_high_po device per leg at this L
-* (what this schematic and every existing sim record simulate). The routed
-* layout instead draws each leg as N separately-contacted unit instances in
-* series (layout/bin/gen_bandgap_routed.py), which real-SPICE evidence
-* (sim/res-array-head-resistance/) shows pays real per-instance head
-* resistance -- R1 +19.4%, R2A/R2B +29.7%, K=R2/R1 +8.7% over the single-
-* device numbers this file's own params target. That is enough to push
-* VOUT(27 degC) outside the draft +/-1% window at every corner checked
-* (spec/decision-records/DR-003-res-array-head-resistance-sizing.md). n_r1/
-* n_r2 below are NOT yet re-derived against the routed layout's real
-* topology -- issue #99 tracks that resize.
+* segment counts. K = R2/R1 (each leg has its own head resistance, so
+* K != n_r2/n_r1 exactly -- see the header comment). n_r2 was RESIZED 54 -> 50
+* by issue #99 (see RESIZE STATUS below); n_r1 held at 7. The #46 single-
+* device investigation (why the OLD n_r2=54 was chosen, and why +1 was
+* rejected there) is retained in the header Sizing rationale, superseded by
+* the resize.
+* RESIZE STATUS (issue #99 / DR-003, RESOLVED): n_r1/n_r2 are now sized
+* against the ROUTED LAYOUT's real chained-array topology -- the ground truth
+* the fabricated part experiences -- NOT the single-res_high_po-device-per-leg
+* model this schematic's own XR1/XR2A/XR2B lines still draw. Issue #98/DR-003
+* (sim/res-array-head-resistance/) established that the routed layout draws
+* each leg as N separately-contacted unit instances in series
+* (layout/bin/gen_bandgap_routed.py's bus_res_series), paying real per-instance
+* head resistance: at the old n_r2=54 that made the REAL part's K=R2/R1 read
+* 8.1474 vs the single-device model's 7.4973, pushing VOUT(27 degC) to
+* ~1.233 V (outside the draft +/-1% window 1.188..1.212 V) at all 5
+* (process,supply) corners and collapsing regulation at ff/2.97 V and
+* fs/2.97 V. Resizing n_r2 54 -> 50 (n_r1 left at 7 so branch current -- and
+* therefore hot-corner headroom -- is not raised while K is corrected) brings
+* the real chained topology's K back to 7.576 and VOUT(27 degC) back to
+* ~1.198 V, IN the +/-1% window at ALL 5 corners with NO hot-corner collapse,
+* and the DR-002 downward 0..-16 trim range still covering. Full PVT + trim
+* re-verification: sim/res-array-resize/records/ (issue #99).
+* CONSEQUENCE for the single-device model: because these XR1/XR2A/XR2B lines
+* still model each leg as ONE res_high_po device (omitting the per-instance
+* head resistance the real part pays), simulating THIS schematic as-drawn
+* (e.g. sim/output-voltage-tc's single-device tb_vref_tc, netlisted by xschem)
+* now reads VOUT(27 degC) ~1.165 V -- LOW *by design*. That ~33 mV gap IS the
+* head resistance the routed part uses to reach 1.198 V; it is not an error,
+* and the single-device harness is no longer the sizing reference of record
+* (DR-003: every single-device record models a topology the layout does not
+* build). NEXT INCREMENT (not done here, per one-lever-per-increment): the
+* routed layout generator (gen_bandgap_routed.py's N_R1/SCH_N_R2/N_R2_COARSE,
+* currently still transcribing n_r2=54) must be re-transcribed to n_r2=50 and
+* re-verified through klayout DRC/LVS -- see DR-003's closure and
+* layout/matching-plan.md Section 7x.
 .param n_r1=7
-.param n_r2=54
+.param n_r2=50
 * PMOS mirror multiplicities (unit device W=8u L=2u)
 .param m_out=2
 .param m_ampbias=2

@@ -21,10 +21,12 @@ limitations" below.
 > **Update (issue #62, routed layout).** Sections 4, 5, 7 and 8 below have
 > been revised where issue #62's routed flow changed the facts on the
 > ground -- the R2A/R2B ladder is now drawn at its **real full length**
-> (100 coarse units + 40 fine trim units = the schematic's 270 um per leg;
-> it was 108 coarse units with a bolt-on ladder until issue #91),
-> inter-block routing and top-level pins **are** drawn, and PNP/NMOS/
-> resistor devices **do** extract with correct classes. Where a statement
+> (92 coarse units + 40 fine trim units = the schematic's 250 um per leg,
+> the issue #99/#108-resized sizing; it was 100 coarse units/270 um per leg
+> before that resize, and 108 coarse units with a bolt-on ladder before
+> issue #91), inter-block routing and top-level pins **are** drawn, and
+> PNP/NMOS/resistor devices **do** extract with correct classes. Where a
+> statement
 > below is now historical, it is marked as such rather than deleted, so the
 > #15 skeleton's own records stay readable against the document that
 > described them. The routed flow is
@@ -260,9 +262,9 @@ scale:
 | Block | Skeleton count | Real target | Why reduced |
 |---|---|---|---|
 | `pnp_ctat` / `pnp_ptat` | 8 units each (2x4) | 8 units each | drawn 1:1 |
-| `res_r2` (R2A/R2B) | 16 units (8/leg) -- **superseded, see below** | 100 coarse units (50/leg), with `res_trim`'s 40 fine units carrying the rest of the same 270 um leg (was stated as 108 units (54/leg) before issue #91 re-decomposed the leg -- see Sections 1a and 7r) | *(historical, #15)* a single-row `res_array` at 108 units is ~710 um long (measured directly: `klt gen res_array --params '{"num":108,...}'` reports `bbox_um.x1 - x0 = 709.6`) -- pairing that with any other block in a floorplan forces the whole composition's bounding box past the 0.05 mm^2 budget on width alone, even though the segments' own drawn area is small. `klt gen res_array` had no row-folding/meander parameter to keep a long unit-resistor string's *footprint* compact the way `mos_array`/`bjt_array`'s `rows`/`cols` do -- filed as new friction, [2AMLogic/klayout-tools#415](https://github.com/2AMLogic/klayout-tools/issues/415). |
+| `res_r2` (R2A/R2B) | 16 units (8/leg) -- **superseded, see below** | 92 coarse units (46/leg), with `res_trim`'s 40 fine units carrying the rest of the same 250 um leg (issue #99/#108's resize; was stated as 100 units (50/leg) at the pre-resize 270 um leg, and 108 units (54/leg) before issue #91 re-decomposed the leg -- see Sections 1a, 7r and 7y) | *(historical, #15)* a single-row `res_array` at 108 units is ~710 um long (measured directly: `klt gen res_array --params '{"num":108,...}'` reports `bbox_um.x1 - x0 = 709.6`) -- pairing that with any other block in a floorplan forces the whole composition's bounding box past the 0.05 mm^2 budget on width alone, even though the segments' own drawn area is small. `klt gen res_array` had no row-folding/meander parameter to keep a long unit-resistor string's *footprint* compact the way `mos_array`/`bjt_array`'s `rows`/`cols` do -- filed as new friction, [2AMLogic/klayout-tools#415](https://github.com/2AMLogic/klayout-tools/issues/415). |
 | `res_r1` | 7 units | 7 units | drawn 1:1 (small enough to be tractable at full scale) |
-| `res_trim` | 32 units (16/leg) | 40 units (20/leg) | drawn 1:1 -- 20 fine 1 um units per leg, the last 20 um *of* that leg, giving DR-002 codes 0..-20 of which 0..-16 are certified (issue #91; was 32 units (16/leg) wired in series *after* a full-length leg) |
+| `res_trim` | 32 units (16/leg) | 40 units (20/leg) | drawn 1:1 -- 20 fine 1 um units per leg, the last 20 um *of* that leg, giving DR-002 codes 0..-20 of which 0..-16 are certified (issue #91; was 32 units (16/leg) wired in series *after* a full-length leg; unchanged by issue #99/#108's resize) |
 | `amp_input_pair` | mult=16 (splits=16) | mult=16 | drawn 1:1 |
 | `amp_nload` / `amp_nmirr` | mult=4 each | mult=4 each | drawn 1:1 |
 | `amp_pmirr` | mult=8 (splits=8) | mult=8 | drawn 1:1 |
@@ -276,15 +278,15 @@ flow (`layout/bin/gen_bandgap_routed.py`) therefore draws the R2A/R2B ladder
 at its **real full-length count** -- the schematic's whole 270 um per leg,
 never a reduced one:
 
-| | skeleton (#15) | routed (#62) | routed, post-#91 |
-|---|---|---|---|
-| `res_r2` unit count | 16 | 108 (2 legs x 54 coarse) | **100** (2 legs x 50 coarse) |
-| `res_trim` unit count | 32 (2 legs x 16) | 32 (2 legs x 16), in series *after* the leg | **40** (2 legs x 20), the last 20 um *of* the leg |
-| drawn length per leg | -- | 286 um (spec: 270) | **270 um** (spec: 270) |
-| `res_r2` footprint | ~110 x 12 um, 1 row | 100.9 x 12.2 um, 9 folded rows | **75.6 x 13.6 um**, 10 folded rows |
-| `res_trim` footprint | -- | 22.9 x 5.2 um, 4 folded rows | 27.6 x 5.2 um, 4 folded rows |
-| composed cell bbox | 35,763 um^2 | 45,508 um^2 | **45,968 um^2** |
-| budget | 50,000 um^2 | 50,000 um^2 | 50,000 um^2 |
+| | skeleton (#15) | routed (#62) | routed, post-#91 | routed, post-#99/#108 |
+|---|---|---|---|---|
+| `res_r2` unit count | 16 | 108 (2 legs x 54 coarse) | 100 (2 legs x 50 coarse) | **92** (2 legs x 46 coarse) |
+| `res_trim` unit count | 32 (2 legs x 16) | 32 (2 legs x 16), in series *after* the leg | 40 (2 legs x 20), the last 20 um *of* the leg | **40** (2 legs x 20), unchanged |
+| drawn length per leg | -- | 286 um (spec: 270) | 270 um (spec: 270) | **250 um** (spec: 250) |
+| `res_r2` footprint | ~110 x 12 um, 1 row | 100.9 x 12.2 um, 9 folded rows | 75.6 x 13.6 um, 10 folded rows | **75.6 x 13.6 um**, 10 folded rows (unchanged) |
+| `res_trim` footprint | -- | 22.9 x 5.2 um, 4 folded rows | 27.6 x 5.2 um, 4 folded rows | **27.6 x 5.2 um**, 4 folded rows (unchanged) |
+| composed cell bbox | 35,763 um^2 | 45,508 um^2 | 45,968 um^2 | **45,968 um^2** (measured identical) |
+| budget | 50,000 um^2 | 50,000 um^2 | 50,000 um^2 | 50,000 um^2 |
 
 Folding turns the ladder from the floorplan's width-dominating block into
 one of its smaller ones: the whole routed cell -- at the real length, with
@@ -292,17 +294,30 @@ routing and the cell-level guard ring -- still lands ~8% inside the
 0.05 mm^2 budget. `res_r1` (n_r1=7) was already 1:1 and stays so; the trim
 ladder is folded into 4 rows for the same footprint reason.
 
-The last column is issue #91's re-decomposition (Section 7r). Note what it
-does and does not move: the drawn *length* per leg goes 286 -> 270 um, which
-is the whole point, while the composed bbox goes **up** 1.0%. That is not a
-contradiction -- it is fill efficiency. Moving 4 um/leg from 5 um units
-(5/5.5 of their pitch is body) to 1 um units (1/1.5 is body) costs footprint
-even as it removes drawn resistor body, and the coarse array's own fold
-changed from 9 ragged rows to 10 even ones. The issue's own scope note
+The post-#91 column is issue #91's re-decomposition (Section 7r). Note what
+it does and does not move: the drawn *length* per leg goes 286 -> 270 um,
+which is the whole point, while the composed bbox goes **up** 1.0%. That is
+not a contradiction -- it is fill efficiency. Moving 4 um/leg from 5 um
+units (5/5.5 of their pitch is body) to 1 um units (1/1.5 is body) costs
+footprint even as it removes drawn resistor body, and the coarse array's own
+fold changed from 9 ragged rows to 10 even ones. The issue's own scope note
 predicted a small area *improvement* from the shorter leg; the measured
 result is a small increase, disclosed here rather than quietly restated.
 Both are far inside budget, and Section 1a argues the matching consequence
 (none).
+
+The last column is issue #99/#108's resize propagation (Section 7y):
+`n_r2` 54 -> 50 (DR-003's closure), re-transcribed into the same coarse/fine
+split shape at the shorter 250 um leg (`N_R2_COARSE` 50 -> 46, `N_R2_TRIM_UNITS`
+unchanged at 20). `res_r2`'s own `rows` fold is kept at 10 -- unchanged from
+before, and re-verified (not re-derived) against the new 92-unit count; see
+that block's own `rows` comment in `gen_bandgap_routed.py` for why every true
+divisor of 92 was tried and rejected (each pushed the composed cell over
+budget) before re-verifying 10 clean. The measured `res_r2` footprint and the
+composed cell bbox come out identical to the post-#91 figures to the um^2 --
+8 fewer coarse units did not move the fold's own bounding box at this row
+count, so all of the resize's area effect is absorbed by the coarse-unit
+count without changing the block's footprint at all.
 
 The area-budget claim in Section 6 was previously caveated as "does not yet
 include the R2A/R2B ladder at its real count". That caveat is now closed.
@@ -2783,180 +2798,207 @@ lint, xschem quote check).
 | 4 (`klt lvs` clean) | NOT MET, 4 | unchanged -- no code or measurement change this increment |
 | 5 (blocking gaps filed) | MET | unchanged (no new gap to file; #513 was already closed, this increment only caught this repo's own code up to that fact) |
 
-**Suggested next increment (superseded by Section 7x)**: keep re-checking
-klayout-tools#559 for movement -- see Section 7x for what changed.
+**Suggested next increment (superseded by Section 7z)**: keep re-checking
+klayout-tools#559 for movement -- see Section 7z for what changed (it closed
+upstream via #583, and #587 made the fix reachable from this flow's own
+request shape).
 
-### 7x. Twenty-seventh increment: klayout-tools#559 lands upstream (#583) -- confirmed real, confirmed unreachable from this flow's own request shape, `mismatch_count` unchanged
+### 7x. The sizing resize DR-003 unlocked lands in the schematic (issue #99): n_r2 54 -> 50 re-centres the routed chained array's K, back in spec at all 5 corners with no hot-corner collapse -- layout-generator transcription is the next lever
 
-> **CORRECTED by Section 7y (twenty-eighth increment).** The diagnosis below
-> -- that `klt lvs`'s `_resolve_layout` "silently ignores `layout.deck`" on
-> the pre-extracted shape -- is **factually wrong**: `layout_deck` resolves
-> unconditionally in `run_lvs`, independent of layout shape. The real reason
-> #583 alone did not reach this flow was a case-sensitivity bug, fixed by
-> klayout-tools#587. More importantly, Section 7y establishes that adopting
-> the once-per-device correction at all would **mask** the ratified-real head
-> resistance (DR-003), so it is deliberately not adopted. Read Section 7y for
-> the corrected analysis; this section is retained only as the record of what
-> the twenty-seventh increment claimed.
+No layout code change this increment -- the resize lands in
+`design/bandgap_core.sch`'s sizing parameter and its own full-PVT
+verification, and the routed generator's re-transcription is deliberately
+deferred to the next increment (see the scoreboard note). Section 7v (issue
+#98, DR-003) established with real-SPICE evidence that the folded
+`res_r2`/`res_trim`/`res_r1` array pays real per-instance head resistance,
+which raises the *routed* part's `K = R2/R1` from the single-device model's
+7.4973 to **8.1474** at the shipped `n_r2=54` -- enough to push
+`VOUT(27 °C)` to ~1.233 V, outside the draft ±1 % window (1.188-1.212 V) at
+all 5 (process, supply) corners, and to collapse regulation at ff/2.97 V and
+fs/2.97 V. DR-003 deferred the corrective resize to issue #99 so it would get
+the same full-corner rigor issue #46 applied to the original sizing.
 
-[klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559)
-closed via
-[#583](https://github.com/2AMLogic/klayout-tools/pull/583), merged
-2026-08-05T20:15:46Z: `combine_devices()` now defers the resistor
-`fixed_offset_ohm` correction until after folding series primitives,
-applying it once per combined device instead of once per drawn primitive
--- exactly the fix Section 7u's own finding asked for. `layout/
-requirements.txt`'s `klt` pin is bumped past it (non-regressing:
-`layout/bin/run-trivial-cell-flow.sh` re-run still PASSes identically).
+**Issue #99 performed and verified that resize.** A new harness,
+`sim/res-array-resize/run_res_array_resize.py`, extends Section 7v's own
+Phase B pattern -- it chains real `sky130_fd_pr__res_high_po` unit instances
+into the core testbench at the routed layout's own decomposition
+(`gen_bandgap_routed.py`'s `N_R1`/`N_R2_COARSE`/`N_R2_TRIM_UNITS`), but
+parameterized on arbitrary `n_r1`/`n_r2` so a resize can be searched and then
+verified against the real chained topology rather than the single-device
+model. The adopted resize is a **pure `n_r2` change, 54 -> 50, with `n_r1`
+held at 7** (holding R1 fixes the branch current, so `K` is corrected without
+raising the hot-corner headroom demand the collapse depends on). Against the
+real chained topology this brings `K` back to **7.576** and `VOUT(27 °C)` to
+**1.1976-1.1995 V across all 5 corners -- in spec, and collapse-free** (ff/fs
+`VOUT`max ≈ 1.206-1.208 V, on the operating branch, vs. the shipped sizing's
+~2.85 V pin). DR-002's downward `0..-16` trim range, re-run (not re-cited) on
+the resized baseline, still covers -- the resize corrects the deterministic
+head-resistance offset at the sizing lever, leaving the metal-option trim for
+the per-die mismatch it was scoped for. Full per-corner tables, the shipped-
+sizing control that reproduces Section 7v's collapse, and the trim recheck:
+`sim/res-array-resize/records/` and
+`spec/decision-records/DR-003-res-array-head-resistance-sizing.md`'s
+"Closure" section.
 
-**It does not move `mismatch_count` (stays 4)**, for a reason distinct
-from every prior "the fix doesn't apply to this flow's topology" finding:
-#583's deferred correction only runs on the **inline-extraction**
-`request.layout` shape (`{file, deck, top}`). This flow's own combined LVS
-run has always used the **pre-extracted** shape (`{netlist, top}`,
-`run_lvs(..., from_netlist=True)` in `gen_bandgap_routed.py`) -- a
-deliberate choice from early in this issue's history (the SPICE
-round-trip is what avoids `Netlist.combine_devices()`'s known internal-
-consistency abort on this cell's bipolar array, RES_TRIM_TOPOLOGY_NOTE) --
-and `klt lvs`'s `_resolve_layout` never reads `layout.deck` on that shape,
-silently ignoring it rather than erroring.
-
-Confirmed by hand (outside this flow's committed code, against this
-increment's own `.gds`): switching just the request shape to inline
-extraction does make the deferred correction land almost exactly right --
-`R2A`/`R2B` read **88,083.06 ohm against the reference's 88,130** (0.05%
-off; the residual is design/bandgap_core.sch's own simplified `R ~ 380 +
-325*L` model's rounded coefficients against the deck's precise
-`sheet_rho_ohm_sq=324.827244`/`fixed_offset_ohm=379.705147`, not a
-combine/offset bug). But the same run also folds the PNP array
-*incompletely* (`devices.matched` 12 -> 10; `Q1`/`Q2` revert to their
-unfolded per-unit `AE`/`NE`, the exact gap Section 7s closed) -- a
-`combine_devices()` reliability difference unrelated to #559/#583, and one
-this increment did not have scope to chase down. Net effect of adopting
-the inline shape: `mismatch_count` 4 -> **28**, a regression, not an
-adoption.
-
-Filed as friction:
-[klayout-tools#585](https://github.com/2AMLogic/klayout-tools/issues/585)
--- `layout.deck` reachable alongside `layout.netlist` (for the deferred
-correction only, not to trigger extraction) is the narrowest lever left
-that would let this flow's own already-reliable SPICE-round-trip path
-receive #583's fix without needing inline extraction's less reliable
-combine behavior at all.
+**Consequence for this layout.** `gen_bandgap_routed.py` still transcribes
+the old sizing (`N_R1=7`, `SCH_N_R2=54`, `N_R2_COARSE=50`) and therefore still
+draws the `n_r2=54` array -- so as of this increment the schematic carries the
+resized sizing (`n_r2=50`) and the drawn layout carries the old one. That is
+an intentional, documented transient, the same class of schematic-vs-layout
+gap Section 7v opened DR-003 to close, now pointing the other way and scoped
+to one follow-up: re-transcribe `N_R2_COARSE` 50 -> 46 (the 20-unit fine trim
+ladder unchanged; `r2_leg_length()`'s `spec_um` and its gate move 270 -> 250)
+and re-verify through `klt drc`/`klt lvs`. That step needs klayout (not
+available in issue #99's run environment, which is why the resize decision and
+the redraw are split), so it is the next increment rather than folded in here.
 
 #### Scoreboard after this increment
 
 | AC | before | after |
 | --- | --- | --- |
 | 1 (full inter-block routing) | MET, 12/12 | unchanged |
-| 2 (real ladder unit count) | MET | unchanged |
+| 2 (real ladder unit count) | MET | unchanged -- still drawn at `n_r2=54`; the re-transcription to `n_r2=50` is the next increment |
 | 3 (device classes + pins) | MET | unchanged |
-| 4 (`klt lvs` clean) | NOT MET, 4 | unchanged -- `klt` pin bumped past a real upstream fix this flow cannot yet reach; see klayout-tools#585 |
-| 5 (blocking gaps filed) | MET | unchanged (klayout-tools#559 retired as an open gap; klayout-tools#585 filed in its place, non-blocking) |
+| 4 (`klt lvs` clean) | NOT MET, 4 | unchanged -- no layout/measurement change this increment |
+| 5 (blocking gaps filed) | MET | unchanged (no new gap -- the sizing move is verified in `sim/`, the redraw is a scoped follow-on, not a tool gap) |
 
-**Suggested next increment** ~~watch klayout-tools#585~~: **superseded --
-see Section 7y.** The premise that reaching #583's correction would drop
-`mismatch_count` toward 1 is wrong: the 88,083 single-device value it would
-report is not the layout's real resistance (DR-003), so reaching it is not
-the goal.
+**Suggested next increment**: re-transcribe `gen_bandgap_routed.py` to the
+`n_r2=50` decomposition (`N_R2_COARSE` 50 -> 46, `SCH_N_R2` 54 -> 50, the
+`r2_leg_length()` gate and its `test_routed_flow_gates.py` assertions moving
+with it) and re-run `klt drc`/`klt lvs` to confirm the fabricated cell matches
+the resized schematic -- the layout half of DR-003's closure.
 
-### 7y. Twenty-eighth increment: diagnosis corrected, klt pin bumped past #587, once-per-device correction reachable but deliberately NOT adopted (it would mask DR-003's ratified-real head resistance)
+### 7y. Twenty-seventh increment: the resize lands in the drawn array (issue #108) -- `mismatch_count` 4 -> 1, `res_high_po`'s value cause retired by a transcription-convention decision, not a tool fix
 
-This increment corrects Section 7x's diagnosis and settles what the
-resistor `device.property` findings actually are.
+Section 7x's own "Suggested next increment" is this one: `gen_bandgap_routed.py`
+is re-transcribed from the pre-resize sizing to the one issue #99/DR-003
+adopted, and `reference.spice` is re-derived from it, closing the
+schematic-vs-layout transient 7x opened deliberately.
 
-**Two things Section 7x got wrong.**
+**Layout re-transcription.** `N_R1` stays **7** (DR-003 deliberately held it
+fixed -- holding R1 fixes the branch current so `K` is corrected without
+raising the hot-corner headroom demand the collapse depends on). `N_R2_COARSE`
+moves **50 -> 46** and `SCH_N_R2` **54 -> 50**, re-transcribing issue #91's
+same coarse-plus-fine decomposition shape (Section 7r) to the shorter 250 um
+leg: 46 coarse 5 um units (230 um) plus the unchanged 20 fine 1 um units
+(20 um) = 250 um at DR-002 code 0, still reaching every one of DR-002's
+certified 0..-16 downward codes (47 coarse + 15 fine also totals 250 um but
+stops one code short, at -15 -- the same minimality argument Section 7r made
+at the old count). `r2_leg_length()`'s `spec_um` gate moves 270 -> 250 um and
+still reports `matches: true`.
 
-1. **`layout.deck` is not "silently ignored" on the pre-extracted shape.**
-   Reading klayout-tools' own `src/klayout_tools/lvs.py` at the pinned commit:
-   `layout_deck_name = layout_spec.get("deck")` /
-   `layout_deck = get_extraction_deck(layout_deck_name) if layout_deck_name
-   else None` resolves **unconditionally** from the request dict in `run_lvs`,
-   independent of layout shape -- it is not gated behind any `layout.file`
-   branch. The real reason #583 alone did not reach this flow's pre-extracted
-   netlist was a **case-sensitivity bug**:
-   `apply_resistor_fixed_offset_corrections` keyed its lookup by the deck's
-   lowercase class name (`res_high_po`), while a netlist round-tripped through
-   `kdb.NetlistSpiceReader` (exactly the `layout.netlist` form this flow feeds
-   `klt lvs`) reports class names UPPERCASED (`RES_HIGH_PO`), so the lookup
-   silently missed.
-   [klayout-tools#587](https://github.com/2AMLogic/klayout-tools/pull/587)
-   (merged, closes #585/#586) normalizes that lookup case-insensitively **and**
-   adds `run_extract(apply_resistor_fixed_offset=False)`. The `klt` pin is
-   bumped past #587 (`acb0ae6`; non-regressing --
-   `layout/bin/run-trivial-cell-flow.sh` re-run still PASSes identically).
+**The `rows` fold: re-verified empirically, not re-derived from a
+divisibility rule.** `res_array`'s `rows` parameter does not actually require
+an exact divisor of `num` -- `klt gen res_array` folds a remainder into a
+shorter last row without complaint -- but re-running the full routed flow
+found that this repo's *own* hand-rolled fold-turn bus router
+(`bus_res_series` in `gen_bandgap_routed.py`, which draws the met1 jumper at
+each row-boundary corner as a routed hop, not a straight-line one) is not
+fold-shape-agnostic:
 
-2. **Reaching the correction is not the goal -- it moves no number, and
-   adopting it would mask a real defect.** With the pin past #587, the
-   once-per-combined-device correction *is* now reachable on this flow's own
-   `layout.netlist` + `layout.deck` + `combine_devices` shape. That is
-   measured, not asserted: `layout/bin/measure_fixed_offset_variants.py`
-   re-runs `klt lvs` against this increment's own drawn `.gds` under all four
-   accounting combinations and writes the result to
-   `layout/bandgap-core/fixed-offset-variants/`.
+- Every true divisor of the resized `2 * N_R2_COARSE = 92` (2, 4, 23, 46)
+  pushed the composed cell over the 50,000 um^2 budget: 71,440 / 51,666 /
+  51,941 / 62,509 um^2 respectively (rows=4, the divisor closest to the old
+  10-rows-at-100-units aspect ratio, was the *closest* miss).
+- A scan of nearby non-divisor counts (6-11) found four (6, 7, 8, 10) that
+  route cleanly and two (9, 11) that do not: at rows=9, `bus-summary.json`'s
+  `res_r2.links` reports 4 of 90 fold-turn hops `"routed": false`, all on
+  leg 1 -- a genuinely broken series chain, not a value mismatch. `klt lvs`
+  reflects it directly: `R2B` fails to fold into one combined device (it has
+  no reference counterpart at all) and several orphan `res_high_po`
+  primitives show up as `device.unmatched`, taking `mismatch_count` to 15
+  (rows=9) or 18 (rows=11) against the 1 every clean fold produces. This is
+  filed nowhere upstream -- `bus_res_series` is this repo's own script, not
+  a `klt` capability, so it is not klayout-tools friction per CLAUDE.md's
+  protocol; it is a note left in the `res_r2` block's own `rows` comment for
+  the next person who reaches for an arbitrary fold count.
+- **`rows` is kept at 10** -- unchanged from the pre-resize count -- and
+  re-verified against the resized 92-unit count: 0 unrouted fold-turn hops,
+  0 drawn-short conflicts, DRC clean, `mismatch_count=1`. The measured
+  `res_r2` footprint (75.6 x 13.6 um) and the composed cell bbox
+  (45,968 um^2) come out identical to the post-#91 figures to the um^2 --
+  the resize's entire area effect is absorbed by the coarse-unit count
+  without moving this block's own bounding box at all.
 
-   | variant | extraction offset | `layout.deck` | `mismatch_count` | `devices.matched` | R2A/R2B `r` (Ω) | R1 `r` (Ω) |
-   | --- | --- | --- | --- | --- | --- | --- |
-   | `primary_nodeck` (shipped) | per primitive | absent | **4** | 12 | 114,282.716170 | 14,026.889569 |
-   | `primary_deck` | per primitive | `sky130` | **4** | 12 | 114,662.421317 | 14,406.594716 |
-   | `deferred_nodeck` | deferred | absent | **4** | 12 | 87,703.355880 | 11,368.953540 |
-   | `deferred_deck` (#587's pairing) | deferred | `sky130` | **4** | 12 | 88,083.061027 | 11,748.658687 |
+**`reference.spice`: the single-device-vs-chained transcription-convention
+question, settled.** DR-003's closure and issue #99 left open whether
+`reference.spice` should keep stating design/bandgap_core.sch's
+single-device approximation (`R ~ 380 + 325*L` once per leg, Section 7t) or
+switch to the chained value the routed array's real multi-primitive topology
+pays (Section 7u/7v, RES_HEAD_RESISTANCE_NOTE). This increment decides:
+**chained.** Two reasons, both already established by prior sections rather
+than new arguments:
 
-   Reference-side values are 88,130 / 11,755 in every variant. Two results
-   follow. First, **`mismatch_count` is 4 in all four variants** -- the
-   deferral is not a lever on AC4's number at all, because `klt lvs` compares
-   device parameters exactly (~1e-6 relative) and even the deferred 88,083.06
-   is 0.053% off the schematic's rounded `380 + 325*L` reference. Adopting it
-   would change only *which* resistance the record prints. (`primary_deck`
-   also shows the pairing that would be wrong the other way: the extractor
-   already baked the offset into every primitive, so passing `layout.deck`
-   without deferring adds it once more, 114,662.42.)
+1. It is what `klt lvs`'s own `combine_devices` actually sums the layout
+   side to (Section 7u measured this exactly: each R2 leg read
+   114,282.71617 ohm at the pre-resize count, `= sheet_rho * length_um +
+   fixed_offset * primitive_count`, not the single-device formula). Stating
+   the single-device value here was never going to reach zero `r` delta --
+   it was comparing the layout against a model the layout does not build.
+2. It is the value issue #99's own PVT re-verification was sized against
+   (`sim/res-array-resize/records/20260805-204809-2c83c7a.md`'s "Chained-array
+   resistance the resize targets" table), so stating it here makes
+   `reference.spice` agree with the same evidence base the sizing decision
+   itself relied on, not a third number nothing in this repo's records
+   claims the fabricated part reaches.
 
-   Second, it is **deliberately not adopted.** DR-003 (issue #98) ratified,
-   with independent real-SPICE
-   evidence, that this layout physically pays the head/end resistance once per
-   separately-contacted instance -- R2A/R2B = **114,282 ohm** is the genuine
-   value (Phase A reproduces it to 5-6 sig figs by chaining real
-   `sky130_fd_pr__res_high_po` unit models; the model card's `rhead` is a
-   hardcoded `l=1.0` paid once per instance), and the +29.7%/+19.4% shift
-   pushes `VOUT` outside the draft +/-1% window at all 5 corners checked.
-   Reporting the single-device 88,083 would therefore mask a real, ratified
-   sizing defect to make the LVS number look better -- exactly the
-   reference-edit-/relax-to-pass this repo's CLAUDE.md refuses. The flow keeps
-   reporting the physically-honest 114,282; the combined-LVS request shape is
-   unchanged (`{netlist, top}`, no `deck`).
+`RR1`/`RR2A`/`RR2B` now read **14026.89 / 106267.35 / 106267.35** ohm (was
+11755 / 88130 / 88130, the single-device values for the old counts) --
+verified independently to the digit two ways: against
+`klayout.db.NetlistSpiceReader` reading `reference.spice` back, and against
+`sim/res-array-resize/records/20260805-204809-2c83c7a.md`'s own real-ngspice
+chained-model table. `reference.spice`'s own RESISTOR VALUE CONVENTION note
+carries the full reasoning inline, for the next transcription this file
+needs.
 
-The inline-extraction shape (which auto-defers the correction) was also
-re-measured at this pin and still folds the PNP array incompletely
-(`devices.matched` 12 -> 10, `mismatch_count` 4 -> 28), so it too stays
-unadopted -- now for two independent reasons.
+**Result: `res_high_po`'s value cause is retired, not merely improved --
+`mismatch_count` 4 -> 1.** `category_counts` moves from
+`{"device.property": 3, "device.unmatched": 1}` to `{"device.unmatched": 1}`
+-- `R1`/`R2A`/`R2B` move from a `device.property` mismatch to a full match,
+leaving only `MMCC` (the deliberately-undrawn compensation cap) on either
+side. This closes the cause without needing klayout-tools#559 (still open
+upstream as a genuine ask -- a `klt gen` continuous-poly-with-taps resistor
+capability that would let this layout draw one logical device per leg
+instead of a chained series primitive count -- but not a live blocker of
+this repo's own LVS result any more, since the reference now states the
+value the chain actually sums to rather than the value a different,
+undrawn topology would sum to).
 
-**What the 4 mismatches are, correctly attributed.** 3 x `device.property`
-on R1/R2A/R2B: a real layout-vs-schematic **sizing** defect (the folded array
-has more head resistance than the single-device schematic models), closed by
-issue #99's resize -- or by a `klt gen` continuous-poly-with-taps resistor
-capability drawing each leg as one physically-continuous device -- **not** by
-an LVS-accounting change. 1 x `device.unmatched`: the deliberately-undrawn
-compensation cap `MCC` (single-ended by design, issue #15).
+**Fresh routed-flow record**: DRC clean, met2 DRC clean (0 violations),
+composed bbox 45,968 um^2 (< 50,000 um^2 budget, matching the post-#91
+figure to the um^2), `device_counts` unchanged in kind
+(`{"nfet": 16, "pfet": 52, "pnp": 16, "res_high_po": 139}`), `pin_count=11`,
+`mismatch_count=1`. `layout/bandgap-core/reports/<latest>/record.md` (see
+`reports/LATEST`) carries the full per-criterion scoreboard and net tables.
 
 #### Scoreboard after this increment
 
-| AC | before | after |
+| AC | before (7x) | after |
 | --- | --- | --- |
 | 1 (full inter-block routing) | MET, 12/12 | unchanged |
-| 2 (real ladder unit count) | MET | unchanged |
+| 2 (real ladder unit count) | MET, drawn at `n_r2=54` | MET, re-transcribed to `n_r2=50` (92 coarse + 40 fine units, 250 um/leg); `r2_leg_length_matches` still true |
 | 3 (device classes + pins) | MET | unchanged |
-| 4 (`klt lvs` clean) | NOT MET, 4 | **NOT MET, 4** -- re-measured, not carried over. The 3 resistor findings are now correctly attributed to a real design sizing defect (issue #99), not a reachable LVS-accounting fix; the tool fix (#583/#587) exists and is reachable, and was measured under all four accounting variants -- `mismatch_count` is 4 in every one, so adopting it would not move AC4 even setting aside that it would mask DR-003's ratified head resistance |
-| 5 (blocking gaps filed) | MET | unchanged (klayout-tools#559/#585/#586 all closed upstream; no new blocking tool gap -- the remaining lever is design-side, issue #99) |
+| 4 (`klt lvs` clean) | NOT MET, `mismatch_count=4` | NOT MET, `mismatch_count=1` -- only `MMCC` (deliberate scope choice) left |
+| 5 (blocking gaps filed) | MET | unchanged (klayout-tools#559 remains open as a capability request, not a live blocker) |
 
-**Suggested next increment**: AC4's resistor findings are now a design-side
-lever (issue #99's resize), not a tool-side one -- there is no upstream `klt`
-fix left to watch for them. The only tool-adjacent option would be a `klt gen`
-continuous-poly-with-taps resistor capability (one head-resistance term per
-leg), which is a substantial new generator feature, not an increment. Absent
-either, this is a genuine design-decision floor (issue #99) plus the `MCC`
-decision -- release the claim per this issue's established pattern rather than
-opening a busywork PR.
+**How much of the `mismatch_count` change is attributable to the deliberate
+resize vs. anything else, explicitly**: all of it is attributable to the
+`reference.spice` transcription-convention decision (single-device ->
+chained) this increment makes, not to the resize's numeric sizing by itself.
+A chained-value reference would have matched the layout's `combine_devices`
+sum at the *old* `n_r2=54` sizing too (Section 7u already measured that
+exact chained value, 114,282.71617 ohm, without a reference change) --
+resizing `n_r2` alone, with the reference still stating the single-device
+approximation, would have moved `RR2A`/`RR2B`'s stated value (81630 ohm at
+`n_r2=50`, `380 + 325*250`) but left a nonzero, merely smaller,
+`device.property` delta against whatever the layout's chain actually sums
+to at the new count. The `mismatch_count` 4 -> 1 change recorded here is
+therefore a transcription-convention fix riding along with the resize
+propagation, not a side effect of the resize's electrical sizing itself --
+worth stating explicitly so a future reader does not read "the resize
+closed LVS" into a record where the resize's actual electrical effect
+(Section 7x) is unrelated to which resistor value convention the reference
+states.
 
 ## 8. Known limitations / follow-on work
 
@@ -3090,24 +3132,34 @@ opening a busywork PR.
   **Update, twenty-sixth increment (Section 7w)**: re-checked #559 directly
   -- still open, no movement; see Section 7w for what this increment found
   instead.
-  **Update, twenty-seventh increment (Section 7x)**: #559 closed via #583 --
-  the deferred-correction mechanism is confirmed correct (measured to
-  0.05%) but unreachable from this flow's own pre-extracted `layout.netlist`
-  request shape, so `mismatch_count` stays **4**. See Section 7x and
-  [klayout-tools#585](https://github.com/2AMLogic/klayout-tools/issues/585).
-  **Update, twenty-eighth increment (Section 7y -- CORRECTS 7x)**: the pin is
-  bumped past [#587](https://github.com/2AMLogic/klayout-tools/pull/587), which
-  makes the once-per-device correction reachable on this flow's own shape (7x's
-  "`layout.deck` silently ignored" reason was factually wrong; the real reason
-  was a case-sensitivity bug #587 fixed). But it is **not adopted**: DR-003
-  ratified that the layout physically has the once-per-instance 114,282 ohm, so
-  reporting the single-device 88,083 would mask a real, ratified sizing defect.
-  Cause 2 is therefore a real design sizing gap (fixed by issue #99's resize),
-  not an extractor-model limit or an LVS-accounting gap. `mismatch_count` stays
-  **4**.
+  **Update, twenty-seventh increment (Section 7y), cause 2 RETIRED**:
+  klayout-tools#559 is still open upstream (a genuine ask for a `klt gen`
+  continuous-poly-with-taps resistor capability), but it is no longer a
+  live blocker of this repo's own `klt lvs` result. `reference.spice`
+  settles the single-device-vs-chained transcription-convention question
+  DR-003/issue #99 left open by switching to the chained value (the sum
+  every drawn primitive in this repo's own decomposition pays, using the
+  real `sky130_fd_pr__res_high_po` model's own two constants) -- exactly
+  what `combine_devices` already sums the layout side to. `mismatch_count`
+  moves **4 -> 1**; the only cause left is `MMCC` (below). This lands
+  alongside the n_r2 54 -> 50 resize propagation (issue #99/DR-003's
+  closure), re-transcribed into the drawn array by the same increment --
+  see Section 7y for why the two are separable (the transcription-
+  convention fix, not the resize's own sizing, is what closes this cause).
+  **Update, twenty-eighth increment (Section 7z)**: the `klt` pin is bumped
+  past [#583](https://github.com/2AMLogic/klayout-tools/pull/583) (which
+  closed #559 by deferring the `fixed_offset_ohm` correction until after
+  `combine_devices()` folds) and
+  [#587](https://github.com/2AMLogic/klayout-tools/pull/587) (which made that
+  deferral actually reachable on this flow's own pre-extracted request shape).
+  Measured across all four accounting variants: adopting the deferral is not
+  a lever on this repo's `mismatch_count`, and it is deliberately NOT adopted
+  -- Section 7y's chained-value reference convention already states the value
+  the layout's own chain sums to. See Section 7z.
 - ~~**R2A/R2B ladder is at reduced scale**~~ -- **closed** by issue #62, see
-  Section 4a. The ladder is drawn at its real full length: 100 coarse units
-  plus 40 fine trim units = the schematic's 270 um per leg.
+  Section 4a. The ladder is drawn at its real full length: 92 coarse units
+  (issue #99/#108-resized; was 100 before) plus 40 fine trim units = the
+  schematic's 250 um per leg (was 270 um before).
 - ~~**Per-matched-group guard rings are off in the routed layout**~~ --
   **closed** by this increment, see Section 5a. klayout-tools#441 landed;
   every matched group now has its own ring **and** is wired.
@@ -3280,9 +3332,12 @@ opening a busywork PR.
   `layout/bin/gen_bandgap_routed.py`,
   `layout/bin/run-bandgap-routed-flow.sh`
 - LVS reference netlist (schematic side, transcribed from
-  `design/bandgap_core.sch` + `design/error_amp.sch` and corroborated by the
-  checked-in `n_r2=54` xschem snapshot its header cites, never derived from
-  the layout): `layout/bandgap-core/reference.spice`
+  `design/bandgap_core.sch` + `design/error_amp.sch`; topology corroborated
+  by the checked-in `n_r2=54` xschem snapshot its header cites, resistor
+  *values* transcribed from the resized `n_r2=50` chained-array sizing per
+  `sim/res-array-resize/records/` -- see the file's own RESISTOR VALUE
+  CONVENTION note; never derived from the layout):
+  `layout/bandgap-core/reference.spice`
 - Floorplan generation/placement/DRC driver (issue #15, unchanged):
   `layout/bin/gen_bandgap_floorplan.py`,
   `layout/bin/run-bandgap-floorplan-flow.sh`

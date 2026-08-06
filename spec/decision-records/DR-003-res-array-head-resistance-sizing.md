@@ -1,7 +1,9 @@
 # DR-003: The routed R2A/R2B/R1 array's per-instance head resistance is real and material — sizing must be re-derived against it
 
-- **Status**: proposed (input to spec ratification, see #1; unlocks a
-  follow-up resizing issue, not undertaken by this record)
+- **Status**: proposed (input to spec ratification, see #1). The follow-up
+  resize this record unlocked is now **resolved and verified** — see
+  "Closure (issue #99)" at the end of this record; the one remaining lever is
+  the layout-generator transcription (matching-plan Section 7x).
 - **Date**: 2026-08-05
 - **Decided by**: Loom agent (issue #98), citing
   `sim/res-array-head-resistance/records/20260805-113409-6caa9f8.md`,
@@ -166,3 +168,70 @@ sizing-scope record, not a spec-value change.
   provenance note, the finding is this design's own array-folding choice
   interacting with a now-correct extractor (2AMLogic/klayout-tools#518/#519/
   #526 are doing exactly what they should) — not a tool gap.
+
+## Closure (issue #99 — the resize this record unlocked)
+
+Issue #99 performed the resize this record deferred, and re-verified it
+against the routed layout's real chained-array topology (not the single-device
+model) with the same full-PVT rigor issue #46 applied to the original sizing.
+Evidence: `sim/res-array-resize/records/` (append-only), produced by
+`sim/res-array-resize/run_res_array_resize.py`, which extends the head-
+resistance record's Phase B pattern — it chains real `sky130_fd_pr__res_high_po`
+unit instances into the core testbench at the layout's own decomposition,
+parameterized on `n_r1`/`n_r2`, and runs the box-method `-40..125 °C` sweep at
+all 5 corners this record checked.
+
+**Resolution: pure resize, `n_r2` 54 → 50, `n_r1` held at 7.** Against the real
+chained topology this lowers `K = R2/R1` from **8.1474** (the out-of-spec value
+this record measured) to **7.576** — back into the band the single-device
+model's 7.4973 produced an in-spec `VOUT` at. `n_r1` was deliberately left at 7:
+holding R1 (and therefore the branch current) fixed means the resize corrects
+`K` without raising the hot-corner headroom demand the ff/2.97 V and fs/2.97 V
+regulation collapse depends on.
+
+- **AC2 (in-spec + collapse-free at every corner):** at `n_r2=50` the real
+  chained topology's `VOUT(27 °C)` lands at **1.1976–1.1995 V** across all 5
+  corners (tt/3.30 V, ss/3.30 V, ff/2.97 V, sf/2.97 V, fs/2.97 V) — inside the
+  draft ±1 % window (1.188–1.212 V) — with **no** hot-corner collapse
+  (`VOUT`max ≈ 1.206–1.208 V at ff/fs, on the operating branch, vs. the shipped
+  sizing's ~2.85 V pin). Box TC is ~174–191 ppm/°C, unchanged in character from
+  the pre-resize baseline (the >50 ppm/°C untrimmed TC is issue #46's separate,
+  still-open finding, not re-opened here). The control re-run of the shipped
+  `n_r2=54` sizing on the same code path reproduces this record's out-of-spec /
+  collapse finding, confirming the harness.
+- **AC3 (trim range still covers):** re-running (not re-citing) DR-002's
+  downward `0..-16` `n_r2_trim` ladder on the **resized** baseline, the code
+  `0..-16` span still clears the 1.5×-of-3σ coverage target DR-002 sized against
+  and stays monotonic and collapse-free at every corner. The existing range does
+  **not** need to widen: because the resize re-centers the untrimmed operating
+  point near 1.20 V (rather than leaving it ~34 mV high, where the shipped
+  chained part sat), the downward trim now spends its whole span on per-die
+  mismatch correction rather than on absorbing a static, every-die sizing offset.
+  The head-resistance shift is corrected at the **sizing** lever (`n_r2`), which
+  is the correct lever for a deterministic offset, leaving the metal-option trim
+  for the mismatch it was scoped for.
+
+**The single-device model now reads low, by design.** Because
+`design/bandgap_core.sch`'s `XR1`/`XR2A`/`XR2B` lines still model each leg as
+one `res_high_po` device (omitting the per-instance head resistance), simulating
+the schematic as-drawn (the single-device `sim/output-voltage-tc` harness) now
+reads `VOUT(27 °C) ≈ 1.165 V`. That ~33 mV shortfall *is* the head resistance
+the routed part uses to reach 1.198 V; it is the visible signature of the same
+schematic-vs-layout gap this record identified, now sized around rather than
+ignored. Per this record's own "Consequences," the single-device harness is no
+longer the sizing reference of record.
+
+**Next increment (not performed by issue #99, per one-lever-per-increment).**
+The routed layout generator `layout/bin/gen_bandgap_routed.py` still transcribes
+the old sizing (`N_R1=7`, `SCH_N_R2=54`, `N_R2_COARSE=50`) and draws the
+`n_r2=54` array; it must be re-transcribed to `n_r2=50` (coarse count 50 → 46,
+the 20-unit fine trim ladder unchanged) and re-verified through klayout DRC/LVS
+before the fabricated cell matches this resize. That step needs klayout (not
+available in issue #99's run environment, which is why it is split out) and is
+tracked in `layout/matching-plan.md` Section 7x. Until it lands, the schematic
+carries the resized sizing and the layout carries the old one — an intentional,
+documented transient, the same kind of schematic-vs-layout gap this record was
+opened to close, now pointing the other way and scoped to a single follow-up.
+
+**Status:** the sizing decision is **resolved and verified**; the layout
+transcription is the one remaining follow-on lever.

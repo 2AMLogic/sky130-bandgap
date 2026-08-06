@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "engine": "klayout",
+  "layout": "bandgap_core_routed.extract.spice",
+  "reference": "reference.spice",
+  "top": "BANDGAP_CORE_ROUTED",
+  "status": "mismatch",
+  "mismatch_count": 1,
+  "category_counts": {
+    "device.unmatched": 1
+  },
+  "counts": {
+    "nets": {
+      "layout": 11,
+      "reference": 11,
+      "matched": 9
+    },
+    "devices": {
+      "layout": 15,
+      "reference": 16,
+      "matched": 15
+    },
+    "pins": {
+      "layout": 11,
+      "reference": 4,
+      "matched": 11
+    }
+  },
+  "device_classes": null,
+  "environment": {
+    "engine": "klayout",
+    "engine_version": "0.30.10",
+    "layout_sha256": "9eb83f33003a9291db4bf07892867edaf0bf43867643e33cfeb6798b660b7861",
+    "reference_sha256": "78e9420c777d1bca23c0229de21121df6b9cf1f9fc544e9c1e1d3bea99f73ed0",
+    "extracted_netlist": null
+  },
+  "provenance": {
+    "klt_version": "0.2.0",
+    "klayout_version": "0.30.10",
+    "pdk": null,
+    "deck": null,
+    "input": null
+  },
+  "mismatches": [
+    {
+      "category": "device.unmatched",
+      "severity": "error",
+      "description": "device has no counterpart on the other side",
+      "side": "reference",
+      "net": null,
+      "device": {
+        "layout": null,
+        "reference": "MCC",
+        "class": "PFET"
+      },
+      "property": null,
+      "details": null
+    }
+  ],
+  "net_correspondence": [
+    {
+      "layout": "D1",
+      "reference": "D1",
+      "pin": true
+    },
+    {
+      "layout": "D2",
+      "reference": "D2",
+      "pin": true
+    },
+    {
+      "layout": "PN",
+      "reference": "PN",
+      "pin": true
+    },
+    {
+      "layout": "TAIL",
+      "reference": "TAIL",
+      "pin": true
+    },
+    {
+      "layout": "VA",
+      "reference": "VA",
+      "pin": true
+    },
+    {
+      "layout": "VB",
+      "reference": "VB",
+      "pin": true
+    },
+    {
+      "layout": "VBQ",
+      "reference": "VBQ",
+      "pin": true
+    },
+    {
+      "layout": "VOUT",
+      "reference": "VOUT",
+      "pin": true
+    },
+    {
+      "layout": "VSS",
+      "reference": "VSS",
+      "pin": true
+    }
+  ],
+  "combine_devices": true
+}
