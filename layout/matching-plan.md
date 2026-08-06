@@ -262,9 +262,9 @@ scale:
 | Block | Skeleton count | Real target | Why reduced |
 |---|---|---|---|
 | `pnp_ctat` / `pnp_ptat` | 8 units each (2x4) | 8 units each | drawn 1:1 |
-| `res_r2` (R2A/R2B) | 16 units (8/leg) -- **superseded, see below** | 92 coarse units (46/leg), with `res_trim`'s 40 fine units carrying the rest of the same 250 um leg (issue #99/#108's resize; was stated as 100 units (50/leg) at the pre-resize 270 um leg, and 108 units (54/leg) before issue #91 re-decomposed the leg -- see Sections 1a, 7r and 7y) | *(historical, #15)* a single-row `res_array` at 108 units is ~710 um long (measured directly: `klt gen res_array --params '{"num":108,...}'` reports `bbox_um.x1 - x0 = 709.6`) -- pairing that with any other block in a floorplan forces the whole composition's bounding box past the 0.05 mm^2 budget on width alone, even though the segments' own drawn area is small. `klt gen res_array` had no row-folding/meander parameter to keep a long unit-resistor string's *footprint* compact the way `mos_array`/`bjt_array`'s `rows`/`cols` do -- filed as new friction, [2AMLogic/klayout-tools#415](https://github.com/2AMLogic/klayout-tools/issues/415). |
+| `res_r2` (R2A/R2B) | 16 units (8/leg) -- **superseded, see below** | 96 coarse units (48/leg), with `res_trim`'s 40 fine units carrying the rest of the same 250 um leg (issue #106/#112's re-partition, forced by `r_lseg_trim` halving 1 -> 0.5 um; was 92 coarse units (46/leg) at the issue #99/#108-resized 250 um leg, 100 units (50/leg) at the pre-resize 270 um leg, and 108 units (54/leg) before issue #91 re-decomposed the leg -- see Sections 1a, 7r, 7y and 7aa) | *(historical, #15)* a single-row `res_array` at 108 units is ~710 um long (measured directly: `klt gen res_array --params '{"num":108,...}'` reports `bbox_um.x1 - x0 = 709.6`) -- pairing that with any other block in a floorplan forces the whole composition's bounding box past the 0.05 mm^2 budget on width alone, even though the segments' own drawn area is small. `klt gen res_array` had no row-folding/meander parameter to keep a long unit-resistor string's *footprint* compact the way `mos_array`/`bjt_array`'s `rows`/`cols` do -- filed as new friction, [2AMLogic/klayout-tools#415](https://github.com/2AMLogic/klayout-tools/issues/415). |
 | `res_r1` | 7 units | 7 units | drawn 1:1 (small enough to be tractable at full scale) |
-| `res_trim` | 32 units (16/leg) | 40 units (20/leg) | drawn 1:1 -- 20 fine 1 um units per leg, the last 20 um *of* that leg, giving DR-002 codes 0..-20 of which 0..-16 are certified (issue #91; was 32 units (16/leg) wired in series *after* a full-length leg; unchanged by issue #99/#108's resize) |
+| `res_trim` | 32 units (16/leg) | 40 units (20/leg) | drawn 1:1 -- 20 fine 0.5 um units per leg, the last 10 um *of* that leg, giving DR-002 codes 0..-20 of which 0..-16 are certified (issue #91; was 20 fine 1 um units/last 20 um before issue #106/#112 halved the fine unit body length; was 32 units (16/leg) wired in series *after* a full-length leg before issue #91) |
 | `amp_input_pair` | mult=16 (splits=16) | mult=16 | drawn 1:1 |
 | `amp_nload` / `amp_nmirr` | mult=4 each | mult=4 each | drawn 1:1 |
 | `amp_pmirr` | mult=8 (splits=8) | mult=8 | drawn 1:1 |
@@ -278,15 +278,15 @@ flow (`layout/bin/gen_bandgap_routed.py`) therefore draws the R2A/R2B ladder
 at its **real full-length count** -- the schematic's whole 270 um per leg,
 never a reduced one:
 
-| | skeleton (#15) | routed (#62) | routed, post-#91 | routed, post-#99/#108 |
-|---|---|---|---|---|
-| `res_r2` unit count | 16 | 108 (2 legs x 54 coarse) | 100 (2 legs x 50 coarse) | **92** (2 legs x 46 coarse) |
-| `res_trim` unit count | 32 (2 legs x 16) | 32 (2 legs x 16), in series *after* the leg | 40 (2 legs x 20), the last 20 um *of* the leg | **40** (2 legs x 20), unchanged |
-| drawn length per leg | -- | 286 um (spec: 270) | 270 um (spec: 270) | **250 um** (spec: 250) |
-| `res_r2` footprint | ~110 x 12 um, 1 row | 100.9 x 12.2 um, 9 folded rows | 75.6 x 13.6 um, 10 folded rows | **75.6 x 13.6 um**, 10 folded rows (unchanged) |
-| `res_trim` footprint | -- | 22.9 x 5.2 um, 4 folded rows | 27.6 x 5.2 um, 4 folded rows | **27.6 x 5.2 um**, 4 folded rows (unchanged) |
-| composed cell bbox | 35,763 um^2 | 45,508 um^2 | 45,968 um^2 | **45,968 um^2** (measured identical) |
-| budget | 50,000 um^2 | 50,000 um^2 | 50,000 um^2 | 50,000 um^2 |
+| | skeleton (#15) | routed (#62) | routed, post-#91 | routed, post-#99/#108 | routed, post-#106/#112 |
+|---|---|---|---|---|---|
+| `res_r2` unit count | 16 | 108 (2 legs x 54 coarse) | 100 (2 legs x 50 coarse) | 92 (2 legs x 46 coarse) | **96** (2 legs x 48 coarse) |
+| `res_trim` unit count | 32 (2 legs x 16) | 32 (2 legs x 16), in series *after* the leg | 40 (2 legs x 20), the last 20 um *of* the leg | 40 (2 legs x 20), unchanged | **40** (2 legs x 20), unit body length halved 1 -> 0.5 um |
+| drawn length per leg | -- | 286 um (spec: 270) | 270 um (spec: 270) | 250 um (spec: 250) | **250 um** (spec: 250, unchanged) |
+| `res_r2` footprint | ~110 x 12 um, 1 row | 100.9 x 12.2 um, 9 folded rows | 75.6 x 13.6 um, 10 folded rows | 75.6 x 13.6 um, 10 folded rows | **75.6 x 13.6 um**, 10 folded rows (unchanged; re-verified, not re-derived) |
+| `res_trim` footprint | -- | 22.9 x 5.2 um, 4 folded rows | 27.6 x 5.2 um, 4 folded rows | 27.6 x 5.2 um, 4 folded rows | **21.6 x 5.2 um**, 4 folded rows (shrinks with the halved unit body) |
+| composed cell bbox | 35,763 um^2 | 45,508 um^2 | 45,968 um^2 | 45,968 um^2 (measured identical) | **45,968 um^2** (measured identical) |
+| budget | 50,000 um^2 | 50,000 um^2 | 50,000 um^2 | 50,000 um^2 | 50,000 um^2 |
 
 Folding turns the ladder from the floorplan's width-dominating block into
 one of its smaller ones: the whole routed cell -- at the real length, with
@@ -318,6 +318,19 @@ composed cell bbox come out identical to the post-#91 figures to the um^2 --
 8 fewer coarse units did not move the fold's own bounding box at this row
 count, so all of the resize's area effect is absorbed by the coarse-unit
 count without changing the block's footprint at all.
+
+The final column is issue #106/#112's `r_lseg_trim` propagation (Section
+7aa): DR-002's revision halves `r_lseg_trim` 1 -> 0.5 um, which forces
+`N_R2_COARSE` 46 -> 48 to hold the leg fixed at 250 um (`N_R2_TRIM_UNITS`
+stays 20 -- the revision re-partitions the fixed leg length, it does not
+touch the fine ladder's unit count). `res_r2`'s `rows` fold is again kept
+at 10, re-verified (not assumed) against the new 96-unit count: all 94
+fold-turn links route clean. The composed cell bbox again comes out
+identical to the prior figure to the um^2 -- the 4 extra coarse units'
+length (20 um) is offset almost exactly by the fine ladder's 40 units each
+losing 0.5 um of body (also 20 um), so this increment's net effect on the
+budget is essentially zero even though both arrays' own unit counts and
+footprints moved.
 
 The area-budget claim in Section 6 was previously caveated as "does not yet
 include the R2A/R2B ladder at its real count". That caveat is now closed.
@@ -3117,6 +3130,75 @@ decision about this repo's own single-ended layout, not a tool gap or a
 transcription question. Either draw `MCC` (and re-budget the area) or record
 the omission as a permanent, accepted deviation in the record's own
 acceptance-criteria table; both are decisions, not increments.
+
+### 7aa. Twenty-ninth increment: DR-002's `r_lseg_trim` revision (1 -> 0.5 um, issue #106/PR #111) propagated into the drawn array -- `N_R2_COARSE` 46 -> 48, `reference.spice` re-derived, `mismatch_count` holds at 1 (issue #112)
+
+Same shape as Section 7y's `n_r2` resize propagation, one lever narrower:
+DR-002's own "Revision (issue #106 -- chained fine-trim LSB)" halved
+`design/bandgap_core.sch`'s `.param r_lseg_trim` from 1 to 0.5 um to bring
+the chained-topology per-code LSB back under DR-002's own `<=3.000 mV/code`
+comfort bound (measured 3.123-3.146 mV/code at 1 um vs. 2.403-2.421 mV/code
+at 0.5 um, all 5 corners -- `sim/trim-lsb-chained/records/`). That revision
+explicitly deferred `layout/bin/gen_bandgap_routed.py`'s own
+`R_LSEG_TRIM_UM`/`SCH_R_LSEG_TRIM_UM` re-transcription and a fresh `klt`
+DRC/LVS run as "the next increment, per this project's one-lever-per-
+increment discipline" -- done here.
+
+**What moved.** `R_LSEG_UM`, `N_R1`, `N_R2_TRIM_UNITS` and `SCH_N_R2` are
+untouched. `R_LSEG_TRIM_UM`/`SCH_R_LSEG_TRIM_UM` move 1.0 -> 0.5;
+`N_R2_COARSE` moves 46 -> 48 to hold the untrimmed leg fixed at the
+schematic's 250 um (`5*48 + 0.5*20 == 250`, matching DR-002's Revision
+section's own arithmetic verbatim). `res_r2`'s `num` (`2*N_R2_COARSE`)
+moves 92 -> 96; `rows` stays at 10, re-verified empirically at the new
+count rather than assumed carried over, per Section 7y's own precedent for
+why that fold is not divisor-driven (`bus_res_series`'s fold-turn router is
+not fold-shape-agnostic at every count).
+
+**`reference.spice`'s chained `RR2A`/`RR2B` move, `RR1` does not.** R1
+carries no trim ladder, so its chained value (14,026.89 ohm) is unaffected.
+R2A/R2B's chained value is re-derived at the new 48-coarse/20-fine
+decomposition, using the same real `sky130_fd_pr__res_high_po` model
+constants (`sheet_rho_ohm_sq=324.827244`, `fixed_offset_ohm=379.705147`)
+Section 7u/7y's own derivation cites:
+
+```
+R2A = R2B = 48*(324.827244*5 + 379.705147) + 20*(324.827244*0.5 + 379.705147)
+          = 107,026.76 ohm   (was 106,267.35 at the 46-coarse/1um-fine split)
+K = R2/R1 = 107,026.76 / 14,026.89 = 7.6301   (was 7.5760)
+```
+
+Verified to the digit against `klt lvs`'s own pre-fix mismatch report on
+the freshly-extracted, re-partitioned netlist
+(`layout.property.r=107026.76099600003` in this increment's
+`lvs.combined.json`, captured before `reference.spice` was updated to
+match) -- the same "does this formula reproduce what `combine_devices`
+actually sums the layout side to" cross-check Section 7y established for
+the `n_r2` resize.
+
+**Fresh routed-flow record**: DRC clean (0), met2 DRC clean (0), composed
+bbox 45,968 um^2 (< 50,000 um^2 budget, identical to Section 7y/7z's
+figure -- the 4 extra coarse units' length is offset almost exactly by the
+fine ladder's 40 units each shrinking 0.5 um), `device_counts =
+{"nfet": 16, "pfet": 52, "pnp": 16, "res_high_po": 143}`, `pin_count = 11`,
+`mismatch_count = 1` (`{"device.unmatched": 1}` -- `MMCC` only, unchanged),
+`devices.matched = 15`. `r2_leg_length()` reports `matches: true`,
+`coarse_um=240.0`, `trim_um=10.0`, `spec_um=250.0`, `delta_um=0.0`.
+
+#### Scoreboard after this increment
+
+| AC | before (7z) | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET, `n_r2=50` | unchanged; drawn decomposition re-partitions 46/20 -> 48/20 coarse/fine, still 250 um/leg at code 0 |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, `mismatch_count=1` | NOT MET, `mismatch_count=1` -- re-measured at the new decomposition and reference values, not carried over. The remaining 1 is still `MMCC`; this increment's `r_lseg_trim` propagation touches only resistor value/geometry, not connectivity, so no new cause was expected or found |
+| 5 (blocking gaps filed) | MET | unchanged -- no new `klt` gap; this is a pure re-transcription of a schematic-side decision already ratified in DR-002 |
+
+**Suggested next increment**: none identified by this propagation. AC4's
+sole remaining cause (`MMCC`) is unchanged from Section 7z's own
+"Suggested next increment" -- draw `MCC` (re-budgeting area) or record the
+omission as a permanent, accepted deviation; both are decisions, not
+increments this issue's own one-lever-per-increment scope covers.
 
 ## 8. Known limitations / follow-on work
 

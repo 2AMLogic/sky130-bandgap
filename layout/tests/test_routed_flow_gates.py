@@ -2280,12 +2280,14 @@ class TestR2LegLength(unittest.TestCase):
     def test_the_split_is_coarse_plus_fine_not_coarse_plus_extra(self) -> None:
         """The specific decomposition matters, not just the total: the fine
         ladder has to be long enough to reach DR-002's -16 code from inside
-        the 250 um (issue #108's resize of issue #91's decomposition), which
-        is what rules out e.g. 47 coarse + 15 fine (also totals 250 um but
-        only reaches code -15)."""
+        the 250 um (issue #112's re-partition, forced by DR-002's revised
+        `r_lseg_trim=0.5`, of issue #108's 46/20 decomposition -- which was
+        itself issue #108's resize of issue #91's decomposition), which is
+        what rules out e.g. 49 coarse + 15 fine (also totals 250 um but only
+        reaches code -15 at the halved fine-unit length)."""
         report = gen_bandgap_routed.r2_leg_length()
-        self.assertEqual(report["coarse_um"], 230.0)
-        self.assertEqual(report["trim_um"], 20.0)
+        self.assertEqual(report["coarse_um"], 240.0)
+        self.assertEqual(report["trim_um"], 10.0)
         self.assertGreaterEqual(
             gen_bandgap_routed.N_R2_TRIM_UNITS,
             gen_bandgap_routed.N_R2_TRIM_CODES,
@@ -2344,17 +2346,22 @@ class TestTrimTapLadder(unittest.TestCase):
             code0[0]["leg_um"], gen_bandgap_routed.r2_leg_length()["spec_um"]
         )
 
-    def test_every_certified_code_subtracts_exactly_one_um(self) -> None:
+    def test_every_certified_code_subtracts_exactly_r_lseg_trim_um(
+        self,
+    ) -> None:
         """Acceptance criterion 3 of issue #91, stated as an assertion:
-        selecting tap k yields `spec_um - k` um for k in 0..16 (spec_um is
-        250 as of issue #108's resize; was 270 before)."""
+        selecting tap k yields `spec_um - k*R_LSEG_TRIM_UM` um for k in 0..16
+        (spec_um is 250 since issue #108's resize; R_LSEG_TRIM_UM is 0.5
+        since issue #112's propagation of DR-002's revision -- was 1.0 um
+        per code before, 270 um spec before #108)."""
         rows = {row["code"]: row for row in gen_bandgap_routed.trim_tap_ladder(
             self._reports()
         )}
         spec_um = gen_bandgap_routed.r2_leg_length()["spec_um"]
+        step_um = gen_bandgap_routed.R_LSEG_TRIM_UM
         for k in range(gen_bandgap_routed.N_R2_TRIM_CODES + 1):
             with self.subTest(code=-k):
-                self.assertEqual(rows[-k]["leg_um"], spec_um - k)
+                self.assertEqual(rows[-k]["leg_um"], spec_um - k * step_um)
                 self.assertTrue(rows[-k]["certified"])
 
     def test_no_tap_is_longer_than_the_specified_leg(self) -> None:
@@ -2367,8 +2374,9 @@ class TestTrimTapLadder(unittest.TestCase):
                 self.assertLessEqual(row["code"], 0)
 
     def test_taps_past_dr002s_range_are_drawn_but_flagged(self) -> None:
-        """The 46/20 split (issue #108's resize of issue #91's 50/20) draws
-        four taps past DR-002's certified -16. They exist in metal (a
+        """The 48/20 split (issue #112's re-partition of issue #108's 46/20
+        split, itself issue #108's resize of issue #91's 50/20) draws four
+        taps past DR-002's certified -16. They exist in metal (a
         metal-option ladder's taps always do), so they are reported --
         explicitly marked out of certified range, not silently offered as
         valid codes."""

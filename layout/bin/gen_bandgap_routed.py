@@ -14,10 +14,12 @@ stays untouched as the placement-only DRC record it always was. What is new
 here, relative to that skeleton:
 
 1. **The R2A/R2B ladder is drawn at its real full-length count** -- the
-   schematic's 250 um per leg, as 46 coarse 5 um units plus 20 fine 1 um
+   schematic's 250 um per leg, as 48 coarse 5 um units plus 20 fine 0.5 um
    trim units (item 16 below re-decomposed the leg this way at the
    pre-resize n_r2=54/270 um sizing; item 19 re-transcribed the same
-   decomposition to the resized n_r2=50/250 um sizing issue #99 adopted --
+   decomposition to the resized n_r2=50/250 um sizing issue #99 adopted;
+   item 21 re-partitioned the coarse/fine split again, 46/20 -> 48/20,
+   when issue #106/PR #111 halved the fine unit's drawn length --
    it was 54 coarse units plus a 16-unit ladder in series before item 16),
    not the skeleton's reduced 16. `klt gen res_array` gained a `rows` fold
    parameter (2AMLogic/klayout-tools#415, merged upstream via
@@ -255,6 +257,31 @@ here, relative to that skeleton:
     cell does not have. The LVS request shape is unchanged; the pin bump moves
     no gated or recorded number (non-regression re-confirmed against
     layout/trivial-cell/reports/). See matching-plan Section 7z.
+21. **DR-002's revised `r_lseg_trim` (1 -> 0.5 um, issue #106/PR #111) is
+    propagated into the drawn array, DRC/LVS-clean at `mismatch_count=1`**
+    (issue #112). `R_LSEG_UM`, `N_R1`, `N_R2_TRIM_UNITS` and `SCH_N_R2` are
+    unchanged; `R_LSEG_TRIM_UM`/`SCH_R_LSEG_TRIM_UM` move 1.0 -> 0.5 and
+    `N_R2_COARSE` moves 46 -> 48 to hold the untrimmed leg fixed at the
+    schematic's 250 um (`5*48 + 0.5*20 == 250`, matching DR-002's Revision
+    section verbatim; `r2_leg_length()` reports `matches: true`,
+    `coarse_um=240.0`, `trim_um=10.0`). `res_r2`'s `num` (`2*N_R2_COARSE`)
+    moves 92 -> 96; its `rows` fold (unchanged at 10) was re-verified
+    empirically at the new unit count rather than assumed unchanged, per
+    RES_RESIZE_NOTE's own precedent -- all 94 fold-turn links route clean,
+    0 drawn-short conflicts. `reference.spice`'s chained `RR2A`/`RR2B`
+    move 106267.35 -> 107026.76 ohm (`R1` is untouched -- it carries no
+    trim ladder), re-derived at the new 48-coarse/20-fine decomposition
+    (`48*(324.827244*5+379.705147) + 20*(324.827244*0.5+379.705147)`) and
+    verified to the digit against `klt lvs`'s own pre-fix mismatch report
+    on the freshly-extracted netlist, the same cross-check convention item
+    19 established. Composed bbox holds at 45,968 um^2 (identical to every
+    prior increment -- the 4 extra coarse units' length is offset by the
+    fine ladder's 40 units each shrinking 0.5 um), DRC and met2 DRC both
+    clean, and `mismatch_count` holds at 1 (only the deliberately-undrawn
+    `MMCC`) -- this increment does not regress or improve LVS connectivity,
+    only re-syncs the value transcription DR-002's revision requires. See
+    RES_TRIM_LSB_NOTE and layout/matching-plan.md's routed-flow record for
+    the full measured result.
 
 What this script does NOT claim -- read record.md's own "What this record
 does NOT claim" section for the authoritative, measured version:
@@ -805,6 +832,50 @@ RES_RESIZE_NOTE = (
     "this module's own docstring and layout/matching-plan.md Section 7y "
     "for the drawn-side consequence (rows fold, LVS mismatch delta)."
 )
+#: Why r_lseg_trim (and only r_lseg_trim) halved 1 -> 0.5, and why
+#: N_R2_COARSE had to move again (46 -> 48) to keep it. Not a layout-side
+#: finding -- transcribes DR-002's "Revision (issue #106 -- chained
+#: fine-trim LSB)" re-partition, propagated into this file's own drawn
+#: decomposition by issue #112.
+RES_TRIM_LSB_NOTE = (
+    "DR-002's original per-code LSB derivation (~1.72 mV/code) simulated "
+    "the fine trim ladder as ONE length-tapped device per leg -- the "
+    "schematic-level approximation design/bandgap_core.sch's XR2A/XR2B "
+    "still draw. This flow's own chained topology is not that: `res_trim` "
+    "chains N_R2_TRIM_UNITS=20 separately-contacted unit instances per "
+    "leg, so a downward trim code does not shorten one device's body by "
+    "r_lseg_trim -- it removes a whole separately-contacted unit instance, "
+    "paying that instance's fixed per-instance head/end resistance "
+    "(RES_HEAD_RESISTANCE_NOTE's rhead ~379.7 ohm) in addition to its "
+    "r_lseg_trim of body. Issue #106 measured the real per-code step at "
+    "the adopted n_r1=7/n_r2=50 sizing (issue #99) against DR-002's own "
+    "<=3.000 mV/code comfort bound (25% of the +/-1% window's 12 mV "
+    "half-width), over the same 5-corner PVT set "
+    "sim/trim-range-monotonicity/ and issue #99's AC3 used: at the shipped "
+    "r_lseg_trim=1 um the chained topology reads 3.123-3.146 mV/code -- a "
+    "real, measured violation at every corner, not merely a carried-over "
+    "assumption (sim/trim-lsb-chained/records/). Because rhead is a fixed "
+    "PDK model-card constant per removed unit instance, independent of "
+    "the unit's drawn body length, halving r_lseg_trim to 0.5 um does not "
+    "halve the per-code step -- it removes enough of the scaling rbody "
+    "(sheet/fringe, ~324.8 ohm/um) term to bring the step from 704.53 to "
+    "542.12 ohm/code, restoring the LSB to 2.403-2.421 mV/code, "
+    "comfortably under the bound at every corner, with monotonicity and "
+    "the downward-span coverage target unaffected (both already PASS). "
+    "The fine ladder's unit COUNT (N_R2_TRIM_UNITS=20) and DR-002's "
+    "certified 0..-16 downward code range are unchanged -- this is a pure "
+    "re-partition of the fixed 250 um leg length between its coarse and "
+    "fine segments, not a resize of n_r1/n_r2 (RES_RESIZE_NOTE's lever) "
+    "or a change to the certified code range. Holding the untrimmed leg "
+    "fixed at `5*N_R2_COARSE + 0.5*N_R2_TRIM_UNITS == 250` forces "
+    "N_R2_COARSE 46 -> 48. `design/bandgap_core.sch`'s `.param "
+    "r_lseg_trim` moved 1 -> 0.5 in issue #106/PR #111; this file's own "
+    "R_LSEG_TRIM_UM/SCH_R_LSEG_TRIM_UM/N_R2_COARSE re-transcription and "
+    "the routed layout's klt DRC/LVS re-verification were explicitly "
+    "deferred there (DR-002's Revision section, 'Scope of this "
+    "revision') as the next one-lever-per-increment step -- done here, "
+    "issue #112. See item 21 in this module's own docstring."
+)
 
 # ---------------------------------------------------------------------------
 # Floorplan geometry constants (um)
@@ -850,8 +921,10 @@ RES_FLAVOR = "high"
 RES_CLASS = "res_high_po"
 R_W_UM = 1.0
 R_LSEG_UM = 5.0
-#: Fine trim-unit body length (um), design/bandgap_core.sch's `r_lseg_trim=1`.
-R_LSEG_TRIM_UM = 1.0
+#: Fine trim-unit body length (um), design/bandgap_core.sch's
+#: `r_lseg_trim=0.5` (halved 1 -> 0.5 by issue #106/PR #111 to restore
+#: DR-002's chained-topology LSB comfort bound; see RES_TRIM_LSB_NOTE).
+R_LSEG_TRIM_UM = 0.5
 #: Held at 7, unchanged by issue #99/#108's n_r2 resize: DR-003's closure
 #: deliberately left n_r1 fixed so the resize corrects K = R2/R1 without
 #: raising the branch current (and therefore the hot-corner headroom the
@@ -859,27 +932,35 @@ R_LSEG_TRIM_UM = 1.0
 #: RES_RESIZE_NOTE.
 N_R1 = 7
 #: The R2 divider leg's **drawn** decomposition (issue #91, re-transcribed
-#: to the resized sizing by issue #108). The schematic states one length
-#: per leg -- `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim` = 5*50 + 1*0 =
-#: 250 um at DR-002's untrimmed code 0 (n_r2=50 since issue #99/PR #105;
-#: it was 54/270 um before) -- and the layout has to reproduce *that*
-#: number while still offering DR-002's downward-only trim codes. It does
-#: so by splitting the 250 um, not by adding to it: 46 coarse 5 um units
-#: (230 um) in `res_r2` plus 20 fine 1 um units (20 um) in `res_trim`.
+#: to the resized sizing by issue #108, then re-partitioned by issue #112
+#: when the fine unit's drawn length halved). The schematic states one
+#: length per leg -- `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim` = 5*50 +
+#: 0.5*0 = 250 um at DR-002's untrimmed code 0 (n_r2=50 since issue #99/
+#: PR #105; r_lseg_trim halved 1 -> 0.5 by issue #106/PR #111, see
+#: RES_TRIM_LSB_NOTE) -- and the layout has to reproduce *that* number
+#: while still offering DR-002's downward-only trim codes. It does so by
+#: splitting the 250 um, not by adding to it: 48 coarse 5 um units
+#: (240 um) in `res_r2` plus 20 fine 0.5 um units (10 um) in `res_trim`.
 #: Joining the leg's low node at the far end of the fine chain is then
 #: exactly 250 um = code 0, and every tap short of that end *subtracts*
-#: 1 um per skipped unit -- the only direction DR-002 permits.
+#: 0.5 um per skipped unit -- the only direction DR-002 permits.
 #:
 #: Before issue #91 the coarse leg was drawn at the full pre-resize count
 #: (54 units, 270 um) and the fine ladder was wired in series *after* it,
 #: so the drawn leg was 286 um and every tap moved it further up: trim
 #: code +16, which DR-002 rejects outright. See RES_TRIM_LENGTH_NOTE.
 #:
-#: 46/20 is the minimal integral decomposition that keeps 250 um and still
-#: reaches DR-002's -16 (47 coarse + 15 fine also totals 250 but stops at
-#: -15) -- the same shape issue #91's 50/20 (at the pre-resize 270 um)
-#: reasoned from. See RES_RESIZE_NOTE for why the leg length itself moved.
-N_R2_COARSE = 46
+#: 48/20 is the coarse count DR-002's revision forces to hold the leg
+#: fixed at 250 um: `N_R2_TRIM_UNITS` stays 20 (the revision re-partitions
+#: the fixed leg length between coarse and fine segments; it does not
+#: touch the fine ladder's unit *count*, so all 20 units -- and DR-002's
+#: certified 0..-16 downward range -- are still reachable), so
+#: `N_R2_COARSE` has to absorb the 0.5 um/unit reduction across all 20
+#: units (10 um) to keep `5*N_R2_COARSE + 0.5*20 == 250`: 46 -> 48. See
+#: RES_RESIZE_NOTE for why the leg length itself moved (issue #99) and
+#: RES_TRIM_LSB_NOTE for why the fine unit length itself halved
+#: (issue #106).
+N_R2_COARSE = 48
 N_R2_TRIM_UNITS = 20
 #: DR-002's **certified** downward code range (0..-16, per leg). The drawn
 #: ladder can express 0..-20 -- codes -17..-20 are drawn metal but outside
@@ -896,10 +977,14 @@ N_R2_TRIM_CODES = 16
 SCH_R_LSEG_UM = 5.0  # .param r_lseg=5
 #: 54 -> 50 by issue #99/PR #105 (DR-003's closure); see RES_RESIZE_NOTE.
 SCH_N_R2 = 50  # .param n_r2=50
-SCH_R_LSEG_TRIM_UM = 1.0  # .param r_lseg_trim=1
+#: 1 -> 0.5 by issue #106/PR #111 (DR-002's chained-LSB revision); see
+#: RES_TRIM_LSB_NOTE.
+SCH_R_LSEG_TRIM_UM = 0.5  # .param r_lseg_trim=0.5
 SCH_N_R2_TRIM = 0  # .param n_r2_trim=0 (DR-002's untrimmed code)
-#: The per-leg length design/bandgap_core.sch specifies, in um (250.0 as of
-#: the issue #99/#108 resize; was 270.0 before).
+#: The per-leg length design/bandgap_core.sch specifies, in um (250.0 since
+#: the issue #99/#108 resize -- unchanged by issue #112's r_lseg_trim
+#: halving, since SCH_N_R2_TRIM=0 makes the trim term a no-op here; was
+#: 270.0 before #99/#108).
 R2_LEG_SPEC_UM = SCH_R_LSEG_UM * SCH_N_R2 + SCH_R_LSEG_TRIM_UM * SCH_N_R2_TRIM
 M_OUT = 2
 M_AMPBIAS = 2
@@ -913,10 +998,11 @@ AMP_M_PMIRR = 8
 # listed. Relative to gen_bandgap_floorplan.py's BLOCKS this list differs in
 # exactly three ways, each of them load-bearing for this issue:
 #
-#   * `res_r2` is at its real full-length count (92 coarse units, still 10
+#   * `res_r2` is at its real full-length count (96 coarse units, still 10
 #     rows; with `res_trim`'s 40 fine units that is the schematic's 250
-#     um/leg, the issue #99/#108-resized sizing -- was 100 coarse units and
-#     270 um/leg before, same 10-row fold both times).
+#     um/leg, the issue #106/#112-repartitioned sizing -- was 92 coarse
+#     units before, and 100 coarse units/270 um-leg before that (issue
+#     #99/#108), same 10-row fold every time).
 #   * every guard/collector ring is back **on**, each with a routing opening
 #     (upstream klayout-tools#441's `ring_gap_side`), retiring the PR #64
 #     trade-off recorded in layout/matching-plan.md Section 5a.
@@ -960,27 +1046,33 @@ BLOCKS: list[dict[str, Any]] = [
             "num": 2 * N_R2_COARSE,
             "dummy": 2,
             # Kept at 10 (unchanged from the pre-resize 100-unit count),
-            # empirically re-verified against the resized 92-unit count
-            # rather than re-derived from a divisibility rule. `res_array`'s
+            # empirically re-verified against both the issue #108 resize's
+            # 92-unit count and (this increment, issue #112) the 96-unit
+            # count DR-002's r_lseg_trim revision forces, rather than
+            # re-derived from a divisibility rule each time. `res_array`'s
             # `rows` fold (2AMLogic/klayout-tools#415/#418) does NOT require
             # an exact divisor of `num` -- klt happily folds a remainder into
             # a shorter last row -- but this repo's OWN `bus_res_series`
             # (below), which draws the fold-TURN met1 jumper at each row
             # boundary as a hand-routed corner hop, is not guaranteed
-            # fold-shape-agnostic: re-running the full routed flow at every
-            # divisor of 92 (2, 4, 23, 46) put the composed cell over the
-            # 50,000 um^2 budget in every case, and a scan of nearby
-            # non-divisor counts found two (9, 11) where a subset of leg-1
-            # fold-turn hops fail to route (bus-summary.json's `res_r2.links`
-            # reports `"routed": false`), splitting R2B's series chain and
-            # taking `klt lvs`'s `mismatch_count` from 1 to 15-18 -- a real
-            # connectivity defect, not a value mismatch. 10 was re-verified
-            # (this issue) to still route all 90 fold-turn links with zero
-            # failures, zero drawn-short conflicts, DRC clean, and
-            # `mismatch_count=1` (just the deliberately-undrawn MCC) at the
-            # resized 92-unit count; the composed cell also lands at
-            # 45,968 um^2, matching the pre-resize figure almost exactly.
-            # See RES_RESIZE_NOTE for why N_R2_COARSE itself moved.
+            # fold-shape-agnostic: at the 92-unit count, re-running the full
+            # routed flow at every divisor of 92 (2, 4, 23, 46) put the
+            # composed cell over the 50,000 um^2 budget in every case, and a
+            # scan of nearby non-divisor counts found two (9, 11) where a
+            # subset of leg-1 fold-turn hops fail to route (bus-summary.json's
+            # `res_r2.links` reports `"routed": false`), splitting R2B's
+            # series chain and taking `klt lvs`'s `mismatch_count` from 1 to
+            # 15-18 -- a real connectivity defect, not a value mismatch. 10
+            # was re-verified clean at 92 (issue #108) and, this increment,
+            # re-verified again at the new 96-unit count: all 94 fold-turn
+            # links route with zero failures, zero drawn-short conflicts,
+            # DRC clean, and `mismatch_count=1` (just the deliberately-
+            # undrawn MMCC); the composed cell lands at 45,968 um^2, matching
+            # every prior increment's figure exactly (the 4 extra coarse
+            # units' length is offset by the fine ladder's 40 units each
+            # shrinking 0.5 um). See RES_RESIZE_NOTE for why N_R2_COARSE
+            # first moved (issue #99/#108) and RES_TRIM_LSB_NOTE for why it
+            # moved again (issue #106/#112).
             "rows": 10,
         },
         "bus": {"kind": "res_series", "legs": 2},
@@ -1012,7 +1104,7 @@ BLOCKS: list[dict[str, Any]] = [
         },
         "bus": {"kind": "res_series", "legs": 2},
         "matched_group_label": "Downward-only trim ladder taps (both legs)",
-        "real_target": f"{N_R2_TRIM_UNITS} fine {R_LSEG_TRIM_UM:.0f}um units "
+        "real_target": f"{N_R2_TRIM_UNITS} fine {R_LSEG_TRIM_UM:.1f}um units "
         f"PER LEG x 2 legs = {2 * N_R2_TRIM_UNITS} unit taps, the fine part "
         f"of the same {R2_LEG_SPEC_UM:.0f} um leg -- code 0 puts all "
         f"{N_R2_TRIM_UNITS} in circuit and code -k skips k of them, so the "
@@ -1889,8 +1981,8 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
             {"block": "res_r2", "port": f"R{2 * N_R2_COARSE - 2}_B", "leg": 0},
             {"block": "res_trim", "port": "R0_A", "leg": 0},
         ],
-        "schematic": "R2A's coarse 230 um into leg A of the fine trim ladder "
-        "that carries the leg's last 20 um (DR-002, downward-only)",
+        "schematic": "R2A's coarse 240 um into leg A of the fine trim ladder "
+        "that carries the leg's last 10 um (DR-002, downward-only)",
     },
     {
         "net": "VOUT",
@@ -1909,7 +2001,7 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
             {"block": "res_r2", "port": f"R{2 * N_R2_COARSE - 1}_B", "leg": 1},
             {"block": "res_trim", "port": "R1_A", "leg": 1},
         ],
-        "schematic": "R2B's coarse 230 um into leg B of the same fine ladder",
+        "schematic": "R2B's coarse 240 um into leg B of the same fine ladder",
     },
     {
         "net": "VB",
@@ -4541,7 +4633,7 @@ def main() -> int:
         f"{'MET' if full_scale_ladder and r2_length['matches'] else 'NOT MET'} | "
         f"`res_r2` num={r2_units} (= 2 legs x {N_R2_COARSE} coarse "
         f"{R_LSEG_UM:.0f}um units) + `res_trim` num={trim_units} (= 2 legs x "
-        f"{N_R2_TRIM_UNITS} fine {R_LSEG_TRIM_UM:.0f}um units) = "
+        f"{N_R2_TRIM_UNITS} fine {R_LSEG_TRIM_UM:.1f}um units) = "
         f"{r2_length['drawn_um']:.0f} um/leg at DR-002 code 0, against "
         f"design/bandgap_core.sch's `r_lseg*n_r2` = "
         f"{r2_length['spec_um']:.0f} um (delta "
@@ -4995,7 +5087,7 @@ def main() -> int:
     a(
         f"| `res_trim` fine leg at code 0 (drawn) | "
         f"{r2_length['trim_um']:.0f} um ({N_R2_TRIM_UNITS} x "
-        f"{R_LSEG_TRIM_UM:.0f} um) |"
+        f"{R_LSEG_TRIM_UM:.1f} um) |"
     )
     a(f"| **total drawn** | **{r2_length['drawn_um']:.0f} um** |")
     a(
