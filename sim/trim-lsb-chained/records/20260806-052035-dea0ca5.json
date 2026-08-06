@@ -1,0 +1,452 @@
+{
+  "author": "agent-13@2amlogic.com",
+  "checks": [
+    {
+      "detail": "every downward code (0, -8, -16) stays on the operating branch (vref_max in (1.1, 1.3)) at r_lseg_trim=1.0 um",
+      "name": "collapse_free[shipped_tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.147843), (-8, 1.172846), (0, 1.19785)] (must strictly increase from -16 toward 0)",
+      "name": "monotonic[shipped_tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "downward trim span (code 0..-16) = 50.007 mV, required >= 1.5 x 15.620 mV = 23.430 mV",
+      "name": "range_covers_mc_spread[shipped_tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=3.1254 mV/code, required <= 25% of window half-width (3.000 mV) at r_lseg_trim=1.0 um",
+      "name": "lsb_comfortable[shipped_tt_3.30v]",
+      "pass": false
+    },
+    {
+      "detail": "every downward code (0, -8, -16) stays on the operating branch (vref_max in (1.1, 1.3)) at r_lseg_trim=1.0 um",
+      "name": "collapse_free[shipped_ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.148233), (-8, 1.173235), (0, 1.198237)] (must strictly increase from -16 toward 0)",
+      "name": "monotonic[shipped_ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "downward trim span (code 0..-16) = 50.004 mV, required >= 1.5 x 15.620 mV = 23.430 mV",
+      "name": "range_covers_mc_spread[shipped_ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=3.1252 mV/code, required <= 25% of window half-width (3.000 mV) at r_lseg_trim=1.0 um",
+      "name": "lsb_comfortable[shipped_ss_3.30v]",
+      "pass": false
+    },
+    {
+      "detail": "every downward code (0, -8, -16) stays on the operating branch (vref_max in (1.1, 1.3)) at r_lseg_trim=1.0 um",
+      "name": "collapse_free[shipped_ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.147567), (-8, 1.172579), (0, 1.19759)] (must strictly increase from -16 toward 0)",
+      "name": "monotonic[shipped_ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "downward trim span (code 0..-16) = 50.023 mV, required >= 1.5 x 15.620 mV = 23.430 mV",
+      "name": "range_covers_mc_spread[shipped_ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=3.1264 mV/code, required <= 25% of window half-width (3.000 mV) at r_lseg_trim=1.0 um",
+      "name": "lsb_comfortable[shipped_ff_2.97v]",
+      "pass": false
+    },
+    {
+      "detail": "every downward code (0, -8, -16) stays on the operating branch (vref_max in (1.1, 1.3)) at r_lseg_trim=1.0 um",
+      "name": "collapse_free[shipped_sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.149205), (-8, 1.17437), (0, 1.199536)] (must strictly increase from -16 toward 0)",
+      "name": "monotonic[shipped_sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "downward trim span (code 0..-16) = 50.331 mV, required >= 1.5 x 15.620 mV = 23.430 mV",
+      "name": "range_covers_mc_spread[shipped_sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=3.1457 mV/code, required <= 25% of window half-width (3.000 mV) at r_lseg_trim=1.0 um",
+      "name": "lsb_comfortable[shipped_sf_2.97v]",
+      "pass": false
+    },
+    {
+      "detail": "every downward code (0, -8, -16) stays on the operating branch (vref_max in (1.1, 1.3)) at r_lseg_trim=1.0 um",
+      "name": "collapse_free[shipped_fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.14812), (-8, 1.173101), (0, 1.198083)] (must strictly increase from -16 toward 0)",
+      "name": "monotonic[shipped_fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "downward trim span (code 0..-16) = 49.963 mV, required >= 1.5 x 15.620 mV = 23.430 mV",
+      "name": "range_covers_mc_spread[shipped_fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=3.1227 mV/code, required <= 25% of window half-width (3.000 mV) at r_lseg_trim=1.0 um",
+      "name": "lsb_comfortable[shipped_fs_2.97v]",
+      "pass": false
+    },
+    {
+      "detail": "every downward code (0, -8, -16) stays on the operating branch (vref_max in (1.1, 1.3)) at r_lseg_trim=0.5 um",
+      "name": "collapse_free[revised_tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.162739), (-8, 1.181979), (0, 1.201218)] (must strictly increase from -16 toward 0)",
+      "name": "monotonic[revised_tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "downward trim span (code 0..-16) = 38.479 mV, required >= 1.5 x 15.620 mV = 23.430 mV",
+      "name": "range_covers_mc_spread[revised_tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=2.4049 mV/code, required <= 25% of window half-width (3.000 mV) at r_lseg_trim=0.5 um",
+      "name": "lsb_comfortable[revised_tt_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "every downward code (0, -8, -16) stays on the operating branch (vref_max in (1.1, 1.3)) at r_lseg_trim=0.5 um",
+      "name": "collapse_free[revised_ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.163124), (-8, 1.182366), (0, 1.201608)] (must strictly increase from -16 toward 0)",
+      "name": "monotonic[revised_ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "downward trim span (code 0..-16) = 38.484 mV, required >= 1.5 x 15.620 mV = 23.430 mV",
+      "name": "range_covers_mc_spread[revised_ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=2.4052 mV/code, required <= 25% of window half-width (3.000 mV) at r_lseg_trim=0.5 um",
+      "name": "lsb_comfortable[revised_ss_3.30v]",
+      "pass": true
+    },
+    {
+      "detail": "every downward code (0, -8, -16) stays on the operating branch (vref_max in (1.1, 1.3)) at r_lseg_trim=0.5 um",
+      "name": "collapse_free[revised_ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.162474), (-8, 1.181716), (0, 1.200959)] (must strictly increase from -16 toward 0)",
+      "name": "monotonic[revised_ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "downward trim span (code 0..-16) = 38.485 mV, required >= 1.5 x 15.620 mV = 23.430 mV",
+      "name": "range_covers_mc_spread[revised_ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=2.4053 mV/code, required <= 25% of window half-width (3.000 mV) at r_lseg_trim=0.5 um",
+      "name": "lsb_comfortable[revised_ff_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "every downward code (0, -8, -16) stays on the operating branch (vref_max in (1.1, 1.3)) at r_lseg_trim=0.5 um",
+      "name": "collapse_free[revised_sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.164198), (-8, 1.183562), (0, 1.202926)] (must strictly increase from -16 toward 0)",
+      "name": "monotonic[revised_sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "downward trim span (code 0..-16) = 38.728 mV, required >= 1.5 x 15.620 mV = 23.430 mV",
+      "name": "range_covers_mc_spread[revised_sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=2.4205 mV/code, required <= 25% of window half-width (3.000 mV) at r_lseg_trim=0.5 um",
+      "name": "lsb_comfortable[revised_sf_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "every downward code (0, -8, -16) stays on the operating branch (vref_max in (1.1, 1.3)) at r_lseg_trim=0.5 um",
+      "name": "collapse_free[revised_fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "vref_27 vs trim_code [(-16, 1.163004), (-8, 1.182226), (0, 1.201449)] (must strictly increase from -16 toward 0)",
+      "name": "monotonic[revised_fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "downward trim span (code 0..-16) = 38.445 mV, required >= 1.5 x 15.620 mV = 23.430 mV",
+      "name": "range_covers_mc_spread[revised_fs_2.97v]",
+      "pass": true
+    },
+    {
+      "detail": "LSB=2.4028 mV/code, required <= 25% of window half-width (3.000 mV) at r_lseg_trim=0.5 um",
+      "name": "lsb_comfortable[revised_fs_2.97v]",
+      "pass": true
+    }
+  ],
+  "configs": {
+    "revised": 0.5,
+    "shipped": 1.0
+  },
+  "determination": "**Re-derived (not re-cited) against the ADOPTED sizing.** All three DR-002 criteria are re-measured against the routed layout's real chained fine-trim topology at `n_r1=7`, `n_r2=50` (issue #99 / PR #105) -- the sizing that actually merged, not the abandoned `n_r1=6`/`n_r2=42` alternative the original issue text (before Curator correction) cited.\n\n**`shipped` config (r_lseg_trim=1.0 um, what is drawn today): DR-002's LSB comfort bound FAILS at 5/5 corners (shipped_tt_3.30v, shipped_ss_3.30v, shipped_ff_2.97v, shipped_sf_2.97v, shipped_fs_2.97v). Monotonic-in-code and downward-span PASS at every corner (matching issue #99's own AC3 spot-check), confirming the third DR-002 criterion -- not previously derived against this adopted sizing -- is the one that does not hold. This is a smaller violation than the abandoned baseline's 3.655-3.682 mV/code (the resized sizing's own trim span is smaller because the untrimmed operating point sits closer to spec center), but it is a real, measured violation of the same <=3.000 mV/code comfort bound, not merely a prior's untested assumption.\n\n**`revised` config (r_lseg_trim=0.5 um, this record's proposed fix): all three DR-002 criteria PASS at every corner**, including the LSB comfort bound the shipped config fails. Halving the fine unit's drawn length shifts the per-code step from the shipped config's fixed-`rhead`-plus-1.0um-`rbody` total down to fixed-`rhead`-plus-0.5um-`rbody` (see the analytic cross-reference table), which is enough margin at every corner (worst corner's LSB stays comfortably under the 3.000 mV/code bound -- see the per-corner checks).\n\n**Recommendation: adopt r_lseg_trim=0.5 um as a DR-002 revision.** `design/bandgap_core.sch`'s `.param r_lseg_trim=1` should move to `0.5`, and DR-002's own 'Range and resolution' section should be revised to record the new per-code LSB against the chained topology. This changes the fine unit's DRAWN length, so `layout/bin/gen_bandgap_routed.py`'s `R_LSEG_TRIM_UM`/`SCH_R_LSEG_TRIM_UM` (and the coarse-count constant that holds the leg length fixed) need re-transcribing and the routed cell needs re-verification through klayout DRC/LVS before the fabricated part matches this decision -- klayout's extraction backend is not importable in this run environment (`python3 -c \"import klayout\"` fails), so that step is a follow-up issue, per the same one-lever-per-increment split issue #99 used for #107/#108 (schematic+sim first, layout regen+DRC/LVS as the next increment).",
+  "git": {
+    "branch": "feature/issue-106",
+    "dirty": true,
+    "sha": "dea0ca5"
+  },
+  "links": {
+    "corners_dir": "sim/trim-lsb-chained/corners/20260806-052035-dea0ca5/",
+    "json": "sim/trim-lsb-chained/records/20260806-052035-dea0ca5.json",
+    "record": "sim/trim-lsb-chained/records/20260806-052035-dea0ca5.md"
+  },
+  "overall_pass": false,
+  "pdk": {
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "lib_file": "/Users/rwalters/.volare/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "variant": "sky130A"
+  },
+  "record_id": "20260806-052035-dea0ca5",
+  "results": {
+    "revised:ff:2.97:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 278.4793,
+      "vref_27": 1.162474,
+      "vref_max": 1.178359,
+      "vref_min": 1.124944
+    },
+    "revised:ff:2.97:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 225.8959,
+      "vref_27": 1.181716,
+      "vref_max": 1.193623,
+      "vref_min": 1.149577
+    },
+    "revised:ff:2.97:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 175.6529,
+      "vref_27": 1.200959,
+      "vref_max": 1.209017,
+      "vref_min": 1.17421
+    },
+    "revised:fs:2.97:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 286.3748,
+      "vref_27": 1.163004,
+      "vref_max": 1.179835,
+      "vref_min": 1.124881
+    },
+    "revised:fs:2.97:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 233.8979,
+      "vref_27": 1.182226,
+      "vref_max": 1.195106,
+      "vref_min": 1.149481
+    },
+    "revised:fs:2.97:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 183.0997,
+      "vref_27": 1.201449,
+      "vref_max": 1.210378,
+      "vref_min": 1.174081
+    },
+    "revised:sf:2.97:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 267.6838,
+      "vref_27": 1.164198,
+      "vref_max": 1.178942,
+      "vref_min": 1.127522
+    },
+    "revised:sf:2.97:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 215.0786,
+      "vref_27": 1.183562,
+      "vref_max": 1.194296,
+      "vref_min": 1.152294
+    },
+    "revised:sf:2.97:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 166.0316,
+      "vref_27": 1.202926,
+      "vref_max": 1.21002,
+      "vref_min": 1.177066
+    },
+    "revised:ss:3.3:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 281.2398,
+      "vref_27": 1.163124,
+      "vref_max": 1.179424,
+      "vref_min": 1.12545
+    },
+    "revised:ss:3.3:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 228.694,
+      "vref_27": 1.182366,
+      "vref_max": 1.194698,
+      "vref_min": 1.150082
+    },
+    "revised:ss:3.3:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 177.9944,
+      "vref_27": 1.201608,
+      "vref_max": 1.210005,
+      "vref_min": 1.174715
+    },
+    "revised:tt:3.3:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 279.8218,
+      "vref_27": 1.162739,
+      "vref_max": 1.178823,
+      "vref_min": 1.125139
+    },
+    "revised:tt:3.3:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 227.2541,
+      "vref_27": 1.181979,
+      "vref_max": 1.19409,
+      "vref_min": 1.149769
+    },
+    "revised:tt:3.3:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 176.7913,
+      "vref_27": 1.201218,
+      "vref_max": 1.209439,
+      "vref_min": 1.174399
+    },
+    "shipped:ff:2.97:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 323.357,
+      "vref_27": 1.147567,
+      "vref_max": 1.166661,
+      "vref_min": 1.105434
+    },
+    "shipped:ff:2.97:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 251.8798,
+      "vref_27": 1.172579,
+      "vref_max": 1.186429,
+      "vref_min": 1.137697
+    },
+    "shipped:ff:2.97:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 183.4403,
+      "vref_27": 1.19759,
+      "vref_max": 1.206207,
+      "vref_min": 1.169959
+    },
+    "shipped:fs:2.97:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 331.1363,
+      "vref_27": 1.14812,
+      "vref_max": 1.168138,
+      "vref_min": 1.105408
+    },
+    "shipped:fs:2.97:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 259.8206,
+      "vref_27": 1.173101,
+      "vref_max": 1.187912,
+      "vref_min": 1.137621
+    },
+    "shipped:fs:2.97:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 191.4779,
+      "vref_27": 1.198083,
+      "vref_max": 1.207686,
+      "vref_min": 1.169834
+    },
+    "shipped:sf:2.97:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 312.5732,
+      "vref_27": 1.149205,
+      "vref_max": 1.167182,
+      "vref_min": 1.107912
+    },
+    "shipped:sf:2.97:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 241.0668,
+      "vref_27": 1.17437,
+      "vref_max": 1.187063,
+      "vref_min": 1.140351
+    },
+    "shipped:sf:2.97:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 173.8188,
+      "vref_27": 1.199536,
+      "vref_max": 1.207193,
+      "vref_min": 1.17279
+    },
+    "shipped:ss:3.3:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 326.0352,
+      "vref_27": 1.148233,
+      "vref_max": 1.167732,
+      "vref_min": 1.105962
+    },
+    "shipped:ss:3.3:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 254.6408,
+      "vref_27": 1.173235,
+      "vref_max": 1.187505,
+      "vref_min": 1.138211
+    },
+    "shipped:ss:3.3:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 186.2236,
+      "vref_27": 1.198237,
+      "vref_max": 1.207279,
+      "vref_min": 1.170461
+    },
+    "shipped:tt:3.3:-16": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 324.6613,
+      "vref_27": 1.147843,
+      "vref_max": 1.167131,
+      "vref_min": 1.105642
+    },
+    "shipped:tt:3.3:-8": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 253.2204,
+      "vref_27": 1.172846,
+      "vref_max": 1.186898,
+      "vref_min": 1.137895
+    },
+    "shipped:tt:3.3:0": {
+      "n_temp_points": 16.0,
+      "tc_ppm": 184.7614,
+      "vref_27": 1.19785,
+      "vref_max": 1.206665,
+      "vref_min": 1.170147
+    }
+  },
+  "sizing": {
+    "n_r1": 7,
+    "n_r2": 50
+  },
+  "supersedes": "",
+  "timestamp": "2026-08-06T05:20:35Z",
+  "tools": {
+    "ngspice": "ngspice-46 : Circuit level simulation program",
+    "platform": "Darwin 25.6.0 arm64",
+    "python": "3.14.6",
+    "xschem": "not found"
+  }
+}
