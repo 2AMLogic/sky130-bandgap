@@ -9,20 +9,25 @@ xschem + ngspice analog flow.
 is underway, and bandgap-core layout is DRC-clean and fully routed — all 12
 of 12 schematic inter-block nets joined across every block they reach,
 extracted PNP/MOS/resistor devices, and 11 correctly promoted top-level
-pins. `klt lvs` is not yet clean (`mismatch_count: 4` against the
-xschem-derived reference netlist), but every remaining cause is disclosed
-and is **not** a connectivity, topology, or routing defect: one
-deliberately-undrawn device (the error amp's compensation cap, single-ended
-by design since issue #15) and the routed R2A/R2B/R1 array's per-instance
-head resistance, which issue #98 confirmed with independent real-SPICE
-evidence is a real, material electrical effect of the layout's own folded
-topology (not an LVS-extraction artifact) — ratified in
-[DR-003](spec/decision-records/DR-003-res-array-head-resistance-sizing.md)
-and tracked for a design-level resize by issue #99 (open); closing the LVS
-comparison itself still needs an upstream `combine_devices` accounting fix,
-filed as
-[klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559)
-(open); see
+pins. `klt lvs` is not yet clean (`mismatch_count: 1` against the
+xschem-derived reference netlist), but the one remaining cause is disclosed
+and is **not** a connectivity, topology, or routing defect: a single
+deliberately-undrawn device, the error amp's compensation cap, single-ended
+by design since issue #15. The routed R2A/R2B/R1 array's per-instance head
+resistance — which issue #98 confirmed with independent real-SPICE evidence
+is a real, material electrical effect of the layout's own folded topology,
+not an LVS-extraction artifact, ratified in
+[DR-003](spec/decision-records/DR-003-res-array-head-resistance-sizing.md) —
+was closed by issue #99's `n_r2` 54 → 50 resize plus issue #108's
+chained-value `reference.spice` convention. An upstream `combine_devices`
+correction
+([klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559),
+closed via [#583](https://github.com/2AMLogic/klayout-tools/pull/583)/[#587](https://github.com/2AMLogic/klayout-tools/pull/587))
+_would_ make `klt lvs` re-report those resistors at the single-device value
+instead; it is picked up in the pinned `klt` build and measured under all
+four accounting variants, and deliberately **not** adopted — doing so takes
+`mismatch_count` back from 1 to 4 and would state a resistance the fabricated
+cell does not have. See
 [`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)
 for the full record. Nothing here has been taped out or measured in
 silicon yet. See the maturity ladder below for where things currently

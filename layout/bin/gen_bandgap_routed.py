@@ -217,6 +217,44 @@ here, relative to that skeleton:
     left), and the composed cell lands at 45,968 um^2 against the
     50,000 um^2 budget, matching the pre-resize figure almost exactly. See
     layout/matching-plan.md Section 7y.
+20. **klayout-tools#559's fix (#583), made reachable by #587, is picked up in
+    the pin and measured -- and deliberately NOT adopted, because adopting it
+    would REGRESS `mismatch_count` 1 -> 4** (issue #62's twenty-eighth
+    increment). #583 defers the `fixed_offset_ohm` correction until after
+    `combine_devices()` folds series primitives, applying it once per
+    *combined* device. #583 alone did not reach this flow's pre-extracted
+    (`{"netlist", "top"}`) request shape, and the reason is worth stating
+    precisely because an earlier draft of this increment got it wrong: it is
+    **not** that `klt lvs` ignores `layout.deck` on that shape. `layout_deck`
+    resolves unconditionally in `run_lvs`, straight from the request dict,
+    independent of layout shape (read directly from klayout-tools'
+    `src/klayout_tools/lvs.py` at the pinned commit). The real cause was a
+    case-sensitivity bug: the post-combine correction keyed its device-class
+    lookup by the deck's lowercase name (`res_high_po`) while a netlist
+    round-tripped through `kdb.NetlistSpiceReader` reports class names
+    UPPERCASED (`RES_HIGH_PO`), so the lookup silently missed. #587 (merged,
+    closes #585/#586) normalizes that lookup case-insensitively and adds
+    `run_extract(apply_resistor_fixed_offset=False)`. With the pin past #587
+    the once-per-combined-device correction is genuinely reachable here.
+    Measured, not asserted, by `layout/bin/measure_fixed_offset_variants.py`,
+    which re-runs `klt lvs` against the shipped record's own drawn `.gds`
+    under all four accounting combinations (evidence under
+    `layout/bandgap-core/fixed-offset-variants/<record-id>/`): the shipped
+    per-primitive/no-deck shape reports `mismatch_count=1` with
+    `devices.matched=15` and every resistor **matched**, while #587's own
+    defer-plus-deck pairing reports `mismatch_count=4`, `devices.matched=12`,
+    and R2A/R2B at 81,586.52 ohm against the reference's 106,267.35. Since
+    item 19 settled `reference.spice` on the CHAINED value -- what this flow's
+    own multi-primitive chain actually sums to -- the shipped accounting is
+    the only variant that agrees with the reference at all, so the deferral is
+    declined as a measured regression, not merely on principle. The principle
+    points the same way: DR-003 (issue #98) ratified, with independent
+    real-SPICE evidence, that this layout physically pays the head/end
+    resistance once per separately-contacted instance, so re-reporting each
+    leg at the single-device value would state a resistance the fabricated
+    cell does not have. The LVS request shape is unchanged; the pin bump moves
+    no gated or recorded number (non-regression re-confirmed against
+    layout/trivial-cell/reports/). See matching-plan Section 7z.
 
 What this script does NOT claim -- read record.md's own "What this record
 does NOT claim" section for the authoritative, measured version:
@@ -664,6 +702,16 @@ RES_TRIM_LENGTH_NOTE = (
 #: this repo's own `res_array`-drawn trim ladder represents one schematic
 #: resistor as many separately-contacted series primitives. Filed as
 #: 2AMLogic/klayout-tools#559.
+#:
+#: Update, issue #62's twenty-eighth increment: the upstream fix for
+#: klayout-tools#559 landed (#583, deferring the correction until after
+#: `combine_devices()` folds) and #587 made it reachable from this flow's own
+#: pre-extracted request shape. Measured under all four accounting variants by
+#: `layout/bin/measure_fixed_offset_variants.py` and deliberately NOT adopted:
+#: since issue #108 settled `reference.spice` on the CHAINED value, the shipped
+#: per-primitive accounting is the only variant that matches, and #587's own
+#: defer-plus-deck pairing would take `mismatch_count` 1 -> 4. See item 20 in
+#: this module's docstring and layout/matching-plan.md Section 7z.
 RES_HEAD_RESISTANCE_NOTE = (
     "2AMLogic/klayout-tools#518 (merged via #519) added `ResistorDevice."
     "fixed_offset_ohm`, a per-instance fixed head/end-resistance term "
@@ -707,7 +755,24 @@ RES_HEAD_RESISTANCE_NOTE = (
     "contacts instead of `res_array`'s discrete unit-per-primitive "
     "geometry, is a `klt gen` capability this repo does not have "
     "(`res_array` has no continuous-body-with-taps mode). Filed as "
-    "friction: 2AMLogic/klayout-tools#559."
+    "friction: 2AMLogic/klayout-tools#559.\n\n"
+    "Update, issue #62's twenty-eighth increment: #559 closed upstream via "
+    "2AMLogic/klayout-tools#583, which defers the fixed-offset correction "
+    "until after `combine_devices()` folds the series chain and applies it "
+    "once per combined device, and #587 (closes #585/#586) made that "
+    "correction reachable from this flow's own pre-extracted `{netlist, "
+    "top}` request shape -- not, as an earlier draft of that increment "
+    "wrongly claimed, because `klt lvs` ignores `layout.deck` on that shape "
+    "(`layout_deck` resolves unconditionally in `run_lvs`), but because the "
+    "post-combine lookup keyed its device class case-sensitively "
+    "(`res_high_po`) while a `kdb.NetlistSpiceReader` round-trip reports it "
+    "UPPERCASED (`RES_HIGH_PO`). Measured under all four accounting "
+    "variants by `layout/bin/measure_fixed_offset_variants.py` and "
+    "deliberately NOT adopted: since issue #108 settled `reference.spice` on "
+    "the CHAINED value, the shipped per-primitive accounting is the only "
+    "variant that matches, and #587's own defer-plus-deck pairing would take "
+    "`mismatch_count` 1 -> 4 and `devices.matched` 15 -> 12. See "
+    "layout/matching-plan.md Section 7z."
 )
 #: Why n_r2 (and only n_r2) moved from 54 to 50, and why this file's own
 #: drawn decomposition had to follow it. Not a layout-side finding --
@@ -4326,6 +4391,21 @@ def main() -> int:
     (out_dir / reference_name).write_text(args.reference.read_text())
 
     def run_lvs(tag: str, combine: bool, from_netlist: bool = False) -> dict[str, Any]:
+        # The pre-extracted (`from_netlist`) shape reads the once-per-primitive
+        # `{cell}.extract.spice` and deliberately does NOT name `layout.deck`.
+        # Naming the deck here would make `klt lvs` apply the resistor
+        # `fixed_offset_ohm` correction once per post-combine device instead
+        # (klayout-tools#559/#585/#586 via #583/#587). Measured under all four
+        # accounting variants by layout/bin/measure_fixed_offset_variants.py:
+        # doing so is a REGRESSION here, `mismatch_count` 1 -> 4 and
+        # `devices.matched` 15 -> 12, because `reference.spice` states the
+        # CHAINED value this flow's own multi-primitive decomposition sums to
+        # (issue #108) -- and because DR-003 ratified, with independent
+        # real-SPICE evidence, that the chained array physically pays the
+        # head/end resistance once per separately-contacted instance, so the
+        # once-per-device value would state a resistance the fabricated cell
+        # does not have. See RES_HEAD_RESISTANCE_NOTE, DR-003 and
+        # layout/matching-plan.md Section 7z.
         layout_spec: dict[str, Any] = (
             {"netlist": f"{cell}.extract.spice", "top": cell}
             if from_netlist
@@ -4516,8 +4596,31 @@ def main() -> int:
         "charged once per drawn primitive, not once per logical device, "
         "so `combine_devices` folding a caller's own multi-primitive series "
         "decomposition (this flow's trim-tap ladder) sums it once per "
-        "primitive instead of once for the schematic-level device. See "
-        "RES_HEAD_RESISTANCE_NOTE |"
+        "primitive instead of once for the schematic-level device. **This "
+        "(twenty-eighth) increment bumps the klt pin past #583 (which closed "
+        "#559 by deferring that correction until after `combine_devices()` "
+        "folds) and #587 (which made the deferral reachable from this flow's "
+        "own pre-extracted request shape, closing #585/#586 -- the real "
+        "blocker was a case-sensitive device-class lookup that missed the "
+        "`NetlistSpiceReader`-uppercased `RES_HIGH_PO` name, NOT "
+        "`layout.deck` being ignored on that shape: `layout_deck` resolves "
+        "unconditionally in `run_lvs`).** The once-per-combined-device "
+        "correction is therefore reachable now, and is measured with "
+        "`layout/bin/measure_fixed_offset_variants.py` across all four "
+        "accounting combinations (`layout/bandgap-core/"
+        "fixed-offset-variants/<record-id>/`). It is **deliberately NOT "
+        "adopted**, and at this repo's current state adopting it would be a "
+        "measured REGRESSION rather than a neutral choice: since issue #108 "
+        "settled `reference.spice` on the CHAINED value this flow's own "
+        "multi-primitive decomposition sums to, the shipped per-primitive "
+        "accounting is the only variant that matches at all -- #587's own "
+        "defer-plus-deck pairing takes `mismatch_count` 1 -> 4 and "
+        "`devices.matched` 15 -> 12. DR-003's ratified finding points the "
+        "same way: this layout physically pays the head resistance once per "
+        "separately-contacted instance, so re-reporting each leg at the "
+        "single-device value would state a resistance the fabricated cell "
+        "does not have. See RES_HEAD_RESISTANCE_NOTE, DR-003 and "
+        "layout/matching-plan.md Section 7z |"
     )
     a("")
     a(f"- [{'x' if drc_clean else ' '}] DRC on the composed, routed layout is clean")
