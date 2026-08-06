@@ -3000,6 +3000,124 @@ closed LVS" into a record where the resize's actual electrical effect
 (Section 7x) is unrelated to which resistor value convention the reference
 states.
 
+### 7z. Twenty-eighth increment: `klt` pin bumped past klayout-tools#583/#587 -- the once-per-combined-device correction is now reachable, measured under all four accounting variants, and deliberately NOT adopted (adopting it would REGRESS `mismatch_count` 1 -> 4)
+
+No generator, gate, router or LVS-request logic changes this increment. The
+only functional diff is the `klt` pin (`39bdbc4` -> `acb0ae6`) plus a new
+read-only measurement harness, `layout/bin/measure_fixed_offset_variants.py`.
+
+**What the two upstream PRs are.**
+[klayout-tools#583](https://github.com/2AMLogic/klayout-tools/pull/583)
+(merged 2026-08-05, closes
+[#559](https://github.com/2AMLogic/klayout-tools/issues/559), which Section 7u
+filed) defers `res_high_po`'s `fixed_offset_ohm` head/end term until *after*
+`Netlist.combine_devices()` folds a series chain, applying it once per
+surviving combined device instead of once per drawn primitive.
+[klayout-tools#587](https://github.com/2AMLogic/klayout-tools/pull/587)
+(merged, closes #585/#586) then made that deferral usable from this flow's own
+request shape, by (1) matching the deck's resistor device-class name
+**case-insensitively** and (2) adding
+`run_extract(..., apply_resistor_fixed_offset=False)` so a caller can defer at
+extraction time.
+
+**A wrong diagnosis, corrected before it shipped.** An earlier draft of this
+increment claimed `klt lvs`'s `_resolve_layout` "silently ignores
+`layout.deck`" on the pre-extracted (`{netlist, top}`) request shape, and that
+this was why #583 alone did not reach this flow. That claim is **factually
+wrong** and is recorded here only so the mistake is not repeated. Read
+directly from `src/klayout_tools/lvs.py` at the pinned commit:
+
+```python
+layout_deck_name = layout_spec.get("deck")
+layout_deck = get_extraction_deck(layout_deck_name) if layout_deck_name else None
+```
+
+`layout_deck` resolves **unconditionally** inside `run_lvs`, straight from the
+request dict, independent of which layout shape the caller used -- it is not
+gated behind any `layout.file` / inline-extraction branch. The real reason
+#583 alone did not reach this flow was #587's own bug: the post-combine
+correction looked its device class up by the deck's lowercase name
+(`res_high_po`), while a netlist round-tripped through
+`kdb.NetlistSpiceReader` -- exactly the pre-extracted form this flow feeds
+`klt lvs` -- reports class names UPPERCASED (`RES_HIGH_PO`), so the lookup
+silently missed. That is visible in this repo's own records: a pre-#587
+`lvs.json` carries both spellings. The wrong-diagnosis draft was never merged;
+the sections it would have added are not in this document, and no record in
+`layout/bandgap-core/reports/` states it.
+
+**Measured, not asserted: all four accounting combinations.**
+`layout/bin/measure_fixed_offset_variants.py` reads a shipped record's own
+drawn `.gds` and re-runs `klt lvs` under each combination of "defer at
+extraction?" x "pass `layout.deck` to `klt lvs`?". Evidence:
+`layout/bandgap-core/fixed-offset-variants/<record-id>/` (`variants.json`
+plus its rendered `record.md`). At this increment's record:
+
+| variant | extraction offset | `layout.deck` | `mismatch_count` | `devices.matched` | R2A/R2B `r` (ohm) | R1 `r` (ohm) |
+| --- | --- | --- | --- | --- | --- | --- |
+| `primary_nodeck` (**the shipped flow**) | per primitive | absent | **1** | 15 | matched | matched |
+| `primary_deck` | per primitive | `sky130` | 4 | 12 | 106,647.055849 | 14,406.594716 |
+| `deferred_nodeck` | deferred | absent | 4 | 12 | 81,206.811000 | 11,368.953540 |
+| `deferred_deck` (**#587's intended pairing**) | deferred | `sky130` | 4 | 12 | 81,586.516147 | 11,748.658687 |
+
+Reference-side values, identical in every variant: `R2A`/`R2B` = 106,267.35,
+`R1` = 14,026.89 ohm.
+
+**The verdict changed since the wrong-diagnosis draft, and it changed against
+adoption.** Before issue #108 (Section 7y) settled `reference.spice` on the
+CHAINED value, every variant reported `mismatch_count = 4` and the deferral
+was merely *neutral*. Now that the reference states the value this flow's own
+multi-primitive chain actually sums to, the shipped per-primitive accounting
+is the **only** variant that matches at all: adopting #587's deferral would
+take `mismatch_count` **1 -> 4** and `devices.matched` **15 -> 12**, putting
+the three resistor `device.property` findings back. So the deferral is not
+declined on a philosophical objection alone -- it is declined because it is a
+measured regression on this flow's own record.
+
+The design argument points the same way and is the more durable one: DR-003
+(issue #98) ratified, with independent real-SPICE evidence (Section 7v), that
+this layout physically pays the head/end term once per separately contacted
+instance. Re-reporting each leg at the single-device value would state a
+resistance the fabricated cell does not have.
+
+**`klt` pin held at `acb0ae6`, deliberately, and not floated to tip.** Per
+this repo's own deliberate-bump discipline (`layout/requirements.txt`),
+`acb0ae6` is #587's own merge commit -- the exact commit every number above
+was measured against. Upstream `main` has since moved on (`71d46d0`, a loom
+housekeeping resync; `162a258`, #590, which exposes
+`--defer-resistor-fixed-offset` on the `klt extract` **CLI**; `6fdd38f`, #591,
+`options.parameter_tolerance`). None is picked up: #590 threads a CLI flag
+onto the `run_extract` Python parameter this harness already calls directly,
+and #591's tolerance option is a comparison-loosening knob -- adopting it to
+move an LVS number would be exactly the relax-to-pass this repo's `CLAUDE.md`
+refuses, so it is noted here as available-and-declined rather than picked up
+silently.
+
+**Fresh routed-flow record at the new pin**: DRC clean (0), met2 DRC clean
+(0), composed bbox 45,968 um^2 (< 50,000 um^2 budget), `device_counts` =
+`{"nfet": 16, "pfet": 52, "pnp": 16, "res_high_po": 139}`, `pin_count = 11`,
+`mismatch_count = 1` (`{"device.unmatched": 1}` -- `MMCC` only),
+`devices.matched = 15`. Identical in every gated and recorded number to the
+pre-bump record on `main`: the bump is confirmed non-regressing rather than
+assumed to be.
+
+#### Scoreboard after this increment
+
+| AC | before (7y) | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET, `n_r2=50` | unchanged |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, `mismatch_count=1` | NOT MET, `mismatch_count=1` -- re-measured at the new pin, not carried over. The remaining 1 is `MMCC`; the upstream tool fix that could have touched the resistors is now reachable, measured, and shown to be a regression here |
+| 5 (blocking gaps filed) | MET | unchanged (klayout-tools#559/#585/#586 all closed upstream; no new blocking gap -- the `klt extract` CLI's missing deferral flag, noted while writing the harness, closed upstream as #588 -> #590 before this increment shipped) |
+
+**Suggested next increment**: there is no upstream `klt` lever left on AC4 --
+every gap this flow filed as blocking is closed, and the one remaining
+mismatch (`MMCC`, the deliberately-undrawn compensation cap) is a scope
+decision about this repo's own single-ended layout, not a tool gap or a
+transcription question. Either draw `MCC` (and re-budget the area) or record
+the omission as a permanent, accepted deviation in the record's own
+acceptance-criteria table; both are decisions, not increments.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five

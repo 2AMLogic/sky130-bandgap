@@ -365,6 +365,41 @@ value issue #99's own resize was PVT-verified against. See
 `layout/bandgap-core/reference.spice`'s own RESISTOR VALUE CONVENTION note
 and `layout/matching-plan.md` Section 7y.
 
+**The upstream tool fix for that cause now exists, is reachable, and is
+deliberately not adopted — because adopting it would put the cause back.**
+[klayout-tools#583](https://github.com/2AMLogic/klayout-tools/pull/583)
+(closing #559) defers the `fixed_offset_ohm` correction until after
+`combine_devices()` folds a series chain, applying it once per combined
+device, and
+[klayout-tools#587](https://github.com/2AMLogic/klayout-tools/pull/587)
+(closing #585/#586) made that deferral reachable from this flow's own
+pre-extracted (`{netlist, top}`) request shape. The reason #583 alone did not
+reach it is worth stating precisely, because an earlier draft of this
+increment got it wrong: `klt lvs` does **not** ignore `layout.deck` on the
+pre-extracted shape — `layout_deck` resolves unconditionally inside
+`run_lvs`, straight from the request dict. The real blocker was a
+case-sensitivity bug, fixed by #587: the post-combine correction looked its
+device class up by the deck's lowercase name (`res_high_po`) while a netlist
+round-tripped through `kdb.NetlistSpiceReader` reports it uppercased
+(`RES_HIGH_PO`).
+
+`layout/bin/measure_fixed_offset_variants.py` re-runs `klt lvs` against the
+shipped record's own drawn `.gds` under all four accounting combinations and
+writes the evidence to
+`layout/bandgap-core/fixed-offset-variants/<record-id>/`. At the shipped
+record: the flow's own per-primitive/no-deck shape reports
+`mismatch_count=1` with `devices.matched=15` and every resistor matched,
+while #587's intended defer-plus-deck pairing reports `mismatch_count=4`,
+`devices.matched=12`, and `R2A`/`R2B` at 81,586.52 Ω against the reference's
+106,267.35 Ω. Since `reference.spice` now states the chained value the
+layout's own decomposition sums to, the shipped accounting is the only one
+that agrees with it — so the deferral is declined as a measured regression,
+not merely on principle. The principle agrees anyway: DR-003 ratified that
+this layout physically pays the head resistance once per separately contacted
+instance, so re-reporting each leg at the single-device value would state a
+resistance the fabricated cell does not have. See
+`layout/matching-plan.md` Section 7z.
+
 **The underlying real-electrical finding behind that cause is still true and
 is why the resize happened at all — issue #98 confirmed it is real and
 material, independent of the LVS numbers themselves.** A standalone SPICE

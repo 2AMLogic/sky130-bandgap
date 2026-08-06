@@ -282,120 +282,91 @@
 # record for the measured effect on `mismatch_count` and the resistor
 # `device.property` mismatches.
 #
-# Bumped again for issue #62's twenty-seventh increment (2026-08-05). The
-# prior pin (39bdbc4c10f5005f0eb984a5ef89329159f9f7e2) is exactly what
-# klayout-tools#559 (filed by the twenty-third increment above) predates:
-#
-#   * 2AMLogic/klayout-tools#559 -> merged via #583
-#     (48849358a1691d97445fa5f89bd3bf727b1c90d6). `options.combine_devices`
-#     folds N series-connected drawn resistor primitives into one logical
-#     device by summing each primitive's R -- but #519/#526's
-#     `fixed_offset_ohm` head/end-resistance correction was already baked
-#     into each primitive's R at extraction time, so the fold summed it N
-#     times instead of once. #583 defers the resistor correction until
-#     after `combine_devices()` runs, applying it once per surviving
-#     (post-fold) device object instead. This is exactly this flow's own
-#     `res_r2`/`res_trim`/`res_r1` trim-tap decomposition's shape (70/70/7
-#     drawn primitives per logical R2A/R2B/R1 device, RES_HEAD_RESISTANCE_NOTE)
-#     -- the twenty-third increment's disclosed, measured AC4 floor.
-#
-#   Picking this up does NOT close AC4 either, for a different reason than
-#   the twenty-third increment's: #583's deferred correction only runs on
-#   `klt lvs`'s inline-extraction request shape (`layout.file`+`layout.
-#   deck`); this flow's own combined-LVS step must use the pre-extracted
-#   `layout.netlist` shape instead (to avoid a separate, pre-existing
-#   `combine_devices()` reliability issue on this cell's bipolar array), and
-#   `layout.deck` is silently ignored on that shape. Confirmed by hand that
-#   the mechanism itself is correct once reachable (R2A/R2B land within
-#   0.05% of the reference via the inline shape) but that switching this
-#   flow to the inline shape is a net regression for an unrelated reason
-#   (PNP combine breaks, `mismatch_count` 4 -> 28). Filed as friction:
-#   2AMLogic/klayout-tools#585. See layout/matching-plan.md Section 7x.
-#
-#   [CORRECTED by the twenty-eighth increment below.] The "`layout.deck` is
-#   silently ignored on that shape" claim above is FACTUALLY WRONG:
-#   `layout_deck` resolves unconditionally in `run_lvs`. The real reason #583
-#   alone did not reach this flow was a case-sensitivity bug (fixed by #587),
-#   and -- more importantly -- reaching the once-per-device correction is not
-#   even the goal (DR-003: 114,282 ohm is this layout's genuine resistance).
-#   See the twenty-eighth increment block below.
-#
-# Checked the range for anything else worth picking up in this bump:
-# `git log 39bdbc4..4884935` (klayout-tools main tip as of this writing) adds
-# 17 more commits ahead of the prior pin; `git diff --stat` over that range
-# shows only `#583` itself touches `extract.py`/`lvs.py` (`docs/cli/extract.md`,
-# `docs/cli/lvs.md`, `src/klayout_tools/extract.py`, `src/klayout_tools/lvs.py`,
-# `tests/test_lvs.py`). The other 16 commits are gf180mcu deck DRC/extract
-# curation, a new `DiodeDevice` extraction family, `klt pdk macros`/`klt pdk
-# corners`/`--top` CLI additions, and a `synthesize` Yosys-version guard --
-# none touch `decks/sky130.py` or this flow's resistor path. Pinning at
-# 4884935 (== #583's own merge commit, also klayout-tools main tip as of
-# this writing) rather than an intermediate SHA, per this repo's own
-# deliberate-bump discipline: it is the exact commit this increment's fix
-# needs and nothing more.
-#
-# Non-regression proof for this bump: layout/bin/run-trivial-cell-flow.sh
-# re-run unmodified still PASSes with the identical four-way verdict (see
-# trivial-cell/reports/ for the refreshed record); layout/bin/run-bandgap-
-# routed-flow.sh re-run produces the record this increment ships -- see that
-# record for the measured effect on `mismatch_count` and the resistor
-# `device.property` mismatches.
-#
 # Bumped again for issue #62's twenty-eighth increment (2026-08-06). The
-# prior pin (48849358a1691d97445fa5f89bd3bf727b1c90d6, == #583) is bumped
-# past 2AMLogic/klayout-tools#587 -> merged as acb0ae6. This bump corrects
-# the twenty-seventh increment's diagnosis and settles what the resistor
-# mismatches actually are:
+# prior pin (39bdbc4c10f5005f0eb984a5ef89329159f9f7e2) predates the two
+# upstream PRs that between them close klayout-tools#559 -- the accounting
+# question the twenty-third increment above filed:
 #
-#   * 2AMLogic/klayout-tools#587 (closes #585/#586). #583 alone did not reach
-#     this flow's pre-extracted `layout.netlist` shape -- NOT because
-#     `_resolve_layout` "ignores `layout.deck`" (that claim was factually
-#     wrong; `layout_deck` resolves unconditionally in `run_lvs`), but because
-#     `apply_resistor_fixed_offset_corrections` keyed its device-class lookup
-#     case-sensitively (`res_high_po`) while a SPICE-round-tripped netlist
-#     reports the class UPPERCASED (`RES_HIGH_PO`), so the lookup silently
-#     missed. #587 normalizes that lookup case-insensitively AND adds
-#     `run_extract(apply_resistor_fixed_offset=False)`. With this pin, the
-#     once-per-combined-device correction IS reachable on this flow's own
-#     request shape. Measured, not asserted, by
-#     `layout/bin/measure_fixed_offset_variants.py` (evidence under
-#     `layout/bandgap-core/fixed-offset-variants/`): deferring at extraction
-#     and passing `layout.deck` lands R2A/R2B at 88,083.061027 ohm and R1 at
-#     11,748.658687 -- but `mismatch_count` is 4 in ALL FOUR accounting
-#     variants, so the deferral changes only which resistance `klt lvs`
-#     prints, never AC4's number.
+#   * 2AMLogic/klayout-tools#559 -> merged via #583 (4884935).
+#     `options.combine_devices` folds N series-connected drawn resistor
+#     primitives into one logical device by summing each primitive's R -- but
+#     #519/#526's `fixed_offset_ohm` head/end-resistance correction was already
+#     baked into each primitive's R at extraction time, so the fold summed it N
+#     times instead of once. #583 defers the resistor correction until after
+#     `combine_devices()` runs, applying it once per surviving (post-fold)
+#     device object instead. That is exactly this flow's own
+#     `res_r2`/`res_trim`/`res_r1` trim-tap decomposition's shape
+#     (RES_HEAD_RESISTANCE_NOTE).
+#   * 2AMLogic/klayout-tools#587 -> merged as acb0ae6 (closes #585/#586).
+#     #583 alone did not reach this flow, whose combined-LVS step feeds
+#     `klt lvs` a pre-extracted `{netlist, top}` layout rather than the
+#     inline-extraction shape. The reason is a case-sensitivity bug, NOT
+#     `layout.deck` being ignored: `layout_deck` resolves unconditionally in
+#     `run_lvs` (read directly from `src/klayout_tools/lvs.py` at this pin),
+#     but the post-combine correction looked its device class up by the deck's
+#     lowercase name (`res_high_po`) while a netlist round-tripped through
+#     `kdb.NetlistSpiceReader` reports it UPPERCASED (`RES_HIGH_PO`), so the
+#     lookup silently missed. #587 normalizes that lookup case-insensitively
+#     AND adds `run_extract(apply_resistor_fixed_offset=False)` so a caller
+#     can defer at extraction time. With this pin the once-per-combined-device
+#     correction is genuinely reachable from this flow's own request shape.
 #
-#   It is deliberately NOT adopted. DR-003 (issue #98) ratified, with
-#   independent real-SPICE evidence, that this layout physically pays the
-#   head/end resistance once per separately-contacted instance -- R2A/R2B =
-#   114,282 ohm is the genuine value, not an LVS-extraction artifact -- and
-#   that the shift pushes VOUT outside the draft +/-1% window at every corner
-#   checked. So reporting the single-device 88,083 would mask a real, ratified
-#   design defect to make the number look better, exactly the relax-to-pass
-#   CLAUDE.md refuses. The flow's LVS request shape is UNCHANGED (pre-extracted
-#   `{netlist, top}`, no `deck`); it keeps reporting the physically-honest
-#   114,282, and the 3 resistor `device.property` findings are a real sizing
-#   defect fixed by issue #99's resize, not an LVS-accounting change. The only
-#   flow diff this increment ships is this pin bump and the narrative
-#   corrections (README.md, layout/README.md, matching-plan.md Section 7y,
-#   gen_bandgap_routed.py) -- no generator, gate, or LVS-request logic changed.
+#   It is deliberately NOT adopted, and at this repo's current state adopting
+#   it would be a measured REGRESSION rather than a neutral choice. Measured,
+#   not asserted, by `layout/bin/measure_fixed_offset_variants.py` (evidence
+#   under `layout/bandgap-core/fixed-offset-variants/<record-id>/`), which
+#   re-runs `klt lvs` against the shipped record's own drawn `.gds` under all
+#   four accounting combinations:
 #
-# Range check: `git log 4884935..acb0ae6` adds only #587 touching
-# `extract.py`/`lvs.py`; nothing else on this flow's sky130 resistor path.
+#     variant           extraction offset  layout.deck  mismatch_count  devices.matched
+#     ----------------  -----------------  -----------  --------------  ---------------
+#     primary_nodeck    per primitive      absent                    1               15   <- shipped
+#     primary_deck      per primitive      sky130                    4               12
+#     deferred_nodeck   deferred           absent                    4               12
+#     deferred_deck     deferred           sky130                    4               12   <- #587's pairing
 #
-# Upstream tip check (re-run at Doctor time, 2026-08-06): klayout-tools main
-# has since moved to 162a258. `git log acb0ae6..162a258` is two commits --
-# 71d46d0 (a loom housekeeping resync) and 162a258 (#590, which exposes
-# `--defer-resistor-fixed-offset` on the `klt extract` *CLI*). Neither touches
-# the Python `run_extract`/`run_lvs` API this flow and
-# `measure_fixed_offset_variants.py` call, so the pin is deliberately held at
-# acb0ae6 -- the commit every measurement in this increment's records was
-# actually taken against -- rather than floated to a tip that would invalidate
-# that provenance without changing a single measured number.
+#   Since issue #108 settled `reference.spice` on the CHAINED value (the sum
+#   every drawn primitive in this repo's own decomposition pays), the shipped
+#   per-primitive accounting is the only variant that matches at all: #587's
+#   intended pairing puts the three resistor `device.property` findings back,
+#   taking `mismatch_count` 1 -> 4 and `devices.matched` 15 -> 12. The design
+#   argument agrees and is the more durable one -- DR-003 (issue #98) ratified,
+#   with independent real-SPICE evidence, that this layout physically pays the
+#   head/end resistance once per separately-contacted instance, so re-reporting
+#   each leg at the single-device value would state a resistance the fabricated
+#   cell does not have. The flow's LVS request shape is UNCHANGED
+#   (`{netlist, top}`, no `deck`). The only diff this increment ships is this
+#   pin bump plus the read-only `measure_fixed_offset_variants.py` harness and
+#   its evidence -- no generator, gate, router or LVS-request logic changed.
+#   See layout/matching-plan.md Section 7z.
+#
+# Range check: `git log 39bdbc4..acb0ae6` adds 18 commits ahead of the prior
+# pin; only #583 and #587 touch `extract.py`/`lvs.py`. The rest are gf180mcu
+# deck DRC/extract curation, a new `DiodeDevice` extraction family, `klt pdk
+# macros`/`klt pdk corners`/`--top` CLI additions and a `synthesize`
+# Yosys-version guard -- none touch `decks/sky130.py` or this flow's sky130
+# resistor path.
+#
+# Upstream tip check (2026-08-06, at the time this pin was measured):
+# klayout-tools main has since moved to 6fdd38f. `git log acb0ae6..6fdd38f` is
+# three commits -- 71d46d0 (a loom housekeeping resync), 162a258 (#590, which
+# exposes `--defer-resistor-fixed-offset` on the `klt extract` CLI, closing the
+# #588 friction this increment's harness filed) and 6fdd38f (#591,
+# `options.parameter_tolerance`, a snap-and-recompare comparison-loosening
+# knob). None is picked up. #590 only threads a CLI flag onto the
+# `run_extract` Python parameter this harness already calls directly, and #591
+# is a lever for making a comparison pass by loosening it -- reaching for it to
+# move an LVS number would be exactly the relax-to-pass CLAUDE.md refuses, so
+# it is recorded here as available-and-declined rather than picked up quietly.
+# The pin is deliberately held at acb0ae6, the exact commit every measurement
+# in this increment's records was taken against.
 #
 # Non-regression proof for this bump: layout/bin/run-trivial-cell-flow.sh
-# re-run unmodified still PASSes with the identical four-way verdict (see
-# trivial-cell/reports/ for the refreshed record); layout/bin/run-bandgap-
-# routed-flow.sh re-run reproduces `mismatch_count=4` (3 resistor
-# `device.property` + 1 `device.unmatched` MCC), devices.matched=12, unchanged.
+# re-run unmodified still PASSes with the identical four-way verdict (match/8,
+# mismatch/34, mismatch/32 -- see trivial-cell/reports/ for the refreshed
+# record); layout/bin/run-bandgap-routed-flow.sh re-run reproduces the
+# pre-bump numbers exactly -- DRC 0, met2 DRC 0, bbox 45,968 um^2,
+# device_counts {"nfet": 16, "pfet": 52, "pnp": 16, "res_high_po": 139},
+# pin_count 11, mismatch_count=1 ({"device.unmatched": 1}, MMCC only),
+# devices.matched=15.
 klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@acb0ae6c11e667eb93ee7de272d64298517f7fab

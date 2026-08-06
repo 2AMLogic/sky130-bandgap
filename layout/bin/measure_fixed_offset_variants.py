@@ -201,15 +201,69 @@ def _render_record(payload: dict[str, Any]) -> str:
         "",
         "## Conclusion recorded by this run",
         "",
-        f"`mismatch_count` is **{payload['mismatch_counts_summary']}** across the four",
-        "variants, so the deferral is not a lever on issue #62's AC4 number at all.",
-        "Adopting it would only change *which* resistance `klt lvs` prints, trading",
-        "the folded array's physically real value (DR-003, issue #98) for the",
-        "single-device one, with no gate benefit. See `layout/matching-plan.md`",
-        "Section 7y.",
+        *_conclusion_lines(payload),
         "",
     ]
     return "\n".join(lines)
+
+
+def _conclusion_lines(payload: dict[str, Any]) -> list[str]:
+    """Render the conclusion from THIS run's numbers, not a fixed narrative.
+
+    The measured verdict has changed once already (issue #108's chained-value
+    `reference.spice` convention turned "no variant is a lever" into "only the
+    shipped variant matches"), so the prose is derived rather than asserted --
+    a future re-run that moves the numbers again cannot leave a stale claim
+    behind.
+    """
+    rows = payload["variants"]
+    by_label = {row["variant"]: row for row in rows}
+    shipped = by_label.get("primary_nodeck", {})
+    deferred = by_label.get("deferred_deck", {})
+    shipped_n = shipped.get("mismatch_count")
+    deferred_n = deferred.get("mismatch_count")
+    lines = [
+        f"`mismatch_count` is **{payload['mismatch_counts_summary']}** across the four",
+        f"variants: the shipped `primary_nodeck` shape reports **{shipped_n}** "
+        f"(`devices.matched` = {shipped.get('devices_matched')}), and",
+        f"klayout-tools#587's own `deferred_deck` pairing reports **{deferred_n}** "
+        f"(`devices.matched` = {deferred.get('devices_matched')}).",
+    ]
+    if shipped_n is not None and deferred_n is not None:
+        if deferred_n > shipped_n:
+            lines += [
+                "",
+                "Adopting the deferral would therefore be a **regression**, not a fix:",
+                "`reference.spice` states the CHAINED value (the sum every drawn",
+                "primitive in this repo's own decomposition pays -- issue #108,",
+                "matching-plan Section 7y), which is exactly what the shipped",
+                "per-primitive accounting sums the layout side to. Deferring makes the",
+                "layout report the single-device value instead, which no longer agrees",
+                "with the reference, so the resistor `device.property` mismatches come",
+                "back.",
+            ]
+        elif deferred_n == shipped_n:
+            lines += [
+                "",
+                "The deferral is not a lever on issue #62's AC4 number: adopting it",
+                "would change only *which* resistance `klt lvs` prints.",
+            ]
+        else:
+            lines += [
+                "",
+                "The deferral REDUCES the mismatch count -- re-read DR-003 (issue #98)",
+                "before adopting it: a lower count reached by re-reporting the folded",
+                "array at the single-device value would mask the ratified-real head",
+                "resistance rather than fix it.",
+            ]
+    lines += [
+        "",
+        "Either way the choice is a design question, not a tooling one: DR-003",
+        "(issue #98) ratified with independent real-SPICE evidence that this layout",
+        "physically pays the head/end term once per separately contacted instance.",
+        "See `layout/matching-plan.md` Section 7z.",
+    ]
+    return lines
 
 
 def main(argv: list[str] | None = None) -> int:
