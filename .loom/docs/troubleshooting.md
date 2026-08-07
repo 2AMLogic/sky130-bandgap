@@ -346,6 +346,52 @@ git -C <target> stash list | grep loom-install   # changes the installer stashed
 tail -f ~/.loom/daemon.log
 ```
 
+### An agent keeps repeating behaviour a merged fix already removed (stale dispatch checkout)
+
+> Repo-local section (2AMLogic/sky130-bandgap#117). `.loom/docs/` is rewritten
+> by every Loom upgrade, so the durable copy of this finding — with the full
+> evidence trail — lives at [`docs/loom-agent-host-hygiene.md`](../../docs/loom-agent-host-hygiene.md).
+
+**Symptom**: an agent role does something a merged change was supposed to
+stop. Concretely on PR #114: the Judge posted **10 fallback-mode review
+comments** for one unchanged head SHA over ~6 hours, even though
+`.loom/scripts/judge-fallback-guard.sh` — which SHA-dedups exactly this — had
+already merged two days earlier.
+
+**Cause**: the workspace the daemon dispatches from was 33 commits behind
+`origin/main`. The guard script was not on disk, and
+`.claude/commands/loom/judge.md` on that host still carried the pre-guard
+fallback-queue decision tree. Loom's slash commands are read **from the
+workspace at dispatch time**, so every Judge on that host faithfully executed
+the old rules.
+
+**This is install lag, not session lag.** Restarting the agent, the tmux
+pool, or the daemon fixes nothing on its own — a fresh session re-reads the
+same stale file. Only advancing the checkout does.
+
+```bash
+# 1. How far behind is this dispatch host? (right-hand number = missing commits)
+git -C <workspace> fetch origin main -q
+git -C <workspace> rev-list --left-right --count HEAD...origin/main
+
+# 2. Does the role prompt the agent will actually read know about the guard?
+grep -c judge-fallback-guard <workspace>/.claude/commands/loom/judge.md   # 0 => stale
+ls <workspace>/.loom/scripts/judge-fallback-guard.sh                      # missing => stale
+
+# 3. Fix: advance the checkout (then re-run the Loom install if the upgrade
+#    touched installed surfaces), and only then restart agents.
+git -C <workspace> pull --ff-only origin main
+```
+
+Check `~/.claude/commands/loom/` too — if a user-scope copy exists it wins
+over the workspace copy, and it needs refreshing separately.
+
+**Forensic tip**: when one Loom comment on a PR follows a convention and the
+rest do not, compare the comment **authors**. On PR #114 the single
+convention-following comment came from `loom-fleet-dispatch` (an up-to-date
+host) and the nine others from `rjwalters` (the stale host's `gh` identity) —
+that split localized the problem to one host before any code was read.
+
 ### Claude Code not found
 
 ```bash
