@@ -370,6 +370,63 @@ assert_eq "0" "$RC" "(j2) stderr on BOTH calls, cap not reached -> exit 0"
 assert_eq "EVALUATE" "$(get_field "$OUT" DECISION)" "(j2) DECISION=EVALUATE with stderr on both calls"
 assert_eq "1" "$(get_field "$OUT" MARKER_COUNT)" "(j2) MARKER_COUNT=1 counted correctly despite dual stderr"
 
+# (k) Marker-regex strictness: a fallback-mode comment that carries a
+#     PROSE-ONLY HTML comment instead of the canonical marker must NOT be
+#     counted toward MARKER_COUNT and must NOT satisfy the SHA dedup.
+#
+#     Regression pin for 2AMLogic/sky130-bandgap#117: PR #114 accumulated
+#     nine fallback-mode Judge comments, four of which carried the
+#     non-canonical variant reproduced verbatim below
+#     (`<!-- Evaluated in fallback mode: ... -->` — prose, no `sha=`). Only
+#     the single canonical marker may register, so the guard's decision must
+#     be driven by that one marker alone. Counting the prose variant would
+#     be strictly worse in both directions: it would inflate MARKER_COUNT
+#     toward the lifetime cap without recording any SHA, and (if it were
+#     ever loosened into the `capture(...)` path) it would have no SHA to
+#     compare against the head.
+reset_state
+HEAD_SHA_K="cafe000000000000000000000000000000000f"
+cat > "$STUB_DIR/pr-112.json" <<EOF
+{"author":{"is_bot":false},"headRefOid":"$HEAD_SHA_K"}
+EOF
+{
+  echo "["
+  printf '{"created_at":"%s","body":"Fallback review.\\n\\n<!-- Evaluated in fallback mode: PR carries no loom: labels, so no label changes were made. -->"}' "$(hours_ago 6)"
+  echo ","
+  marker_comment "$(hours_ago 5)" "$HEAD_SHA_K"
+  echo ","
+  printf '{"created_at":"%s","body":"Fallback review.\\n\\n<!-- Evaluated in fallback mode: PR carries no loom: labels, so no label changes were made. -->"}' "$(hours_ago 4)"
+  echo ","
+  printf '{"created_at":"%s","body":"Fallback review.\\n\\n<!-- loom:fallback-evaluated -->"}' "$(hours_ago 3)"
+  echo ","
+  printf '{"created_at":"%s","body":"Fallback review, no marker at all."}' "$(hours_ago 2)"
+  echo "]"
+} > "$STUB_DIR/comments-112.json"
+run_guard 112 --cap 3
+assert_eq "1" "$(get_field "$OUT" MARKER_COUNT)" "(k) MARKER_COUNT=1 — only the canonical sha= marker counts"
+assert_eq "12" "$RC" "(k) canonical marker's SHA == head SHA -> dedup SKIP (exit 12), not cap (exit 11)"
+assert_eq "SKIP" "$(get_field "$OUT" DECISION)" "(k) DECISION=SKIP"
+assert_contains "$OUT" "already evaluated in fallback mode at current head SHA" "(k) REASON names SHA dedup, not the cap"
+
+# (k2) The same non-canonical comments with NO canonical marker present at
+#      all -> zero markers, so the guard must EVALUATE. Proves the prose
+#      variant cannot silently suppress a genuinely-needed review either.
+reset_state
+cat > "$STUB_DIR/pr-113.json" <<'EOF'
+{"author":{"is_bot":false},"headRefOid":"d0d0000000000000000000000000000000000e"}
+EOF
+{
+  echo "["
+  printf '{"created_at":"%s","body":"<!-- Evaluated in fallback mode: PR carries no loom: labels, so no label changes were made. -->"}' "$(hours_ago 6)"
+  echo ","
+  printf '{"created_at":"%s","body":"<!-- loom:fallback-evaluated sha=NOTAHEXSHA -->"}' "$(hours_ago 5)"
+  echo "]"
+} > "$STUB_DIR/comments-113.json"
+run_guard 113 --cap 20
+assert_eq "0" "$RC" "(k2) no canonical marker -> exit 0"
+assert_eq "EVALUATE" "$(get_field "$OUT" DECISION)" "(k2) DECISION=EVALUATE"
+assert_eq "0" "$(get_field "$OUT" MARKER_COUNT)" "(k2) MARKER_COUNT=0 — prose variant and non-hex sha excluded"
+
 # --- Summary -------------------------------------------------------------
 echo ""
 echo "Results: $TESTS_PASSED/$TESTS_RUN passed"

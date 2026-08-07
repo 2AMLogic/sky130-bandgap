@@ -69,6 +69,11 @@ Bootstrapping the open-source flow (xschem + ngspice + sky130 PDK via
 volare) on a dev machine, plus a smoke test proving the toolchain works
 end-to-end: see [`docs/environment-setup.md`](docs/environment-setup.md).
 
+Operating the AI agent fleet against this repo — in particular keeping a
+dispatch host's checkout current so agents do not run stale role
+definitions: see
+[`docs/loom-agent-host-hygiene.md`](docs/loom-agent-host-hygiene.md).
+
 ## Layout
 
 ```
