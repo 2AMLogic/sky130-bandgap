@@ -87,7 +87,6 @@ corner-run.py.
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import re
 import shutil
 import subprocess
@@ -105,19 +104,10 @@ SCHEMATIC = SIM_DIR / "output-voltage-tc" / "testbench" / "tb_vref_tc.sch"
 SPICEINIT_FILE = SIM_DIR / "spiceinit"
 BUILD_DIR = SIM_DIR / "build" / "trim-range-monotonicity"
 
+sys.path.insert(0, str(SIM_DIR / "bin"))
+from sim_common import load_corner_run  # noqa: E402
 
-def _load_corner_run():
-    path = SIM_DIR / "bin" / "corner-run.py"
-    spec = importlib.util.spec_from_file_location("corner_run", path)
-    if spec is None or spec.loader is None:  # pragma: no cover
-        raise RuntimeError(f"cannot import {path}")
-    module = importlib.util.module_from_spec(spec)
-    sys.modules["corner_run"] = module
-    spec.loader.exec_module(module)
-    return module
-
-
-cr = _load_corner_run()
+cr = load_corner_run()
 
 # --------------------------------------------------------------------------
 # experiment definition

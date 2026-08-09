@@ -98,7 +98,6 @@ failed, 1 on a harness/setup error (no record written) -- same convention as
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
 import shutil
 import subprocess
@@ -113,6 +112,9 @@ REPO_ROOT = SIM_DIR.parent
 SPICEINIT_FILE = SIM_DIR / "spiceinit"
 BUILD_DIR = SIM_DIR / "build" / "trim-lsb-chained"
 
+sys.path.insert(0, str(SIM_DIR / "bin"))
+from sim_common import chain_lines, load_corner_run  # noqa: E402
+
 # Reuse the same already-checked-in core-body snapshot the head-resistance
 # and res-array-resize records reuse (xschem unavailable in this run
 # environment). Reference-only -- never written by this script.
@@ -122,18 +124,7 @@ BASE_SNAPSHOT = (
 WRAPPED_SCHEMATIC = "sim/output-voltage-tc/testbench/tb_vref_tc.sch"
 
 
-def _load_corner_run():
-    path = SIM_DIR / "bin" / "corner-run.py"
-    spec = importlib.util.spec_from_file_location("corner_run", path)
-    if spec is None or spec.loader is None:  # pragma: no cover
-        raise RuntimeError(f"cannot import {path}")
-    module = importlib.util.module_from_spec(spec)
-    sys.modules["corner_run"] = module
-    spec.loader.exec_module(module)
-    return module
-
-
-cr = _load_corner_run()
+cr = load_corner_run()
 
 SLUG = "trim-lsb-chained"
 TITLE = (
@@ -245,24 +236,6 @@ def r2_segments_um(n_r2: int, trim_code: int, trim_unit_um: float) -> list[float
 
 def r1_segments_um(n_r1: int) -> list[float]:
     return [R_LSEG_UM] * n_r1
-
-
-def chain_lines(prefix: str, node_lo: str, node_hi: str, segments_um: list[float], bulk: str) -> list[str]:
-    """N series `sky130_fd_pr__res_high_po` unit instances between two nodes
-    -- the routed layout's `bus_res_series` topology (each unit separately
-    contacted, paying the model card's `rhead`/`leff` terms once). Same
-    pattern `sim/res-array-head-resistance/` and `sim/res-array-resize/`
-    already established."""
-    lines = []
-    prev = node_lo
-    for i, length_um in enumerate(segments_um):
-        nxt = node_hi if i == len(segments_um) - 1 else f"{prefix}_n{i + 1}"
-        lines.append(
-            f"X{prefix}_{i} {prev} {nxt} {bulk} sky130_fd_pr__res_high_po "
-            f"W={R_W_UM} L={length_um} mult=1 m=1"
-        )
-        prev = nxt
-    return lines
 
 
 def analytic_step_ohm(trim_unit_um: float) -> float:
