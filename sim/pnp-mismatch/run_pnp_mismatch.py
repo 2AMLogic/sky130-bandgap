@@ -28,7 +28,6 @@ Exit status: 0 every check passed, 2 a record was written but a check failed,
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
 import math
 import re
@@ -46,22 +45,10 @@ DECK = HERE / "testbench" / "tb_pnp_mismatch.spice"
 BUILD_DIR = SIM_DIR / "build" / "pnp-mismatch"
 SPICEINIT_FILE = SIM_DIR / "spiceinit"
 
+sys.path.insert(0, str(SIM_DIR / "bin"))
+from sim_common import load_corner_run, mean  # noqa: E402
 
-def _load_corner_run():
-    """Import sim/bin/corner-run.py (the dash makes it non-importable normally)."""
-    path = SIM_DIR / "bin" / "corner-run.py"
-    spec = importlib.util.spec_from_file_location("corner_run", path)
-    if spec is None or spec.loader is None:  # pragma: no cover - defensive
-        raise RuntimeError(f"cannot load {path}")
-    module = importlib.util.module_from_spec(spec)
-    # register before exec: @dataclass resolves annotations through
-    # sys.modules[cls.__module__] and fails on an unregistered module
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
-
-
-cr = _load_corner_run()
+cr = load_corner_run()
 
 # --------------------------------------------------------------------------
 # experiment definition
@@ -180,10 +167,6 @@ def build_points(samples: int) -> list[Point]:
 # --------------------------------------------------------------------------
 # statistics (stdlib only, same style as the rest of the harness)
 # --------------------------------------------------------------------------
-
-
-def mean(values: list[float]) -> float:
-    return sum(values) / len(values)
 
 
 def stdev(values: list[float]) -> float:
