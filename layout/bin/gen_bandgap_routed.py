@@ -4695,7 +4695,7 @@ def main() -> int:
     composed_area_um2 = (composed_bbox["x1"] - composed_bbox["x0"]) * (
         composed_bbox["y1"] - composed_bbox["y0"]
     )
-    budget_um2 = 0.08 * 1000.0 * 1000.0  # DR-007: relaxed from 0.05 to fit the drawn MCC cap (operator-ratified, #62)
+    budget_um2 = 0.05 * 1000.0 * 1000.0
 
     sha = git(args.repo_root, "rev-parse", "HEAD")
     branch = git(args.repo_root, "rev-parse", "--abbrev-ref", "HEAD")
