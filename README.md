@@ -43,21 +43,24 @@ Where the agents hit friction with the open-source tooling — most often
 DRC / LVS driver — that friction gets filed as a public issue against the
 tool itself, so the fix benefits everyone using sky130, not just this repo.
 
-## Target specification (ratified — see [DR-005](spec/decision-records/DR-005-ratify-target-spec.md), issue #1)
+## Target specification (ratified — see [DR-005](spec/decision-records/DR-005-ratify-target-spec.md), issue #1; PSRR row amended by [DR-006](spec/decision-records/DR-006-psrr-frequency-qualification.md), issue #123)
 
 | Parameter | Target | Stretch |
 |---|---|---|
 | Output reference | 1.20 V ±2% untrimmed (3σ, mismatch MC N≥300 + process corners, −40…125 °C) | ±0.5% trimmed (3σ, 1-point trim) |
 | Trim | 1-point resistor trim (binary-weighted segments, `res_high_po`), range ≥ ±5%, resolution ≤ 0.25%/step (≥5 bits equiv.), magnitude only, at 27 °C | — |
 | Temp coefficient (−40…125 °C) | < 50 ppm/°C (box method) | < 20 ppm/°C (curvature correction) |
-| PSRR @ DC | > 60 dB | > 70 dB |
+| PSRR | > 60 dB DC–1 kHz | > 30 dB @ 1 MHz |
 | Supply | 3.3 V ±10% | 1.8 V-core Banba variant |
 | Iq | < 50 µA | < 20 µA |
 | Area | < 0.05 mm² | — |
 | Startup | self-starting, < 1 ms | — |
 
 Port parity note: spec mirrors gf180-bandgap deliberately — same block,
-two PDKs is the portability proof.
+two PDKs is the portability proof. The PSRR row is stated in the same
+frequency-qualified form gf180-bandgap uses (`> 60 dB DC–1 kHz` target,
+`> 30 dB @ 1 MHz` stretch) as of DR-006 — closing the one deferred
+port-parity gap DR-005 flagged.
 
 Maturity ladder: simulation-complete → layout DRC/LVS-clean → shuttle
 seat → measured silicon over temperature. Current position: mid-ladder —
