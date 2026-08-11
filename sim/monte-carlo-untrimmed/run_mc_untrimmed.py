@@ -56,7 +56,7 @@ SPICEINIT_FILE = SIM_DIR / "spiceinit"
 BUILD_DIR = SIM_DIR / "build" / "monte-carlo-untrimmed"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
-from sim_common import load_corner_run, mean  # noqa: E402
+from sim_common import load_corner_run, mean, stdev  # noqa: E402
 
 cr = load_corner_run()
 
@@ -253,19 +253,6 @@ def build_points(samples: int) -> list[Point]:
         )
     )
     return points
-
-
-# --------------------------------------------------------------------------
-# statistics (stdlib only, same style as the rest of the harness)
-# --------------------------------------------------------------------------
-
-
-def stdev(values: list[float]) -> float:
-    n = len(values)
-    if n < 2:
-        return 0.0
-    mu = mean(values)
-    return math.sqrt(sum((v - mu) ** 2 for v in values) / (n - 1))
 
 
 # --------------------------------------------------------------------------
