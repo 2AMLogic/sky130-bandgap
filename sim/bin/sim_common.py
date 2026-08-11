@@ -25,6 +25,7 @@ going through `importlib.util.spec_from_file_location`.
 from __future__ import annotations
 
 import importlib.util
+import math
 import sys
 from pathlib import Path
 from types import ModuleType
@@ -82,3 +83,11 @@ def chain_lines(
 
 def mean(values: list[float]) -> float:
     return sum(values) / len(values)
+
+
+def stdev(values: list[float]) -> float:
+    n = len(values)
+    if n < 2:
+        return 0.0
+    mu = mean(values)
+    return math.sqrt(sum((v - mu) ** 2 for v in values) / (n - 1))
