@@ -43,14 +43,15 @@ Where the agents hit friction with the open-source tooling — most often
 DRC / LVS driver — that friction gets filed as a public issue against the
 tool itself, so the fix benefits everyone using sky130, not just this repo.
 
-## Target specification (DRAFT — engineering to ratify, see issue #1)
+## Target specification (ratified — see [DR-005](spec/decision-records/DR-005-ratify-target-spec.md), issue #1)
 
 | Parameter | Target | Stretch |
 |---|---|---|
-| Output reference | 1.20 V ±1% untrimmed (3.3 V I/O devices) | ±0.5% with trim; sub-1V Banba variant on 1.8 V core |
-| Temp coefficient (−40…125 °C) | < 50 ppm/°C | < 20 ppm/°C |
+| Output reference | 1.20 V ±2% untrimmed (3σ, mismatch MC N≥300 + process corners, −40…125 °C) | ±0.5% trimmed (3σ, 1-point trim) |
+| Trim | 1-point resistor trim (binary-weighted segments, `res_high_po`), range ≥ ±5%, resolution ≤ 0.25%/step (≥5 bits equiv.), magnitude only, at 27 °C | — |
+| Temp coefficient (−40…125 °C) | < 50 ppm/°C (box method) | < 20 ppm/°C (curvature correction) |
 | PSRR @ DC | > 60 dB | > 70 dB |
-| Supply | 3.3 V ±10% | 1.8 V variant |
+| Supply | 3.3 V ±10% | 1.8 V-core Banba variant |
 | Iq | < 50 µA | < 20 µA |
 | Area | < 0.05 mm² | — |
 | Startup | self-starting, < 1 ms | — |
