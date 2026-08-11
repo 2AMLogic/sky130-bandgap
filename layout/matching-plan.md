@@ -531,6 +531,19 @@ blocker on its own. The largest un-budgeted item is now MCC, still carried
 analytically (9,600 um^2) rather than drawn -- adding it would consume most
 of the remaining margin, so it is the next real area question.
 
+**Update (Section 7bb, 2026-08-11 operator ruling on issue #62):** a
+zero-incremental-footprint `cap_mim` overlay for `MCC` was checked and found
+tooling-infeasible today (2AMLogic/klayout-tools#775, filed with a
+three-geometry reproduction), not area-infeasible -- met3/met4/met5 are
+entirely empty across this cell's footprint, far more than the ~14,500 um^2
+a 29 pF MIM cap needs. The fallback path (draw `MCC` in-plane as the MOS
+cap it is today, +~20,800 um^2 projected) is gated on
+`spec/decision-records/DR-006-mcc-area-budget.md` (status: proposed), which
+proposes relaxing this section's 50,000 um^2 budget line -- not yet
+ratified, so the budget above remains the enforced gate
+(`gen_bandgap_routed.py`'s `budget_um2`) until DR-006 (or an amendment to
+it) is decided.
+
 ## 7. `klt` generator mapping and friction
 
 Status as of issue #62's routed flow, fourth increment -- the first run
@@ -3199,6 +3212,112 @@ sole remaining cause (`MMCC`) is unchanged from Section 7z's own
 "Suggested next increment" -- draw `MCC` (re-budgeting area) or record the
 omission as a permanent, accepted deviation; both are decisions, not
 increments this issue's own one-lever-per-increment scope covers.
+
+### 7bb. Thirtieth increment: the operator's MCC ruling (2026-08-11) -- MIM-cap overlay feasibility checked and found infeasible on tooling grounds, not area; falls back to the draw-as-MOS-cap + DR-006 path
+
+The operator ruled `MMCC` is not a waivable AC4 exception (it sets the
+amp's dominant pole -- `sim/error-amp-loop/`'s 45-corner loop-stability
+pass assumes it exists) and directed, in priority order: (1) check whether
+a `cap_mim` MIM-cap overlay fits above the composed cell at ~zero
+incremental footprint; (2) if feasible, draw it there and close AC4; (3) if
+infeasible, draw `MCC` as the MOS cap it is today and propose a decision
+record relaxing DR-005's now-ratified Area row (50,000 um^2), since that
+draws ~20,800 um^2 over budget (Section 6).
+
+**Area side of the feasibility check: ample.** This cell's own drawn
+geometry never leaves li1/met1/met2 (Section 5a, MET2_ESCAPE_NOTE) -- met3,
+met4 and met5 are entirely empty across the full 45,968 um^2 composed
+footprint. A 29 pF `cap_mim` at sky130's real `camimc=2.0 fF/um^2` area
+term needs ~14,500 um^2 of plate area (before the smaller `cpmimc` fringe
+term), comfortably inside that empty upper-metal real estate. Area was
+never the blocker.
+
+**Tooling side: empirically infeasible today, not merely undocumented.**
+Independently reproduced (not assumed from a doc read) against both the
+currently-pinned `klt` and a build past 2AMLogic/klayout-tools#621 (the
+met3-met5 connectivity extension that landed after this issue's twenty-
+eighth increment's pin bump), using a minimal `klt draw` fixture: a met1
+pad labelled on one net, `via1`->met2->`via2`->met3 (the `cap_mim` bottom
+plate) under a `capm` region (the top plate), and a top-plate via climbing
+to a met4 pad labelled on a second net -- i.e. exactly the two-terminal
+wiring `MCC`'s replacement would need (one plate to `AOUT`, one to `VDD`).
+Three geometries, three failure modes, none of them a usable two-terminal
+device:
+
+1. **At the pre-#621 pin**: `via2`/`via3` are unregistered `vias` entries
+   (`EXTRACTION_DECK.metals` stops at met2), so both plates extract as
+   anonymous, disconnected single-net islands -- `net_count: 2`, neither
+   label reaches the device.
+2. **Past #621, top-plate via landing inside the bottom plate's own
+   footprint** (the DRM-legal position -- a real MiM bottom plate is drawn
+   large enough to underlie the whole cap, including the top-plate via
+   landing): the two labelled nets **merge into one net**, a false short
+   between `AOUT` and `VDD` through the cap.
+3. **Past #621, bottom plate notched away from the top-plate via's landing
+   region** (so the via's footprint clears the bottom plate entirely): no
+   false short, but the top label is now its own **disconnected** net --
+   the capacitor's real top-plate terminal is a different, unlabelled,
+   single-terminal net the via still does not reach.
+
+Root cause, read directly from `klayout_tools.decks.sky130.EXTRACTION_DECK`
+and `CapacitorDevice`: the mechanism that should make case 2/3 work
+(`top_plate_via`/`top_plate_via_metal`, added closing klayout-tools#314,
+with the false-short exclusion added closing #364) is real and does work
+generically -- but neither of sky130's own `capacitors[]` entries
+(`sky130_fd_pr__model__cap_mim`, `..._cap_mim_m4`) sets it. That was the
+documented, correct choice when #314/#364 landed (sky130's real top-plate
+vias land on met4/met5, which the curated deck's own `metals` stack didn't
+track yet); #621 closed that precondition for a different reason (net
+`place_and_route.py` signal-routing gap, unrelated to MiM caps) but nobody
+followed up by actually wiring `top_plate_via` for either sky130 capacitor
+entry once its precondition existed. Filed generically upstream, with the
+three-geometry reproduction above and a concrete two-line fix (the exact
+`(layer, datatype)` pairs to set): 2AMLogic/klayout-tools#775.
+
+**Decision: fall back to drawing `MCC` as the MOS cap it is today, and
+propose (not ratify) an Area-budget relaxation.** The operator's own
+infeasibility trigger was phrased as an area question, but the substance --
+"this path cannot be executed as specified" -- is identical whether the
+blocker is area or tooling; #775 is a real external blocker no repo-side
+lever can route around today (same category `klayout-tools#559` was for 20+
+increments before it had an upstream fix to bump a pin past). Opened
+`spec/decision-records/DR-006-mcc-area-budget.md`, **status: proposed**,
+per CLAUDE.md's "agents do not relax the ratified spec to make results
+pass" -- this repo does not flip DR-005's Area row itself; the record
+states the measured trade for the operator to accept, amend, or reject by
+comment on this issue, the same pattern DR-004's proposed amendments used
+against #1.
+
+**Not drawn this increment.** Placing `MCC` as a real `mos_array`/`pfet`
+block (guard ring, met1 bus tying all four terminals to `AOUT`/`VDD`,
+re-routing, a fresh `klt drc`/`extract`/`lvs` pass) is a new-block layout
+increment on the scale of Section 3's other ten blocks, and
+`gen_bandgap_routed.py`'s own area gate (`budget_um2` hard-coded to the
+current ratified 50,000 um^2, `run-bandgap-routed-flow.sh` fails the flow
+below that) would reject the composed cell before LVS is even attempted --
+so it cannot land, gated or otherwise, ahead of DR-006 being accepted. Once
+DR-006 (or an operator amendment to it) is ratified, the next increment can
+bump `budget_um2` to match, add the `MCC` block, and re-run the full
+routed-cell flow.
+
+#### Scoreboard after this increment
+
+| AC | before (7aa) | after |
+| --- | --- | --- |
+| 1-3, 5 | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, `mismatch_count=1` (`MMCC`) | unchanged -- no drawn-geometry change this increment; the feasibility question the twenty-ninth increment's own "suggested next increment" left open is now answered (MIM overlay: tooling-infeasible today, filed as klayout-tools#775; MOS-cap path chosen, gated on DR-006) |
+
+**Suggested next increment**: DR-006 needs an operator ruling (accept the
+proposed budget, amend the target value, or decline and re-open the
+redesign-the-compensation-smaller option the operator's own ruling recorded
+as "not chosen" for this issue). Once ratified, draw `MCC` as a `pfet`
+MOS-cap block and re-run the routed-cell flow end to end -- expected to
+close AC4 (`mismatch_count: 0`) if nothing else about the extracted
+netlist's shape changes. Independently, 2AMLogic/klayout-tools#775 is worth
+re-checking on its own timeline: if it lands, a future MIM-cap increment
+could re-open the ~zero-incremental-footprint path instead, without
+touching the Area budget at all -- but that is not this increment's gate,
+since #775 is unmerged and unreleased as filed.
 
 ## 8. Known limitations / follow-on work
 
