@@ -1,0 +1,1178 @@
+{
+  "author": "loom-builder-issue-16",
+  "corners": [
+    {
+      "corner_id": "tt_27c_2.97v",
+      "elapsed_s": 54.941,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20260811-231900-84ef136/tt_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.212,
+          "min": 1.188,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193337
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.16744
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.202631
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 178.7267
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 180
+    },
+    {
+      "corner_id": "tt_27c_3.30v",
+      "elapsed_s": 28.87,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20260811-231900-84ef136/tt_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.212,
+          "min": 1.188,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193342
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.167433
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.202643
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 178.8175
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 180
+    },
+    {
+      "corner_id": "tt_27c_3.63v",
+      "elapsed_s": 22.685,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20260811-231900-84ef136/tt_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.212,
+          "min": 1.188,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193356
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.167445
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.202658
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 178.8361
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 180
+    },
+    {
+      "corner_id": "ss_27c_2.97v",
+      "elapsed_s": 39.61,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20260811-231900-84ef136/ss_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.212,
+          "min": 1.188,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193275
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.167128
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.20292
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 181.7866
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 180
+    },
+    {
+      "corner_id": "ss_27c_3.30v",
+      "elapsed_s": 20.736,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20260811-231900-84ef136/ss_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.212,
+          "min": 1.188,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193282
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.167127
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.202932
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 181.8497
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 180
+    },
+    {
+      "corner_id": "ss_27c_3.63v",
+      "elapsed_s": 24.875,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20260811-231900-84ef136/ss_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.212,
+          "min": 1.188,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193303
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.167151
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.202952
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 181.8249
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 180
+    },
+    {
+      "corner_id": "ff_27c_2.97v",
+      "elapsed_s": 46.077,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20260811-231900-84ef136/ff_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.212,
+          "min": 1.188,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193535
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.167869
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.202504
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 175.8725
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 180
+    },
+    {
+      "corner_id": "ff_27c_3.30v",
+      "elapsed_s": 22.34,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20260811-231900-84ef136/ff_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.212,
+          "min": 1.188,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.19354
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.167864
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.202516
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 175.9547
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 180
+    },
+    {
+      "corner_id": "ff_27c_3.63v",
+      "elapsed_s": 34.496,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20260811-231900-84ef136/ff_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.212,
+          "min": 1.188,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193556
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.167879
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.202532
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 175.9607
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 180
+    },
+    {
+      "corner_id": "sf_27c_2.97v",
+      "elapsed_s": 39.289,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20260811-231900-84ef136/sf_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.212,
+          "min": 1.188,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.195112
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.170191
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.20308
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 166.785
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 180
+    },
+    {
+      "corner_id": "sf_27c_3.30v",
+      "elapsed_s": 20.704,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20260811-231900-84ef136/sf_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.212,
+          "min": 1.188,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.195115
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.17018
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.203089
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 166.8872
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 180
+    },
+    {
+      "corner_id": "sf_27c_3.63v",
+      "elapsed_s": 17.332,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20260811-231900-84ef136/sf_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.212,
+          "min": 1.188,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.195127
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.170187
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.203103
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 166.9236
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 180
+    },
+    {
+      "corner_id": "fs_27c_2.97v",
+      "elapsed_s": 22.408,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20260811-231900-84ef136/fs_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.212,
+          "min": 1.188,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193535
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.167063
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.203637
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 185.7156
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 180
+    },
+    {
+      "corner_id": "fs_27c_3.30v",
+      "elapsed_s": 23.328,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20260811-231900-84ef136/fs_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.212,
+          "min": 1.188,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193541
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.16706
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.203649
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 185.7895
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 180
+    },
+    {
+      "corner_id": "fs_27c_3.63v",
+      "elapsed_s": 15.652,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20260811-231900-84ef136/fs_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.212,
+          "min": 1.188,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193559
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.167079
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.203666
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 185.7838
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 180
+    }
+  ],
+  "experiment": {
+    "claim": "README.md 'Target specification (DRAFT)' rows 'Output reference' (1.20 V +/-1% untrimmed) and 'Temp coefficient (-40...125 degC)' (< 50 ppm/degC), for the 3.3 V primary flavor (DR-001). Records are PROVISIONAL against the draft spec until issue #1 ratifies it. Measures the ROUTED, LVS-clean bandgap-core layout (issue #62) open-circuit, untrimmed, via klt extract --parasitics translated to a simulatable netlist (sim/bin/post_layout_common.py) -- NOT design/bandgap_core.sch directly; see 'Netlist provenance' below.",
+    "provenance": "extracted",
+    "provenance_source": "layout/bandgap-core/reports/20260811-221633-a0ee5e7/bandgap_core_routed.gds via `klt extract --parasitics` (layout record 20260811-221633-a0ee5e7), translated by sim/bin/post_layout_common.py, wrapped over the unmodified sim/output-voltage-tc/testbench/tb_vref_tc.sch",
+    "slug": "output-voltage-tc-post-layout",
+    "statistical_convention": "N/A (corner-matrix claim, not a distribution claim -- untrimmed spread from local mismatch is issue #12's Monte Carlo)",
+    "title": "Untrimmed output reference and box-method temperature coefficient over -40..125 degC -- POST-LAYOUT (extracted netlist)"
+  },
+  "git": {
+    "branch": "feature/issue-16",
+    "dirty": true,
+    "sha": "84ef136"
+  },
+  "layout_provenance": {
+    "device_translation_counts": {
+      "mos": 84,
+      "pnp": 16,
+      "res": 143
+    },
+    "layout_gds": "layout/bandgap-core/reports/20260811-221633-a0ee5e7/bandgap_core_routed.gds",
+    "layout_record": "layout/bandgap-core/reports/20260811-221633-a0ee5e7/record.md",
+    "layout_record_id": "20260811-221633-a0ee5e7",
+    "lvs_mismatch_count_at_extraction": null,
+    "parasitics_snapshot": {
+      "c_count": 151,
+      "json": "sim/output-voltage-tc-post-layout/parasitics-snapshot/20260811-221633-a0ee5e7/bandgap_core_routed.pex.json",
+      "r_count": 813,
+      "spice": "sim/output-voltage-tc-post-layout/parasitics-snapshot/20260811-221633-a0ee5e7/bandgap_core_routed.pex.spice",
+      "total_capacitance_ff": 1550.390004,
+      "total_resistance_ohm": 264261.0683
+    }
+  },
+  "links": {
+    "corners_dir": "sim/output-voltage-tc-post-layout/corners/20260811-231900-84ef136/",
+    "json": "sim/output-voltage-tc-post-layout/records/20260811-231900-84ef136.json",
+    "manifest": "sim/output-voltage-tc/experiment.json",
+    "netlist_snapshot": "sim/output-voltage-tc-post-layout/netlist-snapshots/20260811-231900-84ef136.spice",
+    "record": "sim/output-voltage-tc-post-layout/records/20260811-231900-84ef136.md",
+    "testbench": "sim/output-voltage-tc/testbench/tb_vref_tc.sch"
+  },
+  "matrix": {
+    "is_subset": true,
+    "n_points": 15,
+    "point_ids": [
+      "tt_27c_2.97v",
+      "tt_27c_3.30v",
+      "tt_27c_3.63v",
+      "ss_27c_2.97v",
+      "ss_27c_3.30v",
+      "ss_27c_3.63v",
+      "ff_27c_2.97v",
+      "ff_27c_3.30v",
+      "ff_27c_3.63v",
+      "sf_27c_2.97v",
+      "sf_27c_3.30v",
+      "sf_27c_3.63v",
+      "fs_27c_2.97v",
+      "fs_27c_3.30v",
+      "fs_27c_3.63v"
+    ],
+    "points": [
+      [
+        "tt",
+        27.0,
+        2.97
+      ],
+      [
+        "tt",
+        27.0,
+        3.3
+      ],
+      [
+        "tt",
+        27.0,
+        3.63
+      ],
+      [
+        "ss",
+        27.0,
+        2.97
+      ],
+      [
+        "ss",
+        27.0,
+        3.3
+      ],
+      [
+        "ss",
+        27.0,
+        3.63
+      ],
+      [
+        "ff",
+        27.0,
+        2.97
+      ],
+      [
+        "ff",
+        27.0,
+        3.3
+      ],
+      [
+        "ff",
+        27.0,
+        3.63
+      ],
+      [
+        "sf",
+        27.0,
+        2.97
+      ],
+      [
+        "sf",
+        27.0,
+        3.3
+      ],
+      [
+        "sf",
+        27.0,
+        3.63
+      ],
+      [
+        "fs",
+        27.0,
+        2.97
+      ],
+      [
+        "fs",
+        27.0,
+        3.3
+      ],
+      [
+        "fs",
+        27.0,
+        3.63
+      ]
+    ],
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "subset_reason": "Reuses sim/output-voltage-tc's own subset: the box-method TC needs the -40..125 degC excursion swept continuously INSIDE the deck (dc temp), so the runner's outer temperature axis is collapsed to one point on purpose. Process and supply axes run in full (5 x 3 = 15 points).",
+    "supply_v": [
+      2.97,
+      3.3,
+      3.63
+    ],
+    "temperature_c": [
+      27.0
+    ]
+  },
+  "overall_pass": false,
+  "pdk": {
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "lib_file": "/home/ubuntu/.volare/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "root": "/home/ubuntu/.volare",
+    "variant": "sky130A"
+  },
+  "record_id": "20260811-231900-84ef136",
+  "spread_checks": [
+    {
+      "measurement": "vref_27",
+      "min_spread": 0.0001,
+      "n": 15,
+      "note": "VREF(27 degC) must move by at least 0.1 mV across the process/supply matrix. A dead-flat result across 15 corner points means the corner include or the supply param is not reaching the simulator.",
+      "observed_spread": 0.0018519999999999648,
+      "pass": true,
+      "reason": ""
+    }
+  ],
+  "supersedes": "",
+  "timestamp": "2026-08-11T23:19:00Z",
+  "tools": {
+    "ngspice": "ngspice-46 : Circuit level simulation program",
+    "platform": "Linux 7.0.0-1010-aws x86_64",
+    "python": "3.12.3",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}
