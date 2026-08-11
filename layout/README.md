@@ -131,6 +131,7 @@ layout/
     run-trivial-cell-flow.sh  # the repeatable driver: gen -> drc -> extract -> lvs -> report
     met1_bus.py               # hand-drawn met1 bussing + the met2/via1 escape plane
     met2_drc.py               # DRC for the met2 plane the curated deck has no rules for
+    measure_mim_overlay_feasibility.py  # re-runnable "can MCC be a MiM overlay?" measurement
     render-record.py          # renders + verdict-checks a record's record.md
   tests/                      # PDK-free unit coverage for the flows' own gates
   .venv/                      # gitignored -- `klt` install, created by setup-venv.sh

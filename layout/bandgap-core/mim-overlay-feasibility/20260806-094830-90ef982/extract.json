@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "file": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/mim-overlay-feasibility/20260806-094830-90ef982/mim_connectivity_probe.gds",
+  "deck": "sky130",
+  "top": "mim_connectivity_probe",
+  "dbu_um": 0.005,
+  "netlist_path": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/mim-overlay-feasibility/20260806-094830-90ef982/mim_connectivity_probe.spice",
+  "netlist_sha256": "676477473fe661cd3d48165866e3d68c6880bc51e5e56498903b7cd3643f56bc",
+  "status": "extracted",
+  "device_count": 1,
+  "net_count": 2,
+  "pin_count": 0,
+  "device_counts": {
+    "sky130_fd_pr__model__cap_mim": 1
+  },
+  "dummy_devices_dropped": 0,
+  "ignored_layers": [],
+  "device_classes": [
+    "nfet",
+    "pfet",
+    "pnp",
+    "sky130_fd_pr__model__cap_mim",
+    "sky130_fd_pr__model__cap_mim_m4",
+    "resistor"
+  ],
+  "devices": [
+    {
+      "name": "$1",
+      "class": "sky130_fd_pr__model__cap_mim",
+      "nets": {
+        "a": "$3",
+        "b": "$4"
+      },
+      "params": {
+        "c_f": 3.6226e-13,
+        "area_um2": 176.0,
+        "perimeter_um": 54.0
+      }
+    }
+  ],
+  "nets": [
+    {
+      "name": "$3",
+      "pin": false,
+      "device_count": 1
+    },
+    {
+      "name": "$4",
+      "pin": false,
+      "device_count": 1
+    }
+  ],
+  "warnings": [],
+  "black_box_regions": [],
+  "unmodelled_poly": [],
+  "merged_net_labels": [],
+  "voltage_domain_warnings": [],
+  "unbiased_pmos_body_nets": [],
+  "pdk": null,
+  "provenance": {
+    "klt_version": "0.2.0",
+    "klayout_version": "0.30.10",
+    "pdk": null,
+    "deck": {
+      "name": "sky130",
+      "content_hash": "sha256:aa7aca655f2602ca087aee637afa0d1887ac4c623252ed7f1de6bbf559990859"
+    },
+    "input": {
+      "content_hash": "sha256:9a31ba8ee27e8d5591b9d0ae6c3a17ca28c4a1a46f4b3dfba4a3047e1739cf20"
+    }
+  },
+  "parasitics": null
+}

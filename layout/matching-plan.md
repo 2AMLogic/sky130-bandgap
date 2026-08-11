@@ -3332,6 +3332,50 @@ could re-open the ~zero-incremental-footprint path instead, without
 touching the Area budget at all -- but that is not this increment's gate,
 since #775 is unmerged and unreleased as filed.
 
+#### 7bb-1. The same question, as a re-runnable measurement
+
+Because #775 is exactly the fix that would flip this section's answer, the
+feasibility check is also committed as a script --
+`layout/bin/measure_mim_overlay_feasibility.py`, evidence under
+`layout/bandgap-core/mim-overlay-feasibility/<record-id>/` -- so the next
+`klt` pin bump can re-measure in one command instead of re-deriving the
+argument from prose. It deliberately does **not** repeat 7bb's
+three-geometry `klt draw` reproduction (that remains the stronger tooling
+evidence); it measures the parts that were asserted above, and adds two:
+
+- **Overlay area, measured off the composed GDS rather than reasoned
+  about**: 45,968 um^2 of footprint, of which **0.0 um^2** carries any
+  met3/met4/`capm`/`capm2` geometry.
+- **Plate area needed, at the measured capacitance**: 10,742 um^2
+  (103.6 x 103.6 um), solving the deck's own two-term law
+  (`2.0 fF/um^2` area + `0.19 fF/um` perimeter) at the worst-corner
+  `cc_mcc`. **This corrects the ~14,500 um^2 figure above**: that number
+  sizes from ~29 pF, the analytic `Cox*W*L*m` on MCC's gate area, but
+  `design/error_amp.sch` states outright that MCC's capacitance is measured
+  rather than computed that way, and `sim/error-amp-loop/`'s 45 corners
+  measure `cc_mcc` at **21.04-21.56 pF**. The verdict is unchanged (both
+  fit comfortably), but a future revisit should size from the measured
+  number, not the analytic one.
+- **Connectivity, re-confirmed at the pinned `klt`** in the single most
+  favourable geometry (a `capm` plate over met3 laid directly across two
+  labelled met2 wires): the cap is recognised, and both its terminals are
+  anonymous isolated nodes. Same conclusion as 7bb case 1.
+- **DRC coverage, which 7bb did not measure**: of the four MiM stack
+  layers, `met3.drawing` and `capm.drawing` appear in
+  `drc.json`'s own `layers_in_stream_without_rules` -- the curated sky130
+  *DRC* deck stops at met2 while its *extraction* deck now models met3-met5
+  and MiM caps, so a drawn MiM overlay would get a `clean` verdict from
+  geometry nothing checked. That is the same asymmetry Section 7q filed as
+  klayout-tools#513 for met2, four stack levels later; filed generically as
+  **2AMLogic/klayout-tools#776**.
+
+One further gap was filed while looking for a more compact way to draw a
+wide MOS device: **2AMLogic/klayout-tools#777** -- `mos_array`'s `fingers>1`
+draws a *series* chain with unreported interior S/D pads and uncontactable
+gates rather than the parallel multi-finger device the parameter implies,
+and offers no guard-ring (well-tap) option, which is why a MOS-cap `MCC` is
+drawn from `diff_pair` single-finger units instead.
+
 ### 7cc. Thirty-first increment: `MCC` drawn as a `pfet` MOS-cap block -- `klt lvs` reports `mismatch_count: 0` for the first time in this issue's history, gated only on DR-007's unratified Area relaxation
 
 Corrects one premise of the prior increment's own text: `run-bandgap-routed-flow.sh`'s `within_budget` is a **reported gate condition checked at the end of the flow**, not a pre-flight guard -- the flow does not "reject the composed cell before LVS is even attempted." It runs DRC, extraction and LVS exactly as it would at any composed size, and only the final exit status (`flow_gate()`'s boolean AND of every named condition) reflects an over-budget result. This increment draws `MCC` and lets the flow run to completion on that basis, rather than waiting on DR-007 first -- the LVS evidence this produces is exactly what DR-007 itself asks a future increment to generate ("the actual number will be recorded once a follow-on increment draws it").

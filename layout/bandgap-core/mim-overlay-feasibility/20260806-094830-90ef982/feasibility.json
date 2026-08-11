@@ -1,0 +1,106 @@
+{
+  "record_id": "20260806-094830-90ef982",
+  "overlay_area": {
+    "gds": "layout/bandgap-core/reports/20260806-094830-90ef982/bandgap_core_routed.gds",
+    "top_cell": "bandgap_core_routed",
+    "bbox_um": {
+      "x0": -10.0,
+      "y0": -10.0,
+      "x1": 318.2,
+      "y1": 130.06
+    },
+    "footprint_um2": 45967.692,
+    "mim_stack_layers": [
+      {
+        "layer": "70/20",
+        "role": "met3.drawing (cap_mim bottom plate)",
+        "drawn_area_um2": 0.0
+      },
+      {
+        "layer": "89/44",
+        "role": "capm.drawing (cap_mim top plate)",
+        "drawn_area_um2": 0.0
+      },
+      {
+        "layer": "71/20",
+        "role": "met4.drawing (cap_mim_m4 bottom plate)",
+        "drawn_area_um2": 0.0
+      },
+      {
+        "layer": "97/44",
+        "role": "capm2.drawing (cap_mim_m4 top plate)",
+        "drawn_area_um2": 0.0
+      }
+    ],
+    "occupied_um2": 0.0,
+    "available_overlay_um2": 45967.692
+  },
+  "required_plate": {
+    "area_cap_f_um2": 2e-15,
+    "perim_cap_f_um": 1.9e-16,
+    "variants": [
+      {
+        "basis": "cc_mcc min (sim/error-amp-loop, 45 corners)",
+        "target_f": 2.10357e-11,
+        "square_plate_side_um": 102.36674575570345,
+        "plate_area_um2": 10478.95063661283
+      },
+      {
+        "basis": "cc_mcc max (sim/error-amp-loop, 45 corners)",
+        "target_f": 2.15618e-11,
+        "square_plate_side_um": 103.64128671070199,
+        "plate_area_um2": 10741.516311049932
+      }
+    ]
+  },
+  "connectivity_probe": {
+    "gds": "layout/bandgap-core/mim-overlay-feasibility/20260806-094830-90ef982/mim_connectivity_probe.gds",
+    "gds_abs": "/home/ubuntu/loom-workspaces/sky130-bandgap/.loom/worktrees/issue-62/layout/bandgap-core/mim-overlay-feasibility/20260806-094830-90ef982/mim_connectivity_probe.gds",
+    "device_counts": {
+      "sky130_fd_pr__model__cap_mim": 1
+    },
+    "cap_devices_recognised": 1,
+    "labelled_nets_drawn": [
+      "PLATE_LO",
+      "PLATE_HI"
+    ],
+    "cap_terminals_reach_a_labelled_net": false,
+    "extracted_netlist": "* extracted by klt extract --deck sky130\n\n* cell mim_connectivity_probe\n.SUBCKT mim_connectivity_probe\n* device instance $1 r0 *1 10,7.5 sky130_fd_pr__model__cap_mim\nC$1 \\$3 \\$4 3.6226e-13 sky130_fd_pr__model__cap_mim\n.ENDS mim_connectivity_probe\n"
+  },
+  "drc_coverage": {
+    "status": "clean",
+    "violation_count": 0,
+    "deck_layers": [
+      "65/20",
+      "66/20",
+      "66/44",
+      "67/20",
+      "67/44",
+      "68/20",
+      "68/44",
+      "69/20"
+    ],
+    "layers_in_stream_without_rules": [
+      "69/5",
+      "70/20",
+      "89/44"
+    ],
+    "mim_layers_without_rules": [
+      {
+        "layer": "70/20",
+        "role": "met3.drawing (cap_mim bottom plate)"
+      },
+      {
+        "layer": "89/44",
+        "role": "capm.drawing (cap_mim top plate)"
+      }
+    ]
+  },
+  "verdict": {
+    "overlay_area_sufficient": true,
+    "required_plate_area_um2": 10741.516311049932,
+    "available_overlay_um2": 45967.692,
+    "mim_terminals_connectable": false,
+    "feasible": false
+  }
+}
