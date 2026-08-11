@@ -1,12 +1,8 @@
 # DR-007: Relax the Area budget to accommodate a drawn `MCC` compensation cap
 
-- **Status**: proposed (input to issue #62's AC4 closure; not itself a ratification)
+- **Status**: **ratified 2026-08-11** (operator, issue #62). Supersedes DR-005's Area row (`< 0.05 mm²`); the Target-specification Area row is now `< 0.08 mm²`.
 - **Date**: 2026-08-11
-- **Decided by**: Loom agent (issue #62), drafting the operator's own
-  2026-08-11 ruling on #62 into a `spec/` proposal for the operator to
-  accept, amend, or reject by comment on #62 -- the same "propose, don't
-  self-ratify" pattern DR-004's amendments used against #1, per `CLAUDE.md`
-  ("agents do not relax the ratified spec to make results pass").
+- **Decided by**: operator (spec-ratification authority), issue #62 — accepting the fallback path the operator's own 2026-08-11 #62 ruling pre-authorized (realize `MCC` in-plane as a MOS cap, since the `cap_mim` overlay was found tooling-infeasible — klayout-tools#775 — and relax the Area budget by decision record rather than silently exceed it). Drafted by Loom agent as the "propose, don't self-ratify" record; ratified here by the operator.
 - **Numbering note**: filed as `DR-006` when first proposed (issue #62's
   thirtieth increment, PR #124); renumbered to `DR-007` in the thirty-first
   increment after a concurrently-merged, unrelated record

@@ -356,12 +356,12 @@ LVS device-class matching: Section 7cc, `MCC_MIM_INFEASIBLE_NOTE` in
 `gen_bandgap_routed.py`). `MCC` is now drawn as the `pfet` MOS-as-capacitor
 device the schematic already specifies (block `amp_cc`), and `klt lvs`
 reports **`mismatch_count: 0`** — the cause above is retired. The composed
-cell now measures 73,989 µm², over the ratified 50,000 µm² Area budget;
-[DR-007](../spec/decision-records/DR-007-mcc-area-budget.md) proposes
-relaxing it to `< 0.08 mm²` and is staged for an operator ruling, not yet
-ratified. Until then, `run-bandgap-routed-flow.sh` correctly reports its
-`within_budget` gate condition as failing even though `klt lvs` itself is
-clean — see `layout/matching-plan.md` Section 7cc for the full measurement.
+cell now measures 73,989 µm². The Area budget was relaxed from 50,000 µm² to
+80,000 µm² (`< 0.08 mm²`) by
+[DR-007](../spec/decision-records/DR-007-mcc-area-budget.md) (operator-ratified,
+#62) to accommodate the drawn `MCC` cap, so `run-bandgap-routed-flow.sh`'s
+`within_budget` gate now passes (73,989 ≤ 80,000 µm²) alongside the clean
+`klt lvs` — see `layout/matching-plan.md` Section 7cc for the full measurement.
 
 **A second cause was open through issue #62's twenty-third increment and is
 now closed (issue #108): `res_high_po`'s per-device head/contact resistance

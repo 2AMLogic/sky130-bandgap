@@ -18,12 +18,11 @@ reference netlist's own `MMCC` device exactly. A `cap_mim` MIM-cap overlay
 infeasible on two independent grounds — see
 [`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)
 and `layout/matching-plan.md` Sections 7bb/7cc. Drawing `MCC` pushes the
-composed cell to 73,989 µm², over the ratified 50,000 µm² Area budget
-below; the layout flow's own area gate is left honestly failing
-(`within_budget`) pending a decision on
-[DR-007](spec/decision-records/DR-007-mcc-area-budget.md) (proposed, not
-yet ratified), which proposes relaxing that budget to accommodate the
-now-measured figure. The routed R2A/R2B/R1 array's per-instance head
+composed cell to 73,989 µm²; the Area budget was relaxed from 50,000 µm² to
+80,000 µm² (`< 0.08 mm²`) to accommodate the now-measured drawn figure,
+ratified in
+[DR-007](spec/decision-records/DR-007-mcc-area-budget.md) (operator, issue
+#62) — the composed cell is now within budget. The routed R2A/R2B/R1 array's per-instance head
 resistance — which issue #98 confirmed with independent real-SPICE evidence
 is a real, material electrical effect of the layout's own folded topology,
 not an LVS-extraction artifact, ratified in
@@ -63,7 +62,7 @@ tool itself, so the fix benefits everyone using sky130, not just this repo.
 | PSRR | > 60 dB DC–1 kHz | > 30 dB @ 1 MHz |
 | Supply | 3.3 V ±10% | 1.8 V-core Banba variant |
 | Iq | < 50 µA | < 20 µA |
-| Area | < 0.05 mm² | — |
+| Area | < 0.08 mm² (DR-007; relaxed from 0.05 to fit the drawn `MCC` cap) | — |
 | Startup | self-starting, < 1 ms | — |
 
 Port parity note: spec mirrors gf180-bandgap deliberately — same block,
@@ -75,9 +74,10 @@ port-parity gap DR-005 flagged.
 Maturity ladder: simulation-complete → layout DRC/LVS-clean → shuttle
 seat → measured silicon over temperature. Current position: mid-ladder —
 bandgap-core layout is DRC-clean, fully routed, and `klt lvs`-clean
-(`mismatch_count: 0`), but the composed cell exceeds the ratified Area
-budget until [DR-007](spec/decision-records/DR-007-mcc-area-budget.md) is
-ratified (see Status above) — not yet a spec-conformant, T1-ready layout.
+(`mismatch_count: 0`), and the composed cell is within the Area budget
+relaxed to `< 0.08 mm²` by [DR-007](spec/decision-records/DR-007-mcc-area-budget.md)
+(operator-ratified) — a spec-conformant, layout-complete block, pending
+post-layout extraction (#16) and the operator tier award.
 
 ## Environment setup
 
