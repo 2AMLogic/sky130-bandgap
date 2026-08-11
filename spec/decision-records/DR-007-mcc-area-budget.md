@@ -1,4 +1,4 @@
-# DR-006: Relax the Area budget to accommodate a drawn `MCC` compensation cap
+# DR-007: Relax the Area budget to accommodate a drawn `MCC` compensation cap
 
 - **Status**: proposed (input to issue #62's AC4 closure; not itself a ratification)
 - **Date**: 2026-08-11
@@ -7,6 +7,11 @@
   accept, amend, or reject by comment on #62 -- the same "propose, don't
   self-ratify" pattern DR-004's amendments used against #1, per `CLAUDE.md`
   ("agents do not relax the ratified spec to make results pass").
+- **Numbering note**: filed as `DR-006` when first proposed (issue #62's
+  thirtieth increment, PR #124); renumbered to `DR-007` in the thirty-first
+  increment after a concurrently-merged, unrelated record
+  (`DR-006-psrr-frequency-qualification.md`, issue #123/PR #125) claimed
+  `DR-006` first at merge time. Content unchanged by the rename.
 
 ## Context
 
@@ -38,26 +43,37 @@ propose a decision record relaxing it rather than silently exceeding it.
 
 | Item | Area |
 |---|---|
-| Current composed `bandgap-core` bbox (`layout/bandgap-core/reports/LATEST/record.md`) | 45,968 um^2 |
+| Prior composed `bandgap-core` bbox, `MCC` undrawn (`layout/bandgap-core/reports/20260806-094830-90ef982/record.md`) | 45,968 um^2 |
 | Ratified Area budget (DR-005, README.md "Target specification") | 50,000 um^2 (0.05 mm^2) |
 | Remaining margin before `MCC` | 4,032 um^2 (~8%) |
 | `MCC`'s own analytic footprint (`mult=16 x W=30um x L=20um`) | 9,600 um^2 |
-| `MCC` projected **drawn** footprint, at this design's own measured analytic-to-drawn overhead ratio (2.17x -- 21,215 um^2 analytic vs. 45,968 um^2 composed today, `layout/matching-plan.md` Section 6) | ~20,800 um^2 |
-| Projected composed bbox with `MCC` drawn | ~66,800 um^2 |
-| Projected overrun vs. the current 50,000 um^2 budget | ~34% |
+| **`MCC` drawn footprint, measured** (issue #62's thirty-first increment, `amp_cc` block: `layout/bandgap-core/reports/20260811-220511-6814b56/record.md`) | **73,989 - 45,968 = 28,021 um^2** |
+| **Composed bbox with `MCC` drawn, measured** | **73,989 um^2** |
+| Overrun vs. the current 50,000 um^2 budget, measured | **48.0%** |
 
-This is a projection from this design's own measured drawn/analytic ratio,
-not yet a measured drawn `MCC` block -- the actual number will be recorded
-once a follow-on increment draws it (see "Consequences" below) and this
-record's proposed value re-checked against the real figure at that time.
+This record originally carried a *projection* (~66,800 um^2, from this
+design's own average analytic-to-drawn overhead ratio) rather than a
+measured number. The thirty-first increment drew `MCC` and measured it
+directly: the real composed bbox (73,989 um^2) is higher than that
+projection -- the average 2.17x ratio understates `amp_cc`'s own guard
+ring, comb/spine bussing and row-3 placement-channel cost specifically
+(a single, non-matched-pair block placed in its own row pays a full
+`ROW_MARGIN_UM` channel on both sides, which the average across ten
+already-packed blocks does not reflect). `klt lvs` on this drawn cell
+reports `mismatch_count: 0` -- the LVS-comparator side of AC4 is
+satisfied; only this record's own budget ratification is outstanding.
 
 ## Decision (proposed)
 
 **Relax the README "Target specification" Area row from `< 0.05 mm²` to
-`< 0.07 mm²` (70,000 um^2)**, keeping ~3,200 um^2 (~5%) of margin above the
-~66,800 um^2 projection above -- enough to absorb `MCC`'s real drawn
-overhead once measured, without immediately reopening this same question at
-a fresh floor. `design/device-characterization-summary.md`'s already-flagged
+`< 0.08 mm²` (80,000 um^2)**, keeping ~6,000 um^2 (~8%) of margin above the
+measured 73,989 um^2 figure above -- enough to absorb ordinary
+re-measurement noise (a `klt`/PDK pin bump, a router re-run that finds a
+different tie-break) without immediately reopening this same question at a
+fresh floor. Revised from this record's own first draft (`< 0.07 mm²`,
+70,000 um^2), which was sized against the pre-measurement ~66,800 um^2
+projection and does not hold the real 73,989 um^2 figure.
+`design/device-characterization-summary.md`'s already-flagged
 `MPOUT`/`MPAMP` up-sizing option is not included in this margin and would
 need its own accounting if pursued later.
 
@@ -75,7 +91,18 @@ it inherited the draft value while amending the accuracy/trim rows).
   waiting on an unscoped upstream fix can stall AC4 for many increments.
   Not chosen as *this* record's decision, but not foreclosed either --
   Section 7bb's "Suggested next increment" keeps it open as a lower-cost
-  future path that would let a later DR revert this one.
+  future path that would let a later DR revert this one. **A second,
+  independent obstacle found while drawing the MOS-cap fallback
+  (`layout/matching-plan.md` Section 7cc, `gen_bandgap_routed.py`'s
+  `MCC_MIM_INFEASIBLE_NOTE`)**: even once #775 lands, `klt lvs` has no
+  device-class equivalence mechanism, and `reference.spice`'s `MMCC` card
+  is a `pfet` transistor, not a capacitor model -- a drawn `cap_mim`
+  overlay would extract under a different device class and cannot reach
+  `mismatch_count: 0` against the *current* reference netlist on
+  comparator grounds alone, independent of drawability. Reopening the
+  MIM-cap path for real needs `reference.spice`'s `MMCC` card rewritten to
+  a capacitor model too (a schematic-level device-type change to a closed,
+  sim-verified cell), not just #775 landing.
 - **Redesign the compensation smaller** (a smaller `Cc` plus a nulling
   resistor, the LDO's own topology) to shrink the ~29 pF closer to the
   current margin instead of growing the budget. The operator's own ruling
@@ -101,23 +128,34 @@ it inherited the draft value while amending the accuracy/trim rows).
 
 | README target-spec row | Proposed change |
 |---|---|
-| Area | `< 0.05 mm²` -> `< 0.07 mm²` (Target column only; Stretch column unaffected, per DR-001 it has no value) |
+| Area | `< 0.05 mm²` -> `< 0.08 mm²` (Target column only; Stretch column unaffected, per DR-001 it has no value) |
 
 ## Consequences
 
-- **Gates the next `MCC`-drawing increment.** `layout/bin/gen_bandgap_routed.py`'s
-  `budget_um2` constant (currently hard-coded to the ratified 50,000 um^2)
-  is not changed by this record itself -- per `CLAUDE.md`, a repo-side gate
-  tracks the ratified spec value, it does not lead it. Once this record (or
-  an operator amendment to it) is ratified, a follow-on increment updates
-  `budget_um2` to match, draws `MCC` as a `pfet` MOS-cap block, and
-  re-verifies DRC/extract/`klt lvs` end to end -- expected to close AC4
-  (`mismatch_count: 0`) if the extracted netlist's shape is otherwise
-  unchanged.
+- **`MCC` is already drawn and LVS-verified; only this record's ratification
+  is outstanding.** Unlike this record's first draft (written before the
+  drawing increment), the follow-on work this record originally described
+  as a *future* consequence has already landed:
+  `layout/bin/gen_bandgap_routed.py` now composes an `amp_cc` block
+  (a `pfet` MOS-cap matching `design/error_amp.sch` exactly), and
+  `klt lvs` on the resulting composed cell reports `mismatch_count: 0`
+  against `reference.spice` -- the first time in issue #62's history.
+  `gen_bandgap_routed.py`'s `budget_um2` constant is deliberately left at
+  the current ratified 50,000 um^2: per `CLAUDE.md`, a repo-side gate
+  tracks the ratified spec value, it does not lead it, so the flow's own
+  `within_budget` gate condition correctly, honestly fails
+  (`gen_bandgap_routed.py: FAILED gate conditions: within_budget`) until
+  this record (or an operator amendment) is ratified. The only remaining
+  step to a fully green flow run is a one-line follow-up bumping
+  `budget_um2` to match this record's ratified value -- no further
+  drawn-geometry change is expected.
 - **No other spec-review row is touched.** DR-005's remaining rows
   (accuracy, trim, temp coefficient, PSRR, supply, Iq, startup) are
   unaffected; this record proposes exactly one line.
-- **If declined**, issue #62's AC4 stays open pending either
-  2AMLogic/klayout-tools#775 landing (unblocking the zero-footprint MIM
-  path) or a redesign of the compensation network (the deferred
-  alternative above).
+- **If declined**, issue #62's AC4 stays formally open (the flow's
+  `within_budget` gate stays failing) even though `klt lvs` itself is
+  already clean, pending either 2AMLogic/klayout-tools#775 landing
+  *and* a `reference.spice` device-model change (unblocking the
+  zero-footprint MIM path for real, per the updated "Alternatives
+  considered" note above) or a redesign of the compensation network (the
+  deferred alternative above).

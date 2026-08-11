@@ -991,6 +991,13 @@ M_AMPBIAS = 2
 AMP_M_IN = 16
 AMP_M_NMIRR = 4
 AMP_M_PMIRR = 8
+#: MCC, the error amp's Miller compensation cap (design/error_amp.sch,
+#: `.param amp_m_cc=16`) -- a `pfet_g5v0d10v5` wired D=S=B=VDD, G=GDRV, so it
+#: sits in inversion and behaves as a ~21 pF MOS capacitor at every PVT
+#: corner (design/error_amp.sch's own MCC comment block). See
+#: MCC_MIM_INFEASIBLE_NOTE for why this is drawn as the MOS cap the
+#: schematic states rather than a `cap_mim` overlay.
+AMP_M_CC = 16
 
 # ---------------------------------------------------------------------------
 # Block definitions. Each maps to one `klt gen` call. `row` groups blocks into
@@ -1304,7 +1311,104 @@ BLOCKS: list[dict[str, Any]] = [
         "real_target": f"amp_m_nmirr={AMP_M_NMIRR}, W=8 L=20 "
         "(design/error_amp.sch); drawn 1:1",
     },
+    {
+        "id": "amp_cc",
+        "row": 3,
+        "generator": "diff_pair",
+        "params": {
+            "w_um": 30.0,
+            "l_um": 20.0,
+            "splits": AMP_M_CC // 2,
+            "flavor": "pfet",
+            "mirror": True,
+            "add_guard_ring": True,
+            "ring_gap_side": "W",
+            "ring_gap_um": 2.0,
+        },
+        "bus": {
+            "kind": "mos_comb",
+            "spine_side": "W",
+            "nets": [
+                {"net": "VDD",
+                 "terminals": [("MCC_A", "drain"), ("MCC_A", "source"),
+                               ("MCC_B", "drain"), ("MCC_B", "source")]},
+                {"net": "GDRV",
+                 "terminals": [("MCC_A", "gate"), ("MCC_B", "gate")]},
+            ],
+        },
+        "matched_group_label": "MCC (amp Miller compensation cap, "
+        "PMOS-as-capacitor)",
+        "real_target": f"amp_m_cc={AMP_M_CC}, W=30 L=20 "
+        "(design/error_amp.sch); drawn as two mult="
+        f"{AMP_M_CC // 2} groups (`MCC_A`/`MCC_B`) tied identically to "
+        "VDD (drain+source) and GDRV (gate) so `combine_devices` folds "
+        f"them into the schematic's single m={AMP_M_CC} device -- see "
+        "MCC_MIM_INFEASIBLE_NOTE for why a `cap_mim` overlay (the "
+        "operator's primary-path ruling on issue #62) cannot close this "
+        "device instead",
+    },
 ]
+
+#: Why MCC is drawn as the same MOS-as-capacitor device the schematic
+#: states, rather than a sky130 `cap_mim` overlay (the operator's
+#: 2026-08-11 primary-path ruling on issue #62) -- checked, not assumed,
+#: on two independent grounds:
+#:
+#: 1. **LVS device-class matching.** `reference.spice` states `MMCC` as a
+#:    plain `M`-element (`MMCC VDD GDRV VDD VDD pfet L=20U W=30U m=16`), so
+#:    `klt lvs` registers it under the deck's `pfet_class` (`"pfet"`,
+#:    `DeviceClassMOS4Transistor`, terminals D/G/S/B). A drawn `cap_mim`
+#:    overlay extracts as `klayout_tools.decks.sky130`'s
+#:    `sky130_fd_pr__model__cap_mim` class instead (a two-terminal
+#:    `DeviceClassCapacitor`, P1/P2) -- a different class *name* with a
+#:    different terminal arity. `klt lvs` (`src/klayout_tools/lvs.py`,
+#:    confirmed by reading `_apply_hints`) exposes no device-class
+#:    equivalence declaration (only `hints.same_nets` and
+#:    `hints.equivalent_pins`, both net/pin-level); when
+#:    `NetlistComparer` pairs devices of different classes it reports
+#:    `match_devices_with_different_device_classes`, which
+#:    `_build_mismatches` turns into a `device.class`-category mismatch
+#:    (still `mismatch_count` >= 1), and when the two classes cannot even
+#:    be topologically paired (very likely here: 2-terminal vs. 4-terminal)
+#:    each side reports its own unmatched device instead -- `mismatch_count`
+#:    2, not fewer. So a `cap_mim` overlay cannot reach `mismatch_count: 0`
+#:    against the *current* `reference.spice`, independent of area --
+#:    unless the reference netlist's own `MMCC` card is rewritten to a
+#:    capacitor model, which would be a schematic-level device-type change
+#:    to a closed, sim-verified cell (out of this issue's scope; see the
+#:    operator's "Redesign the compensation smaller" note).
+#: 2. **Tooling.** The twenty-ninth increment (PR #124, `Part of #62`)
+#:    independently confirmed a `cap_mim` overlay is not drawable at all
+#:    with the pinned `klt`: neither of sky130's `CapacitorDevice` entries
+#:    sets `top_plate_via`/`top_plate_via_metal`, so every reproduction
+#:    tried either extracted the two plates as disconnected islands, or
+#:    false-shorted them, or left the top plate's via unreachable. Filed as
+#:    2AMLogic/klayout-tools#775; see `layout/matching-plan.md` Section 7bb
+#:    and `spec/decision-records/DR-007-mcc-area-budget.md` for the full
+#:    reproduction.
+#:
+#: Both findings independently rule out the MIM-overlay path today --
+#: (1) would still block even if (2) is fixed upstream, since it is a
+#: netlist-shape fact about `klt lvs`'s comparer, not a drawing-capability
+#: gap. This increment therefore proceeds straight to the ruling's own
+#: fallback: draw MCC in-plane as the MOS cap it already is in
+#: design/error_amp.sch.
+MCC_MIM_INFEASIBLE_NOTE = (
+    "MCC is drawn as a pfet_g5v0d10v5 MOS-as-capacitor (matching "
+    "design/error_amp.sch exactly), not a cap_mim overlay. Two "
+    "independent reasons: (1) `reference.spice`'s MMCC card is a plain "
+    "pfet M-element, and `klt lvs` has no device-class equivalence "
+    "mechanism -- a cap_mim overlay would extract under a different "
+    "device class (sky130_fd_pr__model__cap_mim, 2-terminal) and could "
+    "not reach mismatch_count: 0 against it regardless of area, only "
+    "recategorize or double the one mismatch; (2) PR #124 (issue #62's "
+    "twenty-ninth increment) independently found sky130's cap_mim device "
+    "recognition cannot wire a top plate out to routing metal without "
+    "either a false short or a disconnected net with the currently "
+    "pinned klt (2AMLogic/klayout-tools#775, filed). See "
+    "layout/matching-plan.md Section 7bb/7cc and "
+    "spec/decision-records/DR-007-mcc-area-budget.md."
+)
 
 #: Empty since issue #62's fourteenth increment (see SUBSTRATE_NET_NOTE).
 #: Through the thirteenth increment this named a `hints.same_nets`
@@ -1325,9 +1429,13 @@ BLOCKS: list[dict[str, Any]] = [
 SUBSTRATE_SAME_NETS: list[list[str]] = []
 
 MCC_AREA_UM2_NOTE = (
-    "MCC (amp compensation cap, amp_m_cc=16 x W=30 x L=20 = 9600 um^2) is "
-    "single-ended and not drawn here, exactly as in the #15 skeleton; see "
-    "layout/matching-plan.md's area-budget section for why"
+    "MCC (amp compensation cap, amp_m_cc=16 x W=30 x L=20 = 9600 um^2 "
+    "analytic) is now drawn, as of issue #62's thirtieth increment -- see "
+    "the `amp_cc` block above and MCC_MIM_INFEASIBLE_NOTE for why it is a "
+    "MOS-as-capacitor block rather than a cap_mim overlay. Drawing it pushes "
+    "the composed cell over the ratified 50,000 um^2 (DR-005) Area budget; "
+    "see spec/decision-records/DR-007-mcc-area-budget.md (proposed, not "
+    "ratified) and this record's own `within_budget` gate result"
 )
 
 
@@ -1593,6 +1701,18 @@ MOS_HALVES: dict[str, dict[str, Any]] = {
         "drain_suffix": "_S", "drain_facing": DIRECTION_WEST,
         "source_suffix": "_D", "source_facing": DIRECTION_EAST,
         "devices": {"MN4": "M1", "MN3": "M2"},
+    },
+    "amp_cc": {
+        # Both "devices" here are wired to the exact same nets (VDD on
+        # both drain and source, GDRV on gate) -- MCC is one schematic
+        # device, not two, and `combine_devices` is what folds the two
+        # mult=AMP_M_CC//2 groups back into the schematic's single m=16
+        # device (MCC_MIM_INFEASIBLE_NOTE). The drain/source suffix
+        # choice is arbitrary here (both terminals land on VDD either
+        # way) -- kept consistent with the other "W"-spine PMOS blocks.
+        "drain_suffix": "_D", "drain_facing": DIRECTION_EAST,
+        "source_suffix": "_S", "source_facing": DIRECTION_WEST,
+        "devices": {"MCC_A": "M1", "MCC_B": "M2"},
     },
 }
 
@@ -2026,13 +2146,17 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
         "terminals": [
             mos_comb("core_mirror", "VDD"),
             mos_comb("amp_pmirr", "VDD"),
+            mos_comb("amp_cc", "VDD"),
             bulk_terminal("core_mirror"),
             bulk_terminal("amp_input_pair"),
             bulk_terminal("amp_pmirr"),
+            bulk_terminal("amp_cc"),
         ],
-        "schematic": "VDD trunk: MPOUT/MPAMP and MP3/MP4 sources -- every "
-        "finger of all four, not one pad per block -- plus each PMOS group's "
-        "n-well guard-ring tap (the reference's pfet bulk terminal)",
+        "schematic": "VDD trunk: MPOUT/MPAMP and MP3/MP4 sources, MCC's "
+        "drain+source (it is wired D=S=B=VDD, a MOS capacitor) -- every "
+        "finger of all five, not one pad per block -- plus each PMOS "
+        "group's n-well guard-ring tap (the reference's pfet bulk "
+        "terminal)",
     },
     {
         "net": "VSS",
@@ -2062,10 +2186,12 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
             mos_comb("amp_pmirr", "GDRV"),
             mos_comb("amp_nmirr", "GDRV"),
             mos_comb("core_mirror", "GDRV"),
+            mos_comb("amp_cc", "GDRV"),
         ],
-        "schematic": "the amp's output -- MP4's and MN3's drains -- and the "
-        "core mirror's gate drive, one node in the schematic and now one "
-        "drawn node in the layout",
+        "schematic": "the amp's output -- MP4's and MN3's drains -- the "
+        "core mirror's gate drive, and MCC's gate (the compensation cap "
+        "sits from AOUT/GDRV to VDD), one node in the schematic and now "
+        "one drawn node in the layout",
     },
     {
         "net": "D1",
@@ -3702,11 +3828,11 @@ SCHEMATIC_INTER_BLOCK_NETS: list[dict[str, Any]] = [
     },
     {
         "net": "GDRV",
-        "blocks": ["core_mirror", "amp_pmirr", "amp_nmirr"],
+        "blocks": ["core_mirror", "amp_pmirr", "amp_nmirr", "amp_cc"],
         "hops": ["GDRV"],
-        "schematic": "amp output (MP4/MN3 drains) + MPOUT/MPAMP gates -- one "
-        "node in the schematic and, since the gate-contact gap closed, one "
-        "drawn node in the layout too",
+        "schematic": "amp output (MP4/MN3 drains) + MPOUT/MPAMP gates + "
+        "MCC's gate -- one node in the schematic and, since the "
+        "gate-contact gap closed, one drawn node in the layout too",
     },
     {
         "net": "TAIL",
@@ -3734,10 +3860,10 @@ SCHEMATIC_INTER_BLOCK_NETS: list[dict[str, Any]] = [
     },
     {
         "net": "VDD",
-        "blocks": ["core_mirror", "amp_input_pair", "amp_pmirr"],
+        "blocks": ["core_mirror", "amp_input_pair", "amp_pmirr", "amp_cc"],
         "hops": ["VDD"],
         "schematic": "supply trunk: MPOUT/MPAMP sources + MP1/MP2 well side "
-        "+ MP3/MP4 sources",
+        "+ MP3/MP4 sources + MCC drain/source",
     },
     {
         "net": "VSS",
@@ -4061,10 +4187,21 @@ def flow_gate(
     *which* condition failed instead of only reporting exit 1.
 
     What is deliberately NOT in here: `klt lvs`-clean and schematic-net
-    coverage. Both are blocked upstream (MOS_GATE_NOTE, RES_FLAVOR_NOTE) and
-    are recorded as measured numbers in record.md's own scoreboard instead;
-    gating on them would only mean the flow never runs to completion, which
-    hides the evidence rather than producing it.
+    coverage. Schematic-net coverage is recorded as a measured number in
+    record.md's own scoreboard instead of gated, for the same
+    hides-the-evidence reason given below. `klt lvs`-clean was historically
+    blocked upstream too (MOS_GATE_NOTE, RES_FLAVOR_NOTE) -- as of the
+    thirtieth increment (MCC drawn as a MOS cap, MCC_MIM_INFEASIBLE_NOTE) it
+    is no longer blocked and this flow's own `lvs.combined.json` reports
+    `mismatch_count: 0`, but it is still not wired into this gate: the one
+    remaining blocker on a fully green flow run is `within_budget` (the
+    composed cell's real, measured area once MCC is drawn -- see
+    `spec/decision-records/DR-007-mcc-area-budget.md`, which is *proposed*,
+    not ratified), and gating on `lvs_clean` too would not change today's
+    exit status, only make a future budget-only regression harder to tell
+    apart from an LVS regression at a glance. Left as a follow-up once
+    DR-007 (or an amendment) is ratified and `budget_um2` below can move to
+    match it -- see that record's "Consequences" section.
 
     The four that ARE gated and are not about the tool's own verdicts --
     `no_drawn_shorts`, `no_merged_pin_names`, `no_split_routed_nets` and
