@@ -281,7 +281,7 @@ table, and a quantitative LVS mismatch analysis. Summary of what it measures:
 | extracted `pnp` | 0 | 16 |
 | extracted `nfet` | 0 | 16 |
 | DRC | clean | clean |
-| LVS | not attempted | runs; **mismatch**, see below |
+| LVS | not attempted | runs; **`mismatch_count: 0`** as of issue #62's thirty-first increment (`MCC` now drawn) — see below |
 
 Getting from the #15 skeleton to this state took roughly twenty-three
 increments (the full history is `layout/matching-plan.md` Sections 7a-7u,
@@ -344,6 +344,24 @@ decomposition and holds it at 1 — not a carried-over number. The one cause:
    deliberately not drawn — a single-ended layout omission documented since
    issue #15's own area-budget section, not a defect. The only
    `device.unmatched` entry.
+
+**Update (issue #62's thirtieth/thirty-first increments, 2026-08-11):** the
+operator ruled `MCC` is not a waivable exception (it sets the amp's
+dominant pole; the loop-stability sim assumes it exists) and directed
+realizing it — a `cap_mim` MIM-cap overlay if feasible, or the MOS cap the
+schematic already states otherwise. Checked and found infeasible on two
+independent grounds (tooling: PR #124, `layout/matching-plan.md` Section
+7bb, filed as [klayout-tools#775](https://github.com/2AMLogic/klayout-tools/issues/775);
+LVS device-class matching: Section 7cc, `MCC_MIM_INFEASIBLE_NOTE` in
+`gen_bandgap_routed.py`). `MCC` is now drawn as the `pfet` MOS-as-capacitor
+device the schematic already specifies (block `amp_cc`), and `klt lvs`
+reports **`mismatch_count: 0`** — the cause above is retired. The composed
+cell now measures 73,989 µm². The Area budget was relaxed from 50,000 µm² to
+80,000 µm² (`< 0.08 mm²`) by
+[DR-007](../spec/decision-records/DR-007-mcc-area-budget.md) (operator-ratified,
+#62) to accommodate the drawn `MCC` cap, so `run-bandgap-routed-flow.sh`'s
+`within_budget` gate now passes (73,989 ≤ 80,000 µm²) alongside the clean
+`klt lvs` — see `layout/matching-plan.md` Section 7cc for the full measurement.
 
 **A second cause was open through issue #62's twenty-third increment and is
 now closed (issue #108): `res_high_po`'s per-device head/contact resistance

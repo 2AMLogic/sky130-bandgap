@@ -538,11 +538,24 @@ three-geometry reproduction), not area-infeasible -- met3/met4/met5 are
 entirely empty across this cell's footprint, far more than the ~14,500 um^2
 a 29 pF MIM cap needs. The fallback path (draw `MCC` in-plane as the MOS
 cap it is today, +~20,800 um^2 projected) is gated on
-`spec/decision-records/DR-006-mcc-area-budget.md` (status: proposed), which
+`spec/decision-records/DR-007-mcc-area-budget.md` (status: proposed), which
 proposes relaxing this section's 50,000 um^2 budget line -- not yet
 ratified, so the budget above remains the enforced gate
-(`gen_bandgap_routed.py`'s `budget_um2`) until DR-006 (or an amendment to
+(`gen_bandgap_routed.py`'s `budget_um2`) until DR-007 (or an amendment to
 it) is decided.
+
+**Update (Section 7cc, thirty-first increment):** `MCC` is now drawn (a
+`pfet` MOS-cap block, `amp_cc`, matching the schematic's own device
+exactly). Measured, not projected: the composed bbox is **73,989 um^2** --
+higher than the projection above (~66,800 um^2) because the projection's
+2.17x average analytic-to-drawn overhead ratio understates `amp_cc`'s own
+guard ring, spine bussing and row-3 placement channel cost specifically.
+`klt lvs` reports `mismatch_count: 0` against this drawn cell. DR-007's
+proposed budget line is updated in the same increment (`< 0.07 mm^2` ->
+`< 0.08 mm^2`) to hold the real number with margin; still not ratified, so
+`gen_bandgap_routed.py`'s `budget_um2` stays at the current ratified
+50,000 um^2 and the flow's own `within_budget` gate fails, honestly, until
+DR-007 (or an amendment) is decided.
 
 ## 7. `klt` generator mapping and friction
 
@@ -3213,7 +3226,7 @@ sole remaining cause (`MMCC`) is unchanged from Section 7z's own
 omission as a permanent, accepted deviation; both are decisions, not
 increments this issue's own one-lever-per-increment scope covers.
 
-### 7bb. Thirtieth increment: the operator's MCC ruling (2026-08-11) -- MIM-cap overlay feasibility checked and found infeasible on tooling grounds, not area; falls back to the draw-as-MOS-cap + DR-006 path
+### 7bb. Thirtieth increment: the operator's MCC ruling (2026-08-11) -- MIM-cap overlay feasibility checked and found infeasible on tooling grounds, not area; falls back to the draw-as-MOS-cap + DR-007 path
 
 The operator ruled `MMCC` is not a waivable AC4 exception (it sets the
 amp's dominant pole -- `sim/error-amp-loop/`'s 45-corner loop-stability
@@ -3281,7 +3294,7 @@ infeasibility trigger was phrased as an area question, but the substance --
 blocker is area or tooling; #775 is a real external blocker no repo-side
 lever can route around today (same category `klayout-tools#559` was for 20+
 increments before it had an upstream fix to bump a pin past). Opened
-`spec/decision-records/DR-006-mcc-area-budget.md`, **status: proposed**,
+`spec/decision-records/DR-007-mcc-area-budget.md`, **status: proposed**,
 per CLAUDE.md's "agents do not relax the ratified spec to make results
 pass" -- this repo does not flip DR-005's Area row itself; the record
 states the measured trade for the operator to accept, amend, or reject by
@@ -3295,8 +3308,8 @@ increment on the scale of Section 3's other ten blocks, and
 `gen_bandgap_routed.py`'s own area gate (`budget_um2` hard-coded to the
 current ratified 50,000 um^2, `run-bandgap-routed-flow.sh` fails the flow
 below that) would reject the composed cell before LVS is even attempted --
-so it cannot land, gated or otherwise, ahead of DR-006 being accepted. Once
-DR-006 (or an operator amendment to it) is ratified, the next increment can
+so it cannot land, gated or otherwise, ahead of DR-007 being accepted. Once
+DR-007 (or an operator amendment to it) is ratified, the next increment can
 bump `budget_um2` to match, add the `MCC` block, and re-run the full
 routed-cell flow.
 
@@ -3305,9 +3318,9 @@ routed-cell flow.
 | AC | before (7aa) | after |
 | --- | --- | --- |
 | 1-3, 5 | MET | unchanged |
-| 4 (`klt lvs` clean) | NOT MET, `mismatch_count=1` (`MMCC`) | unchanged -- no drawn-geometry change this increment; the feasibility question the twenty-ninth increment's own "suggested next increment" left open is now answered (MIM overlay: tooling-infeasible today, filed as klayout-tools#775; MOS-cap path chosen, gated on DR-006) |
+| 4 (`klt lvs` clean) | NOT MET, `mismatch_count=1` (`MMCC`) | unchanged -- no drawn-geometry change this increment; the feasibility question the twenty-ninth increment's own "suggested next increment" left open is now answered (MIM overlay: tooling-infeasible today, filed as klayout-tools#775; MOS-cap path chosen, gated on DR-007) |
 
-**Suggested next increment**: DR-006 needs an operator ruling (accept the
+**Suggested next increment**: DR-007 needs an operator ruling (accept the
 proposed budget, amend the target value, or decline and re-open the
 redesign-the-compensation-smaller option the operator's own ruling recorded
 as "not chosen" for this issue). Once ratified, draw `MCC` as a `pfet`
@@ -3318,6 +3331,42 @@ re-checking on its own timeline: if it lands, a future MIM-cap increment
 could re-open the ~zero-incremental-footprint path instead, without
 touching the Area budget at all -- but that is not this increment's gate,
 since #775 is unmerged and unreleased as filed.
+
+### 7cc. Thirty-first increment: `MCC` drawn as a `pfet` MOS-cap block -- `klt lvs` reports `mismatch_count: 0` for the first time in this issue's history, gated only on DR-007's unratified Area relaxation
+
+Corrects one premise of the prior increment's own text: `run-bandgap-routed-flow.sh`'s `within_budget` is a **reported gate condition checked at the end of the flow**, not a pre-flight guard -- the flow does not "reject the composed cell before LVS is even attempted." It runs DRC, extraction and LVS exactly as it would at any composed size, and only the final exit status (`flow_gate()`'s boolean AND of every named condition) reflects an over-budget result. This increment draws `MCC` and lets the flow run to completion on that basis, rather than waiting on DR-007 first -- the LVS evidence this produces is exactly what DR-007 itself asks a future increment to generate ("the actual number will be recorded once a follow-on increment draws it").
+
+**A second, independent case against the MIM-cap overlay, found while implementing this increment** (see MCC_MIM_INFEASIBLE_NOTE in `gen_bandgap_routed.py`): even setting PR #124's tooling-infeasibility finding aside, `klt lvs` has no device-class equivalence mechanism (`_apply_hints` in `klayout_tools/lvs.py` accepts only `hints.same_nets`/`hints.equivalent_pins`, both net/pin-level). `reference.spice`'s `MMCC` card is a plain `M`-element (`pfet` class, 4-terminal `DeviceClassMOS4Transistor`); a drawn `cap_mim` overlay would extract under `sky130_fd_pr__model__cap_mim` (a different class name, 2-terminal `DeviceClassCapacitor`). `NetlistComparer`'s cross-class event (`match_devices_with_different_device_classes`) still reports a `device.class` mismatch when it *can* topologically pair devices of differing arity, and reports two independent `device.unmatched` entries when it cannot (the likely outcome here, given 2 vs. 4 terminals) -- so a MIM-cap overlay cannot reach `mismatch_count: 0` against the *current* `reference.spice` on LVS-comparator grounds alone, independent of area or drawability. Closing that path for real would need `reference.spice`'s `MMCC` card rewritten to a capacitor model, which is a schematic-level device-type change to a closed, sim-verified cell -- the same "redesign the compensation network" scope the operator's ruling already flagged as out of scope for this issue. This does not change DR-007's conclusion (MOS-cap is the only path that reaches `mismatch_count: 0` today), but it means the MIM-cap path stays closed even after klayout-tools#775 lands, unless a future increment separately reopens the reference-netlist question.
+
+**Implementation**: a new `amp_cc` block (row 3, below `amp_pmirr`/`amp_nmirr`), `diff_pair` generator, `w_um=30, l_um=20, splits=8 (=AMP_M_CC//2), flavor=pfet, mirror=True, add_guard_ring=True` -- two mult-8 groups (`MCC_A`/`MCC_B`, a new `MOS_HALVES` entry) wired to the *exact same* two nets (VDD on both drain and source, GDRV on gate), so `combine_devices` folds all 16 fingers -- both groups, not just each group's own 8 -- into the schematic's single `m=16` `MMCC` device. This is a one-level-deeper application of the same parallel-fold mechanism that already collapses e.g. `MP1`'s 16 fingers into one device; nothing new was needed from `combine_devices` itself, and the result (see below) confirms it folds across the `M1`/`M2` group boundary too, not just within one.
+
+**Results** (`layout/bandgap-core/reports/20260811-220511-6814b56/record.md`):
+
+| Stage | Before this increment | After |
+| --- | --- | --- |
+| met1/met2 routing | 13 nets, 0 unrouted | 13 nets, 0 unrouted (unchanged net count -- `amp_cc`'s VDD/GDRV hops join existing nets, they do not add new ones) |
+| DRC | clean | clean |
+| met2 DRC (own check) | clean, via1 cuts=12, met2 polygons=5 | clean, via1 cuts=22, met2 polygons=9 |
+| extract | `device_counts={"nfet":16,"pfet":52,"pnp":16,"res_high_po":143}`, `pin_count=11` | `device_counts={"nfet":16,"pfet":68,"pnp":16,"res_high_po":143}`, `pin_count=11` (+16 `pfet` = `amp_cc`'s own drawn finger count before folding) |
+| `klt lvs` (combined) | `mismatch_count=1` (`MMCC` unmatched) | **`mismatch_count=0`**, `devices.matched=16` (was 15), `category_counts={}` |
+| `klt lvs` (uncombined) | mismatch=405 | mismatch=421 (16 more raw devices to fold, same shape) |
+| composed bbox | 45,968 um^2 | **73,989 um^2** |
+
+**Area**: the measured 73,989 um^2 is higher than DR-007's own *projected* ~66,800 um^2 (which used this design's average 2.17x analytic-to-drawn overhead ratio) -- the `amp_cc` block's own guard ring, spine/comb bussing and the wider row-3 placement channel cost more than the average block did. DR-007's proposed `< 0.07 mm^2` (70,000 um^2) line does not hold the real number; see this record's own update to DR-007 for the corrected proposal. `budget_um2` in `gen_bandgap_routed.py` is deliberately left at the current ratified 50,000 um^2 (DR-005) rather than bumped to match -- DR-007 is still `proposed`, not ratified, and bumping the gate constant to make `within_budget` pass would be exactly the "relax the ratified spec to make results pass" CLAUDE.md refuses. The flow's own exit status (`gen_bandgap_routed.py: FAILED gate conditions: within_budget`) is therefore expected and correct at this repo's current ratified state, not a defect this increment introduces.
+
+#### Scoreboard after this increment
+
+| AC | before (7bb) | after |
+| --- | --- | --- |
+| 1-3, 5 | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, `mismatch_count=1` (`MMCC`) | **`klt lvs` itself now reports `mismatch_count=0`** -- the LVS-comparator half of AC4 is satisfied for the first time in this issue's history. The flow's own composed-area gate (`within_budget`) still fails against the current ratified 50,000 um^2 budget, pending DR-007's ratification; AC4 is not marked MET until that gate is genuinely green too (a spec-conformant layout, not merely an LVS-clean one) |
+
+**Suggested next increment**: get an operator ruling on DR-007 (updated in
+this same increment with the real 73,989 um^2 measurement, proposing
+`< 0.08 mm^2` for margin instead of the prior `< 0.07 mm^2` projection).
+Once ratified, a one-line follow-up bumps `gen_bandgap_routed.py`'s
+`budget_um2` to match and the flow should report every gate green,
+including `within_budget` -- no further drawn-geometry change expected.
 
 ## 8. Known limitations / follow-on work
 

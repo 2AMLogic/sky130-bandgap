@@ -9,11 +9,20 @@ xschem + ngspice analog flow.
 is underway, and bandgap-core layout is DRC-clean and fully routed — all 12
 of 12 schematic inter-block nets joined across every block they reach,
 extracted PNP/MOS/resistor devices, and 11 correctly promoted top-level
-pins. `klt lvs` is not yet clean (`mismatch_count: 1` against the
-xschem-derived reference netlist), but the one remaining cause is disclosed
-and is **not** a connectivity, topology, or routing defect: a single
-deliberately-undrawn device, the error amp's compensation cap, single-ended
-by design since issue #15. The routed R2A/R2B/R1 array's per-instance head
+pins. As of issue #62's thirty-first increment, `klt lvs` itself reports
+**`mismatch_count: 0`** against the xschem-derived reference netlist — the
+error amp's compensation cap (`MCC`) is now drawn as the `pfet`
+MOS-as-capacitor device `design/error_amp.sch` specifies, matching the
+reference netlist's own `MMCC` device exactly. A `cap_mim` MIM-cap overlay
+(the zero-incremental-footprint alternative) was checked and found
+infeasible on two independent grounds — see
+[`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)
+and `layout/matching-plan.md` Sections 7bb/7cc. Drawing `MCC` pushes the
+composed cell to 73,989 µm²; the Area budget was relaxed from 50,000 µm² to
+80,000 µm² (`< 0.08 mm²`) to accommodate the now-measured drawn figure,
+ratified in
+[DR-007](spec/decision-records/DR-007-mcc-area-budget.md) (operator, issue
+#62) — the composed cell is now within budget. The routed R2A/R2B/R1 array's per-instance head
 resistance — which issue #98 confirmed with independent real-SPICE evidence
 is a real, material electrical effect of the layout's own folded topology,
 not an LVS-extraction artifact, ratified in
@@ -25,8 +34,8 @@ correction
 closed via [#583](https://github.com/2AMLogic/klayout-tools/pull/583)/[#587](https://github.com/2AMLogic/klayout-tools/pull/587))
 _would_ make `klt lvs` re-report those resistors at the single-device value
 instead; it is picked up in the pinned `klt` build and measured under all
-four accounting variants, and deliberately **not** adopted — doing so takes
-`mismatch_count` back from 1 to 4 and would state a resistance the fabricated
+four accounting variants, and deliberately **not** adopted — doing so would
+regress `mismatch_count` and would state a resistance the fabricated
 cell does not have. See
 [`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)
 for the full record. Nothing here has been taped out or measured in
@@ -53,7 +62,7 @@ tool itself, so the fix benefits everyone using sky130, not just this repo.
 | PSRR | > 60 dB DC–1 kHz | > 30 dB @ 1 MHz |
 | Supply | 3.3 V ±10% | 1.8 V-core Banba variant |
 | Iq | < 50 µA | < 20 µA |
-| Area | < 0.05 mm² | — |
+| Area | < 0.08 mm² (DR-007; relaxed from 0.05 to fit the drawn `MCC` cap) | — |
 | Startup | self-starting, < 1 ms | — |
 
 Port parity note: spec mirrors gf180-bandgap deliberately — same block,
@@ -64,8 +73,11 @@ port-parity gap DR-005 flagged.
 
 Maturity ladder: simulation-complete → layout DRC/LVS-clean → shuttle
 seat → measured silicon over temperature. Current position: mid-ladder —
-bandgap-core layout is DRC-clean and fully routed but not yet LVS-clean
-(two disclosed, non-topology causes remain; see Status above).
+bandgap-core layout is DRC-clean, fully routed, and `klt lvs`-clean
+(`mismatch_count: 0`), and the composed cell is within the Area budget
+relaxed to `< 0.08 mm²` by [DR-007](spec/decision-records/DR-007-mcc-area-budget.md)
+(operator-ratified) — a spec-conformant, layout-complete block, pending
+post-layout extraction (#16) and the operator tier award.
 
 ## Environment setup
 
