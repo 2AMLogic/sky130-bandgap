@@ -37,7 +37,6 @@ from __future__ import annotations
 import argparse
 import json
 import math
-import re
 import shutil
 import subprocess
 import sys
@@ -56,7 +55,14 @@ SPICEINIT_FILE = SIM_DIR / "spiceinit"
 BUILD_DIR = SIM_DIR / "build" / "monte-carlo-untrimmed"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
-from sim_common import load_corner_run, mean, mv, render_log, stdev  # noqa: E402
+from sim_common import (  # noqa: E402
+    load_corner_run,
+    mean,
+    mv,
+    parse_samples,
+    render_log,
+    stdev,
+)
 
 cr = load_corner_run()
 
@@ -308,28 +314,6 @@ def build_deck(pdk, point: Point, body: list[str]) -> str:
     for name in CONFIGS[point.config]:
         head.append(f".param {name}=0")
     return "\n".join(head + body) + "\n" + control_block(point)
-
-
-_PRINT_LINE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(-?[0-9.]+(?:[eE][-+]?[0-9]+)?)$")
-
-
-def parse_samples(log: str) -> list[dict[str, float]]:
-    """Parse the repeated `op` + `print` blocks of the Monte Carlo loop."""
-    wanted = set(VECTORS)
-    samples: list[dict[str, float]] = []
-    current: dict[str, float] = {}
-    for line in log.splitlines():
-        m = _PRINT_LINE.match(line.strip())
-        if not m or m.group(1) not in wanted:
-            continue
-        name, value = m.group(1), float(m.group(2))
-        if name in current:
-            samples.append(current)
-            current = {}
-        current[name] = value
-    if current:
-        samples.append(current)
-    return [s for s in samples if wanted <= set(s)]
 
 
 def run_point(pdk, point: Point, run_dir: Path, deck: str, timeout: int):
@@ -986,7 +970,7 @@ def main(argv: list[str]) -> int:
                 f"{point.corner_id}; see "
                 f"{(corners_dir / (point.corner_id + '.log')).relative_to(REPO_ROOT)}"
             )
-        parsed = parse_samples(raw)
+        parsed = parse_samples(raw, VECTORS)
         if not parsed:
             raise cr.HarnessError(
                 f"no Monte Carlo samples parsed for {point.corner_id} — see the log"
