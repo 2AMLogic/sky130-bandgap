@@ -241,13 +241,6 @@ def r2_segments_um(n_r2: int, trim_code: int, trim_unit_um: float) -> list[float
     return [R_LSEG_UM] * coarse_units + [trim_unit_um] * active_fine
 
 
-def analytic_step_ohm(trim_unit_um: float) -> float:
-    """The chained model's per-code resistance step (removing one active fine
-    unit): HEAD_OHM (fixed) + BODY_OHM_PER_UM * trim_unit_um. Cross-reference
-    only -- the ngspice sweep below is the ground truth."""
-    return HEAD_OHM + BODY_OHM_PER_UM * trim_unit_um
-
-
 # The exact single-device lines this script replaces (verified present exactly
 # once each in BASE_SNAPSHOT before substitution) -- identical target lines to
 # sim/res-array-resize/run_res_array_resize.py's TARGET_LINES.
