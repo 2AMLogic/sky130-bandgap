@@ -84,7 +84,6 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 SIM_DIR = HERE.parent
 REPO_ROOT = SIM_DIR.parent
-SPICEINIT_FILE = SIM_DIR / "spiceinit"
 BUILD_DIR = SIM_DIR / "build" / "res-array-head-resistance"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
