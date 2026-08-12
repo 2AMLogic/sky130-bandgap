@@ -330,3 +330,61 @@ def stdev(values: list[float]) -> float:
 def mv(value: float) -> str:
     """Format a volt-scale value as a millivolt string with 4 decimal places."""
     return f"{value * 1e3:.4f}"
+
+
+def seed_stability_checks(
+    a: dict,
+    b: dict,
+    vector: str,
+    seed_a: int,
+    seed_b: int,
+    tol: float,
+    *,
+    sample_field: str = "max_abs",
+    sample_label: str = "magnitude",
+    sample_unit: str = "mV",
+    sample_scale: float = 1e3,
+    sample_precision: int = 4,
+) -> list[dict]:
+    """Two-check seed-stability block for one Monte Carlo vector (issue #154).
+
+    Compares a run seeded with `seed_a` against a second run seeded with
+    `seed_b`: `seed_sigma_stable[vector]` checks the sigma drift stays within
+    `tol`, `seed_sample_differs[vector]` checks the worst-sample value
+    (`stats[vector][sample_field]`) actually changed between seeds -- i.e.
+    the second draw wasn't a no-op. `SEED_A`/`SEED_B`/`SEED_SIGMA_TOL` are
+    per-script module constants with different *values* across the three
+    callers (`error-amp-offset-mc`, `pnp-mismatch`, `monte-carlo-untrimmed`),
+    so they are passed in rather than imported. `sample_field` defaults to
+    `"max_abs"` (error-amp-offset-mc, pnp-mismatch); `monte-carlo-untrimmed`
+    passes `sample_field="max", sample_label="VOUT", sample_unit="V",
+    sample_scale=1.0, sample_precision=6` to preserve its pre-existing
+    (differently-formatted, absolute-VOUT rather than mV-magnitude) detail
+    text.
+    """
+    sa = a["stats"][vector]["sigma"]
+    sb = b["stats"][vector]["sigma"]
+    drift = abs(sb / sa - 1.0) if sa else float("inf")
+    sample_a = a["stats"][vector][sample_field]
+    sample_b = b["stats"][vector][sample_field]
+    return [
+        {
+            "name": f"seed_sigma_stable[{vector}]",
+            "pass": drift <= tol,
+            "detail": (
+                f"sigma(seed {seed_b}) / sigma(seed {seed_a}) = "
+                f"{(sb / sa) if sa else float('nan'):.3f} "
+                f"({mv(sb)} mV vs {mv(sa)} mV; tolerance +/-{tol:.0%})"
+            ),
+        },
+        {
+            "name": f"seed_sample_differs[{vector}]",
+            "pass": sample_a != sample_b,
+            "detail": (
+                f"worst-sample {sample_label} differs between the two seeds "
+                f"({sample_a * sample_scale:.{sample_precision}f} {sample_unit} vs "
+                f"{sample_b * sample_scale:.{sample_precision}f} {sample_unit}), i.e. the "
+                "draw really did change"
+            ),
+        },
+    ]

@@ -61,6 +61,7 @@ from sim_common import (  # noqa: E402
     mv,
     parse_samples,
     render_log,
+    seed_stability_checks,
     stdev,
 )
 
@@ -533,32 +534,19 @@ def seed_stability(results: dict[str, dict]) -> list[dict]:
     b = results.get(f"{MM_SECTION}_all_27c_{SUPPLY_V:.2f}v_seed-b")
     if not a or not b:
         return []
-    sa = a["stats"]["vout"]["sigma"]
-    sb = b["stats"]["vout"]["sigma"]
-    drift = abs(sb / sa - 1.0) if sa else float("inf")
-    out = [
-        {
-            "name": "seed_sigma_stable[vout]",
-            "pass": drift <= SEED_SIGMA_TOL,
-            "detail": (
-                f"sigma(seed {SEED_B}) / sigma(seed {SEED_A}) = "
-                f"{(sb / sa) if sa else float('nan'):.3f} ({sb * 1e3:.4f} mV vs "
-                f"{sa * 1e3:.4f} mV; tolerance +/-{SEED_SIGMA_TOL:.0%})"
-            ),
-        }
-    ]
-    out.append(
-        {
-            "name": "seed_sample_differs[vout]",
-            "pass": a["stats"]["vout"]["max"] != b["stats"]["vout"]["max"],
-            "detail": (
-                f"worst-sample VOUT differs between the two seeds "
-                f"({a['stats']['vout']['max']:.6f} V vs {b['stats']['vout']['max']:.6f} V), "
-                "i.e. the draw really did change"
-            ),
-        }
+    return seed_stability_checks(
+        a,
+        b,
+        "vout",
+        SEED_A,
+        SEED_B,
+        SEED_SIGMA_TOL,
+        sample_field="max",
+        sample_label="VOUT",
+        sample_unit="V",
+        sample_scale=1.0,
+        sample_precision=6,
     )
-    return out
 
 
 def convergence_check(all_point_27c: dict | None) -> list[dict]:

@@ -51,6 +51,7 @@ from sim_common import (  # noqa: E402
     mv,
     parse_samples,
     render_log,
+    seed_stability_checks,
     stdev,
 )
 
@@ -358,33 +359,7 @@ def seed_stability(results: dict[str, dict]) -> list[dict]:
         return []
     out = []
     for pair in PAIRS:
-        sa = a["stats"][pair.vector]["sigma"]
-        sb = b["stats"][pair.vector]["sigma"]
-        drift = abs(sb / sa - 1.0) if sa else float("inf")
-        out.append(
-            {
-                "name": f"seed_sigma_stable[{pair.vector}]",
-                "pass": drift <= SEED_SIGMA_TOL,
-                "detail": (
-                    f"sigma(seed {SEED_B}) / sigma(seed {SEED_A}) = "
-                    f"{(sb / sa) if sa else float('nan'):.3f} "
-                    f"({sb * 1e3:.4f} mV vs {sa * 1e3:.4f} mV; tolerance "
-                    f"+/-{SEED_SIGMA_TOL:.0%})"
-                ),
-            }
-        )
-        out.append(
-            {
-                "name": f"seed_sample_differs[{pair.vector}]",
-                "pass": a["stats"][pair.vector]["max_abs"] != b["stats"][pair.vector]["max_abs"],
-                "detail": (
-                    "worst-sample magnitude differs between the two seeds "
-                    f"({a['stats'][pair.vector]['max_abs'] * 1e3:.4f} mV vs "
-                    f"{b['stats'][pair.vector]['max_abs'] * 1e3:.4f} mV), i.e. the "
-                    "draw really did change"
-                ),
-            }
-        )
+        out += seed_stability_checks(a, b, pair.vector, SEED_A, SEED_B, SEED_SIGMA_TOL)
     return out
 
 
