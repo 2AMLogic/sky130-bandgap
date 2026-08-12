@@ -87,8 +87,7 @@ non-obvious wrinkle this module documents and handles once:
    an ngspice/sky130-PDK interaction, not a `klt` gap, so it is not filed
    upstream -- `translate_extracted_netlist` strips the suffix instead.
 
-Callers (see `sim/output-voltage-tc-post-layout/run_post_layout_vref_tc.py`
-for the reference usage) chain these three pieces plus
+Callers chain these three pieces plus
 `build_core_wrapper`/`strip_schematic_subckts` to produce a `bandgap_core`
 netlist body that is a drop-in replacement for `design/bandgap_core.sym` in
 ANY existing `sim/*/testbench/*.sch` that instantiates it (same 4-pin
@@ -96,13 +95,36 @@ interface: `VOUT GDRV VDD VSS`) -- this is what lets a follow-on increment
 of issue #16 reuse this module for `psrr-dc`, `line-regulation`,
 `quiescent-current`, `startup-time`, `startup-stability`, `startup-ramp`
 without re-deriving any of the above.
+
+4. **One generic per-bench runner** (`run_post_layout_experiment`): the
+   chaining itself, the record minting, the append-only refusal, the corner
+   loop and the `provenance: extracted` record schema are IDENTICAL for
+   every bench -- the only per-bench variables are the wrapped experiment
+   slug, its testbench, the claim sentence and whether that bench's own
+   manifest matrix is collapsed on an axis the deck sweeps internally. So
+   each `sim/<slug>-post-layout/run_*.py` is a ~40-line declaration of those
+   variables, not a copy of the runner (`sim/README.md`'s "copy this script"
+   note predates this distillation; copying is no longer the pattern).
+
+5. **The parasitics extraction is shared across benches**
+   (`resolve_parasitics_snapshot`): every post-layout record for a given
+   `layout/bandgap-core/reports/<record-id>` must measure the SAME extracted
+   netlist, otherwise cross-bench comparisons (Iq at the operating point
+   `output-voltage-tc` reported, say) would silently be against different
+   DUTs. The first bench to run for a layout record commits the snapshot
+   under its own `parasitics-snapshot/<layout-record-id>/`; later benches
+   find and reuse it in place rather than re-extracting a second copy.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
+import shutil
 import subprocess
+import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -340,3 +362,322 @@ def strip_schematic_subckts(body_text: str, names: tuple[str, ...]) -> str:
             raise PostLayoutError(f"no .subckt {name} ... .ends block found to strip")
         text = new_text
     return text
+
+
+# --------------------------------------------------------------------------
+# generic per-bench post-layout runner (module docstring points 4 and 5)
+# --------------------------------------------------------------------------
+
+SIM_DIR = Path(__file__).resolve().parent.parent
+REPO_ROOT = SIM_DIR.parent
+LAYOUT_BANDGAP_CORE_DIR = REPO_ROOT / "layout" / "bandgap-core"
+
+PEX_TOP = "bandgap_core_routed"
+PEX_SPICE_NAME = f"{PEX_TOP}.pex.spice"
+PEX_JSON_NAME = f"{PEX_TOP}.pex.json"
+
+# The two `.subckt` blocks xschem emits for `design/bandgap_core.sym` in every
+# bench that instantiates it (`bandgap_core` calls `error_amp`); both are
+# replaced wholesale by the extracted layout body, which is flat.
+SCHEMATIC_SUBCKTS_TO_REPLACE = ("bandgap_core", "error_amp")
+
+
+def resolve_parasitics_snapshot(
+    local_snapshot_root: Path, gds: Path, layout_record_id: str
+) -> tuple[Path, dict, str]:
+    """Find (or produce) the `klt extract --parasitics` snapshot for one
+    layout record. Returns (snapshot_dir, summary, source).
+
+    Resolution order, per module docstring point 5:
+
+    1. `<local_snapshot_root>/<layout_record_id>/` -- this bench already ran
+       against this layout record (`sim/` is append-only: never re-extract
+       over an existing snapshot).
+    2. any sibling `sim/*/parasitics-snapshot/<layout_record_id>/` -- another
+       post-layout bench already extracted this exact layout record; reuse it
+       IN PLACE so every post-layout record for a given layout record
+       measures the same extracted netlist (and so the ~320 kB snapshot is
+       committed once, not once per bench).
+    3. otherwise run `klt extract --parasitics` and commit the result here.
+    """
+    local = local_snapshot_root / layout_record_id
+    if (local / PEX_SPICE_NAME).is_file():
+        summary = json.loads((local / PEX_JSON_NAME).read_text())
+        return local, summary, "local"
+
+    for candidate in sorted(SIM_DIR.glob(f"*/parasitics-snapshot/{layout_record_id}")):
+        if (candidate / PEX_SPICE_NAME).is_file() and (candidate / PEX_JSON_NAME).is_file():
+            summary = json.loads((candidate / PEX_JSON_NAME).read_text())
+            return candidate, summary, f"reused:{candidate.relative_to(REPO_ROOT)}"
+
+    _spice, summary = run_klt_extract_parasitics(gds, local, top=PEX_TOP)
+    return local, summary, "extracted"
+
+
+def build_extracted_body(
+    cr,
+    pdk,
+    run_dir: Path,
+    local_snapshot_root: Path,
+    wrapped_schematic: str,
+) -> tuple[list[str], dict]:
+    """Netlist the (unmodified) schematic testbench, then swap its
+    `bandgap_core`/`error_amp` subckt definitions for the translated,
+    extracted, parasitics-included routed layout. Returns (body, provenance).
+    """
+    layout_record_id, layout_record_dir, gds = resolve_latest_layout(LAYOUT_BANDGAP_CORE_DIR)
+    pex_dir, pex_summary, pex_source = resolve_parasitics_snapshot(
+        local_snapshot_root, gds, layout_record_id
+    )
+    spice_path = pex_dir / PEX_SPICE_NAME
+
+    translated, counts = translate_extracted_netlist(spice_path.read_text())
+
+    expected = pex_summary.get("device_counts", {})
+    expected_mos = expected.get("nfet", 0) + expected.get("pfet", 0)
+    expected_pnp = expected.get("pnp", 0)
+    expected_res = expected.get("res_high_po", 0)
+    if (counts["mos"], counts["pnp"], counts["res"]) != (expected_mos, expected_pnp, expected_res):
+        raise PostLayoutError(
+            "translation coverage mismatch against the extraction's own device_counts: "
+            f"translated mos={counts['mos']} pnp={counts['pnp']} res={counts['res']}, "
+            f"extraction reports nfet+pfet={expected_mos} pnp={expected_pnp} res_high_po={expected_res} "
+            "-- a device class this translator doesn't recognize may have been silently skipped"
+        )
+
+    core_block = extract_subckt_block(translated, PEX_TOP)
+    wrapper = build_core_wrapper(core_subckt=PEX_TOP)
+
+    testbench = REPO_ROOT / wrapped_schematic
+    netlist = cr.netlist_with_xschem(testbench, run_dir, pdk)
+    tb_body_text = "\n".join(cr.netlist_body(netlist))
+    tb_body_text = strip_schematic_subckts(tb_body_text, SCHEMATIC_SUBCKTS_TO_REPLACE)
+
+    body = (tb_body_text + "\n\n" + wrapper + "\n" + core_block + "\n").splitlines()
+
+    provenance = {
+        "layout_record_id": layout_record_id,
+        "layout_record": str((layout_record_dir / "record.md").relative_to(REPO_ROOT)),
+        "layout_gds": str(gds.relative_to(REPO_ROOT)),
+        "parasitics_snapshot": {
+            "spice": str(spice_path.relative_to(REPO_ROOT)),
+            "json": str((pex_dir / PEX_JSON_NAME).relative_to(REPO_ROOT)),
+            "source": pex_source,
+            "r_count": pex_summary.get("parasitics", {}).get("r_count"),
+            "c_count": pex_summary.get("parasitics", {}).get("c_count"),
+            "total_resistance_ohm": pex_summary.get("parasitics", {}).get("total_resistance_ohm"),
+            "total_capacitance_ff": pex_summary.get("parasitics", {}).get("total_capacitance_ff"),
+        },
+        "device_translation_counts": counts,
+        "lvs_mismatch_count_at_extraction": None,  # cross-referenced in the record body, not re-derived here
+    }
+    return body, provenance
+
+
+def parse_post_layout_args(argv: list[str], doc: str = "") -> argparse.Namespace:
+    """The flag set every `sim/*-post-layout/run_*.py` accepts (the subset of
+    `corner-run.py`'s flags that is meaningful when the matrix, measurements
+    and deck all come from the wrapped experiment's own manifest)."""
+    p = argparse.ArgumentParser(description=doc)
+    p.add_argument("--supersedes", default="")
+    p.add_argument("--author", default="")
+    p.add_argument("--timeout", type=int, default=300)
+    p.add_argument("--allow-pdk-mismatch", action="store_true")
+    p.add_argument("--dry-run", action="store_true")
+    return p.parse_args(argv)
+
+
+def run_post_layout_experiment(
+    cr,
+    here: Path,
+    slug: str,
+    wrapped_experiment: str,
+    wrapped_schematic: str,
+    claim_tail: str,
+    argv: list[str],
+    temp_override: list[float] | None = None,
+    subset_reason: str = "",
+) -> int:
+    """Run one bench's whole post-layout re-verification and write its record.
+
+    `here` is the `sim/<slug>/` directory of the POST-LAYOUT experiment (the
+    caller's own `Path(__file__).parent`); `wrapped_experiment` is the
+    schematic-level slug under `sim/` whose `experiment.json` supplies the
+    corner matrix, deck options and measurement limits UNCHANGED (never
+    edited -- the only variable between its records and this one is the DUT
+    body); `wrapped_schematic` is that bench's own testbench, netlisted
+    unmodified.
+
+    `temp_override` collapses the runner's outer temperature axis for benches
+    whose deck sweeps temperature internally (`output-voltage-tc`'s box TC);
+    it makes the run a subset, so `subset_reason` is then REQUIRED -- there
+    is no `--subset-reason` flag on this path, and `sim/README.md` makes the
+    justification a prose obligation for bespoke scripts.
+
+    Exit status matches `corner-run.py`: 0 all checks passed, 2 a record was
+    written but something failed (raises otherwise, so the caller maps
+    HarnessError/PostLayoutError to 1).
+    """
+    args = parse_post_layout_args(argv)
+    pin = cr.load_pin()
+    pdk = cr.resolve_pdk(pin)
+    if not pdk.matches_pin and not args.allow_pdk_mismatch:
+        raise cr.HarnessError(
+            f"installed PDK {pdk.variant} is open_pdks {pdk.installed_commit}, but "
+            f"sim/pdk.json pins {pin['open_pdks_commit']} (use --allow-pdk-mismatch to override)"
+        )
+    if not shutil.which("ngspice"):
+        raise cr.HarnessError("ngspice not found on PATH")
+    if not shutil.which("klt"):
+        raise cr.HarnessError("klt (klayout-tools) not found on PATH")
+
+    exp = cr.load_experiment(SIM_DIR / wrapped_experiment)
+    # exp.raw["claim"]'s trailing sentence describes the SCHEMATIC bench this
+    # record wraps ("Measures design/bandgap_core.sch ...") -- accurate for the
+    # manifest's own schematic-level records, misleading for this one. Keep the
+    # spec-line identification, replace the provenance tail.
+    claim_head = exp.raw["claim"].split("Measures ")[0].rstrip()
+    claim_text = claim_head + " " + claim_tail
+
+    class _Args:
+        quick = False
+        process = None
+        temp = temp_override
+        supply = None
+
+    matrix, is_subset = cr.build_matrix(exp, _Args(), pin)
+    if is_subset and not subset_reason:
+        raise cr.HarnessError(
+            f"{slug}: the resolved matrix is a subset of {wrapped_experiment}'s own "
+            "corners but no subset_reason was supplied -- sim/README.md requires the "
+            "justification in the record body"
+        )
+    reason = subset_reason if is_subset else ""
+
+    git_info = cr.git_state()
+    now = datetime.now(timezone.utc)
+    record_id = f"{now:%Y%m%d}-{now:%H%M%S}-{git_info['sha']}"
+
+    records_dir = here / "records"
+    snapshots_dir = here / "netlist-snapshots"
+    corners_dir = here / "corners" / record_id
+    record_md = records_dir / f"{record_id}.md"
+    record_json = records_dir / f"{record_id}.json"
+    snapshot = snapshots_dir / f"{record_id}.spice"
+    for path in (record_md, record_json, snapshot, corners_dir):
+        if path.exists():
+            raise cr.HarnessError(f"{path} already exists — sim/ is append-only, refusing to overwrite")
+
+    run_dir = SIM_DIR / "build" / slug / record_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(SIM_DIR / "spiceinit", run_dir / ".spiceinit")
+
+    body, layout_provenance = build_extracted_body(
+        cr, pdk, run_dir, here / "parasitics-snapshot", wrapped_schematic
+    )
+
+    print(f"experiment      : {slug}")
+    print(f"record id       : {record_id}")
+    print(f"layout record   : {layout_provenance['layout_record_id']}")
+    print(f"parasitics      : {layout_provenance['parasitics_snapshot']['source']}")
+    print(f"corner points   : {len(matrix)}" + (" (SUBSET)" if is_subset else " (full matrix)"))
+
+    if args.dry_run:
+        print("\n-- corner list --")
+        for corner in matrix:
+            print(f"  {corner.id}")
+        print(f"\n-- deck for {matrix[0].id} --")
+        print(cr.build_deck(exp, pdk, matrix[0], body))
+        print("\n(dry run: nothing written under sim/)")
+        return 0
+
+    results = []
+    for i, corner in enumerate(matrix, start=1):
+        log_path = corners_dir / f"{corner.id}.log"
+        res = cr.run_corner(exp, pdk, corner, body, run_dir, log_path, args.timeout)
+        results.append(res)
+        summary = ", ".join(
+            f"{c['name']}={'n/a' if c['value'] is None else format(c['value'], '.6g')}"
+            for c in res["measurements"]
+        )
+        print(f"[{i:>3}/{len(matrix)}] {corner.id:<20} " f"{'PASS' if res['pass'] else 'FAIL'}  {summary}")
+
+    spreads = cr.spread_checks(exp, results)
+    overall = all(r["pass"] for r in results) and all(s["pass"] for s in spreads)
+
+    snapshot.parent.mkdir(parents=True, exist_ok=True)
+    snapshot.write_text("\n".join(body) + "\n.end\n")
+
+    record = {
+        "record_id": record_id,
+        "timestamp": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "author": args.author or cr.default_author(),
+        "supersedes": args.supersedes,
+        "experiment": {
+            "slug": slug,
+            "title": exp.raw.get("title", exp.slug) + " -- POST-LAYOUT (extracted netlist)",
+            "claim": claim_text,
+            "provenance": "extracted",
+            "provenance_source": (
+                f"{layout_provenance['layout_gds']} via `klt extract --parasitics` "
+                f"(layout record {layout_provenance['layout_record_id']}), translated by "
+                "sim/bin/post_layout_common.py, wrapped over the unmodified "
+                f"{wrapped_schematic}"
+            ),
+            "statistical_convention": exp.raw.get("statistical_convention", "N/A"),
+        },
+        "layout_provenance": layout_provenance,
+        "pdk": {
+            "root": str(pdk.root),
+            "variant": pdk.variant,
+            "installed_commit": pdk.installed_commit,
+            "pinned_commit": pin["open_pdks_commit"],
+            "matches_pin": pdk.matches_pin,
+            "lib_file": str(pdk.lib_file),
+        },
+        "tools": cr.tool_versions(),
+        "git": git_info,
+        "matrix": {
+            "process": cr.unique_in_order(c.process for c in matrix),
+            "temperature_c": sorted({c.temp_c for c in matrix}),
+            "supply_v": sorted({c.supply_v for c in matrix}),
+            "n_points": len(matrix),
+            "is_subset": is_subset,
+            "subset_reason": reason,
+            "points": [[c.process, c.temp_c, c.supply_v] for c in matrix],
+            "point_ids": [c.id for c in matrix],
+        },
+        "corners": results,
+        "spread_checks": spreads,
+        "overall_pass": overall,
+        "links": {
+            "testbench": wrapped_schematic,
+            "manifest": str((SIM_DIR / wrapped_experiment / "experiment.json").relative_to(REPO_ROOT)),
+            "netlist_snapshot": str(snapshot.relative_to(REPO_ROOT)),
+            "corners_dir": str(corners_dir.relative_to(REPO_ROOT)) + "/",
+            "json": str(record_json.relative_to(REPO_ROOT)),
+            "record": str(record_md.relative_to(REPO_ROOT)),
+        },
+    }
+
+    records_dir.mkdir(parents=True, exist_ok=True)
+    record_json.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
+    record_md.write_text(cr.render_record(record))
+
+    print()
+    print(f"record  : {record_md.relative_to(REPO_ROOT)}")
+    print(f"json    : {record_json.relative_to(REPO_ROOT)}")
+    print(f"logs    : {corners_dir.relative_to(REPO_ROOT)}/")
+    print(f"overall : {'PASS' if overall else 'FAIL'}")
+    return 0 if overall else 2
+
+
+def main_wrapper(cr, run) -> None:
+    """`if __name__ == "__main__":` body shared by the per-bench scripts --
+    maps the two harness exception types to exit status 1 (no record written),
+    the same convention `corner-run.py` uses."""
+    try:
+        sys.exit(run(sys.argv[1:]))
+    except (cr.HarnessError, PostLayoutError) as err:
+        print(f"{Path(sys.argv[0]).name}: error: {err}", file=sys.stderr)
+        sys.exit(1)
