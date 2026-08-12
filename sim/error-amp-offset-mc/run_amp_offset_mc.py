@@ -59,6 +59,7 @@ from sim_common import (  # noqa: E402
     mean,
     mv,
     parse_samples,
+    partition_by_window,
     render_log,
     seed_stability_checks,
     stdev,
@@ -317,14 +318,6 @@ def write_log(corners_dir, point, pdk, record_id, stamp, deck, raw, rc, timed_ou
 # --------------------------------------------------------------------------
 # per-point evaluation
 # --------------------------------------------------------------------------
-
-
-def partition(samples: list[dict[str, float]]):
-    """Split Monte Carlo draws into operating-point solutions and non-starters."""
-    lo, hi = OPERATING_VOUT_V
-    good = [s for s in samples if lo <= s["vout"] <= hi]
-    bad = [s for s in samples if not (lo <= s["vout"] <= hi)]
-    return good, bad
 
 
 def evaluate(
@@ -864,7 +857,7 @@ def main(argv: list[str]) -> int:
             raise cr.HarnessError(
                 f"no Monte Carlo samples parsed for {point.corner_id} — see the log"
             )
-        samples, excluded = partition(parsed)
+        samples, excluded = partition_by_window(parsed, "vout", OPERATING_VOUT_V)
         if len(samples) < 2:
             raise cr.HarnessError(
                 f"only {len(samples)} of {len(parsed)} draws for {point.corner_id} "

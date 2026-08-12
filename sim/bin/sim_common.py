@@ -272,6 +272,25 @@ def parse_samples(log: str, vectors) -> list[dict[str, float]]:
     return [s for s in samples if wanted <= set(s)]
 
 
+def partition_by_window(
+    samples: list[dict[str, float]], key: str, window: tuple[float, float]
+) -> tuple[list[dict], list[dict]]:
+    """Split Monte Carlo draws into those with `sample[key]` inside `window`
+    and those outside it (issue #163).
+
+    Shared by `monte-carlo-untrimmed/run_mc_untrimmed.py` and
+    `error-amp-offset-mc/run_amp_offset_mc.py`, both of which call this with
+    `key="vout"` and their own module-level `OPERATING_VOUT_V` constant --
+    kept per-caller rather than moved here since the two callers already
+    define it independently (same name, same value, but no cross-file
+    coupling implied).
+    """
+    lo, hi = window
+    good = [s for s in samples if lo <= s[key] <= hi]
+    bad = [s for s in samples if not (lo <= s[key] <= hi)]
+    return good, bad
+
+
 def render_log(header_lines, pdk, rc, timed_out, stamp, sections, raw) -> str:
     """Shared `.log` tail skeleton: caller's `header_lines` + pdk/exit/
     timestamp + `(label, text)` `sections` + raw ngspice output (#146)."""
