@@ -129,6 +129,51 @@ amplifier, keeping this bench's exposed nets lower-impedance) or a
 design-level rejection margin increase is a follow-up call, not this
 record's.
 
+## Follow-up: the routing-fix path is closed (issue #140)
+
+Issue #140 picked up the "Whether the fix is a routing change... or a
+design-level rejection margin increase" question this record left open and
+ran the sensitivity sweep the "Known gaps" item below called for (against a
+real corner deck extracted from this record, perturbed directly in
+ngspice — no layout regeneration needed to test the hypothesis). Two
+findings that sharpen the mechanism above:
+
+1. **The dominant parasitic resistance is on the amplifier's own internal
+   nodes** (`GDRV`/`PN`/`TAIL`/`VA`/`VB`/`VBQ`/`D1`/`D2`'s own routing, plus
+   ~200 anonymous internal nets), **not the VDD/VSS supply rails** this
+   record's mechanism section hypothesized. Scaling only the 11 named
+   top-level pins' star-R resistors by 10x (an extreme, non-physical
+   reduction) moved `tt_27c_3.30v`'s `psrr_band_min` by only +0.07 dB;
+   scaling the internal-node resistors by the same 10x moved it by
+   +2.03 dB.
+2. **A routing-width fix does not close the gap even at the actually-tested
+   DRC-clean layout.** Raising `gen_bandgap_routed.py`'s `ROUTE_WIDTH_UM`
+   0.5 → 0.65 µm (+30%, verified DRC-clean and LVS-match, no bbox area
+   change) — replayed as a 0.769x scale on this record's own extracted
+   star-R network — still leaves the worst corner (`sf_-40c_2.97v`,
+   58.27 dB baseline) 1.23 dB short of the 60 dB floor, and even an
+   unrealistic >3x width increase (0.3x scale) falls 0.14 dB short there.
+   The unphysical zero-resistance limit only asymptotes to ~60.3–60.5 dB at
+   that corner — a ceiling too thin to trust across the corner axes this
+   45-point matrix doesn't cover (mismatch, `ll`/`hh`).
+
+Full sensitivity data, the harness-fragility side finding (raising
+`ROUTE_WIDTH_UM` also changes `klt extract --parasitics`'s pin-promotion
+behavior on `vsubs`, breaking `post_layout_common.py`'s fixed 11-pin
+`core_port_order` assumption), and the two disposition options this leaves
+(amend DR-006's floor, or fund a schematic-level amplifier PSRR margin
+increase) are in
+[`spec/decision-records/DR-008-psrr-post-layout-margin-proposal.md`](../../spec/decision-records/DR-008-psrr-post-layout-margin-proposal.md)
+(**proposed**, not ratified — issue #140 is routed to the operator to pick
+a disposition, not resolved by this finding alone).
+
+No new record is appended to `sim/psrr-dc-post-layout/records/` by this
+follow-up: no design or layout change was kept (the `ROUTE_WIDTH_UM` change
+above was evaluated and reverted, not committed), so a re-run would
+reproduce this same FAIL record's numbers, not new evidence. This record
+(`20260812-011520-5df01bf`) remains the current, valid measurement of the
+layout as drawn.
+
 ## Known gaps (not closed by this record)
 
 - The mechanism above is a scale/order-of-magnitude argument from the
@@ -138,7 +183,13 @@ record's.
   analysis had two specific legs to inspect; this one would need either a
   sensitivity sweep of the extracted network's dominant nets or a
   reduced-order model of the amplifier's loop with the extracted parasitics
-  folded in — a nontrivial follow-up, not attempted here).
+  folded in — a nontrivial follow-up, **narrowed but not fully closed** by
+  the "Follow-up" section above: the dominant resistance is now localized
+  to the internal-node class, but the specific worst-offender net(s), and
+  the capacitive network's own role — reducing star-C by 10x measurably
+  *worsened* `psrr_band_min` in a spot check, the opposite of a simple
+  single-pole story — remain open; see DR-008's "Known gaps" for the exact
+  numbers).
 - No mid-band frequency points beyond the 8 measurement expressions
   (`psrr_dc`/`f_dc`/`psrr_1k`/`f_1k`/`psrr_band_min`/`psrr_1m`/`f_1m`/
   `n_ac_points`) are recorded per corner — the full 71-point AC sweep is not
