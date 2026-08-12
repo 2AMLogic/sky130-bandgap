@@ -496,6 +496,7 @@ def run_post_layout_experiment(
     claim_tail: str,
     argv: list[str],
     temp_override: list[float] | None = None,
+    supply_override: list[float] | None = None,
     subset_reason: str = "",
 ) -> int:
     """Run one bench's whole post-layout re-verification and write its record.
@@ -508,10 +509,15 @@ def run_post_layout_experiment(
     body); `wrapped_schematic` is that bench's own testbench, netlisted
     unmodified.
 
-    `temp_override` collapses the runner's outer temperature axis for benches
-    whose deck sweeps temperature internally (`output-voltage-tc`'s box TC);
-    it makes the run a subset, so `subset_reason` is then REQUIRED -- there
-    is no `--subset-reason` flag on this path, and `sim/README.md` makes the
+    `temp_override`/`supply_override` collapse the runner's outer
+    temperature/supply axis for benches whose deck sweeps that axis
+    internally (`output-voltage-tc`'s box TC collapses temperature;
+    `line-regulation`'s in-deck `dc v1 2.97 3.63 ...` sweep collapses supply,
+    since ngspice's `.dc <source>` sweep overrides the outer `vsup` value for
+    that source regardless of the corner loop, making repeated outer-supply
+    points electrically identical reruns of the same sweep); either makes the
+    run a subset, so `subset_reason` is then REQUIRED -- there is no
+    `--subset-reason` flag on this path, and `sim/README.md` makes the
     justification a prose obligation for bespoke scripts.
 
     Exit status matches `corner-run.py`: 0 all checks passed, 2 a record was
@@ -543,7 +549,7 @@ def run_post_layout_experiment(
         quick = False
         process = None
         temp = temp_override
-        supply = None
+        supply = supply_override
 
     matrix, is_subset = cr.build_matrix(exp, _Args(), pin)
     if is_subset and not subset_reason:
