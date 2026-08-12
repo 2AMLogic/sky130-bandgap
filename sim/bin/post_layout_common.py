@@ -350,11 +350,30 @@ def strip_schematic_subckts(body_text: str, names: tuple[str, ...]) -> str:
     `* expanding ... symbol: design/<name>.sym` header) from a netlisted
     testbench body, so a translated-layout replacement can be appended
     instead.
+
+    The header's `.*?` gap between `expanding` and `symbol:` MUST stay tight
+    (whitespace only, not DOTALL-wildcard) -- a testbench that netlists a
+    THIRD schematic-level `.sym` whose own `* expanding ... symbol: ...`
+    header sits between two names being stripped (e.g. the mixed-provenance
+    startup benches, which also netlist `design/startup_injector.sym`
+    unmodified alongside `bandgap_core`/`error_amp`) would otherwise let a
+    lazy wildcard gap match starting at that THIRD header and swallow every-
+    thing up to the target name's real header, deleting the third subckt's
+    block as collateral damage. Reproduced and root-caused while wiring
+    `sim/startup-stability-post-layout/`, issue #16: after stripping
+    `bandgap_core` alone, the leftmost remaining `* expanding` line in the
+    text was `design/startup_injector.sym`'s, and the old
+    `\\* expanding.*?symbol:...design/error_amp\\.sym` pattern happily bound
+    its start there instead of at `error_amp`'s own header, deleting the
+    entire `startup_injector` block in the process. Anchoring the gap to
+    `\\s+` (the fixed `* expanding   symbol:  design/<name>.sym` spacing
+    xschem actually emits) makes the header match name-specific instead of
+    "the nearest earlier expanding-header, whichever symbol it names".
     """
     text = body_text
     for name in names:
         pattern = (
-            rf"\n\* expanding.*?symbol:\s*design/{re.escape(name)}\.sym.*?"
+            rf"\n\* expanding\s+symbol:\s*design/{re.escape(name)}\.sym\b.*?"
             rf"\n\.subckt\s+{re.escape(name)}\b.*?\n\.ends\n"
         )
         new_text, n = re.subn(pattern, "\n", text, flags=re.S | re.I)

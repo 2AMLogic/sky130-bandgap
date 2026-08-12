@@ -220,20 +220,78 @@ experiments ship a bespoke run script next to their testbench instead of an
 | `sim/quiescent-current-post-layout/` | `run_post_layout_iq.py` | **Post-layout (`provenance: extracted`) re-run of `sim/quiescent-current`'s Iq claim (issue #16)**, same extracted-layout DUT body as the row above, wrapping `sim/quiescent-current/testbench/tb_vref_iq.sch` unmodified. Runs the FULL 45-point matrix (nothing swept inside the deck, so no axis is collapsed). Its `README.md` carries the divergence finding required by issue #16 — post-layout Iq is 35.8 % below the schematic-level record, attributed to R1 growing 55 % (the drawn chained array's per-unit head resistance, plus a `klt extract --parasitics` poly double count filed as klayout-tools#800) |
 | `sim/psrr-dc-post-layout/` | `run_post_layout_psrr.py` | **Post-layout (`provenance: extracted`) re-run of `sim/psrr-dc`'s PSRR claim (issue #16)**, same extracted-layout DUT body as the two rows above, wrapping `sim/psrr-dc/testbench/tb_vref_psrr.sch` unmodified. Runs the FULL 45-point matrix (the AC sweep lives entirely inside the deck, so no PVT axis is collapsed). Its `README.md` carries the divergence finding required by issue #16 — post-layout `psrr_band_min`/`psrr_1k` (the DC-1 kHz band floor, issue #127) drops by a tight, near-constant 4.05 dB ± 0.36 dB across every one of the 45 corners regardless of process/temperature/supply, flipping 34/45 corners from PASS to FAIL against the ratified > 60 dB floor (schematic-level margin was already thin, 62.65-66.73 dB). Attributed to the extracted VDD/VSS-path parasitics sitting directly in the small-signal supply-to-VREF transfer function this bench measures — unlike Iq, where the same parasitic network is only a second-order bias-point effect — though the finding does not isolate which specific net's R or C in the shared 813 R + 151 C snapshot dominates |
 | `sim/line-regulation-post-layout/` | `run_post_layout_linereg.py` | **Post-layout (`provenance: extracted`) re-run of `sim/line-regulation`'s large-signal DC line-regulation claim (issue #16)**, same extracted-layout DUT body as the three rows above, wrapping `sim/line-regulation/testbench/tb_vref_linereg.sch` unmodified. Runs the SAME 15-point subset (process x temperature in full, supply collapsed) `sim/line-regulation`'s own schematic-level records use, via the shared runner's new `supply_override` (symmetric to `output-voltage-tc-post-layout`'s `temp_override`, added by this bench since the collapsed axis here is supply, not temperature). `Overall: PASS`, 15/15, ~755x margin to the 24 mV limit. Its `README.md` carries the two divergence findings required by issue #16, measured against a NEW same-sizing schematic-level baseline appended alongside it (`sim/line-regulation/records/20260812-014944-9a2360a`, at the adopted `n_r1=7`/`n_r2=50`; the newest pre-existing schematic-level record is at the superseded `n_r2=54`, which conflates the extraction with the resize on exactly the quantity the second finding is about). They point in opposite directions: (1) the line-regulation quantity degrades — shift 1.46x larger, informational `line_psrr_db` down a mean 2.57 dB, though with 3.9 dB corner-to-corner scatter, so it is a directional but much blunter corroboration of `psrr-dc-post-layout`'s tight -4.05 dB, never threatening the 755x margin; (2) `vref_nom` rises +29.6 mV and flips the OVERALL verdict from FAIL (schematic, on its 1.14 V sanity floor at all five 125 degC corners) to PASS. That rise is accounted for to within 2 mV at every corner by `K = R2/R1` rising 6.944 -> 7.630, and separating the snapshot's 143 resistor devices from its 813 parasitic elements shows it is the DRAWN chained array's per-unit head resistance that does it, NOT the parasitics (which move K by -0.2 %) — a different mechanism from the same extraction than the Iq row above reports |
-| `sim/startup-time-post-layout/` | `run_post_layout_startup_time.py` | **Post-layout (`provenance: extracted`) re-run of `sim/startup-time`'s supply-ramp startup-time claim (issue #16)**, same extracted-layout DUT body as the four rows above, wrapping `sim/startup-time/testbench/tb_vref_startup.sch` unmodified. Runs the FULL 45-point matrix (nothing swept inside the deck, so no axis is collapsed) — the LAST of the five spec lines issue #16's "full #11 testbench suite" Acceptance Criteria bullet enumerates. `Overall: FAIL`, 45/45, but this is the **same pre-existing, expected FAIL** `sim/startup-time`'s own schematic-level record already documents: the routed layout this bench measures is the bare core (`layout/bandgap-core/` composes core + amplifier only; `design/startup_injector.sch`, issue #10, has no layout yet), so it lands in the same degenerate zero-current state the bare core does at schematic level too — `vref_final`/`gdrv_final` track the schematic-level record within ~1 % at every one of the 45 corners, confirming extraction did not introduce a *new* divergence here, just reproduced the known no-injector limitation on the extracted netlist. The injector-equipped post-layout benches for issue #10's own startup/degenerate-state checks (`sim/startup-ramp/`, `sim/startup-stability/`) are separate, not-yet-built increments — the injector half of those benches has no layout to extract, so they will need a mixed extracted-core/schematic-injector DUT body this shared runner does not yet build |
+| `sim/startup-time-post-layout/` | `run_post_layout_startup_time.py` | **Post-layout (`provenance: extracted`) re-run of `sim/startup-time`'s supply-ramp startup-time claim (issue #16)**, same extracted-layout DUT body as the four rows above, wrapping `sim/startup-time/testbench/tb_vref_startup.sch` unmodified. Runs the FULL 45-point matrix (nothing swept inside the deck, so no axis is collapsed) — the LAST of the five spec lines issue #16's "full #11 testbench suite" Acceptance Criteria bullet enumerates. `Overall: FAIL`, 45/45, but this is the **same pre-existing, expected FAIL** `sim/startup-time`'s own schematic-level record already documents: the routed layout this bench measures is the bare core (`layout/bandgap-core/` composes core + amplifier only; `design/startup_injector.sch`, issue #10, has no layout yet), so it lands in the same degenerate zero-current state the bare core does at schematic level too — `vref_final`/`gdrv_final` track the schematic-level record within ~1 % at every one of the 45 corners, confirming extraction did not introduce a *new* divergence here, just reproduced the known no-injector limitation on the extracted netlist |
+| `sim/startup-stability-post-layout/` | `run_post_layout_startup_stability.py` | **Post-layout (`provenance: extracted`) re-run of `sim/startup-stability`'s degenerate-state / single-equilibrium claim (issue #16, the first of the two remaining "#10 startup/degenerate-state checks" increments)** — a MIXED-provenance DUT, not all-extracted like the six rows above: the extracted, translated `bandgap_core` swaps in for every `design/bandgap_core.sym` instance, but `design/startup_injector.sch` stays netlisted unmodified since it has no layout yet (`layout/bandgap-core/` composes core + amplifier only). Worst-corner 8-point SUBSET (process in {ff, ss} x temperature in {-40, 125} C x supply in {2.97, 3.63} V — issue #16's Acceptance Criteria phrase this bullet "at worst corners", unlike the full-matrix "#11 testbench suite" bullet). `Overall: PASS`, 8/8 — exactly one DC operating point at every corner, the degenerate zero-current state actively driven away from by microamps. Its own worst injector-attach cost (`dvref`) is +15.5 mV at `ff/125 C/3.63 V`, well inside the bench's ±20 mV bound but nearly double the schematic-level design's own +8.70 mV worst case (record `20260803-204236-f41373d`) — a real, documented divergence, see its `README.md`. This pair of benches is also where a `sim/bin/post_layout_common.py` `strip_schematic_subckts()` bug was found and fixed: a lazy-wildcard header-matching gap could let stripping `error_amp` collaterally delete the `startup_injector` block sandwiched between it and `bandgap_core` in netlisting order — see that function's docstring |
+| `sim/startup-ramp-post-layout/` | `run_post_layout_startup_ramp.py` | **Post-layout (`provenance: extracted`) re-run of `sim/startup-ramp`'s supply-ramp startup-TIME claim (issue #16, the second of the two remaining "#10 startup/degenerate-state checks" increments)** — the same MIXED-provenance DUT as the row above (extracted core, schematic-netlisted injector). Runs the FULL 45-point matrix, not a worst-corner subset: unlike `startup-stability`'s heavy DC-sweep deck, a single transient corner of this bench completes in about a minute even on the extracted netlist, so the full matrix is not a burden. `Overall: FAIL`, 12/45 — but this is a marginal *widening* of a pre-existing schematic-level margin problem, not a new failure mode: extraction nudges four already-near-threshold `vref_spread` corners across the 0.001 V cliff (three newly failing, one newly passing) while every other already-failing `ff`/`sf` cold/room corner stays failing in both records. Its `README.md` carries the divergence finding required by issue #16, measured against a NEW same-sizing schematic-level baseline appended alongside it (`sim/startup-ramp/records/20260812-073050-7eb5be4`, at the adopted `n_r1=7`/`n_r2=50`; the newest pre-existing schematic-level records all predate the DR-003 resize) |
 
-**Adding the remaining post-layout re-runs issue #16 still owes**
-(`startup-stability`, `startup-ramp` — issue #10's own degenerate-state
-checks, whose DUT needs a MIXED body: the extracted core substituted in
-exactly as above, but `design/startup_injector.sch` netlisted unmodified
-since it has no layout yet — `sim/bin/post_layout_common.py`'s current
-`build_extracted_body()` only builds an all-extracted body): do
-**not** copy an existing `run_post_layout_*.py` verbatim for these two; the
-extracted-core substitution machinery still applies, but the wrapper needs a
-new mixed-provenance body-assembly path. For any other future bench whose
-DUT is fully covered by the existing all-extracted path, the whole run —
-extraction, device translation, body substitution, record minting, corner
-loop, record schema — is
+Both `startup-stability-post-layout` and `startup-ramp-post-layout` needed no
+new body-assembly code beyond the bugfix above: `build_extracted_body()`'s
+`.subckt`-scoped `strip_schematic_subckts()` already only removes the NAMED
+`bandgap_core`/`error_amp` blocks, so a testbench that also netlists
+`design/startup_injector.sym` (untouched by that name) gets a correct mixed
+extracted-core/schematic-injector body for free once the collateral-deletion
+bug above is fixed — no separate mixed-provenance assembly path was required
+after all. This closes out issue #16's own "Adding the remaining post-layout
+re-runs" note that used to live here.
+
+### Issue #16's `sim/monte-carlo-untrimmed` (#12) conditional: judgment call
+
+Issue #16's Acceptance Criteria make `sim/monte-carlo-untrimmed`'s (#12)
+post-layout re-run **conditional**: only if extraction "meaningfully shifts
+the operating point or the trim range," and the AC explicitly requires that
+judgment to be documented, not skipped silently. `sim/monte-carlo-untrimmed`
+wraps `sim/output-voltage-tc`'s bench unchanged and reports the untrimmed
+±1 % `vref` claim's mismatch-driven σ/yield, so the question this conditional
+actually asks is: does the *extraction* (not any other change already
+committed to `design/bandgap_core.sch`) move `vref`'s nominal operating point
+or the resistor ratio the trim ladder walks enough to change that
+distribution's story?
+
+**Judgment: no — the extraction-specific contribution is not meaningful, and
+`sim/monte-carlo-untrimmed` does not need a post-layout re-run for issue
+#16.** The evidence, all already measured and committed by the five
+completed post-layout benches above:
+
+- `sim/line-regulation-post-layout/README.md`'s nodal-analysis attribution is
+  the most directly on-point data available: separating the extracted
+  netlist's 143 resistor devices from its 813 `klt extract --parasitics`
+  star-R elements shows `K = R2/R1` — the ratio that sets `vref`'s nominal
+  operating point and that the trim ladder walks — moves by **−0.2 %** from
+  parasitics alone (7.6301 drawn-only → 7.6148 extracted). A −0.2 % shift on
+  the quantity a mismatch-driven yield/sigma claim is most sensitive to is
+  far below anything that would change which corners pass or fail a ±1 %
+  window.
+- The much larger shifts the other benches document (`sim/quiescent-current-post-layout/`'s
+  −35.8 % Iq, `sim/psrr-dc-post-layout/`'s −4.05 dB PSRR,
+  `sim/line-regulation-post-layout/`'s +29.6 mV `vref_nom`) are, per those
+  same README's own attributions, either (a) the **drawn chained-array
+  topology** — a `design/bandgap_core.sch` change from the DR-003 resize
+  (issue #99) that already exists at schematic level, independent of
+  extraction — or (b) an **AC small-signal** effect (`psrr_dc`/`psrr_1k`)
+  that a DC mismatch/yield claim does not probe. Neither is the extraction
+  effect this conditional is asking about.
+- `startup-ramp-post-layout` and `startup-stability-post-layout` (this
+  increment) both diverge from their schematic baselines by margins
+  (a handful of near-threshold `vref_spread` corners, dvref +15.5 mV vs
+  +8.70 mV) that are consistent in kind and scale with the resistance-network
+  effects the other benches already attribute to the same extraction — no
+  new mechanism, and nothing that touches `vref`'s nominal value or the trim
+  ladder directly.
+
+**What this judgment call does not close.** `sim/monte-carlo-untrimmed`'s own
+newest record (`20260803-142259-544cc5e`) predates the DR-003 resize
+(`n_r2` 54→50, later 42) the same way the pre-this-increment
+`sim/startup-ramp`/`sim/startup-stability`/`sim/line-regulation` schematic
+records did — so a schematic-level re-run at the current chained-array sizing
+is still an open, pre-existing gap. It is **orthogonal to issue #16's scope**
+(a resize-currency gap, not a layout/extraction verification gap) and is not
+created or worsened by this increment; it is noted here only so it is not
+mistaken for something this judgment call adjudicated.
+
+For any future post-layout bench whose DUT is fully covered by the existing
+all-extracted (or, per the two rows above, mixed-provenance) path, the whole
+run — extraction, device translation, body substitution, record minting,
+corner loop, record schema — is
 `sim/bin/post_layout_common.run_post_layout_experiment()`; a new bench is a
 ~40-line file declaring its slug, the schematic-level experiment it wraps,
 that experiment's testbench, and its claim sentence (see
