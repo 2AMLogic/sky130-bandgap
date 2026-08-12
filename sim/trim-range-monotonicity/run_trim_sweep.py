@@ -104,7 +104,12 @@ SPICEINIT_FILE = SIM_DIR / "spiceinit"
 BUILD_DIR = SIM_DIR / "build" / "trim-range-monotonicity"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
-from sim_common import load_corner_run, parse_measurements, render_log  # noqa: E402
+from sim_common import (  # noqa: E402
+    dc_temp_sweep_control,
+    load_corner_run,
+    parse_measurements,
+    render_log,
+)
 
 cr = load_corner_run()
 
@@ -252,28 +257,7 @@ def build_deck(pdk, point: Point, body: list[str]) -> str:
         f".param vsup={point.supply_v}",
         f'.lib "{pdk.lib_file}" {point.process}',
     ]
-    control = [
-        ".control",
-        "save all",
-        "dc temp -40 125 11",
-        "meas dc vref27 FIND v(vref) AT=27",
-        "let vspan = 165",
-        "let meas_vref_27 = vref27",
-        "let meas_vref_min = minimum(v(vref))",
-        "let meas_vref_max = maximum(v(vref))",
-        "let meas_tc_ppm = (maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
-        "let meas_n_temp_points = length(v(vref))",
-        "print meas_vref_27",
-        "print meas_vref_min",
-        "print meas_vref_max",
-        "print meas_tc_ppm",
-        "print meas_n_temp_points",
-        "quit",
-        ".endc",
-        ".end",
-        "",
-    ]
-    return "\n".join(head + body + control)
+    return "\n".join(head + body + dc_temp_sweep_control())
 
 
 def run_point(point: Point, run_dir: Path, deck: str, timeout: int):
