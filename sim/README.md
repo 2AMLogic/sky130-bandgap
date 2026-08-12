@@ -219,19 +219,20 @@ experiments ship a bespoke run script next to their testbench instead of an
 | `sim/output-voltage-tc-post-layout/` | `run_post_layout_vref_tc.py` | **Post-layout (`provenance: extracted`) re-run of `sim/output-voltage-tc`'s claim (issue #16)** against the routed, LVS-clean `layout/bandgap-core/` GDS (issue #62) instead of `design/bandgap_core.sch` — the DUT body is not something xschem-netlisting a schematic can produce, since it comes from `klt extract --parasitics` (real per-net routing RC) with its generic LVS device-class placeholders translated to simulatable sky130 vendor models; see `sim/bin/post_layout_common.py`'s module docstring for the full translation methodology (including a discovered, worked-around ngspice/sky130-BSIM-binning unit-suffix quirk) and `sim/output-voltage-tc-post-layout/records/` for the evidence. Wraps `sim/output-voltage-tc/testbench/tb_vref_tc.sch` unmodified (same body-substitution convention as the two rows above), swapping the netlisted `.subckt bandgap_core`/`.subckt error_amp` blocks for the translated, extracted layout instead of a resistor-array edit |
 | `sim/quiescent-current-post-layout/` | `run_post_layout_iq.py` | **Post-layout (`provenance: extracted`) re-run of `sim/quiescent-current`'s Iq claim (issue #16)**, same extracted-layout DUT body as the row above, wrapping `sim/quiescent-current/testbench/tb_vref_iq.sch` unmodified. Runs the FULL 45-point matrix (nothing swept inside the deck, so no axis is collapsed). Its `README.md` carries the divergence finding required by issue #16 — post-layout Iq is 35.8 % below the schematic-level record, attributed to R1 growing 55 % (the drawn chained array's per-unit head resistance, plus a `klt extract --parasitics` poly double count filed as klayout-tools#800) |
 | `sim/psrr-dc-post-layout/` | `run_post_layout_psrr.py` | **Post-layout (`provenance: extracted`) re-run of `sim/psrr-dc`'s PSRR claim (issue #16)**, same extracted-layout DUT body as the two rows above, wrapping `sim/psrr-dc/testbench/tb_vref_psrr.sch` unmodified. Runs the FULL 45-point matrix (the AC sweep lives entirely inside the deck, so no PVT axis is collapsed). Its `README.md` carries the divergence finding required by issue #16 — post-layout `psrr_band_min`/`psrr_1k` (the DC-1 kHz band floor, issue #127) drops by a tight, near-constant 4.05 dB ± 0.36 dB across every one of the 45 corners regardless of process/temperature/supply, flipping 34/45 corners from PASS to FAIL against the ratified > 60 dB floor (schematic-level margin was already thin, 62.65-66.73 dB). Attributed to the extracted VDD/VSS-path parasitics sitting directly in the small-signal supply-to-VREF transfer function this bench measures — unlike Iq, where the same parasitic network is only a second-order bias-point effect — though the finding does not isolate which specific net's R or C in the shared 813 R + 151 C snapshot dominates |
+| `sim/line-regulation-post-layout/` | `run_post_layout_linereg.py` | **Post-layout (`provenance: extracted`) re-run of `sim/line-regulation`'s large-signal DC line-regulation claim (issue #16)**, same extracted-layout DUT body as the three rows above, wrapping `sim/line-regulation/testbench/tb_vref_linereg.sch` unmodified. Runs the SAME 15-point subset (process x temperature in full, supply collapsed) `sim/line-regulation`'s own schematic-level records use, via the shared runner's new `supply_override` (symmetric to `output-voltage-tc-post-layout`'s `temp_override`, added by this bench since the collapsed axis here is supply, not temperature). `Overall: PASS`, 15/15, ~755x margin to the 24 mV limit — its `README.md` documents the (non-spec-threatening) divergence: `line_shift_mv`'s delta is small and mixed-sign (not a clean scale factor, consistent with solver-resolution-scale noise at these magnitudes), while the informational `line_psrr_db` degrades by a mean 2.06 dB, consistent in sign and order of magnitude with `psrr-dc-post-layout`'s PSRR finding — an independent large-signal DC cross-check of the same mechanism |
 
 **Adding the remaining post-layout re-runs issue #16 still owes**
-(`line-regulation`, `startup-time`, `startup-stability`,
-`startup-ramp` — every other experiment whose testbench also instantiates
-`design/bandgap_core.sym`): do **not** copy an existing
-`run_post_layout_*.py`. The whole run — extraction, device translation, body
-substitution, record minting, corner loop, record schema — is
+(`startup-time`, `startup-stability`, `startup-ramp` — every other
+experiment whose testbench also instantiates `design/bandgap_core.sym`): do
+**not** copy an existing `run_post_layout_*.py`. The whole run —
+extraction, device translation, body substitution, record minting, corner
+loop, record schema — is
 `sim/bin/post_layout_common.run_post_layout_experiment()`; a new bench is a
 ~40-line file declaring its slug, the schematic-level experiment it wraps,
 that experiment's testbench, and its claim sentence (see
 `sim/quiescent-current-post-layout/run_post_layout_iq.py`, the shortest
-example). Only pass `temp_override`/`subset_reason` if the bench's own deck
-sweeps temperature internally.
+example). Only pass `temp_override`/`supply_override`/`subset_reason` if the
+bench's own deck sweeps that axis internally.
 
 Such a script still has to behave like the harness:
 
