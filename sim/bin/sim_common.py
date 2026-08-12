@@ -23,6 +23,8 @@ scripts instead of being defined once here (issues #119, #130, #135):
     write_log()            writes the append-only per-point `.log` file
                           (header + .spiceinit + deck + ngspice output),
                           `name`-keyed (issue #138)
+    render_log()            the shared tail-formatting skeleton underneath
+                          every `write_log()` in this repo (issue #146)
 
 Unlike `corner-run.py`, this file's name IS a valid Python identifier, so
 callers import it normally (after adding `sim/bin` to `sys.path`) rather than
@@ -225,6 +227,22 @@ def parse_measurements(log: str) -> dict[str, float]:
     return values
 
 
+def render_log(header_lines, pdk, rc, timed_out, stamp, sections, raw) -> str:
+    """Shared `.log` tail skeleton: caller's `header_lines` + pdk/exit/
+    timestamp + `(label, text)` `sections` + raw ngspice output (#146)."""
+    lines = [
+        *header_lines,
+        f"# pdk: {pdk.variant} @ open_pdks {pdk.installed_commit} ({pdk.lib_file})",
+        f"# ngspice exit: {rc}{' (TIMEOUT)' if timed_out else ''}",
+        f"# run (UTC): {stamp:%Y-%m-%dT%H:%M:%SZ}",
+        "",
+    ]
+    for label, text in sections:
+        lines += [f"# ==== {label} ====", *[f"| {ln}" for ln in text.splitlines()], ""]
+    lines += ["# ==== ngspice stdout+stderr ====", raw.rstrip(), ""]
+    return "\n".join(lines)
+
+
 def write_log(
     corners_dir: Path,
     name: str,
@@ -240,32 +258,15 @@ def write_log(
 
     Header + exact `.spiceinit` + exact deck + raw ngspice stdout/stderr --
     `name`-keyed (issue #138; not the 4 `point`-keyed variants excluded from
-    this consolidation, see the issue's Hermit-suggestion comment).
+    this consolidation, see the issue's Hermit-suggestion comment), now
+    built on the shared `render_log()` tail skeleton (issue #146).
     """
     corners_dir.mkdir(parents=True, exist_ok=True)
     path = corners_dir / f"{name}.log"
     init_text = SPICEINIT_FILE.read_text()
-    path.write_text(
-        "\n".join(
-            [
-                f"# point: {name}",
-                f"# record: {record_id}",
-                f"# pdk: {pdk.variant} @ open_pdks {pdk.installed_commit} ({pdk.lib_file})",
-                f"# ngspice exit: {rc}{' (TIMEOUT)' if timed_out else ''}",
-                f"# run (UTC): {stamp:%Y-%m-%dT%H:%M:%SZ}",
-                "",
-                "# ==== .spiceinit (exact) ====",
-                *[f"| {ln}" for ln in init_text.splitlines()],
-                "",
-                "# ==== deck (exact input given to ngspice) ====",
-                *[f"| {ln}" for ln in deck.splitlines()],
-                "",
-                "# ==== ngspice stdout+stderr ====",
-                raw.rstrip(),
-                "",
-            ]
-        )
-    )
+    sections = [(".spiceinit (exact)", init_text), ("deck (exact input given to ngspice)", deck)]
+    header = [f"# point: {name}", f"# record: {record_id}"]
+    path.write_text(render_log(header, pdk, rc, timed_out, stamp, sections, raw))
     return path
 
 
