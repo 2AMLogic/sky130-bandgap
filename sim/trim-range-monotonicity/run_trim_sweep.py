@@ -104,7 +104,7 @@ SPICEINIT_FILE = SIM_DIR / "spiceinit"
 BUILD_DIR = SIM_DIR / "build" / "trim-range-monotonicity"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
-from sim_common import load_corner_run, parse_measurements  # noqa: E402
+from sim_common import load_corner_run, parse_measurements, render_log  # noqa: E402
 
 cr = load_corner_run()
 
@@ -305,29 +305,14 @@ def write_log(corners_dir: Path, point: Point, pdk, record_id: str, stamp, deck:
     corners_dir.mkdir(parents=True, exist_ok=True)
     path = corners_dir / f"{point.corner_id}.log"
     init_text = SPICEINIT_FILE.read_text()
-    path.write_text(
-        "\n".join(
-            [
-                f"# point: {point.corner_id}",
-                f"# record: {record_id}",
-                f"# group: {point.group}",
-                f"# process={point.process} trim_code={point.trim_code} supply={point.supply_v:.2f}V",
-                f"# pdk: {pdk.variant} @ open_pdks {pdk.installed_commit} ({pdk.lib_file})",
-                f"# ngspice exit: {rc}{' (TIMEOUT)' if timed_out else ''}",
-                f"# run (UTC): {stamp:%Y-%m-%dT%H:%M:%SZ}",
-                "",
-                "# ==== .spiceinit (exact) ====",
-                *[f"| {ln}" for ln in init_text.splitlines()],
-                "",
-                "# ==== deck (exact input given to ngspice) ====",
-                *[f"| {ln}" for ln in deck.splitlines()],
-                "",
-                "# ==== ngspice stdout+stderr ====",
-                raw.rstrip(),
-                "",
-            ]
-        )
-    )
+    header = [
+        f"# point: {point.corner_id}",
+        f"# record: {record_id}",
+        f"# group: {point.group}",
+        f"# process={point.process} trim_code={point.trim_code} supply={point.supply_v:.2f}V",
+    ]
+    sections = [(".spiceinit (exact)", init_text), ("deck (exact input given to ngspice)", deck)]
+    path.write_text(render_log(header, pdk, rc, timed_out, stamp, sections, raw))
     return path
 
 

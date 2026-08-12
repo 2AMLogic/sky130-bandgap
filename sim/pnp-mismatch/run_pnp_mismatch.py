@@ -46,7 +46,7 @@ BUILD_DIR = SIM_DIR / "build" / "pnp-mismatch"
 SPICEINIT_FILE = SIM_DIR / "spiceinit"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
-from sim_common import load_corner_run, mean, stdev  # noqa: E402
+from sim_common import load_corner_run, mean, render_log, stdev  # noqa: E402
 
 cr = load_corner_run()
 
@@ -264,33 +264,19 @@ def write_log(
     deck_text = (run_dir / DECK.name).read_text()
     shim_text = (run_dir / "corner.spice").read_text()
     init_text = (run_dir / ".spiceinit").read_text()
-    path.write_text(
-        "\n".join(
-            [
-                f"# point: {point.corner_id}",
-                f"# record: {record_id}",
-                f"# role: {point.role} -- {point.purpose}",
-                f"# section={point.section} temp={point.temp_c:g}C supply=n/a "
-                f"seed={point.seed} samples={point.samples}",
-                f"# pdk: {pdk.variant} @ open_pdks {pdk.installed_commit} ({pdk.lib_file})",
-                f"# ngspice exit: {rc}{' (TIMEOUT)' if timed_out else ''}",
-                f"# run (UTC): {stamp:%Y-%m-%dT%H:%M:%SZ}",
-                "",
-                "# ==== .spiceinit (exact) ====",
-                *[f"| {ln}" for ln in init_text.splitlines()],
-                "",
-                "# ==== corner.spice (exact) ====",
-                *[f"| {ln}" for ln in shim_text.splitlines()],
-                "",
-                "# ==== testbench deck (exact input given to ngspice) ====",
-                *[f"| {ln}" for ln in deck_text.splitlines()],
-                "",
-                "# ==== ngspice stdout+stderr ====",
-                raw.rstrip(),
-                "",
-            ]
-        )
-    )
+    header = [
+        f"# point: {point.corner_id}",
+        f"# record: {record_id}",
+        f"# role: {point.role} -- {point.purpose}",
+        f"# section={point.section} temp={point.temp_c:g}C supply=n/a "
+        f"seed={point.seed} samples={point.samples}",
+    ]
+    sections = [
+        (".spiceinit (exact)", init_text),
+        ("corner.spice (exact)", shim_text),
+        ("testbench deck (exact input given to ngspice)", deck_text),
+    ]
+    path.write_text(render_log(header, pdk, rc, timed_out, stamp, sections, raw))
     return path
 
 
