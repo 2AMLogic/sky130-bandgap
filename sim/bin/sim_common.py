@@ -292,3 +292,8 @@ def stdev(values: list[float]) -> float:
         return 0.0
     mu = mean(values)
     return math.sqrt(sum((v - mu) ** 2 for v in values) / (n - 1))
+
+
+def mv(value: float) -> str:
+    """Format a volt-scale value as a millivolt string with 4 decimal places."""
+    return f"{value * 1e3:.4f}"

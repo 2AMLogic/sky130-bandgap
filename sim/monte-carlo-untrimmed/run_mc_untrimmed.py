@@ -56,7 +56,7 @@ SPICEINIT_FILE = SIM_DIR / "spiceinit"
 BUILD_DIR = SIM_DIR / "build" / "monte-carlo-untrimmed"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
-from sim_common import load_corner_run, mean, render_log, stdev  # noqa: E402
+from sim_common import load_corner_run, mean, mv, render_log, stdev  # noqa: E402
 
 cr = load_corner_run()
 
@@ -618,10 +618,6 @@ CLAIM = (
     "ratifies it. Feeds issue #13 (does the design need a trim network, and what range) "
     "and issue #15 (layout matching priority, from the contributor breakdown)."
 )
-
-
-def mv(value: float) -> str:
-    return f"{value * 1e3:.4f}"
 
 
 def render_record(r: dict) -> str:

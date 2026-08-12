@@ -46,7 +46,7 @@ BUILD_DIR = SIM_DIR / "build" / "pnp-mismatch"
 SPICEINIT_FILE = SIM_DIR / "spiceinit"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
-from sim_common import load_corner_run, mean, render_log, stdev  # noqa: E402
+from sim_common import load_corner_run, mean, mv, render_log, stdev  # noqa: E402
 
 cr = load_corner_run()
 
@@ -410,10 +410,6 @@ def seed_stability(results: dict[str, dict]) -> list[dict]:
 # --------------------------------------------------------------------------
 # record rendering
 # --------------------------------------------------------------------------
-
-
-def mv(value: float) -> str:
-    return f"{value * 1e3:.4f}"
 
 
 def render_record(r: dict) -> str:

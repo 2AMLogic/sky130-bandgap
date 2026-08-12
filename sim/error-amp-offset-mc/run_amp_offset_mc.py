@@ -55,7 +55,7 @@ BUILD_DIR = SIM_DIR / "build" / "amp-offset-mc"
 LOOP_RECORDS = SIM_DIR / "error-amp-loop" / "records"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
-from sim_common import load_corner_run, mean, render_log, stdev  # noqa: E402
+from sim_common import load_corner_run, mean, mv, render_log, stdev  # noqa: E402
 
 cr = load_corner_run()
 
@@ -555,10 +555,6 @@ CLAIM = (
     "#11's experiment. The deterministic half (stability, offset gain, PSRR, Iq) is "
     "sim/error-amp-loop/."
 )
-
-
-def mv(value: float) -> str:
-    return f"{value * 1e3:.4f}"
 
 
 def render_record(r: dict) -> str:
