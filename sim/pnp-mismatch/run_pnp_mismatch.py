@@ -30,7 +30,6 @@ from __future__ import annotations
 import argparse
 import json
 import math
-import re
 import shutil
 import subprocess
 import sys
@@ -46,7 +45,14 @@ BUILD_DIR = SIM_DIR / "build" / "pnp-mismatch"
 SPICEINIT_FILE = SIM_DIR / "spiceinit"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
-from sim_common import load_corner_run, mean, mv, render_log, stdev  # noqa: E402
+from sim_common import (  # noqa: E402
+    load_corner_run,
+    mean,
+    mv,
+    parse_samples,
+    render_log,
+    stdev,
+)
 
 cr = load_corner_run()
 
@@ -186,31 +192,6 @@ def analytic_sigma(pair: Pair, temp_c: float) -> float:
 # --------------------------------------------------------------------------
 # ngspice
 # --------------------------------------------------------------------------
-
-_PRINT_LINE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(-?[0-9.]+(?:[eE][-+]?[0-9]+)?)$")
-
-
-def parse_samples(log: str, vectors: tuple[str, ...]) -> list[dict[str, float]]:
-    """Parse the repeated `op` + `print` blocks of the Monte Carlo loop.
-
-    A new sample starts whenever a vector name that is already in the current
-    sample repeats.
-    """
-    wanted = set(vectors)
-    samples: list[dict[str, float]] = []
-    current: dict[str, float] = {}
-    for line in log.splitlines():
-        m = _PRINT_LINE.match(line.strip())
-        if not m or m.group(1) not in wanted:
-            continue
-        name, value = m.group(1), float(m.group(2))
-        if name in current:
-            samples.append(current)
-            current = {}
-        current[name] = value
-    if current:
-        samples.append(current)
-    return [s for s in samples if wanted <= set(s)]
 
 
 def corner_shim(pdk, point: Point) -> str:

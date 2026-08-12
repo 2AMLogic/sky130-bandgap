@@ -20,6 +20,9 @@ scripts instead of being defined once here (issues #119, #130, #135):
                           stdout+stderr and timeout status
     parse_measurements()   extracts `.meas`-style `let`/`print` results from
                           an ngspice log via `corner-run.py`'s `MEAS_RE`
+    parse_samples()        parses the repeated `op`+`print` blocks of a
+                          Monte Carlo loop's ngspice log into per-sample
+                          dicts (issue #153)
     write_log()            writes the append-only per-point `.log` file
                           (header + .spiceinit + deck + ngspice output),
                           `name`-keyed (issue #138)
@@ -55,6 +58,7 @@ from __future__ import annotations
 
 import importlib.util
 import math
+import re
 import shutil
 import subprocess
 import sys
@@ -237,6 +241,35 @@ def parse_measurements(log: str) -> dict[str, float]:
         if m:
             values[m.group(1)] = float(m.group(2))
     return values
+
+
+_PRINT_LINE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(-?[0-9.]+(?:[eE][-+]?[0-9]+)?)$")
+
+
+def parse_samples(log: str, vectors) -> list[dict[str, float]]:
+    """Parse the repeated `op` + `print` blocks of a Monte Carlo loop.
+
+    A new sample starts whenever a vector name that is already in the current
+    sample repeats. Shared by the bespoke Monte Carlo run scripts (issue
+    #153) -- lifted to `pnp-mismatch/run_pnp_mismatch.py`'s already-
+    parameterized `(log, vectors)` signature rather than reading a
+    module-level `VECTORS` constant.
+    """
+    wanted = set(vectors)
+    samples: list[dict[str, float]] = []
+    current: dict[str, float] = {}
+    for line in log.splitlines():
+        m = _PRINT_LINE.match(line.strip())
+        if not m or m.group(1) not in wanted:
+            continue
+        name, value = m.group(1), float(m.group(2))
+        if name in current:
+            samples.append(current)
+            current = {}
+        current[name] = value
+    if current:
+        samples.append(current)
+    return [s for s in samples if wanted <= set(s)]
 
 
 def render_log(header_lines, pdk, rc, timed_out, stamp, sections, raw) -> str:
