@@ -76,7 +76,6 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
-import subprocess
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -89,7 +88,7 @@ SPICEINIT_FILE = SIM_DIR / "spiceinit"
 BUILD_DIR = SIM_DIR / "build" / "res-array-head-resistance"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
-from sim_common import chain_lines, load_corner_run  # noqa: E402
+from sim_common import chain_lines, load_corner_run, parse_measurements, run_ngspice  # noqa: E402
 
 # The core netlist body this experiment wraps (Phase B), reference-only --
 # never modified by this script. Produced by sim/trim-range-monotonicity's
@@ -212,31 +211,6 @@ def phase_a_deck(pdk) -> str:
         "",
     ]
     return "\n".join(lines)
-
-
-def run_ngspice(run_dir: Path, name: str, deck: str, timeout: int) -> tuple[str, int, bool]:
-    run_dir.mkdir(parents=True, exist_ok=True)
-    deck_path = run_dir / f"{name}.spice"
-    deck_path.write_text(deck)
-    shutil.copyfile(SPICEINIT_FILE, run_dir / ".spiceinit")
-    try:
-        proc = subprocess.run(
-            ["ngspice", "-b", deck_path.name],
-            cwd=run_dir,
-            capture_output=True,
-            text=True,
-            stdin=subprocess.DEVNULL,
-            timeout=timeout,
-        )
-        return proc.stdout + proc.stderr, proc.returncode, False
-    except subprocess.TimeoutExpired as exc:
-        out = exc.stdout or ""
-        err = exc.stderr or ""
-        if isinstance(out, bytes):
-            out = out.decode(errors="replace")
-        if isinstance(err, bytes):
-            err = err.decode(errors="replace")
-        return out + err, -1, True
 
 
 def write_log(corners_dir: Path, name: str, record_id: str, pdk, stamp, deck: str, raw: str, rc: int, timed_out: bool) -> Path:
@@ -382,15 +356,6 @@ def phase_b_deck(pdk, process: str, supply_v: float, body: list[str]) -> str:
         "",
     ]
     return "\n".join(head + body + control)
-
-
-def parse_measurements(log: str) -> dict[str, float]:
-    values: dict[str, float] = {}
-    for line in log.splitlines():
-        m = cr.MEAS_RE.match(line.strip())
-        if m:
-            values[m.group(1)] = float(m.group(2))
-    return values
 
 
 def load_phase_b_baseline() -> dict[tuple[str, float], dict]:

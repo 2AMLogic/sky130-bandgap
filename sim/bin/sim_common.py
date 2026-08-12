@@ -6,16 +6,20 @@ The Monte Carlo / chained-resistor-array experiments under `sim/` (issues #9,
 #12, #13, #31, #98, #99, #106) are bespoke scripts instead of
 `experiment.json` + `corner-run.py` entries, but they still reuse
 `corner-run.py`'s PDK resolution, pin enforcement, xschem netlisting, and
-tool-version/git-provenance helpers by import. Two small pieces of that
+tool-version/git-provenance helpers by import. Several small pieces of that
 import glue were copy-pasted verbatim (or near-verbatim) across those
-scripts instead of being defined once here (issue #119):
+scripts instead of being defined once here (issues #119, #130, #135):
 
-    load_corner_run()   the importlib shim that loads corner-run.py (its
-                         filename has a dash, so it can't be `import`ed
-                         normally)
-    chain_lines()        builds N series `sky130_fd_pr__res_high_po` unit
-                         instances between two SPICE nodes, reproducing the
-                         routed layout's `bus_res_series` topology
+    load_corner_run()    the importlib shim that loads corner-run.py (its
+                          filename has a dash, so it can't be `import`ed
+                          normally)
+    chain_lines()         builds N series `sky130_fd_pr__res_high_po` unit
+                          instances between two SPICE nodes, reproducing the
+                          routed layout's `bus_res_series` topology
+    run_ngspice()          runs one ngspice deck in a scratch dir, capturing
+                          stdout+stderr and timeout status
+    parse_measurements()   extracts `.meas`-style `let`/`print` results from
+                          an ngspice log via `corner-run.py`'s `MEAS_RE`
 
 Unlike `corner-run.py`, this file's name IS a valid Python identifier, so
 callers import it normally (after adding `sim/bin` to `sys.path`) rather than
@@ -26,11 +30,15 @@ from __future__ import annotations
 
 import importlib.util
 import math
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 from types import ModuleType
 
 BIN_DIR = Path(__file__).resolve().parent
+SIM_DIR = BIN_DIR.parent
+SPICEINIT_FILE = SIM_DIR / "spiceinit"
 
 
 def load_corner_run() -> ModuleType:
@@ -79,6 +87,59 @@ def chain_lines(
         )
         prev = nxt
     return lines
+
+
+_cr_module: ModuleType | None = None
+
+
+def _cr() -> ModuleType:
+    """Lazily load+cache corner-run.py, for `parse_measurements()`'s `MEAS_RE`.
+
+    Cached at module scope so repeated `parse_measurements()` calls (e.g. once
+    per PVT corner in a sweep) don't re-exec corner-run.py's module body each
+    time.
+    """
+    global _cr_module
+    if _cr_module is None:
+        _cr_module = load_corner_run()
+    return _cr_module
+
+
+def run_ngspice(run_dir: Path, name: str, deck: str, timeout: int) -> tuple[str, int, bool]:
+    """Run one ngspice deck in `run_dir`, returning (log, returncode, timed_out)."""
+    run_dir.mkdir(parents=True, exist_ok=True)
+    deck_path = run_dir / f"{name}.spice"
+    deck_path.write_text(deck)
+    shutil.copyfile(SPICEINIT_FILE, run_dir / ".spiceinit")
+    try:
+        proc = subprocess.run(
+            ["ngspice", "-b", deck_path.name],
+            cwd=run_dir,
+            capture_output=True,
+            text=True,
+            stdin=subprocess.DEVNULL,
+            timeout=timeout,
+        )
+        return proc.stdout + proc.stderr, proc.returncode, False
+    except subprocess.TimeoutExpired as exc:
+        out = exc.stdout or ""
+        err = exc.stderr or ""
+        if isinstance(out, bytes):
+            out = out.decode(errors="replace")
+        if isinstance(err, bytes):
+            err = err.decode(errors="replace")
+        return out + err, -1, True
+
+
+def parse_measurements(log: str) -> dict[str, float]:
+    """Extract `meas_<name> = <value>` results from an ngspice log."""
+    cr = _cr()
+    values: dict[str, float] = {}
+    for line in log.splitlines():
+        m = cr.MEAS_RE.match(line.strip())
+        if m:
+            values[m.group(1)] = float(m.group(2))
+    return values
 
 
 def mean(values: list[float]) -> float:
