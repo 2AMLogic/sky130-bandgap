@@ -84,11 +84,16 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 SIM_DIR = HERE.parent
 REPO_ROOT = SIM_DIR.parent
-SPICEINIT_FILE = SIM_DIR / "spiceinit"
 BUILD_DIR = SIM_DIR / "build" / "res-array-head-resistance"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
-from sim_common import chain_lines, load_corner_run, parse_measurements, run_ngspice  # noqa: E402
+from sim_common import (  # noqa: E402
+    chain_lines,
+    load_corner_run,
+    parse_measurements,
+    run_ngspice,
+    write_log,
+)
 
 # The core netlist body this experiment wraps (Phase B), reference-only --
 # never modified by this script. Produced by sim/trim-range-monotonicity's
@@ -211,34 +216,6 @@ def phase_a_deck(pdk) -> str:
         "",
     ]
     return "\n".join(lines)
-
-
-def write_log(corners_dir: Path, name: str, record_id: str, pdk, stamp, deck: str, raw: str, rc: int, timed_out: bool) -> Path:
-    corners_dir.mkdir(parents=True, exist_ok=True)
-    path = corners_dir / f"{name}.log"
-    init_text = SPICEINIT_FILE.read_text()
-    path.write_text(
-        "\n".join(
-            [
-                f"# point: {name}",
-                f"# record: {record_id}",
-                f"# pdk: {pdk.variant} @ open_pdks {pdk.installed_commit} ({pdk.lib_file})",
-                f"# ngspice exit: {rc}{' (TIMEOUT)' if timed_out else ''}",
-                f"# run (UTC): {stamp:%Y-%m-%dT%H:%M:%SZ}",
-                "",
-                "# ==== .spiceinit (exact) ====",
-                *[f"| {ln}" for ln in init_text.splitlines()],
-                "",
-                "# ==== deck (exact input given to ngspice) ====",
-                *[f"| {ln}" for ln in deck.splitlines()],
-                "",
-                "# ==== ngspice stdout+stderr ====",
-                raw.rstrip(),
-                "",
-            ]
-        )
-    )
-    return path
 
 
 # --------------------------------------------------------------------------

@@ -108,11 +108,16 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 SIM_DIR = HERE.parent
 REPO_ROOT = SIM_DIR.parent
-SPICEINIT_FILE = SIM_DIR / "spiceinit"
 BUILD_DIR = SIM_DIR / "build" / "trim-lsb-chained"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
-from sim_common import chain_lines, load_corner_run, parse_measurements, run_ngspice  # noqa: E402
+from sim_common import (  # noqa: E402
+    chain_lines,
+    load_corner_run,
+    parse_measurements,
+    run_ngspice,
+    write_log,
+)
 
 # Reuse the same already-checked-in core-body snapshot the head-resistance
 # and res-array-resize records reuse (xschem unavailable in this run
@@ -347,32 +352,6 @@ def build_deck(pdk, process: str, supply_v: float, body: list[str]) -> str:
         "",
     ]
     return "\n".join(head + body + control)
-
-
-def write_log(corners_dir: Path, name: str, record_id: str, pdk, stamp, deck: str, raw: str, rc: int, timed_out: bool) -> None:
-    corners_dir.mkdir(parents=True, exist_ok=True)
-    init_text = SPICEINIT_FILE.read_text()
-    (corners_dir / f"{name}.log").write_text(
-        "\n".join(
-            [
-                f"# point: {name}",
-                f"# record: {record_id}",
-                f"# pdk: {pdk.variant} @ open_pdks {pdk.installed_commit} ({pdk.lib_file})",
-                f"# ngspice exit: {rc}{' (TIMEOUT)' if timed_out else ''}",
-                f"# run (UTC): {stamp:%Y-%m-%dT%H:%M:%SZ}",
-                "",
-                "# ==== .spiceinit (exact) ====",
-                *[f"| {ln}" for ln in init_text.splitlines()],
-                "",
-                "# ==== deck (exact input given to ngspice) ====",
-                *[f"| {ln}" for ln in deck.splitlines()],
-                "",
-                "# ==== ngspice stdout+stderr ====",
-                raw.rstrip(),
-                "",
-            ]
-        )
-    )
 
 
 @dataclass(frozen=True)

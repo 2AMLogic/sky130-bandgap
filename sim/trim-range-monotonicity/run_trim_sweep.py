@@ -87,7 +87,6 @@ corner-run.py.
 from __future__ import annotations
 
 import argparse
-import re
 import shutil
 import subprocess
 import sys
@@ -105,7 +104,7 @@ SPICEINIT_FILE = SIM_DIR / "spiceinit"
 BUILD_DIR = SIM_DIR / "build" / "trim-range-monotonicity"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
-from sim_common import load_corner_run  # noqa: E402
+from sim_common import load_corner_run, parse_measurements  # noqa: E402
 
 cr = load_corner_run()
 
@@ -275,18 +274,6 @@ def build_deck(pdk, point: Point, body: list[str]) -> str:
         "",
     ]
     return "\n".join(head + body + control)
-
-
-MEAS_RE = re.compile(r"^meas_([A-Za-z0-9_]+)\s*=\s*(-?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?)")
-
-
-def parse_measurements(log: str) -> dict[str, float]:
-    values: dict[str, float] = {}
-    for line in log.splitlines():
-        m = MEAS_RE.match(line.strip())
-        if m:
-            values[m.group(1)] = float(m.group(2))
-    return values
 
 
 def run_point(point: Point, run_dir: Path, deck: str, timeout: int):
