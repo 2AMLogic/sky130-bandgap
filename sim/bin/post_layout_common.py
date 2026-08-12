@@ -497,7 +497,9 @@ def run_post_layout_experiment(
     argv: list[str],
     temp_override: list[float] | None = None,
     supply_override: list[float] | None = None,
+    process_override: list[str] | None = None,
     subset_reason: str = "",
+    claim_split: str | None = None,
 ) -> int:
     """Run one bench's whole post-layout re-verification and write its record.
 
@@ -509,16 +511,33 @@ def run_post_layout_experiment(
     body); `wrapped_schematic` is that bench's own testbench, netlisted
     unmodified.
 
-    `temp_override`/`supply_override` collapse the runner's outer
-    temperature/supply axis for benches whose deck sweeps that axis
-    internally (`output-voltage-tc`'s box TC collapses temperature;
-    `line-regulation`'s in-deck `dc v1 2.97 3.63 ...` sweep collapses supply,
-    since ngspice's `.dc <source>` sweep overrides the outer `vsup` value for
-    that source regardless of the corner loop, making repeated outer-supply
-    points electrically identical reruns of the same sweep); either makes the
-    run a subset, so `subset_reason` is then REQUIRED -- there is no
-    `--subset-reason` flag on this path, and `sim/README.md` makes the
-    justification a prose obligation for bespoke scripts.
+    `temp_override`/`supply_override`/`process_override` restrict the runner's
+    outer temperature/supply/process axis. Two distinct reasons a bench does
+    this, both ending in the same `is_subset` bookkeeping:
+
+    - the deck sweeps that axis INTERNALLY, so outer points would be identical
+      reruns (`output-voltage-tc`'s box TC collapses temperature;
+      `line-regulation`'s in-deck `dc v1 2.97 3.63 ...` sweep collapses supply,
+      since ngspice's `.dc <source>` sweep overrides the outer `vsup` value for
+      that source regardless of the corner loop);
+    - issue #16's Acceptance Criteria ask for a bench "at worst corners"
+      rather than over the full matrix -- which is what `process_override`
+      (added by the startup increment) exists for, alongside the temperature
+      and supply extremes.
+
+    Any of the three makes the run a subset, so `subset_reason` is then
+    REQUIRED -- there is no `--subset-reason` flag on this path, and
+    `sim/README.md` makes the justification a prose obligation for bespoke
+    scripts.
+
+    `claim_split` names the phrase in the wrapped manifest's own `claim` at
+    which its schematic-level provenance description begins; everything from
+    there is dropped and `claim_tail` is appended instead. It defaults to
+    `"Measures "` (what the first three post-layout benches' manifests all
+    use). Passing it EXPLICITLY also makes its presence mandatory: a manifest
+    whose claim does not contain the marker would otherwise silently keep its
+    "... design/bandgap_core.sch ..." sentence in an `extracted`-provenance
+    record, which is exactly the mislabeling issue #16 is guarding against.
 
     Exit status matches `corner-run.py`: 0 all checks passed, 2 a record was
     written but something failed (raises otherwise, so the caller maps
@@ -542,12 +561,19 @@ def run_post_layout_experiment(
     # record wraps ("Measures design/bandgap_core.sch ...") -- accurate for the
     # manifest's own schematic-level records, misleading for this one. Keep the
     # spec-line identification, replace the provenance tail.
-    claim_head = exp.raw["claim"].split("Measures ")[0].rstrip()
+    marker = claim_split if claim_split is not None else "Measures "
+    if claim_split is not None and claim_split not in exp.raw["claim"]:
+        raise cr.HarnessError(
+            f"{slug}: claim_split {claim_split!r} does not occur in "
+            f"{wrapped_experiment}'s own claim -- the post-layout record would keep "
+            "that manifest's schematic-level provenance sentence verbatim"
+        )
+    claim_head = exp.raw["claim"].split(marker)[0].rstrip()
     claim_text = claim_head + " " + claim_tail
 
     class _Args:
         quick = False
-        process = None
+        process = process_override
         temp = temp_override
         supply = supply_override
 
