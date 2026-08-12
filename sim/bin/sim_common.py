@@ -20,6 +20,9 @@ scripts instead of being defined once here (issues #119, #130, #135):
                           stdout+stderr and timeout status
     parse_measurements()   extracts `.meas`-style `let`/`print` results from
                           an ngspice log via `corner-run.py`'s `MEAS_RE`
+    write_log()            writes the append-only per-point `.log` file
+                          (header + .spiceinit + deck + ngspice output),
+                          `name`-keyed (issue #138)
 
 Unlike `corner-run.py`, this file's name IS a valid Python identifier, so
 callers import it normally (after adding `sim/bin` to `sys.path`) rather than
@@ -140,6 +143,50 @@ def parse_measurements(log: str) -> dict[str, float]:
         if m:
             values[m.group(1)] = float(m.group(2))
     return values
+
+
+def write_log(
+    corners_dir: Path,
+    name: str,
+    record_id: str,
+    pdk,
+    stamp,
+    deck: str,
+    raw: str,
+    rc: int,
+    timed_out: bool,
+) -> Path:
+    """Write the append-only per-point `.log` file, return its `Path`.
+
+    Header + exact `.spiceinit` + exact deck + raw ngspice stdout/stderr --
+    `name`-keyed (issue #138; not the 4 `point`-keyed variants excluded from
+    this consolidation, see the issue's Hermit-suggestion comment).
+    """
+    corners_dir.mkdir(parents=True, exist_ok=True)
+    path = corners_dir / f"{name}.log"
+    init_text = SPICEINIT_FILE.read_text()
+    path.write_text(
+        "\n".join(
+            [
+                f"# point: {name}",
+                f"# record: {record_id}",
+                f"# pdk: {pdk.variant} @ open_pdks {pdk.installed_commit} ({pdk.lib_file})",
+                f"# ngspice exit: {rc}{' (TIMEOUT)' if timed_out else ''}",
+                f"# run (UTC): {stamp:%Y-%m-%dT%H:%M:%SZ}",
+                "",
+                "# ==== .spiceinit (exact) ====",
+                *[f"| {ln}" for ln in init_text.splitlines()],
+                "",
+                "# ==== deck (exact input given to ngspice) ====",
+                *[f"| {ln}" for ln in deck.splitlines()],
+                "",
+                "# ==== ngspice stdout+stderr ====",
+                raw.rstrip(),
+                "",
+            ]
+        )
+    )
+    return path
 
 
 def mean(values: list[float]) -> float:
