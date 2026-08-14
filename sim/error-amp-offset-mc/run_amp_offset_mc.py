@@ -39,7 +39,6 @@ import argparse
 import json
 import math
 import shutil
-import subprocess
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -61,6 +60,7 @@ from sim_common import (  # noqa: E402
     parse_samples,
     partition_by_window,
     render_log,
+    run_ngspice,
     seed_stability_checks,
     stdev,
 )
@@ -272,31 +272,6 @@ def build_deck(pdk, point: Point, body: list[str]) -> str:
         f'.lib "{pdk.lib_file}" {point.section}',
     ]
     return "\n".join(head + body) + "\n" + control_block(point)
-
-
-def run_point(pdk, point: Point, run_dir: Path, deck: str, timeout: int):
-    run_dir.mkdir(parents=True, exist_ok=True)
-    deck_path = run_dir / f"{point.corner_id}.spice"
-    deck_path.write_text(deck)
-    shutil.copyfile(SPICEINIT_FILE, run_dir / ".spiceinit")
-    try:
-        proc = subprocess.run(
-            ["ngspice", "-b", deck_path.name],
-            cwd=run_dir,
-            capture_output=True,
-            text=True,
-            stdin=subprocess.DEVNULL,
-            timeout=timeout,
-        )
-        return proc.stdout + proc.stderr, proc.returncode, False
-    except subprocess.TimeoutExpired as exc:
-        out = exc.stdout or ""
-        err = exc.stderr or ""
-        if isinstance(out, bytes):
-            out = out.decode(errors="replace")
-        if isinstance(err, bytes):
-            err = err.decode(errors="replace")
-        return out + err, -1, True
 
 
 def write_log(corners_dir, point, pdk, record_id, stamp, deck, raw, rc, timed_out) -> Path:
@@ -842,7 +817,7 @@ def main(argv: list[str]) -> int:
     for i, point in enumerate(points, start=1):
         run_dir = BUILD_DIR / record_id / point.corner_id
         deck = build_deck(pdk, point, body)
-        raw, rc, timed_out = run_point(pdk, point, run_dir, deck, args.timeout)
+        raw, rc, timed_out = run_ngspice(run_dir, point.corner_id, deck, args.timeout)
         write_log(corners_dir, point, pdk, record_id, now, deck, raw, rc, timed_out)
         if rc != 0 or timed_out:
             raise cr.HarnessError(
