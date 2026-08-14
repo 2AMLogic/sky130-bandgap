@@ -174,6 +174,28 @@ reproduce this same FAIL record's numbers, not new evidence. This record
 (`20260812-011520-5df01bf`) remains the current, valid measurement of the
 layout as drawn.
 
+### Second follow-up (2026-08-14): the harness-fragility gap above is closed, and the routing-fix path is confirmed on real-pipeline evidence
+
+Per the operator's ruling on issue #140 to re-attempt the routing fix with
+a guardrail against touching the spec if it still falls short, DR-008
+gained an addendum: the `ROUTE_WIDTH_UM` 0.65 µm layout above was
+regenerated and run through the REAL end-to-end post-layout harness (not
+just the resistor-scaling proxy) for the first time. `sim/bin/post_layout_common.py`'s
+fixed 11-pin `core_port_order` assumption named above is now fixed
+generically (`parse_subckt_ports()` reads the actual `.SUBCKT` header a
+given run's own extraction declares, no-op-verified against the current
+11-pin layout across all seven `sim/*-post-layout/` benches) -- but doing
+so exposed a second, independent problem: the widened layout's real
+extracted network fails ngspice's DC operating-point solver at every one
+of the 45 corners (`singular matrix`, gmin/source stepping all fail), so
+no converged, trustworthy `psrr_band_min` number came out of it either way.
+Combined with the resistor-scaling proxy's own ceiling (short of the floor
+even at the unphysical zero-resistance limit), the routing-fix path is
+closed on two independent grounds now, not one. Still no new
+`sim/psrr-dc-post-layout/records/` entry: a non-converged run has no
+trustworthy measurement to append. See DR-008's addendum for the full
+mechanism and evidence.
+
 ## Known gaps (not closed by this record)
 
 - The mechanism above is a scale/order-of-magnitude argument from the

@@ -207,3 +207,80 @@ edited in place).
   derived from any fresh analysis beyond "clears the worst observed
   corner with a round-number buffer" — an operator ratifying Option A
   should treat the exact floor as open, not pre-decided by this record.
+
+## Addendum (2026-08-14): the routing-fix path is now closed on real-pipeline evidence too, not just the resistor-scaling proxy above
+
+Per the operator's 2026-08-14 ruling on issue #140 ("unparked as
+engineering, with a guardrail: if routing cannot recover the margin, do
+NOT touch the ratified spec"), this addendum redid the `ROUTE_WIDTH_UM`
+0.5 -> 0.65 µm experiment above through the REAL end-to-end harness
+(`klt extract --parasitics` on the regenerated layout, translated,
+simulated over the full 45-point matrix) rather than the resistor-scaling
+proxy against the original FAIL record's network. Two findings:
+
+**1. The harness-fragility side finding above is confirmed and root-caused
+precisely, and fixed generically.** The 0.65 µm layout's `--parasitics`
+extraction promotes the synthesized substrate net (`vsubs`) to an explicit
+12th `.SUBCKT bandgap_core_routed` port (`... VSS vsubs`) that the 0.5 µm
+layout's extraction does not carry (11 ports, no `vsubs`). After
+`translate_extracted_netlist`'s existing blanket `vsubs` -> `VSS` text
+substitution, that header reads `... VSS VSS` — a legal, if unusual, SPICE
+subckt header (the same net name twice is not an error). The actual bug
+was on the CALLER side: `sim/bin/post_layout_common.py`'s
+`build_core_wrapper()` bound its `XCORE` call against a hardcoded 11-name
+`core_port_order` tuple, so a 12-port header received only 11 positional
+nodes — ngspice cannot resolve the call (reported as a "singular"/failed
+subckt match rather than a clean "wrong argument count" message, which is
+why the original side finding above described it only as "every corner
+comes back n/a" rather than naming the exact mechanism). Fixed by having
+`build_extracted_body()` parse the ACTUAL `.SUBCKT` header
+(`parse_subckt_ports()`, new) from each run's own extraction instead of
+assuming a fixed pin count, so the wrapper self-adapts to however many
+ports a given layout's `--parasitics` pass promotes. Verified a no-op for
+the current shipped (0.5 µm, 11-pin) layout: byte-identical `XCORE` call
+across all seven `sim/*-post-layout/run_*.py --dry-run` outputs,
+before/after the fix.
+
+**2. With the port-count bug out of the way, the 0.65 µm layout's real
+extracted network fails to converge at all, at every corner.** Every one
+of the 45 corners' ngspice runs reports `Warning: singular matrix: check
+node xbg.xcore.$195`, `Dynamic gmin stepping failed`, `True gmin stepping
+failed`, `source stepping failed` — the DC operating-point solver cannot
+find a bias point on this specific extracted network, and the AC
+measurements it still prints are consequently garbage (`psrr_dc` reading
+approximately 0 dB at every corner, i.e. no attenuation at all, not a
+plausible circuit measurement). This is a DIFFERENT, and independent,
+failure from the insufficient-margin finding in the body above: even
+setting the margin question aside entirely, this specific widened-layout
+attempt does not yield a usable measurement without further, open-ended
+solver/netlist debugging (a probable candidate: the 196-net/196-R/196-C
+`--parasitics` network this extraction produces is a coarser, one-R-plus-
+one-C-per-net star model, structurally different from the original FAIL
+record's 151-net/813-R/151-C per-terminal-fanout model — not simply the
+same topology at a scaled resistance — though the exact cause was not
+pursued further, since finding 3 below already closes the disposition
+regardless of it).
+
+**3. Disposition unchanged, now on two independent grounds.** The
+resistor-scaling proxy analysis in the body above already showed this
+lever cannot close the ~1.2-1.7 dB gap at the worst corner even under
+generous, non-physical assumptions (the unphysical zero-resistance limit
+only reaches ~60.3-60.5 dB, a razor-thin, untrustworthy ceiling). This
+addendum's real-pipeline attempt does not overturn that — it cannot even
+produce a converged measurement to check it against — and additionally
+surfaces a genuine numerical-robustness cost this specific width value
+carries on the real extracted network, which is itself a reason not to
+ship it even setting the margin question aside. The `ROUTE_WIDTH_UM`
+change is reverted again (not committed), same disposition as the
+investigation above. **No new `sim/psrr-dc-post-layout/records/` entry is
+appended**: this addendum did not produce a converged, trustworthy
+measurement, so appending one would violate CLAUDE.md's "no claim without
+a testbench" standard rather than satisfy it — the existing FAIL record
+(`20260812-011520-5df01bf`) remains the current, valid evidence. The
+`parse_subckt_ports()` harness fix IS kept (it is independently correct,
+verified non-regressing, and closes a real gap for any future attempt at
+this or any other post-layout lever that promotes a different pin set).
+
+Both dispositions (Option A / Option B above) remain exactly as laid out;
+this addendum adds evidence, not a new option. Routed back to the operator
+per the guardrail — see issue #140.

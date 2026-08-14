@@ -308,6 +308,42 @@ def extract_subckt_block(text: str, name: str) -> str:
     return m.group(1)
 
 
+def parse_subckt_ports(text: str, name: str) -> tuple[str, ...]:
+    """Parse the actual, as-extracted `.SUBCKT <name> <port> <port> ...`
+    header's port list, in declaration order.
+
+    `klt extract --parasitics` does not always promote the same top-level
+    pin set `klt extract`'s plain (non-parasitics) pass does: a wider
+    `ROUTE_WIDTH_UM` layout has been observed to additionally promote the
+    synthesized substrate net (`vsubs`) to an explicit 12th `.SUBCKT` port
+    that the plain-extraction 11-pin set (`D1 D2 GDRV PN TAIL VA VB VBQ VDD
+    VOUT VSS`) does not carry -- see
+    `spec/decision-records/DR-008-psrr-post-layout-margin-proposal.md`'s
+    harness-fragility side finding. A caller that hardcodes the 11-pin order
+    (`build_core_wrapper`'s previous default) silently mis-binds `XCORE`'s
+    positional node list against a 12-port header in that case (ngspice then
+    fails to resolve the call, reporting an "unknown subckt" style error
+    instead of the real PSRR numbers) -- parsing the header actually written
+    by this run's own extraction avoids assuming a fixed pin count.
+
+    Ports may repeat (e.g. the promoted `vsubs` port, after
+    `translate_extracted_netlist`'s blanket `vsubs` -> `VSS` text
+    substitution, becomes a second literal `VSS` entry) -- this returns the
+    header exactly as declared, duplicates included: `X<inst> <nodes...>
+    <subckt>` binds a call to a `.SUBCKT` by POSITION, so a caller must
+    supply as many actual nodes as the header lists, in the same positions,
+    not a de-duplicated set.
+    """
+    m = re.search(
+        rf"^\.subckt\s+{re.escape(name)}\s+(.+)$",
+        text,
+        re.I | re.M,
+    )
+    if not m:
+        raise PostLayoutError(f"no .SUBCKT {name} header line found to parse ports from")
+    return tuple(m.group(1).split())
+
+
 def build_core_wrapper(
     core_subckt: str = "bandgap_core_routed",
     core_port_order: tuple[str, ...] = (
@@ -332,6 +368,16 @@ def build_core_wrapper(
     subckt scoping makes them genuinely internal to this one instance, byte
     for byte the same electrical topology `design/bandgap_core.sch` already
     keeps internal to its own `XAMP` call.
+
+    `core_port_order` defaults to the usual 11-pin set but callers should
+    pass the header actually parsed from this run's own extraction
+    (`parse_subckt_ports`) rather than rely on the default -- see that
+    function's docstring for why the promoted pin set is not always the
+    same 11 (e.g. a wider `ROUTE_WIDTH_UM` layout promoting `vsubs` as a
+    12th port). This function itself is agnostic to the exact count/order:
+    it maps every port not in `exposed` to a fresh wrapper-local internal
+    name and calls `XCORE` positionally against however many (and whichever)
+    ports `core_port_order` actually lists, duplicates included.
     """
     unexposed = [p for p in core_port_order if p not in exposed]
     port_map = {p: p for p in exposed}
@@ -465,7 +511,8 @@ def build_extracted_body(
         )
 
     core_block = extract_subckt_block(translated, PEX_TOP)
-    wrapper = build_core_wrapper(core_subckt=PEX_TOP)
+    core_port_order = parse_subckt_ports(core_block, PEX_TOP)
+    wrapper = build_core_wrapper(core_subckt=PEX_TOP, core_port_order=core_port_order)
 
     testbench = REPO_ROOT / wrapped_schematic
     netlist = cr.netlist_with_xschem(testbench, run_dir, pdk)
@@ -489,6 +536,7 @@ def build_extracted_body(
         },
         "device_translation_counts": counts,
         "lvs_mismatch_count_at_extraction": None,  # cross-referenced in the record body, not re-derived here
+        "core_port_order": list(core_port_order),  # as actually parsed from this run's own extraction header
     }
     return body, provenance
 
