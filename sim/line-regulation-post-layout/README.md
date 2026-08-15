@@ -299,6 +299,136 @@ Note that klayout-tools#800's poly double-count inflates R1 and both R2 legs
 nearly proportionally, so it barely touches K and is **not** a material
 contributor to divergence 2 — unlike its role in the Iq finding.
 
+## Investigation: `fs_125c_3.30v` DC-sweep solver artifact (issue #172)
+
+A third record, `20260815-060103-fa15a7c`, was appended for this
+investigation — a plain re-run of this bench, unmodified, against the
+post-#170 layout (`layout/bandgap-core/reports/20260815-034022-001d1b7`,
+the same one `20260815-041348-001d1b7` measured; #170 halved
+`design/error_amp.sch`'s `amp_m_in` 16→8, DR-008 Option B). It exists to
+document a harness-solver finding, not a design or spec change:
+`20260815-041348-001d1b7`'s `fs_125c_3.30v` corner reports
+`line_shift_mv=2250.25` (limit 24) and `line_psrr_db=-10.65` — a ~296 %/V
+"line regulation" figure with no physical plausibility, while every other
+corner in both this record and its predecessor measures tens of µV of
+shift (0.014 … 0.032 mV) consistent with the schematic-level bench at the
+same corners. This section is that investigation's write-up; the flagged
+record is **not** edited, retired or superseded by it — both stand as
+committed evidence, per `sim/README.md`.
+
+### Reproduction is exact, not flaky
+
+`20260815-060103-fa15a7c`'s `fs_125c_3.30v` corner reproduces
+`20260815-041348-001d1b7`'s **bit-for-bit** on all 7 of that corner's
+measurements (`line_shift_mv`, `line_reg_pct_per_v`, `line_psrr_db`,
+`vref_nom`, and the three sweep guards) — its netlist snapshot is
+byte-identical to the flagged record's (`sha256 39474568…`, same extracted
+netlist, same translation). Across the other 14 corners, 59 of 98
+measurements matched exactly and the remaining 39 differ only in the last
+printed significant digit (ordinary solver noise-floor jitter on a
+few-tens-of-µV quantity, the same scale `sim/line-regulation/`'s own
+manifest notes document). The spurious corner's value moving **zero**
+digits while every clean corner's moves the expected one confirms this is
+a hard, repeatable convergence outcome, not floating-point/scheduling
+flakiness landing near a threshold.
+
+### Root cause: the DC-sweep continuation solver, not the circuit
+
+The committed corner log
+(`sim/line-regulation-post-layout/corners/20260815-060103-fa15a7c/fs_125c_3.30v.log`,
+and identically in `.../20260815-041348-001d1b7/fs_125c_3.30v.log`) shows
+`ngspice` prints `Note: Starting dynamic gmin stepping` /
+`Note: Dynamic gmin stepping completed` **exactly twice** during the
+31-point sweep — i.e. standard Newton–Raphson continuation (which seeds
+each new bias point's initial guess from the previous point's converged
+solution) fails exactly at sweep indices 27 and 28 (`vsup` = 3.564 V,
+3.586 V), and ngspice falls back to gmin-stepping homotopy to recover.
+Isolated single-point `.op` solves at those same two `vsup` values, seeded
+with a `.nodeset` near the surrounding plateau (`v(vref)=1.151`,
+`v(gdrv)` matching the neighboring points' trend) instead of the sweep's
+own continuation guess, converge on the **first** Newton iteration — no
+gmin stepping needed at all — to `v(vref) = 1.151183 V` and `1.151185 V`
+respectively, in line with the neighboring sweep points (1.15118150 V at
+3.542 V, 1.15118738 V at 3.608 V). This refutes "genuine circuit
+instability": there is one well-defined physical operating point at each
+of the two bias points, and it is trivially found once the search isn't
+routed through the sweep's own degraded initial guess. What gmin-stepping's
+homotopy path lands on instead — reproducibly, to 6+ significant figures,
+across every variant tried below — is a spurious, non-physical root near
+rail level (≈3.38–3.40 V, close to `vsup` itself), not a second stable
+bias point of the real circuit.
+
+Isolated to this one process/temperature/netlist combination, checked
+directly (same extracted body, only `.temp`/`.lib <corner>` varied): clean
+at `fs`/−40 °C and `fs`/27 °C, and clean at 125 °C for `tt`/`ss`/`ff`/`sf`
+— only `fs`/125 °C exhibits it, consistent with the flagged record's own
+14/15-clean reading.
+
+### Solver-tuning knobs tried — none move the outcome
+
+Per the issue's own suggested next steps, each of the following was tried
+against the identical deck (all other settings unchanged), independently
+and re-derived by hand outside the harness (no repo file was changed for
+these trials):
+
+| Knob | Values tried | Effect on the spurious point |
+|---|---|---|
+| Sweep step | 0.022 V (as-recorded), 0.011 V, 0.005 V | **Not eliminated, and gets worse with resolution.** Halving to 0.011 V still triggers the fallback, now at *three* adjacent points (3.553, 3.564, 3.586 V); the finer 0.005 V step triggers it at *five* (3.545, 3.550, 3.565, 3.585, 3.590 V) — finer resolution samples the same 3.54–3.59 V region more densely, it does not avoid it. |
+| `itl1` (DC op iteration limit) | default, 500 | No change — spurious value bit-identical. |
+| `itl2` (DC sweep-point iteration limit) | default, 500 | No change — spurious value bit-identical. |
+| `gmin` | default (1e-12), 1e-15 | No change — spurious value bit-identical. |
+| `gminsteps` (homotopy step count) | default (25), 10, 50, 100, 200 | No change — spurious value bit-identical to 6 sig. figs at every step count. |
+| `reltol`/`vntol`/`abstol` | this bench's tightened values (as-recorded), ngspice defaults (looser), and further-tightened | No change — the deck's `.option` tolerances (load-bearing for this bench's µV-scale resolution per `sim/line-regulation/experiment.json`'s own notes) were **not** the trigger; loosening them all the way to ngspice's defaults still reproduces the identical spurious value. |
+| Direct linear solver | KLU (as-recorded, via `sim/spiceinit`), SPARSE | No change — spurious value bit-identical regardless of solver. |
+
+The only thing that avoided it was **not** a solver-tuning parameter: a
+standalone, freshly `.nodeset`-seeded `.op` per point bypasses the sweep's
+continuation guess entirely (see above). Restructuring the shared,
+continuous `dc v1 2.97 3.63 0.022` sweep in
+`sim/line-regulation/experiment.json`'s `deck.analyses` (used unchanged by
+both this bench and the schematic-level `sim/line-regulation/`) into a
+scripted per-point reseed loop was evaluated and rejected as
+disproportionate: it would change how every one of this bench's 31 points
+at every corner is solved (not just the two affected ones), for a shared
+manifest two benches depend on, to correct 2 of 465 total post-layout
+sweep points (31 × 15) that already fail loudly and visibly rather than
+silently reporting a plausible-looking wrong number.
+
+### Disposition: acceptance criterion (b)
+
+Per issue #172's acceptance criteria, this is **(b): a genuine, narrow
+convergence-basin sensitivity that solver tuning cannot cleanly avoid** —
+with the precision that "genuine" describes the *solver's* behavior, not
+the circuit's. The physical operating point at both affected bias points
+is single-valued, well-behaved, and matches its neighbors; what is narrow
+and untunable (against every knob in the issue's own suggested-next-steps
+list) is the DC-sweep continuation's basin of attraction into gmin-stepping
+homotopy's alternate root, specific to the `fs`/125 °C corner of the
+post-#170 (`amp_m_in=8`) extracted netlist. No design, spec, or
+shared-harness-tolerance change was made. Two things independently limit
+the blast radius of leaving this untuned:
+
+- `line_shift_mv`'s pass window is 24 mV; every genuinely-measured point in
+  this bench (including the other 14/15 corners here and the two
+  nodeset-seeded points confirmed above) sits three to four orders of
+  magnitude inside it — an artifact landing near `vsup` itself is not a
+  quiet near-miss, it is a loud, self-flagging outlier.
+- `sim/psrr-dc-post-layout/` — the metric issue #170 actually targeted —
+  measures the same physical quantity via a small-signal AC analysis
+  around a single `.nodeset`-seeded bias point (a different solve path
+  that never invokes DC-sweep continuation) and converged cleanly with a
+  plausible value at this exact corner, so #170's PSRR-margin claim is
+  unaffected by this finding.
+
+Any future reader of `fs_125c_3.30v` FAILing in either
+`20260815-041348-001d1b7` or `20260815-060103-fa15a7c` should treat it as
+this documented, instrumented solver artifact, not a line-regulation
+regression — and a future attempt at eliminating it should start from "a
+scripted per-point `.nodeset` reseed replacing the shared continuous `.dc`
+sweep" (the one approach confirmed to work here), understanding that it is
+a `deck.analyses` architecture change affecting both benches, not a
+one-line tuning knob.
+
 ## Known gaps (not closed by these records)
 
 - `line_psrr_db`'s scatter is *characterized* (a p-p readout on a
