@@ -50,6 +50,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from layout_common import klt_gen, run_klt_json, union_bbox  # noqa: E402
+
 # ---------------------------------------------------------------------------
 # Floorplan geometry constants (um)
 # ---------------------------------------------------------------------------
@@ -249,34 +252,8 @@ MCC_AREA_UM2_NOTE = (
 )
 
 
-def run_klt_json(klt: str, *args: str) -> dict[str, Any]:
-    result = subprocess.run(
-        [klt, *args, "--format", "json"],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
-
-
-def klt_gen(klt: str, pdk: str, out_dir: Path, block: dict[str, Any]) -> dict[str, Any]:
-    cell_name = block["id"]
-    gds_path = out_dir / f"{cell_name}.gds"
-    report = run_klt_json(
-        klt,
-        "gen",
-        block["generator"],
-        "--pdk",
-        pdk,
-        "--cell-name",
-        cell_name,
-        "--params",
-        json.dumps(block["params"]),
-        "-o",
-        str(gds_path),
-    )
-    (out_dir / f"{cell_name}.gen.json").write_text(json.dumps(report, indent=2) + "\n")
-    return report
+# run_klt_json() and klt_gen() live in layout_common.py (issue #169) --
+# imported above.
 
 
 def place_blocks(
@@ -324,20 +301,7 @@ def place_blocks(
     return origins
 
 
-def union_bbox(
-    blocks: list[dict[str, Any]],
-    reports: dict[str, dict[str, Any]],
-    origins: dict[str, dict[str, float]],
-) -> dict[str, float]:
-    x0s, y0s, x1s, y1s = [], [], [], []
-    for block in blocks:
-        bbox = reports[block["id"]]["bbox_um"]
-        origin = origins[block["id"]]
-        x0s.append(bbox["x0"] + origin["x"])
-        y0s.append(bbox["y0"] + origin["y"])
-        x1s.append(bbox["x1"] + origin["x"])
-        y1s.append(bbox["y1"] + origin["y"])
-    return {"x0": min(x0s), "y0": min(y0s), "x1": max(x1s), "y1": max(y1s)}
+# union_bbox() lives in layout_common.py (issue #169) -- imported above.
 
 
 def main() -> int:
@@ -361,7 +325,7 @@ def main() -> int:
 
     # --- 2. Place on an explicit 2D grid (four centered, stacked rows) ------
     origins = place_blocks(BLOCKS, reports)
-    content_bbox = union_bbox(BLOCKS, reports, origins)
+    content_bbox = union_bbox([b["id"] for b in BLOCKS], reports, origins)
 
     inner_blocks_request = {
         "schema": "klt.gen_compose.request/1",
