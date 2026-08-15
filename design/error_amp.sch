@@ -223,7 +223,7 @@ C {devices/code_shown.sym} 100 -900 0 0 {name=AMP_PARAMS only_toplevel=false val
 * (sigma(Vth) scales as 1/sqrt(W*L*mult) in the PDK's own model).
 * amp_m_in    : input-pair PMOS units   (W=20u L=10u each -> 1600 um^2 total;
 *               16 -> 8 by issue #170, DR-008 Option B PSRR margin increase
-*               -- see the header's "amp_m_in: 16 -> 8" section)
+*               -- see the header's amp_m_in: 16 -> 8 section)
 * amp_m_nmirr : NMOS load/mirror units  (W=8u  L=20u each ->  640 um^2 total)
 * amp_m_pmirr : PMOS mirror units       (W=6u  L=20u each ->  960 um^2 total)
 * amp_m_cc    : MOS-capacitor units     (W=30u L=20u each -> 9600 um^2 total)
