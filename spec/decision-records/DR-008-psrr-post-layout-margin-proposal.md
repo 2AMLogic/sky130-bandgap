@@ -344,19 +344,58 @@ criterion was already **not met** before this change (Section 3's
 measurement — see that document's Section 9 for why). This is not a
 criterion DR-006 or issue #170's acceptance criteria gate, and is flagged
 forward the same way the original budget flagged it, not engineered around
-silently.
+silently. A second, separately measured cost of the same input-pair-area
+lever — a uniform ~1.14 % post-layout `vref_27` drop and ~13 % relative
+`tc_ppm` increase on `sim/output-voltage-tc-post-layout/` — is documented
+in the Regression check below rather than folded into this paragraph.
 
 **Regression check** (both levels, per issue #170's test plan):
 `sim/error-amp-loop/` 45/45 PASS on its own acceptance criteria (phase
 margin, gain margin, DC loop gain, systematic offset, Iq — all comfortably
 inside their floors, several *improved* by the change); `sim/quiescent-
 current(-post-layout)/`, `sim/startup-stability(-post-layout)/` PASS;
-`sim/line-regulation/` and `sim/output-voltage-tc(-post-layout)/` carry
-pre-existing, unrelated FAILs (confirmed by comparing against the last
-committed pre-#170 record at each bench — the failing measurements move by
-noise-level amounts, not the amount a regression would produce). Full
-accounting, including one post-layout-only numerical-solver anomaly at a
-single DC-sweep corner, is in issue #170's PR description.
+`sim/line-regulation/` and `sim/output-voltage-tc/` (schematic level) carry
+pre-existing FAILs whose measurements genuinely do move by noise-level
+amounts against the last committed pre-#170 record at each bench
+(line-regulation `vref_nom` < 0.001 V; schematic-level `output-voltage-tc`
+`vref_27` +0.21..+0.24 mV and `tc_ppm` −0.9 ppm/°C on matched corners).
+Full accounting, including one post-layout-only numerical-solver anomaly at
+a single DC-sweep corner, is in issue #170's PR description.
+
+**`output-voltage-tc-post-layout` is the one exception, and it is a real
+side effect of this change, not noise.** Against the same 15 corners of
+the last committed pre-#170 record (`20260811-231900-84ef136` →
+`20260815-035841-001d1b7`):
+
+- `vref_27` drops **~13.5–14.0 mV (~1.14 %) uniformly at every one of the
+  15 corners** (1.19328–1.19513 V → 1.17966–1.18113 V).
+- `tc_ppm` rises **~+21..+24 ppm/°C (+12.4..+14.5 % relative)** at every
+  corner (166.8–185.8 → 191.0–208.9 ppm/°C).
+- The testbench's `vref_27 >= 1.188 V` sanity-band guard, which tripped at
+  **0/15** corners in the baseline record, now trips at **15/15**.
+
+A uniform, single-signed, corner-independent shift of that size is not
+simulation noise; it is attributable to this ratification's change. The
+bench's overall verdict does not flip — it was FAIL before and after on the
+`tc_ppm` >> 50 ppm/°C floor, and neither DR-006/DR-008 nor issue #170's
+acceptance gates cover the untrimmed `vref`/TC targets — so this is
+disclosed as a measured cost, not claimed as fixed or as unaffected.
+
+**Mechanism (measured, not speculative)**: on matched 27 °C / 3.30 V
+corners the extracted layout previously read **+27.7..+28.6 mV above** its
+own schematic-level `vref_27`; with the halved input pair it reads
+**+13.9..+14.7 mV above** — the post-layout offset roughly halves, and the
+layout's TC-flattering effect shrinks the same way (tt: −84.0 → −59.4
+ppm/°C versus schematic). This is the *same* "a smaller device at the
+sensitive node carries less parasitic loading" effect that makes this
+design's post-layout PSRR shift positive (see the post-layout result
+above). The post-layout `vref_27`/`tc_ppm` numbers therefore now track the
+(already out-of-spec) schematic-level values more closely instead of being
+flattered by a layout artifact. It belongs to the same family of
+input-pair-area trade as the offset cost disclosed above and in
+`design/error-amp-offset-budget.md` Section 9, and closing the untrimmed
+±1 % accuracy gap (issue #11) remains separate work that this record does
+not attempt.
 
 Closes DR-008. Issue #140 re-runs the full 45-point post-layout bench
 against this ratification and closes on the 45/45 result above.
