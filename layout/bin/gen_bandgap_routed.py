@@ -334,6 +334,7 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import met1_bus  # noqa: E402  -- local module, resolved from this script's dir
+from layout_common import klt_gen, run_klt_json, union_bbox  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Friction notes (upstream tool gaps this script works around or is limited
@@ -1442,45 +1443,8 @@ MCC_AREA_UM2_NOTE = (
 # ---------------------------------------------------------------------------
 # klt drivers
 # ---------------------------------------------------------------------------
-def run_klt_json(klt: str, *args: str, allow_exit: tuple[int, ...] = (0,)) -> dict[str, Any]:
-    """Run one `klt <args> --format json` and parse its stdout envelope.
-
-    `allow_exit` lists the exit codes that still carry a full payload on
-    stdout -- `klt drc`'s 3 ("ran clean but found violations") and
-    `klt gen-compose`'s 3 ("partial success: unrouted_nets[] non-empty") both
-    do, and both are results this flow records rather than crashes.
-    """
-    result = subprocess.run(
-        [klt, *args, "--format", "json"],
-        check=False,
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode not in allow_exit:
-        raise RuntimeError(
-            f"klt {' '.join(args)} exited {result.returncode}:\n{result.stderr}"
-        )
-    return json.loads(result.stdout)
-
-
-def klt_gen(klt: str, pdk: str, out_dir: Path, block: dict[str, Any]) -> dict[str, Any]:
-    cell_name = block["id"]
-    gds_path = out_dir / f"{cell_name}.gds"
-    report = run_klt_json(
-        klt,
-        "gen",
-        block["generator"],
-        "--pdk",
-        pdk,
-        "--cell-name",
-        cell_name,
-        "--params",
-        json.dumps(block["params"]),
-        "-o",
-        str(gds_path),
-    )
-    (out_dir / f"{cell_name}.gen.json").write_text(json.dumps(report, indent=2) + "\n")
-    return report
+# run_klt_json() and klt_gen() live in layout_common.py (issue #169) --
+# imported above, alongside met1_bus.
 
 
 # ---------------------------------------------------------------------------
@@ -3688,20 +3652,7 @@ def place_blocks(
     return origins
 
 
-def union_bbox(
-    block_ids: list[str],
-    reports: dict[str, dict[str, Any]],
-    origins: dict[str, dict[str, float]],
-) -> dict[str, float]:
-    x0s, y0s, x1s, y1s = [], [], [], []
-    for bid in block_ids:
-        bbox = reports[bid]["bbox_um"]
-        origin = origins[bid]
-        x0s.append(bbox["x0"] + origin["x"])
-        y0s.append(bbox["y0"] + origin["y"])
-        x1s.append(bbox["x1"] + origin["x"])
-        y1s.append(bbox["y1"] + origin["y"])
-    return {"x0": min(x0s), "y0": min(y0s), "x1": max(x1s), "y1": max(y1s)}
+# union_bbox() lives in layout_common.py (issue #169) -- imported above.
 
 
 # ---------------------------------------------------------------------------
