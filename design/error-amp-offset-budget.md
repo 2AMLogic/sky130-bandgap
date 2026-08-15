@@ -1,11 +1,21 @@
 # Error-Amplifier Offset / Mismatch Budget — sky130 Bandgap Core (Issue #9)
 
-**Status**: budget complete and measured end to end. Three of the four
-acceptance criteria the amplifier itself owns are met (loop stability, PSRR,
-Iq); the fourth — the amplifier's input-referred offset allocation — is
-**not met, and this document's central finding is that it cannot be met by
-sizing alone.** That finding is flagged back to #3/#8 in §6 rather than
-papered over by quietly relaxing the target, per `CLAUDE.md`.
+**Status**: budget complete and measured end to end, **as of the pre-#170
+sizing (`amp_m_in=16`)**. Three of the four acceptance criteria the amplifier
+itself owns are met (loop stability, PSRR, Iq); the fourth — the amplifier's
+input-referred offset allocation — is **not met, and this document's central
+finding is that it cannot be met by sizing alone.** That finding is flagged
+back to #3/#8 in §6 rather than papered over by quietly relaxing the target,
+per `CLAUDE.md`.
+
+**Update (issue #170, see §9)**: `design/error_amp.sch`'s `amp_m_in` was
+halved 16 → 8 to buy PSRR-band margin against the routed layout's measured
+post-layout PSRR cost (DR-008 Option B). That change **worsens** this budget's
+already-unmet §3 finding further — §9 re-derives the offset terms
+analytically for the new sizing (no fresh Monte Carlo run; see §9 for why).
+Sections 1–8 below are unmodified and describe the pre-#170 (`amp_m_in=16`)
+sizing and its N = 300 Monte Carlo evidence, which is still the most recent
+*measured* (not analytic) offset data on file.
 
 **Headline**: with the amplifier in `design/error_amp.sch` and the core in
 `design/bandgap_core.sch`, the untrimmed reference's **local-mismatch spread
@@ -387,3 +397,83 @@ plausible-looking numbers:
   exactly 0 on the plain `tt` section, its second-seed point requires σ to
   be stable while the samples change, and its 1 µA un-arrayed PNP pair has
   to reproduce a number measured by a different testbench on a different run.
+
+---
+
+## 9. Update (issue #170): `amp_m_in` halved for PSRR margin — offset budget re-derived analytically
+
+Issue #170 (DR-008 Option B) halved `design/error_amp.sch`'s `amp_m_in` from
+16 to 8 to raise the amplifier's own PSRR-band margin (`psrr_band_min` moves
++7.1..+15.6 dB per corner across the 45-point `sim/psrr-dc/` matrix — see
+`error_amp.sch`'s own header for the full circuit-level rationale and the
+levers that were tried and rejected first). That is the *opposite* direction
+from what this budget's §4 area lever wants: **less** input-pair area means
+**more**, not less, input-referred offset. This section is the honest
+accounting of that cost, per this document's own §6 precedent of flagging a
+finding rather than engineering around it silently.
+
+**Why this is an analytic re-derivation, not a fresh Monte Carlo measurement.**
+Issue #170's own acceptance criteria (loop phase margin, gain margin, DC loop
+gain, PSRR, and the regression benches it names) do not include
+`sim/error-amp-offset-mc/` — the offset-budget criterion this document
+already reports as **not met** (§3) is not a gate #170 re-verifies. Running a
+fresh N = 300 Monte Carlo point (or three, one per temperature, matching §2's
+convention) is future work, not done here. What follows instead reuses this
+document's own formula (§1/§4) with `sim/error-amp-loop/` record
+`20260815-022219-001d1b7`'s freshly measured `gm_in`/`gm_nload`/`gm_pmirr` at
+the new sizing, and carries forward the same **13 % measured-vs-analytic
+correction factor** §4 found pre-#170 (`0.525 mV` measured vs `0.466 mV`
+predicted) since nothing about the correction's source (current-factor and
+mobility terms the first-order Vth-only formula omits) is expected to change
+with `amp_m_in`. Treat the numbers below as an **estimate with the same
+directional confidence as §4's own formula**, not as new measured evidence.
+
+**Geometry**: MP1/MP2 area drops 3200 → 1600 µm² each (`mult=16` → `mult=8`,
+`W=20 L=10` unchanged); MN1..MN4 and MP3/MP4 are unchanged (640 µm² and
+960 µm² each respectively, `amp_m_nmirr=4`, `amp_m_pmirr=8` untouched — issue
+#170's own sweep found resizing these has under 0.1 dB effect on
+`psrr_band_min`, so there was no PSRR reason to touch them, and touching them
+would not have helped the offset side either, see below).
+
+**gm ratios, measured at `tt_27c_3.30v`** (`sim/error-amp-loop/records/20260815-022219-001d1b7`):
+`gm_in` = 65.03 µS (was 79.73 µS), `gm_nload` = 37.07 µS (was 37.10 µS,
+essentially unchanged — `amp_m_nmirr` didn't move), `gm_pmirr` = 27.77 µS
+(was 27.78 µS, same reason). Because `gm_in` fell while `gm_nload`/`gm_pmirr`
+didn't, **both ratios the formula divides by grew**:
+`gm_nload/gm_in` = 0.570 (was 0.464), `gm_pmirr/gm_in` = 0.427 (was 0.348) —
+about a 1.23× increase on each, the reciprocal of `gm_in`'s ~1/√2 fall. This
+is why resizing MN1..4/MP3/4 alone (tried first, per `error_amp.sch`'s
+header) doesn't recover the offset budget either: their own σ(Vth) and their
+ratio to `gm_in` move in offsetting directions when only `amp_m_in` changes,
+and moving `amp_m_nmirr`/`amp_m_pmirr` themselves leaves the input-referred
+contribution of that group invariant to first order (the ratio's
+mult-dependence and σ(Vth)'s mult-dependence cancel — see the PR discussion
+for the derivation) while still costing area/current, so there is no lever
+among the amplifier's existing multiplicities that recovers this cost.
+
+| Term | σ(Vth) per device | Contribution to σ(VOS) (formula) | pre-#170 (`amp_m_in=16`) |
+|---|---|---|---|
+| MP1/MP2 input pair | 0.300 mV (was 0.212 mV) | 0.424 mV (was 0.300 mV) | 0.300 mV |
+| MN1..MN4 loads/mirrors | 0.324 mV (unchanged) | 0.370 mV (was 0.301 mV) | 0.301 mV |
+| MP3/MP4 PMOS mirror | 0.387 mV (unchanged) | 0.234 mV (was 0.190 mV) | 0.190 mV |
+| **RSS (analytic formula)** | | **0.609 mV** (was 0.466 mV) | 0.466 mV |
+| **Estimated measured** (× 1.13 correction) | | **~0.688 mV** (1 σ) | 0.525 mV (measured) |
+
+At the same measured 9.65 V/V offset gain (`offset_gain` = 9.656 at
+`tt_27c_3.30v` post-#170, essentially unchanged from 9.653 pre-#170 — the
+Kuijk gain is a core/resistor-ratio property, not an amplifier-sizing one),
+the amplifier's own estimated output-referred contribution moves from
+**1.27 % (3 σ)** pre-#170 to **~1.66 % (3 σ)** post-#170 at 27 °C — the §3
+shortfall (already 1.53–1.88× over allocation) widens to roughly **2.0–2.5×**
+over allocation, estimated. The qualitative finding in §6 (±1 % untrimmed is
+not reachable by amplifier sizing alone, chopping/auto-zero or trim are the
+paths forward) is unchanged and, if anything, reinforced by this update —
+issue #170 does not revisit that finding, it documents that its own PSRR fix
+makes the existing gap wider.
+
+**Not revised by this section** (no PSRR-relevant reason to, so not
+re-derived): the PNP ΔVBE, PNP V_EB, and `res_high_po` ratio terms in §2's
+table — none of those depend on `design/error_amp.sch`'s sizing, so
+`amp_m_in`'s change does not move them, and the RSS closure check in §2
+would need a fresh Monte Carlo run (not done here, see above) to re-verify
+against a real σ(VOUT) measurement rather than an analytic estimate.

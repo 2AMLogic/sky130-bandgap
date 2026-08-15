@@ -989,7 +989,15 @@ SCH_N_R2_TRIM = 0  # .param n_r2_trim=0 (DR-002's untrimmed code)
 R2_LEG_SPEC_UM = SCH_R_LSEG_UM * SCH_N_R2 + SCH_R_LSEG_TRIM_UM * SCH_N_R2_TRIM
 M_OUT = 2
 M_AMPBIAS = 2
-AMP_M_IN = 16
+#: Halved 16 -> 8 by issue #170 (DR-008 Option B): design/error_amp.sch's
+#: `.param amp_m_in=8` -- the amp's own PSRR-band margin increase that
+#: absorbs the routed layout's measured -4.05 dB post-layout PSRR shift
+#: (DR-008). Smaller input pair means less capacitive loading on D1/D2,
+#: which raises the amplifier's own non-dominant-pole frequency and with it
+#: psrr_band_min at every schematic-level PVT corner (62.6-66.7 dB baseline
+#: -> 70.2-81.5 dB); see error_amp.sch's own header for the full rationale
+#: and the levers that were tried and empirically rejected first.
+AMP_M_IN = 8
 AMP_M_NMIRR = 4
 AMP_M_PMIRR = 8
 #: MCC, the error amp's Miller compensation cap (design/error_amp.sch,

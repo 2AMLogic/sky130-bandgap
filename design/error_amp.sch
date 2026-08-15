@@ -69,7 +69,8 @@ v {xschem version=3.4.7 file_version=1.2
 *
 * Per-device geometry and the resulting area (unit device x mult). The gm
 * figures are MEASURED, not estimated -- range over all 45 PVT corners of
-* sim/error-amp-loop/ (record 20260803-085320-e599e30):
+* sim/error-amp-loop/ (record 20260803-085320-e599e30, PRE-issue-#170
+* sizing; see the amp_m_in note below for the post-#170 range):
 *   MP1/MP2  W=20 L=10 mult=16 -> 3200 um^2 each   gm_in    74.2 .. 81.2 uS
 *   MN1..MN4 W=8  L=20 mult=4  ->  640 um^2 each   gm_nload 32.1 .. 40.6 uS
 *   MP3/MP4  W=6  L=20 mult=8  ->  960 um^2 each   gm_pmirr 26.0 .. 29.0 uS
@@ -80,15 +81,79 @@ v {xschem version=3.4.7 file_version=1.2
 * of magnitude more than the core's own device area, and the honest price of
 * an untrimmed, unchopped offset on this process.
 *
-* What that buys, measured: sigma(VOS) = 0.52 mV (1 sigma) at 27 degC over
-* N = 300 Monte Carlo draws (sim/error-amp-offset-mc/, record
-* 20260803-084950-e599e30), against 0.47 mV predicted by the formula above
-* from the PDK's A_VT coefficients. It is NOT enough to reach an untrimmed
-* +/-1 % output: through the measured offset gain of 9.65 that is 1.27 % at
-* 3 sigma from the amplifier alone. See design/error-amp-offset-budget.md's
-* "Finding" -- flagged back to #3/#8 rather than papered over here, and NOT
-* fixed by making these devices bigger (the doc shows the area that would
-* take).
+* What that bought, measured (pre-#170 sizing): sigma(VOS) = 0.52 mV
+* (1 sigma) at 27 degC over N = 300 Monte Carlo draws
+* (sim/error-amp-offset-mc/, record 20260803-084950-e599e30), against
+* 0.47 mV predicted by the formula above from the PDK's A_VT coefficients.
+* It was NOT enough to reach an untrimmed +/-1 % output: through the
+* measured offset gain of 9.65 that was 1.27 % at 3 sigma from the amplifier
+* alone. See design/error-amp-offset-budget.md's "Finding" -- flagged back
+* to #3/#8 rather than papered over here.
+*
+* ---------------------------------------------------------------------------
+* amp_m_in: 16 -> 8 by issue #170 (DR-008 Option B PSRR margin increase)
+* ---------------------------------------------------------------------------
+* DR-006 ratifies psrr_band_min (DC-1 kHz) >= 60 dB; the routed layout's
+* extracted network measured a systematic -4.05 +/- 0.36 dB shift off this
+* schematic's baseline at every one of 45 PVT corners
+* (sim/psrr-dc-post-layout/records/20260812-011520-5df01bf, DR-008). DR-008's
+* own resistor-perturbation evidence (Finding 1) located the sensitivity on
+* the amplifier's OWN internal high-impedance nodes, not the VDD/VSS supply
+* rails -- so the fix has to lower the amp's internal-node sensitivity, not
+* add supply-side filtering.
+*
+* What was tried first, and empirically rejected before this fix (see issue
+* #170's PR for the raw sweep data): (a) an explicit MOS decoupling
+* capacitor from D1/D2/PN to VSS -- WORSENS psrr_band_min by 9-24 dB even at
+* modest size, because it adds a new pole inside the forward gain path
+* rather than filtering anything (the header's own MCC section already
+* warned about this: "devices... put picofarads on the amplifier's internal
+* nodes, which drags the loop's non-dominant poles down"); (b) resizing
+* MN1..MN4 (amp_m_nmirr) or MP3/MP4 (amp_m_pmirr) alone -- under 0.1 dB
+* effect on psrr_band_min at 2x/0.5x, confirming the mirror devices are not
+* the sensitive node despite being the literal "internal mirrors" DR-008's
+* text names; (c) shrinking MCC -- also worsens psrr_band_min AND collapses
+* phase margin below the 45 deg floor at reduced amp_m_in, since MCC is the
+* loop's only compensation device.
+*
+* What works, and why: the input pair (MP1/MP2) turns out to be the
+* dominant contributor to the D1/D2 non-dominant-pole loading, because its
+* mult=16 area (the largest single device group in the cell, sized for the
+* offset budget above) puts more incidental gate/junction capacitance on
+* D1/D2 than any other group. Halving amp_m_in 16 -> 8 raises that pole
+* frequency (gm_in falls by ~sqrt(2) but the D1/D2 capacitance falls faster,
+* since C ~ mult while gm ~ sqrt(mult) at fixed branch current) and moves
+* psrr_band_min up by +7.1..+15.6 dB per corner across the whole 45-corner
+* schematic-level matrix, comparing sim/psrr-dc/records/20260811-230151-84ef136
+* (pre-#170, 62.65..66.73 dB) against 20260815-020301-001d1b7 (post-#170,
+* 70.24..81.47 dB, worst corner still sf_-40c_2.97v both before and after),
+* comfortably absorbing the -4.05 +/- 0.36 dB post-layout cost with margin
+* to spare. This is a gain-redistribution lever (one of the three DR-008
+* names as a candidate), not literal mirror cascoding -- cascoding the
+* mirrors was tried per (b) above and does not move this metric.
+*
+* Side effects, measured over the same 45-corner matrix
+* (sim/error-amp-loop/records/20260815-022219-001d1b7):
+*   - DC loop gain: 48.26..49.22 dB (was 49.9..51.1 dB) -- still >= 13 dB
+*     above the 35 dB floor.
+*   - Phase margin: 65.83..68.28 deg (was 61.1..64.6 deg) -- IMPROVES,
+*     because the lower unity-gain frequency (gm_in fell) moves further from
+*     the (now higher) non-dominant poles.
+*   - Gain margin: 12.05..12.65 dB (was 10.8..11.6 dB) -- also improves.
+*   - Systematic offset vos_sys: 0.09..0.20 mV (was up to ~0.19 mV) --
+*     unchanged in character, still << the 1 mV floor.
+*   - Iq: unaffected (ITAIL is an external current input; mult changes
+*     device area/Vov, not branch current).
+*   - Amplifier's RANDOM offset budget (design/error-amp-offset-budget.md):
+*     WORSENS. Halving the input pair's area raises its own sigma(Vth) by
+*     sqrt(2) AND raises gm_nload/gm_in and gm_pmirr/gm_in by the same
+*     factor (gm_in itself falls), so all three offset terms grow together.
+*     This is a real cost, paid against a criterion design/
+*     error-amp-offset-budget.md Section 3 already documents as NOT MET
+*     before this change (1.53-1.88x over its allocation) and which issue
+*     #170's acceptance criteria do not gate -- see that document's own
+*     updated numbers for the honest, undisguised accounting. Not fixed by
+*     this issue; flagged forward the same way the original budget was.
 *
 * ---------------------------------------------------------------------------
 * MCC -- loop compensation
@@ -106,10 +171,13 @@ v {xschem version=3.4.7 file_version=1.2
 * devices above put picofarads on the amplifier's internal nodes, which drags
 * the loop's non-dominant poles down toward the same decade as its unity-gain
 * frequency. With MCC in place the measured loop is comfortable at every one
-* of the 45 corners -- 49.9..51.1 dB DC loop gain, 207..231 kHz unity gain,
-* 61.1..64.6 deg phase margin, 10.8..11.6 dB gain margin. (No claim is made
-* here about the uncompensated variant: that would need its own record, and
-* removing MCC is not something any committed record in sim/ measures.)
+* of the 45 corners -- 48.26..49.22 dB DC loop gain, 171..188 kHz unity gain,
+* 65.83..68.28 deg phase margin, 12.05..12.65 dB gain margin (post-#170
+* amp_m_in=8 sizing, sim/error-amp-loop/records/20260815-022219-001d1b7; was
+* 49.9..51.1 dB / 207..231 kHz / 61.1..64.6 deg / 10.8..11.6 dB pre-#170).
+* (No claim is made here about the uncompensated variant: that would need
+* its own record, and removing MCC is not something any committed record in
+* sim/ measures.)
 *
 * Referencing MCC to VDD rather than VSS is deliberate: AOUT drives a PMOS
 * gate whose source is VDD, so a VDD-referenced capacitor keeps that Vsg
@@ -119,8 +187,11 @@ v {xschem version=3.4.7 file_version=1.2
 * on ITAIL from the core's MPAMP (m_ampbias = 2, mirroring m_out = 2), and
 * the two mirror branches copy half of it each, so the amplifier draws
 * ~2x its tail current. Sizing above changes areas and Vov, not currents.
-* Measured over PVT: the amplifier draws 15.5..25.9 uA of the cell's total
-* 24.2..39.1 uA, i.e. roughly two thirds -- so a chopping or auto-zero scheme
+* Measured over PVT: the amplifier draws 15.5..25.8 uA of the cell's total
+* 24.1..39.0 uA (post-#170 sizing; unchanged in character from pre-#170's
+* 15.5..25.9 / 24.2..39.1 uA, as expected -- mult changes device area/Vov,
+* not the externally-set branch current), i.e. roughly two thirds -- so a
+* chopping or auto-zero scheme
 * added later has ~11 uA of headroom under the < 50 uA line at the hottest
 * corner, not the ~25 uA an even split would suggest.
 *
@@ -147,14 +218,16 @@ loop built from these (necessarily large, therefore capacitive) devices
 oscillates.
 Connectivity is by net label; no wires.} 100 -700 0 0 0.4 0.4 {}
 C {devices/code_shown.sym} 100 -900 0 0 {name=AMP_PARAMS only_toplevel=false value="
-* ---- error-amp device multiplicities (issue #9 sizing) ----
+* ---- error-amp device multiplicities (issue #9 sizing, amp_m_in revised by #170) ----
 * Unit geometry is fixed on the instances below; mult is the matching axis
 * (sigma(Vth) scales as 1/sqrt(W*L*mult) in the PDK's own model).
-* amp_m_in    : input-pair PMOS units   (W=20u L=10u each -> 3200 um^2 total)
+* amp_m_in    : input-pair PMOS units   (W=20u L=10u each -> 1600 um^2 total;
+*               16 -> 8 by issue #170, DR-008 Option B PSRR margin increase
+*               -- see the header's amp_m_in: 16 -> 8 section)
 * amp_m_nmirr : NMOS load/mirror units  (W=8u  L=20u each ->  640 um^2 total)
 * amp_m_pmirr : PMOS mirror units       (W=6u  L=20u each ->  960 um^2 total)
 * amp_m_cc    : MOS-capacitor units     (W=30u L=20u each -> 9600 um^2 total)
-.param amp_m_in=16
+.param amp_m_in=8
 .param amp_m_nmirr=4
 .param amp_m_pmirr=8
 .param amp_m_cc=16
