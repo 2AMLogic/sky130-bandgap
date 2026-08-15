@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "engine": "klayout",
+  "layout": "bandgap_core_routed.extract.spice",
+  "reference": "reference.spice",
+  "top": "BANDGAP_CORE_ROUTED",
+  "status": "match",
+  "mismatch_count": 0,
+  "category_counts": {},
+  "counts": {
+    "nets": {
+      "layout": 11,
+      "reference": 11,
+      "matched": 11
+    },
+    "devices": {
+      "layout": 16,
+      "reference": 16,
+      "matched": 16
+    },
+    "pins": {
+      "layout": 11,
+      "reference": 4,
+      "matched": 11
+    }
+  },
+  "device_classes": null,
+  "environment": {
+    "engine": "klayout",
+    "engine_version": "0.30.10",
+    "layout_sha256": "58b60229bff92f9e6da793bac1bfa077e68758762e62f5f858a12a2722fb01ba",
+    "reference_sha256": "3ee333743355886d44004da14eedb8fa3c2b7fbb0f9487bc2199d61e7f694d0e",
+    "extracted_netlist": null
+  },
+  "provenance": {
+    "klt_version": "0.2.0",
+    "klayout_version": "0.30.10",
+    "pdk": null,
+    "deck": null,
+    "input": null
+  },
+  "mismatches": [],
+  "net_correspondence": [
+    {
+      "layout": "D1",
+      "reference": "D1",
+      "pin": true
+    },
+    {
+      "layout": "D2",
+      "reference": "D2",
+      "pin": true
+    },
+    {
+      "layout": "GDRV",
+      "reference": "GDRV",
+      "pin": true
+    },
+    {
+      "layout": "PN",
+      "reference": "PN",
+      "pin": true
+    },
+    {
+      "layout": "TAIL",
+      "reference": "TAIL",
+      "pin": true
+    },
+    {
+      "layout": "VA",
+      "reference": "VA",
+      "pin": true
+    },
+    {
+      "layout": "VB",
+      "reference": "VB",
+      "pin": true
+    },
+    {
+      "layout": "VBQ",
+      "reference": "VBQ",
+      "pin": true
+    },
+    {
+      "layout": "VDD",
+      "reference": "VDD",
+      "pin": true
+    },
+    {
+      "layout": "VOUT",
+      "reference": "VOUT",
+      "pin": true
+    },
+    {
+      "layout": "VSS",
+      "reference": "VSS",
+      "pin": true
+    }
+  ],
+  "combine_devices": true
+}

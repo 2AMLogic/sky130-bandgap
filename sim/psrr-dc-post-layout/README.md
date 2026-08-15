@@ -196,6 +196,41 @@ closed on two independent grounds now, not one. Still no new
 trustworthy measurement to append. See DR-008's addendum for the full
 mechanism and evidence.
 
+### Resolution (2026-08-14, issue #170): DR-008 Option B closes the divergence — 45/45 PASS
+
+The operator's Option B ruling on DR-008 (schematic-level amplifier PSRR
+margin increase, DR-006's floor unchanged) is implemented by issue #170:
+`design/error_amp.sch`'s `amp_m_in` halved 16 → 8 (see that schematic's own
+header for the circuit-level rationale — the input pair's own capacitive
+loading of the D1/D2 diode-load nodes, not the mirror devices, turned out
+to be the dominant contributor to the sensitivity Finding 1 above
+localized to the amplifier's internal nodes).
+
+New layout record `layout/bandgap-core/reports/20260815-034022-001d1b7`
+(re-routed and re-extracted at the new sizing, DRC clean, **LVS clean**,
+within the area budget) and new post-layout record
+`sim/psrr-dc-post-layout/records/20260815-034139-001d1b7`: **45/45 PASS**,
+`psrr_band_min` 72.31–93.74 dB, worst corner `sf_125c_2.97v` at 72.31 dB —
+12.31 dB above the 60 dB floor. The FAIL record this README documents
+(`20260812-011520-5df01bf`) is **not edited or retired** per `sim/README.md`'s
+append-only rule — it remains the accurate measurement of the pre-#170
+design, and the divergence it found is now closed by a design change, not
+reconciled away.
+
+Notably the post-layout shift on the new design is *positive* (mean
++3.10 dB across the 45-corner matrix, vs. this same design's own
+schematic-level `sim/psrr-dc/records/20260815-020301-001d1b7`) rather than
+the −4.05 ± 0.36 dB this README's own analysis measured on the pre-#170
+design — consistent with, not contrary to, the "Attributed cause" section
+above: a smaller input pair carries less of its own routing/parasitic
+loading at the sensitive internal nodes, so the post-layout cost this
+README root-caused shrinks along with the device that was carrying it.
+
+Full ratification evidence, the offset-budget cost this change is traded
+against, and the regression accounting across every other bench:
+[`spec/decision-records/DR-008-psrr-post-layout-margin-proposal.md`](../../spec/decision-records/DR-008-psrr-post-layout-margin-proposal.md)'s
+"Ratification (2026-08-14)" section.
+
 ## Known gaps (not closed by this record)
 
 - The mechanism above is a scale/order-of-magnitude argument from the

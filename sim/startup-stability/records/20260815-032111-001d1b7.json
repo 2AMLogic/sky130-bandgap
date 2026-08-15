@@ -1,0 +1,7830 @@
+{
+  "author": "ci@loom.test",
+  "corners": [
+    {
+      "corner_id": "tt_-40c_2.97v",
+      "elapsed_s": 21.131,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/tt_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5537849
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.00030613
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006796975
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 8.739837e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.000693219
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.381207e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000814788
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.570832e-10
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.717468e-09
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 9.218949e-05
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.180365
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.640609
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.480563e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000024
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_-40c_3.30v",
+      "elapsed_s": 11.476,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/tt_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5976096
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0004506238
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0009626631
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 8.72045e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001002327
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.017076e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00102666
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.337059e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.527726e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0003571088
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.180472
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.97214
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.484488e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000019
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_-40c_3.63v",
+      "elapsed_s": 19.825,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/tt_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6334661
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006437564
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001265201
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 8.66082e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001413877
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.667267e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.0012465
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.172787e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.241507e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.000306953
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.180607
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.303597
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.486775e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000016
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_27c_2.97v",
+      "elapsed_s": 12.387,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/tt_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5737052
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.106137e-08
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0003514461
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.462902e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0008049136
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.774143e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000671208
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.759425e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.832693e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.000515992
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.165661
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.705085
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.110783e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000023
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_27c_3.30v",
+      "elapsed_s": 11.833,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/tt_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6175299
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.777417e-08
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006348293
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.249051e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001249377
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.425229e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000846198
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.370093e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.370666e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0003311564
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.16575
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.036725
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.114224e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000018
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_27c_3.63v",
+      "elapsed_s": 11.634,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/tt_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6533865
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.658255e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.000964551
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.996859e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001718157
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.08823e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00102977
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.069821e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.952993e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0004101671
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.165865
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.368274
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.116237e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000015
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_125c_2.97v",
+      "elapsed_s": 11.648,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/tt_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6055777
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.255071e-08
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 9.284525e-05
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.546608e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0005362489
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.946895e-10
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000517807
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.044794e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -1.36635e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": -0.000269948
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.130076
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.80218
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.885449e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000009
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_125c_3.30v",
+      "elapsed_s": 46.531,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/tt_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6454183
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.212447e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.000305443
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.721253e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0009113534
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.961982e-10
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000652197
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.625519e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.856988e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0004290232
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.130145
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.133962
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.887933e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000008
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_125c_3.63v",
+      "elapsed_s": 42.964,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/tt_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6772908
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.570462e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0005786506
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.428979e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001316556
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.977443e-10
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000795615
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.607111e-08
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.518546e-07
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.002221927
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.132217
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.465069
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.902802e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000007
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_-40c_2.97v",
+      "elapsed_s": 26.513,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ss_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5378486
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0004196311
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006561786
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 9.301494e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006679739
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.327183e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000776018
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.877208e-10
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.896361e-09
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.580268e-05
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.180901
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.597889
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.462654e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000026
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_-40c_3.30v",
+      "elapsed_s": 11.683,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ss_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5856574
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.000521015
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0009361209
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 9.320178e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0009507842
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.962171e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000983482
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.812394e-10
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.96327e-09
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 5.433487e-05
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.180935
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.931427
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.438849e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.00002
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_-40c_3.63v",
+      "elapsed_s": 11.931,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ss_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.625498
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0007046153
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001234712
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 9.299709e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001276634
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.611506e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00119924
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.209976e-10
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -1.15449e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": -0.000206357
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.180986
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.265238
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.412441e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000016
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_27c_2.97v",
+      "elapsed_s": 14.371,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ss_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5577689
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.13942e-06
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0003490858
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.060825e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006425165
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.718809e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000637735
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.609773e-10
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.585215e-09
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 9.08637e-05
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.1659
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.661872
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.091018e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000024
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_27c_3.30v",
+      "elapsed_s": 13.003,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ss_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6055777
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.173116e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006065857
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.880039e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001058516
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.368985e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000808812
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 8.887686e-10
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.49024e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.000207187
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.165932
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.996012
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.062445e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000019
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_27c_3.63v",
+      "elapsed_s": 13.008,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ss_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6414343
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.095579e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0008980005
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.661747e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001506616
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.031048e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00098847
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.143289e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.126003e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0001572539
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.165986
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.330517
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.03209e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000016
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_125c_2.97v",
+      "elapsed_s": 11.567,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ss_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5896414
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.253368e-09
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.368538e-05
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.591914e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0003881807
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.938441e-10
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000490996
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.509501e-10
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -2.87581e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": -0.000511886
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.130336
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.758171
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.868351e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.00001
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_125c_3.30v",
+      "elapsed_s": 12.039,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ss_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6334661
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.304311e-08
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0001932128
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.689159e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.000734997
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.952842e-10
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000621728
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 7.078458e-10
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.645762e-09
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 9.573868e-05
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.130342
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.093088
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.836594e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000008
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_125c_3.63v",
+      "elapsed_s": 12.006,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ss_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6693227
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.755086e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0004399131
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.875291e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001120728
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.967496e-10
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000761553
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.731883e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.476997e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0003567403
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.130657
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.42841
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.806013e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000007
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_-40c_2.97v",
+      "elapsed_s": 23.796,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ff_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5657371
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0002159291
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006991013
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 8.165856e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0007339468
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.435385e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000854488
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.40766e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.464637e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0003416325
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.180154
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.686046
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.458566e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000022
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_-40c_3.30v",
+      "elapsed_s": 14.749,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ff_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6095618
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0003750183
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.000986105
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 8.107711e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001132719
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.072105e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00107074
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.852288e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.985026e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.000689815
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.180511
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.017509
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.463763e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000018
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_-40c_3.63v",
+      "elapsed_s": 24.745,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ff_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6454183
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0005697697
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.00129303
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 8.007987e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001614099
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.723177e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00129459
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 7.854426e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 8.056671e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.001113948
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.180955
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.348881
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.467968e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000015
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_27c_2.97v",
+      "elapsed_s": 11.627,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ff_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5896414
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.340645e-08
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0004060437
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.855057e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0009854221
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.829915e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000705531
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.772191e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.648609e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.000654485
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.165807
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.75153
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.084491e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000021
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_27c_3.30v",
+      "elapsed_s": 11.928,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ff_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6294821
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 7.671987e-08
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0007319694
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.608894e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001452875
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.481961e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000884475
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.440099e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.86335e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0009726759
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.166047
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.083127
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.088469e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000017
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_27c_3.63v",
+      "elapsed_s": 12.193,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ff_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6653386
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 8.360252e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001094286
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.324161e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001938832
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.145918e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00107198
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 9.177528e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 8.818179e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.001237357
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.166451
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.414595
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.092209e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000014
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_125c_2.97v",
+      "elapsed_s": 11.332,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ff_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6215139
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 7.526913e-08
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0001762582
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.631118e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006983079
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.960275e-10
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000545509
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.183005e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 7.095311e-09
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 5.418379e-05
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.130002
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.850133
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.849495e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000008
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_125c_3.30v",
+      "elapsed_s": 10.131,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ff_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6613546
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.101446e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0004220399
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.40588e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001096249
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.976387e-10
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000683585
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.2244e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.897414e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0008724937
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.130569
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.181772
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.854806e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000007
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_125c_3.63v",
+      "elapsed_s": 10.527,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/ff_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.689243
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 9.745575e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0007111669
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.56137e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001517485
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.993047e-10
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000830624
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 7.215054e-08
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.824337e-07
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.01008812
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.139908
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.51088
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.918321e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000006
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_-40c_2.97v",
+      "elapsed_s": 21.201,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/sf_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5219124
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0004565422
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0005577017
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 9.953055e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0005712336
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.377372e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000847493
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 7.339528e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 7.599918e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.00104645
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.181381
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.553287
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.495433e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000027
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_-40c_3.30v",
+      "elapsed_s": 22.368,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/sf_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5697211
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.000489519
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0008291487
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.000448e-11
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0008803766
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.012963e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00106069
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.569718e-08
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.623924e-07
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.002229425
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.182573
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.884509
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.508327e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000021
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_-40c_3.63v",
+      "elapsed_s": 18.804,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/sf_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6095618
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006443614
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001123939
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.001871e-11
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001303549
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.662981e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00128198
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.613089e-08
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.69873e-07
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.003698932
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.184058
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.21558
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.521045e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000017
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_27c_2.97v",
+      "elapsed_s": 11.115,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/sf_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5458167
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.078907e-08
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0001798933
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.71443e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.000676613
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.774243e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00070038
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.211657e-08
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.207589e-07
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.001690678
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.168487
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.616675
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.134531e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000026
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_27c_3.30v",
+      "elapsed_s": 18.762,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/sf_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5896414
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.046751e-08
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0004463884
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.562467e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001112257
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.425417e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000878176
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.64717e-08
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.651878e-07
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.00231138
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.169097
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.948173
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.142726e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000021
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_27c_3.63v",
+      "elapsed_s": 17.938,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/sf_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.625498
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 9.797518e-08
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0007747125
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.373729e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.00157641
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.088619e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00106397
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.137072e-08
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.146396e-07
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.003000757
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.169799
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.279561
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.149537e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000017
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_125c_2.97v",
+      "elapsed_s": 10.395,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/sf_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5776892
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.440736e-08
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.304367e-05
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.78615e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0004484846
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.985726e-10
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000542414
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.160945e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.176912e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0001104999
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.132774
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.713151
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.903617e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000011
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_125c_3.30v",
+      "elapsed_s": 10.025,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/sf_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6175299
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 9.444503e-08
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0002372317
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.886684e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0008111289
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.003485e-10
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00067886
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.827166e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.721707e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0006903247
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.132848
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.044945
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.90712e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000009
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_125c_3.63v",
+      "elapsed_s": 10.148,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/sf_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6533865
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.220343e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0004967751
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.021426e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.00120837
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.021999e-10
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000824084
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 7.582744e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 7.265495e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.001065899
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.133249
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.376533
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.911214e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000008
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_-40c_2.97v",
+      "elapsed_s": 10.443,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/fs_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5816733
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0002657119
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0007799441
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 7.499683e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0007937924
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.385554e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000782891
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.810834e-11
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -2.5181e-09
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": -5.17916e-05
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.18133
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.727007
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.487138e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000021
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_-40c_3.30v",
+      "elapsed_s": 25.091,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/fs_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6215139
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0004470169
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001076542
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 7.407472e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001111902
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.021706e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00099281
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.254436e-10
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.202133e-09
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 6.040404e-05
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.181349
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.058559
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.489562e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000017
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_-40c_3.63v",
+      "elapsed_s": 56.457,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/fs_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6573705
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006597008
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.00138855
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 7.271806e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.00151911
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.672113e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00121038
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.965696e-10
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.915302e-09
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.602356e-05
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.181377
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.390043
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.490582e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000014
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_27c_2.97v",
+      "elapsed_s": 22.016,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/fs_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6015936
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.551244e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0004665682
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.192536e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0009010353
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.775997e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00064177
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.615073e-10
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.908235e-10
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 6.199531e-08
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.165757
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.792368
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.113089e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.00002
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_27c_3.30v",
+      "elapsed_s": 12.825,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/fs_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6414343
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.713597e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0007563957
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.920518e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001348359
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.427155e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000814042
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.484584e-10
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.403892e-09
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 4.730753e-05
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.165774
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.124022
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.115168e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000016
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_27c_3.63v",
+      "elapsed_s": 11.413,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/fs_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6772908
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.913179e-06
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0010815
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.613332e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001817831
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.090112e-11
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000995592
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 7.390068e-10
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.875899e-09
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.580044e-05
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.16585
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.455577
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.116377e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000013
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_125c_2.97v",
+      "elapsed_s": 11.938,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/fs_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6374502
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.688902e-08
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0001342848
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.345352e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006101354
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.93248e-10
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000493807
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 5.130295e-10
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -2.83961e-09
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": -6.5888e-05
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.129786
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.890373
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.886978e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000008
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_125c_3.30v",
+      "elapsed_s": 12.07,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/fs_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6733068
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 4.339877e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0003658382
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.505487e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0009903602
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.946404e-10
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000626083
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.095853e-09
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.699808e-08
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.0003879346
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.130144
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.222065
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.890582e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.000007
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_125c_3.63v",
+      "elapsed_s": 11.319,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability/corners/20260815-032111-001d1b7/fs_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.7011952
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.182726e-06
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006501076
+        },
+        {
+          "expr": "vecmin(abs(ifbare[225,250]))",
+          "max": 1e-09,
+          "min": null,
+          "name": "imin_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.674615e-12
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001397962
+        },
+        {
+          "expr": "ifbare[250]",
+          "max": 1e-09,
+          "min": null,
+          "name": "i_off_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.960497e-10
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000767638
+        },
+        {
+          "expr": "i(vpsu)[0]",
+          "max": 2e-07,
+          "min": -1e-12,
+          "name": "i_su_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.547432e-08
+        },
+        {
+          "expr": "i(v2)[0] - i(v1)[0]",
+          "max": 1e-06,
+          "min": -1e-06,
+          "name": "i_standing",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.400184e-07
+        },
+        {
+          "expr": "v(vrefd)[0] - v(vrefr)[0]",
+          "max": 0.02,
+          "min": -0.02,
+          "name": "dvref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.002034717
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.131919
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.553253
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 3.9029e-05
+        },
+        {
+          "expr": "(250 - mean(sbare[0,249]*sbare[1,250])*250) / 2",
+          "max": null,
+          "min": null,
+          "name": "ncross_bare",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 3.000006
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    }
+  ],
+  "experiment": {
+    "claim": "spec/topology-survey.md Startup row (\"self-starting, < 1 ms\") -- the no-other-stable-state half. Substantiates that design/bandgap_core.sch + design/startup_injector.sch has exactly ONE DC operating point over the whole 0..VDD range of its startup node GDRV, that the zero-current state the bare core does have (reproduced here as the control instance) is actively driven away from by microamps rather than merely being unlikely, and that the loop is pulled downhill by a bounded-below current everywhere in the degenerate region rather than merely somewhere in it. Also bounds what attaching the injector costs the running circuit: the residual current it draws out of GDRV and the shift that puts on the reference. The startup TIME claim is the sibling experiment sim/startup-ramp/; the +/-1% output-accuracy claim is issue #11.",
+    "provenance": "schematic",
+    "provenance_source": "sim/startup-stability/testbench/tb_startup_stability.sch",
+    "slug": "startup-stability",
+    "statistical_convention": "N/A (corner-matrix claim, not a distribution claim)",
+    "title": "Startup: the degenerate zero-current state is not an operating point once the injector is attached"
+  },
+  "git": {
+    "branch": "feature/issue-170",
+    "dirty": true,
+    "sha": "001d1b7"
+  },
+  "links": {
+    "corners_dir": "sim/startup-stability/corners/20260815-032111-001d1b7/",
+    "json": "sim/startup-stability/records/20260815-032111-001d1b7.json",
+    "manifest": "sim/startup-stability/experiment.json",
+    "netlist_snapshot": "sim/startup-stability/netlist-snapshots/20260815-032111-001d1b7.spice",
+    "record": "sim/startup-stability/records/20260815-032111-001d1b7.md",
+    "testbench": "sim/startup-stability/testbench/tb_startup_stability.sch"
+  },
+  "matrix": {
+    "is_subset": false,
+    "n_points": 45,
+    "point_ids": [
+      "tt_-40c_2.97v",
+      "tt_-40c_3.30v",
+      "tt_-40c_3.63v",
+      "tt_27c_2.97v",
+      "tt_27c_3.30v",
+      "tt_27c_3.63v",
+      "tt_125c_2.97v",
+      "tt_125c_3.30v",
+      "tt_125c_3.63v",
+      "ss_-40c_2.97v",
+      "ss_-40c_3.30v",
+      "ss_-40c_3.63v",
+      "ss_27c_2.97v",
+      "ss_27c_3.30v",
+      "ss_27c_3.63v",
+      "ss_125c_2.97v",
+      "ss_125c_3.30v",
+      "ss_125c_3.63v",
+      "ff_-40c_2.97v",
+      "ff_-40c_3.30v",
+      "ff_-40c_3.63v",
+      "ff_27c_2.97v",
+      "ff_27c_3.30v",
+      "ff_27c_3.63v",
+      "ff_125c_2.97v",
+      "ff_125c_3.30v",
+      "ff_125c_3.63v",
+      "sf_-40c_2.97v",
+      "sf_-40c_3.30v",
+      "sf_-40c_3.63v",
+      "sf_27c_2.97v",
+      "sf_27c_3.30v",
+      "sf_27c_3.63v",
+      "sf_125c_2.97v",
+      "sf_125c_3.30v",
+      "sf_125c_3.63v",
+      "fs_-40c_2.97v",
+      "fs_-40c_3.30v",
+      "fs_-40c_3.63v",
+      "fs_27c_2.97v",
+      "fs_27c_3.30v",
+      "fs_27c_3.63v",
+      "fs_125c_2.97v",
+      "fs_125c_3.30v",
+      "fs_125c_3.63v"
+    ],
+    "points": [
+      [
+        "tt",
+        -40.0,
+        2.97
+      ],
+      [
+        "tt",
+        -40.0,
+        3.3
+      ],
+      [
+        "tt",
+        -40.0,
+        3.63
+      ],
+      [
+        "tt",
+        27.0,
+        2.97
+      ],
+      [
+        "tt",
+        27.0,
+        3.3
+      ],
+      [
+        "tt",
+        27.0,
+        3.63
+      ],
+      [
+        "tt",
+        125.0,
+        2.97
+      ],
+      [
+        "tt",
+        125.0,
+        3.3
+      ],
+      [
+        "tt",
+        125.0,
+        3.63
+      ],
+      [
+        "ss",
+        -40.0,
+        2.97
+      ],
+      [
+        "ss",
+        -40.0,
+        3.3
+      ],
+      [
+        "ss",
+        -40.0,
+        3.63
+      ],
+      [
+        "ss",
+        27.0,
+        2.97
+      ],
+      [
+        "ss",
+        27.0,
+        3.3
+      ],
+      [
+        "ss",
+        27.0,
+        3.63
+      ],
+      [
+        "ss",
+        125.0,
+        2.97
+      ],
+      [
+        "ss",
+        125.0,
+        3.3
+      ],
+      [
+        "ss",
+        125.0,
+        3.63
+      ],
+      [
+        "ff",
+        -40.0,
+        2.97
+      ],
+      [
+        "ff",
+        -40.0,
+        3.3
+      ],
+      [
+        "ff",
+        -40.0,
+        3.63
+      ],
+      [
+        "ff",
+        27.0,
+        2.97
+      ],
+      [
+        "ff",
+        27.0,
+        3.3
+      ],
+      [
+        "ff",
+        27.0,
+        3.63
+      ],
+      [
+        "ff",
+        125.0,
+        2.97
+      ],
+      [
+        "ff",
+        125.0,
+        3.3
+      ],
+      [
+        "ff",
+        125.0,
+        3.63
+      ],
+      [
+        "sf",
+        -40.0,
+        2.97
+      ],
+      [
+        "sf",
+        -40.0,
+        3.3
+      ],
+      [
+        "sf",
+        -40.0,
+        3.63
+      ],
+      [
+        "sf",
+        27.0,
+        2.97
+      ],
+      [
+        "sf",
+        27.0,
+        3.3
+      ],
+      [
+        "sf",
+        27.0,
+        3.63
+      ],
+      [
+        "sf",
+        125.0,
+        2.97
+      ],
+      [
+        "sf",
+        125.0,
+        3.3
+      ],
+      [
+        "sf",
+        125.0,
+        3.63
+      ],
+      [
+        "fs",
+        -40.0,
+        2.97
+      ],
+      [
+        "fs",
+        -40.0,
+        3.3
+      ],
+      [
+        "fs",
+        -40.0,
+        3.63
+      ],
+      [
+        "fs",
+        27.0,
+        2.97
+      ],
+      [
+        "fs",
+        27.0,
+        3.3
+      ],
+      [
+        "fs",
+        27.0,
+        3.63
+      ],
+      [
+        "fs",
+        125.0,
+        2.97
+      ],
+      [
+        "fs",
+        125.0,
+        3.3
+      ],
+      [
+        "fs",
+        125.0,
+        3.63
+      ]
+    ],
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "subset_reason": "",
+    "supply_v": [
+      2.97,
+      3.3,
+      3.63
+    ],
+    "temperature_c": [
+      -40.0,
+      27.0,
+      125.0
+    ]
+  },
+  "overall_pass": true,
+  "pdk": {
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "lib_file": "/Users/rwalters/.volare/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "root": "/Users/rwalters/.volare",
+    "variant": "sky130A"
+  },
+  "record_id": "20260815-032111-001d1b7",
+  "spread_checks": [
+    {
+      "measurement": "vgdrv_dut",
+      "min_spread": 0.3,
+      "n": 45,
+      "note": "The startup node's operating voltage tracks the supply (GDRV ~ VDD - |Vgs_p|), so a full-matrix run must show it moving by more than the +/-10 % supply span. A flat vgdrv_dut across the matrix means the corner/supply knobs are not reaching the simulator.",
+      "observed_spread": 0.9999660000000001,
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "measurement": "vref_dut",
+      "min_spread": 0.01,
+      "n": 45,
+      "note": "Untrimmed output over process and temperature must move by more than 10 mV; a frozen value would indicate the .lib corner or .temp injection stopped taking effect.",
+      "observed_spread": 0.0542720000000001,
+      "pass": true,
+      "reason": ""
+    }
+  ],
+  "supersedes": "",
+  "timestamp": "2026-08-15T03:21:11Z",
+  "tools": {
+    "ngspice": "ngspice-47 : Circuit level simulation program",
+    "platform": "Darwin 25.6.0 arm64",
+    "python": "3.14.7",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}

@@ -1,0 +1,4978 @@
+{
+  "black_box_regions": [],
+  "dbu_um": 0.001,
+  "deck": "sky130",
+  "device_classes": [
+    "nfet",
+    "pfet",
+    "pnp",
+    "sky130_fd_pr__model__cap_mim",
+    "sky130_fd_pr__model__cap_mim_m4",
+    "resistor"
+  ],
+  "device_count": 227,
+  "device_counts": {
+    "nfet": 16,
+    "pfet": 52,
+    "pnp": 16,
+    "res_high_po": 143
+  },
+  "devices": [
+    {
+      "class": "nfet",
+      "name": "$1",
+      "nets": {
+        "b": "VSS",
+        "d": "VSS",
+        "g": "D1",
+        "s": "D1"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "nfet",
+      "name": "$10",
+      "nets": {
+        "b": "VSS",
+        "d": "VSS",
+        "g": "D1",
+        "s": "GDRV"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$100",
+      "nets": {
+        "a": "$22",
+        "b": "$24",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$101",
+      "nets": {
+        "a": "$36",
+        "b": "$38",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$102",
+      "nets": {
+        "a": "$23",
+        "b": "$25",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$103",
+      "nets": {
+        "a": "$24",
+        "b": "$26",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$104",
+      "nets": {
+        "a": "$37",
+        "b": "$39",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$105",
+      "nets": {
+        "a": "$38",
+        "b": "$40",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$106",
+      "nets": {
+        "a": "$25",
+        "b": "$27",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$107",
+      "nets": {
+        "a": "$26",
+        "b": "$28",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$108",
+      "nets": {
+        "a": "$39",
+        "b": "$41",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$109",
+      "nets": {
+        "a": "$27",
+        "b": "$29",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "nfet",
+      "name": "$11",
+      "nets": {
+        "b": "VSS",
+        "d": "VSS",
+        "g": "D2",
+        "s": "PN"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$110",
+      "nets": {
+        "a": "$40",
+        "b": "$42",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$111",
+      "nets": {
+        "a": "$28",
+        "b": "$16",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$112",
+      "nets": {
+        "a": "$41",
+        "b": "$43",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$113",
+      "nets": {
+        "a": "$42",
+        "b": "$44",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$114",
+      "nets": {
+        "a": "$29",
+        "b": "$14",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$115",
+      "nets": {
+        "a": "$46",
+        "b": "$47",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$116",
+      "nets": {
+        "a": "$45",
+        "b": "$48",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$117",
+      "nets": {
+        "a": "$47",
+        "b": "$49",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$118",
+      "nets": {
+        "a": "$48",
+        "b": "$50",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$119",
+      "nets": {
+        "a": "$49",
+        "b": "$51",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "nfet",
+      "name": "$12",
+      "nets": {
+        "b": "VSS",
+        "d": "VSS",
+        "g": "D1",
+        "s": "GDRV"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$120",
+      "nets": {
+        "a": "$50",
+        "b": "$52",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$121",
+      "nets": {
+        "a": "$51",
+        "b": "$53",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$122",
+      "nets": {
+        "a": "$52",
+        "b": "$54",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$123",
+      "nets": {
+        "a": "$53",
+        "b": "$44",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$124",
+      "nets": {
+        "a": "$54",
+        "b": "$43",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$125",
+      "nets": {
+        "a": "$45",
+        "b": "$55",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$126",
+      "nets": {
+        "a": "$46",
+        "b": "$56",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$127",
+      "nets": {
+        "a": "$55",
+        "b": "$57",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$128",
+      "nets": {
+        "a": "$56",
+        "b": "$58",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$129",
+      "nets": {
+        "a": "$57",
+        "b": "$59",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "nfet",
+      "name": "$13",
+      "nets": {
+        "b": "VSS",
+        "d": "VSS",
+        "g": "D1",
+        "s": "GDRV"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$130",
+      "nets": {
+        "a": "$58",
+        "b": "$60",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$131",
+      "nets": {
+        "a": "$59",
+        "b": "$61",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$132",
+      "nets": {
+        "a": "$60",
+        "b": "$62",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$133",
+      "nets": {
+        "a": "$61",
+        "b": "$63",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$134",
+      "nets": {
+        "a": "$62",
+        "b": "$64",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$135",
+      "nets": {
+        "a": "$66",
+        "b": "$67",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$136",
+      "nets": {
+        "a": "$65",
+        "b": "$68",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$137",
+      "nets": {
+        "a": "$67",
+        "b": "$69",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$138",
+      "nets": {
+        "a": "$68",
+        "b": "$70",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$139",
+      "nets": {
+        "a": "$69",
+        "b": "$71",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "nfet",
+      "name": "$14",
+      "nets": {
+        "b": "VSS",
+        "d": "VSS",
+        "g": "D2",
+        "s": "PN"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$140",
+      "nets": {
+        "a": "$70",
+        "b": "$72",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$141",
+      "nets": {
+        "a": "$71",
+        "b": "$73",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$142",
+      "nets": {
+        "a": "$72",
+        "b": "$74",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$143",
+      "nets": {
+        "a": "$73",
+        "b": "$64",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$144",
+      "nets": {
+        "a": "$74",
+        "b": "$63",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$145",
+      "nets": {
+        "a": "$65",
+        "b": "$77",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$146",
+      "nets": {
+        "a": "$66",
+        "b": "$78",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$147",
+      "nets": {
+        "a": "$77",
+        "b": "$79",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$148",
+      "nets": {
+        "a": "$78",
+        "b": "$80",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$149",
+      "nets": {
+        "a": "$79",
+        "b": "$81",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "nfet",
+      "name": "$15",
+      "nets": {
+        "b": "VSS",
+        "d": "VSS",
+        "g": "D1",
+        "s": "GDRV"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$150",
+      "nets": {
+        "a": "$80",
+        "b": "$82",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$151",
+      "nets": {
+        "a": "$81",
+        "b": "$83",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$152",
+      "nets": {
+        "a": "$82",
+        "b": "$84",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$153",
+      "nets": {
+        "a": "$83",
+        "b": "$85",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$154",
+      "nets": {
+        "a": "$84",
+        "b": "$99",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$155",
+      "nets": {
+        "a": "$86",
+        "b": "$89",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$156",
+      "nets": {
+        "a": "$100",
+        "b": "$90",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$157",
+      "nets": {
+        "a": "$89",
+        "b": "$91",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$158",
+      "nets": {
+        "a": "$90",
+        "b": "$92",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$159",
+      "nets": {
+        "a": "$91",
+        "b": "$93",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "nfet",
+      "name": "$16",
+      "nets": {
+        "b": "VSS",
+        "d": "VSS",
+        "g": "D2",
+        "s": "PN"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$160",
+      "nets": {
+        "a": "$92",
+        "b": "$94",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$161",
+      "nets": {
+        "a": "$93",
+        "b": "$95",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$162",
+      "nets": {
+        "a": "$94",
+        "b": "$96",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$163",
+      "nets": {
+        "a": "$95",
+        "b": "$97",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$164",
+      "nets": {
+        "a": "$96",
+        "b": "$102",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$165",
+      "nets": {
+        "a": "$103",
+        "b": "$104",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$166",
+      "nets": {
+        "a": "$98",
+        "b": "$121",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$167",
+      "nets": {
+        "a": "$98",
+        "b": "$105",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$168",
+      "nets": {
+        "a": "$103",
+        "b": "$122",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$169",
+      "nets": {
+        "a": "$121",
+        "b": "$123",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$17",
+      "nets": {
+        "b": "VDD",
+        "d": "D2",
+        "g": "VA",
+        "s": "TAIL"
+      },
+      "params": {
+        "l_um": 10.0,
+        "w_um": 20.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$170",
+      "nets": {
+        "a": "$104",
+        "b": "$106",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$171",
+      "nets": {
+        "a": "$122",
+        "b": "$124",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$172",
+      "nets": {
+        "a": "$105",
+        "b": "$107",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$173",
+      "nets": {
+        "a": "$123",
+        "b": "$125",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$174",
+      "nets": {
+        "a": "$106",
+        "b": "$108",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$175",
+      "nets": {
+        "a": "$124",
+        "b": "$126",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$176",
+      "nets": {
+        "a": "$107",
+        "b": "$109",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$177",
+      "nets": {
+        "a": "$125",
+        "b": "$127",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$178",
+      "nets": {
+        "a": "$108",
+        "b": "$110",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$179",
+      "nets": {
+        "a": "$126",
+        "b": "$128",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$18",
+      "nets": {
+        "b": "VDD",
+        "d": "D1",
+        "g": "VB",
+        "s": "TAIL"
+      },
+      "params": {
+        "l_um": 10.0,
+        "w_um": 20.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$180",
+      "nets": {
+        "a": "$109",
+        "b": "$111",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$181",
+      "nets": {
+        "a": "$127",
+        "b": "$129",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$182",
+      "nets": {
+        "a": "$110",
+        "b": "$99",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$183",
+      "nets": {
+        "a": "$111",
+        "b": "$85",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$184",
+      "nets": {
+        "a": "$128",
+        "b": "$130",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$185",
+      "nets": {
+        "a": "$101",
+        "b": "$131",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$186",
+      "nets": {
+        "a": "$112",
+        "b": "$113",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$187",
+      "nets": {
+        "a": "$112",
+        "b": "$132",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$188",
+      "nets": {
+        "a": "$101",
+        "b": "$114",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$189",
+      "nets": {
+        "a": "$131",
+        "b": "$133",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$19",
+      "nets": {
+        "b": "VDD",
+        "d": "D2",
+        "g": "VA",
+        "s": "TAIL"
+      },
+      "params": {
+        "l_um": 10.0,
+        "w_um": 20.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$190",
+      "nets": {
+        "a": "$113",
+        "b": "$115",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$191",
+      "nets": {
+        "a": "$114",
+        "b": "$116",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$192",
+      "nets": {
+        "a": "$132",
+        "b": "$134",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$193",
+      "nets": {
+        "a": "$115",
+        "b": "$117",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$194",
+      "nets": {
+        "a": "$133",
+        "b": "$135",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$195",
+      "nets": {
+        "a": "$134",
+        "b": "$136",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$196",
+      "nets": {
+        "a": "$116",
+        "b": "$118",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$197",
+      "nets": {
+        "a": "$135",
+        "b": "$137",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$198",
+      "nets": {
+        "a": "$117",
+        "b": "$119",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$199",
+      "nets": {
+        "a": "$136",
+        "b": "$138",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "nfet",
+      "name": "$2",
+      "nets": {
+        "b": "VSS",
+        "d": "VSS",
+        "g": "D2",
+        "s": "D2"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$20",
+      "nets": {
+        "b": "VDD",
+        "d": "D1",
+        "g": "VB",
+        "s": "TAIL"
+      },
+      "params": {
+        "l_um": 10.0,
+        "w_um": 20.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$200",
+      "nets": {
+        "a": "$118",
+        "b": "$120",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$201",
+      "nets": {
+        "a": "$137",
+        "b": "$139",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$202",
+      "nets": {
+        "a": "$119",
+        "b": "$102",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$203",
+      "nets": {
+        "a": "$120",
+        "b": "$97",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$204",
+      "nets": {
+        "a": "$138",
+        "b": "$140",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$205",
+      "nets": {
+        "a": "$100",
+        "b": "$143",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$206",
+      "nets": {
+        "a": "$86",
+        "b": "$144",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$207",
+      "nets": {
+        "a": "$143",
+        "b": "$145",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$208",
+      "nets": {
+        "a": "$144",
+        "b": "$146",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$209",
+      "nets": {
+        "a": "$145",
+        "b": "$130",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$21",
+      "nets": {
+        "b": "VDD",
+        "d": "D2",
+        "g": "VA",
+        "s": "TAIL"
+      },
+      "params": {
+        "l_um": 10.0,
+        "w_um": 20.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$210",
+      "nets": {
+        "a": "$146",
+        "b": "$129",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$211",
+      "nets": {
+        "a": "VB",
+        "b": "$149",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$212",
+      "nets": {
+        "a": "VA",
+        "b": "$150",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$213",
+      "nets": {
+        "a": "$149",
+        "b": "$151",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$214",
+      "nets": {
+        "a": "$150",
+        "b": "$152",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$215",
+      "nets": {
+        "a": "$151",
+        "b": "$153",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$216",
+      "nets": {
+        "a": "$152",
+        "b": "$154",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$217",
+      "nets": {
+        "a": "$153",
+        "b": "$155",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$218",
+      "nets": {
+        "a": "$154",
+        "b": "$156",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$219",
+      "nets": {
+        "a": "$155",
+        "b": "$140",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$22",
+      "nets": {
+        "b": "VDD",
+        "d": "D1",
+        "g": "VB",
+        "s": "TAIL"
+      },
+      "params": {
+        "l_um": 10.0,
+        "w_um": 20.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$220",
+      "nets": {
+        "a": "$156",
+        "b": "$139",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 0.5,
+        "l_um": 0.5,
+        "r_ohm": 159.9,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$221",
+      "nets": {
+        "a": "VB",
+        "b": "$159",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$222",
+      "nets": {
+        "a": "$159",
+        "b": "$160",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$223",
+      "nets": {
+        "a": "$160",
+        "b": "$161",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$224",
+      "nets": {
+        "a": "$161",
+        "b": "$162",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$225",
+      "nets": {
+        "a": "$162",
+        "b": "$163",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$226",
+      "nets": {
+        "a": "$163",
+        "b": "$164",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$227",
+      "nets": {
+        "a": "$164",
+        "b": "VBQ",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$23",
+      "nets": {
+        "b": "VDD",
+        "d": "D2",
+        "g": "VA",
+        "s": "TAIL"
+      },
+      "params": {
+        "l_um": 10.0,
+        "w_um": 20.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$24",
+      "nets": {
+        "b": "VDD",
+        "d": "D1",
+        "g": "VB",
+        "s": "TAIL"
+      },
+      "params": {
+        "l_um": 10.0,
+        "w_um": 20.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$25",
+      "nets": {
+        "b": "VDD",
+        "d": "TAIL",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 2.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$26",
+      "nets": {
+        "b": "VDD",
+        "d": "VOUT",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 2.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$27",
+      "nets": {
+        "b": "VDD",
+        "d": "VOUT",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 2.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$28",
+      "nets": {
+        "b": "VDD",
+        "d": "TAIL",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 2.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$29",
+      "nets": {
+        "b": "VDD",
+        "d": "D1",
+        "g": "VB",
+        "s": "TAIL"
+      },
+      "params": {
+        "l_um": 10.0,
+        "w_um": 20.0
+      }
+    },
+    {
+      "class": "nfet",
+      "name": "$3",
+      "nets": {
+        "b": "VSS",
+        "d": "VSS",
+        "g": "D1",
+        "s": "D1"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$30",
+      "nets": {
+        "b": "VDD",
+        "d": "D2",
+        "g": "VA",
+        "s": "TAIL"
+      },
+      "params": {
+        "l_um": 10.0,
+        "w_um": 20.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$31",
+      "nets": {
+        "b": "VDD",
+        "d": "D1",
+        "g": "VB",
+        "s": "TAIL"
+      },
+      "params": {
+        "l_um": 10.0,
+        "w_um": 20.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$32",
+      "nets": {
+        "b": "VDD",
+        "d": "D2",
+        "g": "VA",
+        "s": "TAIL"
+      },
+      "params": {
+        "l_um": 10.0,
+        "w_um": 20.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$33",
+      "nets": {
+        "b": "VDD",
+        "d": "D1",
+        "g": "VB",
+        "s": "TAIL"
+      },
+      "params": {
+        "l_um": 10.0,
+        "w_um": 20.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$34",
+      "nets": {
+        "b": "VDD",
+        "d": "D2",
+        "g": "VA",
+        "s": "TAIL"
+      },
+      "params": {
+        "l_um": 10.0,
+        "w_um": 20.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$35",
+      "nets": {
+        "b": "VDD",
+        "d": "D1",
+        "g": "VB",
+        "s": "TAIL"
+      },
+      "params": {
+        "l_um": 10.0,
+        "w_um": 20.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$36",
+      "nets": {
+        "b": "VDD",
+        "d": "D2",
+        "g": "VA",
+        "s": "TAIL"
+      },
+      "params": {
+        "l_um": 10.0,
+        "w_um": 20.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$37",
+      "nets": {
+        "b": "VDD",
+        "d": "GDRV",
+        "g": "PN",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 6.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$38",
+      "nets": {
+        "b": "VDD",
+        "d": "PN",
+        "g": "PN",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 6.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$39",
+      "nets": {
+        "b": "VDD",
+        "d": "GDRV",
+        "g": "PN",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 6.0
+      }
+    },
+    {
+      "class": "nfet",
+      "name": "$4",
+      "nets": {
+        "b": "VSS",
+        "d": "VSS",
+        "g": "D2",
+        "s": "D2"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$40",
+      "nets": {
+        "b": "VDD",
+        "d": "PN",
+        "g": "PN",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 6.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$41",
+      "nets": {
+        "b": "VDD",
+        "d": "GDRV",
+        "g": "PN",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 6.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$42",
+      "nets": {
+        "b": "VDD",
+        "d": "PN",
+        "g": "PN",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 6.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$43",
+      "nets": {
+        "b": "VDD",
+        "d": "PN",
+        "g": "PN",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 6.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$44",
+      "nets": {
+        "b": "VDD",
+        "d": "GDRV",
+        "g": "PN",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 6.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$45",
+      "nets": {
+        "b": "VDD",
+        "d": "GDRV",
+        "g": "PN",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 6.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$46",
+      "nets": {
+        "b": "VDD",
+        "d": "PN",
+        "g": "PN",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 6.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$47",
+      "nets": {
+        "b": "VDD",
+        "d": "GDRV",
+        "g": "PN",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 6.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$48",
+      "nets": {
+        "b": "VDD",
+        "d": "PN",
+        "g": "PN",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 6.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$49",
+      "nets": {
+        "b": "VDD",
+        "d": "PN",
+        "g": "PN",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 6.0
+      }
+    },
+    {
+      "class": "nfet",
+      "name": "$5",
+      "nets": {
+        "b": "VSS",
+        "d": "VSS",
+        "g": "D2",
+        "s": "D2"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$50",
+      "nets": {
+        "b": "VDD",
+        "d": "GDRV",
+        "g": "PN",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 6.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$51",
+      "nets": {
+        "b": "VDD",
+        "d": "PN",
+        "g": "PN",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 6.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$52",
+      "nets": {
+        "b": "VDD",
+        "d": "GDRV",
+        "g": "PN",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 6.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$53",
+      "nets": {
+        "b": "VDD",
+        "d": "VDD",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 30.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$54",
+      "nets": {
+        "b": "VDD",
+        "d": "VDD",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 30.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$55",
+      "nets": {
+        "b": "VDD",
+        "d": "VDD",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 30.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$56",
+      "nets": {
+        "b": "VDD",
+        "d": "VDD",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 30.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$57",
+      "nets": {
+        "b": "VDD",
+        "d": "VDD",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 30.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$58",
+      "nets": {
+        "b": "VDD",
+        "d": "VDD",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 30.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$59",
+      "nets": {
+        "b": "VDD",
+        "d": "VDD",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 30.0
+      }
+    },
+    {
+      "class": "nfet",
+      "name": "$6",
+      "nets": {
+        "b": "VSS",
+        "d": "VSS",
+        "g": "D1",
+        "s": "D1"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$60",
+      "nets": {
+        "b": "VDD",
+        "d": "VDD",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 30.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$61",
+      "nets": {
+        "b": "VDD",
+        "d": "VDD",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 30.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$62",
+      "nets": {
+        "b": "VDD",
+        "d": "VDD",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 30.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$63",
+      "nets": {
+        "b": "VDD",
+        "d": "VDD",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 30.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$64",
+      "nets": {
+        "b": "VDD",
+        "d": "VDD",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 30.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$65",
+      "nets": {
+        "b": "VDD",
+        "d": "VDD",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 30.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$66",
+      "nets": {
+        "b": "VDD",
+        "d": "VDD",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 30.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$67",
+      "nets": {
+        "b": "VDD",
+        "d": "VDD",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 30.0
+      }
+    },
+    {
+      "class": "pfet",
+      "name": "$68",
+      "nets": {
+        "b": "VDD",
+        "d": "VDD",
+        "g": "GDRV",
+        "s": "VDD"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 30.0
+      }
+    },
+    {
+      "class": "pnp",
+      "name": "$69",
+      "nets": {
+        "b": "VSS",
+        "c": "VSS",
+        "e": "VA"
+      },
+      "params": {}
+    },
+    {
+      "class": "nfet",
+      "name": "$7",
+      "nets": {
+        "b": "VSS",
+        "d": "VSS",
+        "g": "D2",
+        "s": "D2"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "pnp",
+      "name": "$70",
+      "nets": {
+        "b": "VSS",
+        "c": "VSS",
+        "e": "VA"
+      },
+      "params": {}
+    },
+    {
+      "class": "pnp",
+      "name": "$71",
+      "nets": {
+        "b": "VSS",
+        "c": "VSS",
+        "e": "VA"
+      },
+      "params": {}
+    },
+    {
+      "class": "pnp",
+      "name": "$72",
+      "nets": {
+        "b": "VSS",
+        "c": "VSS",
+        "e": "VA"
+      },
+      "params": {}
+    },
+    {
+      "class": "pnp",
+      "name": "$73",
+      "nets": {
+        "b": "VSS",
+        "c": "VSS",
+        "e": "VA"
+      },
+      "params": {}
+    },
+    {
+      "class": "pnp",
+      "name": "$74",
+      "nets": {
+        "b": "VSS",
+        "c": "VSS",
+        "e": "VA"
+      },
+      "params": {}
+    },
+    {
+      "class": "pnp",
+      "name": "$75",
+      "nets": {
+        "b": "VSS",
+        "c": "VSS",
+        "e": "VA"
+      },
+      "params": {}
+    },
+    {
+      "class": "pnp",
+      "name": "$76",
+      "nets": {
+        "b": "VSS",
+        "c": "VSS",
+        "e": "VA"
+      },
+      "params": {}
+    },
+    {
+      "class": "pnp",
+      "name": "$77",
+      "nets": {
+        "b": "VSS",
+        "c": "VSS",
+        "e": "VBQ"
+      },
+      "params": {}
+    },
+    {
+      "class": "pnp",
+      "name": "$78",
+      "nets": {
+        "b": "VSS",
+        "c": "VSS",
+        "e": "VBQ"
+      },
+      "params": {}
+    },
+    {
+      "class": "pnp",
+      "name": "$79",
+      "nets": {
+        "b": "VSS",
+        "c": "VSS",
+        "e": "VBQ"
+      },
+      "params": {}
+    },
+    {
+      "class": "nfet",
+      "name": "$8",
+      "nets": {
+        "b": "VSS",
+        "d": "VSS",
+        "g": "D1",
+        "s": "D1"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "pnp",
+      "name": "$80",
+      "nets": {
+        "b": "VSS",
+        "c": "VSS",
+        "e": "VBQ"
+      },
+      "params": {}
+    },
+    {
+      "class": "pnp",
+      "name": "$81",
+      "nets": {
+        "b": "VSS",
+        "c": "VSS",
+        "e": "VBQ"
+      },
+      "params": {}
+    },
+    {
+      "class": "pnp",
+      "name": "$82",
+      "nets": {
+        "b": "VSS",
+        "c": "VSS",
+        "e": "VBQ"
+      },
+      "params": {}
+    },
+    {
+      "class": "pnp",
+      "name": "$83",
+      "nets": {
+        "b": "VSS",
+        "c": "VSS",
+        "e": "VBQ"
+      },
+      "params": {}
+    },
+    {
+      "class": "pnp",
+      "name": "$84",
+      "nets": {
+        "b": "VSS",
+        "c": "VSS",
+        "e": "VBQ"
+      },
+      "params": {}
+    },
+    {
+      "class": "res_high_po",
+      "name": "$85",
+      "nets": {
+        "a": "VOUT",
+        "b": "$6",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$86",
+      "nets": {
+        "a": "VOUT",
+        "b": "$7",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$87",
+      "nets": {
+        "a": "$6",
+        "b": "$8",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$88",
+      "nets": {
+        "a": "$7",
+        "b": "$9",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$89",
+      "nets": {
+        "a": "$8",
+        "b": "$10",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "nfet",
+      "name": "$9",
+      "nets": {
+        "b": "VSS",
+        "d": "VSS",
+        "g": "D2",
+        "s": "PN"
+      },
+      "params": {
+        "l_um": 20.0,
+        "w_um": 8.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$90",
+      "nets": {
+        "a": "$9",
+        "b": "$11",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$91",
+      "nets": {
+        "a": "$10",
+        "b": "$12",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$92",
+      "nets": {
+        "a": "$11",
+        "b": "$13",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$93",
+      "nets": {
+        "a": "$12",
+        "b": "$14",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$94",
+      "nets": {
+        "a": "$13",
+        "b": "$16",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$95",
+      "nets": {
+        "a": "$20",
+        "b": "$35",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$96",
+      "nets": {
+        "a": "$21",
+        "b": "$22",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$97",
+      "nets": {
+        "a": "$20",
+        "b": "$23",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$98",
+      "nets": {
+        "a": "$21",
+        "b": "$36",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    },
+    {
+      "class": "res_high_po",
+      "name": "$99",
+      "nets": {
+        "a": "$35",
+        "b": "$37",
+        "w": "VSS"
+      },
+      "params": {
+        "area_um2": 5.0,
+        "l_um": 5.0,
+        "r_ohm": 1599.0,
+        "w_um": 1.0
+      }
+    }
+  ],
+  "dummy_devices_dropped": 20,
+  "file": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-170/layout/bandgap-core/reports/20260815-034022-001d1b7/bandgap_core_routed.gds",
+  "ignored_layers": [],
+  "merged_net_labels": [],
+  "net_count": 151,
+  "netlist_path": "/Users/rwalters/GitHub/sky130-bandgap/.loom/worktrees/issue-170/sim/psrr-dc-post-layout/parasitics-snapshot/20260815-034022-001d1b7/bandgap_core_routed.pex.spice",
+  "netlist_sha256": "c331442e5b28bd74fab5ab915cc8a661a2a11db0fb2bfaa5d914af3f75cb417d",
+  "nets": [
+    {
+      "device_count": 2,
+      "name": "$10",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$100",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$101",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$102",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$103",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$104",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$105",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$106",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$107",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$108",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$109",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$11",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$110",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$111",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$112",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$113",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$114",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$115",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$116",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$117",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$118",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$119",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$12",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$120",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$121",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$122",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$123",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$124",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$125",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$126",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$127",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$128",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$129",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$13",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$130",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$131",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$132",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$133",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$134",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$135",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$136",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$137",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$138",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$139",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$14",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$140",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$143",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$144",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$145",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$146",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$149",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$150",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$151",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$152",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$153",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$154",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$155",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$156",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$159",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$16",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$160",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$161",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$162",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$163",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$164",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$20",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$21",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$22",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$23",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$24",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$25",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$26",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$27",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$28",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$29",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$35",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$36",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$37",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$38",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$39",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$40",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$41",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$42",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$43",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$44",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$45",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$46",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$47",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$48",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$49",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$50",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$51",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$52",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$53",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$54",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$55",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$56",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$57",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$58",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$59",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$6",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$60",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$61",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$62",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$63",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$64",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$65",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$66",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$67",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$68",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$69",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$7",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$70",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$71",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$72",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$73",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$74",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$77",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$78",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$79",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$8",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$80",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$81",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$82",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$83",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$84",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$85",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$86",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$89",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$9",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$90",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$91",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$92",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$93",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$94",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$95",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$96",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$97",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$98",
+      "pin": false
+    },
+    {
+      "device_count": 2,
+      "name": "$99",
+      "pin": false
+    },
+    {
+      "device_count": 20,
+      "name": "D1",
+      "pin": true
+    },
+    {
+      "device_count": 20,
+      "name": "D2",
+      "pin": true
+    },
+    {
+      "device_count": 32,
+      "name": "GDRV",
+      "pin": true
+    },
+    {
+      "device_count": 28,
+      "name": "PN",
+      "pin": true
+    },
+    {
+      "device_count": 18,
+      "name": "TAIL",
+      "pin": true
+    },
+    {
+      "device_count": 17,
+      "name": "VA",
+      "pin": true
+    },
+    {
+      "device_count": 10,
+      "name": "VB",
+      "pin": true
+    },
+    {
+      "device_count": 9,
+      "name": "VBQ",
+      "pin": true
+    },
+    {
+      "device_count": 104,
+      "name": "VDD",
+      "pin": true
+    },
+    {
+      "device_count": 4,
+      "name": "VOUT",
+      "pin": true
+    },
+    {
+      "device_count": 207,
+      "name": "VSS",
+      "pin": true
+    }
+  ],
+  "parasitics": {
+    "c_count": 151,
+    "nets": [
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$10__par",
+        "net": "$10",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 6.36943,
+        "internal_node": "$100__par",
+        "net": "$100",
+        "resistance_ohm": 489.549
+      },
+      {
+        "capacitance_ff": 1.842759,
+        "internal_node": "$101__par",
+        "net": "$101",
+        "resistance_ohm": 462.5197
+      },
+      {
+        "capacitance_ff": 0.988699,
+        "internal_node": "$102__par",
+        "net": "$102",
+        "resistance_ohm": 457.4348
+      },
+      {
+        "capacitance_ff": 1.381301,
+        "internal_node": "$103__par",
+        "net": "$103",
+        "resistance_ohm": 459.8061
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$104__par",
+        "net": "$104",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$105__par",
+        "net": "$105",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$106__par",
+        "net": "$106",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$107__par",
+        "net": "$107",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$108__par",
+        "net": "$108",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$109__par",
+        "net": "$109",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$11__par",
+        "net": "$11",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$110__par",
+        "net": "$110",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$111__par",
+        "net": "$111",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 0.988699,
+        "internal_node": "$112__par",
+        "net": "$112",
+        "resistance_ohm": 457.4348
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$113__par",
+        "net": "$113",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$114__par",
+        "net": "$114",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$115__par",
+        "net": "$115",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$116__par",
+        "net": "$116",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$117__par",
+        "net": "$117",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$118__par",
+        "net": "$118",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$119__par",
+        "net": "$119",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$12__par",
+        "net": "$12",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$120__par",
+        "net": "$120",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$121__par",
+        "net": "$121",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$122__par",
+        "net": "$122",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$123__par",
+        "net": "$123",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$124__par",
+        "net": "$124",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$125__par",
+        "net": "$125",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$126__par",
+        "net": "$126",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$127__par",
+        "net": "$127",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$128__par",
+        "net": "$128",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.593004,
+        "internal_node": "$129__par",
+        "net": "$129",
+        "resistance_ohm": 461.0309
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$13__par",
+        "net": "$13",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.451162,
+        "internal_node": "$130__par",
+        "net": "$130",
+        "resistance_ohm": 460.222
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$131__par",
+        "net": "$131",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$132__par",
+        "net": "$132",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$133__par",
+        "net": "$133",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$134__par",
+        "net": "$134",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$135__par",
+        "net": "$135",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$136__par",
+        "net": "$136",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$137__par",
+        "net": "$137",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$138__par",
+        "net": "$138",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 1.200031,
+        "internal_node": "$139__par",
+        "net": "$139",
+        "resistance_ohm": 458.6901
+      },
+      {
+        "capacitance_ff": 1.593004,
+        "internal_node": "$14__par",
+        "net": "$14",
+        "resistance_ohm": 461.0309
+      },
+      {
+        "capacitance_ff": 0.988699,
+        "internal_node": "$140__par",
+        "net": "$140",
+        "resistance_ohm": 457.4348
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$143__par",
+        "net": "$143",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$144__par",
+        "net": "$144",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$145__par",
+        "net": "$145",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$146__par",
+        "net": "$146",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$149__par",
+        "net": "$149",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$150__par",
+        "net": "$150",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$151__par",
+        "net": "$151",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$152__par",
+        "net": "$152",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$153__par",
+        "net": "$153",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$154__par",
+        "net": "$154",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$155__par",
+        "net": "$155",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$156__par",
+        "net": "$156",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.786843,
+        "internal_node": "$159__par",
+        "net": "$159",
+        "resistance_ohm": 456.1522
+      },
+      {
+        "capacitance_ff": 1.451162,
+        "internal_node": "$16__par",
+        "net": "$16",
+        "resistance_ohm": 460.222
+      },
+      {
+        "capacitance_ff": 0.786843,
+        "internal_node": "$160__par",
+        "net": "$160",
+        "resistance_ohm": 456.1522
+      },
+      {
+        "capacitance_ff": 0.786843,
+        "internal_node": "$161__par",
+        "net": "$161",
+        "resistance_ohm": 456.1522
+      },
+      {
+        "capacitance_ff": 0.786843,
+        "internal_node": "$162__par",
+        "net": "$162",
+        "resistance_ohm": 456.1522
+      },
+      {
+        "capacitance_ff": 0.786843,
+        "internal_node": "$163__par",
+        "net": "$163",
+        "resistance_ohm": 456.1522
+      },
+      {
+        "capacitance_ff": 0.786843,
+        "internal_node": "$164__par",
+        "net": "$164",
+        "resistance_ohm": 456.1522
+      },
+      {
+        "capacitance_ff": 3.807621,
+        "internal_node": "$20__par",
+        "net": "$20",
+        "resistance_ohm": 474.2366
+      },
+      {
+        "capacitance_ff": 1.381301,
+        "internal_node": "$21__par",
+        "net": "$21",
+        "resistance_ohm": 459.8061
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$22__par",
+        "net": "$22",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$23__par",
+        "net": "$23",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$24__par",
+        "net": "$24",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$25__par",
+        "net": "$25",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$26__par",
+        "net": "$26",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$27__par",
+        "net": "$27",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$28__par",
+        "net": "$28",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$29__par",
+        "net": "$29",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$35__par",
+        "net": "$35",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$36__par",
+        "net": "$36",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$37__par",
+        "net": "$37",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$38__par",
+        "net": "$38",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$39__par",
+        "net": "$39",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$40__par",
+        "net": "$40",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$41__par",
+        "net": "$41",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$42__par",
+        "net": "$42",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.593004,
+        "internal_node": "$43__par",
+        "net": "$43",
+        "resistance_ohm": 461.0309
+      },
+      {
+        "capacitance_ff": 1.451162,
+        "internal_node": "$44__par",
+        "net": "$44",
+        "resistance_ohm": 460.222
+      },
+      {
+        "capacitance_ff": 3.807621,
+        "internal_node": "$45__par",
+        "net": "$45",
+        "resistance_ohm": 474.2366
+      },
+      {
+        "capacitance_ff": 1.381301,
+        "internal_node": "$46__par",
+        "net": "$46",
+        "resistance_ohm": 459.8061
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$47__par",
+        "net": "$47",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$48__par",
+        "net": "$48",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$49__par",
+        "net": "$49",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$50__par",
+        "net": "$50",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$51__par",
+        "net": "$51",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$52__par",
+        "net": "$52",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$53__par",
+        "net": "$53",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$54__par",
+        "net": "$54",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$55__par",
+        "net": "$55",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$56__par",
+        "net": "$56",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$57__par",
+        "net": "$57",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$58__par",
+        "net": "$58",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$59__par",
+        "net": "$59",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$6__par",
+        "net": "$6",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$60__par",
+        "net": "$60",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$61__par",
+        "net": "$61",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$62__par",
+        "net": "$62",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.593004,
+        "internal_node": "$63__par",
+        "net": "$63",
+        "resistance_ohm": 461.0309
+      },
+      {
+        "capacitance_ff": 1.451162,
+        "internal_node": "$64__par",
+        "net": "$64",
+        "resistance_ohm": 460.222
+      },
+      {
+        "capacitance_ff": 3.807621,
+        "internal_node": "$65__par",
+        "net": "$65",
+        "resistance_ohm": 474.2366
+      },
+      {
+        "capacitance_ff": 1.381301,
+        "internal_node": "$66__par",
+        "net": "$66",
+        "resistance_ohm": 459.8061
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$67__par",
+        "net": "$67",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$68__par",
+        "net": "$68",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$69__par",
+        "net": "$69",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$7__par",
+        "net": "$7",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$70__par",
+        "net": "$70",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$71__par",
+        "net": "$71",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$72__par",
+        "net": "$72",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$73__par",
+        "net": "$73",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$74__par",
+        "net": "$74",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$77__par",
+        "net": "$77",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$78__par",
+        "net": "$78",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$79__par",
+        "net": "$79",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$8__par",
+        "net": "$8",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$80__par",
+        "net": "$80",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$81__par",
+        "net": "$81",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$82__par",
+        "net": "$82",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$83__par",
+        "net": "$83",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$84__par",
+        "net": "$84",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 1.593004,
+        "internal_node": "$85__par",
+        "net": "$85",
+        "resistance_ohm": 461.0309
+      },
+      {
+        "capacitance_ff": 5.338457,
+        "internal_node": "$86__par",
+        "net": "$86",
+        "resistance_ohm": 478.8734
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$89__par",
+        "net": "$89",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 1.340497,
+        "internal_node": "$9__par",
+        "net": "$9",
+        "resistance_ohm": 459.4543
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$90__par",
+        "net": "$90",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$91__par",
+        "net": "$91",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$92__par",
+        "net": "$92",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$93__par",
+        "net": "$93",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$94__par",
+        "net": "$94",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$95__par",
+        "net": "$95",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 0.947525,
+        "internal_node": "$96__par",
+        "net": "$96",
+        "resistance_ohm": 457.1105
+      },
+      {
+        "capacitance_ff": 1.200031,
+        "internal_node": "$97__par",
+        "net": "$97",
+        "resistance_ohm": 458.6901
+      },
+      {
+        "capacitance_ff": 3.807621,
+        "internal_node": "$98__par",
+        "net": "$98",
+        "resistance_ohm": 474.2366
+      },
+      {
+        "capacitance_ff": 1.451162,
+        "internal_node": "$99__par",
+        "net": "$99",
+        "resistance_ohm": 460.222
+      },
+      {
+        "capacitance_ff": 79.703342,
+        "internal_node": "D1__par",
+        "net": "D1",
+        "resistance_ohm": 9643.658
+      },
+      {
+        "capacitance_ff": 82.648071,
+        "internal_node": "D2__par",
+        "net": "D2",
+        "resistance_ohm": 9659.4838
+      },
+      {
+        "capacitance_ff": 140.761054,
+        "internal_node": "GDRV__par",
+        "net": "GDRV",
+        "resistance_ohm": 20920.791
+      },
+      {
+        "capacitance_ff": 63.621764,
+        "internal_node": "PN__par",
+        "net": "PN",
+        "resistance_ohm": 8920.9253
+      },
+      {
+        "capacitance_ff": 57.810612,
+        "internal_node": "TAIL__par",
+        "net": "TAIL",
+        "resistance_ohm": 10827.2445
+      },
+      {
+        "capacitance_ff": 46.590989,
+        "internal_node": "VA__par",
+        "net": "VA",
+        "resistance_ohm": 6903.9852
+      },
+      {
+        "capacitance_ff": 37.638601,
+        "internal_node": "VB__par",
+        "net": "VB",
+        "resistance_ohm": 6783.55
+      },
+      {
+        "capacitance_ff": 15.971187,
+        "internal_node": "VBQ__par",
+        "net": "VBQ",
+        "resistance_ohm": 564.47
+      },
+      {
+        "capacitance_ff": 325.468206,
+        "internal_node": "VDD__par",
+        "net": "VDD",
+        "resistance_ohm": 70244.6434
+      },
+      {
+        "capacitance_ff": 14.309707,
+        "internal_node": "VOUT__par",
+        "net": "VOUT",
+        "resistance_ohm": 1055.699
+      },
+      {
+        "capacitance_ff": 304.763245,
+        "internal_node": "VSS__par",
+        "net": "VSS",
+        "resistance_ohm": 15367.689
+      }
+    ],
+    "r_count": 151,
+    "total_capacitance_ff": 1361.099731,
+    "total_resistance_ohm": 225238.1772
+  },
+  "pdk": null,
+  "pin_count": 11,
+  "provenance": {
+    "deck": {
+      "content_hash": "sha256:cc62ce576bd65c127270fda943443493529f6e0a9f7ff85c7e9595938698e73e",
+      "name": "sky130"
+    },
+    "input": {
+      "content_hash": "sha256:88710e299c682d050be6cbeab0c047da188b34adad085739656f4958b7ea0faf"
+    },
+    "klayout_version": "0.30.10",
+    "klt_version": "0.2.0",
+    "pdk": null
+  },
+  "schema_version": 1,
+  "status": "extracted",
+  "top": "bandgap_core_routed",
+  "unmodelled_poly": [],
+  "warnings": [
+    "promoted 11 net(s) to top-level pins from label(s) found only below the top cell (inside instanced sub-cells): D1, D2, GDRV, PN, TAIL, VA, VB, VBQ, VDD, VOUT, VSS -- these are internal nodes once instanced; pass top_cell_pins_only (--top-cell-pins) to keep them internal (issue #291)"
+  ]
+}

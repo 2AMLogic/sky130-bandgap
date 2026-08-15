@@ -1,13 +1,15 @@
 # DR-008: PSRR DC–1 kHz floor — post-layout margin shortfall, proposed disposition (NOT ratified)
 
-- **Status**: **proposed** — requires operator/Champion ratification before
-  it changes anything. This record documents an investigation and lays out
-  options; it does **not** by itself relax DR-006's `> 60 dB DC–1 kHz`
-  target.
-- **Date**: 2026-08-12
-- **Decided by**: not yet decided — drafted by a Loom Builder agent (issue
-  #140) per CLAUDE.md's instruction that agents propose but do not
-  unilaterally ratify a spec relaxation.
+- **Status**: **ratified 2026-08-14 — Option B**. See "Ratification
+  (2026-08-14)" at the end of this record for the operator's ruling and the
+  evidence that closes it out. DR-006's `>= 60 dB DC–1 kHz` floor is
+  unchanged and stands as ratified; this record's Option A (relaxing it) is
+  rejected.
+- **Date**: 2026-08-12 (investigation); ratified 2026-08-14.
+- **Decided by**: operator ruling on issue #140 (2026-08-14), implemented by
+  issue #170. Originally drafted by a Loom Builder agent (issue #140) per
+  CLAUDE.md's instruction that agents propose but do not unilaterally ratify
+  a spec relaxation.
 
 ## Context
 
@@ -284,3 +286,77 @@ this or any other post-layout lever that promotes a different pin set).
 Both dispositions (Option A / Option B above) remain exactly as laid out;
 this addendum adds evidence, not a new option. Routed back to the operator
 per the guardrail — see issue #140.
+
+## Ratification (2026-08-14): Option B implemented, closing this record
+
+The operator ruled Option B on issue #170: increase the error amplifier's
+schematic-level PSRR margin to absorb the measured post-layout cost, keep
+DR-006's `>= 60 dB` floor exactly as ratified. Issue #170 implemented it and
+measured the result; this section is the ratification and the closing
+evidence.
+
+**What changed**: `design/error_amp.sch`'s `amp_m_in` (the PMOS input
+pair's device multiplicity) halved 16 -> 8. This addendum's own Finding 1
+pointed at the amplifier's own internal high-impedance nodes, not the
+VDD/VSS rails, as the dominant post-layout sensitivity; issue #170's PR
+found (see that PR and `error_amp.sch`'s own header for the full
+circuit-level account) that the input pair's own capacitive loading of the
+D1/D2 diode-load nodes — not the mirror devices DR-008's text names as
+"internal mirrors" — is the dominant contributor to that sensitivity, and
+that decoupling capacitors and mirror-device resizing (the other two
+candidates this record and issue #170 both named) measurably do not help
+or actively hurt. Halving the input pair's area raises its own non-dominant
+pole frequency (capacitance falls faster than gm as area shrinks at fixed
+branch current), which is a gain-redistribution lever in the same family
+this record's Option B description named, applied to the node the evidence
+actually implicates.
+
+**Schematic-level result** (`sim/psrr-dc/records/20260815-020301-001d1b7`,
+45/45 PASS): `psrr_band_min` moves from 62.65–66.73 dB (pre-#170) to
+70.24–81.47 dB (post-#170), a uniform +7.1..+15.6 dB per corner — well
+past the −4.05 ± 0.36 dB gap this record measured, with design margin to
+spare.
+
+**Post-layout result** (`sim/psrr-dc-post-layout/records/20260815-034139-001d1b7`,
+against the re-routed, re-extracted, LVS-clean layout at record
+`20260815-034022-001d1b7`; the pre-#170 FAIL record
+`20260812-011520-5df01bf` is unedited and unretired per `sim/README.md`):
+**45/45 PASS**, `psrr_band_min` 72.31–93.74 dB, worst corner
+`sf_125c_2.97v` at 72.31 dB — 12.31 dB above the 60 dB floor. Notably the
+post-layout shift on this design is **positive** (mean +3.10 dB, corner
+range +0.02..+12.27 dB versus this same design's own schematic-level
+matrix) rather than the −4.05 ± 0.36 dB this record measured on the
+pre-#170 design: the smaller input pair draws less routing/parasitic
+loading of its own, so the mechanism this record's Finding 1 identified
+(internal-node parasitic loading) costs less absolute margin on the
+smaller device. This is evidence *for* Finding 1's mechanism, not a
+contradiction of it — less area at the sensitive node means less
+post-layout cost, exactly as Finding 1 would predict, and is not itself
+re-litigated by this ratification.
+
+**Cost, disclosed rather than hidden**: the amplifier's own random offset
+(`design/error-amp-offset-budget.md`, updated in the same PR, see its
+Section 9) worsens — halving the input pair's area is the opposite
+direction from that budget's own area lever. The offset-budget acceptance
+criterion was already **not met** before this change (Section 3's
+1.53–1.88x shortfall); this ratification widens that gap further
+(estimated ~2.0–2.5x, analytic re-derivation, not a fresh Monte Carlo
+measurement — see that document's Section 9 for why). This is not a
+criterion DR-006 or issue #170's acceptance criteria gate, and is flagged
+forward the same way the original budget flagged it, not engineered around
+silently.
+
+**Regression check** (both levels, per issue #170's test plan):
+`sim/error-amp-loop/` 45/45 PASS on its own acceptance criteria (phase
+margin, gain margin, DC loop gain, systematic offset, Iq — all comfortably
+inside their floors, several *improved* by the change); `sim/quiescent-
+current(-post-layout)/`, `sim/startup-stability(-post-layout)/` PASS;
+`sim/line-regulation/` and `sim/output-voltage-tc(-post-layout)/` carry
+pre-existing, unrelated FAILs (confirmed by comparing against the last
+committed pre-#170 record at each bench — the failing measurements move by
+noise-level amounts, not the amount a regression would produce). Full
+accounting, including one post-layout-only numerical-solver anomaly at a
+single DC-sweep corner, is in issue #170's PR description.
+
+Closes DR-008. Issue #140 re-runs the full 45-point post-layout bench
+against this ratification and closes on the 45/45 result above.
