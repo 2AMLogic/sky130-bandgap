@@ -88,6 +88,7 @@ BUILD_DIR = SIM_DIR / "build" / "res-array-head-resistance"
 sys.path.insert(0, str(SIM_DIR / "bin"))
 from sim_common import (  # noqa: E402
     chain_lines,
+    load_base_body,
     load_corner_run,
     parse_measurements,
     run_ngspice,
@@ -252,24 +253,6 @@ EXPECTED_PARAMS = {
     ".param n_r2_trim=0",
     ".param r_lseg_trim=1",
 }
-
-
-def load_base_body() -> list[str]:
-    if not BASE_SNAPSHOT.is_file():
-        raise cr.HarnessError(f"missing base netlist snapshot: {BASE_SNAPSHOT}")
-    text = BASE_SNAPSHOT.read_text()
-    lines = [ln for ln in text.splitlines() if ln.strip().lower() != ".end"]
-
-    present_params = {ln.strip() for ln in lines if ln.strip().startswith(".param ")}
-    missing = EXPECTED_PARAMS - present_params
-    if missing:
-        raise cr.HarnessError(
-            f"base netlist snapshot {BASE_SNAPSHOT} is missing expected .param line(s) "
-            f"{sorted(missing)} -- design/bandgap_core.sch may have drifted since this "
-            "snapshot was taken; re-derive the snapshot (needs xschem) before trusting "
-            "Phase B's comparison against the trim-range-monotonicity baseline"
-        )
-    return lines
 
 
 def substitute_chained_arrays(body: list[str]) -> list[str]:
@@ -660,7 +643,11 @@ def main(argv: list[str]) -> int:
     if not shutil.which("ngspice"):
         raise cr.HarnessError("ngspice not found on PATH")
 
-    base_body = load_base_body()
+    # If this raises, design/bandgap_core.sch may have drifted since
+    # BASE_SNAPSHOT was taken -- re-derive the snapshot (needs xschem) before
+    # trusting Phase B's comparison against the trim-range-monotonicity
+    # baseline (see BASE_SNAPSHOT's docstring above).
+    base_body = load_base_body(BASE_SNAPSHOT, EXPECTED_PARAMS)
     substituted_body = substitute_chained_arrays(base_body)
     baseline = load_phase_b_baseline()
 
