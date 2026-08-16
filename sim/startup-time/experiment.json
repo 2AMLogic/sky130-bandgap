@@ -1,7 +1,7 @@
 {
   "slug": "startup-time",
   "title": "Supply-ramp startup time of the untrimmed core over the full PVT matrix",
-  "claim": "README.md 'Target specification (DRAFT)' row 'Startup time' (< 1 ms), for the 3.3 V primary flavor (DR-001). Records are PROVISIONAL against the draft spec until issue #1 ratifies it. Ramps the supply feeding design/bandgap_core.sch from 0 V to the corner supply in t_ramp and measures the first time VREF rises through 1.08 V (90% of the 1.20 V draft nominal), open-circuit, over the full 45-point PVT matrix. NOTE: the core cell as merged by #8 contains no startup injector -- GDRV is exposed as the attachment node and the injector is issue #10's deliverable -- so this bench measures the core AS COMMITTED. A failure here is a statement about the missing injector, not about the bench.",
+  "claim": "README.md 'Target specification (ratified -- see DR-005, issue #1)' row 'Startup time' (< 1 ms), for the 3.3 V primary flavor (DR-001). Ramps the supply feeding design/bandgap_core.sch from 0 V to the corner supply in t_ramp and measures the first time VREF rises through 1.08 V (90% of the 1.20 V ratified nominal), open-circuit, over the full 45-point PVT matrix. NOTE: the core cell as merged by #8 contains no startup injector -- GDRV is exposed as the attachment node and the injector is issue #10's deliverable -- so this bench measures the core AS COMMITTED. A failure here is a statement about the missing injector, not about the bench.",
   "provenance": "schematic",
   "provenance_source": "sim/startup-time/testbench/tb_vref_startup.sch",
   "schematic": "testbench/tb_vref_startup.sch",
@@ -32,7 +32,7 @@
       "expr": "minimum(tcand)*1e3",
       "unit": "ms",
       "max": 1.0,
-      "note": "Startup time: first time VREF rises through 1.08 V (90% of the 1.20 V draft nominal) after the supply ramp begins at t=0. Limit is the draft spec's < 1 ms row. Computed as minimum(time*up + (1-up)*1) so a core that never crosses the threshold reports the 1 s sentinel as 1000 ms -- a legible, loudly failing number -- instead of an undefined `meas ... WHEN` vector that would take every later measurement in the .control block down with it."
+      "note": "Startup time: first time VREF rises through 1.08 V (90% of the 1.20 V ratified nominal) after the supply ramp begins at t=0. Limit is DR-005's ratified < 1 ms row. Computed as minimum(time*up + (1-up)*1) so a core that never crosses the threshold reports the 1 s sentinel as 1000 ms -- a legible, loudly failing number -- instead of an undefined `meas ... WHEN` vector that would take every later measurement in the .control block down with it."
     },
     {
       "name": "vref_final",

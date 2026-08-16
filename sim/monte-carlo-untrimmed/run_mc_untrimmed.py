@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Monte Carlo mismatch analysis for the untrimmed +/-1% output-accuracy claim (issue #12).
+"""Monte Carlo mismatch analysis for the untrimmed +/-2% output-accuracy claim (issue #12).
 
 Why this is a bespoke script and not another `experiment.json` +
 `sim/bin/corner-run.py` experiment: the corner runner drives exactly one
@@ -74,7 +74,7 @@ cr = load_corner_run()
 
 SLUG = "monte-carlo-untrimmed"
 TITLE = (
-    "Monte Carlo mismatch sigma and yield against the untrimmed +/-1% output-accuracy "
+    "Monte Carlo mismatch sigma and yield against the untrimmed +/-2% output-accuracy "
     "window, with a PNP / resistor / amp-mirror contributor breakdown"
 )
 
@@ -141,7 +141,7 @@ SEED_B = 20260804  # second seed, for the seed-stability check
 #
 # "all" (no override) is the combined claim: every family's mismatch active
 # at once, on independent per-instance draws, which is what the untrimmed
-# +/-1% spec line is actually exposed to in silicon.
+# +/-2% spec line is actually exposed to in silicon.
 
 PNP_COEFFS = (
     "sw_mm_sky130_fd_pr__pnp_05v5_W0p68L0p68_is",
@@ -169,11 +169,11 @@ CONFIG_LABELS = {
     "mos": "amp/mirror MOS only (error_amp diff pair + mirrors + XMPOUT/XMPAMP)",
 }
 
-# The draft spec's untrimmed output-accuracy window (README.md "Target
-# specification (DRAFT)"; same +/-1% window sim/output-voltage-tc uses).
-# PROVISIONAL until issue #1 ratifies the spec -- see the CLAIM string below.
+# The ratified spec's untrimmed output-accuracy window (README.md "Target
+# specification (ratified -- see DR-005, issue #1)"; same +/-2% window
+# sim/output-voltage-tc uses) -- see the CLAIM string below.
 VOUT_NOMINAL_V = 1.20
-SPEC_WINDOW_V = (1.188, 1.212)
+SPEC_WINDOW_V = (1.176, 1.224)
 
 # A Monte Carlo sample only counts if the core actually came up. bandgap_core
 # is bistable by construction (no startup circuit -- issue #10) and this
@@ -420,7 +420,7 @@ def evaluate(point: Point, samples: list[dict[str, float]], excluded: list[dict[
     add(
         "yield_ge_50pct",
         spec_y >= 0.5,
-        f"{spec_y:.1%} of converged draws land inside the +/-1% window "
+        f"{spec_y:.1%} of converged draws land inside the +/-2% window "
         f"[{SPEC_WINDOW_V[0]}, {SPEC_WINDOW_V[1]}] V (sanity floor only -- the yield number "
         f"itself is the deliverable, not a pass/fail spec claim; see the Result section)",
     )
@@ -547,17 +547,17 @@ def convergence_check(all_point_27c: dict | None) -> list[dict]:
 # --------------------------------------------------------------------------
 
 CLAIM = (
-    "README.md 'Target specification (DRAFT)' row 'Output reference' (1.20 V +/-1% "
-    "untrimmed) -- but read as a MISMATCH claim, not the corner-matrix claim issue #11 "
+    "README.md 'Target specification (ratified -- see DR-005, issue #1)' row 'Output "
+    "reference' (1.20 V +/-2% untrimmed, 3sigma mismatch MC N>=300 + process corners, "
+    "-40...125 degC) -- but read as a MISMATCH claim, not the corner-matrix claim issue #11 "
     "already substantiates. Process-corner sims move every device the same direction "
     "together; the untrimmed spread that actually determines whether a real part lands "
-    "inside +/-1% is set by how far a real PNP, resistor, or MOS device drifts from its "
+    "inside +/-2% is set by how far a real PNP, resistor, or MOS device drifts from its "
     "neighbor, i.e. LOCAL MISMATCH, which only Monte Carlo over sky130's mismatch models "
     "can quantify. Wraps issue #11's own output-voltage bench "
     "(sim/output-voltage-tc/testbench/tb_vref_tc.sch, unmodified) rather than re-deriving "
-    "the v(vref) extraction. Records are PROVISIONAL against the draft spec until issue #1 "
-    "ratifies it. Feeds issue #13 (does the design need a trim network, and what range) "
-    "and issue #15 (layout matching priority, from the contributor breakdown)."
+    "the v(vref) extraction. Feeds issue #13 (does the design need a trim network, and what "
+    "range) and issue #15 (layout matching priority, from the contributor breakdown)."
 )
 
 
@@ -642,11 +642,12 @@ def render_record(r: dict) -> str:
     add(f"- **Result**: {'PASS' if r['overall_pass'] else 'FAIL'} — see the tables below.")
     add("")
 
-    add("## Output-voltage distribution and yield against the +/-1 % window")
+    add("## Output-voltage distribution and yield against the +/-2 % window")
     add("")
     add(
-        f"Window: [{SPEC_WINDOW_V[0]}, {SPEC_WINDOW_V[1]}] V around the draft spec's "
-        f"{VOUT_NOMINAL_V:.2f} V nominal (README.md 'Target specification (DRAFT)'). "
+        f"Window: [{SPEC_WINDOW_V[0]}, {SPEC_WINDOW_V[1]}] V around the ratified spec's "
+        f"{VOUT_NOMINAL_V:.2f} V nominal (README.md 'Target specification (ratified -- see "
+        f"DR-005, issue #1)'). "
         f"**Yield** below is the fraction of MC draws that (a) converged to the core's real "
         f"operating solution (excludes the issue #10 startup artifact — see "
         f"'mc_solve_yield' in the Checks section) and (b) landed inside that window."
