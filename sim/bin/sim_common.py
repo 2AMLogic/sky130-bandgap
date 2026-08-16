@@ -52,6 +52,13 @@ going through `importlib.util.spec_from_file_location`.
 `sim/trim-lsb-chained/run_trim_lsb_chained.py` both reuse these three
 verbatim, differing only in which module-level constants they closed the
 functions over.)
+
+    render_record_id_experiment() the `Record ID` + `Experiment` lines
+                          shared verbatim across every bespoke script's
+                          (and `corner-run.py`'s) `render_record()`
+    render_pdk_tools_repo_state() the `PDK` (pin-state ternary) + `Tools` +
+                          `Repo state` (dirty-tree ternary) lines from the
+                          same block (issue #191)
 """
 
 from __future__ import annotations
@@ -289,6 +296,40 @@ def partition_by_window(
     good = [s for s in samples if lo <= s[key] <= hi]
     bad = [s for s in samples if not (lo <= s[key] <= hi)]
     return good, bad
+
+
+def render_record_id_experiment(record_id: str, slug: str, title: str) -> list[str]:
+    """`Record ID` + `Experiment` lines shared verbatim across every
+    experiment's `render_record()` (issue #191).
+
+    Split out from `render_pdk_tools_repo_state()` below rather than combined
+    into one "header" helper because every caller's own `Claim` / `Netlist
+    provenance` lines render between the two blocks -- `slug`/`title` are
+    passed explicitly (not read from `r["experiment"]`) since some bespoke
+    scripts (e.g. `res-array-head-resistance/run_res_array_head_resistance.py`)
+    build a record dict with no `experiment` key at all, sourcing the title
+    from a module-level `SLUG`/`TITLE` constant instead.
+    """
+    return [
+        f"- **Record ID**: {record_id}",
+        f"- **Experiment**: `{slug}` — {title}",
+    ]
+
+
+def render_pdk_tools_repo_state(r: dict) -> list[str]:
+    """`PDK` (pin-state ternary) + `Tools` + `Repo state` (dirty-tree
+    ternary) lines shared verbatim across every experiment's
+    `render_record()` (issue #191)."""
+    pdk = r["pdk"]
+    pin_state = "matches sim/pdk.json pin" if pdk["matches_pin"] else "**MISMATCH vs sim/pdk.json pin**"
+    tools = r["tools"]
+    return [
+        f"- **PDK**: {pdk['variant']} @ open_pdks `{pdk['installed_commit']}` ({pin_state}); "
+        f"models `{pdk['lib_file']}`",
+        f"- **Tools**: {tools['ngspice']}; {tools['xschem']}; {tools['platform']}",
+        f"- **Repo state**: `{r['git']['sha']}` on `{r['git']['branch']}`"
+        + (" (working tree dirty at run time)" if r["git"]["dirty"] else " (clean working tree)"),
+    ]
 
 
 def render_log(header_lines, pdk, rc, timed_out, stamp, sections, raw) -> str:

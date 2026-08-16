@@ -91,6 +91,8 @@ from sim_common import (  # noqa: E402
     load_base_body,
     load_corner_run,
     parse_measurements,
+    render_pdk_tools_repo_state,
+    render_record_id_experiment,
     run_ngspice,
     write_log,
 )
@@ -449,8 +451,7 @@ def render_record(record: dict) -> str:
 
     add(f"# Record {r['record_id']}")
     add("")
-    add(f"- **Record ID**: {r['record_id']}")
-    add(f"- **Experiment**: `{SLUG}` — {TITLE}")
+    L.extend(render_record_id_experiment(r["record_id"], SLUG, TITLE))
     add(
         "- **Claim**: issue #98 -- the routed layout draws each `R1`/`R2A`/`R2B` "
         "divider leg as a *chain* of separately-contacted `res_high_po` unit "
@@ -479,18 +480,7 @@ def render_record(record: dict) -> str:
         "snapshot was verified byte-identical to `design/bandgap_core.sch`'s "
         "current `.param` values before use)."
     )
-    pdk = r["pdk"]
-    pin_state = "matches sim/pdk.json pin" if pdk["matches_pin"] else "**MISMATCH vs sim/pdk.json pin**"
-    add(
-        f"- **PDK**: {pdk['variant']} @ open_pdks `{pdk['installed_commit']}` ({pin_state}); "
-        f"models `{pdk['lib_file']}`"
-    )
-    tools = r["tools"]
-    add(f"- **Tools**: {tools['ngspice']}; {tools['xschem']}; {tools['platform']}")
-    add(
-        f"- **Repo state**: `{r['git']['sha']}` on `{r['git']['branch']}`"
-        + (" (working tree dirty at run time)" if r["git"]["dirty"] else " (clean working tree)")
-    )
+    L.extend(render_pdk_tools_repo_state(r))
     add(
         "- **Corner matrix**: Phase A at nominal `tt`, 27 degC, MC_MM_SWITCH=0 "
         "(single `.op` point, matching Section 7t). Phase B at the 5 (process, "

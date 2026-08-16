@@ -108,6 +108,8 @@ from sim_common import (  # noqa: E402
     load_corner_run,
     parse_measurements,
     render_log,
+    render_pdk_tools_repo_state,
+    render_record_id_experiment,
     run_ngspice,
 )
 
@@ -452,8 +454,7 @@ def render_record(record: dict) -> str:
 
     add(f"# Record {r['record_id']}")
     add("")
-    add(f"- **Record ID**: {r['record_id']}")
-    add(f"- **Experiment**: `{SLUG}` — {TITLE}")
+    L.extend(render_record_id_experiment(r["record_id"], SLUG, TITLE))
     add(
         "- **Claim**: trim network design phase for issue #13, following "
         "`spec/decision-records/DR-002-trim-network-scoping.md`'s go decision "
@@ -472,18 +473,7 @@ def render_record(record: dict) -> str:
         "wrapping `design/bandgap_core.sch` with the new `n_r2_trim`/`r_lseg_trim` "
         "parameters added by this issue)"
     )
-    pdk = r["pdk"]
-    pin_state = "matches sim/pdk.json pin" if pdk["matches_pin"] else "**MISMATCH vs sim/pdk.json pin**"
-    add(
-        f"- **PDK**: {pdk['variant']} @ open_pdks `{pdk['installed_commit']}` ({pin_state}); "
-        f"models `{pdk['lib_file']}`"
-    )
-    tools = r["tools"]
-    add(f"- **Tools**: {tools['ngspice']}; {tools['xschem']}; {tools['platform']}")
-    add(
-        f"- **Repo state**: `{r['git']['sha']}` on `{r['git']['branch']}`"
-        + (" (working tree dirty at run time)" if r["git"]["dirty"] else " (clean working tree)")
-    )
+    L.extend(render_pdk_tools_repo_state(r))
     add("- **Corner matrix run**:")
     add(
         "  - **Negative (usable) range**: "

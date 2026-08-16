@@ -118,6 +118,8 @@ from sim_common import (  # noqa: E402
     load_corner_run,
     parse_measurements,
     r1_segments_um,
+    render_pdk_tools_repo_state,
+    render_record_id_experiment,
     run_ngspice,
     write_log,
 )
@@ -429,8 +431,7 @@ def render_record(r: dict) -> str:
 
     add(f"# Record {r['record_id']}")
     add("")
-    add(f"- **Record ID**: {r['record_id']}")
-    add(f"- **Experiment**: `{SLUG}` — {TITLE}")
+    L.extend(render_record_id_experiment(r["record_id"], SLUG, TITLE))
     add(
         "- **Claim**: issue #106 -- re-derive (not re-cite) DR-002's three trim "
         "criteria (monotonic-in-code, downward span, LSB) against the routed "
@@ -453,18 +454,7 @@ def render_record(r: dict) -> str:
         "`.param n_r1`/`n_r2`/`n_r2_trim`/`r_lseg_trim` values do not enter the "
         "resistor legs."
     )
-    pdk = r["pdk"]
-    pin_state = "matches sim/pdk.json pin" if pdk["matches_pin"] else "**MISMATCH vs sim/pdk.json pin**"
-    add(
-        f"- **PDK**: {pdk['variant']} @ open_pdks `{pdk['installed_commit']}` ({pin_state}); "
-        f"models `{pdk['lib_file']}`"
-    )
-    tools = r["tools"]
-    add(f"- **Tools**: {tools['ngspice']}; {tools['xschem']}; {tools['platform']}")
-    add(
-        f"- **Repo state**: `{r['git']['sha']}` on `{r['git']['branch']}`"
-        + (" (working tree dirty at run time)" if r["git"]["dirty"] else " (clean working tree)")
-    )
+    L.extend(render_pdk_tools_repo_state(r))
     add(
         "- **Corner matrix**: the 5 (process, supply) corners "
         + ", ".join(f"{p}/{s:.2f} V" for p, s in CORNERS)

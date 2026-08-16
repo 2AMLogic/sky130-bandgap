@@ -51,6 +51,8 @@ from sim_common import (  # noqa: E402
     mv,
     parse_samples,
     render_log,
+    render_pdk_tools_repo_state,
+    render_record_id_experiment,
     seed_stability_checks,
     stdev,
 )
@@ -378,27 +380,17 @@ def render_record(r: dict) -> str:
 
     add(f"# Record {r['record_id']}")
     add("")
-    add(f"- **Record ID**: {r['record_id']}")
-    add(f"- **Experiment**: `{r['experiment']['slug']}` — {r['experiment']['title']}")
+    L.extend(
+        render_record_id_experiment(
+            r["record_id"], r["experiment"]["slug"], r["experiment"]["title"]
+        )
+    )
     add(f"- **Claim**: {r['experiment']['claim']}")
     add(
         f"- **Netlist provenance**: {r['experiment']['provenance']} "
         f"(`{r['experiment']['provenance_source']}`)"
     )
-    pdk = r["pdk"]
-    pin_state = (
-        "matches sim/pdk.json pin" if pdk["matches_pin"] else "**MISMATCH vs sim/pdk.json pin**"
-    )
-    add(
-        f"- **PDK**: {pdk['variant']} @ open_pdks `{pdk['installed_commit']}` ({pin_state}); "
-        f"models `{pdk['lib_file']}`"
-    )
-    t = r["tools"]
-    add(f"- **Tools**: {t['ngspice']}; {t['xschem']}; {t['platform']}")
-    add(
-        f"- **Repo state**: `{r['git']['sha']}` on `{r['git']['branch']}`"
-        + (" (working tree dirty at run time)" if r["git"]["dirty"] else " (clean working tree)")
-    )
+    L.extend(render_pdk_tools_repo_state(r))
 
     add("- **Corner matrix run**:")
     add(
