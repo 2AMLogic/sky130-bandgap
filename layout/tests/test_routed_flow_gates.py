@@ -100,7 +100,8 @@ class TestDrawnShortGate(unittest.TestCase):
         every real run and be useless."""
         bus = met1_bus.Met1Bus()
         bus.net("VSS")
-        bus.elbow(0.0, 0.0, 5.0, 5.0)
+        bus.hseg(0.0, 5.0, 0.0)
+        bus.vseg(5.0, 0.0, 5.0)
         bus.via(0.0, 0.0)
         bus.via(5.0, 5.0)
         bus.hseg(0.0, 5.0, 0.0)  # deliberately retraced over the elbow's leg
@@ -230,7 +231,8 @@ class TestComponentsGate(unittest.TestCase):
         bus = met1_bus.Met1Bus()
         bus.net("VSS")
         bus.via(0.0, 0.0)
-        bus.elbow(0.0, 0.0, 5.0, 5.0)
+        bus.hseg(0.0, 5.0, 0.0)
+        bus.vseg(5.0, 0.0, 5.0)
         bus.via(5.0, 5.0)
         self.assertEqual(bus.components(), {"VSS": 1})
 
@@ -357,7 +359,8 @@ class TestSplitRoutedNetsGate(unittest.TestCase):
         as two islands, and only the second is reported."""
         bus = met1_bus.Met1Bus()
         bus.net("TAIL")
-        bus.elbow(0.0, 0.0, 5.0, 5.0)
+        bus.hseg(0.0, 5.0, 0.0)
+        bus.vseg(5.0, 0.0, 5.0)
         bus.net("VDD")
         bus.hseg(20.0, 21.0, 20.0)
         bus.hseg(80.0, 81.0, 80.0)  # never reaches the first piece
