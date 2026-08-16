@@ -1,7 +1,7 @@
 {
   "slug": "line-regulation",
   "title": "Line regulation: untrimmed output shift across the full 3.3 V +/-10% supply range",
-  "claim": "README.md 'Target specification (DRAFT)' row 'Supply' (3.3 V +/-10%) read as an output-shift requirement, checked against the only bound the draft spec implies without inventing a number: the supply-induced shift must fit inside the entire +/-1% output-accuracy window (24 mV p-p on 1.20 V). NECESSARY, not sufficient -- a real budget gives line regulation a fraction of that window. Setting a dedicated line-regulation line item is issue #1's call; these numbers are its input. Records are PROVISIONAL against the draft spec until #1 ratifies it.",
+  "claim": "README.md 'Target specification (ratified -- see DR-005, issue #1)' row 'Supply' (3.3 V +/-10%) read as an output-shift requirement, checked against the only bound the ratified spec implies without inventing a number: the supply-induced shift must fit inside the entire +/-2% untrimmed output-accuracy window (48 mV p-p on 1.20 V). NECESSARY, not sufficient -- a real budget gives line regulation a fraction of that window. Setting a dedicated line-regulation line item remains a future spec pass's call; these numbers are its input.",
   "provenance": "schematic",
   "provenance_source": "sim/line-regulation/testbench/tb_vref_linereg.sch",
   "schematic": "testbench/tb_vref_linereg.sch",
@@ -50,8 +50,8 @@
       "name": "line_shift_mv",
       "expr": "(maximum(v(vref))-minimum(v(vref)))*1e3",
       "unit": "mV",
-      "max": 24.0,
-      "note": "Peak-to-peak VREF excursion across 2.97..3.63 V. Limit is the full +/-1% output-accuracy window (24 mV on 1.20 V) -- see the claim: necessary, not sufficient, and not a ratified line-regulation number. Meaningful only at the tightened solver tolerances set in deck.options; at ngspice's defaults this measurement is a readout of the solver's convergence noise floor rather than of the circuit."
+      "max": 48.0,
+      "note": "Peak-to-peak VREF excursion across 2.97..3.63 V. Limit is DR-005's full +/-2% untrimmed output-accuracy window (48 mV on 1.20 V) -- see the claim: necessary, not sufficient, and not a dedicated line-regulation spec number. Meaningful only at the tightened solver tolerances set in deck.options; at ngspice's defaults this measurement is a readout of the solver's convergence noise floor rather than of the circuit."
     },
     {
       "name": "line_reg_pct_per_v",
@@ -71,7 +71,7 @@
       "unit": "V",
       "min": 1.14,
       "max": 1.26,
-      "note": "VREF at the nominal 3.30 V supply. Loose +/-5% sanity band only -- the +/-1% output-accuracy claim belongs to sim/output-voltage-tc/, not to this bench. Here it is the normalization reference and a check that the core was actually regulating during the sweep."
+      "note": "VREF at the nominal 3.30 V supply. Loose +/-5% sanity band only -- the +/-2% output-accuracy claim belongs to sim/output-voltage-tc/, not to this bench. Here it is the normalization reference and a check that the core was actually regulating during the sweep."
     },
     {
       "name": "sweep_start_v",

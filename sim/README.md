@@ -19,6 +19,20 @@ ports read as one evidence trail. Extensions specific to this harness (PDK
 version pin, tool versions, machine-readable `.json` twin of each record,
 corner-sensitivity check) are documented below.
 
+### Draft-spec records (dated before 2026-08-11)
+
+The target spec was ratified on 2026-08-11 by
+[DR-005](../spec/decision-records/DR-005-ratify-target-spec.md) (output
+accuracy re-cast to ±2 % untrimmed / ±0.5 % trimmed) and its PSRR row amended
+by [DR-006](../spec/decision-records/DR-006-psrr-frequency-qualification.md).
+Any record under `sim/*/records/` with a record-id timestamp **before
+2026-08-11** was graded against the superseded DRAFT spec (its own claim text
+says so — look for "Target specification (DRAFT)" / "PROVISIONAL against the
+draft spec"). Per the append-only rule, those records are not edited or
+deleted; read them as draft-spec evidence, not as a statement about the
+ratified spec. Records dated 2026-08-11 or later cite DR-005 (and DR-006 for
+PSRR) and are graded against the ratified bounds.
+
 ---
 
 ## Quick start (cold machine)
@@ -212,7 +226,7 @@ experiments ship a bespoke run script next to their testbench instead of an
 |---|---|---|
 | `sim/pnp-mismatch/` | `run_pnp_mismatch.py` | N = 300 Monte Carlo samples per point; the PDK's `MC_MM_SWITCH` mismatch terms are re-drawn on each ngspice `reset` |
 | `sim/error-amp-offset-mc/` | `run_amp_offset_mc.py` | N = 300 Monte Carlo samples per point of the error amplifier's input-referred offset; same `MC_MM_SWITCH` resampling-per-`reset` need as `sim/pnp-mismatch/` |
-| `sim/monte-carlo-untrimmed/` | `run_mc_untrimmed.py` | N = 300 Monte Carlo samples per point, wrapping `sim/output-voltage-tc`'s own bench unmodified to report the untrimmed ±1 % claim's σ/yield with a PNP/resistor/amp-mirror contributor breakdown (issue #12); isolates each family by zeroing the PDK's own `sw_mm_*` coefficients for the other two |
+| `sim/monte-carlo-untrimmed/` | `run_mc_untrimmed.py` | N = 300 Monte Carlo samples per point, wrapping `sim/output-voltage-tc`'s own bench unmodified to report the untrimmed ±2 % claim's σ/yield with a PNP/resistor/amp-mirror contributor breakdown (issue #12); isolates each family by zeroing the PDK's own `sw_mm_*` coefficients for the other two |
 | `sim/trim-range-monotonicity/` | `run_trim_sweep.py` | Sweeps `design/bandgap_core.sch`'s own `n_r2_trim` trim-code parameter (issue #13); wraps `sim/output-voltage-tc`'s bench unmodified but needs a different value of a `.subckt`-internal `L=` parameter per run, which the corner runner's manifest-level `deck.params` cannot override (they land before the netlisted body; SPICE resolves that expression at `.subckt` definition time) — this script edits the netlisted body's own default line in place instead |
 | `sim/res-array-resize/` | `run_res_array_resize.py` | Re-derives and PVT-verifies `n_r1`/`n_r2` against the routed layout's real *chained*-array R1/R2A/R2B topology (issue #99, DR-003 follow-up); a *body-substitution* claim, not a `deck.params` override — it replaces each single `res_high_po` device line with a chain of separately-instantiated unit devices at the layout's own decomposition, parameterized on arbitrary `n_r1`/`n_r2`/trim code, extending `sim/res-array-head-resistance`'s Phase B pattern |
 | `sim/trim-lsb-chained/` | `run_trim_lsb_chained.py` | Re-derives DR-002's monotonic/span/LSB trim criteria against the chained fine-trim topology at the adopted `n_r1=7`/`n_r2=50` sizing, and verifies a fine-unit-length (`r_lseg_trim`) fix (issue #106, DR-002 revision); extends `sim/res-array-resize`'s body-substitution pattern with one more axis (candidate fine-trim unit length) it did not sweep |
@@ -241,7 +255,7 @@ post-layout re-run **conditional**: only if extraction "meaningfully shifts
 the operating point or the trim range," and the AC explicitly requires that
 judgment to be documented, not skipped silently. `sim/monte-carlo-untrimmed`
 wraps `sim/output-voltage-tc`'s bench unchanged and reports the untrimmed
-±1 % `vref` claim's mismatch-driven σ/yield, so the question this conditional
+±2 % `vref` claim's mismatch-driven σ/yield, so the question this conditional
 actually asks is: does the *extraction* (not any other change already
 committed to `design/bandgap_core.sch`) move `vref`'s nominal operating point
 or the resistor ratio the trim ladder walks enough to change that
@@ -259,7 +273,7 @@ completed post-layout benches above:
   operating point and that the trim ladder walks — moves by **−0.2 %** from
   parasitics alone (7.6301 drawn-only → 7.6148 extracted). A −0.2 % shift on
   the quantity a mismatch-driven yield/sigma claim is most sensitive to is
-  far below anything that would change which corners pass or fail a ±1 %
+  far below anything that would change which corners pass or fail a ±2 %
   window.
 - The much larger shifts the other benches document (`sim/quiescent-current-post-layout/`'s
   −35.8 % Iq, `sim/psrr-dc-post-layout/`'s −4.05 dB PSRR,
