@@ -19,6 +19,18 @@ ports read as one evidence trail. Extensions specific to this harness (PDK
 version pin, tool versions, machine-readable `.json` twin of each record,
 corner-sensitivity check) are documented below.
 
+### Block-level roll-up
+
+[`design/block-characterization-report.md`](../design/block-characterization-report.md)
+rolls every ratified spec row up into one current artifact (target / measured /
+binding corner / verdict / evidence citation), plus the DRC/LVS/PVT/Monte
+Carlo/post-layout verification-status summary and known blind spots (T1
+checklist item 8). It is a snapshot, not a live view: per its own regeneration
+rule, it goes stale the moment a new record lands under any `sim/*/records/`
+or `layout/**/reports/` directory it cites, or a spec/DR changes — re-derive
+its rows from the newest record on disk before trusting it, don't assume it
+tracks `main` automatically.
+
 ### Draft-graded vs. ratified-graded records — read the claim text, not the date
 
 The target spec was ratified on **2026-08-11** by
