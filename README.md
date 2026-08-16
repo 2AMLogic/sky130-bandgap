@@ -38,9 +38,19 @@ four accounting variants, and deliberately **not** adopted — doing so would
 regress `mismatch_count` and would state a resistance the fabricated
 cell does not have. See
 [`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)
-for the full record. Nothing here has been taped out or measured in
+for the full record. **Known gaps, disclosed here rather than only in the
+maturity ladder below**: two of the seven ratified spec rows currently fail
+at every corner on the freshest evidence — box-method temperature
+coefficient (191–268 ppm/°C measured, schematic and post-layout alike,
+against the ratified `< 50 ppm/°C` target) and untrimmed output accuracy
+(`vref` falls outside the ratified ±2% window over temperature, down to
+~1.130 V at hot corners) — tracked in #178. Separately, the sole Monte
+Carlo run on file predates both the ratified spec and the current design's
+error-amp resize, so the statistical evidence for the dominant accuracy
+term is stale (#180). Nothing here has been taped out or measured in
 silicon yet. See the maturity ladder below for where things currently
-stand.
+stand, and issue #175's ten-item T1/bronze checklist re-read (5/10 pass as
+of 2026-08-15) for the full evidence-tier accounting.
 
 **Built agent-native.** Every schematic, testbench, decision record, and
 line of documentation in this repo was produced by AI agents working from
@@ -76,8 +86,26 @@ seat → measured silicon over temperature. Current position: mid-ladder —
 bandgap-core layout is DRC-clean, fully routed, and `klt lvs`-clean
 (`mismatch_count: 0`), and the composed cell is within the Area budget
 relaxed to `< 0.08 mm²` by [DR-007](spec/decision-records/DR-007-mcc-area-budget.md)
-(operator-ratified) — a spec-conformant, layout-complete block, pending
-post-layout extraction (#16) and the operator tier award.
+(operator-ratified) — a **layout-complete** block. It is **not** currently
+spec-conformant: two of the seven ratified spec rows fail at every corner
+on the freshest evidence — box-method temp coefficient measures
+250–268 ppm/°C on the schematic and 191–209 ppm/°C on the extracted
+post-layout netlist, against the ratified `< 50 ppm/°C` target, and
+untrimmed `vref` falls outside the ratified ±2% window over temperature
+(down to ~1.130 V at hot corners); the remaining five ratified rows
+(PSRR, supply, Iq, area, startup) pass on the same-day reruns. See
+`sim/output-voltage-tc/records/20260815-030801-001d1b7.md` and
+`sim/output-voltage-tc-post-layout/records/20260815-035841-001d1b7.md`
+for the measured numbers; tracked in #178. Post-layout extraction itself is
+no longer pending — seven `sim/*-post-layout/` suites (line-regulation,
+output-voltage-tc, psrr-dc, quiescent-current, startup-ramp,
+startup-stability, startup-time) are committed with 2026-08-15 records.
+What remains: closing the TC/accuracy gap (#178), refreshing the stale
+Monte Carlo statistical evidence (#180), and the operator tier award.
+Issue #175's ten-item T1/bronze checklist re-read puts the block at
+**5/10 pass** (design sources, layout, DRC, LVS, testbenches), with items
+5 (PVT vs. ratified spec), 6 (Monte Carlo), and 8 (block-level
+characterization report) blocking — no bronze/T1 claim is made here.
 
 ## Environment setup
 
