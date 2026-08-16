@@ -468,17 +468,6 @@ class Met1Bus:
         self._rect(MET1_LAYER, x - h, min(y0, y1), x + h, max(y0, y1))
         self.wire_count += 1
 
-    def elbow(
-        self, x0: float, y0: float, x1: float, y1: float, vertical_first: bool = False
-    ) -> None:
-        """One orthogonal two-segment met1 path between two points."""
-        if vertical_first:
-            self.vseg(x0, y0, y1)
-            self.hseg(x0, x1, y1)
-        else:
-            self.hseg(x0, x1, y0)
-            self.vseg(x1, y0, y1)
-
     def label(self, net: str, x: float, y: float) -> None:
         """Name a met1 net so `klt extract` promotes it as a top-level pin."""
         self.labels.append({"layer": MET1_LABEL_LAYER, "text": net, "at_um": [x, y]})
