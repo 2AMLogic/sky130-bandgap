@@ -33,6 +33,13 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
+# sim_common.py lives alongside this file (sim/bin/) so it resolves whether
+# this module is run directly (Python auto-prepends the script's own
+# directory to sys.path) or loaded via sim_common.load_corner_run()'s
+# importlib shim (whose only caller already put sim/bin on sys.path before
+# importing sim_common in the first place) -- issue #191.
+import sim_common
+
 SIM_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = SIM_DIR.parent
 PDK_PIN_FILE = SIM_DIR / "pdk.json"
@@ -582,27 +589,15 @@ def spread_checks(exp: Experiment, results: list[dict]) -> list[dict]:
 def render_record(record: dict) -> str:
     r = record
     lines = [f"# Record {r['record_id']}", ""]
-    lines.append(f"- **Record ID**: {r['record_id']}")
-    lines.append(f"- **Experiment**: `{r['experiment']['slug']}` — {r['experiment']['title']}")
+    lines += sim_common.render_record_id_experiment(
+        r["record_id"], r["experiment"]["slug"], r["experiment"]["title"]
+    )
     lines.append(f"- **Claim**: {r['experiment']['claim']}")
     lines.append(
         f"- **Netlist provenance**: {r['experiment']['provenance']} "
         f"(`{r['experiment']['provenance_source']}`)"
     )
-    pdk = r["pdk"]
-    pin_state = "matches sim/pdk.json pin" if pdk["matches_pin"] else "**MISMATCH vs sim/pdk.json pin**"
-    lines.append(
-        f"- **PDK**: {pdk['variant']} @ open_pdks `{pdk['installed_commit']}` ({pin_state}); "
-        f"models `{pdk['lib_file']}`"
-    )
-    tools = r["tools"]
-    lines.append(
-        f"- **Tools**: {tools['ngspice']}; {tools['xschem']}; {tools['platform']}"
-    )
-    lines.append(
-        f"- **Repo state**: `{r['git']['sha']}` on `{r['git']['branch']}`"
-        + (" (working tree dirty at run time)" if r["git"]["dirty"] else " (clean working tree)")
-    )
+    lines += sim_common.render_pdk_tools_repo_state(r)
 
     matrix = r["matrix"]
     lines.append("- **Corner matrix run**:")
