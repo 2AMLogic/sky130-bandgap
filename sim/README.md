@@ -19,19 +19,47 @@ ports read as one evidence trail. Extensions specific to this harness (PDK
 version pin, tool versions, machine-readable `.json` twin of each record,
 corner-sensitivity check) are documented below.
 
-### Draft-spec records (dated before 2026-08-11)
+### Draft-graded vs. ratified-graded records — read the claim text, not the date
 
-The target spec was ratified on 2026-08-11 by
+The target spec was ratified on **2026-08-11** by
 [DR-005](../spec/decision-records/DR-005-ratify-target-spec.md) (output
 accuracy re-cast to ±2 % untrimmed / ±0.5 % trimmed) and its PSRR row amended
 by [DR-006](../spec/decision-records/DR-006-psrr-frequency-qualification.md).
-Any record under `sim/*/records/` with a record-id timestamp **before
-2026-08-11** was graded against the superseded DRAFT spec (its own claim text
-says so — look for "Target specification (DRAFT)" / "PROVISIONAL against the
-draft spec"). Per the append-only rule, those records are not edited or
-deleted; read them as draft-spec evidence, not as a statement about the
-ratified spec. Records dated 2026-08-11 or later cite DR-005 (and DR-006 for
-PSRR) and are graded against the ratified bounds.
+The benches that grade the untrimmed accuracy rows were only re-pointed at the
+ratified bounds on **2026-08-16** (issue #177) — five days later.
+
+**A record's date therefore does not tell you which spec it was graded
+against; its own claim text does.** A record is *draft-graded* iff its
+`**Claim**` line contains `Target specification (DRAFT)` or `PROVISIONAL
+against the draft spec`, and *ratified-graded* iff that line cites DR-005 (and
+DR-006 for the PSRR row). Grep the record rather than inferring from the
+record id:
+
+```bash
+# every draft-graded record on disk, whatever its date
+git grep -l "Target specification (DRAFT)\|PROVISIONAL against the draft spec" \
+  -- 'sim/*/records/*.md'
+```
+
+Consequences worth stating explicitly:
+
+- Every record dated **before 2026-08-11** is draft-graded (pre-ratification).
+- The **13 records dated 2026-08-11 → 2026-08-16** that the grep above still
+  returns are post-ratification *by date* but draft-graded *in fact* — they
+  were emitted in the gap between DR-005 and the bench re-pointing. Do not
+  read them as ratified-spec evidence.
+- The **still-unconverted benches** as of the 2026-08-16 re-pointing are the
+  post-layout wrappers `sim/line-regulation-post-layout/`,
+  `sim/quiescent-current-post-layout/` and `sim/startup-time-post-layout/`:
+  each inherits its wrapped bench's re-pointed manifest, so its *next* record
+  will be ratified-graded, but the newest record on disk today predates the
+  re-point and is draft-graded. (`sim/trim-range-monotonicity/` grades the
+  **trimmed** claim under DR-002 and is outside #177's untrimmed scope; its
+  runner still carries the draft sentence.)
+
+Per the append-only rule, no draft-graded record is ever edited or deleted;
+read them as draft-spec evidence and let a newer record carry the ratified
+verdict.
 
 ---
 
