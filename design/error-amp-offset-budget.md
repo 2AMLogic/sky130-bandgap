@@ -17,6 +17,19 @@ Sections 1–8 below are unmodified and describe the pre-#170 (`amp_m_in=16`)
 sizing and its N = 300 Monte Carlo evidence, which is still the most recent
 *measured* (not analytic) offset data on file.
 
+**Update (issue #180, see §10)**: the fresh Monte Carlo run §9 deferred is
+now done, against the current design (`amp_m_in=8`, `n_r2=51`) and graded
+against DR-005's **ratified** ±2 % untrimmed row rather than the superseded
+±1 % draft this Status block and §§1–9 still describe. Measured σ(VOS) came
+in *below* §9's analytic estimate, and — because the ratified window is
+twice the draft's — **the amplifier's VOS allocation now reads MET, with
+19–21 % margin**, reversing §3's "not met" verdict stated two paragraphs
+below. §3/§6's "not met" text is left as-is (it was correct against the
+spec it graded); §10 is the current answer to "does the amplifier meet its
+offset allocation," and the ±1 % figures in this Status block and the
+Headline paragraph immediately below are historical (draft-spec) figures,
+not the current claim.
+
 **Headline**: with the amplifier in `design/error_amp.sch` and the core in
 `design/bandgap_core.sch`, the untrimmed reference's **local-mismatch spread
 alone is 1.41 % (3 σ) at 27 °C and 1.54 % at 125 °C** of a 1.2 V output —
@@ -477,3 +490,94 @@ table — none of those depend on `design/error_amp.sch`'s sizing, so
 `amp_m_in`'s change does not move them, and the RSS closure check in §2
 would need a fresh Monte Carlo run (not done here, see above) to re-verify
 against a real σ(VOUT) measurement rather than an analytic estimate.
+
+---
+
+## 10. Update (issue #180): §9's estimate replaced by a real measurement, and the allocation re-derived against the ratified ±2 % spec
+
+§9 said running a fresh Monte Carlo point was "future work, not done here."
+This is that run: `sim/error-amp-offset-mc/records/20260817-130441-aa5324e`
+(supersedes `20260803-084950-e599e30`, N = 300 per temperature, `tt_mm`,
+−40/27/125 °C, 3.30 V, MC-off control + second-seed check, `setseed
+20260803`) — **PASS**, 5/5 points, at the current design: `amp_m_in = 8`
+(issue #170) **and** `n_r2 = 51` chained-array resistor sizing (issue #178),
+both post-dating every number in §§1–9. It also re-points this budget's own
+claim line off the superseded draft ±1 % window onto DR-005's ratified rows
+(see the record's own `**Claim**` line) and updates the output-referred
+Kuijk gain conversion `K = R2/R1` from §1's 7.497 (single-device, `n_r2=54`
+model) to **7.773** (the routed chain's own value at `n_r2=51`, sourced from
+`design/bandgap_core.sch`'s SIZING derivation) — the resistor-ratio term
+itself is still measured on the pre-#178 single-device proxy geometry
+(`L = 270/35 µm`); see the record's own scope-limit note 4 for why that
+residual approximation is judged second-order here.
+
+### §9's estimate vs. the real measurement, at 27 °C
+
+| | σ(VOS), 1 σ | output-referred, 3 σ (% of 1.2 V) |
+|---|---|---|
+| §9 analytic estimate (× 1.13 correction) | ~0.688 mV | ~1.66 % |
+| **§10 measured** | **0.6254 mV** | **1.510 %** |
+| pre-#170 measured (§2, for scale) | 0.5246 mV | 1.266 % |
+
+The estimate was **conservative**: measured σ(VOS) is 9.1 % *below* the
+analytic figure, not above it. §9's own `× 1.13` correction factor was
+carried forward from the pre-#170 measured-vs-analytic gap without being
+re-verified at the new sizing — this record shows the correction over-shot
+at `amp_m_in = 8`, not that the underlying `gm`-ratio formula was wrong in
+direction. σ(VOS) still grew from pre-#170's measured 0.5246 mV to 0.6254 mV
+(19.2 %, vs. the RSS-formula's predicted 30.7 %) — #170's PSRR fix still
+costs offset budget, just less than §9 estimated.
+
+### The full measured budget, all three temperatures
+
+| T (°C) | amp VOS (out., 3 σ) | PNP ΔVBE | PNP V_EB | resistor ratio | RSS | **measured σ(VOUT)** |
+|---|---|---|---|---|---|---|
+| −40 | 1.579 % | 0.262 % | 0.033 % | 0.376 % | 1.644 % | **1.706 %** |
+| 27 | 1.510 % | 0.310 % | 0.040 % | 0.477 % | 1.614 % | **1.720 %** |
+| 125 | 1.470 % | 0.433 % | 0.054 % | 0.618 % | 1.654 % | **1.826 %** |
+
+(all output-referred, 3 σ, as a fraction of a 1.2 V reference; RSS closure
+to measured σ(VOUT) is 96–104 % at the three temperatures — see the
+record's own `budget_closure` checks.)
+
+### The allocation, re-derived against the ratified ±2 % row — the amplifier now meets it
+
+§3's allocation table was built against the draft ±1 % window (12.0 mV,
+3 σ) and the pre-#178 fixed terms; DR-005 ratified ±2 % (24.0 mV, 3 σ)
+instead. Redoing §3's arithmetic — allocation left for the amplifier is
+whatever remains after the three fixed terms (PNP + V_EB + resistor, this
+record's own measured values) are subtracted in quadrature from the ratified
+window:
+
+| T (°C) | fixed terms (3 σ) | allocation left for amp VOS (3 σ) | allowed σ(VOS), 1 σ | **measured σ(VOS)** | margin |
+|---|---|---|---|---|---|
+| −40 | 0.460 % | 1.947 % | 0.806 mV | **0.654 mV** | **19 % under** |
+| 27 | 0.570 % | 1.917 % | 0.794 mV | **0.625 mV** | **21 % under** |
+| 125 | 0.757 % | 1.851 % | 0.767 mV | **0.609 mV** | **21 % under** |
+
+**Acceptance criterion "amp meets its VOS allocation", re-graded against the
+ratified spec: MET**, with 19–21 % margin at every temperature —
+reversing §3's "NOT MET" verdict (1.53–1.88× *over* allocation against the
+draft ±1 % line). This is not a re-litigation of §3 or §6: both were
+correct readings of the draft spec that governed them at the time, and
+§6's qualitative point (a Kuijk core's `R2/R1` gain gain multiplies
+amplifier offset into the output, so the amplifier term is structurally the
+one to watch) stands. What changed is the spec window DR-005 ratified is
+twice the draft's, and that is enough by itself to flip this one line from
+FAIL to PASS even with `amp_m_in` halved.
+
+**What this does and does not mean for the design.** This budget's mismatch
+only figures (1.706–1.826 % at 3 σ, the table above) are comfortably inside
+the ratified ±2 % window at every temperature — but `sim/monte-carlo-untrimmed`'s
+own record (which measures the same claim end-to-end, not by RSS-summing
+independent terms) reports lower yields at the process corner it samples
+(79.4–95.7 % of converged draws inside the window across the three
+temperatures; see that record for the `all`-config table) because it also
+carries interactions and the operating-point solve-yield exclusion this
+term-by-term budget does not model. The two are cross-checks of each other,
+not restatements: this section closes §9's "estimate, not evidence" gap for
+the amplifier's own offset term specifically, it does not supersede
+`sim/monte-carlo-untrimmed` as the record of the untrimmed accuracy claim
+itself, and it says nothing about the temperature-coefficient row (#178/#179,
+still failing on the newest evidence) or the trimmed ±0.5 % row (no Monte
+Carlo evidence yet — see `sim/monte-carlo-untrimmed`'s own scope-limit note).

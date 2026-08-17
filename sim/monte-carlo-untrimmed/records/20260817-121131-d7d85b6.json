@@ -1,0 +1,968 @@
+{
+  "record_id": "20260817-121131-d7d85b6",
+  "timestamp": "2026-08-17T12:11:31Z",
+  "author": "ci@loom.test",
+  "supersedes": "20260816-091855-69a8867",
+  "experiment": {
+    "slug": "monte-carlo-untrimmed",
+    "title": "Monte Carlo mismatch sigma and yield against the untrimmed +/-2% output-accuracy window, with a PNP / resistor / amp-mirror contributor breakdown",
+    "claim": "README.md 'Target specification (ratified -- see DR-005, issue #1)' row 'Output reference' (1.20 V +/-2% untrimmed, 3sigma mismatch MC N>=300 + process corners, -40...125 degC) -- but read as a MISMATCH claim, not the corner-matrix claim issue #11 already substantiates. Process-corner sims move every device the same direction together; the untrimmed spread that actually determines whether a real part lands inside +/-2% is set by how far a real PNP, resistor, or MOS device drifts from its neighbor, i.e. LOCAL MISMATCH, which only Monte Carlo over sky130's mismatch models can quantify. Wraps issue #11's own output-voltage bench (sim/output-voltage-tc/testbench/tb_vref_tc.sch, unmodified) rather than re-deriving the v(vref) extraction. Feeds issue #13 (does the design need a trim network, and what range) and issue #15 (layout matching priority, from the contributor breakdown).",
+    "provenance": "schematic",
+    "provenance_source": "sim/output-voltage-tc/testbench/tb_vref_tc.sch",
+    "statistical_convention": "N = 300 Monte Carlo samples per point, local mismatch only (section tt_mm: MC_MM_SWITCH=1, MC_PR_SWITCH=0); 1 sigma sample standard deviation (N-1), fixed setseed 20260803"
+  },
+  "mismatch_model": {
+    "switch": "MC_MM_SWITCH (set by the .lib section: 0 in tt/ss/ff/sf/fs, 1 in *_mm)",
+    "sections": {
+      "mismatch": "tt_mm",
+      "control": "tt"
+    },
+    "isolation": {
+      "mechanism": "per-family .param override of the PDK's own sw_mm_* coefficients, placed after the .lib include (last-definition-wins in ngspice)",
+      "pnp_coefficients": [
+        "sw_mm_sky130_fd_pr__pnp_05v5_W0p68L0p68_is",
+        "sw_mm_sky130_fd_pr__pnp_05v5_W0p68L0p68_bf"
+      ],
+      "resistor_coefficients": [
+        "sw_mm_sky130_fd_pr__res_high_po",
+        "sw_mm_sky130_fd_pr__res_generic_po_head"
+      ],
+      "mos_coefficients": [
+        "sw_mm_vth0_sky130_fd_pr__nfet_g5v0d10v5",
+        "sw_mm_vth0_sky130_fd_pr__pfet_g5v0d10v5"
+      ]
+    },
+    "source": "libs.tech/combined/continuous/models_*.spice + models_global.spice"
+  },
+  "spec_window_v": [
+    1.176,
+    1.224
+  ],
+  "statistics": {
+    "n_samples": 300,
+    "seed_a": 20260803,
+    "seed_b": 20260804
+  },
+  "pdk": {
+    "root": "/Users/rwalters/.volare",
+    "variant": "sky130A",
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "pinned_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "matches_pin": true,
+    "lib_file": "/Users/rwalters/.volare/sky130A/libs.tech/combined/sky130.lib.spice"
+  },
+  "tools": {
+    "ngspice": "ngspice-47 : Circuit level simulation program",
+    "xschem": "XSCHEM V3.4.7",
+    "platform": "Darwin 25.6.0 arm64",
+    "python": "3.14.7"
+  },
+  "git": {
+    "sha": "d7d85b6",
+    "branch": "feature/issue-180",
+    "dirty": false
+  },
+  "points": [
+    {
+      "corner_id": "tt_mm_all_-40c_3.30v",
+      "role": "mismatch",
+      "config": "all",
+      "purpose": "local-mismatch distribution, all families (the spec claim), at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "converged_samples": 238,
+      "excluded_samples": 62,
+      "excluded_vout_v": [
+        0.5614064,
+        0.5046997,
+        0.5243385,
+        0.501652,
+        0.5071185,
+        0.5348794,
+        0.566261,
+        0.4508052,
+        0.5249476,
+        0.5077287,
+        0.5630038,
+        0.5345999,
+        0.5407701,
+        0.5298023,
+        0.4698124,
+        0.5332581,
+        0.5128526,
+        0.5212232,
+        0.4938878,
+        0.5293215,
+        0.5332317,
+        0.5662383,
+        0.6295749,
+        0.5138229,
+        0.5688011,
+        0.5635216,
+        0.5390276,
+        0.4753348,
+        0.5198304,
+        0.5064122,
+        0.4201344,
+        0.5240407,
+        0.4872961,
+        0.5733886,
+        0.5051158,
+        0.5725891,
+        0.6630969,
+        0.5266348,
+        0.5600687,
+        0.4975181,
+        0.5798185,
+        0.4951216,
+        0.4970254,
+        0.5244544,
+        0.5748198,
+        0.5226954,
+        0.5659849,
+        0.5236192,
+        0.5267598,
+        0.507542,
+        0.5483743,
+        0.5362951,
+        0.5095532,
+        0.5349273,
+        0.6595722,
+        0.5492786,
+        0.6415884,
+        0.5623839,
+        0.5532191,
+        0.6578683,
+        0.5863141,
+        0.4899057
+      ],
+      "stats": {
+        "vout": {
+          "n": 238,
+          "mean": 1.2188397773109243,
+          "sigma": 0.006770763689076938,
+          "min": 1.192778,
+          "max": 1.233907
+        }
+      },
+      "spec_yield": 0.7941176470588235,
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "238/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 62 landed on the core's other stable branch and are excluded from sigma/yield below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and is also sensitive to the testbench `.nodeset`; not a startup-yield prediction for silicon. Excluded VOUT values: 0.5614 V, 0.5047 V, 0.5243 V, 0.5017 V, 0.5071 V, 0.5349 V, 0.5663 V, 0.4508 V ..."
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 6.7708 mV (a zero here means the mismatch switch, or this config's coefficient set, never reached the models)"
+        },
+        {
+          "name": "yield_ge_50pct",
+          "pass": true,
+          "detail": "79.4% of converged draws land inside the +/-2% window [1.176, 1.224] V (sanity floor only -- the yield number itself is the deliverable, not a pass/fail spec claim; see the Result section)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_pnp_-40c_3.30v",
+      "role": "mismatch",
+      "config": "pnp",
+      "purpose": "local-mismatch distribution, PNP array only (Q1 CTAT + Q2 PTAT), at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "converged_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vout": {
+          "n": 300,
+          "mean": 1.2164871166666666,
+          "sigma": 0.001257103799585381,
+          "min": 1.212752,
+          "max": 1.220336
+        }
+      },
+      "spec_yield": 1.0,
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from sigma/yield below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and is also sensitive to the testbench `.nodeset`; not a startup-yield prediction for silicon."
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 1.2571 mV (a zero here means the mismatch switch, or this config's coefficient set, never reached the models)"
+        },
+        {
+          "name": "yield_ge_50pct",
+          "pass": true,
+          "detail": "100.0% of converged draws land inside the +/-2% window [1.176, 1.224] V (sanity floor only -- the yield number itself is the deliverable, not a pass/fail spec claim; see the Result section)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_resistor_-40c_3.30v",
+      "role": "mismatch",
+      "config": "resistor",
+      "purpose": "local-mismatch distribution, PTAT/output resistor network only (R1, R2A, R2B), at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "converged_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vout": {
+          "n": 300,
+          "mean": 1.2167308666666665,
+          "sigma": 0.002231561849883416,
+          "min": 1.210987,
+          "max": 1.224635
+        }
+      },
+      "spec_yield": 0.9966666666666667,
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from sigma/yield below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and is also sensitive to the testbench `.nodeset`; not a startup-yield prediction for silicon."
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 2.2316 mV (a zero here means the mismatch switch, or this config's coefficient set, never reached the models)"
+        },
+        {
+          "name": "yield_ge_50pct",
+          "pass": true,
+          "detail": "99.7% of converged draws land inside the +/-2% window [1.176, 1.224] V (sanity floor only -- the yield number itself is the deliverable, not a pass/fail spec claim; see the Result section)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_mos_-40c_3.30v",
+      "role": "mismatch",
+      "config": "mos",
+      "purpose": "local-mismatch distribution, amp/mirror MOS only (error_amp diff pair + mirrors + XMPOUT/XMPAMP), at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "converged_samples": 240,
+      "excluded_samples": 60,
+      "excluded_vout_v": [
+        0.5612584,
+        0.6446489,
+        0.5533326,
+        0.5016123,
+        0.5308931,
+        0.5072652,
+        0.5345281,
+        0.5663053,
+        0.4505818,
+        0.5230919,
+        0.5296219,
+        0.6530472,
+        0.6242829,
+        0.5397786,
+        0.5248687,
+        0.5217184,
+        0.5685183,
+        0.580034,
+        0.5153777,
+        0.5405051,
+        0.5807609,
+        0.470213,
+        0.5422132,
+        0.5128133,
+        0.5212801,
+        0.4943355,
+        0.5297483,
+        0.4916625,
+        0.5660214,
+        0.6523085,
+        0.5354094,
+        0.5635165,
+        0.5389292,
+        0.4752885,
+        0.5199559,
+        0.5064491,
+        0.673151,
+        0.5239694,
+        0.4874854,
+        0.5536944,
+        0.5056122,
+        0.5725271,
+        0.5114504,
+        0.5249367,
+        0.5267434,
+        0.5797295,
+        0.4953634,
+        0.4967888,
+        0.5244876,
+        0.5794498,
+        0.579126,
+        0.5461604,
+        0.5226034,
+        0.5487108,
+        0.5098234,
+        0.5504147,
+        0.5621166,
+        0.5297783,
+        0.5025561,
+        0.5603537
+      ],
+      "stats": {
+        "vout": {
+          "n": 240,
+          "mean": 1.21855025,
+          "sigma": 0.006403043595394206,
+          "min": 1.194584,
+          "max": 1.234691
+        }
+      },
+      "spec_yield": 0.8458333333333333,
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "240/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 60 landed on the core's other stable branch and are excluded from sigma/yield below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and is also sensitive to the testbench `.nodeset`; not a startup-yield prediction for silicon. Excluded VOUT values: 0.5613 V, 0.6446 V, 0.5533 V, 0.5016 V, 0.5309 V, 0.5073 V, 0.5345 V, 0.5663 V ..."
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 6.4030 mV (a zero here means the mismatch switch, or this config's coefficient set, never reached the models)"
+        },
+        {
+          "name": "yield_ge_50pct",
+          "pass": true,
+          "detail": "84.6% of converged draws land inside the +/-2% window [1.176, 1.224] V (sanity floor only -- the yield number itself is the deliverable, not a pass/fail spec claim; see the Result section)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_all_27c_3.30v",
+      "role": "mismatch",
+      "config": "all",
+      "purpose": "local-mismatch distribution, all families (the spec claim), at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "converged_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vout": {
+          "n": 300,
+          "mean": 1.2111722466666668,
+          "sigma": 0.007144927594706675,
+          "min": 1.187878,
+          "max": 1.228211
+        }
+      },
+      "spec_yield": 0.9566666666666667,
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from sigma/yield below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and is also sensitive to the testbench `.nodeset`; not a startup-yield prediction for silicon."
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 7.1449 mV (a zero here means the mismatch switch, or this config's coefficient set, never reached the models)"
+        },
+        {
+          "name": "yield_ge_50pct",
+          "pass": true,
+          "detail": "95.7% of converged draws land inside the +/-2% window [1.176, 1.224] V (sanity floor only -- the yield number itself is the deliverable, not a pass/fail spec claim; see the Result section)"
+        }
+      ],
+      "pass": true,
+      "convergence": [
+        {
+          "n": 5,
+          "sigma": 0.007871927889659527,
+          "mean": 1.2110838000000002
+        },
+        {
+          "n": 10,
+          "sigma": 0.00876902465436658,
+          "mean": 1.2119685
+        },
+        {
+          "n": 15,
+          "sigma": 0.009299209537835538,
+          "mean": 1.2094407999999999
+        },
+        {
+          "n": 20,
+          "sigma": 0.008188476624597454,
+          "mean": 1.2101388
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_mm_pnp_27c_3.30v",
+      "role": "mismatch",
+      "config": "pnp",
+      "purpose": "local-mismatch distribution, PNP array only (Q1 CTAT + Q2 PTAT), at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "converged_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vout": {
+          "n": 300,
+          "mean": 1.21037295,
+          "sigma": 0.0015004754032035097,
+          "min": 1.206314,
+          "max": 1.215305
+        }
+      },
+      "spec_yield": 1.0,
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from sigma/yield below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and is also sensitive to the testbench `.nodeset`; not a startup-yield prediction for silicon."
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 1.5005 mV (a zero here means the mismatch switch, or this config's coefficient set, never reached the models)"
+        },
+        {
+          "name": "yield_ge_50pct",
+          "pass": true,
+          "detail": "100.0% of converged draws land inside the +/-2% window [1.176, 1.224] V (sanity floor only -- the yield number itself is the deliverable, not a pass/fail spec claim; see the Result section)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_resistor_27c_3.30v",
+      "role": "mismatch",
+      "config": "resistor",
+      "purpose": "local-mismatch distribution, PTAT/output resistor network only (R1, R2A, R2B), at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "converged_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vout": {
+          "n": 300,
+          "mean": 1.21069971,
+          "sigma": 0.0028329466676895276,
+          "min": 1.203725,
+          "max": 1.220878
+        }
+      },
+      "spec_yield": 1.0,
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from sigma/yield below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and is also sensitive to the testbench `.nodeset`; not a startup-yield prediction for silicon."
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 2.8329 mV (a zero here means the mismatch switch, or this config's coefficient set, never reached the models)"
+        },
+        {
+          "name": "yield_ge_50pct",
+          "pass": true,
+          "detail": "100.0% of converged draws land inside the +/-2% window [1.176, 1.224] V (sanity floor only -- the yield number itself is the deliverable, not a pass/fail spec claim; see the Result section)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_mos_27c_3.30v",
+      "role": "mismatch",
+      "config": "mos",
+      "purpose": "local-mismatch distribution, amp/mirror MOS only (error_amp diff pair + mirrors + XMPOUT/XMPAMP), at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "converged_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vout": {
+          "n": 300,
+          "mean": 1.2108477833333333,
+          "sigma": 0.006557731381554983,
+          "min": 1.189371,
+          "max": 1.228131
+        }
+      },
+      "spec_yield": 0.9766666666666667,
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from sigma/yield below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and is also sensitive to the testbench `.nodeset`; not a startup-yield prediction for silicon."
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 6.5577 mV (a zero here means the mismatch switch, or this config's coefficient set, never reached the models)"
+        },
+        {
+          "name": "yield_ge_50pct",
+          "pass": true,
+          "detail": "97.7% of converged draws land inside the +/-2% window [1.176, 1.224] V (sanity floor only -- the yield number itself is the deliverable, not a pass/fail spec claim; see the Result section)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_all_125c_3.30v",
+      "role": "mismatch",
+      "config": "all",
+      "purpose": "local-mismatch distribution, all families (the spec claim), at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "converged_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vout": {
+          "n": 300,
+          "mean": 1.18714367,
+          "sigma": 0.007346606961533842,
+          "min": 1.165613,
+          "max": 1.20533
+        }
+      },
+      "spec_yield": 0.9333333333333333,
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from sigma/yield below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and is also sensitive to the testbench `.nodeset`; not a startup-yield prediction for silicon."
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 7.3466 mV (a zero here means the mismatch switch, or this config's coefficient set, never reached the models)"
+        },
+        {
+          "name": "yield_ge_50pct",
+          "pass": true,
+          "detail": "93.3% of converged draws land inside the +/-2% window [1.176, 1.224] V (sanity floor only -- the yield number itself is the deliverable, not a pass/fail spec claim; see the Result section)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_pnp_125c_3.30v",
+      "role": "mismatch",
+      "config": "pnp",
+      "purpose": "local-mismatch distribution, PNP array only (Q1 CTAT + Q2 PTAT), at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "converged_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vout": {
+          "n": 300,
+          "mean": 1.18632279,
+          "sigma": 0.0019998487332177103,
+          "min": 1.181226,
+          "max": 1.192697
+        }
+      },
+      "spec_yield": 1.0,
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from sigma/yield below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and is also sensitive to the testbench `.nodeset`; not a startup-yield prediction for silicon."
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 1.9998 mV (a zero here means the mismatch switch, or this config's coefficient set, never reached the models)"
+        },
+        {
+          "name": "yield_ge_50pct",
+          "pass": true,
+          "detail": "100.0% of converged draws land inside the +/-2% window [1.176, 1.224] V (sanity floor only -- the yield number itself is the deliverable, not a pass/fail spec claim; see the Result section)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_resistor_125c_3.30v",
+      "role": "mismatch",
+      "config": "resistor",
+      "purpose": "local-mismatch distribution, PTAT/output resistor network only (R1, R2A, R2B), at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "converged_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vout": {
+          "n": 300,
+          "mean": 1.18673471,
+          "sigma": 0.0036234515621587945,
+          "min": 1.177276,
+          "max": 1.199783
+        }
+      },
+      "spec_yield": 1.0,
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from sigma/yield below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and is also sensitive to the testbench `.nodeset`; not a startup-yield prediction for silicon."
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 3.6235 mV (a zero here means the mismatch switch, or this config's coefficient set, never reached the models)"
+        },
+        {
+          "name": "yield_ge_50pct",
+          "pass": true,
+          "detail": "100.0% of converged draws land inside the +/-2% window [1.176, 1.224] V (sanity floor only -- the yield number itself is the deliverable, not a pass/fail spec claim; see the Result section)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_mos_125c_3.30v",
+      "role": "mismatch",
+      "config": "mos",
+      "purpose": "local-mismatch distribution, amp/mirror MOS only (error_amp diff pair + mirrors + XMPOUT/XMPAMP), at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "converged_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vout": {
+          "n": 300,
+          "mean": 1.1867493366666668,
+          "sigma": 0.0063353709388716305,
+          "min": 1.166164,
+          "max": 1.203845
+        }
+      },
+      "spec_yield": 0.9533333333333334,
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from sigma/yield below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and is also sensitive to the testbench `.nodeset`; not a startup-yield prediction for silicon."
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 6.3354 mV (a zero here means the mismatch switch, or this config's coefficient set, never reached the models)"
+        },
+        {
+          "name": "yield_ge_50pct",
+          "pass": true,
+          "detail": "95.3% of converged draws land inside the +/-2% window [1.176, 1.224] V (sanity floor only -- the yield number itself is the deliverable, not a pass/fail spec claim; see the Result section)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_27c_3.30v_mm-off",
+      "role": "control",
+      "config": "all",
+      "purpose": "control: identical deck on the plain `tt` section (MC_MM_SWITCH=0), no coefficient overrides; every sigma must come back exactly 0, which is what proves the spread above is the mismatch switch and not solver noise or a re-randomised bias point",
+      "section": "tt",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 30,
+      "parsed_samples": 30,
+      "converged_samples": 30,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vout": {
+          "n": 30,
+          "mean": 1.210372,
+          "sigma": 0.0,
+          "min": 1.210372,
+          "max": 1.210372
+        }
+      },
+      "spec_yield": 1.0,
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 30 samples, expected 30"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "30/30 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from sigma/yield below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and is also sensitive to the testbench `.nodeset`; not a startup-yield prediction for silicon."
+        },
+        {
+          "name": "sigma_zero[vout]",
+          "pass": true,
+          "detail": "sigma = 0 V with MC_MM_SWITCH=0 and no coefficient overrides (must be exactly 0)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_all_27c_3.30v_seed-b",
+      "role": "seed-check",
+      "config": "all",
+      "purpose": "seed-stability: same point (all families), different setseed -- the samples must change while sigma must not, i.e. the reported spread is a property of the model, not of one lucky draw",
+      "section": "tt_mm",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260804,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "converged_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vout": {
+          "n": 300,
+          "mean": 1.2101525433333333,
+          "sigma": 0.006734246306194718,
+          "min": 1.191855,
+          "max": 1.232991
+        }
+      },
+      "spec_yield": 0.9766666666666667,
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from sigma/yield below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and is also sensitive to the testbench `.nodeset`; not a startup-yield prediction for silicon."
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 6.7342 mV (a zero here means the mismatch switch, or this config's coefficient set, never reached the models)"
+        },
+        {
+          "name": "yield_ge_50pct",
+          "pass": true,
+          "detail": "97.7% of converged draws land inside the +/-2% window [1.176, 1.224] V (sanity floor only -- the yield number itself is the deliverable, not a pass/fail spec claim; see the Result section)"
+        }
+      ],
+      "pass": true
+    }
+  ],
+  "cross_point_checks": [
+    {
+      "name": "decomposition_closure[-40C]",
+      "pass": true,
+      "detail": "sigma(all)=6.7708 mV vs RSS(pnp=1.2571, resistor=2.2316, mos=6.4030)=6.8963 mV (ratio 0.982, band 0.75-1.35); the three families' mismatch draws are statistically independent (different device parameters, different AGAUSS() terms), so the total is expected to reproduce the root-sum-square of the isolated parts"
+    },
+    {
+      "name": "isolation_bounded[pnp,-40C]",
+      "pass": true,
+      "detail": "sigma(pnp)=1.2571 mV must not exceed sigma(all)=6.7708 mV by more than 115% -- catches a coefficient-override that silently failed to isolate anything (i.e. still reads the full combined spread)"
+    },
+    {
+      "name": "isolation_bounded[resistor,-40C]",
+      "pass": true,
+      "detail": "sigma(resistor)=2.2316 mV must not exceed sigma(all)=6.7708 mV by more than 115% -- catches a coefficient-override that silently failed to isolate anything (i.e. still reads the full combined spread)"
+    },
+    {
+      "name": "isolation_bounded[mos,-40C]",
+      "pass": true,
+      "detail": "sigma(mos)=6.4030 mV must not exceed sigma(all)=6.7708 mV by more than 115% -- catches a coefficient-override that silently failed to isolate anything (i.e. still reads the full combined spread)"
+    },
+    {
+      "name": "decomposition_closure[27C]",
+      "pass": true,
+      "detail": "sigma(all)=7.1449 mV vs RSS(pnp=1.5005, resistor=2.8329, mos=6.5577)=7.2994 mV (ratio 0.979, band 0.75-1.35); the three families' mismatch draws are statistically independent (different device parameters, different AGAUSS() terms), so the total is expected to reproduce the root-sum-square of the isolated parts"
+    },
+    {
+      "name": "isolation_bounded[pnp,27C]",
+      "pass": true,
+      "detail": "sigma(pnp)=1.5005 mV must not exceed sigma(all)=7.1449 mV by more than 115% -- catches a coefficient-override that silently failed to isolate anything (i.e. still reads the full combined spread)"
+    },
+    {
+      "name": "isolation_bounded[resistor,27C]",
+      "pass": true,
+      "detail": "sigma(resistor)=2.8329 mV must not exceed sigma(all)=7.1449 mV by more than 115% -- catches a coefficient-override that silently failed to isolate anything (i.e. still reads the full combined spread)"
+    },
+    {
+      "name": "isolation_bounded[mos,27C]",
+      "pass": true,
+      "detail": "sigma(mos)=6.5577 mV must not exceed sigma(all)=7.1449 mV by more than 115% -- catches a coefficient-override that silently failed to isolate anything (i.e. still reads the full combined spread)"
+    },
+    {
+      "name": "decomposition_closure[125C]",
+      "pass": true,
+      "detail": "sigma(all)=7.3466 mV vs RSS(pnp=1.9998, resistor=3.6235, mos=6.3354)=7.5674 mV (ratio 0.971, band 0.75-1.35); the three families' mismatch draws are statistically independent (different device parameters, different AGAUSS() terms), so the total is expected to reproduce the root-sum-square of the isolated parts"
+    },
+    {
+      "name": "isolation_bounded[pnp,125C]",
+      "pass": true,
+      "detail": "sigma(pnp)=1.9998 mV must not exceed sigma(all)=7.3466 mV by more than 115% -- catches a coefficient-override that silently failed to isolate anything (i.e. still reads the full combined spread)"
+    },
+    {
+      "name": "isolation_bounded[resistor,125C]",
+      "pass": true,
+      "detail": "sigma(resistor)=3.6235 mV must not exceed sigma(all)=7.3466 mV by more than 115% -- catches a coefficient-override that silently failed to isolate anything (i.e. still reads the full combined spread)"
+    },
+    {
+      "name": "isolation_bounded[mos,125C]",
+      "pass": true,
+      "detail": "sigma(mos)=6.3354 mV must not exceed sigma(all)=7.3466 mV by more than 115% -- catches a coefficient-override that silently failed to isolate anything (i.e. still reads the full combined spread)"
+    },
+    {
+      "name": "seed_sigma_stable[vout]",
+      "pass": true,
+      "detail": "sigma(seed 20260804) / sigma(seed 20260803) = 0.943 (6.7342 mV vs 7.1449 mV; tolerance +/-25%)"
+    },
+    {
+      "name": "seed_sample_differs[vout]",
+      "pass": true,
+      "detail": "worst-sample VOUT differs between the two seeds (1.228211 V vs 1.232991 V), i.e. the draw really did change"
+    },
+    {
+      "name": "sample_count_sufficient",
+      "pass": true,
+      "detail": "running sigma(VOUT) at N=15 vs N=20 (same seed stream, the 20-sample run's first 15 draws are identical to a standalone 15-sample run): 9.2992 mV -> 8.1885 mV, relative change 11.9% (tolerance 20%). Full checkpoint series: N=5: 7.8719 mV, N=10: 8.7690 mV, N=15: 9.2992 mV, N=20: 8.1885 mV"
+    }
+  ],
+  "overall_pass": true,
+  "links": {
+    "testbench": "sim/output-voltage-tc/testbench/tb_vref_tc.sch",
+    "runner": "sim/monte-carlo-untrimmed/run_mc_untrimmed.py",
+    "netlist_snapshot": "sim/monte-carlo-untrimmed/netlist-snapshots/20260817-121131-d7d85b6.spice",
+    "logs": "sim/monte-carlo-untrimmed/corners/20260817-121131-d7d85b6",
+    "record_json": "sim/monte-carlo-untrimmed/records/20260817-121131-d7d85b6.json",
+    "device_characterization": "design/device-characterization-summary.md",
+    "klt_yield_input": "sim/monte-carlo-untrimmed/records/20260817-121131-d7d85b6-klt-yield-input.json",
+    "klt_yield_envelope": "sim/monte-carlo-untrimmed/records/20260817-121131-d7d85b6-klt-yield.json"
+  }
+}

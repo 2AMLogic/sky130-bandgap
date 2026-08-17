@@ -332,15 +332,21 @@ completed post-layout benches above:
   new mechanism, and nothing that touches `vref`'s nominal value or the trim
   ladder directly.
 
-**What this judgment call does not close.** `sim/monte-carlo-untrimmed`'s own
-newest record (`20260803-142259-544cc5e`) predates the DR-003 resize
-(`n_r2` 54→50, later 42) the same way the pre-this-increment
+**What this judgment call did not close, at the time it was written.**
+`sim/monte-carlo-untrimmed`'s newest record at the time
+(`20260803-142259-544cc5e`) predated the DR-003 resize (`n_r2` 54→50, later
+51) the same way the pre-this-increment
 `sim/startup-ramp`/`sim/startup-stability`/`sim/line-regulation` schematic
-records did — so a schematic-level re-run at the current chained-array sizing
-is still an open, pre-existing gap. It is **orthogonal to issue #16's scope**
-(a resize-currency gap, not a layout/extraction verification gap) and is not
-created or worsened by this increment; it is noted here only so it is not
-mistaken for something this judgment call adjudicated.
+records did — a schematic-level re-run at the current chained-array sizing
+was an open, pre-existing gap, orthogonal to issue #16's scope (a
+resize-currency gap, not a layout/extraction verification gap) and not
+created or worsened by that increment. **Closed by issue #180**:
+`sim/monte-carlo-untrimmed/records/20260817-121131-d7d85b6` re-runs this
+same bench against the current chained-array design (`n_r2=51`, issue #178)
+and the ratified ±2 % window (DR-005), superseding `20260816-091855-69a8867`
+(issue #177's re-point, itself still `n_r2=50`) in turn. This paragraph is
+kept for the historical record of the judgment call's own scope statement,
+not because the gap it named is still open.
 
 For any future post-layout bench whose DUT is fully covered by the existing
 all-extracted (or, per the two rows above, mixed-provenance) path, the whole
