@@ -40,7 +40,6 @@ import json
 import math
 import shutil
 import sys
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -54,6 +53,7 @@ LOOP_RECORDS = SIM_DIR / "error-amp-loop" / "records"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
 from sim_common import (  # noqa: E402
+    MismatchPoint,
     load_corner_run,
     mean,
     mv,
@@ -129,15 +129,7 @@ DERIVED = ("rratio",)
 STAT_VECTORS = VECTORS + DERIVED
 
 
-@dataclass(frozen=True)
-class Point:
-    corner_id: str
-    section: str
-    temp_c: float
-    seed: int
-    samples: int
-    role: str  # "mismatch" | "control" | "seed-check"
-    purpose: str
+Point = MismatchPoint  # shared 7-field shape (issue #194)
 
 
 def build_points(samples: int) -> list[Point]:

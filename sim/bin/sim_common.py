@@ -59,6 +59,13 @@ functions over.)
     render_pdk_tools_repo_state() the `PDK` (pin-state ternary) + `Tools` +
                           `Repo state` (dirty-tree ternary) lines from the
                           same block (issue #191)
+    MismatchPoint          the shared 7-field `(corner_id, section, temp_c,
+                          seed, samples, role, purpose)` dataclass shape,
+                          deduped from `monte-carlo-untrimmed/
+                          run_mc_untrimmed.py`, `pnp-mismatch/
+                          run_pnp_mismatch.py`, and `error-amp-offset-mc/
+                          run_amp_offset_mc.py`'s three near-identical local
+                          `Point` classes (issue #194)
 """
 
 from __future__ import annotations
@@ -69,12 +76,35 @@ import re
 import shutil
 import subprocess
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from types import ModuleType
 
 BIN_DIR = Path(__file__).resolve().parent
 SIM_DIR = BIN_DIR.parent
 SPICEINIT_FILE = SIM_DIR / "spiceinit"
+
+
+@dataclass(frozen=True)
+class MismatchPoint:
+    """One ngspice invocation: a (section, temperature, seed, N) tuple.
+
+    Shared shape across the three mismatch-Monte-Carlo experiments' local
+    `Point` classes (issue #194): `pnp-mismatch/run_pnp_mismatch.py` and
+    `error-amp-offset-mc/run_amp_offset_mc.py` use this directly.
+    `monte-carlo-untrimmed/run_mc_untrimmed.py` additionally sweeps a
+    `config` axis (`"all"|"pnp"|"resistor"|"mos"`) the other two don't have,
+    so it subclasses this and adds just that one field rather than polluting
+    the two callers that don't use it.
+    """
+
+    corner_id: str
+    section: str
+    temp_c: float
+    seed: int
+    samples: int
+    role: str  # "mismatch" | "control" | "seed-check"
+    purpose: str
 
 
 def load_corner_run() -> ModuleType:
