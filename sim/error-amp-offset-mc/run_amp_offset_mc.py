@@ -85,17 +85,36 @@ N_CONTROL = 30  # the control point is deterministic; N only has to be > 1
 SEED_A = 20260803
 SEED_B = 20260804
 
-# Core parameters, read off design/bandgap_core.sch (n_r1=7, n_r2=54,
-# r_lseg=5 um, r_w=1 um) with the res_high_po segment model R(L) = 380 + 325*L:
-#   R1 = 380 + 325*35  = 11.755 kohm
-#   R2 = 380 + 325*270 = 88.130 kohm
-R1_OHM = 380.0 + 325.0 * 35.0
-R2_OHM = 380.0 + 325.0 * 270.0
-K_PTAT = R2_OHM / R1_OHM  # 7.497 -- NOT 54/7, the end resistance matters
+# Core parameters, read off design/bandgap_core.sch's own CHAINED-ARRAY MODEL
+# derivation (issue #178) at the current n_r1=7, n_r2=51: R1 is 7 unit
+# res_high_po segments (head+end 379.705 ohm/instance, body 324.827 ohm/um,
+# both klt-extract-measured per-instance terms, r_lseg=5 um); R2 is (n_r2-2)
+# full unit segments plus 20 half-length (r_ov_seg=0.5 um) overlap-correction
+# segments -- the exact lumped equivalent of the routed N-instance chain, not
+# the single-device R(L) = 380 + 325*L formula the pre-#178 design used (that
+# formula underestimates R2 by omitting the (n_r2-1) extra per-instance head
+# resistances the routed layout actually pays -- see bandgap_core.sch's own
+# SIZING section for the n_r2=50/51/52 comparison this K is drawn from).
+# NOTE (issue #180): these three constants moved with n_r2's own history --
+# 7.497 at the original single-device n_r2=54 model (pre-#99), 7.576 at
+# n_r2=50 chain-unmodelled (#99/DR-003), now 7.773 at n_r2=51 chain-modelled
+# (#178) -- update them again if n_r2 or the chain model changes.
+R1_OHM = 7.0 * (379.705 + 324.827 * 5.0)  # 14.027 kohm
+R2_OHM = 49.0 * (379.705 + 324.827 * 5.0) + 20.0 * (379.705 + 324.827 * 0.5)  # 109.03 kohm, n_r2=51
+K_PTAT = R2_OHM / R1_OHM  # 7.773 -- NOT n_r2/n_r1 = 7.286, and NOT the single-device model's 7.087
 
 # res_high_po local-mismatch coefficient from the PDK's own
 # sw_mm_sky130_fd_pr__res_high_po_* term, as recorded in
 # design/device-characterization-summary.md section 3: sigma(R)/R = 2.06 % / sqrt(W*L).
+# These L values are the ACTUAL drawn XRRA/XRRB devices in
+# testbench/tb_amp_offset_mc.sch -- a single-device R2/R1-ratio-mismatch
+# PROXY that predates issue #178's chained-array model and is intentionally
+# left as-is here (issue #180 reproduces this bench's existing MC
+# methodology rather than redesigning it; see the record's own scope-limit
+# note on this approximation). They are NOT tied to R1_OHM/R2_OHM/K_PTAT
+# above, which instead use the current n_r2=51 chain's real resistance for
+# the *output-referred gain* conversion -- keep both in sync with the
+# testbench and with bandgap_core.sch respectively if either changes again.
 RES_MM_PCT_PER_SQRT_AREA = 2.06
 R1_W_UM, R1_L_UM = 1.0, 35.0
 R2_W_UM, R2_L_UM = 1.0, 270.0
@@ -462,16 +481,18 @@ def seed_stability(results: dict[str, dict]) -> list[dict]:
 # --------------------------------------------------------------------------
 
 CLAIM = (
-    "Issue #9 -- the DISTRIBUTION half of the error amplifier's offset/mismatch budget. "
+    "Issue #9 -- the DISTRIBUTION half of the error amplifier's offset/mismatch budget, "
+    "graded against README.md 'Target specification (ratified -- see DR-005, issue #1)'. "
     "Measures, on one seed stream at the nominal process point: the amplifier's random "
     "input-referred offset in its own loop, the 8x PNP array pair's sigma(dVBE) and "
     "absolute VEB, the res_high_po R2/R1 ratio spread, and the resulting total spread of "
     "the untrimmed reference -- then checks that the first four reproduce the fifth. This "
     "is what design/error-amp-offset-budget.md's allocation is built on. It is NOT the "
-    "+/-1% untrimmed output-accuracy spec claim: this is mismatch only, at one process "
-    "point, with no global process shift or temperature curvature. That claim is issue "
-    "#11's experiment. The deterministic half (stability, offset gain, PSRR, Iq) is "
-    "sim/error-amp-loop/."
+    "+/-2% untrimmed output-accuracy spec claim (DR-005's ratified figure, formerly a "
+    "+/-1% draft): this is mismatch only, at one process point, with no global process "
+    "shift or temperature curvature. That claim is issue #11's experiment / "
+    "sim/monte-carlo-untrimmed's yield claim. The deterministic half (stability, offset "
+    "gain, PSRR, Iq) is sim/error-amp-loop/."
 )
 
 
@@ -678,9 +699,10 @@ def render_record(r: dict) -> str:
     add("")
     add(
         "1. **Mismatch only, one process point.** σ(VOUT) here is the *intra-die* spread. "
-        "The untrimmed ±1 % spec line also carries global process shift of V_BE and of "
-        "the resistor sheet, plus temperature curvature — all of which are issue #11's "
-        "experiment. A part that passes this record can still miss ±1 %."
+        "The untrimmed ±2 % spec line (DR-005's ratified accuracy row) also carries "
+        "global process shift of V_BE and of the resistor sheet, plus temperature "
+        "curvature — all of which are issue #11's experiment. A part that passes this "
+        "record can still miss ±2 %."
     )
     add(
         "2. **`vos` is measured in the loop, not in a servo rig.** It is the residual "
@@ -697,6 +719,38 @@ def render_record(r: dict) -> str:
         "independent. The CTAT term is ~2 % of the total, so the error this introduces is "
         "far inside the closure band; the measured σ(VOUT) row is the one to trust when "
         "the two disagree."
+    )
+    add(
+        "4. **Resistor-ratio term is a single-device proxy, not the routed chain's own "
+        "topology.** `XRRA`/`XRRB` in the testbench measure the R2/R1 ratio mismatch on "
+        f"one L = {R2_L_UM:g} µm and one L = {R1_L_UM:g} µm `res_high_po` device each — "
+        "the pre-issue-#178 single-device model's lengths, predating the routed chain "
+        "`design/bandgap_core.sch` now models exactly (n_r2=51: (n_r2-2) full segments "
+        "plus a per-leg overlap replica, not one long device). Issue #180 reproduces "
+        "this bench's existing MC methodology rather than redesigning it, so this proxy "
+        "is unchanged; only the **output-referred gain** it feeds "
+        f"(K = R2/R1 = {K_PTAT:.3f}) was updated to the current n_r2=51 chain's real "
+        "value, sourced from `bandgap_core.sch`'s own SIZING derivation. The resistor "
+        "term is ≤ 12 % of the total variance (§2 of "
+        "`design/error-amp-offset-budget.md`), so this proxy's own residual staleness "
+        "is a second-order effect on `budget_closure`, not a first-order one — but a "
+        "future record that re-derives the resistor term from the chain topology "
+        "directly would close this gap properly."
+    )
+    add(
+        "5. **Offset gain sourced from a record that also predates the n_r2 50→51 "
+        f"resize.** The measured Kuijk gain used above "
+        f"({r['budget_inputs']['offset_gain']:.3f} V/V) is read from the newest "
+        f"`sim/error-amp-loop/` record on disk, `{r['budget_inputs']['offset_gain_record']}` "
+        "-- committed against issue #170's PSRR resize, before issue #178's chain-model "
+        "resize. Re-running `sim/error-amp-loop/` is a deterministic 45-point PVT bench, "
+        "not Monte Carlo, so it is outside issue #180's scope (issue #178's own PR #193 "
+        "left it unrerun for the same reason). Expected impact is small: `K` moved "
+        "7.630 → 7.773 (1.9 %) between those two designs, well inside the offset gain's "
+        "own 9.570–9.734 V/V (1.7 %) spread across the 45-point PVT matrix (§1 of "
+        "`design/error-amp-offset-budget.md`) -- but it is not zero, and a future "
+        "`sim/error-amp-loop/` re-run against the current design would close this "
+        "residual gap."
     )
     add("")
 

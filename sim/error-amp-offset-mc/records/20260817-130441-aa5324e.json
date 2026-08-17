@@ -1,0 +1,883 @@
+{
+  "record_id": "20260817-130441-aa5324e",
+  "timestamp": "2026-08-17T13:04:41Z",
+  "author": "ci@loom.test",
+  "supersedes": "",
+  "experiment": {
+    "slug": "error-amp-offset-mc",
+    "title": "Error-amplifier offset budget by Monte Carlo: every term measured, and their sum checked",
+    "claim": "Issue #9 -- the DISTRIBUTION half of the error amplifier's offset/mismatch budget, graded against README.md 'Target specification (ratified -- see DR-005, issue #1)'. Measures, on one seed stream at the nominal process point: the amplifier's random input-referred offset in its own loop, the 8x PNP array pair's sigma(dVBE) and absolute VEB, the res_high_po R2/R1 ratio spread, and the resulting total spread of the untrimmed reference -- then checks that the first four reproduce the fifth. This is what design/error-amp-offset-budget.md's allocation is built on. It is NOT the +/-2% untrimmed output-accuracy spec claim (DR-005's ratified figure, formerly a +/-1% draft): this is mismatch only, at one process point, with no global process shift or temperature curvature. That claim is issue #11's experiment / sim/monte-carlo-untrimmed's yield claim. The deterministic half (stability, offset gain, PSRR, Iq) is sim/error-amp-loop/.",
+    "provenance": "schematic",
+    "provenance_source": "sim/error-amp-offset-mc/testbench/tb_amp_offset_mc.sch",
+    "statistical_convention": "N = 300 Monte Carlo samples per point, local mismatch only (section tt_mm: MC_MM_SWITCH=1, MC_PR_SWITCH=0); 1 sigma sample standard deviation (N-1), fixed setseed 20260803"
+  },
+  "budget_inputs": {
+    "offset_gain": 9.655367,
+    "offset_gain_record": "20260815-022219-001d1b7",
+    "offset_gain_source": "sim/error-amp-loop (measured, tt/27C/3.30V)",
+    "k_ptat": 7.77297089587991,
+    "r1_ohm": 14026.88,
+    "r2_ohm": 109030.52999999998,
+    "res_mm_pct_per_sqrt_area": 2.06,
+    "predicted_res_ratio_sigma_rel": 0.003700847893696137,
+    "anchor_dvbe1_mean_v": 0.063,
+    "anchor_dvbe1_sigma_v": 0.00048
+  },
+  "mismatch_model": {
+    "switch": "MC_MM_SWITCH (set by the .lib section: 0 in tt/ss/ff/sf/fs, 1 in *_mm)",
+    "sections": {
+      "mismatch": "tt_mm",
+      "control": "tt"
+    },
+    "source": "libs.tech/combined/continuous/models_*.spice + models_global.spice"
+  },
+  "statistics": {
+    "n_samples": 300,
+    "seed_a": 20260803,
+    "seed_b": 20260804
+  },
+  "pdk": {
+    "root": "/Users/rwalters/.volare",
+    "variant": "sky130A",
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "pinned_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "matches_pin": true,
+    "lib_file": "/Users/rwalters/.volare/sky130A/libs.tech/combined/sky130.lib.spice"
+  },
+  "tools": {
+    "ngspice": "ngspice-47 : Circuit level simulation program",
+    "xschem": "XSCHEM V3.4.7",
+    "platform": "Darwin 25.6.0 arm64",
+    "python": "3.14.7"
+  },
+  "git": {
+    "sha": "aa5324e",
+    "branch": "feature/issue-180",
+    "dirty": true
+  },
+  "points": [
+    {
+      "corner_id": "tt_mm_-40c_3.30v",
+      "role": "mismatch",
+      "purpose": "local-mismatch distribution at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vos": {
+          "n": 300,
+          "mean": -0.000147697045379,
+          "sigma": 0.0006540355244898725,
+          "max_abs": 0.001912171,
+          "min": -0.00188729,
+          "max": 0.001912171
+        },
+        "vout": {
+          "n": 300,
+          "mean": 1.2169815400000001,
+          "sigma": 0.006822448741066628,
+          "max_abs": 1.234788,
+          "min": 1.195733,
+          "max": 1.234788
+        },
+        "dvbe8": {
+          "n": 300,
+          "mean": 0.04904710836666667,
+          "sigma": 0.00013465297685129465,
+          "max_abs": 0.04938313,
+          "min": 0.04867503,
+          "max": 0.04938313
+        },
+        "veb8": {
+          "n": 300,
+          "mean": 0.8448066763333334,
+          "sigma": 0.00013383937137849766,
+          "max_abs": 0.8451468,
+          "min": 0.8444081,
+          "max": 0.8451468
+        },
+        "dvbe1": {
+          "n": 300,
+          "mean": 0.0494789206,
+          "sigma": 0.0004309952677688046,
+          "max_abs": 0.05076099,
+          "min": 0.04814937,
+          "max": 0.05076099
+        },
+        "rra": {
+          "n": 300,
+          "mean": 0.0855794814,
+          "sigma": 0.00011175064650081948,
+          "max_abs": 0.08585568,
+          "min": 0.08527624,
+          "max": 0.08585568
+        },
+        "rrb": {
+          "n": 300,
+          "mean": 0.0114198767,
+          "sigma": 4.198685970717785e-05,
+          "max_abs": 0.01153731,
+          "min": 0.01130319,
+          "max": 0.01153731
+        },
+        "vgdrv": {
+          "n": 300,
+          "mean": 1.9911824133333333,
+          "sigma": 0.002768408342651266,
+          "max_abs": 1.998763,
+          "min": 1.982705,
+          "max": 1.998763
+        },
+        "rratio": {
+          "n": 300,
+          "mean": 7.4940082987267544,
+          "sigma": 0.029601233464348797,
+          "max_abs": 7.571484687066218,
+          "min": 7.400693922586807,
+          "max": 7.571484687066218
+        }
+      },
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and it is also sensitive to the testbench .nodeset; the threshold here only asserts that enough draws remain for the distribution to mean anything (>= 50%)."
+        },
+        {
+          "name": "sigma_nonzero[vos]",
+          "pass": true,
+          "detail": "sigma = 0.000654036 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 0.00682245 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[dvbe8]",
+          "pass": true,
+          "detail": "sigma = 0.000134653 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[veb8]",
+          "pass": true,
+          "detail": "sigma = 0.000133839 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[dvbe1]",
+          "pass": true,
+          "detail": "sigma = 0.000430995 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[rratio]",
+          "pass": true,
+          "detail": "sigma = 0.0296012 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "array_scaling[dvbe8/dvbe1]",
+          "pass": true,
+          "detail": "sigma(8x)/sigma(1x) = 0.312 (0.1347 / 0.4310 mV); the model's 1/sqrt(mult) term predicts 0.354, band 0.25-0.55"
+        },
+        {
+          "name": "res_ratio_vs_pdk_coefficient",
+          "pass": true,
+          "detail": "sigma(R2/R1)/mean = 0.3950% vs 0.3701% predicted from the PDK's 2.06%/sqrt(W*L) res_high_po coefficient on L = 270/35 um (ratio 1.07, band 0.7-1.4)"
+        },
+        {
+          "name": "budget_closure",
+          "pass": true,
+          "detail": "measured sigma(VOUT) = 6.8224 mV vs 6.5772 mV from the four measured terms in quadrature (amp 6.3150 + PTAT 1.0467 + CTAT 0.1338 + resistor 1.5059 mV; ratio 1.04, band 0.7-1.4)"
+        }
+      ],
+      "pass": true,
+      "budget": {
+        "offset_gain": 9.655367,
+        "k_ptat": 7.77297089587991,
+        "terms_v": {
+          "amp": 0.006314953019987207,
+          "ptat": 0.0010466536701087045,
+          "ctat": 0.00013383937137849766,
+          "resistor": 0.0015058998436804168
+        },
+        "predicted_sigma_vout_v": 0.0065772154340819075,
+        "measured_sigma_vout_v": 0.006822448741066628,
+        "closure_ratio": 1.0372852781610236
+      }
+    },
+    {
+      "corner_id": "tt_mm_27c_3.30v",
+      "role": "mismatch",
+      "purpose": "local-mismatch distribution at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vos": {
+          "n": 300,
+          "mean": -0.00016590487373333333,
+          "sigma": 0.0006254456673631963,
+          "max_abs": 0.0018409,
+          "min": -0.0018409,
+          "max": 0.001793211
+        },
+        "vout": {
+          "n": 300,
+          "mean": 1.2106959866666667,
+          "sigma": 0.006878877596170701,
+          "max_abs": 1.227895,
+          "min": 1.189329,
+          "max": 1.227895
+        },
+        "dvbe8": {
+          "n": 300,
+          "mean": 0.06236111926666666,
+          "sigma": 0.0001595993529466801,
+          "max_abs": 0.06281342,
+          "min": 0.06188792,
+          "max": 0.06281342
+        },
+        "veb8": {
+          "n": 300,
+          "mean": 0.7311544986666667,
+          "sigma": 0.0001597983513950758,
+          "max_abs": 0.7316062,
+          "min": 0.7306603,
+          "max": 0.7316062
+        },
+        "dvbe1": {
+          "n": 300,
+          "mean": 0.06299969826666667,
+          "sigma": 0.0005023244403106822,
+          "max_abs": 0.06440872,
+          "min": 0.06171725,
+          "max": 0.06440872
+        },
+        "rra": {
+          "n": 300,
+          "mean": 0.08808254496666666,
+          "sigma": 0.0001148758377087911,
+          "max_abs": 0.08836643,
+          "min": 0.08777013,
+          "max": 0.08836643
+        },
+        "rrb": {
+          "n": 300,
+          "mean": 0.011746328166666667,
+          "sigma": 4.30008701199849e-05,
+          "max_abs": 0.01186653,
+          "min": 0.01162738,
+          "max": 0.01186653
+        },
+        "vgdrv": {
+          "n": 300,
+          "mean": 2.06068755,
+          "sigma": 0.002792789697623224,
+          "max_abs": 2.068518,
+          "min": 2.052298,
+          "max": 2.068518
+        },
+        "rratio": {
+          "n": 300,
+          "mean": 7.498831758512268,
+          "sigma": 0.029513975465559505,
+          "max_abs": 7.575587965646603,
+          "min": 7.405749616779294,
+          "max": 7.575587965646603
+        }
+      },
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and it is also sensitive to the testbench .nodeset; the threshold here only asserts that enough draws remain for the distribution to mean anything (>= 50%)."
+        },
+        {
+          "name": "sigma_nonzero[vos]",
+          "pass": true,
+          "detail": "sigma = 0.000625446 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 0.00687888 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[dvbe8]",
+          "pass": true,
+          "detail": "sigma = 0.000159599 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[veb8]",
+          "pass": true,
+          "detail": "sigma = 0.000159798 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[dvbe1]",
+          "pass": true,
+          "detail": "sigma = 0.000502324 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[rratio]",
+          "pass": true,
+          "detail": "sigma = 0.029514 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "anchor_mean[dvbe1]",
+          "pass": true,
+          "detail": "mean dVBE of the un-arrayed pair at 1 uA = 63.000 mV vs 63.0 mV published in design/device-characterization-summary.md section 4 (tolerance +/-1.5 mV)"
+        },
+        {
+          "name": "anchor_sigma[dvbe1]",
+          "pass": true,
+          "detail": "sigma = 0.5023 mV vs 0.480 mV published (ratio 1.05, band 0.7-1.4)"
+        },
+        {
+          "name": "array_scaling[dvbe8/dvbe1]",
+          "pass": true,
+          "detail": "sigma(8x)/sigma(1x) = 0.318 (0.1596 / 0.5023 mV); the model's 1/sqrt(mult) term predicts 0.354, band 0.25-0.55"
+        },
+        {
+          "name": "res_ratio_vs_pdk_coefficient",
+          "pass": true,
+          "detail": "sigma(R2/R1)/mean = 0.3936% vs 0.3701% predicted from the PDK's 2.06%/sqrt(W*L) res_high_po coefficient on L = 270/35 um (ratio 1.06, band 0.7-1.4)"
+        },
+        {
+          "name": "budget_closure",
+          "pass": true,
+          "detail": "measured sigma(VOUT) = 6.8789 mV vs 6.4554 mV from the four measured terms in quadrature (amp 6.0389 + PTAT 1.2406 + CTAT 0.1598 + resistor 1.9078 mV; ratio 1.07, band 0.7-1.4)"
+        }
+      ],
+      "pass": true,
+      "budget": {
+        "offset_gain": 9.655367,
+        "k_ptat": 7.77297089587991,
+        "terms_v": {
+          "amp": 0.006038907456951582,
+          "ptat": 0.0012405611254558099,
+          "ctat": 0.0001597983513950758,
+          "resistor": 0.0019078096661850476
+        },
+        "predicted_sigma_vout_v": 0.0064554371203749865,
+        "measured_sigma_vout_v": 0.006878877596170701,
+        "closure_ratio": 1.065594392432269
+      }
+    },
+    {
+      "corner_id": "tt_mm_125c_3.30v",
+      "role": "mismatch",
+      "purpose": "local-mismatch distribution at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vos": {
+          "n": 300,
+          "mean": -0.00021901669516666665,
+          "sigma": 0.0006091375661346751,
+          "max_abs": 0.00183632,
+          "min": -0.00183632,
+          "max": 0.001676097
+        },
+        "vout": {
+          "n": 300,
+          "mean": 1.1867286966666668,
+          "sigma": 0.0073032913223046465,
+          "max_abs": 1.204588,
+          "min": 1.162164,
+          "max": 1.204588
+        },
+        "dvbe8": {
+          "n": 300,
+          "mean": 0.08137712486666668,
+          "sigma": 0.00022286266163000824,
+          "max_abs": 0.08200819,
+          "min": 0.0806434,
+          "max": 0.08200819
+        },
+        "veb8": {
+          "n": 300,
+          "mean": 0.5516595726666668,
+          "sigma": 0.00021694950613817957,
+          "max_abs": 0.552286,
+          "min": 0.5510223,
+          "max": 0.552286
+        },
+        "dvbe1": {
+          "n": 300,
+          "mean": 0.08227888363333334,
+          "sigma": 0.0006739868047310998,
+          "max_abs": 0.08407117,
+          "min": 0.0803922,
+          "max": 0.08407117
+        },
+        "rra": {
+          "n": 300,
+          "mean": 0.09347810383333334,
+          "sigma": 0.00012162207133751274,
+          "max_abs": 0.09377928,
+          "min": 0.09314592,
+          "max": 0.09377928
+        },
+        "rrb": {
+          "n": 300,
+          "mean": 0.012450020433333334,
+          "sigma": 4.5206742447204153e-05,
+          "max_abs": 0.01257619,
+          "min": 0.01232618,
+          "max": 0.01257619
+        },
+        "vgdrv": {
+          "n": 300,
+          "mean": 2.16355472,
+          "sigma": 0.002906361340647101,
+          "max_abs": 2.172089,
+          "min": 2.154563,
+          "max": 2.172089
+        },
+        "rratio": {
+          "n": 300,
+          "mean": 7.508369306973212,
+          "sigma": 0.029352693776767576,
+          "max_abs": 7.583708821386675,
+          "min": 7.415747535620883,
+          "max": 7.583708821386675
+        }
+      },
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and it is also sensitive to the testbench .nodeset; the threshold here only asserts that enough draws remain for the distribution to mean anything (>= 50%)."
+        },
+        {
+          "name": "sigma_nonzero[vos]",
+          "pass": true,
+          "detail": "sigma = 0.000609138 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 0.00730329 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[dvbe8]",
+          "pass": true,
+          "detail": "sigma = 0.000222863 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[veb8]",
+          "pass": true,
+          "detail": "sigma = 0.00021695 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[dvbe1]",
+          "pass": true,
+          "detail": "sigma = 0.000673987 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[rratio]",
+          "pass": true,
+          "detail": "sigma = 0.0293527 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "array_scaling[dvbe8/dvbe1]",
+          "pass": true,
+          "detail": "sigma(8x)/sigma(1x) = 0.331 (0.2229 / 0.6740 mV); the model's 1/sqrt(mult) term predicts 0.354, band 0.25-0.55"
+        },
+        {
+          "name": "res_ratio_vs_pdk_coefficient",
+          "pass": true,
+          "detail": "sigma(R2/R1)/mean = 0.3909% vs 0.3701% predicted from the PDK's 2.06%/sqrt(W*L) res_high_po coefficient on L = 270/35 um (ratio 1.06, band 0.7-1.4)"
+        },
+        {
+          "name": "budget_closure",
+          "pass": true,
+          "detail": "measured sigma(VOUT) = 7.3033 mV vs 6.6147 mV from the four measured terms in quadrature (amp 5.8814 + PTAT 1.7323 + CTAT 0.2169 + resistor 2.4728 mV; ratio 1.10, band 0.7-1.4)"
+        }
+      ],
+      "pass": true,
+      "budget": {
+        "offset_gain": 9.655367,
+        "k_ptat": 7.77297089587991,
+        "terms_v": {
+          "amp": 0.005881446754517059,
+          "ptat": 0.0017323049826283863,
+          "ctat": 0.00021694950613817957,
+          "resistor": 0.0024728155406615795
+        },
+        "predicted_sigma_vout_v": 0.006614694268476011,
+        "measured_sigma_vout_v": 0.0073032913223046465,
+        "closure_ratio": 1.1041011157704321
+      }
+    },
+    {
+      "corner_id": "tt_27c_3.30v_mm-off",
+      "role": "control",
+      "purpose": "control: identical deck on the plain `tt` section (MC_MM_SWITCH=0); every sigma must come back exactly 0, which is what proves the spread above is the mismatch switch and not solver noise or a re-seeded operating point",
+      "section": "tt",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 30,
+      "parsed_samples": 30,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vos": {
+          "n": 30,
+          "mean": -0.000121968,
+          "sigma": 0.0,
+          "max_abs": 0.000121968,
+          "min": -0.000121968,
+          "max": -0.000121968
+        },
+        "vout": {
+          "n": 30,
+          "mean": 1.210253,
+          "sigma": 0.0,
+          "max_abs": 1.210253,
+          "min": 1.210253,
+          "max": 1.210253
+        },
+        "dvbe8": {
+          "n": 30,
+          "mean": 0.0623484,
+          "sigma": 0.0,
+          "max_abs": 0.0623484,
+          "min": 0.0623484,
+          "max": 0.0623484
+        },
+        "veb8": {
+          "n": 30,
+          "mean": 0.7311427,
+          "sigma": 0.0,
+          "max_abs": 0.7311427,
+          "min": 0.7311427,
+          "max": 0.7311427
+        },
+        "dvbe1": {
+          "n": 30,
+          "mean": 0.0629664,
+          "sigma": 0.0,
+          "max_abs": 0.0629664,
+          "min": 0.0629664,
+          "max": 0.0629664
+        },
+        "rra": {
+          "n": 30,
+          "mean": 0.08808306,
+          "sigma": 0.0,
+          "max_abs": 0.08808306,
+          "min": 0.08808306,
+          "max": 0.08808306
+        },
+        "rrb": {
+          "n": 30,
+          "mean": 0.01174866,
+          "sigma": 0.0,
+          "max_abs": 0.01174866,
+          "min": 0.01174866,
+          "max": 0.01174866
+        },
+        "vgdrv": {
+          "n": 30,
+          "mean": 2.060762,
+          "sigma": 0.0,
+          "max_abs": 2.060762,
+          "min": 2.060762,
+          "max": 2.060762
+        },
+        "rratio": {
+          "n": 30,
+          "mean": 7.497285647895165,
+          "sigma": 0.0,
+          "max_abs": 7.497285647895165,
+          "min": 7.497285647895165,
+          "max": 7.497285647895165
+        }
+      },
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 30 samples, expected 30"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "30/30 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and it is also sensitive to the testbench .nodeset; the threshold here only asserts that enough draws remain for the distribution to mean anything (>= 50%)."
+        },
+        {
+          "name": "sigma_zero[vos]",
+          "pass": true,
+          "detail": "sigma = 0 with MC_MM_SWITCH=0 (must be exactly 0)"
+        },
+        {
+          "name": "sigma_zero[vout]",
+          "pass": true,
+          "detail": "sigma = 0 with MC_MM_SWITCH=0 (must be exactly 0)"
+        },
+        {
+          "name": "sigma_zero[dvbe8]",
+          "pass": true,
+          "detail": "sigma = 0 with MC_MM_SWITCH=0 (must be exactly 0)"
+        },
+        {
+          "name": "sigma_zero[veb8]",
+          "pass": true,
+          "detail": "sigma = 0 with MC_MM_SWITCH=0 (must be exactly 0)"
+        },
+        {
+          "name": "sigma_zero[dvbe1]",
+          "pass": true,
+          "detail": "sigma = 0 with MC_MM_SWITCH=0 (must be exactly 0)"
+        },
+        {
+          "name": "sigma_zero[rratio]",
+          "pass": true,
+          "detail": "sigma = 0 with MC_MM_SWITCH=0 (must be exactly 0)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_27c_3.30v_seed-b",
+      "role": "seed-check",
+      "purpose": "seed-stability: same point, different setseed -- the samples must change while sigma must not, i.e. the reported spread is a property of the model, not of one lucky draw",
+      "section": "tt_mm",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260804,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vos": {
+          "n": 300,
+          "mean": -0.00013381767130666666,
+          "sigma": 0.0005843644203653102,
+          "max_abs": 0.00153692,
+          "min": -0.00153692,
+          "max": 0.001248755
+        },
+        "vout": {
+          "n": 300,
+          "mean": 1.2104873,
+          "sigma": 0.006526558506835271,
+          "max_abs": 1.22745,
+          "min": 1.193944,
+          "max": 1.22745
+        },
+        "dvbe8": {
+          "n": 300,
+          "mean": 0.0623442631,
+          "sigma": 0.0001581506710108875,
+          "max_abs": 0.06281188,
+          "min": 0.06186361,
+          "max": 0.06281188
+        },
+        "veb8": {
+          "n": 300,
+          "mean": 0.7311376366666668,
+          "sigma": 0.00015604711616613618,
+          "max_abs": 0.7316257,
+          "min": 0.7306833,
+          "max": 0.7316257
+        },
+        "dvbe1": {
+          "n": 300,
+          "mean": 0.06294940166666667,
+          "sigma": 0.0004393585372609734,
+          "max_abs": 0.06423251,
+          "min": 0.06148467,
+          "max": 0.06423251
+        },
+        "rra": {
+          "n": 300,
+          "mean": 0.08808833566666667,
+          "sigma": 0.00011401672975534163,
+          "max_abs": 0.08838371,
+          "min": 0.08777233,
+          "max": 0.08838371
+        },
+        "rrb": {
+          "n": 300,
+          "mean": 0.011749329133333333,
+          "sigma": 4.6321514428091975e-05,
+          "max_abs": 0.01188257,
+          "min": 0.01160552,
+          "max": 0.01188257
+        },
+        "vgdrv": {
+          "n": 300,
+          "mean": 2.060667136666667,
+          "sigma": 0.002664169523288323,
+          "max_abs": 2.06746,
+          "min": 2.051783,
+          "max": 2.06746
+        },
+        "rratio": {
+          "n": 300,
+          "mean": 7.497424014054119,
+          "sigma": 0.031160505379309585,
+          "max_abs": 7.591988984552179,
+          "min": 7.41511319952337,
+          "max": 7.591988984552179
+        }
+      },
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and it is also sensitive to the testbench .nodeset; the threshold here only asserts that enough draws remain for the distribution to mean anything (>= 50%)."
+        },
+        {
+          "name": "sigma_nonzero[vos]",
+          "pass": true,
+          "detail": "sigma = 0.000584364 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 0.00652656 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[dvbe8]",
+          "pass": true,
+          "detail": "sigma = 0.000158151 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[veb8]",
+          "pass": true,
+          "detail": "sigma = 0.000156047 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[dvbe1]",
+          "pass": true,
+          "detail": "sigma = 0.000439359 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[rratio]",
+          "pass": true,
+          "detail": "sigma = 0.0311605 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "anchor_mean[dvbe1]",
+          "pass": true,
+          "detail": "mean dVBE of the un-arrayed pair at 1 uA = 62.949 mV vs 63.0 mV published in design/device-characterization-summary.md section 4 (tolerance +/-1.5 mV)"
+        },
+        {
+          "name": "anchor_sigma[dvbe1]",
+          "pass": true,
+          "detail": "sigma = 0.4394 mV vs 0.480 mV published (ratio 0.92, band 0.7-1.4)"
+        },
+        {
+          "name": "array_scaling[dvbe8/dvbe1]",
+          "pass": true,
+          "detail": "sigma(8x)/sigma(1x) = 0.360 (0.1582 / 0.4394 mV); the model's 1/sqrt(mult) term predicts 0.354, band 0.25-0.55"
+        },
+        {
+          "name": "res_ratio_vs_pdk_coefficient",
+          "pass": true,
+          "detail": "sigma(R2/R1)/mean = 0.4156% vs 0.3701% predicted from the PDK's 2.06%/sqrt(W*L) res_high_po coefficient on L = 270/35 um (ratio 1.12, band 0.7-1.4)"
+        },
+        {
+          "name": "budget_closure",
+          "pass": true,
+          "detail": "measured sigma(VOUT) = 6.5266 mV vs 6.1178 mV from the four measured terms in quadrature (amp 5.6423 + PTAT 1.2293 + CTAT 0.1560 + resistor 2.0141 mV; ratio 1.07, band 0.7-1.4)"
+        }
+      ],
+      "pass": true,
+      "budget": {
+        "offset_gain": 9.655367,
+        "k_ptat": 7.77297089587991,
+        "terms_v": {
+          "amp": 0.005642252940369344,
+          "ptat": 0.0012293005629315072,
+          "ctat": 0.00015604711616613618,
+          "resistor": 0.002014076477739343
+        },
+        "predicted_sigma_vout_v": 0.006117765350009505,
+        "measured_sigma_vout_v": 0.006526558506835271,
+        "closure_ratio": 1.0668206662789266
+      }
+    }
+  ],
+  "cross_point_checks": [
+    {
+      "name": "seed_sigma_stable[vos]",
+      "pass": true,
+      "detail": "sigma(seed 20260804) / sigma(seed 20260803) = 0.934 (0.5844 mV vs 0.6254 mV; tolerance +/-25%)"
+    },
+    {
+      "name": "seed_sample_differs[vos]",
+      "pass": true,
+      "detail": "worst-sample magnitude differs between the two seeds (1.8409 mV vs 1.5369 mV), i.e. the draw really did change"
+    },
+    {
+      "name": "seed_sigma_stable[vout]",
+      "pass": true,
+      "detail": "sigma(seed 20260804) / sigma(seed 20260803) = 0.949 (6.5266 mV vs 6.8789 mV; tolerance +/-25%)"
+    },
+    {
+      "name": "seed_sample_differs[vout]",
+      "pass": true,
+      "detail": "worst-sample magnitude differs between the two seeds (1227.8950 mV vs 1227.4500 mV), i.e. the draw really did change"
+    },
+    {
+      "name": "seed_sigma_stable[dvbe8]",
+      "pass": true,
+      "detail": "sigma(seed 20260804) / sigma(seed 20260803) = 0.991 (0.1582 mV vs 0.1596 mV; tolerance +/-25%)"
+    },
+    {
+      "name": "seed_sample_differs[dvbe8]",
+      "pass": true,
+      "detail": "worst-sample magnitude differs between the two seeds (62.8134 mV vs 62.8119 mV), i.e. the draw really did change"
+    }
+  ],
+  "overall_pass": true,
+  "links": {
+    "testbench": "sim/error-amp-offset-mc/testbench/tb_amp_offset_mc.sch",
+    "runner": "sim/error-amp-offset-mc/run_amp_offset_mc.py",
+    "netlist_snapshot": "sim/error-amp-offset-mc/netlist-snapshots/20260817-130441-aa5324e.spice",
+    "logs": "sim/error-amp-offset-mc/corners/20260817-130441-aa5324e",
+    "record_json": "sim/error-amp-offset-mc/records/20260817-130441-aa5324e.json",
+    "budget_doc": "design/error-amp-offset-budget.md"
+  }
+}

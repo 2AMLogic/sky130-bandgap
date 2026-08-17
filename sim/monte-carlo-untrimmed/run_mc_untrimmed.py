@@ -562,6 +562,89 @@ CLAIM = (
 )
 
 
+def _klt_yield_paths(record_id: str) -> tuple[Path, Path]:
+    records_dir = HERE / "records"
+    return (
+        records_dir / f"{record_id}-klt-yield-input.json",
+        records_dir / f"{record_id}-klt-yield.json",
+    )
+
+
+def klt_yield_links(record_id: str) -> list[tuple[str, str]]:
+    """Extra `- **Links**:` rows for the klt yield envelope, if it was emitted."""
+    input_path, output_path = _klt_yield_paths(record_id)
+    if not (input_path.is_file() and output_path.is_file()):
+        return []
+    return [
+        ("klt_yield_input", str(input_path.relative_to(REPO_ROOT))),
+        ("klt_yield_envelope", str(output_path.relative_to(REPO_ROOT))),
+    ]
+
+
+def render_klt_yield_section(record_id: str) -> list[str]:
+    """`## klt yield envelope` section: the machine-checkable envelope
+    `emit_klt_yield.py` produces from this record's own converged `all`-config
+    samples, per issue #180's acceptance criteria ("if the pinned klt build
+    exposes klt yield, emit its JSON envelope alongside the ngspice-driven
+    record ... If it does not, say so in the record rather than silently
+    omitting it"). `emit_klt_yield.py` runs as a separate, later step (it
+    re-parses this record's own corner logs, no new simulation), so this
+    function reads whatever is on disk at render time rather than assuming
+    order -- calling it again after `emit_klt_yield.py` has run re-renders
+    this section with the real numbers.
+    """
+    L: list[str] = []
+    add = L.append
+    input_path, output_path = _klt_yield_paths(record_id)
+    add("## klt yield envelope (klayout-tools, issue #180)")
+    add("")
+    if not (input_path.is_file() and output_path.is_file()):
+        add(
+            "`klt yield` (klayout-tools 0.2.0, pinned by `layout/requirements.txt`) was "
+            "**not available** when this record was written -- either `klt` is not on "
+            "PATH or its native extension could not be loaded (see "
+            "`sim/monte-carlo-untrimmed/emit_klt_yield.py`'s exit status). Stated here "
+            "per issue #180's acceptance criteria rather than silently omitted: the "
+            "yield/Cpk figures below are ngspice + this record's own Clopper-Pearson "
+            "arithmetic only, with no `klt`-native cross-check."
+        )
+        add("")
+        return L
+    payload = json.loads(output_path.read_text())
+    add(
+        "Machine-checkable envelope emitted by "
+        "`sim/monte-carlo-untrimmed/emit_klt_yield.py` from this record's own converged "
+        "`all`-config `vout` samples (the spec-relevant row; see the yield table above) "
+        "-- combined with, not instead of, the process-corner evidence "
+        "(`sim/output-voltage-tc`, issue #11), per klayout-tools#344. `klt yield` reports "
+        "its own confidence interval, Cp/Cpk, sigma-to-spec, and a required-sample-size "
+        "verdict alongside the point estimate."
+    )
+    add("")
+    add("| measurement | n | klt empirical yield | 95% CI | Cpk | sample-size verdict |")
+    add("|---|---|---|---|---|---|")
+    for m in payload.get("measurements", []):
+        emp = m.get("yield", {}).get("empirical", {}) or {}
+        ci = emp.get("confidence_interval", {}) or {}
+        cap = m.get("capability", {}) or {}
+        size = m.get("sample_size", {}) or {}
+        add(
+            f"| `{m.get('name')}` | {m.get('n')} | "
+            f"{emp.get('estimate', float('nan')):.4f} | "
+            f"[{ci.get('low', float('nan')):.4f}, {ci.get('high', float('nan')):.4f}] | "
+            f"{cap.get('cpk', float('nan')):.4f} | {size.get('verdict', '?')} |"
+        )
+    warnings = [w for m in payload.get("measurements", []) for w in m.get("warnings", [])]
+    if warnings:
+        add("")
+        add(
+            "`klt yield` warnings (carried through verbatim, not summarized away): "
+            + " ".join(warnings)
+        )
+    add("")
+    return L
+
+
 def render_record(r: dict) -> str:
     L: list[str] = []
     add = L.append
@@ -788,10 +871,11 @@ def render_record(r: dict) -> str:
     add("")
     add(
         "1. **Mismatch only, one process point.** σ(VOUT) here is the *intra-die* spread "
-        "at the nominal process corner. The untrimmed ±1 % spec line also carries global "
-        "process shift and temperature curvature, both already substantiated by "
-        "`sim/output-voltage-tc` (issue #11). A part that passes this record's yield "
-        "figure can still miss ±1 % from global corner shift alone, and vice versa."
+        "at the nominal process corner. The untrimmed ±2 % spec line (DR-005's ratified "
+        "accuracy row) also carries global process shift and temperature curvature, both "
+        "already substantiated by `sim/output-voltage-tc` (issue #11). A part that passes "
+        "this record's yield figure can still miss ±2 % from global corner shift alone, "
+        "and vice versa."
     )
     add(
         "2. **Contributor breakdown is by isolated re-run, not simultaneous internal "
@@ -807,10 +891,32 @@ def render_record(r: dict) -> str:
         "(e.g. through a supply-dependent bias current), that would invalidate this "
         "simplification and require a new record."
     )
+    add(
+        "4. **Trimmed ±0.5 % row not evidenced.** This record grades only the "
+        "*untrimmed* ±2 % window (DR-005's first accuracy row). DR-005's second, "
+        "*trimmed* ±0.5 % row has no Monte Carlo evidence on file anywhere in this "
+        "repo: `tb_vref_tc.sch` (and therefore this bench, which wraps it unmodified) "
+        "does not model issue #13's trim network at all, so there is no trimmed "
+        "operating point to sample. This is a scope gap, stated rather than silently "
+        "left implicit — closing it is issue #13's job (does the design need a trim "
+        "network, and what range) once that network exists to sample."
+    )
     add("")
 
+    L.extend(render_klt_yield_section(r["record_id"]))
+
     add("- **Links**:")
-    for key, value in r["links"].items():
+    # `emit_klt_yield.py` runs after this script and *folds* the klt-yield rows
+    # into `record["links"]` before re-rendering the record, so on that second
+    # render the dynamic rows below are already present in `r["links"]`.
+    # Merge by key instead of appending unconditionally — appending would emit
+    # `klt_yield_input`/`klt_yield_envelope` twice in the rendered `- **Links**:`
+    # block. `setdefault` keeps whatever the record JSON already recorded (the
+    # authoritative value) and preserves the record's own link ordering.
+    links = dict(r["links"])
+    for key, value in klt_yield_links(r["record_id"]):
+        links.setdefault(key, value)
+    for key, value in links.items():
         add(f"  - {key}: `{value}`")
     add(f"- **Timestamp / author**: {r['timestamp']}, {r['author']}")
     add(f"- **Supersedes**: {r['supersedes'] or '(none — first record for this claim)'}")
