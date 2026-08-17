@@ -699,9 +699,10 @@ def render_record(r: dict) -> str:
     add("")
     add(
         "1. **Mismatch only, one process point.** σ(VOUT) here is the *intra-die* spread. "
-        "The untrimmed ±1 % spec line also carries global process shift of V_BE and of "
-        "the resistor sheet, plus temperature curvature — all of which are issue #11's "
-        "experiment. A part that passes this record can still miss ±1 %."
+        "The untrimmed ±2 % spec line (DR-005's ratified accuracy row) also carries "
+        "global process shift of V_BE and of the resistor sheet, plus temperature "
+        "curvature — all of which are issue #11's experiment. A part that passes this "
+        "record can still miss ±2 %."
     )
     add(
         "2. **`vos` is measured in the loop, not in a servo rig.** It is the residual "

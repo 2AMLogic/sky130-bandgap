@@ -871,10 +871,11 @@ def render_record(r: dict) -> str:
     add("")
     add(
         "1. **Mismatch only, one process point.** σ(VOUT) here is the *intra-die* spread "
-        "at the nominal process corner. The untrimmed ±1 % spec line also carries global "
-        "process shift and temperature curvature, both already substantiated by "
-        "`sim/output-voltage-tc` (issue #11). A part that passes this record's yield "
-        "figure can still miss ±1 % from global corner shift alone, and vice versa."
+        "at the nominal process corner. The untrimmed ±2 % spec line (DR-005's ratified "
+        "accuracy row) also carries global process shift and temperature curvature, both "
+        "already substantiated by `sim/output-voltage-tc` (issue #11). A part that passes "
+        "this record's yield figure can still miss ±2 % from global corner shift alone, "
+        "and vice versa."
     )
     add(
         "2. **Contributor breakdown is by isolated re-run, not simultaneous internal "
@@ -905,9 +906,17 @@ def render_record(r: dict) -> str:
     L.extend(render_klt_yield_section(r["record_id"]))
 
     add("- **Links**:")
-    for key, value in r["links"].items():
-        add(f"  - {key}: `{value}`")
+    # `emit_klt_yield.py` runs after this script and *folds* the klt-yield rows
+    # into `record["links"]` before re-rendering the record, so on that second
+    # render the dynamic rows below are already present in `r["links"]`.
+    # Merge by key instead of appending unconditionally — appending would emit
+    # `klt_yield_input`/`klt_yield_envelope` twice in the rendered `- **Links**:`
+    # block. `setdefault` keeps whatever the record JSON already recorded (the
+    # authoritative value) and preserves the record's own link ordering.
+    links = dict(r["links"])
     for key, value in klt_yield_links(r["record_id"]):
+        links.setdefault(key, value)
+    for key, value in links.items():
         add(f"  - {key}: `{value}`")
     add(f"- **Timestamp / author**: {r['timestamp']}, {r['author']}")
     add(f"- **Supersedes**: {r['supersedes'] or '(none — first record for this claim)'}")

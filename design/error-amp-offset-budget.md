@@ -560,7 +560,7 @@ ratified spec: MET**, with 19–21 % margin at every temperature —
 reversing §3's "NOT MET" verdict (1.53–1.88× *over* allocation against the
 draft ±1 % line). This is not a re-litigation of §3 or §6: both were
 correct readings of the draft spec that governed them at the time, and
-§6's qualitative point (a Kuijk core's `R2/R1` gain gain multiplies
+§6's qualitative point (a Kuijk core's `R2/R1` gain multiplies
 amplifier offset into the output, so the amplifier term is structurally the
 one to watch) stands. What changed is the spec window DR-005 ratified is
 twice the draft's, and that is enough by itself to flip this one line from
