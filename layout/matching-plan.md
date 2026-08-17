@@ -3412,6 +3412,57 @@ Once ratified, a one-line follow-up bumps `gen_bandgap_routed.py`'s
 `budget_um2` to match and the flow should report every gate green,
 including `within_budget` -- no further drawn-geometry change expected.
 
+### 7dd. Thirty-second increment: the schematic finally *models* the chained array instead of sizing around it (issue #178) -- `n_r2` 50 -> 51, `N_R2_COARSE` 48 -> 49, and a newly measured post-layout interconnect-resistance finding
+
+**What moved, and why it is a schematic-side lever landing in the layout.**
+Section 7x/7y's resize corrected the *drawn* part's `K = R2/R1` while leaving
+`design/bandgap_core.sch`'s own `XR1`/`XR2A`/`XR2B` lines modelling one
+`res_high_po` device per leg. That is the gap DR-003 explicitly left open, and
+it is why the schematic-level harness read `VOUT(27 degC) ~ 1.165 V` -- about
+36 mV below what this flow draws. Issue #178 closes it in the schematic: each
+leg is now an **exact lumped equivalent** of this file's own N-instance
+decomposition (a body device at `Ltot - (N-1)*r_ov_seg`, plus one replica
+unit whose drop an ideal VCVS multiplies by `N-1`; exact because both `rhead`
+and `rbody` are affine in the drawn length, and verified identical to an
+explicit 143-instance chain to 7 significant figures across `-40..125 degC`).
+With one model describing both representations, `n_r2` was re-derived against
+DR-005's **ratified** ±2 % untrimmed window rather than the superseded draft
+±1 %, giving `n_r2` 50 -> 51 and, on this side, `N_R2_COARSE` 48 -> 49
+(`5*49 + 0.5*20 == 255 == 5*51`). See `gen_bandgap_routed.py`'s
+`RES_HEAD_SIZING_NOTE`.
+
+**Results** (`layout/bandgap-core/reports/20260817-020222-13476b7/record.md`):
+
+| Stage | Before this increment | After |
+| --- | --- | --- |
+| DRC / met2 DRC | clean | clean |
+| extract | `device_counts={"nfet":16,"pfet":52,"pnp":16,"res_high_po":143}` | `{"nfet":16,"pfet":52,"pnp":16,"res_high_po":145}` (+2 = one extra coarse unit per R2 leg) |
+| `klt lvs` (combined) | `mismatch_count=0`, `devices.matched=16` | `mismatch_count=0`, `devices.matched=16` (held, against a **re-derived** `reference.spice`: `RR2A`/`RR2B` 107 026.76 -> 109 030.60 ohm) |
+| pins | 11 | 11 |
+
+**The new finding this increment produced, and did NOT design around.** With
+the device-level legs now identical on both sides, the residual
+schematic-vs-extracted delta is measurable and is entirely
+**interconnect**: driving the resistor-only subset of the extracted netlist
+terminal to terminal gives `R1` = 18 520.8 ohm against a 14 026.89 ohm device
+sum (+32.0 %) and `R2A`/`R2B` = 141 169 / 141 363 ohm against 109 030.60
+(+29.5 / +29.7 %). Every internal chain net carries a two-terminal star of
+~229.7 ohm per terminal, so the burden scales with a leg's *instance count*,
+not its resistance: `K` falls 7.7733 -> 7.622 and the branch current falls
+~24 %, together dropping post-layout `VREF` 17.35 mV below the schematic.
+That is what keeps the extracted run outside DR-005's accuracy floor
+(`vref_min` 1.1666-1.1697 V) while the schematic run passes it at all 45
+corners. Full numbers, and the open question of whether the chain nets' star
+resistance double-counts poly the `res_high_po` device value already charges:
+`sim/output-voltage-tc-post-layout/README.md`.
+
+**Suggested next increment (layout-side, not sizing-side)**: attack that
+interconnect term directly -- widen or shorten the inter-unit li1 jumpers in
+`bus_res_series`, or strap each chain on met1 -- and re-measure. Deliberately
+*not* done by absorbing it into `n_r2`: the untrimmed lever is worth ~8.9 mV
+per integer step, and no integer value puts both representations inside the
+±2 % window while a 17 mV structural offset separates them.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five

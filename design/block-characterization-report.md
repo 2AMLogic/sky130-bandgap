@@ -19,6 +19,27 @@ design this cycle, still shows the window failing at every non-cold temperature
 (tracked #180); one row (Trim) has no evidence against the current ratified
 design at all. All of that is stated plainly below, not summarized away.
 
+> **Partially superseded by issue #178 (`n_r2` 50 -> 51 + the chained-array
+> resistor model).** Rows **1a** (output accuracy, schematic), **1b** (output
+> accuracy, extracted), **3a/3b** (temp coefficient) and **4** (line
+> regulation) all rest on records this report cites that a later design change
+> has since re-measured. Current numbers, at the same ratified bounds:
+> schematic accuracy **PASS 45/45** (`vref` 1.18603-1.21780 V, binding `fs`),
+> schematic TC **FAIL 45/45 at 142.4-159.0 ppm/degC** (binding `fs` — the
+> measured untrimmed floor, not a ratio error), extracted accuracy **FAIL
+> 15/15** by 8.5-9.4 mV on `vref_min` (a post-layout interconnect-resistance
+> effect, quantified in `sim/output-voltage-tc-post-layout/README.md`),
+> extracted TC 167.9-186.9 ppm/degC, and line regulation **PASS 45/45**
+> (schematic) / **PASS 15/15** (extracted) — the 16/45 hot-corner FAILs this
+> report records have cleared. Evidence:
+> `sim/output-voltage-tc/records/20260817-015751-13476b7.md`,
+> `sim/output-voltage-tc-post-layout/records/20260817-020357-13476b7.md`,
+> `sim/line-regulation/records/20260817-021208-13476b7.md`,
+> `sim/line-regulation-post-layout/records/20260817-022402-13476b7.md`.
+> Regenerating the whole roll-up against the post-fix design is item 8's own
+> follow-up (#181), not issue #178's scope; this pointer exists so no row
+> below is read as current in the meantime.
+
 ## 0. Freshness / regeneration rule
 
 - **Generated against**: commit `3ba0e47` (2026-08-16), the tip of `main` at the time
