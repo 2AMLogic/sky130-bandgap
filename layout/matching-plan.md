@@ -3440,28 +3440,41 @@ DR-005's **ratified** ±2 % untrimmed window rather than the superseded draft
 | `klt lvs` (combined) | `mismatch_count=0`, `devices.matched=16` | `mismatch_count=0`, `devices.matched=16` (held, against a **re-derived** `reference.spice`: `RR2A`/`RR2B` 107 026.76 -> 109 030.60 ohm) |
 | pins | 11 | 11 |
 
-**The new finding this increment produced, and did NOT design around.** With
-the device-level legs now identical on both sides, the residual
-schematic-vs-extracted delta is measurable and is entirely
-**interconnect**: driving the resistor-only subset of the extracted netlist
-terminal to terminal gives `R1` = 18 520.8 ohm against a 14 026.89 ohm device
-sum (+32.0 %) and `R2A`/`R2B` = 141 169 / 141 363 ohm against 109 030.60
-(+29.5 / +29.7 %). Every internal chain net carries a two-terminal star of
-~229.7 ohm per terminal, so the burden scales with a leg's *instance count*,
-not its resistance: `K` falls 7.7733 -> 7.622 and the branch current falls
-~24 %, together dropping post-layout `VREF` 17.35 mV below the schematic.
-That is what keeps the extracted run outside DR-005's accuracy floor
-(`vref_min` 1.1666-1.1697 V) while the schematic run passes it at all 45
-corners. Full numbers, and the open question of whether the chain nets' star
-resistance double-counts poly the `res_high_po` device value already charges:
-`sim/output-voltage-tc-post-layout/README.md`.
+**A stale-`klt` artifact this increment re-detected, and did NOT design
+around.** With the device-level legs now identical on both sides, the residual
+schematic-vs-extracted delta became measurable: driving the resistor-only
+subset of the extracted netlist terminal to terminal gives `R1` = 18 520.8 ohm
+against a 14 026.89 ohm device sum (+32.0 %) and `R2A`/`R2B` =
+141 169 / 141 363 ohm against 109 030.60 (+29.5 / +29.7 %). `K` falls
+7.7733 -> 7.622 and the branch current falls ~24 %, together dropping
+post-layout `VREF` 17.35 mV below the schematic -- which is the whole reason
+the extracted run sits outside DR-005's accuracy floor (`vref_min`
+1.1666-1.1697 V) while the schematic run passes it at all 45 corners.
 
-**Suggested next increment (layout-side, not sizing-side)**: attack that
-interconnect term directly -- widen or shorten the inter-unit li1 jumpers in
-`bus_res_series`, or strap each chain on met1 -- and re-measure. Deliberately
-*not* done by absorbing it into `n_r2`: the untrimmed lever is worth ~8.9 mV
-per integer step, and no integer value puts both representations inside the
-±2 % window while a 17 mV structural offset separates them.
+That is **[klayout-tools#800](https://github.com/2AMLogic/klayout-tools/issues/800)**
+-- `klt extract --parasitics` subtracts only MOS gate poly, not recognised
+resistor bodies, from the poly parasitic role, so every drawn `res_high_po`
+body is charged once as the device value and again as net parasitic
+resistance. Filed from this repo's own friction protocol; **closed upstream
+2026-08-12**; not present in the build that produced this snapshot. The
+signature matches to the digit: the issue predicts ~459 ohm per internal chain
+net, this snapshot reports 2 x 229.727 = 459.45 ohm, and total parasitic R
+(226 256 ohm) is 97.5 % of total device R (232 088 ohm). Confirmed against the
+installed source, not inferred: the `PATH` `klt` (`git+...@a482d393`, 0.2.0)
+still builds the poly role with `[nfet_gate, pfet_gate]` as its whole subtract
+list, and this file's own pin (`acb0ae6`, 2026-08-06) predates the fix too.
+Full numbers: `sim/output-voltage-tc-post-layout/README.md`.
+
+**Suggested next increment**: bump `layout/requirements.txt` past
+klayout-tools#800's fix under this file's usual pin-bump discipline (range
+check, `run-trivial-cell-flow.sh` non-regression, re-run this flow), and close
+the second gap the same investigation exposed -- `sim/bin/post_layout_common.py`
+invokes bare `klt` from `PATH` while this flow uses the commit-pinned
+`layout/.venv/bin/klt`, so a layout record and a post-layout sim record can be
+produced by different `klt` builds with nothing forcing them to agree. Then
+re-run `sim/output-voltage-tc-post-layout`. Explicitly **not** the levers to
+reach for: re-routing `bus_res_series`' inter-unit jumpers, or absorbing the
+delta into `n_r2` -- both would compensate a tool bug with silicon.
 
 ## 8. Known limitations / follow-on work
 

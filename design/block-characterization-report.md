@@ -27,8 +27,10 @@ design at all. All of that is stated plainly below, not summarized away.
 > schematic accuracy **PASS 45/45** (`vref` 1.18603-1.21780 V, binding `fs`),
 > schematic TC **FAIL 45/45 at 142.4-159.0 ppm/degC** (binding `fs` — the
 > measured untrimmed floor, not a ratio error), extracted accuracy **FAIL
-> 15/15** by 8.5-9.4 mV on `vref_min` (a post-layout interconnect-resistance
-> effect, quantified in `sim/output-voltage-tc-post-layout/README.md`),
+> 15/15** by 8.5-9.4 mV on `vref_min` — an **artifact** FAIL, traced to
+> klayout-tools#800's `klt extract --parasitics` poly double-count (filed from
+> this repo, fixed upstream 2026-08-12, absent from the installed `klt` build)
+> and quantified in `sim/output-voltage-tc-post-layout/README.md`,
 > extracted TC 167.9-186.9 ppm/degC, and line regulation **PASS 45/45**
 > (schematic) / **PASS 15/15** (extracted) — the 16/45 hot-corner FAILs this
 > report records have cleared. Evidence:
