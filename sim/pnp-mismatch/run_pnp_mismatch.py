@@ -46,6 +46,7 @@ SPICEINIT_FILE = SIM_DIR / "spiceinit"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
 from sim_common import (  # noqa: E402
+    MismatchPoint,
     load_corner_run,
     mean,
     mv,
@@ -112,17 +113,7 @@ SEED_SIGMA_TOL = 0.25  # |sigma_B/sigma_A - 1| for the seed-stability check
 SIGNAL_RATIO_MAX = 0.05  # sigma(dVBE) must stay well under the PTAT dVBE signal
 
 
-@dataclass(frozen=True)
-class Point:
-    """One ngspice invocation: a (section, temperature, seed, N) tuple."""
-
-    corner_id: str
-    section: str
-    temp_c: float
-    seed: int
-    samples: int
-    role: str  # "mismatch" | "control" | "seed-check"
-    purpose: str
+Point = MismatchPoint  # shared 7-field shape (issue #194)
 
 
 def build_points(samples: int) -> list[Point]:
