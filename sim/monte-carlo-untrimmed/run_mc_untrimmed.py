@@ -55,6 +55,7 @@ BUILD_DIR = SIM_DIR / "build" / "monte-carlo-untrimmed"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
 from sim_common import (  # noqa: E402
+    MismatchPoint,
     load_corner_run,
     mean,
     mv,
@@ -198,15 +199,13 @@ VECTORS = ("vout", "vgdrv")
 
 
 @dataclass(frozen=True)
-class Point:
-    corner_id: str
-    section: str
-    config: str
-    temp_c: float
-    seed: int
-    samples: int
-    role: str  # "mismatch" | "control" | "seed-check"
-    purpose: str
+class Point(MismatchPoint):
+    """`MismatchPoint` (issue #194) plus the `config` sweep axis
+    (`"all"|"pnp"|"resistor"|"mos"`) unique to this experiment -- the other
+    two mismatch-Monte-Carlo scripts don't have this axis, so it's kept as a
+    local subclass field rather than added to the shared base."""
+
+    config: str = ""
 
 
 def build_points(samples: int) -> list[Point]:
