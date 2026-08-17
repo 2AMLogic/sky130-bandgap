@@ -2258,7 +2258,7 @@ class TestR2LegLength(unittest.TestCase):
 
     def test_reports_the_schematic_value_from_core_params(self) -> None:
         report = gen_bandgap_routed.r2_leg_length()
-        self.assertEqual(report["spec_um"], 250.0)  # r_lseg=5 * n_r2=50
+        self.assertEqual(report["spec_um"], 255.0)  # r_lseg=5 * n_r2=51
 
     def test_drawn_length_counts_the_trim_ladder_because_it_is_in_series(
         self,
@@ -2283,13 +2283,14 @@ class TestR2LegLength(unittest.TestCase):
     def test_the_split_is_coarse_plus_fine_not_coarse_plus_extra(self) -> None:
         """The specific decomposition matters, not just the total: the fine
         ladder has to be long enough to reach DR-002's -16 code from inside
-        the 250 um (issue #112's re-partition, forced by DR-002's revised
+        the specified leg (issue #178's 49/20 decomposition at n_r2=51; before
+        that issue #112's 48/20 re-partition, forced by DR-002's revised
         `r_lseg_trim=0.5`, of issue #108's 46/20 decomposition -- which was
         itself issue #108's resize of issue #91's decomposition), which is
-        what rules out e.g. 49 coarse + 15 fine (also totals 250 um but only
-        reaches code -15 at the halved fine-unit length)."""
+        what rules out e.g. 50 coarse + 10 fine (also totals 255 um but only
+        reaches code -10 at the halved fine-unit length)."""
         report = gen_bandgap_routed.r2_leg_length()
-        self.assertEqual(report["coarse_um"], 240.0)
+        self.assertEqual(report["coarse_um"], 245.0)
         self.assertEqual(report["trim_um"], 10.0)
         self.assertGreaterEqual(
             gen_bandgap_routed.N_R2_TRIM_UNITS,

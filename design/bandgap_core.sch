@@ -181,7 +181,12 @@ V {}
 S {}
 E {}
 T {bandgap_core -- Kuijk-style CMOS bandgap core (issue #8)
-VOUT = VBE(Q1) + (n_r2/n_r1) * dVBE(Q1,Q2); amplifier forces VA = VB.
+VOUT = VBE(Q1) + K * dVBE(Q1,Q2), K = R2/R1; amplifier forces VA = VB.
+K is NOT n_r2/n_r1: each leg chains a different NUMBER of separately-
+contacted unit instances and pays the model card's head/end term once per
+instance (DR-003). The XR1/XR2A/XR2B devices below are the body half of an
+exact lumped equivalent of that chain -- see CHAINED-ARRAY MODEL in the
+CORE_PARAMS block and the RES_HEAD_MODEL block that completes it.
 PNP area ratio is built from paralleled fixed-geometry unit devices.
 All resistors are integer multiples of one res_high_po unit segment.
 R2A/R2B carry a downward-only ladder-tap length trim, n_r2_trim (issue #13,
@@ -200,16 +205,14 @@ C {devices/code_shown.sym} 100 -1250 0 0 {name=CORE_PARAMS only_toplevel=false v
 * res_high_po unit segment: W = r_w um, L = r_lseg um (R ~ 380 + 325*L ohm)
 .param r_w=1
 .param r_lseg=5
-* segment counts. K = R2/R1 (each leg has its own head resistance, so
-* K != n_r2/n_r1 exactly -- see the header comment). n_r2 was RESIZED 54 -> 50
-* by issue #99 (see RESIZE STATUS below); n_r1 held at 7. The #46 single-
-* device investigation (why the OLD n_r2=54 was chosen, and why +1 was
-* rejected there) is retained in the header Sizing rationale, superseded by
-* the resize.
-* RESIZE STATUS (issue #99 / DR-003, RESOLVED): n_r1/n_r2 are now sized
-* against the ROUTED LAYOUT's real chained-array topology -- the ground truth
-* the fabricated part experiences -- NOT the single-res_high_po-device-per-leg
-* model this schematic's own XR1/XR2A/XR2B lines still draw. Issue #98/DR-003
+* segment counts. K = R2/R1. n_r2 history: 54 (issue #46, single-device
+* model) -> 50 (issue #99/DR-003, chained topology, single-device SCHEMATIC
+* left un-modelled) -> 51 (issue #178, chained topology modelled HERE and
+* re-centred against DR-005's ratified accuracy row). See CHAINED-ARRAY
+* MODEL and SIZING (issue #178) below.
+* HISTORY (issue #99 / DR-003, RESOLVED): n_r1/n_r2 are sized against the
+* ROUTED LAYOUT's real chained-array topology -- the ground truth the
+* fabricated part experiences. Issue #98/DR-003
 * (sim/res-array-head-resistance/) established that the routed layout draws
 * each leg as N separately-contacted unit instances in series
 * (layout/bin/gen_bandgap_routed.py's bus_res_series), paying real per-instance
@@ -218,26 +221,68 @@ C {devices/code_shown.sym} 100 -1250 0 0 {name=CORE_PARAMS only_toplevel=false v
 * ~1.233 V (outside the draft +/-1% window 1.188..1.212 V) at all 5
 * (process,supply) corners and collapsing regulation at ff/2.97 V and
 * fs/2.97 V. Resizing n_r2 54 -> 50 (n_r1 left at 7 so branch current -- and
-* therefore hot-corner headroom -- is not raised while K is corrected) brings
-* the real chained topology's K back to 7.576 and VOUT(27 degC) back to
-* ~1.198 V, IN the +/-1% window at ALL 5 corners with NO hot-corner collapse,
-* and the DR-002 downward 0..-16 trim range still covering. Full PVT + trim
-* re-verification: sim/res-array-resize/records/ (issue #99).
-* CONSEQUENCE for the single-device model: because these XR1/XR2A/XR2B lines
-* still model each leg as ONE res_high_po device (omitting the per-instance
-* head resistance the real part pays), simulating THIS schematic as-drawn
-* (e.g. sim/output-voltage-tc's single-device tb_vref_tc, netlisted by xschem)
-* now reads VOUT(27 degC) ~1.165 V -- LOW *by design*. That ~33 mV gap IS the
-* head resistance the routed part uses to reach 1.198 V; it is not an error,
-* and the single-device harness is no longer the sizing reference of record
-* (DR-003: every single-device record models a topology the layout does not
-* build). NEXT INCREMENT (not done here, per one-lever-per-increment): the
-* routed layout generator (gen_bandgap_routed.py's N_R1/SCH_N_R2/N_R2_COARSE,
-* currently still transcribing n_r2=54) must be re-transcribed to n_r2=50 and
-* re-verified through klayout DRC/LVS -- see DR-003's closure and
-* layout/matching-plan.md Section 7x.
+* therefore hot-corner headroom -- is not raised while K is corrected) brought
+* the real chained topology's K back to 7.576. Full PVT + trim
+* re-verification of that step: sim/res-array-resize/records/ (issue #99).
+* ---- CHAINED-ARRAY MODEL (issue #178) ----
+* DR-003 deliberately left the SCHEMATIC modelling each leg as ONE
+* res_high_po device, so simulating this cell as-drawn read VOUT(27 degC)
+* ~1.165 V -- ~36 mV below what the routed part builds. Issue #178 closes
+* that gap HERE rather than sizing around it: XR1/XR2A/XR2B are now the
+* *body* devices of an EXACT lumped equivalent of the routed N-instance
+* chain, completed by the per-leg replica + gain elements in the
+* RES_HEAD_MODEL block below. The identity used (exact, not an
+* approximation) follows from the PDK model card
+* (models_resistors.spice: rhead has a hardcoded l=1 independent of the
+* caller's drawn length; rbody is linear in leff = l + 0.247):
+*     R_chain(N units, total drawn length Ltot)
+*         = N*rhead + rbody(Ltot + 0.247*N)
+*         = R_res_high_po(L = Ltot - (N-1)*r_ov_seg)      <- the body device
+*           + (N-1) * R_res_high_po(L = r_ov_seg)          <- the replica
+* for ANY r_ov_seg, because both terms are affine in the drawn length. The
+* (N-1) copies are realized as ONE replica instance whose drop is multiplied
+* by (N-1) with an ideal VCVS, which is exact for the nominal value at every
+* temperature and process corner (rhead and rbody are re-evaluated by the
+* model card, not frozen) -- verified against an explicit 143-instance chain
+* of the same decomposition: identical to 7 significant figures on
+* vref_27 / vref_min / vref_max / tc_ppm over the whole -40..125 degC sweep.
+* The replica carries mult='n_*_ov' so the PDK's own AGAUSS mismatch term
+* (sigma ~ 1/sqrt(w*mult)) reproduces the 1/sqrt(N) averaging of N
+* independent series instances; `m` is deliberately pinned to 1 on those
+* lines (the stock res_high_po symbol ties m to mult, which would parallel
+* the subcircuit and divide the value -- that is why the replica/VCVS pair
+* lives in a code block instead of as drawn symbol instances).
+* ---- SIZING (issue #178) ----
+* With the chain modelled, n_r2 was re-derived against DR-005's ratified
+* untrimmed accuracy row (1.20 V +/-2% over -40..125 degC => 1.176..1.224 V),
+* not against the superseded draft +/-1% window:
+*   n_r2=50 (K = 7.630): vref_min 1.1744..1.1747 -- ~1.3 mV BELOW the 1.176 V
+*     floor at every corner. FAIL.
+*   n_r2=51 (K = 7.773): vref 1.18603..1.21780 at all 15 (process, supply)
+*     points -- inside the window with 10.0 mV bottom / 6.2 mV top margin,
+*     and box TC 142.4..159.0 ppm/degC (binding corner fs). ADOPTED.
+*   n_r2=52 (K = 7.917): vref_max 1.22394..1.22507 -- over the 1.224 V
+*     ceiling at 6 of 15 points. FAIL.
+* n_r1 is held at 7 for the same reason issue #99 held it: R1 sets the branch
+* current, and raising it raises the hot-corner headroom demand that the
+* ff/2.97 V and fs/2.97 V regulation collapse depends on. No collapse is seen
+* at n_r2=51 or 52 at those corners with the chained model.
+* The K figures above are the routed chain's own values, computed from the
+* per-instance terms DR-003 measured and klt extract independently reports
+* (head+end 379.705 ohm/instance, body 324.827 ohm/um):
+*   R1  = 7 * (379.705 + 324.827*5)                       = 14.027 kohm
+*   R2  = (n_r2-2) * (379.705 + 324.827*5)
+*         + 20 * (379.705 + 324.827*0.5)                  = 109.03 kohm at 51
+* i.e. K = 7.773 at n_r2=51 -- NOT the textbook n_r2/n_r1 = 7.286, and NOT
+* the single-device model's 7.087. The residual TC (142-159 ppm/degC, still
+* far above DR-005's < 50 ppm/degC row) is issue #46's device-level floor,
+* not a ratio error: design/device-characterization-summary.md section 1
+* measures Q1's nf = 1.028 vs Q2's nf = 1.000, so ~18.1 mV of the 62.3 mV
+* dVBE at 27 degC is a fraction of a CTAT quantity rather than true PTAT and
+* its shortfall grows with temperature. See sim/output-voltage-tc/records/
+* for the graded evidence and issue #179 for the spec-side routing.
 .param n_r1=7
-.param n_r2=50
+.param n_r2=51
 * PMOS mirror multiplicities (unit device W=8u L=2u)
 .param m_out=2
 .param m_ampbias=2
@@ -281,6 +326,53 @@ C {devices/code_shown.sym} 100 -1250 0 0 {name=CORE_PARAMS only_toplevel=false v
 * used for #107/#108.
 .param n_r2_trim=0
 .param r_lseg_trim=0.5
+* ---- Routed chained-array decomposition (issue #178) ----
+* Transcribed from layout/bin/gen_bandgap_routed.py's N_R1 / N_R2_COARSE /
+* N_R2_TRIM_UNITS: each leg is drawn as separately-contacted unit instances
+* in series, so the instance COUNT (not just the total drawn length) is an
+* electrical parameter -- every instance pays the model card's rhead term.
+*   R1        : n_r1 coarse units of r_lseg um.
+*   R2A/R2B   : n_r2_coarse coarse units of r_lseg um, plus the fixed
+*               n_r2_fine-unit fine ladder of r_lseg_trim um each, of which
+*               (n_r2_fine + n_r2_trim) are in circuit at a DOWNWARD-only
+*               trim code (code 0 = all of them = the untrimmed leg).
+* n_r2_coarse is derived, not transcribed twice: the fine ladder's drawn
+* length is held inside the specified r_lseg*n_r2 leg, which is exactly the
+* constraint gen_bandgap_routed.py's R2_LEG_SPEC_UM assertion enforces.
+.param n_r2_fine=20
+.param n_r2_coarse='n_r2-r_lseg_trim*n_r2_fine/r_lseg'
+.param n_r2_inst='n_r2_coarse+n_r2_fine+n_r2_trim'
+* Replica multiplicities: (N-1) per leg -- see CHAINED-ARRAY MODEL above.
+.param n_r2_ov='n_r2_inst-1'
+.param n_r1_ov='n_r1-1'
+* Replica unit drawn length. The lumped identity is exact for ANY value;
+* 0.5 um is chosen only so the body devices' remaining length stays well
+* positive (R2A/R2B body = 221.0 um, R1 body = 32.0 um at the shipped
+* sizing) and so the replica is a length the layout actually draws.
+.param r_ov_seg=0.5
+"}
+C {devices/code_shown.sym} 700 -1250 0 0 {name=RES_HEAD_MODEL only_toplevel=false value="
+* ---- Per-instance head-resistance replicas (issue #178) ----
+* These three (replica, VCVS) pairs complete the EXACT lumped equivalent of
+* the routed layout's N-instance series chains; the drawn XR1/XR2A/XR2B
+* symbols carry only the body length. See the CORE_PARAMS block's
+* CHAINED-ARRAY MODEL section for the identity, its exactness proof and the
+* explicit-chain cross-check.
+* Written as SPICE text rather than drawn symbols for one concrete reason:
+* the stock res_high_po symbol emits 'mult=@mult m=@mult', and an X-line's
+* `m` PARALLELS the subcircuit -- which would divide the replica's value by
+* N-1 instead of leaving it alone. These lines set mult (mismatch sigma,
+* 1/sqrt(w*mult), reproducing N-1 independent instances) while pinning m=1
+* (nominal value untouched). The VCVS then multiplies the replica's own
+* drop by (N-1), so the leg's total series resistance is exactly
+* (N-1) * R_unit(r_ov_seg) + R_body -- at every temperature and corner,
+* because the replica is a real model-card evaluation, not a frozen number.
+XR2A_HD VA R2A_HD1 VSS sky130_fd_pr__res_high_po W='r_w' L='r_ov_seg' mult='n_r2_ov' m=1
+ER2A_HD R2A_HD1 R2A_HD2 VA R2A_HD1 'n_r2_ov-1'
+XR2B_HD VB R2B_HD1 VSS sky130_fd_pr__res_high_po W='r_w' L='r_ov_seg' mult='n_r2_ov' m=1
+ER2B_HD R2B_HD1 R2B_HD2 VB R2B_HD1 'n_r2_ov-1'
+XR1_HD VBQ R1_HD1 VSS sky130_fd_pr__res_high_po W='r_w' L='r_ov_seg' mult='n_r1_ov' m=1
+ER1_HD R1_HD1 R1_HD2 VBQ R1_HD1 'n_r1_ov-1'
 "}
 C {devices/opin.sym} 100 -830 0 0 {name=p_vout lab=VOUT}
 C {devices/iopin.sym} 100 -790 0 0 {name=p_gdrv lab=GDRV}
@@ -317,21 +409,21 @@ C {devices/lab_pin.sym} 910 -650 0 0 {name=ampvdd lab=VDD}
 C {devices/lab_pin.sym} 900 -550 0 0 {name=ampvss lab=VSS}
 C {sky130_fd_pr/res_high_po.sym} 300 -600 0 0 {name=R2A
 W='r_w'
-L='r_lseg*n_r2+r_lseg_trim*n_r2_trim'
+L='r_lseg*n_r2+r_lseg_trim*n_r2_trim-n_r2_ov*r_ov_seg'
 model=res_high_po
 spiceprefix=X
 mult=1}
 C {devices/lab_pin.sym} 300 -630 0 0 {name=r2ap lab=VOUT}
-C {devices/lab_pin.sym} 300 -570 0 0 {name=r2am lab=VA}
+C {devices/lab_pin.sym} 300 -570 0 0 {name=r2am lab=R2A_HD2}
 C {devices/lab_pin.sym} 280 -600 0 0 {name=r2ab lab=VSS}
 C {sky130_fd_pr/res_high_po.sym} 500 -600 0 0 {name=R2B
 W='r_w'
-L='r_lseg*n_r2+r_lseg_trim*n_r2_trim'
+L='r_lseg*n_r2+r_lseg_trim*n_r2_trim-n_r2_ov*r_ov_seg'
 model=res_high_po
 spiceprefix=X
 mult=1}
 C {devices/lab_pin.sym} 500 -630 0 0 {name=r2bp lab=VOUT}
-C {devices/lab_pin.sym} 500 -570 0 0 {name=r2bm lab=VB}
+C {devices/lab_pin.sym} 500 -570 0 0 {name=r2bm lab=R2B_HD2}
 C {devices/lab_pin.sym} 480 -600 0 0 {name=r2bb lab=VSS}
 C {sky130_fd_pr/pnp_05v5.sym} 300 -400 0 0 {name=Q1
 model=pnp_05v5_W0p68L0p68
@@ -342,12 +434,12 @@ C {devices/lab_pin.sym} 280 -400 0 0 {name=q1b lab=VSS}
 C {devices/lab_pin.sym} 320 -430 0 0 {name=q1e lab=VA}
 C {sky130_fd_pr/res_high_po.sym} 500 -400 0 0 {name=R1
 W='r_w'
-L='r_lseg*n_r1'
+L='r_lseg*n_r1-n_r1_ov*r_ov_seg'
 model=res_high_po
 spiceprefix=X
 mult=1}
 C {devices/lab_pin.sym} 500 -430 0 0 {name=r1p lab=VB}
-C {devices/lab_pin.sym} 500 -370 0 0 {name=r1m lab=VBQ}
+C {devices/lab_pin.sym} 500 -370 0 0 {name=r1m lab=R1_HD2}
 C {devices/lab_pin.sym} 480 -400 0 0 {name=r1b lab=VSS}
 C {sky130_fd_pr/pnp_05v5.sym} 500 -200 0 0 {name=Q2
 model=pnp_05v5_W3p40L3p40

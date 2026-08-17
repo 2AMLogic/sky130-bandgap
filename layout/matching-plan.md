@@ -3412,6 +3412,70 @@ Once ratified, a one-line follow-up bumps `gen_bandgap_routed.py`'s
 `budget_um2` to match and the flow should report every gate green,
 including `within_budget` -- no further drawn-geometry change expected.
 
+### 7dd. Thirty-second increment: the schematic finally *models* the chained array instead of sizing around it (issue #178) -- `n_r2` 50 -> 51, `N_R2_COARSE` 48 -> 49, and a newly measured post-layout interconnect-resistance finding
+
+**What moved, and why it is a schematic-side lever landing in the layout.**
+Section 7x/7y's resize corrected the *drawn* part's `K = R2/R1` while leaving
+`design/bandgap_core.sch`'s own `XR1`/`XR2A`/`XR2B` lines modelling one
+`res_high_po` device per leg. That is the gap DR-003 explicitly left open, and
+it is why the schematic-level harness read `VOUT(27 degC) ~ 1.165 V` -- about
+36 mV below what this flow draws. Issue #178 closes it in the schematic: each
+leg is now an **exact lumped equivalent** of this file's own N-instance
+decomposition (a body device at `Ltot - (N-1)*r_ov_seg`, plus one replica
+unit whose drop an ideal VCVS multiplies by `N-1`; exact because both `rhead`
+and `rbody` are affine in the drawn length, and verified identical to an
+explicit 143-instance chain to 7 significant figures across `-40..125 degC`).
+With one model describing both representations, `n_r2` was re-derived against
+DR-005's **ratified** ±2 % untrimmed window rather than the superseded draft
+±1 %, giving `n_r2` 50 -> 51 and, on this side, `N_R2_COARSE` 48 -> 49
+(`5*49 + 0.5*20 == 255 == 5*51`). See `gen_bandgap_routed.py`'s
+`RES_HEAD_SIZING_NOTE`.
+
+**Results** (`layout/bandgap-core/reports/20260817-020222-13476b7/record.md`):
+
+| Stage | Before this increment | After |
+| --- | --- | --- |
+| DRC / met2 DRC | clean | clean |
+| extract | `device_counts={"nfet":16,"pfet":52,"pnp":16,"res_high_po":143}` | `{"nfet":16,"pfet":52,"pnp":16,"res_high_po":145}` (+2 = one extra coarse unit per R2 leg) |
+| `klt lvs` (combined) | `mismatch_count=0`, `devices.matched=16` | `mismatch_count=0`, `devices.matched=16` (held, against a **re-derived** `reference.spice`: `RR2A`/`RR2B` 107 026.76 -> 109 030.60 ohm) |
+| pins | 11 | 11 |
+
+**A stale-`klt` artifact this increment re-detected, and did NOT design
+around.** With the device-level legs now identical on both sides, the residual
+schematic-vs-extracted delta became measurable: driving the resistor-only
+subset of the extracted netlist terminal to terminal gives `R1` = 18 520.8 ohm
+against a 14 026.89 ohm device sum (+32.0 %) and `R2A`/`R2B` =
+141 169 / 141 363 ohm against 109 030.60 (+29.5 / +29.7 %). `K` falls
+7.7733 -> 7.622 and the branch current falls ~24 %, together dropping
+post-layout `VREF` 17.35 mV below the schematic -- which is the whole reason
+the extracted run sits outside DR-005's accuracy floor (`vref_min`
+1.1666-1.1697 V) while the schematic run passes it at all 45 corners.
+
+That is **[klayout-tools#800](https://github.com/2AMLogic/klayout-tools/issues/800)**
+-- `klt extract --parasitics` subtracts only MOS gate poly, not recognised
+resistor bodies, from the poly parasitic role, so every drawn `res_high_po`
+body is charged once as the device value and again as net parasitic
+resistance. Filed from this repo's own friction protocol; **closed upstream
+2026-08-12**; not present in the build that produced this snapshot. The
+signature matches to the digit: the issue predicts ~459 ohm per internal chain
+net, this snapshot reports 2 x 229.727 = 459.45 ohm, and total parasitic R
+(226 256 ohm) is 97.5 % of total device R (232 088 ohm). Confirmed against the
+installed source, not inferred: the `PATH` `klt` (`git+...@a482d393`, 0.2.0)
+still builds the poly role with `[nfet_gate, pfet_gate]` as its whole subtract
+list, and this file's own pin (`acb0ae6`, 2026-08-06) predates the fix too.
+Full numbers: `sim/output-voltage-tc-post-layout/README.md`.
+
+**Suggested next increment**: bump `layout/requirements.txt` past
+klayout-tools#800's fix under this file's usual pin-bump discipline (range
+check, `run-trivial-cell-flow.sh` non-regression, re-run this flow), and close
+the second gap the same investigation exposed -- `sim/bin/post_layout_common.py`
+invokes bare `klt` from `PATH` while this flow uses the commit-pinned
+`layout/.venv/bin/klt`, so a layout record and a post-layout sim record can be
+produced by different `klt` builds with nothing forcing them to agree. Then
+re-run `sim/output-voltage-tc-post-layout`. Explicitly **not** the levers to
+reach for: re-routing `bus_res_series`' inter-unit jumpers, or absorbing the
+delta into `n_r2` -- both would compensate a tool bug with silicon.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five

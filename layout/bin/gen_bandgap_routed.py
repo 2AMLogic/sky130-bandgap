@@ -877,6 +877,41 @@ RES_TRIM_LSB_NOTE = (
     "revision') as the next one-lever-per-increment step -- done here, "
     "issue #112. See item 21 in this module's own docstring."
 )
+#: Why n_r2 moved again, 50 -> 51, and why N_R2_COARSE followed it 48 -> 49.
+#: Not a layout-side finding -- transcribes issue #178's schematic-side
+#: sizing decision, which is itself a consequence of finally MODELLING the
+#: chained topology RES_HEAD_RESISTANCE_NOTE quantifies instead of sizing
+#: around it.
+RES_HEAD_SIZING_NOTE = (
+    "DR-003 (RES_HEAD_RESISTANCE_NOTE) established that this flow's drawn "
+    "decomposition pays the model card's per-instance head/end resistance "
+    "once per separately-contacted primitive, and issue #99 resized n_r2 "
+    "54 -> 50 so the DRAWN part's K = R2/R1 landed in spec. What it did "
+    "NOT do was model that chain in design/bandgap_core.sch, whose "
+    "XR1/XR2A/XR2B lines stayed single-device -- so the schematic-level "
+    "harness simulated a K about 9% below the drawn part's and read "
+    "VOUT(27 degC) ~1.165 V, ~36 mV low. Issue #178 closes that: the "
+    "schematic now carries an EXACT lumped equivalent of the N-instance "
+    "chain (a body device plus a replica whose drop is multiplied by N-1, "
+    "verified identical to an explicit 143-instance chain to 7 significant "
+    "figures over the whole -40..125 degC sweep), and with one model "
+    "describing both representations n_r2 was re-derived against DR-005's "
+    "RATIFIED +/-2 % untrimmed accuracy row (1.176-1.224 V) rather than "
+    "the superseded draft +/-1 % window: n_r2=50 leaves vref_min ~1.3 mV "
+    "under the floor at every corner, n_r2=52 puts vref_max over the "
+    "ceiling at 6 of 15 (process, supply) points, and n_r2=51 sits inside "
+    "with 10.0 mV bottom / 6.2 mV top margin at all 15 while cutting box "
+    "TC from 175-182 to 142-159 ppm/degC. n_r1 stays at 7 for "
+    "RES_RESIZE_NOTE's reason (branch current, hot-corner headroom); no "
+    "operating-point collapse is seen at ff/2.97 V or fs/2.97 V at either "
+    "n_r2=51 or 52. Drawn-side consequence, and the only one: holding "
+    "`5*N_R2_COARSE + 0.5*N_R2_TRIM_UNITS == 5*SCH_N_R2` at the new "
+    "SCH_N_R2=51 moves N_R2_COARSE 48 -> 49 (255 um/leg). The fine "
+    "ladder's unit count, DR-002's certified 0..-16 downward range and "
+    "every other drawn parameter are untouched. Evidence: "
+    "sim/output-voltage-tc/records/ (45-point PVT, schematic) and "
+    "sim/output-voltage-tc-post-layout/records/ (extracted)."
+)
 
 # ---------------------------------------------------------------------------
 # Floorplan geometry constants (um)
@@ -961,7 +996,14 @@ N_R1 = 7
 #: RES_RESIZE_NOTE for why the leg length itself moved (issue #99) and
 #: RES_TRIM_LSB_NOTE for why the fine unit length itself halved
 #: (issue #106).
-N_R2_COARSE = 48
+#: 48 -> 49 by issue #178 (n_r2 50 -> 51 re-centres the untrimmed VREF
+#: inside DR-005's ratified +/-2 % window once the schematic itself models
+#: the chained array's per-instance head resistance -- see
+#: design/bandgap_core.sch's CHAINED-ARRAY MODEL / SIZING blocks and
+#: RES_HEAD_SIZING_NOTE). The fine ladder's unit count is untouched, so
+#: `5*49 + 0.5*20 == 255 == 5*51` still holds the leg at the specified
+#: length and DR-002's certified 0..-16 downward range is still reachable.
+N_R2_COARSE = 49
 N_R2_TRIM_UNITS = 20
 #: DR-002's **certified** downward code range (0..-16, per leg). The drawn
 #: ladder can express 0..-20 -- codes -17..-20 are drawn metal but outside
@@ -976,8 +1018,10 @@ N_R2_TRIM_CODES = 16
 #: that the drawn decomposition and the specified length are independent
 #: statements that must agree.
 SCH_R_LSEG_UM = 5.0  # .param r_lseg=5
-#: 54 -> 50 by issue #99/PR #105 (DR-003's closure); see RES_RESIZE_NOTE.
-SCH_N_R2 = 50  # .param n_r2=50
+#: 54 -> 50 by issue #99/PR #105 (DR-003's closure); 50 -> 51 by issue #178
+#: (chained-array model + DR-005 re-centring); see RES_RESIZE_NOTE and
+#: RES_HEAD_SIZING_NOTE.
+SCH_N_R2 = 51  # .param n_r2=51
 #: 1 -> 0.5 by issue #106/PR #111 (DR-002's chained-LSB revision); see
 #: RES_TRIM_LSB_NOTE.
 SCH_R_LSEG_TRIM_UM = 0.5  # .param r_lseg_trim=0.5
@@ -5387,6 +5431,10 @@ def main() -> int:
         "`combine_devices` sums the layout side to. Measured: `R1`/`R2A`/"
         "`R2B` all move from `device.property` mismatches to full matches, "
         "`mismatch_count` moving from 4 (pre-resize) to the 1 above."
+    )
+    a(
+        "- **The R2 leg is drawn one coarse unit longer (issue #178).** "
+        f"{RES_HEAD_SIZING_NOTE}"
     )
     a("")
     a("## Visual verification")
