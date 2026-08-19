@@ -223,7 +223,7 @@ fi
 echo ""
 echo "Testing sweep.md documents the forge write failure diagnosis policy (#6425)..."
 
-SWEEP_MD="$(cd "$HELPERS_DIR/../../.claude/commands/loom" && pwd)/sweep.md"
+SWEEP_MD="$(cd "$HELPERS_DIR/../.claude/commands/loom" && pwd)/sweep.md"
 if [[ -r "$SWEEP_MD" ]]; then
     if grep -q "forge-transient" "$SWEEP_MD"; then
         pass "sweep.md references the forge-transient classification"

@@ -351,7 +351,7 @@ fi
 echo ""
 echo "Testing champion-pr-merge.md wiring..."
 
-CHAMPION_MD="$HELPERS_DIR/../../.claude/commands/loom/champion-pr-merge.md"
+CHAMPION_MD="$HELPERS_DIR/../.claude/commands/loom/champion-pr-merge.md"
 
 TESTS_RUN=$((TESTS_RUN + 1))
 if [[ -f "$CHAMPION_MD" ]] && grep -q 'MERGE_RC' "$CHAMPION_MD" && grep -q '"\$MERGE_RC" -eq 3' "$CHAMPION_MD"; then
