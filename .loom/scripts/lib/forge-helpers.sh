@@ -347,15 +347,25 @@ forge_merge_pr() {
         -d '{"Do":"squash","delete_branch_after_merge":false}'
     fi
   else
+    # Routed through forge_gh_perm_safe (#6074's ladder) rather than a bare
+    # `gh api`, per #202: a merge is one of the write call sites "a Builder
+    # depends on" that forge_gh_perm_safe's own doc comment promises coverage
+    # for, but this one bypassed it -- a stale-App-installation-token 403 here
+    # had no automatic rung-2/rung-3 recovery even though the mechanism
+    # already exists in this same file. forge_gh_perm_safe expects to run
+    # `gh <args>` itself, so this passes the same `api ... -X PUT ...` argv
+    # that used to go straight to `gh` (no functional change on the happy
+    # path -- same endpoint, same fields, same combined stdout+stderr shape
+    # that merge-pr.sh's `$(forge_merge_pr ... 2>&1)` callers already expect).
     if [[ -n "$expected_head_sha" ]]; then
-      gh api "repos/$nwo/pulls/$pr_number/merge" \
+      forge_gh_perm_safe api "repos/$nwo/pulls/$pr_number/merge" \
         -X PUT \
         -f merge_method=squash \
-        -f sha="$expected_head_sha" 2>&1
+        -f sha="$expected_head_sha"
     else
-      gh api "repos/$nwo/pulls/$pr_number/merge" \
+      forge_gh_perm_safe api "repos/$nwo/pulls/$pr_number/merge" \
         -X PUT \
-        -f merge_method=squash 2>&1
+        -f merge_method=squash
     fi
   fi
 }
@@ -372,7 +382,9 @@ forge_update_branch() {
     forge_split_nwo "$nwo"
     gitea_api POST "repos/$FORGE_OWNER/$FORGE_REPO/pulls/$pr_number/update"
   else
-    gh api "repos/$nwo/pulls/$pr_number/update-branch" -X PUT 2>&1
+    # Same #202 rationale as forge_merge_pr above: route through the
+    # permission-escalation ladder instead of a bare `gh api`.
+    forge_gh_perm_safe api "repos/$nwo/pulls/$pr_number/update-branch" -X PUT
   fi
 }
 
