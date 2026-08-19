@@ -519,7 +519,7 @@ assert_contains "$(cat "$MINT_LOG")" "get-token --force" \
 echo ""
 echo "Testing Builder role-prompt wiring (#6074)..."
 
-PROMPT_DIR="$(cd "$HELPERS_DIR/../.claude/commands/loom" && pwd)"
+PROMPT_DIR="$(cd "$HELPERS_DIR/../../.claude/commands/loom" && pwd)"
 
 for prompt in builder.md builder-pr.md builder-worktree.md; do
     if grep -q 'create-pr\.sh' "$PROMPT_DIR/$prompt"; then
