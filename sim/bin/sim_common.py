@@ -53,6 +53,22 @@ going through `importlib.util.spec_from_file_location`.
 verbatim, differing only in which module-level constants they closed the
 functions over.)
 
+    TARGET_LINES           the shared `XR2A`/`XR2B`/`XR1` single-device
+                          netlist line templates the two chained-array
+                          scripts substitute chained arrays in for
+    r2_segments_um()        the R2A/R2B leg coarse/fine unit-length
+                          decomposition, generalized to accept an optional
+                          `trim_unit_um` (issue #106's fine-unit-length axis;
+                          defaults to `res-array-resize`'s fixed 1 um)
+    substitute_arrays()      replaces the three `TARGET_LINES` single-device
+                          lines in a base netlist body with chained unit
+                          instances built from `r1_segments_um()`/
+                          `r2_segments_um()` (issue #198 -- these three were
+                          left behind byte-for-byte duplicated between
+                          `run_res_array_resize.py` and
+                          `run_trim_lsb_chained.py` when #143 consolidated
+                          the rest of this same array-substitution machinery)
+
     render_record_id_experiment() the `Record ID` + `Experiment` lines
                           shared verbatim across every bespoke script's
                           (and `corner-run.py`'s) `render_record()`
@@ -196,6 +212,117 @@ def load_base_body(base_snapshot: Path, expected_params: set[str]) -> list[str]:
             f"{sorted(missing)} -- the reused core body may have drifted"
         )
     return lines
+
+
+# The exact single-device lines the bespoke chained-array scripts replace
+# (verified present exactly once each in their base netlist snapshot before
+# substitution) -- identical `XR2A`/`XR2B`/`XR1` templates in both
+# `sim/res-array-resize/run_res_array_resize.py` and
+# `sim/trim-lsb-chained/run_trim_lsb_chained.py` (issue #198).
+TARGET_LINES = {
+    "XR2A": (
+        "XR2A VA VOUT VSS sky130_fd_pr__res_high_po W='r_w' "
+        "L='r_lseg*n_r2+r_lseg_trim*n_r2_trim' mult=1 m=1"
+    ),
+    "XR2B": (
+        "XR2B VB VOUT VSS sky130_fd_pr__res_high_po W='r_w' "
+        "L='r_lseg*n_r2+r_lseg_trim*n_r2_trim' mult=1 m=1"
+    ),
+    "XR1": "XR1 VBQ VB VSS sky130_fd_pr__res_high_po W='r_w' L='r_lseg*n_r1' mult=1 m=1",
+}
+
+
+def r2_segments_um(
+    n_r2: int,
+    trim_code: int,
+    trim_unit_um: float = 1.0,
+    r_lseg_um: float = 5.0,
+    n_r2_fine_units: int = 20,
+) -> list[float]:
+    """R2A/R2B leg unit lengths at a given sizing (n_r2), a DOWNWARD trim
+    code, and a candidate fine-unit length.
+
+    coarse_units * r_lseg_um + n_r2_fine_units * trim_unit_um == r_lseg_um * n_r2
+    (the untrimmed leg length stays fixed at `r_lseg_um * n_r2`; only the
+    coarse/fine split of it moves with `trim_unit_um`). `trim_code` <= 0;
+    code 0 keeps all `n_r2_fine_units` fine units in circuit (= the
+    untrimmed length).
+
+    `trim_unit_um` defaults to 1.0, matching `res-array-resize`'s fixed fine
+    unit length (its shipped `R_LSEG_TRIM_UM`); `trim-lsb-chained` passes a
+    candidate value explicitly to compare fine-unit lengths (issue #106).
+    `r_lseg_um`/`n_r2_fine_units` default to the values both callers'
+    `R_LSEG_UM`/`N_R2_FINE_UNITS` module constants already agree on (issue
+    #198 -- consolidated from the two near-identical closed-form geometry
+    helpers those scripts previously defined locally).
+    """
+    cr = _cr()
+    if trim_code > 0:
+        raise cr.HarnessError(f"trim_code must be <= 0 (downward-only), got {trim_code}")
+    fine_um_at_code0 = n_r2_fine_units * trim_unit_um
+    coarse_um = r_lseg_um * n_r2 - fine_um_at_code0
+    if coarse_um <= 0 or (coarse_um % r_lseg_um) != 0:
+        raise cr.HarnessError(
+            f"trim_unit_um={trim_unit_um} does not divide the fixed {r_lseg_um * n_r2:.1f} um "
+            f"leg length into an integer number of {r_lseg_um} um coarse units (coarse_um="
+            f"{coarse_um})"
+        )
+    coarse_units = int(round(coarse_um / r_lseg_um))
+    active_fine = n_r2_fine_units + trim_code
+    if active_fine < 0:
+        raise cr.HarnessError(f"invalid decomposition at n_r2={n_r2}, trim={trim_code}")
+    return [r_lseg_um] * coarse_units + [trim_unit_um] * active_fine
+
+
+def substitute_arrays(
+    body: list[str],
+    n_r1: int,
+    n_r2: int,
+    trim_code: int,
+    trim_unit_um: float = 1.0,
+    *,
+    base_snapshot: Path,
+    r_lseg_um: float = 5.0,
+) -> list[str]:
+    """Replace the three `TARGET_LINES` single-device lines in `body` with
+    chained unit-instance arrays (issue #198 -- consolidated from the two
+    byte-for-byte-identical (module constants aside) copies this function
+    previously had in `run_res_array_resize.py` and
+    `run_trim_lsb_chained.py`).
+
+    `base_snapshot` is included in the "missing expected line" error message
+    only -- callers pass their own `BASE_SNAPSHOT` constant so the error
+    still names the exact netlist snapshot involved.
+    """
+    cr = _cr()
+    r1_seg = r1_segments_um(n_r1, r_lseg_um)
+    r2_seg = r2_segments_um(n_r2, trim_code, trim_unit_um)
+    out: list[str] = []
+    found: set[str] = set()
+    for line in body:
+        stripped = line.strip()
+        replaced = False
+        for key, target in TARGET_LINES.items():
+            if stripped == target:
+                if key in found:
+                    raise cr.HarnessError(f"{key} line appears more than once in base body")
+                found.add(key)
+                if key == "XR2A":
+                    out.extend(chain_lines("R2A", "VA", "VOUT", r2_seg, "VSS"))
+                elif key == "XR2B":
+                    out.extend(chain_lines("R2B", "VB", "VOUT", r2_seg, "VSS"))
+                elif key == "XR1":
+                    out.extend(chain_lines("R1", "VBQ", "VB", r1_seg, "VSS"))
+                replaced = True
+                break
+        if not replaced:
+            out.append(line)
+    missing = set(TARGET_LINES) - found
+    if missing:
+        raise cr.HarnessError(
+            f"expected line(s) for {sorted(missing)} not found exactly once in {base_snapshot}"
+        )
+    return out
 
 
 def dc_temp_sweep_control() -> list[str]:
