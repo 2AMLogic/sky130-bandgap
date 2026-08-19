@@ -54,6 +54,7 @@ LOOP_RECORDS = SIM_DIR / "error-amp-loop" / "records"
 sys.path.insert(0, str(SIM_DIR / "bin"))
 from sim_common import (  # noqa: E402
     MismatchPoint,
+    add_common_args,
     load_corner_run,
     mean,
     mv,
@@ -776,16 +777,7 @@ def render_record(r: dict) -> str:
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--samples", type=int, default=N_SAMPLES, help="Monte Carlo samples per point")
-    p.add_argument("--author", default="", help="record author (default: git user.email)")
-    p.add_argument("--supersedes", default="", help="record id this run supersedes")
-    p.add_argument("--timeout", type=int, default=7200, help="per-point ngspice timeout (s)")
-    p.add_argument(
-        "--allow-pdk-mismatch",
-        action="store_true",
-        help="run even if the installed PDK differs from the sim/pdk.json pin",
-    )
-    p.add_argument("--dry-run", action="store_true", help="print the plan, write nothing under sim/")
+    add_common_args(p, timeout_default=7200, samples_default=N_SAMPLES)
     return p.parse_args(argv)
 
 

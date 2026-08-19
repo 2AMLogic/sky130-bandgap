@@ -82,10 +82,15 @@ functions over.)
                           run_pnp_mismatch.py`, and `error-amp-offset-mc/
                           run_amp_offset_mc.py`'s three near-identical local
                           `Point` classes (issue #194)
+    add_common_args()      adds the `--author`/`--supersedes`/`--timeout`/
+                          `--allow-pdk-mismatch`/`--dry-run` flags (and
+                          `--samples` when requested) every bespoke script's
+                          `parse_args()` hand-rolled identically (issue #207)
 """
 
 from __future__ import annotations
 
+import argparse
 import importlib.util
 import math
 import re
@@ -121,6 +126,40 @@ class MismatchPoint:
     samples: int
     role: str  # "mismatch" | "control" | "seed-check"
     purpose: str
+
+
+def add_common_args(
+    parser: argparse.ArgumentParser,
+    *,
+    timeout_default: int,
+    samples_default: int | None = None,
+) -> None:
+    """Add the `--author`/`--supersedes`/`--timeout`/`--allow-pdk-mismatch`/
+    `--dry-run` flags every bespoke `run_*.py` script's `parse_args()`
+    hand-rolled identically (and, when `samples_default` is given, the
+    `--samples` flag three of those scripts also duplicated) (issue #207).
+
+    Callers add any script-specific flags (e.g. `res-array-resize/
+    run_res_array_resize.py`'s `--explore`) to `parser` first, then call this
+    to append the shared set -- `--samples` (when requested) is added first
+    within this call so its position matches the pre-existing scripts, where
+    it was always the first flag added.
+    """
+    if samples_default is not None:
+        parser.add_argument(
+            "--samples", type=int, default=samples_default, help="Monte Carlo samples per point"
+        )
+    parser.add_argument("--author", default="", help="record author (default: git user.email)")
+    parser.add_argument("--supersedes", default="", help="record id this run supersedes")
+    parser.add_argument(
+        "--timeout", type=int, default=timeout_default, help="per-point ngspice timeout (s)"
+    )
+    parser.add_argument(
+        "--allow-pdk-mismatch",
+        action="store_true",
+        help="run even if the installed PDK differs from the sim/pdk.json pin",
+    )
+    parser.add_argument("--dry-run", action="store_true", help="print the plan, write nothing under sim/")
 
 
 def load_corner_run() -> ModuleType:
