@@ -24,7 +24,13 @@
 #   4. create-pr.sh: adopts an already-open PR for the head branch (the
 #      no-rebuild guarantee), creates one otherwise, escalates through the
 #      ladder on an integration-403, and rejects bad arguments.
-#   5. Role-prompt wiring: the Builder prompts route PR creation through
+#   5. forge_merge_pr() / forge_update_branch() (#202): both route their `gh
+#      api .../merge` and `gh api .../update-branch` write calls through
+#      forge_gh_perm_safe rather than a bare `gh api`, so a merge hitting the
+#      same stale-App-installation-token 403 that #6074 fixed for PR
+#      creation/comments/labels now recovers via the same escalation ladder
+#      instead of dying outright.
+#   6. Role-prompt wiring: the Builder prompts route PR creation through
 #      create-pr.sh, with no line-anchored bare `gh pr create` left behind.
 #
 # Usage:
@@ -403,7 +409,113 @@ rc=0
 _run_create_pr ok --title "t" --body "b" --body-file /dev/null >/dev/null 2>&1 || rc=$?
 assert_eq "2" "$rc" "create-pr.sh: --body and --body-file together exit 2"
 
-# --- 5. Role-prompt wiring --------------------------------------------------
+# --- 5. forge_merge_pr / forge_update_branch route through forge_gh_perm_safe (#202) ---
+echo ""
+echo "Testing forge_merge_pr / forge_update_branch escalation (#202)..."
+
+# A `gh` stub for the merge/update-branch endpoints: logs the credential and
+# full argv (so we can assert the exact `api repos/.../merge` / `.../update-
+# branch` call shape survived the forge_gh_perm_safe wrap), then answers per
+# $GH_MODE_FILE exactly like the section-2 stub above.
+cat > "$STUB_DIR/gh" <<'STUB'
+#!/usr/bin/env bash
+mode="$(cat "$GH_MODE_FILE" 2>/dev/null || echo ok)"
+cred="ambient"
+[[ -n "${GH_TOKEN:-}" ]] && cred="token:${GH_TOKEN}"
+[[ -z "${GH_TOKEN:-}" && -z "${GH_CONFIG_DIR:-}" ]] && cred="personal-ambient"
+printf '%s | %s\n' "$cred" "$*" >> "$ATTEMPT_LOG"
+attempts=$(wc -l < "$ATTEMPT_LOG" | tr -d ' ')
+
+case "$mode" in
+  ok)
+    echo '{"merged":true,"sha":"abc123"}'
+    exit 0
+    ;;
+  perm403)
+    echo "HTTP 403: Resource not accessible by integration" >&2
+    exit 1
+    ;;
+  perm403-once)
+    if [[ "$attempts" == "1" ]]; then
+      echo "HTTP 403: Resource not accessible by integration" >&2
+      exit 1
+    fi
+    echo '{"merged":true,"sha":"abc123"}'
+    exit 0
+    ;;
+esac
+STUB
+chmod +x "$STUB_DIR/gh"
+
+_run_forge() {
+    local gh_mode="$1" mint_mode="$2"
+    shift 2
+    echo "$gh_mode" > "$GH_MODE_FILE"
+    echo "$mint_mode" > "$MINT_MODE_FILE"
+    : > "$ATTEMPT_LOG"
+    : > "$MINT_LOG"
+    (
+        cd "$FAKE_REPO"
+        PATH="$STUB_DIR:$PATH" \
+        LOOM_GITHUB_APP_SCRIPT="$STUB_DIR/github-app-token.sh" \
+            "$@"
+    )
+}
+
+# Happy path: forge_merge_pr's call shape is unchanged (still `api
+# repos/{nwo}/pulls/{n}/merge -X PUT -f merge_method=squash`), just routed
+# through forge_gh_perm_safe instead of a bare `gh api`.
+out="$(_run_forge ok ok bash -c \
+    'source "'"$HELPERS_DIR"'/lib/forge-helpers.sh"; FORGE_TYPE=github; forge_merge_pr owner/repo 7' \
+    2>/dev/null)"
+assert_eq '{"merged":true,"sha":"abc123"}' "$out" \
+    "forge_merge_pr: a successful merge returns gh's stdout unchanged"
+assert_contains "$(cat "$ATTEMPT_LOG")" "api repos/owner/repo/pulls/7/merge -X PUT -f merge_method=squash" \
+    "forge_merge_pr: preserves the merge endpoint/method/fields through the wrap"
+
+# The incident itself: a stale-App-installation-token 403 on the merge call
+# now recovers via forge_gh_perm_safe's fresh-mint rung instead of failing
+# outright (#202).
+rc=0
+out="$(_run_forge perm403-once ok bash -c \
+    'source "'"$HELPERS_DIR"'/lib/forge-helpers.sh"; FORGE_TYPE=github; forge_merge_pr owner/repo 7' \
+    2>/dev/null)" || rc=$?
+assert_eq "0" "$rc" \
+    "forge_merge_pr: an integration-403 recovers via forge_gh_perm_safe's fresh-mint rung"
+assert_eq '{"merged":true,"sha":"abc123"}' "$out" \
+    "forge_merge_pr: the escalated attempt's stdout is returned"
+assert_contains "$(cat "$MINT_LOG")" "get-token --force" \
+    "forge_merge_pr: the escalation force-mints a fresh installation token"
+
+# A permanently-403ing merge still fails (the ladder is not infinite), and
+# never silently loses the underlying error text.
+rc=0
+out="$(_run_forge perm403 ok bash -c \
+    'source "'"$HELPERS_DIR"'/lib/forge-helpers.sh"; FORGE_TYPE=github; forge_merge_pr owner/repo 7' \
+    2>&1)" || rc=$?
+assert_eq "1" "$rc" "forge_merge_pr: an exhausted ladder still reports failure"
+assert_contains "$out" "not accessible by integration" \
+    "forge_merge_pr: the caller-visible output still carries the underlying 403 text"
+
+# forge_update_branch gets the same treatment.
+out="$(_run_forge ok ok bash -c \
+    'source "'"$HELPERS_DIR"'/lib/forge-helpers.sh"; FORGE_TYPE=github; forge_update_branch owner/repo 7' \
+    2>/dev/null)"
+assert_eq '{"merged":true,"sha":"abc123"}' "$out" \
+    "forge_update_branch: a successful call returns gh's stdout unchanged"
+assert_contains "$(cat "$ATTEMPT_LOG")" "api repos/owner/repo/pulls/7/update-branch -X PUT" \
+    "forge_update_branch: preserves the update-branch endpoint/method through the wrap"
+
+rc=0
+out="$(_run_forge perm403-once ok bash -c \
+    'source "'"$HELPERS_DIR"'/lib/forge-helpers.sh"; FORGE_TYPE=github; forge_update_branch owner/repo 7' \
+    2>/dev/null)" || rc=$?
+assert_eq "0" "$rc" \
+    "forge_update_branch: an integration-403 recovers via forge_gh_perm_safe's fresh-mint rung"
+assert_contains "$(cat "$MINT_LOG")" "get-token --force" \
+    "forge_update_branch: the escalation force-mints a fresh installation token"
+
+# --- 6. Role-prompt wiring --------------------------------------------------
 echo ""
 echo "Testing Builder role-prompt wiring (#6074)..."
 
