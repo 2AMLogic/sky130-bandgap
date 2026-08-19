@@ -1,0 +1,9 @@
+# .loom/resync-ignore — paths Loom must not overwrite or delete
+#
+# scripts/tests/test-forge-helpers-rate-limit-fallback.sh: locally patched
+# (#205) so its FORGE_CMD_SRC assertion SKIPs on a consumer-repo checkout
+# (no loom-daemon/src/) instead of FAILing forever. This is a stopgap
+# pending an upstream fix in defaults/scripts/tests/ at rjwalters/loom --
+# this repo has no defaults/ tree to fix directly, so pin the local patch
+# so a Loom resync does not silently revert it.
+scripts/tests/test-forge-helpers-rate-limit-fallback.sh
