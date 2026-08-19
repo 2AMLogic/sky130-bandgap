@@ -113,6 +113,7 @@ BUILD_DIR = SIM_DIR / "build" / "trim-lsb-chained"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
 from sim_common import (  # noqa: E402
+    add_common_args,
     build_deck,
     load_base_body,
     load_corner_run,
@@ -676,11 +677,7 @@ def verify(timeout: int, author: str, supersedes: str, allow_pdk_mismatch: bool,
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--author", default="")
-    p.add_argument("--supersedes", default="")
-    p.add_argument("--timeout", type=int, default=1800)
-    p.add_argument("--allow-pdk-mismatch", action="store_true")
-    p.add_argument("--dry-run", action="store_true")
+    add_common_args(p, timeout_default=1800)
     return p.parse_args(argv)
 
 
