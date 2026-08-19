@@ -398,13 +398,7 @@ def run_ngspice(run_dir: Path, name: str, deck: str, timeout: int) -> tuple[str,
 
 def parse_measurements(log: str) -> dict[str, float]:
     """Extract `meas_<name> = <value>` results from an ngspice log."""
-    cr = _cr()
-    values: dict[str, float] = {}
-    for line in log.splitlines():
-        m = cr.MEAS_RE.match(line.strip())
-        if m:
-            values[m.group(1)] = float(m.group(2))
-    return values
+    return _cr().parse_measurements(log)
 
 
 _PRINT_LINE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(-?[0-9.]+(?:[eE][-+]?[0-9]+)?)$")
