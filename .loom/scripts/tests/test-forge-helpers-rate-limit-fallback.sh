@@ -54,6 +54,7 @@ NC='\033[0m'
 TESTS_RUN=0
 TESTS_PASSED=0
 TESTS_FAILED=0
+TESTS_SKIPPED=0
 
 assert_eq() {
     local expected="$1"
@@ -523,20 +524,34 @@ fi
 
 # `loom-daemon forge issue` must not silently look like an escape hatch: the
 # passthrough either gains the fallback or says out loud that it has none.
-TESTS_RUN=$((TESTS_RUN + 1))
-FORGE_CMD_SRC="$(cd "$HELPERS_DIR/../../loom-daemon/src" 2>/dev/null && pwd || true)/forge_cmd.rs"
-if [[ -f "$FORGE_CMD_SRC" ]] && grep -q 'create-issue.sh' "$FORGE_CMD_SRC"; then
-    TESTS_PASSED=$((TESTS_PASSED + 1))
-    echo -e "  ${GREEN}PASS${NC}: loom-daemon forge issue create documents its lack of a REST fallback"
+# This assertion can only be meaningfully evaluated inside the Loom monorepo,
+# where loom-daemon/src/ (the Rust daemon source) actually exists -- a
+# consumer repo that installs only .loom/ (scripts/hooks/prompts, never the
+# Rust crate) has no way to satisfy it and would FAIL forever regardless of
+# whether the underlying forge_cmd.rs documentation is correct upstream
+# (#205). Distinguish "directory absent" (consumer-repo checkout -- SKIP)
+# from "directory present but file/string missing" (real monorepo drift --
+# still FAIL).
+LOOM_DAEMON_SRC_DIR="$(cd "$HELPERS_DIR/../../loom-daemon/src" 2>/dev/null && pwd || true)"
+if [[ -z "$LOOM_DAEMON_SRC_DIR" ]]; then
+    TESTS_SKIPPED=$((TESTS_SKIPPED + 1))
+    echo "  SKIP: loom-daemon/src/ not present in this checkout (consumer-repo install, #205) -- cannot verify forge_cmd.rs documentation here"
 else
-    TESTS_FAILED=$((TESTS_FAILED + 1))
-    echo -e "  ${RED}FAIL${NC}: forge_cmd.rs must state that 'forge issue create' has no REST fallback (#5047)"
+    TESTS_RUN=$((TESTS_RUN + 1))
+    FORGE_CMD_SRC="$LOOM_DAEMON_SRC_DIR/forge_cmd.rs"
+    if [[ -f "$FORGE_CMD_SRC" ]] && grep -q 'create-issue.sh' "$FORGE_CMD_SRC"; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "  ${GREEN}PASS${NC}: loom-daemon forge issue create documents its lack of a REST fallback"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "  ${RED}FAIL${NC}: forge_cmd.rs must state that 'forge issue create' has no REST fallback (#5047)"
+    fi
 fi
 
 # --- Summary ---
 echo ""
 echo "────────────────────────────────"
-echo "Results: $TESTS_PASSED/$TESTS_RUN passed, $TESTS_FAILED failed"
+echo "Results: $TESTS_PASSED/$TESTS_RUN passed, $TESTS_FAILED failed, $TESTS_SKIPPED skipped"
 
 if [[ $TESTS_FAILED -gt 0 ]]; then
     exit 1
