@@ -57,7 +57,8 @@ the same adopted sizing and corner/code matrix:
     (`5*n_r2` um) fixed. This is a pure re-partition of the SAME total R2A/R2B
     length between coarse and fine segments, not a resize of `n_r1`/`n_r2`
     (issue #99's lever) or of the certified code range (DR-002's other
-    lever) -- see `r2_segments_um()` below for the exact closed form.
+    lever) -- see `sim_common.r2_segments_um()` for the exact closed form
+    (moved there from this file, issue #198).
 
 Chained-array electrical model (same klt/PDK-model-card constants
 `sim/res-array-resize/run_res_array_resize.py`'s `analytic_resistances()`
@@ -113,14 +114,13 @@ BUILD_DIR = SIM_DIR / "build" / "trim-lsb-chained"
 sys.path.insert(0, str(SIM_DIR / "bin"))
 from sim_common import (  # noqa: E402
     build_deck,
-    chain_lines,
     load_base_body,
     load_corner_run,
     parse_measurements,
-    r1_segments_um,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
     run_ngspice,
+    substitute_arrays,
     write_log,
 )
 
@@ -172,7 +172,7 @@ N_R2 = 50
 # Configs: the fine-trim unit length (r_lseg_trim) axis this script adds.
 # Both keep N_R2_FINE_UNITS=20 fine units and the SAME untrimmed leg length
 # (5*n_r2 um) -- only the coarse/fine split of that fixed length moves, via
-# r2_segments_um()'s closed form below.
+# sim_common.r2_segments_um()'s closed form.
 # --------------------------------------------------------------------------
 CONFIGS = (
     ("shipped", 1.0),  # design/bandgap_core.sch's r_lseg_trim=1 as of PR #110
@@ -214,49 +214,12 @@ SPAN_MARGIN_TARGET = 1.5  # DR-002 / run_trim_sweep.py's own downward-span margi
 
 # --------------------------------------------------------------------------
 # chained-array geometry
+#
+# r2_segments_um()/TARGET_LINES/substitute_arrays() moved to sim_common.py
+# (issue #198) -- byte-for-byte identical (module constants aside) to
+# sim/res-array-resize/run_res_array_resize.py's own copies, which #143 left
+# behind when it consolidated the rest of this array-substitution machinery.
 # --------------------------------------------------------------------------
-
-
-def r2_segments_um(n_r2: int, trim_code: int, trim_unit_um: float) -> list[float]:
-    """R2A/R2B leg unit lengths at the adopted sizing, a DOWNWARD trim code,
-    and a candidate fine-unit length.
-
-    coarse_units * R_LSEG_UM  +  N_R2_FINE_UNITS * trim_unit_um  ==  5*n_r2
-    (the untrimmed leg length stays fixed; only the coarse/fine split of it
-    moves with trim_unit_um). trim_code <= 0; code 0 keeps all
-    N_R2_FINE_UNITS fine units in circuit (= the untrimmed length).
-    """
-    if trim_code > 0:
-        raise cr.HarnessError(f"trim_code must be <= 0 (downward-only), got {trim_code}")
-    fine_um_at_code0 = N_R2_FINE_UNITS * trim_unit_um
-    coarse_um = R_LSEG_UM * n_r2 - fine_um_at_code0
-    if coarse_um <= 0 or (coarse_um % R_LSEG_UM) != 0:
-        raise cr.HarnessError(
-            f"trim_unit_um={trim_unit_um} does not divide the fixed {R_LSEG_UM * n_r2:.1f} um "
-            f"leg length into an integer number of {R_LSEG_UM} um coarse units (coarse_um="
-            f"{coarse_um})"
-        )
-    coarse_units = int(round(coarse_um / R_LSEG_UM))
-    active_fine = N_R2_FINE_UNITS + trim_code
-    if active_fine < 0:
-        raise cr.HarnessError(f"invalid decomposition at n_r2={n_r2}, trim={trim_code}")
-    return [R_LSEG_UM] * coarse_units + [trim_unit_um] * active_fine
-
-
-# The exact single-device lines this script replaces (verified present exactly
-# once each in BASE_SNAPSHOT before substitution) -- identical target lines to
-# sim/res-array-resize/run_res_array_resize.py's TARGET_LINES.
-TARGET_LINES = {
-    "XR2A": (
-        "XR2A VA VOUT VSS sky130_fd_pr__res_high_po W='r_w' "
-        "L='r_lseg*n_r2+r_lseg_trim*n_r2_trim' mult=1 m=1"
-    ),
-    "XR2B": (
-        "XR2B VB VOUT VSS sky130_fd_pr__res_high_po W='r_w' "
-        "L='r_lseg*n_r2+r_lseg_trim*n_r2_trim' mult=1 m=1"
-    ),
-    "XR1": "XR1 VBQ VB VSS sky130_fd_pr__res_high_po W='r_w' L='r_lseg*n_r1' mult=1 m=1",
-}
 
 # Core-body .param lines that MUST still match (independent of this issue's
 # fine-unit-length axis).
@@ -268,37 +231,6 @@ EXPECTED_PARAMS = {
     ".param m_out=2",
     ".param m_ampbias=2",
 }
-
-
-def substitute_arrays(body: list[str], n_r1: int, n_r2: int, trim_code: int, trim_unit_um: float) -> list[str]:
-    r1_seg = r1_segments_um(n_r1, R_LSEG_UM)
-    r2_seg = r2_segments_um(n_r2, trim_code, trim_unit_um)
-    out: list[str] = []
-    found: set[str] = set()
-    for line in body:
-        stripped = line.strip()
-        replaced = False
-        for key, target in TARGET_LINES.items():
-            if stripped == target:
-                if key in found:
-                    raise cr.HarnessError(f"{key} line appears more than once in base body")
-                found.add(key)
-                if key == "XR2A":
-                    out.extend(chain_lines("R2A", "VA", "VOUT", r2_seg, "VSS"))
-                elif key == "XR2B":
-                    out.extend(chain_lines("R2B", "VB", "VOUT", r2_seg, "VSS"))
-                elif key == "XR1":
-                    out.extend(chain_lines("R1", "VBQ", "VB", r1_seg, "VSS"))
-                replaced = True
-                break
-        if not replaced:
-            out.append(line)
-    missing = set(TARGET_LINES) - found
-    if missing:
-        raise cr.HarnessError(
-            f"expected line(s) for {sorted(missing)} not found exactly once in {BASE_SNAPSHOT}"
-        )
-    return out
 
 
 @dataclass(frozen=True)
@@ -328,7 +260,9 @@ def run_all(base_body, pdk, run_dir, corners_dir, record_id, timeout) -> dict[Po
     results: dict[Point, dict] = {}
     points = build_points()
     for i, point in enumerate(points, start=1):
-        body = substitute_arrays(base_body, N_R1, N_R2, point.trim_code, point.trim_unit_um)
+        body = substitute_arrays(
+            base_body, N_R1, N_R2, point.trim_code, point.trim_unit_um, base_snapshot=BASE_SNAPSHOT
+        )
         deck = build_deck(SLUG, "run_trim_lsb_chained.py", pdk, point.process, point.supply_v, body)
         stamp = datetime.now(timezone.utc)
         raw, rc, timed_out = run_ngspice(run_dir, point.name, deck, timeout)
@@ -691,7 +625,7 @@ def verify(timeout: int, author: str, supersedes: str, allow_pdk_mismatch: bool,
 
     if dry_run:
         print("(dry run: nothing written under sim/)")
-        sample = substitute_arrays(base_body, N_R1, N_R2, 0, CONFIGS[0][1])
+        sample = substitute_arrays(base_body, N_R1, N_R2, 0, CONFIGS[0][1], base_snapshot=BASE_SNAPSHOT)
         print(build_deck(SLUG, "run_trim_lsb_chained.py", pdk, *CORNERS[0], sample))
         return 0
 

@@ -89,14 +89,15 @@ BUILD_DIR = SIM_DIR / "build" / "res-array-resize"
 sys.path.insert(0, str(SIM_DIR / "bin"))
 from sim_common import (  # noqa: E402
     build_deck,
-    chain_lines,
     load_base_body,
     load_corner_run,
     parse_measurements,
     r1_segments_um,
+    r2_segments_um,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
     run_ngspice,
+    substitute_arrays,
     write_log,
 )
 
@@ -163,37 +164,12 @@ VREF_SANITY_V = (1.10, 1.30)  # regulation-loss guard (a collapse jumps VOUT to 
 
 # --------------------------------------------------------------------------
 # chained-array geometry
+#
+# r2_segments_um()/TARGET_LINES/substitute_arrays() moved to sim_common.py
+# (issue #198) -- byte-for-byte identical (module constants aside) to
+# sim/trim-lsb-chained/run_trim_lsb_chained.py's own copies, which #143 left
+# behind when it consolidated the rest of this array-substitution machinery.
 # --------------------------------------------------------------------------
-
-
-def r2_segments_um(n_r2: int, trim_code: int) -> list[float]:
-    """R2A/R2B leg unit lengths at a resize (n_r2) and DOWNWARD trim code.
-
-    coarse (n_r2 - 4) x 5 um  +  active (20 + trim_code) x 1 um fine units.
-    trim_code <= 0; code 0 keeps all 20 fine units (= the shipped 5*n_r2 um).
-    """
-    if trim_code > 0:
-        raise cr.HarnessError(f"trim_code must be <= 0 (downward-only), got {trim_code}")
-    coarse_units = n_r2 - COARSE_R2_OFFSET
-    active_fine = N_R2_FINE_UNITS + trim_code
-    if coarse_units < 1 or active_fine < 0:
-        raise cr.HarnessError(f"invalid decomposition at n_r2={n_r2}, trim={trim_code}")
-    return [R_LSEG_UM] * coarse_units + [R_LSEG_TRIM_UM] * active_fine
-
-
-# The exact single-device lines this script replaces (verified present exactly
-# once each in BASE_SNAPSHOT before substitution).
-TARGET_LINES = {
-    "XR2A": (
-        "XR2A VA VOUT VSS sky130_fd_pr__res_high_po W='r_w' "
-        "L='r_lseg*n_r2+r_lseg_trim*n_r2_trim' mult=1 m=1"
-    ),
-    "XR2B": (
-        "XR2B VB VOUT VSS sky130_fd_pr__res_high_po W='r_w' "
-        "L='r_lseg*n_r2+r_lseg_trim*n_r2_trim' mult=1 m=1"
-    ),
-    "XR1": "XR1 VBQ VB VSS sky130_fd_pr__res_high_po W='r_w' L='r_lseg*n_r1' mult=1 m=1",
-}
 
 # Core-body .param lines that MUST still match (independent of the resize).
 # n_r1/n_r2/n_r2_trim are deliberately NOT here -- this script overrides the
@@ -207,37 +183,6 @@ EXPECTED_PARAMS = {
     ".param m_ampbias=2",
     ".param r_lseg_trim=1",
 }
-
-
-def substitute_arrays(body: list[str], n_r1: int, n_r2: int, trim_code: int) -> list[str]:
-    r1_seg = r1_segments_um(n_r1, R_LSEG_UM)
-    r2_seg = r2_segments_um(n_r2, trim_code)
-    out: list[str] = []
-    found: set[str] = set()
-    for line in body:
-        stripped = line.strip()
-        replaced = False
-        for key, target in TARGET_LINES.items():
-            if stripped == target:
-                if key in found:
-                    raise cr.HarnessError(f"{key} line appears more than once in base body")
-                found.add(key)
-                if key == "XR2A":
-                    out.extend(chain_lines("R2A", "VA", "VOUT", r2_seg, "VSS"))
-                elif key == "XR2B":
-                    out.extend(chain_lines("R2B", "VB", "VOUT", r2_seg, "VSS"))
-                elif key == "XR1":
-                    out.extend(chain_lines("R1", "VBQ", "VB", r1_seg, "VSS"))
-                replaced = True
-                break
-        if not replaced:
-            out.append(line)
-    missing = set(TARGET_LINES) - found
-    if missing:
-        raise cr.HarnessError(
-            f"expected line(s) for {sorted(missing)} not found exactly once in {BASE_SNAPSHOT}"
-        )
-    return out
 
 
 def analytic_resistances(n_r1: int, n_r2: int, trim_code: int = 0) -> dict[str, float]:
@@ -259,7 +204,7 @@ def analytic_resistances(n_r1: int, n_r2: int, trim_code: int = 0) -> dict[str, 
 def run_corner_set(run_dir, corners_dir, record_id, pdk, base_body, n_r1, n_r2, trim_code, timeout, tag):
     """Run the 5-corner box-TC sweep at one (n_r1, n_r2, trim_code). Returns a
     dict keyed by (process, supply)."""
-    body = substitute_arrays(base_body, n_r1, n_r2, trim_code)
+    body = substitute_arrays(base_body, n_r1, n_r2, trim_code, base_snapshot=BASE_SNAPSHOT)
     results: dict[tuple[str, float], dict] = {}
     for process, supply in CORNERS:
         deck = build_deck(SLUG, "run_res_array_resize.py", pdk, process, supply, body)
@@ -663,7 +608,7 @@ def verify(timeout: int, author: str, supersedes: str, allow_pdk_mismatch: bool,
                 "run_res_array_resize.py",
                 pdk,
                 *CORNERS[0],
-                substitute_arrays(base_body, RESIZE_N_R1, RESIZE_N_R2, 0),
+                substitute_arrays(base_body, RESIZE_N_R1, RESIZE_N_R2, 0, base_snapshot=BASE_SNAPSHOT),
             )
         )
         return 0
