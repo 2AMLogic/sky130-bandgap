@@ -121,16 +121,13 @@ TITLE = (
 
 # --------------------------------------------------------------------------
 # Layout decomposition constants -- transcribed from
-# layout/bin/gen_bandgap_routed.py (N_R1 / N_R2_COARSE / N_R2_TRIM_UNITS /
-# R_LSEG_UM / R_LSEG_TRIM_UM) and design/bandgap_core.sch's CORE_PARAMS.
+# layout/bin/gen_bandgap_routed.py (N_R1 / R_LSEG_UM) and
+# design/bandgap_core.sch's CORE_PARAMS. The fine-ladder constants
+# (R_LSEG_TRIM_UM / N_R2_FINE_UNITS, and the COARSE_R2_OFFSET derived from
+# them) now live as sim_common.r2_segments_um()'s defaults (issue #198).
 # --------------------------------------------------------------------------
 R_W_UM = 1.0
 R_LSEG_UM = 5.0
-R_LSEG_TRIM_UM = 1.0
-N_R2_FINE_UNITS = 20  # fixed fine trim ladder length (drawn 0..-20, DR-002 certifies 0..-16)
-# coarse R2 units at a given n_r2: the specified 5*n_r2 um leg minus the 20 um
-# fine ladder, in 5 um coarse units. n_r2=54 -> 50 coarse (matches the layout).
-COARSE_R2_OFFSET = int(N_R2_FINE_UNITS * R_LSEG_TRIM_UM / R_LSEG_UM)  # = 4
 
 # --------------------------------------------------------------------------
 # THE CHOSEN RESIZE (issue #99). Re-derived against the chained topology via
