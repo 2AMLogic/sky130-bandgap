@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Shared helpers for the `layout/bin/gen_bandgap_*.py` CLI scripts.
 
-`gen_bandgap_floorplan.py` (issue #15) and `gen_bandgap_routed.py` (issue #62)
-are two independent CLI scripts that both drive `klt` as a subprocess and
-compose block placements. Mirrors `sim/bin/sim_common.py`'s role for the
-`sim/` scripts (issue #169, after five prior `loom:hermit` dedupe rounds on
-that module: #153, #154, #160, #162, #163):
+`gen_bandgap_routed.py` (issue #62) drives `klt` as a subprocess and composes
+block placements. Mirrors `sim/bin/sim_common.py`'s role for the `sim/`
+scripts (issue #169, after five prior `loom:hermit` dedupe rounds on that
+module: #153, #154, #160, #162, #163):
 
     run_klt_json()   runs `klt <args> --format json` and parses the stdout
                      envelope, tolerating a caller-supplied set of "still
@@ -16,11 +15,11 @@ that module: #153, #154, #160, #162, #163):
                      block ids, given each one's own reported bbox_um and
                      its placement origin
 
-`place_blocks()` is intentionally NOT here -- `gen_bandgap_routed.py`'s
-version added an `align` parameter (`top`/`bottom`/`center`) needed for
-`bjt_array`'s north-facing ports, which `gen_bandgap_floorplan.py`'s version
-doesn't have. The two implementations have genuinely diverged and stay as
-two separate functions in their respective scripts (issue #169's scope note).
+`place_blocks()` is intentionally NOT here -- it lives in
+`gen_bandgap_routed.py` itself, which needs an `align` parameter
+(`top`/`bottom`/`center`) for `bjt_array`'s north-facing ports (issue #169's
+scope note; `gen_bandgap_floorplan.py`, the #15 flow this module used to also
+serve, was removed in issue #215 as superseded by the routed flow).
 """
 
 from __future__ import annotations
