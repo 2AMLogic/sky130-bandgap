@@ -231,14 +231,15 @@ rationale (which mismatch term dominates, per issue #12's Monte Carlo
 contributor breakdown, and why the floorplan prioritizes it); this section
 only points at where the generated evidence and tooling live.
 
-```bash
-layout/bin/setup-venv.sh                    # once, or after a requirements.txt bump
-layout/bin/run-bandgap-floorplan-flow.sh    # generate + place + guard-ring + DRC
-```
-
-Writes a fresh record under `bandgap-core/reports/<record-id>/` (same
-`<YYYYMMDD-HHMMSS>-<short-sha>` convention as `trivial-cell/reports/`) and
-updates `bandgap-core/reports/LATEST`. The checked-in record is
+The generate-place-guard-ring-DRC driver that produced this skeleton was
+retired in issue #215 once issue #62 superseded it with a routed flow — see
+"Routing the core and closing on LVS (issue #62)" below for the current
+`layout/bin/run-bandgap-routed-flow.sh` command, which supersedes it end to
+end (placement plus routing plus LVS). This section's own evidence stays
+checked in as the historical record of issue #15's deliverable: it wrote a
+fresh record under `bandgap-core/reports/<record-id>/` (same
+`<YYYYMMDD-HHMMSS>-<short-sha>` convention as `trivial-cell/reports/`), and
+the checked-in run is
 [`bandgap-core/reports/20260803-192947-e7a30b4/record.md`](bandgap-core/reports/20260803-192947-e7a30b4/record.md)
 — read that for the actual DRC-clean / area-budget evidence, and its
 `renders/overview.png` for a visual check of the common-centroid/dummy-ring
