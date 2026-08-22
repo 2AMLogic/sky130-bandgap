@@ -58,6 +58,7 @@ from sim_common import (  # noqa: E402
     MismatchPoint,
     add_common_args,
     load_corner_run,
+    mc_control_block,
     mean,
     mv,
     parse_samples,
@@ -272,37 +273,22 @@ def build_points(samples: int) -> list[Point]:
 
 def control_block(point: Point) -> str:
     prints = " ".join(VECTORS)
-    return "\n".join(
-        [
-            ".control",
-            f"setseed {point.seed}",
-            "set width = 512",
-            "set height = 100000",
-            f"let nruns = {point.samples}",
-            "let run = 0",
-            "dowhile run < nruns",
-            "  reset",
-            # tb_vref_tc.sch carries `.save i(v1)`, which restricts the
-            # saved-vector list; `reset` reloads the circuit from that
-            # netlist text, so the restriction comes back on every
-            # iteration. `save all` must therefore be re-issued INSIDE the
-            # loop, after `reset` and before `op` -- issuing it once before
-            # the loop is not enough (empirically verified: without this,
-            # every `op` after the first `reset` reports `v(vref)` as an
-            # unavailable vector).
-            "  save all",
-            "  op",
-            "  let vout = v(vref)",
-            "  let vgdrv = v(gdrv)",
-            f"  print {prints}",
-            "  let run = run + 1",
-            "end",
-            "quit",
-            ".endc",
-            ".end",
-            "",
-        ]
-    )
+    loop_body = [
+        "  reset",
+        # tb_vref_tc.sch carries `.save i(v1)`, which restricts the
+        # saved-vector list; `reset` reloads the circuit from that
+        # netlist text, so the restriction comes back on every
+        # iteration. `save all` must therefore be re-issued INSIDE the
+        # loop, after `reset` and before `op` -- issuing it once before
+        # the loop is not enough (empirically verified: without this,
+        # every `op` after the first `reset` reports `v(vref)` as an
+        # unavailable vector).
+        "  save all",
+        "  op",
+        "  let vout = v(vref)",
+        "  let vgdrv = v(gdrv)",
+    ]
+    return mc_control_block(point, loop_body, prints)
 
 
 def build_deck(pdk, point: Point, body: list[str]) -> str:

@@ -57,6 +57,7 @@ from sim_common import (  # noqa: E402
     add_common_args,
     build_mismatch_points,
     load_corner_run,
+    mc_control_block,
     mean,
     mv,
     parse_samples,
@@ -213,34 +214,19 @@ def load_offset_gain() -> tuple[float, str]:
 
 def control_block(point: Point) -> str:
     prints = " ".join(VECTORS)
-    return "\n".join(
-        [
-            ".control",
-            f"setseed {point.seed}",
-            "set width = 512",
-            "set height = 100000",
-            f"let nruns = {point.samples}",
-            "let run = 0",
-            "dowhile run < nruns",
-            "  reset",
-            "  op",
-            "  let vos   = v(xbg.va)-v(xbg.vb)",
-            "  let vout  = v(vref)",
-            "  let dvbe8 = v(e8s)-v(e8l)",
-            "  let veb8  = v(e8s)",
-            "  let dvbe1 = v(e1s)-v(e1l)",
-            "  let rra   = v(nra)",
-            "  let rrb   = v(nrb)",
-            "  let vgdrv = v(gdrv)",
-            f"  print {prints}",
-            "  let run = run + 1",
-            "end",
-            "quit",
-            ".endc",
-            ".end",
-            "",
-        ]
-    )
+    loop_body = [
+        "  reset",
+        "  op",
+        "  let vos   = v(xbg.va)-v(xbg.vb)",
+        "  let vout  = v(vref)",
+        "  let dvbe8 = v(e8s)-v(e8l)",
+        "  let veb8  = v(e8s)",
+        "  let dvbe1 = v(e1s)-v(e1l)",
+        "  let rra   = v(nra)",
+        "  let rrb   = v(nrb)",
+        "  let vgdrv = v(gdrv)",
+    ]
+    return mc_control_block(point, loop_body, prints)
 
 
 def build_deck(pdk, point: Point, body: list[str]) -> str:
