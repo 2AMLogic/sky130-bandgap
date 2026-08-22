@@ -48,6 +48,7 @@ sys.path.insert(0, str(SIM_DIR / "bin"))
 from sim_common import (  # noqa: E402
     MismatchPoint,
     add_common_args,
+    build_mismatch_points,
     load_corner_run,
     mean,
     mv,
@@ -118,51 +119,16 @@ Point = MismatchPoint  # shared 7-field shape (issue #194)
 
 
 def build_points(samples: int) -> list[Point]:
-    control_n = min(N_CONTROL, samples)
-    points = [
-        Point(
-            corner_id=f"{MM_SECTION}_{t:g}c_nosupply",
-            section=MM_SECTION,
-            temp_c=t,
-            seed=SEED_A,
-            samples=samples,
-            role="mismatch",
-            purpose="local-mismatch distribution at the nominal process point",
-        )
-        for t in TEMPS_C
-    ]
-    points.append(
-        Point(
-            corner_id=f"{OFF_SECTION}_27c_nosupply_mm-off",
-            section=OFF_SECTION,
-            temp_c=27.0,
-            seed=SEED_A,
-            samples=control_n,
-            role="control",
-            purpose=(
-                "control: identical deck on the plain `tt` section "
-                "(MC_MM_SWITCH=0); every sigma must come back exactly 0, which "
-                "is what proves the spread above is the mismatch switch and not "
-                "solver noise"
-            ),
-        )
+    return build_mismatch_points(
+        samples,
+        mm_section=MM_SECTION,
+        off_section=OFF_SECTION,
+        temps_c=TEMPS_C,
+        seed_a=SEED_A,
+        seed_b=SEED_B,
+        n_control=N_CONTROL,
+        corner_suffix="nosupply",
     )
-    points.append(
-        Point(
-            corner_id=f"{MM_SECTION}_27c_nosupply_seed-b",
-            section=MM_SECTION,
-            temp_c=27.0,
-            seed=SEED_B,
-            samples=samples,
-            role="seed-check",
-            purpose=(
-                "seed-stability: same point, different setseed -- the samples "
-                "must change while sigma must not, i.e. the reported spread is "
-                "a property of the model, not of one lucky draw"
-            ),
-        )
-    )
-    return points
 
 
 def thermal_voltage(temp_c: float) -> float:
