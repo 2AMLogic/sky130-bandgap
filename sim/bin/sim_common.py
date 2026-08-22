@@ -95,6 +95,15 @@ functions over.)
                           actually varies between them (the corner-id supply
                           suffix) and an optional control-purpose addendum
                           (issue #219)
+    mc_control_block()      the Monte Carlo `.control` dowhile-loop skeleton
+                          (`setseed`/`set width`/`set height`/`let nruns`/
+                          `dowhile run < nruns` ... `print`/`let run = run +
+                          1`/`end`/`quit`/`.endc`/`.end`) shared byte-for-byte
+                          between `error-amp-offset-mc/run_amp_offset_mc.py`
+                          and `monte-carlo-untrimmed/run_mc_untrimmed.py`'s
+                          local `control_block()` functions, parameterized by
+                          the caller's own `reset`-to-measurement loop-body
+                          lines (issue #224)
 """
 
 from __future__ import annotations
@@ -244,6 +253,43 @@ def build_mismatch_points(
         )
     )
     return points
+
+
+def mc_control_block(point: MismatchPoint, loop_body: list[str], prints: str) -> str:
+    """The Monte Carlo `.control` dowhile-loop skeleton shared byte-for-byte
+    between `error-amp-offset-mc/run_amp_offset_mc.py` and `monte-carlo-
+    untrimmed/run_mc_untrimmed.py`'s local `control_block()` functions
+    (issue #224): `setseed`/`set width`/`set height`/`let nruns`/`dowhile
+    run < nruns` around a caller-supplied `loop_body`, then `print
+    {prints}`/`let run = run + 1`/`end`/`quit`/`.endc`/`.end`.
+
+    `loop_body` is inserted verbatim between `dowhile run < nruns` and
+    `print {prints}` -- it covers everything from the per-experiment `reset`
+    line through the per-experiment `let <name> = ...` measurement lines
+    (including an optional `save all`, with its own explanatory comment, for
+    callers whose testbench narrows the saved-vector list on `reset`).
+    Callers own their own two-space loop-body indentation, matching the
+    pre-existing scripts this consolidates.
+    """
+    return "\n".join(
+        [
+            ".control",
+            f"setseed {point.seed}",
+            "set width = 512",
+            "set height = 100000",
+            f"let nruns = {point.samples}",
+            "let run = 0",
+            "dowhile run < nruns",
+            *loop_body,
+            f"  print {prints}",
+            "  let run = run + 1",
+            "end",
+            "quit",
+            ".endc",
+            ".end",
+            "",
+        ]
+    )
 
 
 def load_corner_run() -> ModuleType:
