@@ -86,6 +86,15 @@ functions over.)
                           `--allow-pdk-mismatch`/`--dry-run` flags (and
                           `--samples` when requested) every bespoke script's
                           `parse_args()` hand-rolled identically (issue #207)
+    build_mismatch_points() the 3-point (per-temperature mismatch sweep +
+                          MC-off control + seed-B stability check) list
+                          shared verbatim between `pnp-mismatch/
+                          run_pnp_mismatch.py` and `error-amp-offset-mc/
+                          run_amp_offset_mc.py`'s local `build_points()`
+                          functions, parameterized by the one string that
+                          actually varies between them (the corner-id supply
+                          suffix) and an optional control-purpose addendum
+                          (issue #219)
 """
 
 from __future__ import annotations
@@ -160,6 +169,81 @@ def add_common_args(
         help="run even if the installed PDK differs from the sim/pdk.json pin",
     )
     parser.add_argument("--dry-run", action="store_true", help="print the plan, write nothing under sim/")
+
+
+def build_mismatch_points(
+    samples: int,
+    *,
+    mm_section: str,
+    off_section: str,
+    temps_c: list[float],
+    seed_a: int,
+    seed_b: int,
+    n_control: int,
+    corner_suffix: str,
+    control_extra: str = "",
+) -> list[MismatchPoint]:
+    """The 3-point mismatch-distribution sweep shared verbatim between
+    `pnp-mismatch/run_pnp_mismatch.py` and `error-amp-offset-mc/
+    run_amp_offset_mc.py`'s local `build_points()` functions (issue #219):
+    a per-temperature local-mismatch sweep on `mm_section`, one control
+    point on `off_section` with `MC_MM_SWITCH=0` (samples capped at
+    `n_control`), and a seed-B stability check re-using the 27 C mismatch
+    point's temperature with `seed_b` in place of `seed_a`.
+
+    `corner_suffix` is the one string that actually varies between the two
+    callers' corner ids (`f"{SUPPLY_V:.2f}v"` for error-amp-offset-mc, which
+    sweeps a supply rail, vs. `"nosupply"` for pnp-mismatch, which has none)
+    -- it lands between the temperature and any point-role suffix in every
+    corner id. `control_extra` appends caller-specific detail to the control
+    point's `purpose=` text (error-amp-offset-mc's control purpose has one
+    extra clause pnp-mismatch's does not); the seed-check `purpose=` text is
+    identical between the two callers and is not parameterized.
+    """
+    control_n = min(n_control, samples)
+    points = [
+        MismatchPoint(
+            corner_id=f"{mm_section}_{t:g}c_{corner_suffix}",
+            section=mm_section,
+            temp_c=t,
+            seed=seed_a,
+            samples=samples,
+            role="mismatch",
+            purpose="local-mismatch distribution at the nominal process point",
+        )
+        for t in temps_c
+    ]
+    points.append(
+        MismatchPoint(
+            corner_id=f"{off_section}_27c_{corner_suffix}_mm-off",
+            section=off_section,
+            temp_c=27.0,
+            seed=seed_a,
+            samples=control_n,
+            role="control",
+            purpose=(
+                "control: identical deck on the plain `tt` section (MC_MM_SWITCH=0); "
+                "every sigma must come back exactly 0, which is what proves the spread "
+                "above is the mismatch switch and not solver noise" + control_extra
+            ),
+        )
+    )
+    points.append(
+        MismatchPoint(
+            corner_id=f"{mm_section}_27c_{corner_suffix}_seed-b",
+            section=mm_section,
+            temp_c=27.0,
+            seed=seed_b,
+            samples=samples,
+            role="seed-check",
+            purpose=(
+                "seed-stability: same point, different setseed -- the samples must "
+                "change while sigma must not, i.e. the reported spread is a property of "
+                "the model, not of one lucky draw"
+            ),
+        )
+    )
+    return points
 
 
 def load_corner_run() -> ModuleType:
