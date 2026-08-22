@@ -644,21 +644,6 @@ RING_WIDTH_UM = 2.0
 RING_CONTACTS_PER_SIDE = 8
 ROUTE_WIDTH_UM = 0.5
 
-# sky130 recognition layers used by the PNP overlay. Both are read straight
-# out of the same tool's own published contract -- the sky130 extraction
-# deck's `BipolarDevice(base=(64, 20), emitter=(65, 20), marker=(82, 44))`
-# entry and its `tap` layer -- not invented here.
-PNP_MARKER_LAYER = [82, 44]
-NWELL_TAP_LAYER = [65, 44]
-#: Margin (um) the 82/44 marker extends past the emitter pad on every side.
-#: Must be > 0 (the extractor needs base to strictly enclose emitter, or
-#: KLayout raises "Terminal 'C' ... isn't connected") and small enough to
-#: stay clear of the adjacent base-tie pad, which sits one
-#: min-same-layer-spacing (0.4 um) away.
-PNP_MARKER_MARGIN_UM = 0.15
-#: Margin (um) the 65/44 nwell tap extends past the base-tie contact.
-NWELL_TAP_MARGIN_UM = 0.05
-
 # ---------------------------------------------------------------------------
 # Schematic parameters, transcribed from design/bandgap_core.sch's CORE_PARAMS
 # and design/error_amp.sch. Every block's generator params below are derived
@@ -748,7 +733,6 @@ SCH_N_R2_TRIM = 0  # .param n_r2_trim=0 (DR-002's untrimmed code)
 #: 270.0 before #99/#108).
 R2_LEG_SPEC_UM = SCH_R_LSEG_UM * SCH_N_R2 + SCH_R_LSEG_TRIM_UM * SCH_N_R2_TRIM
 M_OUT = 2
-M_AMPBIAS = 2
 #: Halved 16 -> 8 by issue #170 (DR-008 Option B): design/error_amp.sch's
 #: `.param amp_m_in=8` -- the amp's own PSRR-band margin increase that
 #: absorbs the routed layout's measured -4.05 dB post-layout PSRR shift

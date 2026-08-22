@@ -130,8 +130,6 @@ VIA1_LAYER = [68, 44]
 #: `...EXTRACTION_DECK.metals[2]` -- met2, the third conductor and the escape
 #: plane this module falls back to when met1 has no corridor left.
 MET2_LAYER = [69, 20]
-#: `...EXTRACTION_DECK.metal_labels[2]` -- met2.pin.
-MET2_LABEL_LAYER = [69, 5]
 
 #: mcon drawn size (um). sky130's mcon is a fixed 0.17 um square.
 VIA_UM = 0.17
