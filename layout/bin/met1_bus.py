@@ -174,6 +174,65 @@ MET2_WIRE_WIDTH_UM = 0.32
 MET2_SPACE_UM = 0.14
 
 
+class _PlaneIndex:
+    """Grid-bucketed proximity index for one routing plane's rectangle list.
+
+    `met1_near`/`met2_near` and `truncate_met1`/`truncate_met2` used to be two
+    hand-synced copies of this same bucket-index/query/rollback pattern, one
+    per plane, differing only in which grid and which rects list they closed
+    over. This holds that one parameterized implementation: `cells` is the
+    owning :class:`Met1Bus`'s bound `_cells` method (so both planes share the
+    same `GRID_UM` bucketing), and `rects` is a *reference* to the plane's own
+    `met1_rects`/`met2_rects` list -- `index`/`near`/`truncate` read and
+    mutate it in place, never reassign it, so one instance constructed per
+    plane in `Met1Bus.__init__` stays in sync with that list for its whole
+    life.
+    """
+
+    def __init__(self, cells, rects: list[tuple[str, float, float, float, float]]) -> None:
+        self._cells = cells
+        self.rects = rects
+        self.grid: dict[tuple[int, int], list[int]] = {}
+
+    def index(self, position: int, x0: float, y0: float, x1: float, y1: float) -> None:
+        for cell in self._cells(x0, y0, x1, y1):
+            self.grid.setdefault(cell, []).append(position)
+
+    def near(self, x0: float, y0: float, x1: float, y1: float, clearance: float):
+        """Every already-indexed rectangle within `clearance` of the box, as
+        `(net, x0, y0, x1, y1)`. Box (Chebyshev) proximity, i.e. slightly
+        stricter than the deck's Euclidean spacing rule -- deliberately, so a
+        route this accepts can never be one DRC rejects."""
+        seen: set[int] = set()
+        for cell in self._cells(
+            x0 - clearance, y0 - clearance, x1 + clearance, y1 + clearance
+        ):
+            for position in self.grid.get(cell, ()):  # noqa: B007
+                if position in seen:
+                    continue
+                seen.add(position)
+                net_b, bx0, by0, bx1, by1 = self.rects[position]
+                if (
+                    x0 - clearance < bx1
+                    and bx0 - clearance < x1
+                    and y0 - clearance < by1
+                    and by0 - clearance < y1
+                ):
+                    yield (net_b, bx0, by0, bx1, by1)
+
+    def truncate(self, count: int) -> None:
+        """Drop every rectangle from `count` on, index included."""
+        for position in range(count, len(self.rects)):
+            _net, x0, y0, x1, y1 = self.rects[position]
+            for cell in self._cells(x0, y0, x1, y1):
+                bucket = self.grid.get(cell)
+                if bucket and bucket[-1] == position:
+                    bucket.pop()
+                elif bucket and position in bucket:
+                    bucket.remove(position)
+        del self.rects[count:]
+
+
 class Met1Bus:
     """Accumulates met1/mcon shapes and met1 net labels for one `klt draw` cell.
 
@@ -208,8 +267,8 @@ class Met1Bus:
         #: hand-placed conductor that touches another node's conductor is a
         #: short, and li1 is the layer every device pad already lives on.
         self.li1_rects: list[tuple[str, float, float, float, float]] = []
-        #: (cell -> met1_rects indices) proximity index, see `met1_near`.
-        self._grid: dict[tuple[int, int], list[int]] = {}
+        #: Proximity index over `met1_rects`, see `met1_near`/`truncate_met1`.
+        self._met1_index = _PlaneIndex(self._cells, self.met1_rects)
         self.gate_contact_count = 0
         self._vias: set[tuple[str, float, float]] = set()
         #: (net_id, x0, y0, x1, y1) for every met2 rectangle drawn -- the same
@@ -220,8 +279,8 @@ class Met1Bus:
         #: nodes' met2 touching (no gap between them) is not a spacing
         #: violation and nothing downstream but this ledger would report it.
         self.met2_rects: list[tuple[str, float, float, float, float]] = []
-        #: (cell -> met2_rects indices) proximity index, see `met2_near`.
-        self._grid2: dict[tuple[int, int], list[int]] = {}
+        #: Proximity index over `met2_rects`, see `met2_near`/`truncate_met2`.
+        self._met2_index = _PlaneIndex(self._cells, self.met2_rects)
         #: (net_id, x, y) per drawn via1, for the `via.2` proximity half of
         #: :meth:`conflicts` and for :meth:`components`' cross-layer joins.
         self.via1_xy: list[tuple[str, float, float]] = []
@@ -238,10 +297,10 @@ class Met1Bus:
     def _rect(self, layer: list[int], x0: float, y0: float, x1: float, y1: float) -> None:
         self.shapes.append({"layer": layer, "rect_um": [x0, y0, x1, y1]})
         if layer == MET1_LAYER:
-            self._index_met1(len(self.met1_rects), x0, y0, x1, y1)
+            self._met1_index.index(len(self.met1_rects), x0, y0, x1, y1)
             self.met1_rects.append((self._net, x0, y0, x1, y1))
         elif layer == MET2_LAYER:
-            self._index_met2(len(self.met2_rects), x0, y0, x1, y1)
+            self._met2_index.index(len(self.met2_rects), x0, y0, x1, y1)
             self.met2_rects.append((self._net, x0, y0, x1, y1))
         elif layer == LI1_LAYER:
             self.li1_rects.append((self._net, x0, y0, x1, y1))
@@ -259,10 +318,6 @@ class Met1Bus:
             for iy in range(int(y0 // GRID_UM), int(y1 // GRID_UM) + 1):
                 yield (ix, iy)
 
-    def _index_met1(self, position: int, x0: float, y0: float, x1: float, y1: float) -> None:
-        for cell in self._cells(x0, y0, x1, y1):
-            self._grid.setdefault(cell, []).append(position)
-
     def met1_near(
         self, x0: float, y0: float, x1: float, y1: float, clearance: float
     ):
@@ -270,40 +325,13 @@ class Met1Bus:
         as `(net, x0, y0, x1, y1)`. Box (Chebyshev) proximity, i.e. slightly
         stricter than the deck's Euclidean `met1.space.1` -- deliberately, so
         a route this accepts can never be one DRC rejects."""
-        seen: set[int] = set()
-        for cell in self._cells(
-            x0 - clearance, y0 - clearance, x1 + clearance, y1 + clearance
-        ):
-            for position in self._grid.get(cell, ()):  # noqa: B007
-                if position in seen:
-                    continue
-                seen.add(position)
-                net_b, bx0, by0, bx1, by1 = self.met1_rects[position]
-                if (
-                    x0 - clearance < bx1
-                    and bx0 - clearance < x1
-                    and y0 - clearance < by1
-                    and by0 - clearance < y1
-                ):
-                    yield (net_b, bx0, by0, bx1, by1)
+        return self._met1_index.near(x0, y0, x1, y1, clearance)
 
     def truncate_met1(self, count: int) -> None:
         """Drop every met1 rectangle from `count` on, index included."""
-        for position in range(count, len(self.met1_rects)):
-            _net, x0, y0, x1, y1 = self.met1_rects[position]
-            for cell in self._cells(x0, y0, x1, y1):
-                bucket = self._grid.get(cell)
-                if bucket and bucket[-1] == position:
-                    bucket.pop()
-                elif bucket and position in bucket:
-                    bucket.remove(position)
-        del self.met1_rects[count:]
+        self._met1_index.truncate(count)
 
     # -- met2 spatial index (same shape as met1's, separate plane) ---------
-    def _index_met2(self, position: int, x0: float, y0: float, x1: float, y1: float) -> None:
-        for cell in self._cells(x0, y0, x1, y1):
-            self._grid2.setdefault(cell, []).append(position)
-
     def met2_near(
         self, x0: float, y0: float, x1: float, y1: float, clearance: float
     ):
@@ -313,34 +341,11 @@ class Met1Bus:
         Euclidean `m2.2`, for the same reason :meth:`met1_near` is stricter
         than `met1.space.1`.
         """
-        seen: set[int] = set()
-        for cell in self._cells(
-            x0 - clearance, y0 - clearance, x1 + clearance, y1 + clearance
-        ):
-            for position in self._grid2.get(cell, ()):  # noqa: B007
-                if position in seen:
-                    continue
-                seen.add(position)
-                net_b, bx0, by0, bx1, by1 = self.met2_rects[position]
-                if (
-                    x0 - clearance < bx1
-                    and bx0 - clearance < x1
-                    and y0 - clearance < by1
-                    and by0 - clearance < y1
-                ):
-                    yield (net_b, bx0, by0, bx1, by1)
+        return self._met2_index.near(x0, y0, x1, y1, clearance)
 
     def truncate_met2(self, count: int) -> None:
         """Drop every met2 rectangle from `count` on, index included."""
-        for position in range(count, len(self.met2_rects)):
-            _net, x0, y0, x1, y1 = self.met2_rects[position]
-            for cell in self._cells(x0, y0, x1, y1):
-                bucket = self._grid2.get(cell)
-                if bucket and bucket[-1] == position:
-                    bucket.pop()
-                elif bucket and position in bucket:
-                    bucket.remove(position)
-        del self.met2_rects[count:]
+        self._met2_index.truncate(count)
 
     def via(self, x: float, y: float) -> None:
         """One mcon + its met1 landing pad, centred at (x, y).
