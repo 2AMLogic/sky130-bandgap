@@ -56,6 +56,7 @@ sys.path.insert(0, str(REPO_ROOT / "layout" / "bin"))
 
 import gen_bandgap_routed  # noqa: E402  -- resolved from layout/bin, above
 import met1_bus  # noqa: E402
+import bus_routing  # noqa: E402  -- issue #221: split out of gen_bandgap_routed.py
 
 
 @contextlib.contextmanager
@@ -69,12 +70,12 @@ def met1_only():
     *met1* search does when it is boxed in wraps itself in this, so it keeps
     testing the thing it names. Tests of the escape itself do not.
     """
-    previous = gen_bandgap_routed.MET2_ESCAPE_ENABLED
-    gen_bandgap_routed.MET2_ESCAPE_ENABLED = False
+    previous = bus_routing.MET2_ESCAPE_ENABLED
+    bus_routing.MET2_ESCAPE_ENABLED = False
     try:
         yield
     finally:
-        gen_bandgap_routed.MET2_ESCAPE_ENABLED = previous
+        bus_routing.MET2_ESCAPE_ENABLED = previous
 
 
 # ---------------------------------------------------------------------------
@@ -403,28 +404,28 @@ class TestBulkTapTerminals(unittest.TestCase):
     def test_every_tap_of_the_ring_is_offered(self) -> None:
         """Not one tap, and not a tap chosen here: the whole set, so which one
         is taken stays a routing decision."""
-        terminal = gen_bandgap_routed.bulk_terminal("core_mirror")
+        terminal = bus_routing.bulk_terminal("core_mirror")
         self.assertEqual(terminal["block"], "core_mirror")
-        self.assertEqual(terminal["ports"], list(gen_bandgap_routed.BULK_TAP_PORTS))
+        self.assertEqual(terminal["ports"], list(bus_routing.BULK_TAP_PORTS))
         self.assertNotIn("port", terminal, "a single pinned tap is the bug")
 
     def test_the_offered_set_is_the_generators_own_tap_names(self) -> None:
         """`klt gen diff_pair` reports its ring taps as `TAP_N`/`TAP_S`/
         `TAP_E`; a typo here would silently drop a candidate."""
         self.assertEqual(
-            set(gen_bandgap_routed.BULK_TAP_PORTS), {"TAP_N", "TAP_S", "TAP_E"}
+            set(bus_routing.BULK_TAP_PORTS), {"TAP_N", "TAP_S", "TAP_E"}
         )
 
     def test_no_escape_stub(self) -> None:
         """A ring tap already sits on the block's outer edge facing open
         floorplan, so the router leaves from the pad itself."""
-        self.assertFalse(gen_bandgap_routed.bulk_terminal("amp_pmirr")["escape"])
+        self.assertFalse(bus_routing.bulk_terminal("amp_pmirr")["escape"])
 
     def test_every_bulk_terminal_names_a_real_block(self) -> None:
         """The declared inter-block table is hand-written; a bulk terminal on
         a block that is not placed would raise deep inside the router."""
         block_ids = {b["id"] for b in gen_bandgap_routed.BLOCKS}
-        for spec in gen_bandgap_routed.INTER_BLOCK_MET1:
+        for spec in bus_routing.INTER_BLOCK_MET1:
             for terminal in spec["terminals"]:
                 if "ports" in terminal:
                     with self.subTest(net=spec["net"], block=terminal["block"]):
@@ -446,20 +447,20 @@ class TestBulkTapTerminals(unittest.TestCase):
                 "net": "VDD",
                 "schematic": "two ring taps",
                 "terminals": [
-                    gen_bandgap_routed.bulk_terminal("blk"),
-                    gen_bandgap_routed.bulk_terminal("other"),
+                    bus_routing.bulk_terminal("blk"),
+                    bus_routing.bulk_terminal("other"),
                 ],
             }
         }
         used: set[tuple[str, str]] = set()
-        route = gen_bandgap_routed._route_one_net(
+        route = bus_routing._route_one_net(
             met1_bus.Met1Bus(), "VDD", specs, reports, origins, {}, {}, used, {}
         )
         self.assertTrue(route["routed"], route)
         self.assertEqual(sorted(route["blocks"]), ["blk", "other"])
         for name in route["terminals"]:
             block, _, port = name.partition(".")
-            self.assertIn(port, gen_bandgap_routed.BULK_TAP_PORTS)
+            self.assertIn(port, bus_routing.BULK_TAP_PORTS)
             self.assertIn((block, port), used)
         # One pad per block, not one per offered candidate.
         self.assertEqual(len(used), 2)
@@ -478,13 +479,13 @@ class TestBulkTapTerminals(unittest.TestCase):
                 "net": "VDD",
                 "schematic": "two ring taps",
                 "terminals": [
-                    gen_bandgap_routed.bulk_terminal("blk"),
-                    gen_bandgap_routed.bulk_terminal("other"),
+                    bus_routing.bulk_terminal("blk"),
+                    bus_routing.bulk_terminal("other"),
                 ],
             }
         }
         used = {("blk", "TAP_S")}
-        route = gen_bandgap_routed._route_one_net(
+        route = bus_routing._route_one_net(
             met1_bus.Met1Bus(), "VDD", specs, reports, origins, {}, {}, used, {}
         )
         self.assertIn("blk.TAP_N", route["terminals"])
@@ -502,11 +503,11 @@ class TestBulkTapTerminals(unittest.TestCase):
             "VDD": {
                 "net": "VDD",
                 "schematic": "one ring tap",
-                "terminals": [gen_bandgap_routed.bulk_terminal("blk")],
+                "terminals": [bus_routing.bulk_terminal("blk")],
             }
         }
         with self.assertRaises(KeyError):
-            gen_bandgap_routed._route_one_net(
+            bus_routing._route_one_net(
                 met1_bus.Met1Bus(), "VDD", specs, reports, origins, {}, {},
                 {("blk", "TAP_S")}, {},
             )
@@ -1120,7 +1121,7 @@ class TestMosCombPlan(unittest.TestCase):
 
     def test_every_terminal_names_a_device_the_half_table_binds(self) -> None:
         for bid, spec in self._combs().items():
-            devices = gen_bandgap_routed.MOS_HALVES[bid]["devices"]
+            devices = bus_routing.MOS_HALVES[bid]["devices"]
             for entry in spec["nets"]:
                 for device, terminal in entry["terminals"]:
                     self.assertIn(device, devices, f"{bid}.{device}")
@@ -1136,13 +1137,13 @@ class TestMosCombPlan(unittest.TestCase):
             self.assertEqual(len(seen), len(set(seen)), f"{bid}: repeated terminal")
             expected = {
                 (device, terminal)
-                for device in gen_bandgap_routed.MOS_HALVES[bid]["devices"]
+                for device in bus_routing.MOS_HALVES[bid]["devices"]
                 for terminal in ("drain", "source", "gate")
             }
             self.assertEqual(set(seen), expected, bid)
 
     def test_every_comb_net_is_a_declared_inter_block_node(self) -> None:
-        declared = {spec["net"] for spec in gen_bandgap_routed.INTER_BLOCK_MET1}
+        declared = {spec["net"] for spec in bus_routing.INTER_BLOCK_MET1}
         for bid, spec in self._combs().items():
             for entry in spec["nets"]:
                 self.assertIn(entry["net"], declared, f"{bid}:{entry['net']}")
@@ -1151,7 +1152,7 @@ class TestMosCombPlan(unittest.TestCase):
         """The reverse direction: a route asking for a comb point the block
         never built would raise deep inside the router, mid-run."""
         combs = self._combs()
-        for spec in gen_bandgap_routed.INTER_BLOCK_MET1:
+        for spec in bus_routing.INTER_BLOCK_MET1:
             for terminal in spec["terminals"]:
                 if "comb" not in terminal:
                     continue
@@ -1175,10 +1176,10 @@ class TestMosCombPlan(unittest.TestCase):
         Getting that wrong would bus a gate onto the *other* device row's
         track -- legal geometry, wrong transistor."""
         bands = [(0.0, 8.0), (8.82, 16.82)]
-        self.assertEqual(gen_bandgap_routed._band_index(bands, 4.0), 0)
-        self.assertEqual(gen_bandgap_routed._band_index(bands, 8.21), 0)
-        self.assertEqual(gen_bandgap_routed._band_index(bands, 12.82), 1)
-        self.assertEqual(gen_bandgap_routed._band_index(bands, 17.03), 1)
+        self.assertEqual(bus_routing._band_index(bands, 4.0), 0)
+        self.assertEqual(bus_routing._band_index(bands, 8.21), 0)
+        self.assertEqual(bus_routing._band_index(bands, 12.82), 1)
+        self.assertEqual(bus_routing._band_index(bands, 17.03), 1)
 
 
 class TestChannelTracks(unittest.TestCase):
@@ -1200,7 +1201,7 @@ class TestChannelTracks(unittest.TestCase):
     ORIGINS = {k: {"x": 0.0, "y": 0.0} for k in REPORTS}
 
     def test_the_gap_between_two_neighbours_gets_tracks(self) -> None:
-        lanes = gen_bandgap_routed.free_channels(self.REPORTS, self.ORIGINS)
+        lanes = bus_routing.free_channels(self.REPORTS, self.ORIGINS)
         between = [t for t in lanes["x"] if 10.0 < t < 30.0]
         self.assertTrue(between, lanes["x"])
 
@@ -1208,12 +1209,12 @@ class TestChannelTracks(unittest.TestCase):
         """The nearest track to a block edge must sit outside that block's
         own escape fan, or every path through it is rejected on arrival."""
         self.assertGreater(
-            gen_bandgap_routed.CHANNEL_TRACK_OFFSET_UM,
-            max(gen_bandgap_routed.MOS_ESCAPE_UM),
+            bus_routing.CHANNEL_TRACK_OFFSET_UM,
+            max(bus_routing.MOS_ESCAPE_UM),
         )
 
     def test_a_block_with_no_neighbour_still_gets_outside_tracks(self) -> None:
-        lanes = gen_bandgap_routed.free_channels(self.REPORTS, self.ORIGINS)
+        lanes = bus_routing.free_channels(self.REPORTS, self.ORIGINS)
         self.assertTrue([t for t in lanes["x"] if t < 0.0])
         self.assertTrue([t for t in lanes["x"] if t > 40.0])
 
@@ -1242,7 +1243,7 @@ class TestConnectRouter(unittest.TestCase):
 
     def test_straight_elbow_succeeds_when_clear(self) -> None:
         bus = met1_bus.Met1Bus()
-        result = gen_bandgap_routed._connect(bus, "N1", (0.0, 0.0), (10.0, 5.0))
+        result = bus_routing._connect(bus, "N1", (0.0, 0.0), (10.0, 5.0))
         self.assertIsNotNone(result)
         self.assertEqual(result["detour_um"], 0.0)
         self.assertEqual(result["points"][0], [0.0, 0.0])
@@ -1265,16 +1266,16 @@ class TestConnectRouter(unittest.TestCase):
         # The direct elbows are provably blocked before the channel fallback
         # is even asked to resolve anything.
         self.assertIsNone(
-            gen_bandgap_routed._connect_path(
+            bus_routing._connect_path(
                 bus, "N1", [a, (b[0], a[1]), b]
             )
         )
         self.assertIsNone(
-            gen_bandgap_routed._connect_path(
+            bus_routing._connect_path(
                 bus, "N1", [a, (a[0], b[1]), b]
             )
         )
-        result = gen_bandgap_routed._connect(
+        result = bus_routing._connect(
             bus, "N1", a, b, channels={"x": [3.0], "y": [5.0]}
         )
         self.assertIsNotNone(result)
@@ -1298,15 +1299,15 @@ class TestConnectRouter(unittest.TestCase):
         bus.hseg(-0.15, 0.15, 10.0)
         rects_before = list(bus.met1_rects)
         shapes_before = list(bus.shapes)
-        detours = gen_bandgap_routed.DETOUR_OFFSETS_UM
-        gen_bandgap_routed.DETOUR_OFFSETS_UM = [0.0]
+        detours = bus_routing.DETOUR_OFFSETS_UM
+        bus_routing.DETOUR_OFFSETS_UM = [0.0]
         try:
             with met1_only():
-                result = gen_bandgap_routed._connect(
+                result = bus_routing._connect(
                     bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
                 )
         finally:
-            gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
+            bus_routing.DETOUR_OFFSETS_UM = detours
         self.assertIsNone(result)
         self.assertEqual(bus.met1_rects, rects_before)
         self.assertEqual(bus.shapes, shapes_before)
@@ -1326,24 +1327,24 @@ class TestConnectRouter(unittest.TestCase):
         bus.hseg(9.85, 10.15, 0.0)
         bus.net("WALL_B")
         bus.hseg(-0.15, 0.15, 10.0)
-        detours = gen_bandgap_routed.DETOUR_OFFSETS_UM
-        gen_bandgap_routed.DETOUR_OFFSETS_UM = [0.0]
+        detours = bus_routing.DETOUR_OFFSETS_UM
+        bus_routing.DETOUR_OFFSETS_UM = [0.0]
         try:
             with met1_only():
-                result = gen_bandgap_routed._connect(
+                result = bus_routing._connect(
                     bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
                 )
         finally:
-            gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
+            bus_routing.DETOUR_OFFSETS_UM = detours
         self.assertIsNone(result)
         # Both walls vetoed at least one candidate elbow (WALL_A the one that
         # turns first at x=10, WALL_B the one that turns first at y=10) --
         # both must be present, not just whichever was checked last.
         self.assertEqual(
-            set(gen_bandgap_routed._BLOCKER_COUNTS), {"WALL_A", "WALL_B"}
+            set(bus_routing._BLOCKER_COUNTS), {"WALL_A", "WALL_B"}
         )
-        self.assertGreater(gen_bandgap_routed._BLOCKER_COUNTS["WALL_A"], 0)
-        self.assertGreater(gen_bandgap_routed._BLOCKER_COUNTS["WALL_B"], 0)
+        self.assertGreater(bus_routing._BLOCKER_COUNTS["WALL_A"], 0)
+        self.assertGreater(bus_routing._BLOCKER_COUNTS["WALL_B"], 0)
 
     def test_blocker_counts_reset_at_the_start_of_each_connect_call(
         self,
@@ -1355,22 +1356,22 @@ class TestConnectRouter(unittest.TestCase):
         bus.net("WALL")
         bus.hseg(9.85, 10.15, 0.0)
         bus.hseg(-0.15, 0.15, 10.0)
-        detours = gen_bandgap_routed.DETOUR_OFFSETS_UM
-        gen_bandgap_routed.DETOUR_OFFSETS_UM = [0.0]
+        detours = bus_routing.DETOUR_OFFSETS_UM
+        bus_routing.DETOUR_OFFSETS_UM = [0.0]
         try:
-            gen_bandgap_routed._connect(
+            bus_routing._connect(
                 bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
             )
-            self.assertIn("WALL", gen_bandgap_routed._BLOCKER_COUNTS)
+            self.assertIn("WALL", bus_routing._BLOCKER_COUNTS)
             # A second, unrelated call that never collides with anything
             # must start from a clean tally.
-            result = gen_bandgap_routed._connect(
+            result = bus_routing._connect(
                 bus, "N2", (20.0, 20.0), (30.0, 25.0), channels={}
             )
         finally:
-            gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
+            bus_routing.DETOUR_OFFSETS_UM = detours
         self.assertIsNotNone(result)
-        self.assertEqual(dict(gen_bandgap_routed._BLOCKER_COUNTS), {})
+        self.assertEqual(dict(bus_routing._BLOCKER_COUNTS), {})
 
 
 class TestDrawChainBlockedByCounts(unittest.TestCase):
@@ -1386,17 +1387,17 @@ class TestDrawChainBlockedByCounts(unittest.TestCase):
         bus.hseg(9.85, 10.15, 0.0)
         bus.net("WALL_B")
         bus.hseg(-0.15, 0.15, 10.0)
-        detours = gen_bandgap_routed.DETOUR_OFFSETS_UM
-        gen_bandgap_routed.DETOUR_OFFSETS_UM = [0.0]
+        detours = bus_routing.DETOUR_OFFSETS_UM
+        bus_routing.DETOUR_OFFSETS_UM = [0.0]
         plan = [
             {"name": "P0", "pad": (0.0, 0.0), "via": False},
             {"name": "P1", "pad": (10.0, 10.0), "via": False},
         ]
         try:
             with met1_only():
-                hops, routed = gen_bandgap_routed._draw_chain(bus, "N1", plan)
+                hops, routed = bus_routing._draw_chain(bus, "N1", plan)
         finally:
-            gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
+            bus_routing.DETOUR_OFFSETS_UM = detours
         self.assertFalse(routed)
         self.assertEqual(len(hops), 1)
         hop = hops[0]
@@ -1415,7 +1416,7 @@ class TestDrawChainBlockedByCounts(unittest.TestCase):
             {"name": "P0", "pad": (0.0, 0.0), "via": False},
             {"name": "P1", "pad": (10.0, 5.0), "via": False},
         ]
-        hops, routed = gen_bandgap_routed._draw_chain(bus, "N1", plan)
+        hops, routed = bus_routing._draw_chain(bus, "N1", plan)
         self.assertTrue(routed)
         self.assertEqual(len(hops), 1)
         self.assertNotIn("blocked_by", hops[0])
@@ -1433,7 +1434,7 @@ class TestChannelPaths(unittest.TestCase):
     CHANNELS = {"x": [2.0, 8.0, -5.0], "y": [3.0, 7.0, -4.0]}
 
     def test_every_path_is_orthogonal(self) -> None:
-        paths = gen_bandgap_routed._channel_paths(
+        paths = bus_routing._channel_paths(
             (0.0, 0.0), (10.0, 10.0), self.CHANNELS
         )
         self.assertTrue(paths)
@@ -1442,7 +1443,7 @@ class TestChannelPaths(unittest.TestCase):
                 self.assertTrue(x0 == x1 or y0 == y1, path)
 
     def test_paths_are_sorted_shortest_first(self) -> None:
-        paths = gen_bandgap_routed._channel_paths(
+        paths = bus_routing._channel_paths(
             (0.0, 0.0), (10.0, 10.0), self.CHANNELS
         )
 
@@ -1461,7 +1462,7 @@ class TestChannelPaths(unittest.TestCase):
         _channel_paths' own docstring. A same-track pair would degenerate to
         a plain single-jog Z, so every 6-point path here must actually use
         two distinct x (or y) tracks."""
-        paths = gen_bandgap_routed._channel_paths(
+        paths = bus_routing._channel_paths(
             (0.0, 0.0), (10.0, 10.0), self.CHANNELS
         )
         six_point = [p for p in paths if len(p) == 6]
@@ -1478,7 +1479,7 @@ class TestChannelPaths(unittest.TestCase):
         """No tracks to offer means no channel path is even attempted --
         `_connect` then falls straight through to its Z-detour stage."""
         self.assertEqual(
-            gen_bandgap_routed._channel_paths((0.0, 0.0), (10.0, 10.0), {}), []
+            bus_routing._channel_paths((0.0, 0.0), (10.0, 10.0), {}), []
         )
 
 
@@ -1498,7 +1499,7 @@ class TestChainOrders(unittest.TestCase):
         those two orderings, never re-trying the same forward or the same
         reversed walk twice."""
         points = [self._pt(0.0, 0.0), self._pt(5.0, 5.0)]
-        orders = gen_bandgap_routed._chain_orders(points)
+        orders = bus_routing._chain_orders(points)
         self.assertLessEqual(len(orders), 2)
         for order in orders:
             self.assertEqual(len(order), 2)
@@ -1510,12 +1511,12 @@ class TestChainOrders(unittest.TestCase):
         actually collapse them -- three axis-aligned points in a row leave
         no ambiguity for any of the four generators to disagree on."""
         points = [self._pt(0.0, 0.0), self._pt(1.0, 0.0), self._pt(2.0, 0.0)]
-        orders = gen_bandgap_routed._chain_orders(points)
+        orders = bus_routing._chain_orders(points)
         self.assertEqual(len(orders), 3)
 
     def test_column_and_row_major_orders_are_both_present(self) -> None:
         points = [self._pt(5.0, 0.0), self._pt(0.0, 5.0), self._pt(5.0, 5.0)]
-        orders = gen_bandgap_routed._chain_orders(points)
+        orders = bus_routing._chain_orders(points)
         by_xy = sorted(points, key=lambda p: (p["x"], p["y"]))
         by_yx = sorted(points, key=lambda p: (p["y"], p["x"]))
         self.assertIn(by_xy, orders)
@@ -1528,7 +1529,7 @@ class TestChainOrders(unittest.TestCase):
             self._pt(10.0, 10.0),
             self._pt(0.0, 10.0),
         ]
-        orders = gen_bandgap_routed._chain_orders(points)
+        orders = bus_routing._chain_orders(points)
         starts = {id(order[0]) for order in orders}
         self.assertEqual(starts, {id(p) for p in points})
         # Every candidate order is a permutation of the same terminal set --
@@ -1545,7 +1546,7 @@ class TestChainOrders(unittest.TestCase):
         near = self._pt(1.0, 0.0)
         far = self._pt(100.0, 0.0)
         start = self._pt(0.0, 0.0)
-        orders = gen_bandgap_routed._chain_orders([start, far, near])
+        orders = bus_routing._chain_orders([start, far, near])
         nn_from_start = next(o for o in orders if o[0] is start)
         self.assertIs(nn_from_start[1], near)
         self.assertIs(nn_from_start[2], far)
@@ -1559,7 +1560,7 @@ class TestCandidateAssignments(unittest.TestCase):
 
     def test_fixed_points_pass_through_unchanged(self) -> None:
         fixed = {"block": "b", "name": "b.PORT", "x": 1.0, "y": 2.0, "via": True}
-        assignments = gen_bandgap_routed._candidate_assignments([fixed], 0.0, 0.0)
+        assignments = bus_routing._candidate_assignments([fixed], 0.0, 0.0)
         self.assertEqual(len(assignments), 1)
         resolved, claims = assignments[0]
         self.assertEqual(resolved, [fixed])
@@ -1571,7 +1572,7 @@ class TestCandidateAssignments(unittest.TestCase):
             "via": True,
             "candidates": [("far", 100.0, 0.0), ("near", 1.0, 0.0)],
         }
-        assignments = gen_bandgap_routed._candidate_assignments([point], 0.0, 0.0)
+        assignments = bus_routing._candidate_assignments([point], 0.0, 0.0)
         resolved, claims = assignments[0]
         self.assertEqual(resolved[0]["name"], "b.near")
         self.assertEqual(claims, [("b", "near")])
@@ -1587,11 +1588,11 @@ class TestCandidateAssignments(unittest.TestCase):
             "via": True,
             "candidates": [(f"b{i}", float(i), 10.0) for i in range(5)],
         }
-        assignments = gen_bandgap_routed._candidate_assignments(
+        assignments = bus_routing._candidate_assignments(
             [point_a, point_b], 2.0, 5.0
         )
         self.assertLessEqual(
-            len(assignments), gen_bandgap_routed.CANDIDATE_ASSIGNMENTS
+            len(assignments), bus_routing.CANDIDATE_ASSIGNMENTS
         )
         # Every offered option is drawn from each terminal's own nearest
         # CANDIDATES_PER_TERMINAL -- the two farthest of the five never
@@ -1613,7 +1614,7 @@ class TestCandidateAssignments(unittest.TestCase):
             "claims_pad": False,
             "candidates": [("escape", 3.0, 4.0)],
         }
-        assignments = gen_bandgap_routed._candidate_assignments([point], 0.0, 0.0)
+        assignments = bus_routing._candidate_assignments([point], 0.0, 0.0)
         resolved, claims = assignments[0]
         self.assertEqual(resolved[0]["name"], "escape")
         self.assertEqual(claims, [])
@@ -1690,7 +1691,7 @@ class TestRouteOneNetSkipFirst(unittest.TestCase):
         bus = met1_bus.Met1Bus()
         trunks = {("L", "A"): (0.0, 0.0)}
         combs = {("R", "A"): [("near", 10.0, 0.0), ("far", 50.0, 0.0)]}
-        result = gen_bandgap_routed._route_one_net(
+        result = bus_routing._route_one_net(
             bus, "A", self._specs(), {}, {}, trunks, combs, set(), {},
             skip_first=0,
         )
@@ -1704,7 +1705,7 @@ class TestRouteOneNetSkipFirst(unittest.TestCase):
         bus = met1_bus.Met1Bus()
         trunks = {("L", "A"): (0.0, 0.0)}
         combs = {("R", "A"): [("near", 10.0, 0.0), ("far", 50.0, 0.0)]}
-        result = gen_bandgap_routed._route_one_net(
+        result = bus_routing._route_one_net(
             bus, "A", self._specs(), {}, {}, trunks, combs, set(), {},
             skip_first=2,
         )
@@ -1720,7 +1721,7 @@ class TestRouteOneNetSkipFirst(unittest.TestCase):
         bus = met1_bus.Met1Bus()
         trunks = {("L", "A"): (0.0, 0.0)}
         combs = {("R", "A"): [("near", 10.0, 0.0), ("far", 50.0, 0.0)]}
-        result = gen_bandgap_routed._route_one_net(
+        result = bus_routing._route_one_net(
             bus, "A", self._specs(), {}, {}, trunks, combs, set(), {},
             skip_first=99,
         )
@@ -1810,7 +1811,7 @@ class TestRepairUnroutedHops(unittest.TestCase):
                 marks.append(bus.mark())
                 port_snapshots.append(set(used_ports))
                 results.append(
-                    gen_bandgap_routed._route_one_net(
+                    bus_routing._route_one_net(
                         bus, net_name, specs, {}, {}, trunks, {}, used_ports,
                         channels,
                     )
@@ -1834,7 +1835,7 @@ class TestRepairUnroutedHops(unittest.TestCase):
         original_terminals = list(results[0]["terminals"])
 
         with met1_only():
-            gen_bandgap_routed._repair_unrouted_hops(
+            bus_routing._repair_unrouted_hops(
                 bus, sequence, specs, {}, {}, trunks, {}, used_ports, channels,
                 marks, port_snapshots, results,
             )
@@ -1874,7 +1875,7 @@ class TestRepairUnroutedHops(unittest.TestCase):
         port_snapshots = [set(used_ports)]
         with met1_only():
             results = [
-                gen_bandgap_routed._route_one_net(
+                bus_routing._route_one_net(
                     bus, "B", specs, {}, {}, trunks, {}, used_ports, channels,
                 )
             ]
@@ -1883,7 +1884,7 @@ class TestRepairUnroutedHops(unittest.TestCase):
 
         mark_before_repair = bus.mark()
         with met1_only():
-            gen_bandgap_routed._repair_unrouted_hops(
+            bus_routing._repair_unrouted_hops(
                 bus, sequence, specs, {}, {}, trunks, {}, used_ports, channels,
                 marks, port_snapshots, results,
             )
@@ -1910,7 +1911,7 @@ class TestRepairUnroutedHops(unittest.TestCase):
         mark_before_repair = bus.mark()
 
         with met1_only():
-            gen_bandgap_routed._repair_unrouted_hops(
+            bus_routing._repair_unrouted_hops(
                 bus, sequence, specs, {}, {}, trunks, {}, used_ports, channels,
                 marks, port_snapshots, results,
             )
@@ -2006,7 +2007,7 @@ class TestMet2Escape(unittest.TestCase):
         no via1 and no met2 -- otherwise every hop would migrate onto the one
         plane `klt drc` does not check."""
         bus = met1_bus.Met1Bus()
-        result = gen_bandgap_routed._connect(
+        result = bus_routing._connect(
             bus, "N1", (0.0, 0.0), (10.0, 5.0), channels={}
         )
         self.assertIsNotNone(result)
@@ -2016,14 +2017,14 @@ class TestMet2Escape(unittest.TestCase):
 
     def test_a_hop_met1_cannot_clear_escapes_onto_met2(self) -> None:
         bus = self._boxed_in()
-        detours = gen_bandgap_routed.DETOUR_OFFSETS_UM
-        gen_bandgap_routed.DETOUR_OFFSETS_UM = [0.0]
+        detours = bus_routing.DETOUR_OFFSETS_UM
+        bus_routing.DETOUR_OFFSETS_UM = [0.0]
         try:
-            result = gen_bandgap_routed._connect(
+            result = bus_routing._connect(
                 bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
             )
         finally:
-            gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
+            bus_routing.DETOUR_OFFSETS_UM = detours
         self.assertIsNotNone(result)
         self.assertTrue(result["met2"])
         self.assertEqual(len(result["via1_drops"]), 2)
@@ -2040,14 +2041,14 @@ class TestMet2Escape(unittest.TestCase):
         if it ignored met2 entirely it would score 2 as well, and the flow
         would report a routed node it had actually drawn in two halves."""
         bus = self._boxed_in()
-        detours = gen_bandgap_routed.DETOUR_OFFSETS_UM
-        gen_bandgap_routed.DETOUR_OFFSETS_UM = [0.0]
+        detours = bus_routing.DETOUR_OFFSETS_UM
+        bus_routing.DETOUR_OFFSETS_UM = [0.0]
         try:
-            gen_bandgap_routed._connect(
+            bus_routing._connect(
                 bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
             )
         finally:
-            gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
+            bus_routing.DETOUR_OFFSETS_UM = detours
         self.assertEqual(bus.components()["N1"], 1)
 
     def test_a_via1_that_misses_its_met1_is_reported_as_a_split_node(
@@ -2117,14 +2118,14 @@ class TestMet2Escape(unittest.TestCase):
             bus.hseg(dx - 0.2, dx + 0.2, 0.4)
             bus.hseg(dx - 0.2, dx + 0.2, -0.4)
         mark = bus.mark()
-        detours = gen_bandgap_routed.DETOUR_OFFSETS_UM
-        gen_bandgap_routed.DETOUR_OFFSETS_UM = [0.0]
+        detours = bus_routing.DETOUR_OFFSETS_UM
+        bus_routing.DETOUR_OFFSETS_UM = [0.0]
         try:
-            result = gen_bandgap_routed._connect(
+            result = bus_routing._connect(
                 bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
             )
         finally:
-            gen_bandgap_routed.DETOUR_OFFSETS_UM = detours
+            bus_routing.DETOUR_OFFSETS_UM = detours
         if result is None:
             self.assertEqual(bus.mark(), mark)
         else:
@@ -2187,7 +2188,7 @@ class TestMet2Escape(unittest.TestCase):
         # A foreign met2 wire straddling the origin, with no met1 anywhere
         # near it -- isolates the met2-landing-pad half of the guard.
         bus.net("F").hseg2(-1.0, 1.0, 0.0)
-        drop = gen_bandgap_routed._met2_drop(bus, "N1", 0.0, 0.0)
+        drop = bus_routing._met2_drop(bus, "N1", 0.0, 0.0)
         self.assertIsNotNone(drop)
         self.assertNotEqual(drop, (0.0, 0.0))
         self.assertEqual(bus.conflicts(), [])
@@ -2209,7 +2210,7 @@ class TestMet2Escape(unittest.TestCase):
         # well past every x offset in both directions, so sliding along x
         # cannot dodge it: the walk has to leave in y.
         bus.net("N1").hseg(-20.0, 20.0, -0.4)
-        drop = gen_bandgap_routed._met2_drop(bus, "N1", 0.0, 0.0)
+        drop = bus_routing._met2_drop(bus, "N1", 0.0, 0.0)
         self.assertIsNotNone(drop)
         assert drop is not None
         self.assertNotEqual(drop, (0.0, 0.0))
@@ -2230,7 +2231,7 @@ class TestMet2Escape(unittest.TestCase):
         at all) and must not be rejected as a notch."""
         bus = met1_bus.Met1Bus()
         bus.net("N1").hseg(-2.0, 2.0, 0.0)
-        drop = gen_bandgap_routed._met2_drop(bus, "N1", 0.0, 0.0)
+        drop = bus_routing._met2_drop(bus, "N1", 0.0, 0.0)
         self.assertEqual(drop, (0.0, 0.0))
 
     def test_met2_drop_backtracks_off_a_foreign_via1_stack(self) -> None:
@@ -2244,7 +2245,7 @@ class TestMet2Escape(unittest.TestCase):
         anything this fix changed."""
         bus = met1_bus.Met1Bus()
         bus.net("F").via1(0.3, 0.0)
-        drop = gen_bandgap_routed._met2_drop(bus, "N1", 0.0, 0.0)
+        drop = bus_routing._met2_drop(bus, "N1", 0.0, 0.0)
         self.assertIsNotNone(drop)
         self.assertNotEqual(drop, (0.0, 0.0))
         self.assertEqual(bus.conflicts(), [])
@@ -2420,11 +2421,11 @@ class TestTrimTapLadder(unittest.TestCase):
                 for terminal in spec["terminals"]
                 if terminal.get("block") == "res_trim"
             ]
-            for spec in gen_bandgap_routed.INTER_BLOCK_MET1
+            for spec in bus_routing.INTER_BLOCK_MET1
             if spec["net"] in ("VA", "VB")
         }
-        self.assertEqual(wired["VA"], [gen_bandgap_routed.trim_tap_port(0, 0)])
-        self.assertEqual(wired["VB"], [gen_bandgap_routed.trim_tap_port(1, 0)])
+        self.assertEqual(wired["VA"], [bus_routing.trim_tap_port(0, 0)])
+        self.assertEqual(wired["VB"], [bus_routing.trim_tap_port(1, 0)])
 
     def test_the_coarse_leg_hands_off_to_the_head_of_the_fine_chain(
         self,
@@ -2434,7 +2435,7 @@ class TestTrimTapLadder(unittest.TestCase):
         #108's resize of issue #91's 270 um) is one device per leg."""
         trims = {
             spec["net"]: {t["block"]: t["port"] for t in spec["terminals"]}
-            for spec in gen_bandgap_routed.INTER_BLOCK_MET1
+            for spec in bus_routing.INTER_BLOCK_MET1
             if spec["net"] in ("TRIM_A", "TRIM_B")
         }
         coarse = 2 * gen_bandgap_routed.N_R2_COARSE
@@ -2445,9 +2446,9 @@ class TestTrimTapLadder(unittest.TestCase):
 
     def test_a_positive_code_is_not_addressable_at_all(self) -> None:
         with self.assertRaises(ValueError):
-            gen_bandgap_routed.trim_tap_port(0, 1)
+            bus_routing.trim_tap_port(0, 1)
         with self.assertRaises(ValueError):
-            gen_bandgap_routed.trim_tap_port(
+            bus_routing.trim_tap_port(
                 0, -(gen_bandgap_routed.N_R2_TRIM_UNITS + 1)
             )
 
@@ -2474,7 +2475,7 @@ class TestInternalNetLabelling(unittest.TestCase):
     def _route(self, internal: str | None) -> met1_bus.Met1Bus:
         bus = met1_bus.Met1Bus()
         trunks = {("L", "T"): (0.0, 0.0), ("R", "T"): (10.0, 5.0)}
-        gen_bandgap_routed._route_one_net(
+        bus_routing._route_one_net(
             bus, "T", self._spec(internal), {}, {}, trunks, {}, set(), {},
         )
         return bus
@@ -2493,7 +2494,7 @@ class TestInternalNetLabelling(unittest.TestCase):
         re-adding a label at the call site."""
         internal = {
             spec["net"]: spec["internal"]
-            for spec in gen_bandgap_routed.INTER_BLOCK_MET1
+            for spec in bus_routing.INTER_BLOCK_MET1
             if spec.get("internal")
         }
         self.assertEqual(internal, {"TRIM_A": "R2A", "TRIM_B": "R2B"})
