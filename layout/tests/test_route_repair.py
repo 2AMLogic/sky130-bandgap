@@ -52,8 +52,8 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "layout" / "bin"))
 
-import gen_bandgap_routed  # noqa: E402  -- resolved from layout/bin, above
-import met1_bus  # noqa: E402
+import met1_bus  # noqa: E402  -- resolved from layout/bin, above
+import bus_routing  # noqa: E402  -- issue #221: split out of gen_bandgap_routed.py
 
 
 # ---------------------------------------------------------------------------
@@ -96,9 +96,9 @@ class TestRouteOneNetSkipFirst(unittest.TestCase):
     }
 
     def _route(self, skip_first: int) -> dict[str, Any]:
-        channels = gen_bandgap_routed.free_channels(self.REPORTS, self.ORIGINS)
+        channels = bus_routing.free_channels(self.REPORTS, self.ORIGINS)
         bus = met1_bus.Met1Bus()
-        return gen_bandgap_routed._route_one_net(
+        return bus_routing._route_one_net(
             bus, "NET1", self.SPECS, self.REPORTS, self.ORIGINS, {}, {},
             set(), channels, skip_first=skip_first,
         )
@@ -136,8 +136,8 @@ class TestRouteOneNetSkipFirst(unittest.TestCase):
         skip levels the way a single "try harder" search might."""
         for skip_first, want in ((0, "B.Q2_X"), (1, "B.Q1_X"), (2, "B.Q3_X")):
             bus = met1_bus.Met1Bus()
-            channels = gen_bandgap_routed.free_channels(self.REPORTS, self.ORIGINS)
-            result = gen_bandgap_routed._route_one_net(
+            channels = bus_routing.free_channels(self.REPORTS, self.ORIGINS)
+            result = bus_routing._route_one_net(
                 bus, "NET1", self.SPECS, self.REPORTS, self.ORIGINS, {}, {},
                 set(), channels, skip_first=skip_first,
             )
@@ -209,16 +209,16 @@ class TestRepairUnroutedHops(unittest.TestCase):
         calls: list[tuple[str, int]] = []
         last_skip: dict[str, int] = {}
         fake = self._fake(script, calls, last_skip)
-        with unittest.mock.patch.object(gen_bandgap_routed, "_route_one_net", side_effect=fake):
+        with unittest.mock.patch.object(bus_routing, "_route_one_net", side_effect=fake):
             for net_name in sequence:
                 marks.append(bus.mark())
                 port_snapshots.append(set(used_ports))
                 results.append(
-                    gen_bandgap_routed._route_one_net(
+                    bus_routing._route_one_net(
                         bus, net_name, {}, {}, {}, {}, {}, used_ports, channels,
                     )
                 )
-            gen_bandgap_routed._repair_unrouted_hops(
+            bus_routing._repair_unrouted_hops(
                 bus, sequence, {}, {}, {}, {}, {}, used_ports, channels,
                 marks, port_snapshots, results,
             )
@@ -254,7 +254,7 @@ class TestRepairUnroutedHops(unittest.TestCase):
         self.assertFalse(results[1]["routed"])
         j_skips = [skip for net, skip in calls if net == "J"]
         # Bounded: J is never asked to skip more than the declared budget.
-        self.assertLessEqual(max(j_skips), gen_bandgap_routed.REPAIR_MAX_SKIPS_PER_NET)
+        self.assertLessEqual(max(j_skips), bus_routing.REPAIR_MAX_SKIPS_PER_NET)
         # Reverted: J's *last* redraw (the one whose geometry is what remains
         # on the bus) is back to its original, unskipped choice.
         self.assertEqual(j_skips[-1], 0)
