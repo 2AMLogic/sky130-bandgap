@@ -1103,6 +1103,57 @@ class TestMet1ProximityIndex(unittest.TestCase):
         )
 
 
+class TestMet2ProximityIndex(unittest.TestCase):
+    """`met2_near()` is `met1_near()`'s counterpart for the met2 escape
+    plane -- both now share one `_PlaneIndex` implementation
+    (`layout/bin/met1_bus.py`), so this mirrors `TestMet1ProximityIndex`
+    exactly to prove the met2 instance of that shared index is exercised
+    directly too, not only through higher-level routing tests.
+    """
+
+    def _brute(self, bus: met1_bus.Met1Bus, box, clearance):
+        x0, y0, x1, y1 = box
+        return sorted(
+            r
+            for r in bus.met2_rects
+            if x0 - clearance < r[3]
+            and r[1] - clearance < x1
+            and y0 - clearance < r[4]
+            and r[2] - clearance < y1
+        )
+
+    def _bus(self) -> met1_bus.Met1Bus:
+        bus = met1_bus.Met1Bus()
+        for i in range(40):
+            bus.net(f"N{i % 5}")
+            bus.hseg2(i * 1.7, i * 1.7 + 30.0, i * 0.9)
+            bus.vseg2(i * 2.3, -5.0, 40.0)
+            bus.via1(i * 3.1, i * 1.3)
+        return bus
+
+    def test_matches_a_full_scan(self) -> None:
+        bus = self._bus()
+        for box in ((0.0, 0.0, 1.0, 1.0), (20.0, 10.0, 21.0, 30.0), (-9.0, -9.0, -8.0, -8.0)):
+            self.assertEqual(
+                sorted(bus.met2_near(*box, 0.14)),
+                self._brute(bus, box, 0.14),
+                box,
+            )
+
+    def test_truncation_unindexes(self) -> None:
+        """`truncate_met2` is how a rolled-back met2 escape leaves the index.
+        If it left entries behind, every later route would be tested against
+        geometry that is not in the emitted layout."""
+        bus = self._bus()
+        keep = 20
+        bus.truncate_met2(keep)
+        self.assertEqual(len(bus.met2_rects), keep)
+        box = (0.0, -10.0, 60.0, 40.0)
+        self.assertEqual(
+            sorted(bus.met2_near(*box, 0.14)), self._brute(bus, box, 0.14)
+        )
+
+
 class TestMosCombPlan(unittest.TestCase):
     """The declarative half of the MOS finger bus: every schematic device
     terminal in `BLOCKS`' `mos_comb` specs has to resolve through
