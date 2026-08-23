@@ -231,10 +231,9 @@ trap 'rm -f "$GH_STDERR" 2>/dev/null || true' EXIT
 # the state must come from the same snapshot the SHA came from. `merged` is
 # deliberately NOT requested here — real `gh pr view --json` rejects it as an
 # unknown field (it only exposes `mergedAt`/`closed`, not a `merged` boolean;
-# confirmed against gh 2.97.0/2.98.0). `state` alone already reports MERGED,
-# so nothing is lost. Any `.merged` read below is defensive only, for a
-# hypothetical forge shim that emits REST-shaped JSON with a literal `merged`
-# key; on real `gh` output it is simply absent.
+# confirmed against gh 2.97.0/2.98.0; issue #236). `state` alone already
+# reports "MERGED" for a merged PR, so nothing is lost — PR_MERGED below is
+# derived from `state`, not a separate `.merged` field.
 PR_JSON="$(gh pr view "$PR" --json headRefOid,labels,state 2>"$GH_STDERR")" || {
   echo "ERROR: 'gh pr view $PR --json headRefOid,labels,state' failed: $(cat "$GH_STDERR" 2>/dev/null)" >&2
   exit 1
@@ -291,16 +290,21 @@ current_verdict_label() {
 # against mislabeling PRs that are already finished. The former is far worse.
 PR_STATE="$(jq -r '.state // empty' <<<"$PR_JSON" 2>/dev/null || true)"
 PR_STATE_UC="$(printf '%s' "$PR_STATE" | tr '[:lower:]' '[:upper:]')"
-# `.merged // false` (not `// empty`): jq's `//` also swallows a literal
-# `false`, so the alternative supplies the default for BOTH null and false.
-PR_MERGED="$(jq -r 'if (.merged // false) then "true" else "false" end' <<<"$PR_JSON" 2>/dev/null || true)"
+# Derived primarily from `state` (MERGED | CLOSED | OPEN), not a separate
+# `.merged` field: `merged` is not requested in Step 1 above (issue #236 —
+# the installed `gh` CLI's `pr view --json` schema rejects it as an unknown
+# field), and `state` already reports the literal string "MERGED" for a
+# merged PR, so nothing is lost on real `gh` output, where `.merged` is
+# simply absent (`.merged // false` then contributes nothing). The `.merged`
+# read is kept as a defensive OR-term for a hypothetical forge shim that
+# reports `merged: true` before `state` itself has flipped to MERGED (an
+# eventual-consistency race) — real `gh` output never sets it, so it is
+# inert there. A missing/empty `state` (and no `.merged` key) falls through
+# to "false" here, preserving the pre-#236 "missing state ⇒ treated as open"
+# fallback (see the comment above).
+PR_MERGED="$(jq -r 'if ((.merged // false) or (((.state // "") | ascii_upcase) == "MERGED")) then "true" else "false" end' <<<"$PR_JSON" 2>/dev/null || true)"
 
 if [[ "$PR_MERGED" == "true" || ( -n "$PR_STATE_UC" && "$PR_STATE_UC" != "OPEN" ) ]]; then
-  # Real `gh pr view --json state` reports MERGED directly, so prefer it over
-  # PR_MERGED for the human-readable distinction — PR_MERGED is permanently
-  # "false" on real gh output now that `merged` is no longer a requested
-  # field (see the Step 1 comment above), so keying off it alone would
-  # mislabel every real merge as "closed without merging".
   NOT_OPEN_WHAT="closed without merging"
   if [[ "$PR_MERGED" == "true" || "$PR_STATE_UC" == "MERGED" ]]; then
     NOT_OPEN_WHAT="merged"

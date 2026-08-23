@@ -7,3 +7,13 @@
 # this repo has no defaults/ tree to fix directly, so pin the local patch
 # so a Loom resync does not silently revert it.
 scripts/tests/test-forge-helpers-rate-limit-fallback.sh
+
+# scripts/verdict-staleness-guard.sh: locally patched (#236) so `gh pr view`
+# no longer requests the unsupported `merged` JSON field (installed `gh`
+# 2.98.0 rejects `--json ...,merged` with "Unknown JSON field"), and so
+# PR_MERGED is derived from `state` instead. This is a stopgap pending the
+# same fix landing upstream in defaults/scripts/verdict-staleness-guard.sh at
+# rjwalters/loom -- this repo has no defaults/ tree to fix directly, so pin
+# the local patch so a Loom resync does not silently revert it (as it
+# already has, repeatedly, per the resync history on this file).
+scripts/verdict-staleness-guard.sh
