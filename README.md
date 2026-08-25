@@ -116,7 +116,7 @@ end-to-end: see [`docs/environment-setup.md`](docs/environment-setup.md).
 Operating the AI agent fleet against this repo — in particular keeping a
 dispatch host's checkout current so agents do not run stale role
 definitions: see
-[`docs/loom-agent-host-hygiene.md`](docs/loom-agent-host-hygiene.md).
+the fleet's private operations runbooks (the host-hygiene note that used to live here was moved out on 2026-08-21 — it is about the dispatch hosts, not this design).
 
 ## Layout
 
