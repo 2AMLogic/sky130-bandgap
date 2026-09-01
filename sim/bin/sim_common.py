@@ -1,109 +1,25 @@
 #!/usr/bin/env python3
 """Shared helpers for the bespoke `sim/*/run_*.py` experiment scripts.
 
-`sim/bin/corner-run.py` drives exactly one deterministic deck per PVT point.
-The Monte Carlo / chained-resistor-array experiments under `sim/` (issues #9,
-#12, #13, #31, #98, #99, #106) are bespoke scripts instead of
-`experiment.json` + `corner-run.py` entries, but they still reuse
-`corner-run.py`'s PDK resolution, pin enforcement, xschem netlisting, and
-tool-version/git-provenance helpers by import. Several small pieces of that
-import glue were copy-pasted verbatim (or near-verbatim) across those
-scripts instead of being defined once here (issues #119, #130, #135):
+`sim/bin/corner-run.py` drives exactly one deterministic deck per PVT point
+via `experiment.json` entries. The Monte Carlo / chained-resistor-array
+experiments under `sim/` don't fit that shape, so they're bespoke scripts
+instead -- but they still reuse `corner-run.py`'s PDK resolution, pin
+enforcement, xschem netlisting, and tool-version/git-provenance helpers by
+import, plus deck-building, logging, and record-rendering helpers defined
+here. See each function's/class's own docstring for what it does and which
+issue introduced it.
 
-    load_corner_run()    the importlib shim that loads corner-run.py (its
-                          filename has a dash, so it can't be `import`ed
-                          normally)
-    chain_lines()         builds N series `sky130_fd_pr__res_high_po` unit
-                          instances between two SPICE nodes, reproducing the
-                          routed layout's `bus_res_series` topology
-    run_ngspice()          runs one ngspice deck in a scratch dir, capturing
-                          stdout+stderr and timeout status
-    parse_measurements()   extracts `.meas`-style `let`/`print` results from
-                          an ngspice log via `corner-run.py`'s `MEAS_RE`
-    parse_samples()        parses the repeated `op`+`print` blocks of a
-                          Monte Carlo loop's ngspice log into per-sample
-                          dicts (issue #153)
-    write_log()            writes the append-only per-point `.log` file
-                          (header + .spiceinit + deck + ngspice output),
-                          `name`-keyed (issue #138)
-    render_log()            the shared tail-formatting skeleton underneath
-                          every `write_log()` in this repo (issue #146)
+Two import-mechanics quirks worth knowing up front:
 
-Unlike `corner-run.py`, this file's name IS a valid Python identifier, so
-callers import it normally (after adding `sim/bin` to `sys.path`) rather than
-going through `importlib.util.spec_from_file_location`.
+- `load_corner_run()` loads `corner-run.py` via an `importlib` shim, because
+  its filename has a dash and so isn't a valid Python module name.
+- This file's own name (`sim_common.py`) IS a valid identifier, so callers
+  import it normally (after adding `sim/bin` to `sys.path`) -- no shim
+  needed here.
 
-    r1_segments_um()      the coarse-unit R1 leg decomposition
-                          (`n_r1` units of `r_lseg_um` length each)
-    load_base_body()       reads + validates the shared core-body netlist
-                          snapshot (`sim/trim-range-monotonicity/
-                          netlist-snapshots/20260803-170704-b976d0f.spice`)
-                          against a caller-supplied set of required
-                          `.param` lines
-    build_deck()            assembles the DC-temperature-sweep-and-vref-TC
-                          measurement deck skeleton shared by every bespoke
-                          chained-array script
-    dc_temp_sweep_control() the `.control` block literal underneath
-                          `build_deck()`, also reused directly by
-                          `trim-range-monotonicity/run_trim_sweep.py`'s own
-                          `build_deck()` (issue #152)
-
-(issue #143 -- `sim/res-array-resize/run_res_array_resize.py` and
-`sim/trim-lsb-chained/run_trim_lsb_chained.py` both reuse these three
-verbatim, differing only in which module-level constants they closed the
-functions over.)
-
-    TARGET_LINES           the shared `XR2A`/`XR2B`/`XR1` single-device
-                          netlist line templates the two chained-array
-                          scripts substitute chained arrays in for
-    r2_segments_um()        the R2A/R2B leg coarse/fine unit-length
-                          decomposition, generalized to accept an optional
-                          `trim_unit_um` (issue #106's fine-unit-length axis;
-                          defaults to `res-array-resize`'s fixed 1 um)
-    substitute_arrays()      replaces the three `TARGET_LINES` single-device
-                          lines in a base netlist body with chained unit
-                          instances built from `r1_segments_um()`/
-                          `r2_segments_um()` (issue #198 -- these three were
-                          left behind byte-for-byte duplicated between
-                          `run_res_array_resize.py` and
-                          `run_trim_lsb_chained.py` when #143 consolidated
-                          the rest of this same array-substitution machinery)
-
-    render_record_id_experiment() the `Record ID` + `Experiment` lines
-                          shared verbatim across every bespoke script's
-                          (and `corner-run.py`'s) `render_record()`
-    render_pdk_tools_repo_state() the `PDK` (pin-state ternary) + `Tools` +
-                          `Repo state` (dirty-tree ternary) lines from the
-                          same block (issue #191)
-    MismatchPoint          the shared 7-field `(corner_id, section, temp_c,
-                          seed, samples, role, purpose)` dataclass shape,
-                          deduped from `monte-carlo-untrimmed/
-                          run_mc_untrimmed.py`, `pnp-mismatch/
-                          run_pnp_mismatch.py`, and `error-amp-offset-mc/
-                          run_amp_offset_mc.py`'s three near-identical local
-                          `Point` classes (issue #194)
-    add_common_args()      adds the `--author`/`--supersedes`/`--timeout`/
-                          `--allow-pdk-mismatch`/`--dry-run` flags (and
-                          `--samples` when requested) every bespoke script's
-                          `parse_args()` hand-rolled identically (issue #207)
-    build_mismatch_points() the 3-point (per-temperature mismatch sweep +
-                          MC-off control + seed-B stability check) list
-                          shared verbatim between `pnp-mismatch/
-                          run_pnp_mismatch.py` and `error-amp-offset-mc/
-                          run_amp_offset_mc.py`'s local `build_points()`
-                          functions, parameterized by the one string that
-                          actually varies between them (the corner-id supply
-                          suffix) and an optional control-purpose addendum
-                          (issue #219)
-    mc_control_block()      the Monte Carlo `.control` dowhile-loop skeleton
-                          (`setseed`/`set width`/`set height`/`let nruns`/
-                          `dowhile run < nruns` ... `print`/`let run = run +
-                          1`/`end`/`quit`/`.endc`/`.end`) shared byte-for-byte
-                          between `error-amp-offset-mc/run_amp_offset_mc.py`
-                          and `monte-carlo-untrimmed/run_mc_untrimmed.py`'s
-                          local `control_block()` functions, parameterized by
-                          the caller's own `reset`-to-measurement loop-body
-                          lines (issue #224)
+For the history of which issue added which helper, see
+`git log -p -- sim/bin/sim_common.py`.
 """
 
 from __future__ import annotations
