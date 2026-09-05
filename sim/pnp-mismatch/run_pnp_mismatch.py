@@ -50,14 +50,13 @@ from sim_common import (  # noqa: E402
     add_common_args,
     build_mismatch_points,
     load_corner_run,
-    mean,
     mv,
     parse_samples,
+    per_vector_stats,
     render_log,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
     seed_stability_checks,
-    stdev,
 )
 
 cr = load_corner_run()
@@ -228,17 +227,7 @@ def write_log(
 
 
 def evaluate(point: Point, samples: list[dict[str, float]]) -> dict:
-    stats = {}
-    for name in ALL_VECTORS:
-        values = [s[name] for s in samples]
-        stats[name] = {
-            "n": len(values),
-            "mean": mean(values),
-            "sigma": stdev(values),
-            "max_abs": max(abs(v) for v in values),
-            "min": min(values),
-            "max": max(values),
-        }
+    stats = per_vector_stats(ALL_VECTORS, samples)
     checks: list[dict] = []
 
     def add(name: str, ok: bool, detail: str) -> None:
