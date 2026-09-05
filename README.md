@@ -41,16 +41,19 @@ cell does not have. See
 for the full record. **Known gaps, disclosed here rather than only in the
 maturity ladder below**: two of the seven ratified spec rows currently fail
 at every corner on the freshest evidence — box-method temperature
-coefficient (191–268 ppm/°C measured, schematic and post-layout alike,
-against the ratified `< 50 ppm/°C` target) and untrimmed output accuracy
-(`vref` falls outside the ratified ±2% window over temperature, down to
-~1.130 V at hot corners) — tracked in #178. Separately, the sole Monte
-Carlo run on file predates both the ratified spec and the current design's
-error-amp resize, so the statistical evidence for the dominant accuracy
-term is stale (#180). Nothing here has been taped out or measured in
-silicon yet. See the maturity ladder below for where things currently
-stand, and issue #175's ten-item T1/bronze checklist re-read (5/10 pass as
-of 2026-08-15) for the full evidence-tier accounting.
+coefficient (142.4–159.0 ppm/°C schematic, 167.9–186.9 ppm/°C post-layout,
+measured against the ratified `< 50 ppm/°C` target after issue #178's
+`n_r2` 50→51 resize; the `R2/R1` ratio lever is now exhausted against the
+accuracy row, and the remaining gap is device-driven, see
+[DR-009](spec/decision-records/DR-009-tc-floor-disposition-defer-curvature-correction.md))
+and untrimmed output accuracy (`vref` falls outside the ratified ±2% window
+over temperature, down to ~1.130 V at hot corners) — tracked in #178.
+Separately, the sole Monte Carlo run on file predates both the ratified
+spec and the current design's error-amp resize, so the statistical evidence
+for the dominant accuracy term is stale (#180). Nothing here has been taped
+out or measured in silicon yet. See the maturity ladder below for where
+things currently stand, and issue #175's ten-item T1/bronze checklist
+re-read (5/10 pass as of 2026-08-15) for the full evidence-tier accounting.
 
 **Built agent-native.** Every schematic, testbench, decision record, and
 line of documentation in this repo was produced by AI agents working from
@@ -89,13 +92,16 @@ relaxed to `< 0.08 mm²` by [DR-007](spec/decision-records/DR-007-mcc-area-budge
 (operator-ratified) — a **layout-complete** block. It is **not** currently
 spec-conformant: two of the seven ratified spec rows fail at every corner
 on the freshest evidence — box-method temp coefficient measures
-250–268 ppm/°C on the schematic and 191–209 ppm/°C on the extracted
-post-layout netlist, against the ratified `< 50 ppm/°C` target, and
-untrimmed `vref` falls outside the ratified ±2% window over temperature
-(down to ~1.130 V at hot corners); the remaining five ratified rows
-(PSRR, supply, Iq, area, startup) pass on the same-day reruns. See
-`sim/output-voltage-tc/records/20260815-030801-001d1b7.md` and
-`sim/output-voltage-tc-post-layout/records/20260815-035841-001d1b7.md`
+142.4–159.0 ppm/°C on the schematic and 167.9–186.9 ppm/°C on the extracted
+post-layout netlist, against the ratified `< 50 ppm/°C` target (post-#178
+resize; the `R2/R1` sizing lever that could once have narrowed this gap is
+now exhausted against the accuracy row — see
+[DR-009](spec/decision-records/DR-009-tc-floor-disposition-defer-curvature-correction.md)
+for the disposition), and untrimmed `vref` falls outside the ratified ±2%
+window over temperature (down to ~1.130 V at hot corners); the remaining
+five ratified rows (PSRR, supply, Iq, area, startup) pass on the same-day
+reruns. See `sim/output-voltage-tc/records/20260817-015751-13476b7.md` and
+`sim/output-voltage-tc-post-layout/records/20260817-020357-13476b7.md`
 for the measured numbers; tracked in #178. Post-layout extraction itself is
 no longer pending — seven `sim/*-post-layout/` suites (line-regulation,
 output-voltage-tc, psrr-dc, quiescent-current, startup-ramp,
