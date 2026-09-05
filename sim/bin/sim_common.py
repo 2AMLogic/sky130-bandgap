@@ -31,6 +31,7 @@ import re
 import shutil
 import subprocess
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from types import ModuleType
@@ -621,6 +622,28 @@ def stdev(values: list[float]) -> float:
         return 0.0
     mu = mean(values)
     return math.sqrt(sum((v - mu) ** 2 for v in values) / (n - 1))
+
+
+def per_vector_stats(vectors: Sequence[str], samples: list[dict[str, float]]) -> dict:
+    """n/mean/sigma/max_abs/min/max for each name in `vectors`, across `samples`.
+
+    Lifted out of `run_amp_offset_mc.py` and `run_pnp_mismatch.py`'s
+    `evaluate()` (issue #245) -- both called this loop with an identical body,
+    differing only in which vector-list constant they iterated
+    (`STAT_VECTORS` vs `ALL_VECTORS`).
+    """
+    stats = {}
+    for name in vectors:
+        values = [s[name] for s in samples]
+        stats[name] = {
+            "n": len(values),
+            "mean": mean(values),
+            "sigma": stdev(values),
+            "max_abs": max(abs(v) for v in values),
+            "min": min(values),
+            "max": max(values),
+        }
+    return stats
 
 
 def mv(value: float) -> str:

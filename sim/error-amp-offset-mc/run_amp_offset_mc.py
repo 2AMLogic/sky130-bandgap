@@ -58,16 +58,15 @@ from sim_common import (  # noqa: E402
     build_mismatch_points,
     load_corner_run,
     mc_control_block,
-    mean,
     mv,
     parse_samples,
     partition_by_window,
+    per_vector_stats,
     render_log,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
     run_ngspice,
     seed_stability_checks,
-    stdev,
 )
 
 cr = load_corner_run()
@@ -268,17 +267,7 @@ def evaluate(
     excluded: list[dict[str, float]],
     offset_gain: float,
 ) -> dict:
-    stats = {}
-    for name in STAT_VECTORS:
-        values = [s[name] for s in samples]
-        stats[name] = {
-            "n": len(values),
-            "mean": mean(values),
-            "sigma": stdev(values),
-            "max_abs": max(abs(v) for v in values),
-            "min": min(values),
-            "max": max(values),
-        }
+    stats = per_vector_stats(STAT_VECTORS, samples)
     checks: list[dict] = []
 
     def add(name: str, ok: bool, detail: str) -> None:
