@@ -228,6 +228,76 @@ def load_corner_run() -> ModuleType:
     return module
 
 
+def check_pdk_and_ngspice(pin: dict, allow_pdk_mismatch: bool, *, verbose: bool = True):
+    """Resolve the installed PDK against `pin` (`sim/pdk.json`'s parsed
+    content) and enforce the two preconditions every bespoke `sim/*/run_*.py`
+    harness script's `main()`/`verify()` checks before doing any work: the
+    PDK matches the pin (unless overridden) and `ngspice` is on PATH.
+
+    Returns the resolved `pdk` (`cr.resolve_pdk(pin)`) on success; raises
+    `cr.HarnessError` otherwise. Consolidates a block that used to be
+    inlined, byte-for-byte identical (module aside), in seven `run_*.py`
+    scripts plus `corner-run.py` and `post_layout_common.py` (issue #247).
+
+    `verbose=True` (the default -- what five of the seven original callers
+    used) includes the "install the pin"/"--allow-pdk-mismatch" hint lines;
+    `verbose=False` (the shorter one-liner `res-array-resize`,
+    `trim-lsb-chained` and `post_layout_common.py` used) folds the override
+    hint into the same line instead.
+    """
+    cr = _cr()
+    pdk = cr.resolve_pdk(pin)
+    if not pdk.matches_pin and not allow_pdk_mismatch:
+        if verbose:
+            raise cr.HarnessError(
+                f"installed PDK {pdk.variant} is open_pdks {pdk.installed_commit}, but "
+                f"sim/pdk.json pins {pin['open_pdks_commit']}\n"
+                f"  install the pin: {pin['install_command']}\n"
+                f"  or re-run with --allow-pdk-mismatch (the record will say so)"
+            )
+        raise cr.HarnessError(
+            f"installed PDK {pdk.variant} is open_pdks {pdk.installed_commit}, but "
+            f"sim/pdk.json pins {pin['open_pdks_commit']} (use --allow-pdk-mismatch to override)"
+        )
+    if not shutil.which("ngspice"):
+        raise cr.HarnessError("ngspice not found on PATH")
+    return pdk
+
+
+def setup_record_paths(
+    here: Path, record_id: str, *, with_snapshot: bool = True
+) -> tuple[Path, Path | None, Path, Path, Path, Path | None]:
+    """Record-id path construction + the append-only overwrite guard shared
+    by every bespoke harness script's `main()`/`verify()` (issue #247).
+
+    Returns `(records_dir, snapshots_dir, corners_dir, record_md,
+    record_json, snapshot)` -- `snapshots_dir`/`snapshot` are `None` when
+    `with_snapshot=False` (the `res-array-resize`/`trim-lsb-chained` shape,
+    whose chained-array substitution has no netlist snapshot of its own to
+    write). Raises `cr.HarnessError` if any path that would be written
+    already exists: `sim/` is append-only, so a colliding `record_id` (e.g.
+    from two runs landing in the same wall-clock second) must never
+    silently overwrite prior evidence.
+    """
+    cr = _cr()
+    records_dir = here / "records"
+    corners_dir = here / "corners" / record_id
+    record_md = records_dir / f"{record_id}.md"
+    record_json = records_dir / f"{record_id}.json"
+    snapshots_dir: Path | None = None
+    snapshot: Path | None = None
+    guarded = [record_md, record_json]
+    if with_snapshot:
+        snapshots_dir = here / "netlist-snapshots"
+        snapshot = snapshots_dir / f"{record_id}.spice"
+        guarded.append(snapshot)
+    guarded.append(corners_dir)
+    for path in guarded:
+        if path.exists():
+            raise cr.HarnessError(f"{path} already exists — sim/ is append-only, refusing to overwrite")
+    return records_dir, snapshots_dir, corners_dir, record_md, record_json, snapshot
+
+
 def chain_lines(
     prefix: str,
     node_lo: str,
