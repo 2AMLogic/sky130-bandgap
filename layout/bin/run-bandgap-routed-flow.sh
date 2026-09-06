@@ -6,10 +6,10 @@
 # and `klt lvs` against the xschem-derived reference netlist and fail the
 # flow on any non-clean gated result.
 #
-# Mirrors layout/bin/run-bandgap-floorplan-flow.sh's structure and
-# evidence-record convention. That script (issue #15's placement-only DRC
-# skeleton) is intentionally left in place and unmodified -- its records are
-# append-only evidence, and this flow writes new records alongside them.
+# Mirrors the evidence-record convention of run-bandgap-floorplan-flow.sh,
+# the #15 placement-only DRC flow this one supersedes, removed in #217 (#215)
+# -- its one historical record is left in place as append-only evidence, and
+# this flow writes new records alongside it.
 #
 # Usage:
 #   layout/bin/setup-venv.sh          # once, or after bumping requirements.txt
