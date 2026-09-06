@@ -3,14 +3,15 @@
 floorplan skeleton to real inter-block connectivity, extract it, and LVS it
 against the xschem-derived reference netlist.
 
-Standard library only (matches sim/bin/corner-run.py's,
-layout/bin/render-record.py's, and layout/bin/gen_bandgap_floorplan.py's
-convention). Invoked by layout/bin/run-bandgap-routed-flow.sh, which supplies
---out-dir/--record-id/--klt/--pdk-variant exactly the way
-run-bandgap-floorplan-flow.sh invokes gen_bandgap_floorplan.py.
+Standard library only (matches sim/bin/corner-run.py's and
+layout/bin/render-record.py's convention). Invoked by
+layout/bin/run-bandgap-routed-flow.sh, which supplies
+--out-dir/--record-id/--klt/--pdk-variant the same way
+run-bandgap-floorplan-flow.sh used to invoke gen_bandgap_floorplan.py.
 
-This is the routed successor to gen_bandgap_floorplan.py (issue #15), which
-stays untouched as the placement-only DRC record it always was. Relative to
+This is the routed successor to gen_bandgap_floorplan.py, the #15
+placement-only DRC flow this one supersedes, removed in #217 (#215) -- its
+one historical record is left in place as append-only evidence. Relative to
 that skeleton, this flow draws real inter-block metal (met1, escaping to
 met2 where met1 congestion forces it -- see MET2_ESCAPE_NOTE), draws and
 busses each matched device group (resistor ladders, MOS combs, PNP arrays --
