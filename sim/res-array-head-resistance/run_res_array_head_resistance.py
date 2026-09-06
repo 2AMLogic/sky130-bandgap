@@ -75,7 +75,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -89,12 +88,14 @@ sys.path.insert(0, str(SIM_DIR / "bin"))
 from sim_common import (  # noqa: E402
     add_common_args,
     chain_lines,
+    check_pdk_and_ngspice,
     load_base_body,
     load_corner_run,
     parse_measurements,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
     run_ngspice,
+    setup_record_paths,
     write_log,
 )
 
@@ -615,16 +616,7 @@ def main(argv: list[str]) -> int:
     args = parse_args(argv)
 
     pin = cr.load_pin()
-    pdk = cr.resolve_pdk(pin)
-    if not pdk.matches_pin and not args.allow_pdk_mismatch:
-        raise cr.HarnessError(
-            f"installed PDK {pdk.variant} is open_pdks {pdk.installed_commit}, but "
-            f"sim/pdk.json pins {pin['open_pdks_commit']}\n"
-            f"  install the pin: {pin['install_command']}\n"
-            f"  or re-run with --allow-pdk-mismatch (the record will say so)"
-        )
-    if not shutil.which("ngspice"):
-        raise cr.HarnessError("ngspice not found on PATH")
+    pdk = check_pdk_and_ngspice(pin, args.allow_pdk_mismatch)
 
     # If this raises, design/bandgap_core.sch may have drifted since
     # BASE_SNAPSHOT was taken -- re-derive the snapshot (needs xschem) before
@@ -638,15 +630,9 @@ def main(argv: list[str]) -> int:
     now = datetime.now(timezone.utc)
     record_id = f"{now:%Y%m%d}-{now:%H%M%S}-{git_info['sha']}"
 
-    records_dir = HERE / "records"
-    snapshots_dir = HERE / "netlist-snapshots"
-    corners_dir = HERE / "corners" / record_id
-    record_md = records_dir / f"{record_id}.md"
-    record_json = records_dir / f"{record_id}.json"
-    snapshot = snapshots_dir / f"{record_id}.spice"
-    for path in (record_md, record_json, snapshot, corners_dir):
-        if path.exists():
-            raise cr.HarnessError(f"{path} already exists — sim/ is append-only, refusing to overwrite")
+    records_dir, snapshots_dir, corners_dir, record_md, record_json, snapshot = setup_record_paths(
+        HERE, record_id
+    )
 
     print(f"experiment      : {SLUG}")
     print(f"record id       : {record_id}")
