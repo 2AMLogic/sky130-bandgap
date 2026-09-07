@@ -14,6 +14,9 @@ module: #153, #154, #160, #162, #163):
     union_bbox()     computes the union bounding box of a set of placed
                      block ids, given each one's own reported bbox_um and
                      its placement origin
+    git()            runs one `git -C <repo_root> <args>` and returns its
+                     stripped stdout (issue #253, deduped out of
+                     `gen_bandgap_routed.py` and `render-record.py`)
 
 `place_blocks()` is intentionally NOT here -- it lives in
 `gen_bandgap_routed.py` itself, which needs an `align` parameter
@@ -89,3 +92,12 @@ def union_bbox(
         x1s.append(bbox["x1"] + origin["x"])
         y1s.append(bbox["y1"] + origin["y"])
     return {"x0": min(x0s), "y0": min(y0s), "x1": max(x1s), "y1": max(y1s)}
+
+
+def git(repo_root: Path, *args: str) -> str:
+    return subprocess.run(
+        ["git", "-C", str(repo_root), *args],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()

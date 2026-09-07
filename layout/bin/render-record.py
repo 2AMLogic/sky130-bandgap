@@ -21,19 +21,14 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from layout_common import git  # noqa: E402
+
 
 def _load(path: Path) -> dict:
     with path.open() as f:
         return json.load(f)
-
-
-def _git(repo_root: Path, *args: str) -> str:
-    return subprocess.run(
-        ["git", "-C", str(repo_root), *args],
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.strip()
 
 
 def main() -> int:
@@ -53,9 +48,9 @@ def main() -> int:
     lvs_bad_dev = _load(out_dir / "lvs.broken-device.json")
     lvs_bad_topo = _load(out_dir / "lvs.broken-topology.json")
 
-    sha = _git(args.repo_root, "rev-parse", "HEAD")
-    branch = _git(args.repo_root, "rev-parse", "--abbrev-ref", "HEAD")
-    dirty = _git(args.repo_root, "status", "--porcelain") != ""
+    sha = git(args.repo_root, "rev-parse", "HEAD")
+    branch = git(args.repo_root, "rev-parse", "--abbrev-ref", "HEAD")
+    dirty = git(args.repo_root, "status", "--porcelain") != ""
 
     klt_version = subprocess.run(
         [args.klt, "--version"], check=True, capture_output=True, text=True

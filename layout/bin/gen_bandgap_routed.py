@@ -44,7 +44,7 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import met1_bus  # noqa: E402  -- local module, resolved from this script's dir
-from layout_common import klt_gen, run_klt_json, union_bbox  # noqa: E402
+from layout_common import git, klt_gen, run_klt_json, union_bbox  # noqa: E402
 
 # bus_routing.py (issue #221) imports several names back from this module at
 # its own top level. When this file is run directly (`__name__ ==
@@ -1994,15 +1994,6 @@ def compose_inner(
 # ---------------------------------------------------------------------------
 # Record
 # ---------------------------------------------------------------------------
-def git(repo_root: Path, *args: str) -> str:
-    return subprocess.run(
-        ["git", "-C", str(repo_root), *args],
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.strip()
-
-
 def main() -> int:
     from bus_routing import build_bus_overlay  # local: see this file's own note
     from routed_record import render_record  # local: see this file's own note
