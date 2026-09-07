@@ -78,6 +78,47 @@ def met1_only():
         bus_routing.MET2_ESCAPE_ENABLED = previous
 
 
+@contextlib.contextmanager
+def zero_detour():
+    """Force `_connect`'s Z-detour retry ladder down to a single try.
+
+    `DETOUR_OFFSETS_UM` is the list of channel offsets `_connect` walks
+    through before giving up on a hop; several failure-path tests below need
+    that search to be exhausted in one attempt so a blocked hop fails
+    deterministically rather than eventually clearing via some other offset.
+    Same save/override/restore shape as `met1_only()` above, just for the
+    other module-level toggle.
+    """
+    previous = bus_routing.DETOUR_OFFSETS_UM
+    bus_routing.DETOUR_OFFSETS_UM = [0.0]
+    try:
+        yield
+    finally:
+        bus_routing.DETOUR_OFFSETS_UM = previous
+
+
+def wall_bus(*nets: str) -> met1_bus.Met1Bus:
+    """A bus whose met1 is walled off at both ends of a (0, 0)-(10, 10) hop,
+    so no met1 form can clear. One net name walls both ends; two wall one
+    end each (`WALL_A`/`WALL_B`), for tests that need each blocker counted
+    separately."""
+    bus = met1_bus.Met1Bus()
+    if len(nets) == 1:
+        (name,) = nets
+        bus.net(name)
+        bus.hseg(9.85, 10.15, 0.0)
+        bus.hseg(-0.15, 0.15, 10.0)
+    elif len(nets) == 2:
+        first, second = nets
+        bus.net(first)
+        bus.hseg(9.85, 10.15, 0.0)
+        bus.net(second)
+        bus.hseg(-0.15, 0.15, 10.0)
+    else:
+        raise ValueError("wall_bus expects 1 or 2 net names")
+    return bus
+
+
 # ---------------------------------------------------------------------------
 # Gate 1: the drawn-short check (met1_bus.Met1Bus.conflicts)
 # ---------------------------------------------------------------------------
@@ -1309,10 +1350,7 @@ class TestConnectRouter(unittest.TestCase):
         (10, 0) or (0, 10) -- blocking a small box at each corner rejects
         both, without touching the interior track a channel path can still
         use."""
-        bus = met1_bus.Met1Bus()
-        bus.net("WALL")
-        bus.hseg(9.85, 10.15, 0.0)
-        bus.hseg(-0.15, 0.15, 10.0)
+        bus = wall_bus("WALL")
         a, b = (0.0, 0.0), (10.0, 10.0)
         # The direct elbows are provably blocked before the channel fallback
         # is even asked to resolve anything.
@@ -1344,21 +1382,13 @@ class TestConnectRouter(unittest.TestCase):
         drawing a colliding path -- and must roll back every rectangle it
         speculatively drew while searching, or the next hop would be tested
         against phantom geometry."""
-        bus = met1_bus.Met1Bus()
-        bus.net("WALL")
-        bus.hseg(9.85, 10.15, 0.0)
-        bus.hseg(-0.15, 0.15, 10.0)
+        bus = wall_bus("WALL")
         rects_before = list(bus.met1_rects)
         shapes_before = list(bus.shapes)
-        detours = bus_routing.DETOUR_OFFSETS_UM
-        bus_routing.DETOUR_OFFSETS_UM = [0.0]
-        try:
-            with met1_only():
-                result = bus_routing._connect(
-                    bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
-                )
-        finally:
-            bus_routing.DETOUR_OFFSETS_UM = detours
+        with zero_detour(), met1_only():
+            result = bus_routing._connect(
+                bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
+            )
         self.assertIsNone(result)
         self.assertEqual(bus.met1_rects, rects_before)
         self.assertEqual(bus.shapes, shapes_before)
@@ -1373,20 +1403,11 @@ class TestConnectRouter(unittest.TestCase):
         by `_draw_chain` as `blocked_by_counts`) tallies every veto a single
         `_connect()` call sees, so the dominant contributor is visible even
         when it is not the last one checked."""
-        bus = met1_bus.Met1Bus()
-        bus.net("WALL_A")
-        bus.hseg(9.85, 10.15, 0.0)
-        bus.net("WALL_B")
-        bus.hseg(-0.15, 0.15, 10.0)
-        detours = bus_routing.DETOUR_OFFSETS_UM
-        bus_routing.DETOUR_OFFSETS_UM = [0.0]
-        try:
-            with met1_only():
-                result = bus_routing._connect(
-                    bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
-                )
-        finally:
-            bus_routing.DETOUR_OFFSETS_UM = detours
+        bus = wall_bus("WALL_A", "WALL_B")
+        with zero_detour(), met1_only():
+            result = bus_routing._connect(
+                bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
+            )
         self.assertIsNone(result)
         # Both walls vetoed at least one candidate elbow (WALL_A the one that
         # turns first at x=10, WALL_B the one that turns first at y=10) --
@@ -1403,13 +1424,8 @@ class TestConnectRouter(unittest.TestCase):
         """A tally left over from a previous hop's failed search must not
         leak into the next hop's `blocked_by_counts` -- each `_connect()`
         call reports only what *it* saw."""
-        bus = met1_bus.Met1Bus()
-        bus.net("WALL")
-        bus.hseg(9.85, 10.15, 0.0)
-        bus.hseg(-0.15, 0.15, 10.0)
-        detours = bus_routing.DETOUR_OFFSETS_UM
-        bus_routing.DETOUR_OFFSETS_UM = [0.0]
-        try:
+        bus = wall_bus("WALL")
+        with zero_detour():
             bus_routing._connect(
                 bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
             )
@@ -1419,8 +1435,6 @@ class TestConnectRouter(unittest.TestCase):
             result = bus_routing._connect(
                 bus, "N2", (20.0, 20.0), (30.0, 25.0), channels={}
             )
-        finally:
-            bus_routing.DETOUR_OFFSETS_UM = detours
         self.assertIsNotNone(result)
         self.assertEqual(dict(bus_routing._BLOCKER_COUNTS), {})
 
@@ -1433,22 +1447,13 @@ class TestDrawChainBlockedByCounts(unittest.TestCase):
     def test_failed_hop_carries_both_the_last_blocker_and_the_full_breakdown(
         self,
     ) -> None:
-        bus = met1_bus.Met1Bus()
-        bus.net("WALL_A")
-        bus.hseg(9.85, 10.15, 0.0)
-        bus.net("WALL_B")
-        bus.hseg(-0.15, 0.15, 10.0)
-        detours = bus_routing.DETOUR_OFFSETS_UM
-        bus_routing.DETOUR_OFFSETS_UM = [0.0]
+        bus = wall_bus("WALL_A", "WALL_B")
         plan = [
             {"name": "P0", "pad": (0.0, 0.0), "via": False},
             {"name": "P1", "pad": (10.0, 10.0), "via": False},
         ]
-        try:
-            with met1_only():
-                hops, routed = bus_routing._draw_chain(bus, "N1", plan)
-        finally:
-            bus_routing.DETOUR_OFFSETS_UM = detours
+        with zero_detour(), met1_only():
+            hops, routed = bus_routing._draw_chain(bus, "N1", plan)
         self.assertFalse(routed)
         self.assertEqual(len(hops), 1)
         hop = hops[0]
@@ -2041,16 +2046,6 @@ class TestMet2DrcCoverageNote(unittest.TestCase):
 class TestMet2Escape(unittest.TestCase):
     """`_connect_met2()` -- the last-resort lift onto met2."""
 
-    def _boxed_in(self) -> met1_bus.Met1Bus:
-        """A bus whose met1 is walled off at both ends of the hop, so no met1
-        form can clear (the same fixture `TestConnectRouter`'s "every
-        candidate fails" test uses)."""
-        bus = met1_bus.Met1Bus()
-        bus.net("WALL")
-        bus.hseg(9.85, 10.15, 0.0)
-        bus.hseg(-0.15, 0.15, 10.0)
-        return bus
-
     def test_met1_is_tried_first_and_met2_is_not_touched_when_it_clears(
         self,
     ) -> None:
@@ -2067,15 +2062,11 @@ class TestMet2Escape(unittest.TestCase):
         self.assertEqual(bus.via1_count, 0)
 
     def test_a_hop_met1_cannot_clear_escapes_onto_met2(self) -> None:
-        bus = self._boxed_in()
-        detours = bus_routing.DETOUR_OFFSETS_UM
-        bus_routing.DETOUR_OFFSETS_UM = [0.0]
-        try:
+        bus = wall_bus("WALL")
+        with zero_detour():
             result = bus_routing._connect(
                 bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
             )
-        finally:
-            bus_routing.DETOUR_OFFSETS_UM = detours
         self.assertIsNotNone(result)
         self.assertTrue(result["met2"])
         self.assertEqual(len(result["via1_drops"]), 2)
@@ -2091,15 +2082,11 @@ class TestMet2Escape(unittest.TestCase):
         separately a met2 escape would score 2 and trip the split-node gate;
         if it ignored met2 entirely it would score 2 as well, and the flow
         would report a routed node it had actually drawn in two halves."""
-        bus = self._boxed_in()
-        detours = bus_routing.DETOUR_OFFSETS_UM
-        bus_routing.DETOUR_OFFSETS_UM = [0.0]
-        try:
+        bus = wall_bus("WALL")
+        with zero_detour():
             bus_routing._connect(
                 bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
             )
-        finally:
-            bus_routing.DETOUR_OFFSETS_UM = detours
         self.assertEqual(bus.components()["N1"], 1)
 
     def test_a_via1_that_misses_its_met1_is_reported_as_a_split_node(
@@ -2169,14 +2156,10 @@ class TestMet2Escape(unittest.TestCase):
             bus.hseg(dx - 0.2, dx + 0.2, 0.4)
             bus.hseg(dx - 0.2, dx + 0.2, -0.4)
         mark = bus.mark()
-        detours = bus_routing.DETOUR_OFFSETS_UM
-        bus_routing.DETOUR_OFFSETS_UM = [0.0]
-        try:
+        with zero_detour():
             result = bus_routing._connect(
                 bus, "N1", (0.0, 0.0), (10.0, 10.0), channels={}
             )
-        finally:
-            bus_routing.DETOUR_OFFSETS_UM = detours
         if result is None:
             self.assertEqual(bus.mark(), mark)
         else:
