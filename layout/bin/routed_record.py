@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -55,7 +54,7 @@ from gen_bandgap_routed import (  # noqa: E402
     trim_tap_ladder,
 )
 from bus_routing import MOS_HALVES  # noqa: E402
-from layout_common import git  # noqa: E402
+from layout_common import git, klt_version  # noqa: E402
 
 
 @dataclass(frozen=True)
@@ -116,9 +115,7 @@ def render_record(
     sha = git(args.repo_root, "rev-parse", "HEAD")
     branch = git(args.repo_root, "rev-parse", "--abbrev-ref", "HEAD")
     dirty = git(args.repo_root, "status", "--porcelain") != ""
-    klt_version = subprocess.run(
-        [klt, "--version"], check=True, capture_output=True, text=True
-    ).stdout.strip()
+    klt_ver = klt_version(klt)
 
     drc_clean = drc.get("status") == "clean"
     within_budget = composed_area_um2 <= budget_um2
@@ -930,7 +927,7 @@ def render_record(
     a("## Provenance")
     a("")
     a(f"- Record ID: `{args.record_id}`")
-    a(f"- `klt` version: `{klt_version}` (pinned, see `layout/requirements.txt`)")
+    a(f"- `klt` version: `{klt_ver}` (pinned, see `layout/requirements.txt`)")
     a(
         "- KLayout engine version: "
         f"`{drc.get('provenance', {}).get('klayout_version')}`"

@@ -17,6 +17,9 @@ module: #153, #154, #160, #162, #163):
     git()            runs one `git -C <repo_root> <args>` and returns its
                      stripped stdout (issue #253, deduped out of
                      `gen_bandgap_routed.py` and `render-record.py`)
+    klt_version()    runs `klt --version` and returns its stripped stdout
+                     (issue #257, deduped out of `render-record.py` and
+                     `routed_record.py`)
 
 `place_blocks()` is intentionally NOT here -- it lives in
 `gen_bandgap_routed.py` itself, which needs an `align` parameter
@@ -100,4 +103,10 @@ def git(repo_root: Path, *args: str) -> str:
         check=True,
         capture_output=True,
         text=True,
+    ).stdout.strip()
+
+
+def klt_version(klt: str) -> str:
+    return subprocess.run(
+        [klt, "--version"], check=True, capture_output=True, text=True
     ).stdout.strip()
