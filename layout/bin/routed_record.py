@@ -54,7 +54,7 @@ from gen_bandgap_routed import (  # noqa: E402
     trim_tap_ladder,
 )
 from bus_routing import MOS_HALVES  # noqa: E402
-from layout_common import git, klt_version  # noqa: E402
+from layout_common import git_repo_state, klt_version  # noqa: E402
 
 
 @dataclass(frozen=True)
@@ -112,9 +112,7 @@ def render_record(
     )
     budget_um2 = 0.08 * 1000.0 * 1000.0  # DR-007: relaxed from 0.05 to fit the drawn MCC cap (operator-ratified, #62)
 
-    sha = git(args.repo_root, "rev-parse", "HEAD")
-    branch = git(args.repo_root, "rev-parse", "--abbrev-ref", "HEAD")
-    dirty = git(args.repo_root, "status", "--porcelain") != ""
+    sha, branch, dirty = git_repo_state(args.repo_root)
     klt_ver = klt_version(klt)
 
     drc_clean = drc.get("status") == "clean"

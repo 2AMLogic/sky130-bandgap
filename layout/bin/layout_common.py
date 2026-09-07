@@ -20,6 +20,9 @@ module: #153, #154, #160, #162, #163):
     klt_version()    runs `klt --version` and returns its stripped stdout
                      (issue #257, deduped out of `render-record.py` and
                      `routed_record.py`)
+    git_repo_state() returns the (sha, branch, dirty) tuple used to stamp
+                     record.md provenance (issue #263, deduped out of
+                     `render-record.py` and `routed_record.py`)
 
 `place_blocks()` is intentionally NOT here -- it lives in
 `gen_bandgap_routed.py` itself, which needs an `align` parameter
@@ -104,6 +107,13 @@ def git(repo_root: Path, *args: str) -> str:
         capture_output=True,
         text=True,
     ).stdout.strip()
+
+
+def git_repo_state(repo_root: Path) -> tuple[str, str, bool]:
+    sha = git(repo_root, "rev-parse", "HEAD")
+    branch = git(repo_root, "rev-parse", "--abbrev-ref", "HEAD")
+    dirty = git(repo_root, "status", "--porcelain") != ""
+    return sha, branch, dirty
 
 
 def klt_version(klt: str) -> str:
