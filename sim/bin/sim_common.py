@@ -526,6 +526,35 @@ def build_deck(
     return "\n".join(head + body + dc_temp_sweep_control())
 
 
+def _invoke_ngspice(cmd: list[str], cwd: Path, timeout: int) -> tuple[str, str, int, bool]:
+    """Run an `ngspice -b <deck>` subprocess, returning (stdout, stderr, rc, timed_out).
+
+    Shared by `run_ngspice()` (below, which concatenates stdout/stderr into a
+    single log) and `corner-run.py`'s `run_corner()` (which keeps them
+    separate for its two labeled log sections and needs the raw `rc` for
+    `killed_by_signal` detection) -- issue #265, the deferred follow-up to
+    #261/#262's `run_pnp_mismatch.py` dedup.
+    """
+    try:
+        proc = subprocess.run(
+            cmd,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            stdin=subprocess.DEVNULL,
+            timeout=timeout,
+        )
+        return proc.stdout, proc.stderr, proc.returncode, False
+    except subprocess.TimeoutExpired as exc:
+        out = exc.stdout or ""
+        err = exc.stderr or ""
+        if isinstance(out, bytes):
+            out = out.decode(errors="replace")
+        if isinstance(err, bytes):
+            err = err.decode(errors="replace")
+        return out, err, -1, True
+
+
 def run_ngspice(
     run_dir: Path, name: str, deck: str, timeout: int, spiceinit_text: str | None = None
 ) -> tuple[str, int, bool]:
@@ -543,24 +572,10 @@ def run_ngspice(
         shutil.copyfile(SPICEINIT_FILE, run_dir / ".spiceinit")
     else:
         (run_dir / ".spiceinit").write_text(spiceinit_text)
-    try:
-        proc = subprocess.run(
-            ["ngspice", "-b", deck_path.name],
-            cwd=run_dir,
-            capture_output=True,
-            text=True,
-            stdin=subprocess.DEVNULL,
-            timeout=timeout,
-        )
-        return proc.stdout + proc.stderr, proc.returncode, False
-    except subprocess.TimeoutExpired as exc:
-        out = exc.stdout or ""
-        err = exc.stderr or ""
-        if isinstance(out, bytes):
-            out = out.decode(errors="replace")
-        if isinstance(err, bytes):
-            err = err.decode(errors="replace")
-        return out + err, -1, True
+    stdout, stderr, rc, timed_out = _invoke_ngspice(
+        ["ngspice", "-b", deck_path.name], run_dir, timeout
+    )
+    return stdout + stderr, rc, timed_out
 
 
 def parse_measurements(log: str) -> dict[str, float]:

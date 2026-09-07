@@ -447,26 +447,9 @@ def run_corner(
     deck_path.write_text(deck_text)
 
     started = time.monotonic()
-    try:
-        proc = subprocess.run(
-            ["ngspice", "-b", deck_path.name],
-            cwd=run_dir,
-            capture_output=True,
-            text=True,
-            stdin=subprocess.DEVNULL,
-            timeout=timeout,
-        )
-        stdout, stderr, rc = proc.stdout, proc.stderr, proc.returncode
-        timed_out = False
-    except subprocess.TimeoutExpired as exc:
-        stdout = exc.stdout or ""
-        stderr = exc.stderr or ""
-        if isinstance(stdout, bytes):
-            stdout = stdout.decode(errors="replace")
-        if isinstance(stderr, bytes):
-            stderr = stderr.decode(errors="replace")
-        rc = -1
-        timed_out = True
+    stdout, stderr, rc, timed_out = sim_common._invoke_ngspice(
+        ["ngspice", "-b", deck_path.name], run_dir, timeout
+    )
     elapsed_s = time.monotonic() - started
 
     # subprocess reports a signal-killed child as a NEGATIVE return code. The
