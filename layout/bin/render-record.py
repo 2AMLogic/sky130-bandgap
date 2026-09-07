@@ -23,7 +23,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from layout_common import git  # noqa: E402
+from layout_common import git, klt_version  # noqa: E402
 
 
 def _load(path: Path) -> dict:
@@ -52,9 +52,7 @@ def main() -> int:
     branch = git(args.repo_root, "rev-parse", "--abbrev-ref", "HEAD")
     dirty = git(args.repo_root, "status", "--porcelain") != ""
 
-    klt_version = subprocess.run(
-        [args.klt, "--version"], check=True, capture_output=True, text=True
-    ).stdout.strip()
+    klt_ver = klt_version(args.klt)
     pdk_info_raw = subprocess.run(
         [args.klt, "pdk", "find", "--pdk", args.pdk_variant, "--format", "json"],
         check=True,
@@ -193,7 +191,7 @@ def main() -> int:
     a("## Provenance")
     a("")
     a(f"- Record ID: `{args.record_id}`")
-    a(f"- `klt` version: `{klt_version}` (pinned commit, see `layout/requirements.txt`)")
+    a(f"- `klt` version: `{klt_ver}` (pinned commit, see `layout/requirements.txt`)")
     a(
         f"- KLayout engine version: "
         f"`{drc.get('provenance', {}).get('klayout_version')}`"
