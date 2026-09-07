@@ -526,12 +526,23 @@ def build_deck(
     return "\n".join(head + body + dc_temp_sweep_control())
 
 
-def run_ngspice(run_dir: Path, name: str, deck: str, timeout: int) -> tuple[str, int, bool]:
-    """Run one ngspice deck in `run_dir`, returning (log, returncode, timed_out)."""
+def run_ngspice(
+    run_dir: Path, name: str, deck: str, timeout: int, spiceinit_text: str | None = None
+) -> tuple[str, int, bool]:
+    """Run one ngspice deck in `run_dir`, returning (log, returncode, timed_out).
+
+    `spiceinit_text`, if given, is written verbatim to `run_dir/.spiceinit`
+    instead of the default vanilla copy of `SPICEINIT_FILE` -- used by callers
+    (e.g. `pnp-mismatch/run_pnp_mismatch.py`, issue #261) that need to inject
+    per-point Monte Carlo controls (`mc_seed`/`mc_runs`) into `.spiceinit`.
+    """
     run_dir.mkdir(parents=True, exist_ok=True)
     deck_path = run_dir / f"{name}.spice"
     deck_path.write_text(deck)
-    shutil.copyfile(SPICEINIT_FILE, run_dir / ".spiceinit")
+    if spiceinit_text is None:
+        shutil.copyfile(SPICEINIT_FILE, run_dir / ".spiceinit")
+    else:
+        (run_dir / ".spiceinit").write_text(spiceinit_text)
     try:
         proc = subprocess.run(
             ["ngspice", "-b", deck_path.name],
