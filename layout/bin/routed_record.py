@@ -49,13 +49,13 @@ from gen_bandgap_routed import (  # noqa: E402
     R_LSEG_TRIM_UM,
     R_LSEG_UM,
     SUBSTRATE_NET_NOTE,
-    git,
     met2_drc_coverage_note,
     r2_leg_length,
     schematic_net_coverage,
     trim_tap_ladder,
 )
 from bus_routing import MOS_HALVES  # noqa: E402
+from layout_common import git  # noqa: E402
 
 
 @dataclass(frozen=True)
