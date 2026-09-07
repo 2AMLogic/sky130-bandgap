@@ -31,7 +31,6 @@ import argparse
 import json
 import math
 import shutil
-import subprocess
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -57,6 +56,7 @@ from sim_common import (  # noqa: E402
     render_log,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
+    run_ngspice,
     seed_stability_checks,
     setup_record_paths,
 )
@@ -176,27 +176,10 @@ def spiceinit_text(point: Point) -> str:
 
 def run_point(pdk, point: Point, run_dir: Path, timeout: int) -> tuple[str, int, bool]:
     run_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(DECK, run_dir / DECK.name)
     (run_dir / "corner.spice").write_text(corner_shim(pdk, point))
-    (run_dir / ".spiceinit").write_text(spiceinit_text(point))
-    try:
-        proc = subprocess.run(
-            ["ngspice", "-b", DECK.name],
-            cwd=run_dir,
-            capture_output=True,
-            text=True,
-            stdin=subprocess.DEVNULL,
-            timeout=timeout,
-        )
-        return proc.stdout + proc.stderr, proc.returncode, False
-    except subprocess.TimeoutExpired as exc:
-        out = exc.stdout or ""
-        err = exc.stderr or ""
-        if isinstance(out, bytes):
-            out = out.decode(errors="replace")
-        if isinstance(err, bytes):
-            err = err.decode(errors="replace")
-        return out + err, -1, True
+    return run_ngspice(
+        run_dir, DECK.stem, DECK.read_text(), timeout, spiceinit_text=spiceinit_text(point)
+    )
 
 
 def write_log(
