@@ -212,12 +212,26 @@ def mc_control_block(point: MismatchPoint, loop_body: list[str], prints: str) ->
 def load_corner_run() -> ModuleType:
     """Import sim/bin/corner-run.py (the dash makes it non-importable normally).
 
+    Idempotent: if "corner_run" is already registered in `sys.modules` (from
+    an earlier call anywhere in this process), that same module object is
+    returned rather than re-executing the file. This matters because a fresh
+    `exec_module` produces a brand-new `HarnessError` class each time -- since
+    Python `except` matches by class identity, two independently-loaded
+    copies of corner-run.py would give every caller's `except cr.HarnessError`
+    a 50/50 chance of not matching an error raised through a differently-
+    loaded copy (e.g. one cached by `_cr()`). Returning the same module object
+    for every call in the process guarantees exactly one `HarnessError` class
+    process-wide (issue #267).
+
     Registers the loaded module in `sys.modules` under its spec name
     ("corner_run") *before* `exec_module` runs -- required because
     `@dataclass`-decorated classes inside corner-run.py resolve type
     annotations through `sys.modules[cls.__module__]`, which fails on an
     unregistered module.
     """
+    cached = sys.modules.get("corner_run")
+    if cached is not None:
+        return cached
     path = BIN_DIR / "corner-run.py"
     spec = importlib.util.spec_from_file_location("corner_run", path)
     if spec is None or spec.loader is None:  # pragma: no cover - defensive
