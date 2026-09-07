@@ -23,7 +23,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from layout_common import git, klt_version  # noqa: E402
+from layout_common import git_repo_state, klt_version  # noqa: E402
 
 
 def _load(path: Path) -> dict:
@@ -48,9 +48,7 @@ def main() -> int:
     lvs_bad_dev = _load(out_dir / "lvs.broken-device.json")
     lvs_bad_topo = _load(out_dir / "lvs.broken-topology.json")
 
-    sha = git(args.repo_root, "rev-parse", "HEAD")
-    branch = git(args.repo_root, "rev-parse", "--abbrev-ref", "HEAD")
-    dirty = git(args.repo_root, "status", "--porcelain") != ""
+    sha, branch, dirty = git_repo_state(args.repo_root)
 
     klt_ver = klt_version(args.klt)
     pdk_info_raw = subprocess.run(
