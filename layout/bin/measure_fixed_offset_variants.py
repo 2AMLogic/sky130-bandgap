@@ -57,11 +57,14 @@ from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 import sys
 import tempfile
 from pathlib import Path
 from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from layout_common import git  # noqa: E402
 
 CELL = "bandgap_core_routed"
 REFERENCE_TOP = "bandgap_core"
@@ -287,12 +290,7 @@ def main(argv: list[str] | None = None) -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
     record_id = args.record_id or out_dir.name
 
-    repo_sha = subprocess.run(
-        ["git", "-C", str(args.repo_root), "rev-parse", "HEAD"],
-        capture_output=True,
-        text=True,
-        check=False,
-    ).stdout.strip()
+    repo_sha = git(args.repo_root, "rev-parse", "HEAD")
     pin_line = ""
     requirements = args.repo_root / "layout" / "requirements.txt"
     if requirements.is_file():
