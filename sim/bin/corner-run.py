@@ -778,83 +778,41 @@ def main(argv: list[str]) -> int:
         print("\n(dry run: nothing written under sim/<experiment>/)")
         return 0
 
-    results = []
-    for i, corner in enumerate(matrix, start=1):
-        log_path = corners_dir / f"{corner.id}.log"
-        res = run_corner(exp, pdk, corner, body, run_dir, log_path, args.timeout)
-        results.append(res)
-        summary = ", ".join(
-            f"{c['name']}={'n/a' if c['value'] is None else format(c['value'], '.6g')}"
-            for c in res["measurements"]
-        )
-        print(
-            f"[{i:>3}/{len(matrix)}] {corner.id:<20} "
-            f"{'PASS' if res['pass'] else 'FAIL'}  {summary}"
-        )
-
-    spreads = spread_checks(exp, results)
-    overall = all(r["pass"] for r in results) and all(s["pass"] for s in spreads)
-
-    snapshot.parent.mkdir(parents=True, exist_ok=True)
-    snapshot.write_text("\n".join(body) + "\n.end\n")
-
-    record = {
-        "record_id": record_id,
-        "timestamp": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "author": args.author or default_author(),
-        "supersedes": args.supersedes,
-        "experiment": {
-            "slug": exp.slug,
-            "title": exp.raw.get("title", exp.slug),
-            "claim": exp.raw["claim"],
-            "provenance": exp.raw.get("provenance", "schematic"),
-            "provenance_source": exp.raw.get(
-                "provenance_source", str(exp.schematic.relative_to(REPO_ROOT))
-            ),
-            "statistical_convention": exp.raw.get("statistical_convention", "N/A"),
-        },
-        "pdk": {
-            "root": str(pdk.root),
-            "variant": pdk.variant,
-            "installed_commit": pdk.installed_commit,
-            "pinned_commit": pin["open_pdks_commit"],
-            "matches_pin": pdk.matches_pin,
-            "lib_file": str(pdk.lib_file),
-        },
-        "tools": tool_versions(),
-        "git": git_info,
-        "matrix": {
-            "process": unique_in_order(c.process for c in matrix),
-            "temperature_c": sorted({c.temp_c for c in matrix}),
-            "supply_v": sorted({c.supply_v for c in matrix}),
-            "n_points": len(matrix),
-            "is_subset": is_subset,
-            "subset_reason": args.subset_reason,
-            "points": [[c.process, c.temp_c, c.supply_v] for c in matrix],
-            "point_ids": [c.id for c in matrix],
-        },
-        "corners": results,
-        "spread_checks": spreads,
-        "overall_pass": overall,
-        "links": {
+    experiment_fields = {
+        "slug": exp.slug,
+        "title": exp.raw.get("title", exp.slug),
+        "claim": exp.raw["claim"],
+        "provenance": exp.raw.get("provenance", "schematic"),
+        "provenance_source": exp.raw.get(
+            "provenance_source", str(exp.schematic.relative_to(REPO_ROOT))
+        ),
+        "statistical_convention": exp.raw.get("statistical_convention", "N/A"),
+    }
+    _record, overall = sim_common.run_matrix_and_write_record(
+        sys.modules[__name__],
+        exp=exp,
+        matrix=matrix,
+        is_subset=is_subset,
+        subset_reason=args.subset_reason,
+        pdk=pdk,
+        pin=pin,
+        body=body,
+        run_dir=run_dir,
+        corners_dir=corners_dir,
+        records_dir=records_dir,
+        record_md=record_md,
+        record_json=record_json,
+        snapshot=snapshot,
+        record_id=record_id,
+        git_info=git_info,
+        now=now,
+        args=args,
+        experiment_fields=experiment_fields,
+        links={
             "testbench": str(exp.schematic.relative_to(REPO_ROOT)),
             "manifest": str((exp.dir / "experiment.json").relative_to(REPO_ROOT)),
-            "netlist_snapshot": str(snapshot.relative_to(REPO_ROOT)),
-            "corners_dir": str(corners_dir.relative_to(REPO_ROOT)) + "/",
-            "json": str(record_json.relative_to(REPO_ROOT)),
-            "record": str(record_md.relative_to(REPO_ROOT)),
         },
-    }
-
-    records_dir.mkdir(parents=True, exist_ok=True)
-    record_json.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
-    record_md.write_text(render_record(record))
-
-    print()
-    print(f"record  : {record_md.relative_to(REPO_ROOT)}")
-    print(f"json    : {record_json.relative_to(REPO_ROOT)}")
-    print(f"logs    : {corners_dir.relative_to(REPO_ROOT)}/")
-    print(f"overall : {'PASS' if overall else 'FAIL'}")
+    )
     return 0 if overall else 2
 
 
