@@ -105,9 +105,10 @@ Standard library only, matching every other script under `layout/bin/`.
 from __future__ import annotations
 
 import json
-import subprocess
 from pathlib import Path
 from typing import Any
+
+from layout_common import run_klt_json
 
 # --- sky130 layers, all read from the tool's own published contract --------
 #: `klayout_tools.decks.sky130.EXTRACTION_DECK.metals[0]` -- local interconnect,
@@ -675,26 +676,16 @@ class Met1Bus:
         params_path = out_dir / f"{cell_name}.draw.json"
         params_path.write_text(json.dumps(params, indent=2) + "\n")
         gds_path = out_dir / f"{cell_name}.gds"
-        result = subprocess.run(
-            [
-                klt,
-                "draw",
-                "--params",
-                str(params_path),
-                "--cell-name",
-                cell_name,
-                "-o",
-                str(gds_path),
-                "--format",
-                "json",
-            ],
-            check=False,
-            capture_output=True,
-            text=True,
+        draw_report = run_klt_json(
+            klt,
+            "draw",
+            "--params",
+            str(params_path),
+            "--cell-name",
+            cell_name,
+            "-o",
+            str(gds_path),
         )
-        if result.returncode != 0:
-            raise RuntimeError(f"klt draw failed ({result.returncode}):\n{result.stderr}")
-        draw_report = json.loads(result.stdout)
         (out_dir / f"{cell_name}.draw.report.json").write_text(
             json.dumps(draw_report, indent=2) + "\n"
         )
