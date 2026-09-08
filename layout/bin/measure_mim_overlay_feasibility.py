@@ -93,10 +93,12 @@ from __future__ import annotations
 import argparse
 import json
 import math
-import subprocess
 import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from layout_common import run_klt_json  # noqa: E402
 
 if TYPE_CHECKING:  # pragma: no cover -- typing only
     import klayout.db as kdb
@@ -249,12 +251,9 @@ def probe_connectivity(klt: str, work_dir: Path) -> dict[str, Any]:
     top.shapes(capm).insert(kdb.DBox(2.0, 2.0, 18.0, 13.0))
     layout.write(str(gds_path))
 
-    extract = json.loads(
-        subprocess.run(
-            [klt, "extract", str(gds_path), "--deck", "sky130",
-             "--top", "mim_connectivity_probe", "--format", "json"],
-            check=True, capture_output=True, text=True,
-        ).stdout
+    extract = run_klt_json(
+        klt, "extract", str(gds_path), "--deck", "sky130",
+        "--top", "mim_connectivity_probe",
     )
     (work_dir / "extract.json").write_text(json.dumps(extract, indent=2) + "\n")
     # `klt extract` writes its own `.spice` next to the input GDS, which is
@@ -288,12 +287,7 @@ def probe_connectivity(klt: str, work_dir: Path) -> dict[str, Any]:
 
 def probe_drc_coverage(klt: str, gds_path: Path) -> dict[str, Any]:
     """Question 3: does the curated DRC deck check MiM geometry at all?"""
-    drc = json.loads(
-        subprocess.run(
-            [klt, "drc", str(gds_path), "--deck", "sky130", "--format", "json"],
-            check=True, capture_output=True, text=True,
-        ).stdout
-    )
+    drc = run_klt_json(klt, "drc", str(gds_path), "--deck", "sky130", allow_exit=(0, 3))
     coverage = drc.get("coverage", {})
     violations = drc.get("violations", [])
     violation_count = (
