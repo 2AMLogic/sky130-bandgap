@@ -17,13 +17,12 @@ from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from layout_common import git_repo_state, klt_version  # noqa: E402
+from layout_common import git_repo_state, klt_version, run_klt_json  # noqa: E402
 
 
 def _load(path: Path) -> dict:
@@ -51,13 +50,7 @@ def main() -> int:
     sha, branch, dirty = git_repo_state(args.repo_root)
 
     klt_ver = klt_version(args.klt)
-    pdk_info_raw = subprocess.run(
-        [args.klt, "pdk", "find", "--pdk", args.pdk_variant, "--format", "json"],
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout
-    pdk_info = json.loads(pdk_info_raw)
+    pdk_info = run_klt_json(args.klt, "pdk", "find", "--pdk", args.pdk_variant)
 
     checks = [
         ("DRC on trivial_mos_array is clean", drc.get("status") == "clean"),
