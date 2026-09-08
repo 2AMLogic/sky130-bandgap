@@ -99,7 +99,6 @@ REPO_ROOT = SIM_DIR.parent
 # Wrapped, NOT copied: issue #11's own testbench, reference-only for this
 # issue. Never modify this file from this script or its record.
 SCHEMATIC = SIM_DIR / "output-voltage-tc" / "testbench" / "tb_vref_tc.sch"
-SPICEINIT_FILE = SIM_DIR / "spiceinit"
 BUILD_DIR = SIM_DIR / "build" / "trim-range-monotonicity"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
@@ -107,13 +106,14 @@ from sim_common import (  # noqa: E402
     add_common_args,
     check_pdk_and_ngspice,
     dc_temp_sweep_control,
+    deck_sections,
     load_corner_run,
     parse_measurements,
-    render_log,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
     run_ngspice,
     setup_record_paths,
+    write_corner_log,
 )
 
 cr = load_corner_run()
@@ -266,18 +266,15 @@ def build_deck(pdk, point: Point, body: list[str]) -> str:
 
 
 def write_log(corners_dir: Path, point: Point, pdk, record_id: str, stamp, deck: str, raw: str, rc: int, timed_out: bool) -> Path:
-    corners_dir.mkdir(parents=True, exist_ok=True)
-    path = corners_dir / f"{point.corner_id}.log"
-    init_text = SPICEINIT_FILE.read_text()
     header = [
         f"# point: {point.corner_id}",
         f"# record: {record_id}",
         f"# group: {point.group}",
         f"# process={point.process} trim_code={point.trim_code} supply={point.supply_v:.2f}V",
     ]
-    sections = [(".spiceinit (exact)", init_text), ("deck (exact input given to ngspice)", deck)]
-    path.write_text(render_log(header, pdk, rc, timed_out, stamp, sections, raw))
-    return path
+    return write_corner_log(
+        corners_dir, point.corner_id, header, deck_sections(deck), pdk, rc, timed_out, stamp, raw
+    )
 
 
 # --------------------------------------------------------------------------

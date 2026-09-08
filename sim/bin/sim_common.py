@@ -695,6 +695,49 @@ def render_log(header_lines, pdk, rc, timed_out, stamp, sections, raw) -> str:
     return "\n".join(lines)
 
 
+def deck_sections(deck: str) -> list[tuple[str, str]]:
+    """The two `(label, text)` `render_log()` sections every harness that runs
+    ngspice under the vanilla `sim/spiceinit` logs: that file verbatim, then
+    the exact deck handed to ngspice (issue #272).
+
+    Not used by `pnp-mismatch/run_pnp_mismatch.py`, whose points inject
+    per-point Monte Carlo controls into `.spiceinit` and log a third
+    `corner.spice` shim section -- it builds its own `sections` list from the
+    files it actually wrote into the run directory.
+    """
+    return [
+        (".spiceinit (exact)", SPICEINIT_FILE.read_text()),
+        ("deck (exact input given to ngspice)", deck),
+    ]
+
+
+def write_corner_log(
+    corners_dir: Path,
+    corner_id: str,
+    header: list[str],
+    sections: Sequence[tuple[str, str]],
+    pdk,
+    rc: int,
+    timed_out: bool,
+    stamp,
+    raw: str,
+) -> Path:
+    """Write the append-only per-point `sim/*/corners/<corner_id>.log` file,
+    return its `Path`.
+
+    The mkdir / path / `render_log()` / `write_text` tail that four bespoke
+    harness scripts each hand-rolled in their own `write_log()`, on top of the
+    already-shared `render_log()` skeleton (issue #272). Only `header` (and,
+    for `pnp-mismatch`, which files `sections` is built from) is genuinely
+    harness-specific, so both stay caller-supplied; the argument order after
+    them mirrors `render_log()`'s own.
+    """
+    corners_dir.mkdir(parents=True, exist_ok=True)
+    path = corners_dir / f"{corner_id}.log"
+    path.write_text(render_log(header, pdk, rc, timed_out, stamp, sections, raw))
+    return path
+
+
 def write_log(
     corners_dir: Path,
     name: str,
@@ -710,16 +753,22 @@ def write_log(
 
     Header + exact `.spiceinit` + exact deck + raw ngspice stdout/stderr --
     `name`-keyed (issue #138; not the 4 `point`-keyed variants excluded from
-    this consolidation, see the issue's Hermit-suggestion comment), now
-    built on the shared `render_log()` tail skeleton (issue #146).
+    this consolidation, see the issue's Hermit-suggestion comment), built on
+    the shared `render_log()` tail skeleton (issue #146) via the shared
+    `write_corner_log()`/`deck_sections()` helpers those 4 variants now also
+    call (issue #272).
     """
-    corners_dir.mkdir(parents=True, exist_ok=True)
-    path = corners_dir / f"{name}.log"
-    init_text = SPICEINIT_FILE.read_text()
-    sections = [(".spiceinit (exact)", init_text), ("deck (exact input given to ngspice)", deck)]
-    header = [f"# point: {name}", f"# record: {record_id}"]
-    path.write_text(render_log(header, pdk, rc, timed_out, stamp, sections, raw))
-    return path
+    return write_corner_log(
+        corners_dir,
+        name,
+        [f"# point: {name}", f"# record: {record_id}"],
+        deck_sections(deck),
+        pdk,
+        rc,
+        timed_out,
+        stamp,
+        raw,
+    )
 
 
 def mean(values: list[float]) -> float:
