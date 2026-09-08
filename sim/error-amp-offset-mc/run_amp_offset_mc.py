@@ -47,7 +47,6 @@ HERE = Path(__file__).resolve().parent
 SIM_DIR = HERE.parent
 REPO_ROOT = SIM_DIR.parent
 SCHEMATIC = HERE / "testbench" / "tb_amp_offset_mc.sch"
-SPICEINIT_FILE = SIM_DIR / "spiceinit"
 BUILD_DIR = SIM_DIR / "build" / "amp-offset-mc"
 LOOP_RECORDS = SIM_DIR / "error-amp-loop" / "records"
 
@@ -57,18 +56,19 @@ from sim_common import (  # noqa: E402
     add_common_args,
     build_mismatch_points,
     check_pdk_and_ngspice,
+    deck_sections,
     load_corner_run,
     mc_control_block,
     mv,
     parse_samples,
     partition_by_window,
     per_vector_stats,
-    render_log,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
     run_ngspice,
     seed_stability_checks,
     setup_record_paths,
+    write_corner_log,
 )
 
 cr = load_corner_run()
@@ -243,9 +243,6 @@ def build_deck(pdk, point: Point, body: list[str]) -> str:
 
 
 def write_log(corners_dir, point, pdk, record_id, stamp, deck, raw, rc, timed_out) -> Path:
-    corners_dir.mkdir(parents=True, exist_ok=True)
-    path = corners_dir / f"{point.corner_id}.log"
-    init_text = SPICEINIT_FILE.read_text()
     header = [
         f"# point: {point.corner_id}",
         f"# record: {record_id}",
@@ -253,9 +250,9 @@ def write_log(corners_dir, point, pdk, record_id, stamp, deck, raw, rc, timed_ou
         f"# section={point.section} temp={point.temp_c:g}C supply={SUPPLY_V:.2f}V "
         f"seed={point.seed} samples={point.samples}",
     ]
-    sections = [(".spiceinit (exact)", init_text), ("deck (exact input given to ngspice)", deck)]
-    path.write_text(render_log(header, pdk, rc, timed_out, stamp, sections, raw))
-    return path
+    return write_corner_log(
+        corners_dir, point.corner_id, header, deck_sections(deck), pdk, rc, timed_out, stamp, raw
+    )
 
 
 # --------------------------------------------------------------------------

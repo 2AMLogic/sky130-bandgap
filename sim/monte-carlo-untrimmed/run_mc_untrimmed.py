@@ -50,7 +50,6 @@ REPO_ROOT = SIM_DIR.parent
 # issue (see the issue body's "Affected Files"). Never modify this file from
 # this script or its record.
 SCHEMATIC = SIM_DIR / "output-voltage-tc" / "testbench" / "tb_vref_tc.sch"
-SPICEINIT_FILE = SIM_DIR / "spiceinit"
 BUILD_DIR = SIM_DIR / "build" / "monte-carlo-untrimmed"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
@@ -58,19 +57,20 @@ from sim_common import (  # noqa: E402
     MismatchPoint,
     add_common_args,
     check_pdk_and_ngspice,
+    deck_sections,
     load_corner_run,
     mc_control_block,
     mean,
     mv,
     parse_samples,
     partition_by_window,
-    render_log,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
     run_ngspice,
     seed_stability_checks,
     setup_record_paths,
     stdev,
+    write_corner_log,
 )
 
 cr = load_corner_run()
@@ -309,9 +309,6 @@ def build_deck(pdk, point: Point, body: list[str]) -> str:
 
 
 def write_log(corners_dir, point, pdk, record_id, stamp, deck, raw, rc, timed_out) -> Path:
-    corners_dir.mkdir(parents=True, exist_ok=True)
-    path = corners_dir / f"{point.corner_id}.log"
-    init_text = SPICEINIT_FILE.read_text()
     header = [
         f"# point: {point.corner_id}",
         f"# record: {record_id}",
@@ -319,9 +316,9 @@ def write_log(corners_dir, point, pdk, record_id, stamp, deck, raw, rc, timed_ou
         f"# config={point.config} section={point.section} temp={point.temp_c:g}C "
         f"supply={SUPPLY_V:.2f}V seed={point.seed} samples={point.samples}",
     ]
-    sections = [(".spiceinit (exact)", init_text), ("deck (exact input given to ngspice)", deck)]
-    path.write_text(render_log(header, pdk, rc, timed_out, stamp, sections, raw))
-    return path
+    return write_corner_log(
+        corners_dir, point.corner_id, header, deck_sections(deck), pdk, rc, timed_out, stamp, raw
+    )
 
 
 # --------------------------------------------------------------------------

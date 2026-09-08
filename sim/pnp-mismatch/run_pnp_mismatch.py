@@ -53,12 +53,12 @@ from sim_common import (  # noqa: E402
     mv,
     parse_samples,
     per_vector_stats,
-    render_log,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
     run_ngspice,
     seed_stability_checks,
     setup_record_paths,
+    write_corner_log,
 )
 
 cr = load_corner_run()
@@ -185,11 +185,6 @@ def run_point(pdk, point: Point, run_dir: Path, timeout: int) -> tuple[str, int,
 def write_log(
     corners_dir: Path, point: Point, pdk, record_id: str, stamp: datetime, run_dir: Path, raw: str, rc: int, timed_out: bool
 ) -> Path:
-    corners_dir.mkdir(parents=True, exist_ok=True)
-    path = corners_dir / f"{point.corner_id}.log"
-    deck_text = (run_dir / DECK.name).read_text()
-    shim_text = (run_dir / "corner.spice").read_text()
-    init_text = (run_dir / ".spiceinit").read_text()
     header = [
         f"# point: {point.corner_id}",
         f"# record: {record_id}",
@@ -197,13 +192,17 @@ def write_log(
         f"# section={point.section} temp={point.temp_c:g}C supply=n/a "
         f"seed={point.seed} samples={point.samples}",
     ]
+    # Not sim_common.deck_sections(): this harness logs the per-point
+    # `.spiceinit` it actually wrote (with the injected mc_seed/mc_runs), plus
+    # the corner.spice shim, not the vanilla sim/spiceinit + a single deck.
     sections = [
-        (".spiceinit (exact)", init_text),
-        ("corner.spice (exact)", shim_text),
-        ("testbench deck (exact input given to ngspice)", deck_text),
+        (".spiceinit (exact)", (run_dir / ".spiceinit").read_text()),
+        ("corner.spice (exact)", (run_dir / "corner.spice").read_text()),
+        ("testbench deck (exact input given to ngspice)", (run_dir / DECK.name).read_text()),
     ]
-    path.write_text(render_log(header, pdk, rc, timed_out, stamp, sections, raw))
-    return path
+    return write_corner_log(
+        corners_dir, point.corner_id, header, sections, pdk, rc, timed_out, stamp, raw
+    )
 
 
 # --------------------------------------------------------------------------
