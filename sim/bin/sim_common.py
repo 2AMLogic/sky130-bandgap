@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import json
 import math
 import re
 import shutil
@@ -310,6 +311,130 @@ def setup_record_paths(
         if path.exists():
             raise cr.HarnessError(f"{path} already exists — sim/ is append-only, refusing to overwrite")
     return records_dir, snapshots_dir, corners_dir, record_md, record_json, snapshot
+
+
+def run_matrix_and_write_record(
+    cr: ModuleType,
+    *,
+    exp,
+    matrix: list,
+    is_subset: bool,
+    subset_reason: str,
+    pdk,
+    pin: dict,
+    body: list[str],
+    run_dir: Path,
+    corners_dir: Path,
+    records_dir: Path,
+    record_md: Path,
+    record_json: Path,
+    snapshot: Path,
+    record_id: str,
+    git_info: dict,
+    now,
+    args,
+    experiment_fields: dict,
+    links: dict,
+    record_extra: dict | None = None,
+) -> tuple[dict, bool]:
+    """Run every corner in `matrix`, write the append-only record, and print
+    the closing summary -- the block `corner-run.py::main()` and
+    `post_layout_common.py::run_post_layout_experiment()` used to inline
+    identically from "run every corner" through "print the closing summary"
+    (issue #277). Both callers keep their own PDK/experiment setup, the
+    append-only overwrite guard (`setup_record_paths()` above, or its inline
+    equivalent), and the `--dry-run` short-circuit -- this only owns the part
+    that begins once a corner matrix is ready to actually execute.
+
+    `exp` is the `Experiment` whose `spread_checks` config applies (the
+    wrapped schematic-level experiment for post-layout callers, same as the
+    one `matrix` was built from). `experiment_fields` supplies the caller-
+    specific `record["experiment"]` sub-dict (slug/title/claim/provenance/
+    provenance_source/statistical_convention) verbatim; `links` supplies the
+    two `record["links"]` entries that differ by caller (`testbench`/
+    `manifest` -- the rest are derived here from `snapshot`/`corners_dir`/
+    `record_json`/`record_md`). `record_extra`, when given, is merged into
+    the top-level record dict (e.g. post-layout's `layout_provenance` key);
+    key order doesn't affect the written JSON since it's serialized with
+    `sort_keys=True`.
+
+    `args` needs `.timeout`/`.author`/`.supersedes` attributes (both
+    callers' `argparse.Namespace` already have them under those names).
+
+    Returns `(record, overall)` so each caller keeps its own exit-code
+    mapping.
+    """
+    results = []
+    for i, corner in enumerate(matrix, start=1):
+        log_path = corners_dir / f"{corner.id}.log"
+        res = cr.run_corner(exp, pdk, corner, body, run_dir, log_path, args.timeout)
+        results.append(res)
+        summary = ", ".join(
+            f"{c['name']}={'n/a' if c['value'] is None else format(c['value'], '.6g')}"
+            for c in res["measurements"]
+        )
+        print(
+            f"[{i:>3}/{len(matrix)}] {corner.id:<20} "
+            f"{'PASS' if res['pass'] else 'FAIL'}  {summary}"
+        )
+
+    spreads = cr.spread_checks(exp, results)
+    overall = all(r["pass"] for r in results) and all(s["pass"] for s in spreads)
+
+    snapshot.parent.mkdir(parents=True, exist_ok=True)
+    snapshot.write_text("\n".join(body) + "\n.end\n")
+
+    record = {
+        "record_id": record_id,
+        "timestamp": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "author": args.author or cr.default_author(),
+        "supersedes": args.supersedes,
+        "experiment": experiment_fields,
+        "pdk": {
+            "root": str(pdk.root),
+            "variant": pdk.variant,
+            "installed_commit": pdk.installed_commit,
+            "pinned_commit": pin["open_pdks_commit"],
+            "matches_pin": pdk.matches_pin,
+            "lib_file": str(pdk.lib_file),
+        },
+        "tools": cr.tool_versions(),
+        "git": git_info,
+        "matrix": {
+            "process": cr.unique_in_order(c.process for c in matrix),
+            "temperature_c": sorted({c.temp_c for c in matrix}),
+            "supply_v": sorted({c.supply_v for c in matrix}),
+            "n_points": len(matrix),
+            "is_subset": is_subset,
+            "subset_reason": subset_reason,
+            "points": [[c.process, c.temp_c, c.supply_v] for c in matrix],
+            "point_ids": [c.id for c in matrix],
+        },
+        "corners": results,
+        "spread_checks": spreads,
+        "overall_pass": overall,
+        "links": {
+            "testbench": links["testbench"],
+            "manifest": links["manifest"],
+            "netlist_snapshot": str(snapshot.relative_to(cr.REPO_ROOT)),
+            "corners_dir": str(corners_dir.relative_to(cr.REPO_ROOT)) + "/",
+            "json": str(record_json.relative_to(cr.REPO_ROOT)),
+            "record": str(record_md.relative_to(cr.REPO_ROOT)),
+        },
+    }
+    if record_extra:
+        record.update(record_extra)
+
+    records_dir.mkdir(parents=True, exist_ok=True)
+    record_json.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
+    record_md.write_text(cr.render_record(record))
+
+    print()
+    print(f"record  : {record_md.relative_to(cr.REPO_ROOT)}")
+    print(f"json    : {record_json.relative_to(cr.REPO_ROOT)}")
+    print(f"logs    : {corners_dir.relative_to(cr.REPO_ROOT)}/")
+    print(f"overall : {'PASS' if overall else 'FAIL'}")
+    return record, overall
 
 
 def chain_lines(
