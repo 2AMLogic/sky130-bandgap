@@ -126,6 +126,43 @@ power bus. That is the documented conservative bias of the
 equivalent-rectangle square count on a many-fragment net; at this block's
 µA-level branch currents it contributes millivolts.
 
+## Update (2026-09-10, issue #279): re-run against the post-#193 chained-array design — divergence narrows
+
+Issue #279 re-ran this bench (and its schematic-level sibling) against the
+current design after issue #193 changed `design/bandgap_core.sch`'s resistor
+network (chained-array model, `n_r2` 50 → 51). New records:
+`sim/quiescent-current/records/20260909-232410-e8e2e46.md` (schematic,
+supersedes `20260816-085818-69a8867`) and
+`sim/quiescent-current-post-layout/records/20260909-232410-e8e2e46.md`
+(post-layout, supersedes `20260815-035028-001d1b7` — this record is also the
+bench's **first ratified-graded** record; the superseded one still cited the
+draft spec text), both against the routed layout report
+`layout/bandgap-core/reports/20260817-020222-13476b7/`.
+
+Both records are `Overall: PASS 45/45`, well inside the ratified `< 50 µA`
+target: schematic Iq 20.08–32.82 µA, post-layout 14.61–26.11 µA. The spec
+verdict does not change.
+
+**The extraction-driven divergence narrowed.** The "Attributed cause" section
+above measured a **−35.8 %** mean Iq shift (post-layout below schematic) on
+the design current at that time. Recomputing the same per-corner percentage
+delta on this cycle's paired records gives a **mean of −23.8 %** (range −27.2
+to −19.5 % across the 45 corners) — still the same direction and still driven
+by the same mechanism (the star-R network double-counting the drawn resistor
+body's own resistance, filed as
+[2AMLogic/klayout-tools#800](https://github.com/2AMLogic/klayout-tools/issues/800),
+still unfixed in the installed `klt` build), but smaller in magnitude than
+before. This is consistent with the resistor-array resize itself changing R1's
+baseline drawn resistance (and therefore what fraction of it the double-counted
+parasitic term represents), not a change in the artifact's underlying cause.
+Both ends of the artifact-bracketed range remain comfortably inside the `< 50
+µA` target, so this narrowing does not change any verdict — it is reported
+here per this bench's own "measured as-is, not averaged away" convention.
+
+Per this repo's append-only convention, the "Attributed cause" and "Finding"
+sections above are left exactly as written — this is a dated addendum, not a
+rewrite.
+
 ## Known gaps (not closed by this record)
 
 - No schematic-level Iq record exists at the adopted chained-array sizing, so

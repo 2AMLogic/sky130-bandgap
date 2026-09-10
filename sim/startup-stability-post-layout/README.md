@@ -82,6 +82,44 @@ bound, with headroom to spare; the finding is that the margin shrinks from
 schematic's 12.0 mV to 4.45 mV at that one corner, not that the bound is
 threatened.
 
+## Update (2026-09-10, issue #279): re-run against the post-#193 chained-array design — margin now thin, not just narrowed
+
+Issue #279 re-ran this bench (and its schematic-level sibling, at the same
+8-point worst-corner subset) against the current design after issue #193
+changed `design/bandgap_core.sch`'s resistor network (chained-array model,
+`n_r2` 50 → 51). New records:
+`sim/startup-stability/records/20260909-232410-e8e2e46.md` (schematic,
+supersedes `20260815-032111-001d1b7`) and
+`sim/startup-stability-post-layout/records/20260909-232410-e8e2e46.md`
+(post-layout, supersedes `20260815-040144-001d1b7`), both against the routed
+layout report `layout/bandgap-core/reports/20260817-020222-13476b7/`.
+
+Both are `Overall: PASS`, 45/45 and 8/8 respectively — `ncross_su` is still
+exactly 1 at every corner in both, so the single-equilibrium claim itself is
+untouched. **But the worst-corner `dvref` margin has shrunk sharply**, not
+merely narrowed as the prior cycle's finding described:
+
+| Corner | prior schematic | prior post-layout | **new schematic** | **new post-layout** |
+|---|---|---|---|---|
+| `ff_125c_3.63v` (worst) | 8.00 mV | 15.55 mV | **14.66 mV** | **19.31 mV** |
+
+Post-layout `dvref` at the worst corner is now **19.31 mV against the ±20 mV
+bound — 0.69 mV of headroom**, down from the prior cycle's 4.45 mV headroom
+and the cycle before that's comfortable margin. The verdict is still PASS,
+but this is materially closer to the bound than either prior record showed,
+and worth flagging explicitly rather than only noting "the margin shrinks":
+a further resistor-network change of similar magnitude to #193's could flip
+this corner to FAIL without any change to the single-equilibrium property
+itself. All 7 non-worst corners remain far from the bound (see the record for
+full values), so this is a single-corner watch item, not a broad regression.
+Same attributed mechanism as before (the `GDRV`-node residual-current
+readback scaling with the resistance network around it) — `dvref` grew at
+schematic level too (8.00→14.66 mV), confirming the shift is the design
+change, not a new extraction artifact.
+
+Per this repo's append-only convention, the sections above are left exactly
+as written — this is a dated addendum, not a rewrite.
+
 ## Known gaps (not closed by this record)
 
 - This record and its schematic-level comparison baseline only cover the

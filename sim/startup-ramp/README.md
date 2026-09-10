@@ -36,6 +36,20 @@ issue #9 / PR #41, not because of `MNC`: `MNC` is off (`Vgs − Vth ≈ −2.4 V
 along the entire startup trajectory, since `VOUT` rises toward ~1.2 V while
 `GDRV` falls only to `VDD − |Vgs_p| ≥ 1.5 V` and the two never cross.
 
+## Update (2026-09-10, issue #279): newest record is `20260910-010233-e8e2e46`
+
+This index table predates the DR-003 chained-array resistor resize (issue
+#193, `n_r2` 50 → 51) and was already one generation behind it
+(`20260812-073050-7eb5be4`, itself superseded, is not listed above). Rather
+than reconstruct the full intervening history here, this pointer names only
+the current record: `sim/startup-ramp/records/20260910-010233-e8e2e46.md`,
+re-run against the post-#193 design, `Overall: FAIL`, 13/45 corners fail on
+`vref_spread` (up from 10/45 pre-#193) — see that record and
+`sim/startup-ramp-post-layout/README.md`'s dated update for the full
+comparison. The startup-time claim itself (the actual < 1 ms spec line) still
+passes at every corner; the standing `vref_spread` FAIL below is unaffected
+in kind, only in count.
+
 ## The standing `vref_spread` FAIL
 
 It is not a startup failure and it is not new. See the `vref_spread` note in

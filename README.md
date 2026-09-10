@@ -87,21 +87,37 @@ bandgap-core layout is DRC-clean, fully routed, and `klt lvs`-clean
 (`mismatch_count: 0`), and the composed cell is within the Area budget
 relaxed to `< 0.08 mm²` by [DR-007](spec/decision-records/DR-007-mcc-area-budget.md)
 (operator-ratified) — a **layout-complete** block. It is **not** currently
-spec-conformant: two of the seven ratified spec rows fail at every corner
+spec-conformant: one of the eight ratified spec rows fails at every corner
 on the freshest evidence — box-method temp coefficient measures
-250–268 ppm/°C on the schematic and 191–209 ppm/°C on the extracted
-post-layout netlist, against the ratified `< 50 ppm/°C` target, and
-untrimmed `vref` falls outside the ratified ±2% window over temperature
-(down to ~1.130 V at hot corners); the remaining five ratified rows
-(PSRR, supply, Iq, area, startup) pass on the same-day reruns. See
-`sim/output-voltage-tc/records/20260815-030801-001d1b7.md` and
-`sim/output-voltage-tc-post-layout/records/20260815-035841-001d1b7.md`
-for the measured numbers; tracked in #178. Post-layout extraction itself is
+142–159 ppm/°C on the schematic and 168–187 ppm/°C on the extracted
+post-layout netlist, against the ratified `< 50 ppm/°C` target (untrimmed
+`vref` itself is now inside the ratified ±2% window at every corner — see
+`sim/output-voltage-tc/records/20260817-015751-13476b7.md` and
+`sim/output-voltage-tc-post-layout/records/20260817-020357-13476b7.md`
+for the measured numbers; the TC-floor disposition is an open operator
+question tracked in #179). Trim has no evidence against the current
+ratified design at all (STALE, unaffected by this cycle). The remaining
+six ratified rows are mixed, not a clean pass: PSRR, supply (operability),
+Iq, area, and startup
+self-starting all pass on the current design/layout (re-run 2026-09
+against the post-#193 chained-array resize — see
+`sim/psrr-dc/records/20260909-232410-e8e2e46.md`,
+`sim/quiescent-current/records/20260909-232410-e8e2e46.md`,
+`sim/startup-stability/records/20260909-232410-e8e2e46.md`, and their
+`-post-layout` counterparts), but the startup **time** (< 1 ms) half fails
+at 13/45 (schematic) and 16/45 (post-layout) fastest-corner points — see
+`sim/startup-ramp/records/20260910-010233-e8e2e46.md` and
+`sim/startup-ramp-post-layout/records/20260910-004925-e8e2e46.md` — and the
+core-as-composed startup-time bench fails everywhere by construction (no
+injector layout yet). See
+[`design/block-characterization-report.md`](design/block-characterization-report.md)
+for the full row-by-row scoreboard. Post-layout extraction itself is
 no longer pending — seven `sim/*-post-layout/` suites (line-regulation,
 output-voltage-tc, psrr-dc, quiescent-current, startup-ramp,
-startup-stability, startup-time) are committed with 2026-08-15 records.
-What remains: closing the TC/accuracy gap (#178), refreshing the stale
-Monte Carlo statistical evidence (#180), and the operator tier award.
+startup-stability, startup-time) are committed, all now with ratified-graded
+records at or after the post-#193 design/layout.
+What remains: the TC-floor disposition (#179), the trim-network evidence
+refresh, and the operator tier award.
 Issue #175's ten-item T1/bronze checklist re-read puts the block at
 **5/10 pass** (design sources, layout, DRC, LVS, testbenches), with items
 5 (PVT vs. ratified spec), 6 (Monte Carlo), and 8 (block-level

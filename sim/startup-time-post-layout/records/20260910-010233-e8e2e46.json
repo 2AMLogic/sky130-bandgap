@@ -1,0 +1,3354 @@
+{
+  "author": "loom-builder (issue #279)",
+  "corners": [
+    {
+      "corner_id": "tt_-40c_2.97v",
+      "elapsed_s": 46.434,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/tt_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.5274747
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 2.934453
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.97
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_-40c_3.30v",
+      "elapsed_s": 44.908,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/tt_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.5259323
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.260416
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.3
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_-40c_3.63v",
+      "elapsed_s": 44.804,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/tt_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.5251534
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.58637
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.63
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_27c_2.97v",
+      "elapsed_s": 43.838,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/tt_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.3351092
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 2.928647
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.97
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_27c_3.30v",
+      "elapsed_s": 45.217,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/tt_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.3343005
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.254058
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.3
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_27c_3.63v",
+      "elapsed_s": 38.61,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/tt_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.3337805
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.579459
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.63
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_125c_2.97v",
+      "elapsed_s": 38.093,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/tt_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.05241364
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.880066
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.97
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 414.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_125c_3.30v",
+      "elapsed_s": 38.813,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/tt_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.05177343
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.204054
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.3
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 414.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_125c_3.63v",
+      "elapsed_s": 38.662,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/tt_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.05129124
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.527971
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.63
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 414.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_-40c_2.97v",
+      "elapsed_s": 38.937,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ss_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.5275694
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 2.936404
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.97
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_-40c_3.30v",
+      "elapsed_s": 38.394,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ss_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.5261298
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.262585
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.3
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_-40c_3.63v",
+      "elapsed_s": 36.381,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ss_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.5253979
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.588757
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.63
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_27c_2.97v",
+      "elapsed_s": 38.866,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ss_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.3353683
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 2.930118
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.97
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_27c_3.30v",
+      "elapsed_s": 37.513,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ss_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.334565
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.255695
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.3
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_27c_3.63v",
+      "elapsed_s": 37.076,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ss_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.3340491
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.581268
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.63
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_125c_2.97v",
+      "elapsed_s": 38.38,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ss_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.05247708
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.88133
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.97
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 414.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_125c_3.30v",
+      "elapsed_s": 38.563,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ss_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.05180157
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.205131
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.3
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 414.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_125c_3.63v",
+      "elapsed_s": 38.989,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ss_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.0512776
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.528645
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.63
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 414.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_-40c_2.97v",
+      "elapsed_s": 39.142,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ff_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.5275631
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 2.932696
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.97
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_-40c_3.30v",
+      "elapsed_s": 38.546,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ff_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.5258246
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.258461
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.3
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_-40c_3.63v",
+      "elapsed_s": 41.113,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ff_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.5249483
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.584216
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.63
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_27c_2.97v",
+      "elapsed_s": 41.831,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ff_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.3348875
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 2.927322
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.97
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_27c_3.30v",
+      "elapsed_s": 45.978,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ff_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.3340558
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.252579
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.3
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_27c_3.63v",
+      "elapsed_s": 47.848,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ff_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.3335197
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.577819
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.63
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_125c_2.97v",
+      "elapsed_s": 49.096,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ff_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.05272954
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.880146
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.97
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 414.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_125c_3.30v",
+      "elapsed_s": 48.428,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ff_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.05219648
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.204674
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.3
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 414.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_125c_3.63v",
+      "elapsed_s": 44.515,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/ff_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.05183803
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.529318
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.63
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 414.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_-40c_2.97v",
+      "elapsed_s": 45.648,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/sf_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.5265479
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 2.939591
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.97
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_-40c_3.30v",
+      "elapsed_s": 46.242,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/sf_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.52489
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.266137
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.3
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_-40c_3.63v",
+      "elapsed_s": 39.481,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/sf_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.524086
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.592679
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.63
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_27c_2.97v",
+      "elapsed_s": 39.817,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/sf_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.334062
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 2.933125
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.97
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_27c_3.30v",
+      "elapsed_s": 39.69,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/sf_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.3331847
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.258987
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.3
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_27c_3.63v",
+      "elapsed_s": 39.547,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/sf_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.3326105
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.584752
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.63
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_125c_2.97v",
+      "elapsed_s": 39.271,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/sf_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.05111141
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.878481
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.97
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 414.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_125c_3.30v",
+      "elapsed_s": 40.793,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/sf_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.05033614
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.201007
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.3
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 414.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_125c_3.63v",
+      "elapsed_s": 39.061,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/sf_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.04972618
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.523387
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.63
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 414.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_-40c_2.97v",
+      "elapsed_s": 38.993,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/fs_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.527737
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 2.929782
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.97
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_-40c_3.30v",
+      "elapsed_s": 37.672,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/fs_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.5262306
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.255223
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.3
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_-40c_3.63v",
+      "elapsed_s": 37.1,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/fs_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.5254424
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.58065
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.63
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_27c_2.97v",
+      "elapsed_s": 38.718,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/fs_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.3353603
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 2.924479
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.97
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_27c_3.30v",
+      "elapsed_s": 41.378,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/fs_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.3345945
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.249417
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.3
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_27c_3.63v",
+      "elapsed_s": 39.861,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/fs_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.3340992
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.574355
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.63
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 413.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_125c_2.97v",
+      "elapsed_s": 39.718,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/fs_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.05452519
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.883925
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.97
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 414.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_125c_3.30v",
+      "elapsed_s": 39.86,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/fs_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.05423633
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.209539
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.3
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 414.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_125c_3.63v",
+      "elapsed_s": 40.989,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/fs_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": false,
+          "reason": "above max 1",
+          "unit": "ms",
+          "value": 1000.0
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": false,
+          "reason": "below min 1",
+          "unit": "V",
+          "value": 0.05413082
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": false,
+          "reason": "above max 2.9",
+          "unit": "V",
+          "value": 3.535227
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.63
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 414.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    }
+  ],
+  "experiment": {
+    "claim": "README.md 'Target specification (ratified -- see DR-005, issue #1)' row 'Startup time' (< 1 ms), for the 3.3 V primary flavor (DR-001). Ramps the supply feeding the ROUTED, LVS-clean bandgap-core layout (issue #62) from 0 V to the corner supply in t_ramp and measures the first time VREF rises through 1.08 V (90% of the 1.20 V draft nominal), open-circuit, over the full 45-point PVT matrix, via klt extract --parasitics translated to a simulatable netlist (sim/bin/post_layout_common.py) -- NOT design/bandgap_core.sch directly; see 'Netlist provenance' below. NOTE: the same no-injector caveat the schematic-level manifest carries applies unchanged here, and for the same reason -- the composed layout is the core cell with GDRV promoted as a pin, and design/startup_injector.sch has no layout yet -- so this bench measures the extracted core AS DRAWN. A failure here is a statement about the missing injector, not about the bench or the extraction; the injector-equipped post-layout benches are sim/startup-ramp-post-layout/ and sim/startup-stability-post-layout/.",
+    "provenance": "extracted",
+    "provenance_source": "layout/bandgap-core/reports/20260817-020222-13476b7/bandgap_core_routed.gds via `klt extract --parasitics` (layout record 20260817-020222-13476b7), translated by sim/bin/post_layout_common.py, wrapped over the unmodified sim/startup-time/testbench/tb_vref_startup.sch",
+    "slug": "startup-time-post-layout",
+    "statistical_convention": "N/A (corner-matrix claim)",
+    "title": "Supply-ramp startup time of the untrimmed core over the full PVT matrix -- POST-LAYOUT (extracted netlist)"
+  },
+  "git": {
+    "branch": "feature/issue-279",
+    "dirty": true,
+    "sha": "e8e2e46"
+  },
+  "layout_provenance": {
+    "core_port_order": [
+      "D1",
+      "D2",
+      "GDRV",
+      "PN",
+      "TAIL",
+      "VA",
+      "VB",
+      "VBQ",
+      "VDD",
+      "VOUT",
+      "VSS"
+    ],
+    "device_translation_counts": {
+      "mos": 68,
+      "pnp": 16,
+      "res": 145
+    },
+    "layout_gds": "layout/bandgap-core/reports/20260817-020222-13476b7/bandgap_core_routed.gds",
+    "layout_record": "layout/bandgap-core/reports/20260817-020222-13476b7/record.md",
+    "layout_record_id": "20260817-020222-13476b7",
+    "lvs_mismatch_count_at_extraction": null,
+    "parasitics_snapshot": {
+      "c_count": 153,
+      "json": "sim/output-voltage-tc-post-layout/parasitics-snapshot/20260817-020222-13476b7/bandgap_core_routed.pex.json",
+      "r_count": 755,
+      "source": "reused:sim/output-voltage-tc-post-layout/parasitics-snapshot/20260817-020222-13476b7",
+      "spice": "sim/output-voltage-tc-post-layout/parasitics-snapshot/20260817-020222-13476b7/bandgap_core_routed.pex.spice",
+      "total_capacitance_ff": 1373.920036,
+      "total_resistance_ohm": 226256.0625
+    }
+  },
+  "links": {
+    "corners_dir": "sim/startup-time-post-layout/corners/20260910-010233-e8e2e46/",
+    "json": "sim/startup-time-post-layout/records/20260910-010233-e8e2e46.json",
+    "manifest": "sim/startup-time/experiment.json",
+    "netlist_snapshot": "sim/startup-time-post-layout/netlist-snapshots/20260910-010233-e8e2e46.spice",
+    "record": "sim/startup-time-post-layout/records/20260910-010233-e8e2e46.md",
+    "testbench": "sim/startup-time/testbench/tb_vref_startup.sch"
+  },
+  "matrix": {
+    "is_subset": false,
+    "n_points": 45,
+    "point_ids": [
+      "tt_-40c_2.97v",
+      "tt_-40c_3.30v",
+      "tt_-40c_3.63v",
+      "tt_27c_2.97v",
+      "tt_27c_3.30v",
+      "tt_27c_3.63v",
+      "tt_125c_2.97v",
+      "tt_125c_3.30v",
+      "tt_125c_3.63v",
+      "ss_-40c_2.97v",
+      "ss_-40c_3.30v",
+      "ss_-40c_3.63v",
+      "ss_27c_2.97v",
+      "ss_27c_3.30v",
+      "ss_27c_3.63v",
+      "ss_125c_2.97v",
+      "ss_125c_3.30v",
+      "ss_125c_3.63v",
+      "ff_-40c_2.97v",
+      "ff_-40c_3.30v",
+      "ff_-40c_3.63v",
+      "ff_27c_2.97v",
+      "ff_27c_3.30v",
+      "ff_27c_3.63v",
+      "ff_125c_2.97v",
+      "ff_125c_3.30v",
+      "ff_125c_3.63v",
+      "sf_-40c_2.97v",
+      "sf_-40c_3.30v",
+      "sf_-40c_3.63v",
+      "sf_27c_2.97v",
+      "sf_27c_3.30v",
+      "sf_27c_3.63v",
+      "sf_125c_2.97v",
+      "sf_125c_3.30v",
+      "sf_125c_3.63v",
+      "fs_-40c_2.97v",
+      "fs_-40c_3.30v",
+      "fs_-40c_3.63v",
+      "fs_27c_2.97v",
+      "fs_27c_3.30v",
+      "fs_27c_3.63v",
+      "fs_125c_2.97v",
+      "fs_125c_3.30v",
+      "fs_125c_3.63v"
+    ],
+    "points": [
+      [
+        "tt",
+        -40.0,
+        2.97
+      ],
+      [
+        "tt",
+        -40.0,
+        3.3
+      ],
+      [
+        "tt",
+        -40.0,
+        3.63
+      ],
+      [
+        "tt",
+        27.0,
+        2.97
+      ],
+      [
+        "tt",
+        27.0,
+        3.3
+      ],
+      [
+        "tt",
+        27.0,
+        3.63
+      ],
+      [
+        "tt",
+        125.0,
+        2.97
+      ],
+      [
+        "tt",
+        125.0,
+        3.3
+      ],
+      [
+        "tt",
+        125.0,
+        3.63
+      ],
+      [
+        "ss",
+        -40.0,
+        2.97
+      ],
+      [
+        "ss",
+        -40.0,
+        3.3
+      ],
+      [
+        "ss",
+        -40.0,
+        3.63
+      ],
+      [
+        "ss",
+        27.0,
+        2.97
+      ],
+      [
+        "ss",
+        27.0,
+        3.3
+      ],
+      [
+        "ss",
+        27.0,
+        3.63
+      ],
+      [
+        "ss",
+        125.0,
+        2.97
+      ],
+      [
+        "ss",
+        125.0,
+        3.3
+      ],
+      [
+        "ss",
+        125.0,
+        3.63
+      ],
+      [
+        "ff",
+        -40.0,
+        2.97
+      ],
+      [
+        "ff",
+        -40.0,
+        3.3
+      ],
+      [
+        "ff",
+        -40.0,
+        3.63
+      ],
+      [
+        "ff",
+        27.0,
+        2.97
+      ],
+      [
+        "ff",
+        27.0,
+        3.3
+      ],
+      [
+        "ff",
+        27.0,
+        3.63
+      ],
+      [
+        "ff",
+        125.0,
+        2.97
+      ],
+      [
+        "ff",
+        125.0,
+        3.3
+      ],
+      [
+        "ff",
+        125.0,
+        3.63
+      ],
+      [
+        "sf",
+        -40.0,
+        2.97
+      ],
+      [
+        "sf",
+        -40.0,
+        3.3
+      ],
+      [
+        "sf",
+        -40.0,
+        3.63
+      ],
+      [
+        "sf",
+        27.0,
+        2.97
+      ],
+      [
+        "sf",
+        27.0,
+        3.3
+      ],
+      [
+        "sf",
+        27.0,
+        3.63
+      ],
+      [
+        "sf",
+        125.0,
+        2.97
+      ],
+      [
+        "sf",
+        125.0,
+        3.3
+      ],
+      [
+        "sf",
+        125.0,
+        3.63
+      ],
+      [
+        "fs",
+        -40.0,
+        2.97
+      ],
+      [
+        "fs",
+        -40.0,
+        3.3
+      ],
+      [
+        "fs",
+        -40.0,
+        3.63
+      ],
+      [
+        "fs",
+        27.0,
+        2.97
+      ],
+      [
+        "fs",
+        27.0,
+        3.3
+      ],
+      [
+        "fs",
+        27.0,
+        3.63
+      ],
+      [
+        "fs",
+        125.0,
+        2.97
+      ],
+      [
+        "fs",
+        125.0,
+        3.3
+      ],
+      [
+        "fs",
+        125.0,
+        3.63
+      ]
+    ],
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "subset_reason": "",
+    "supply_v": [
+      2.97,
+      3.3,
+      3.63
+    ],
+    "temperature_c": [
+      -40.0,
+      27.0,
+      125.0
+    ]
+  },
+  "overall_pass": false,
+  "pdk": {
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "lib_file": "/Users/rwalters/.volare/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "root": "/Users/rwalters/.volare",
+    "variant": "sky130A"
+  },
+  "record_id": "20260910-010233-e8e2e46",
+  "spread_checks": [
+    {
+      "measurement": "vdd_final",
+      "min_spread": 0.5,
+      "n": 45,
+      "note": "The settled supply must move by at least 0.5 V across the matrix (2.97 -> 3.63 V is 0.66 V). This is the corner-liveness check for this bench: it proves the runner's supply knob reaches the simulator. It is deliberately NOT placed on t_start_ms or vref_final -- if the core does not self-start, those are pinned at their sentinel/zero values by the physics under test, and a spread check on them would report a second, redundant failure that says nothing new.",
+      "observed_spread": 0.6599999999999997,
+      "pass": true,
+      "reason": ""
+    }
+  ],
+  "supersedes": "20260812-034744-6767688",
+  "timestamp": "2026-09-10T01:02:33Z",
+  "tools": {
+    "ngspice": "ngspice-46 : Circuit level simulation program",
+    "platform": "Darwin 25.6.0 arm64",
+    "python": "3.14.7",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}

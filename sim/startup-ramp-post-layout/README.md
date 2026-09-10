@@ -77,6 +77,41 @@ post-layout record fail for the same reason, at overlapping corners, with
 this bench's own pre-existing margin problem being the root cause rather
 than anything specific to extraction.
 
+## Update (2026-09-10, issue #279): re-run against the post-#193 chained-array design — margin widens further
+
+Issue #279 re-ran this bench (and its schematic-level sibling) against the
+current design after issue #193 changed `design/bandgap_core.sch`'s resistor
+network (chained-array model, `n_r2` 50 → 51). New records:
+`sim/startup-ramp/records/20260910-010233-e8e2e46.md` (schematic, supersedes
+`20260812-073050-7eb5be4`) and
+`sim/startup-ramp-post-layout/records/20260910-004925-e8e2e46.md`
+(post-layout, supersedes `20260812-043245-7eb5be4`), both against the routed
+layout report `layout/bandgap-core/reports/20260817-020222-13476b7/`.
+
+Both are `Overall: FAIL`. The corner count worsened again on both
+representations: schematic 10/45 → **13/45**, post-layout 12/45 → **16/45**.
+Every corner in both new records ran to completion (no timeouts, no
+SIGTERMs) — the FAIL verdicts are real measured margin calls.
+
+Recomputing this README's own "four corners flip" comparison on the new
+paired records: **4 corners newly fail** post-layout that pass schematic
+(`tt_-40c_3.30v`, `tt_27c_2.97v`, `tt_27c_3.30v`, `tt_27c_3.63v` — all `tt`
+process now, not the `ff`/`sf` cluster the prior comparison found), and **1**
+newly passes (`ff_27c_3.63v`). Net effect: post-layout now fails 3 more
+corners than schematic, versus 2 more in the prior cycle. `t_start_s` again
+barely moves at any of the flipped corners — this remains a
+`vref_spread`-consistency-margin effect, not a startup-time regression — and
+every corner that already failed at both levels in the prior cycle still
+fails now. No new failure mode; the same resistance-network perturbation
+(`sim/quiescent-current-post-layout/README.md`'s narrowed-but-still-present
+star-R finding, `sim/psrr-dc-post-layout/README.md`'s sign-flipped PSRR
+shift) continues to nudge this bench's already-thin margin, this cycle
+pulling in a different subset of `tt` corners rather than the `ff`/`sf` ones
+seen before.
+
+Per this repo's append-only convention, the sections above are left exactly
+as written — this is a dated addendum, not a rewrite.
+
 ## Known gaps (not closed by this record)
 
 - This bench's own `vref_spread` margin problem (the schematic-level FAIL at
