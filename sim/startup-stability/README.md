@@ -18,6 +18,20 @@ measured under this slug. Only the newest one is the design in `design/`.
 | `20260803-144658-4226657` | Same as above | Regression evidence, kept deliberately. Independent re-run of `-144531` with the hardened runner one commit later; identical numbers, which is what rules the harness change out as the cause. |
 | `20260803-204236-f41373d` | **Shipped design: `amp_m_in=16` + injector WITH the issue-#52 railed-branch clamp `MNC`** | **Current record. `Overall: PASS`** — the first PASS this experiment has recorded. 12 corners, `ncross_su=1` at every one, `itrav_min` ≥ 6.4 nA, `isup_dut` 24.2–39.1 µA against the < 50 µA Iq budget. **`dvref` worst case `+8.70 mV` at `ff/125 °C/3.63 V`** (range −0.14 … +8.70 mV) — this is the figure issue #11 subtracts. Supersedes `20260803-144658-4226657`. |
 
+## Update (2026-09-10, issue #279): newest record is `20260909-232410-e8e2e46`
+
+This index table predates the DR-003 chained-array resistor resize (issue
+#193, `n_r2` 50 → 51) and was already one generation behind it
+(`20260815-032111-001d1b7`, itself superseded, is not listed above). Rather
+than reconstruct the full intervening history here, this pointer names only
+the current record: `sim/startup-stability/records/20260909-232410-e8e2e46.md`,
+re-run against the post-#193 design, `Overall: PASS`, 45/45 corners,
+`ncross_su=1` at every corner (the single-equilibrium claim holds). `dvref`
+worst case is now **+14.66 mV** at `ff/125 °C/3.63 V` (up from +8.70 mV
+pre-#193) — see `sim/startup-stability-post-layout/README.md`'s dated update
+for why this now leaves comparatively thin headroom against the ±20 mV bound
+on the post-layout extracted netlist.
+
 ## What changed between the last two vintages
 
 The two `-1445xx` records are not a harness problem and were not caused by the

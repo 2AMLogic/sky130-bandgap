@@ -60,14 +60,18 @@ Consequences worth stating explicitly:
   returns are post-ratification *by date* but draft-graded *in fact* — they
   were emitted in the gap between DR-005 and the bench re-pointing. Do not
   read them as ratified-spec evidence.
-- The **still-unconverted benches** as of the 2026-08-16 re-pointing are the
-  post-layout wrappers `sim/line-regulation-post-layout/`,
-  `sim/quiescent-current-post-layout/` and `sim/startup-time-post-layout/`:
-  each inherits its wrapped bench's re-pointed manifest, so its *next* record
-  will be ratified-graded, but the newest record on disk today predates the
-  re-point and is draft-graded. (`sim/trim-range-monotonicity/` grades the
-  **trimmed** claim under DR-002 and is outside #177's untrimmed scope; its
-  runner still carries the draft sentence.)
+- **No bench remains unconverted as of issue #279 (2026-09-10).** As of the
+  2026-08-16 re-pointing, the post-layout wrappers `sim/line-regulation-post-layout/`,
+  `sim/quiescent-current-post-layout/` and `sim/startup-time-post-layout/` each
+  inherited its wrapped bench's re-pointed manifest but still had a draft-graded
+  newest record on disk. `sim/line-regulation-post-layout/` was cleared by issue
+  #193's same-day re-run; `sim/quiescent-current-post-layout/` and
+  `sim/startup-time-post-layout/` are cleared by issue #279's re-run — each now has
+  a ratified-graded newest record (citing DR-005, DR-006 where applicable). The grep
+  above returns only historical records that are no longer the newest in their
+  directory. (`sim/trim-range-monotonicity/` grades the **trimmed** claim under
+  DR-002 and is outside #177's untrimmed scope; its runner still carries the draft
+  sentence — unaffected by #279.)
 
 Per the append-only rule, no draft-graded record is ever edited or deleted;
 read them as draft-spec evidence and let a newer record carry the ratified

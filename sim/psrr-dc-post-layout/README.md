@@ -231,6 +231,41 @@ against, and the regression accounting across every other bench:
 [`spec/decision-records/DR-008-psrr-post-layout-margin-proposal.md`](../../spec/decision-records/DR-008-psrr-post-layout-margin-proposal.md)'s
 "Ratification (2026-08-14)" section.
 
+## Update (2026-09-10, issue #279): re-run against the post-#193 chained-array design — the shift direction changed again
+
+Issue #279 re-ran this bench (and its schematic-level sibling) against the
+current design after issue #193 changed `design/bandgap_core.sch`'s resistor
+network (chained-array model, `n_r2` 50 → 51). New records:
+`sim/psrr-dc/records/20260909-232410-e8e2e46.md` (schematic, supersedes
+`20260815-020301-001d1b7`) and
+`sim/psrr-dc-post-layout/records/20260909-232410-e8e2e46.md` (post-layout,
+supersedes `20260815-034139-001d1b7`), both against the routed layout report
+`layout/bandgap-core/reports/20260817-020222-13476b7/`.
+
+Both records are `Overall: PASS 45/45`, comfortably clear of the ratified
+`> 60 dB` DC–1 kHz floor: schematic `psrr_band_min` 67.34–75.18 dB, post-layout
+66.30–75.54 dB (binding corner `sf, −40 °C, 2.97 V` in both). The spec verdict
+does not change and margin remains ample.
+
+**The extraction-driven shift itself flipped again.** The "Resolution
+(2026-08-14, issue #170)" section above measured a **+3.10 dB** mean positive
+shift (post-layout better than schematic) on the design current at that time
+(post-#170 amplifier resize, pre-#193 resistor-array resize). Recomputing the
+same per-corner delta on this cycle's paired records gives a **mean of
+−0.50 dB** (std dev 0.37 dB, range −1.04 to +0.52 dB across the 45 corners) —
+i.e. a small, near-neutral shift, slightly negative on average rather than the
+previously-documented positive one. Neither shift threatens the floor (this
+cycle's worst-case margin is 6.30 dB above 60 dB), so this is a *magnitude and
+sign* finding, not a spec-conformance one. Consistent with this README's own
+"Attributed cause" section: the resistor-array resize changes the same
+extracted parasitic network (R1/R2A/R2B chain topology) that section already
+identifies as the dominant contributor, so a further design change to that
+network changing the shift's sign again is unsurprising rather than a new
+mechanism.
+
+Per this repo's append-only convention, the "Resolution" and prior sections
+above are left exactly as written — this is a dated addendum, not a rewrite.
+
 ## Known gaps (not closed by this record)
 
 - The mechanism above is a scale/order-of-magnitude argument from the
