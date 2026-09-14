@@ -41,16 +41,19 @@ cell does not have. See
 for the full record. **Known gaps, disclosed here rather than only in the
 maturity ladder below**: two of the seven ratified spec rows currently fail
 at every corner on the freshest evidence — box-method temperature
-coefficient (191–268 ppm/°C measured, schematic and post-layout alike,
-against the ratified `< 50 ppm/°C` target) and untrimmed output accuracy
-(`vref` falls outside the ratified ±2% window over temperature, down to
-~1.130 V at hot corners) — tracked in #178. Separately, the sole Monte
-Carlo run on file predates both the ratified spec and the current design's
-error-amp resize, so the statistical evidence for the dominant accuracy
-term is stale (#180). Nothing here has been taped out or measured in
-silicon yet. See the maturity ladder below for where things currently
-stand, and issue #175's ten-item T1/bronze checklist re-read (5/10 pass as
-of 2026-08-15) for the full evidence-tier accounting.
+coefficient (142.4–159.0 ppm/°C schematic, 167.9–186.9 ppm/°C post-layout,
+measured against the ratified `< 50 ppm/°C` target after issue #178's
+`n_r2` 50→51 resize; the `R2/R1` ratio lever is now exhausted against the
+accuracy row, and the remaining gap is device-driven, see
+[DR-009](spec/decision-records/DR-009-tc-floor-disposition-defer-curvature-correction.md))
+and untrimmed output accuracy (`vref` falls outside the ratified ±2% window
+over temperature, down to ~1.130 V at hot corners) — tracked in #178.
+Separately, the sole Monte Carlo run on file predates both the ratified
+spec and the current design's error-amp resize, so the statistical evidence
+for the dominant accuracy term is stale (#180). Nothing here has been taped
+out or measured in silicon yet. See the maturity ladder below for where
+things currently stand, and issue #175's ten-item T1/bronze checklist
+re-read (5/10 pass as of 2026-08-15) for the full evidence-tier accounting.
 
 **Built agent-native.** Every schematic, testbench, decision record, and
 line of documentation in this repo was produced by AI agents working from
@@ -94,8 +97,11 @@ post-layout netlist, against the ratified `< 50 ppm/°C` target (untrimmed
 `vref` itself is now inside the ratified ±2% window at every corner — see
 `sim/output-voltage-tc/records/20260817-015751-13476b7.md` and
 `sim/output-voltage-tc-post-layout/records/20260817-020357-13476b7.md`
-for the measured numbers; the TC-floor disposition is an open operator
-question tracked in #179). Trim has no evidence against the current
+for the measured numbers; the `R2/R1` sizing lever that could once have
+narrowed this gap is exhausted against the accuracy row, and the disposition
+is recorded in
+[DR-009](spec/decision-records/DR-009-tc-floor-disposition-defer-curvature-correction.md):
+keep the row as ratified, disclose the FAIL, defer curvature correction). Trim has no evidence against the current
 ratified design at all (STALE, unaffected by this cycle). The remaining
 six ratified rows are mixed, not a clean pass: PSRR, supply (operability),
 Iq, area, and startup
@@ -116,7 +122,8 @@ no longer pending — seven `sim/*-post-layout/` suites (line-regulation,
 output-voltage-tc, psrr-dc, quiescent-current, startup-ramp,
 startup-stability, startup-time) are committed, all now with ratified-graded
 records at or after the post-#193 design/layout.
-What remains: the TC-floor disposition (#179), the trim-network evidence
+What remains: curvature correction (the engineering work DR-009 defers; the
+TC row stays a disclosed FAIL until it lands), the trim-network evidence
 refresh, and the operator tier award.
 Issue #175's ten-item T1/bronze checklist re-read puts the block at
 **5/10 pass** (design sources, layout, DRC, LVS, testbenches), with items
