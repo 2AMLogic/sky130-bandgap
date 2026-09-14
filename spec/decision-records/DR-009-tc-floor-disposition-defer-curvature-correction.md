@@ -1,14 +1,15 @@
-# DR-009: Temp-coefficient floor above the ratified `< 50 ppm/°C` row — disposition (proposed, NOT ratified)
+# DR-009: Temp-coefficient floor above the ratified `< 50 ppm/°C` row — disposition (ratified 2026-09-14)
 
-- **Status**: **proposed**. Ratification occurs via the operator's approval
-  of the PR this record ships in
-  (2AMLogic/2am#357, 2026-08-19 standing policy: canary spec/DR
-  ratification-via-PR — a Builder drafts the record on the evidence, and the
-  operator's PR review/approval is the ratification act). Not ratified by
-  this Builder.
+- **Status**: **ratified 2026-09-14** — Option 3, by the operator's approval and
+  merge of pull request #197 (issue #179), per the 2026-08-19
+  ratification-via-PR policy (2AMLogic/2am#357). The two-key mechanism
+  (2AMLogic/2am#372) ran on this PR 2026-08-27: EE key `approve`, market key
+  `escalate` (a disclosed FAIL carried forward triggers the
+  relax-after-measured-FAIL check even though no row value changes), so release
+  required an explicit operator ruling, given 2026-09-14.
 - **Date**: 2026-08-19 (drafted); proposed disposition.
-- **Decided by**: proposed by a Loom Builder agent (issue #179); pending
-  operator ruling.
+- **Decided by**: drafted by a Loom Builder agent (issue #179); ruled by the
+  operator 2026-09-14 (Option 3).
 - **Relates to**: [DR-005](DR-005-ratify-target-spec.md) (ratifies the
   `< 50 ppm/°C` box-method row this record disposes of), issue #46 (root
   cause), issue #178 / PR #193 (the sizing re-derivation that produced the
@@ -137,3 +138,18 @@ table is edited by this record.
   `design/device-characterization-summary.md` §1) and the exhausted
   `R2/R1` lever (issue #178/#193) are unaffected by this record and do not
   need re-investigation to act on this disposition.
+
+## Market-key finding and operator ruling (2026-09-14)
+
+The market key escalated because the measured TC carried forward as a disclosed
+FAIL (142–159 ppm/°C schematic, 168–187 ppm/°C post-layout) is far from public
+bandgap references, which sit at tens of ppm/°C or better. That finding is
+accepted as stated.
+
+**Operator ruling: approve Option 3.** No ratified value is relaxed: the
+`< 50 ppm/°C` row stays exactly as DR-005 ratified it, the block is recorded as
+FAILING that row, and curvature correction is deferred as its own scoped piece of
+engineering work rather than folded into a disposition record. The
+competitiveness gap is real and is disclosed, not claimed away: until curvature
+correction lands, this block's TC is not competitive with public parts, and any
+catalog entry must say so. gf180 parity is preserved because neither row moves.

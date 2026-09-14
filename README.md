@@ -122,7 +122,8 @@ no longer pending — seven `sim/*-post-layout/` suites (line-regulation,
 output-voltage-tc, psrr-dc, quiescent-current, startup-ramp,
 startup-stability, startup-time) are committed, all now with ratified-graded
 records at or after the post-#193 design/layout.
-What remains: the TC-floor disposition (#179), the trim-network evidence
+What remains: curvature correction (the engineering work DR-009 defers; the
+TC row stays a disclosed FAIL until it lands), the trim-network evidence
 refresh, and the operator tier award.
 Issue #175's ten-item T1/bronze checklist re-read puts the block at
 **5/10 pass** (design sources, layout, DRC, LVS, testbenches), with items
