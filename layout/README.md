@@ -125,16 +125,26 @@ second run added no evidence).
 ```
 layout/
   README.md                  # this file
-  requirements.txt           # pinned `klt` install (git commit SHA)
+  requirements.txt           # pinned `klt` install (git commit SHA) for the DRC/LVS flow
+  requirements-erc.txt       # separately pinned `klt` install for the ERC supply flow
   bin/
     setup-venv.sh             # create/refresh layout/.venv from requirements.txt
     run-trivial-cell-flow.sh  # the repeatable driver: gen -> drc -> extract -> lvs -> report
+    run-erc-supply-flow.sh    # T1 item 11: klt erc supply-spec run -> bandgap-core/erc/
+    erc_supply_record.py      # that flow's gate + record.md renderer
     met1_bus.py               # hand-drawn met1 bussing + the met2/via1 escape plane
     met2_drc.py               # DRC for the met2 plane the curated deck has no rules for
     measure_mim_overlay_feasibility.py  # re-runnable "can MCC be a MiM overlay?" measurement
     render-record.py          # renders + verdict-checks a record's record.md
   tests/                      # PDK-free unit coverage for the flows' own gates
   .venv/                      # gitignored -- `klt` install, created by setup-venv.sh
+  .venv-erc/                  # gitignored -- ERC flow's `klt` install (requirements-erc.txt)
+  bandgap-core/
+    erc-supply-spec.json                    # T1 item 11 supply spec (inline rationale per field)
+    erc-nwell-tie-spec.known-gap.{vdd,vss}.json  # klayout-tools#2339 reproduction
+    erc/
+      README.md               # what the item-11 evidence does and does not establish
+      <record-id>/            # erc.<gds-record-id>.json + record.md, one dir per flow run
   trivial-cell/
     reference.spice                    # known-good LVS reference netlist
     reference.broken-device.spice      # negative control 1: device.property corruption
@@ -540,3 +550,81 @@ sizing instead, per `sim/res-array-resize/records/` and the file's own
 RESISTOR VALUE CONVENTION note), never derived from the layout.
 It states the schematic even where the layout falls short of it: there is no
 0-ohm bridge device standing in for the unrouted `AOUT`→`GDRV` net.
+
+## Structural power-delivery check (`klt erc`, T1 item 11, issue #281)
+
+A third flow lives alongside the trivial-cell and routed-core flows above,
+answering the one question neither of them asks: **is the supply actually
+connected to what it powers.** DRC checks geometry against rules; LVS checks
+the extracted netlist against a reference; neither of them asserts that `VDD`
+and `VSS` each form a single electrical island across the drawn stack. That is
+T1 checklist **item 11** (power delivery, *structural*), added upstream on
+2026-09-17, and it is graded from a `klt erc` supply-spec run.
+
+```bash
+layout/bin/run-erc-supply-flow.sh    # ~seconds, no PDK install needed
+```
+
+The flow needs **no PDK**: `--deck sky130` resolves the curated extraction deck
+from inside the `klt` package, and `--pdk sky130` selects a built-in
+antenna-limit table. It writes one record per run under
+`bandgap-core/erc/<record-id>/` — same `<YYYYMMDD-HHMMSS>-<short-sha>` UTC
+convention as `bandgap-core/reports/` — containing the raw `klt erc --format
+json` output for every committed routed GDS plus a gated `record.md`.
+
+- **The spec**: `bandgap-core/erc-supply-spec.json`, with an inline comment
+  block justifying every `stackup` entry, every `label_layer`, and the absent
+  `ties[]`. Each layer/datatype pair was resolved twice — against the sky130A
+  PDK's own `libs.tech/klayout/tech/sky130A.lyp` **and** against
+  klayout-tools' curated sky130 deck layer table.
+- **The gate** (`layout/bin/erc_supply_record.py`, unit-covered by
+  `layout/tests/test_erc_supply_gate.py`) is item 11's own pass condition and
+  deliberately **not** the report's overall `status`: both supplies present in
+  `erc_coverage.checked`, zero `erc.unconnected_net` / `erc.supply_short`
+  naming either of them, and the report's `provenance.input.content_hash`
+  equal to the sha256 of the GDS it names. An antenna verdict or a
+  floating-gate finding is a real defect but is not this item's subject and
+  does not fail the gate (klayout-tools#1994).
+- **A separate `klt` pin.** `requirements-erc.txt` pins `klt` v0.6.0 into
+  `layout/.venv-erc`, independently of `requirements.txt`'s 2026-08-05 DRC/LVS
+  pin, so picking up `klt erc`'s September capability does not drag the whole
+  committed DRC/LVS evidence trail along with it. That file documents exactly
+  which upstream changes the newer pin buys.
+- **Result, stated honestly**: the supply half is met and computed; the
+  `erc.missing_tie` half is **not computed**, and the reports say so in their
+  own `erc_coverage.inapplicable` / `ties_disclosure` fields rather than
+  reporting a misleading zero. Read
+  [`bandgap-core/erc/README.md`](bandgap-core/erc/README.md) for the full
+  claim, the reason, and the standing-in well-tie evidence.
+
+### Friction protocol: what this flow found
+
+**[2AMLogic/klayout-tools#2339](https://github.com/2AMLogic/klayout-tools/issues/2339)**
+(filed, new). `klt erc`'s `ties[].well_layer` names one layer and checks
+*every* merged shape on it against that entry's single `net`. There is no
+well-side selector — `tap_requires`, `tap_is_dedicated` and `tap_boxes` all
+narrow the **tap**, and `well_boxes` is rejected outright alongside a drawn
+`well_layer`. A block whose single tub layer holds two differently-biased well
+classes therefore cannot declare either tie without the other class reporting a
+false `erc.missing_tie`. Filed generically (tool-gap description only, no spec
+values or design content), per the root `CLAUDE.md`.
+
+Both halves of the reproduction are committed, so the gap is checkable rather
+than merely asserted: `bandgap-core/erc-nwell-tie-spec.known-gap.vdd.json` and
+`.vss.json`, whose reports carry disjoint, complementary finding sets.
+
+Two already-tracked upstream gaps were **re-confirmed fixed** rather than
+re-filed, per this directory's own protocol (surface the gap, do not inflate
+the tracker):
+
+- [klayout-tools#2169](https://github.com/2AMLogic/klayout-tools/issues/2169)
+  (`ties[]` collapsing a routed design into one island and reporting a false
+  `erc.supply_short`) — fixed by #2186 and confirmed not to reproduce here:
+  both known-gap runs declare a real tie and report **zero**
+  `erc.supply_short`.
+- [klayout-tools#2183](https://github.com/2AMLogic/klayout-tools/issues/2183)
+  (a drawn resistor body read as a wire, fabricating a supply short across any
+  rail-to-rail device string) — fixed by the `--deck` device-marker
+  auto-detection, which carves this block's `res_high_po` poly bodies out of
+  the `poly` conductor role; the carve-out and its area are recorded in every
+  report's own `provenance.devices`.

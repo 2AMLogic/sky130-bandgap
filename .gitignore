@@ -16,6 +16,10 @@ sim/build/
 
 # layout/ DRC/LVS flow: local klt install, created by layout/bin/setup-venv.sh
 layout/.venv/
+
+# layout/ ERC supply flow: separately-pinned klt install, created by
+# layout/bin/run-erc-supply-flow.sh (see layout/requirements-erc.txt)
+layout/.venv-erc/
 # >>> loom-managed (do not edit) >>>
 # Loom runtime state (don't commit these)
 .loom-in-use

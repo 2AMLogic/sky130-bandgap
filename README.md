@@ -52,8 +52,9 @@ Separately, the sole Monte Carlo run on file predates both the ratified
 spec and the current design's error-amp resize, so the statistical evidence
 for the dominant accuracy term is stale (#180). Nothing here has been taped
 out or measured in silicon yet. See the maturity ladder below for where
-things currently stand, and issue #175's ten-item T1/bronze checklist
-re-read (5/10 pass as of 2026-08-15) for the full evidence-tier accounting.
+things currently stand, and [`docs/t1-checklist.md`](docs/t1-checklist.md) —
+this block's gap-to-T1 tracker, **7/11 pass as of 2026-09-22** — for the full
+evidence-tier accounting.
 
 **Built agent-native.** Every schematic, testbench, decision record, and
 line of documentation in this repo was produced by AI agents working from
@@ -125,10 +126,17 @@ records at or after the post-#193 design/layout.
 What remains: curvature correction (the engineering work DR-009 defers; the
 TC row stays a disclosed FAIL until it lands), the trim-network evidence
 refresh, and the operator tier award.
-Issue #175's ten-item T1/bronze checklist re-read puts the block at
-**5/10 pass** (design sources, layout, DRC, LVS, testbenches), with items
-5 (PVT vs. ratified spec), 6 (Monte Carlo), and 8 (block-level
-characterization report) blocking — no bronze/T1 claim is made here.
+[`docs/t1-checklist.md`](docs/t1-checklist.md) is the standing gap-to-T1
+tracker and puts the block at **7/11 pass as of 2026-09-22**, with items
+5 (PVT vs. ratified spec — the TC row), 7 (post-layout: no `klt pex`
+upstream), and 11 (power delivery, structural: the `erc.missing_tie` half is
+blocked by
+[klayout-tools#2339](https://github.com/2AMLogic/klayout-tools/issues/2339))
+blocking — no bronze/T1 claim is made here. **The checklist gained an
+eleventh item on 2026-09-17** (power delivery, structural), so the earlier
+`5/10` figure from issue #175's 2026-08-15 re-read was taken against a
+checklist that no longer exists; the denominator, not just the numerator,
+has moved.
 
 ## Environment setup
 
