@@ -18,6 +18,16 @@ name: CI
 #     "headless only" CI guideline it does NOT block every PR. It runs in the
 #     `pdk-smoke` job on a nightly schedule, on manual dispatch, and opt-in on
 #     a PR via the `run-pdk-smoke` label.
+#   - `signoff/check_signoff.py` (the T1 verdict of record, issue #282 -- see
+#     signoff/README.md). Offline half (manifest shape, every pinned
+#     `content_hash` re-hashed against the committed artifact it pins, and the
+#     committed report's internal consistency) -> `checks` job, via
+#     `npm run check:signoff`. Re-grade half (`klt signoff --manifest ...
+#     --check <committed report>` with the klt revision pinned in
+#     signoff/klt-pin.txt) -> `signoff` job below, every push/PR: needs
+#     network to install klt, but no PDK. Together they make a manifest citing
+#     an artifact that has since changed, or a report that no longer
+#     reproduces, fail CI instead of rotting.
 #   - Everything else claimed under `sim/<experiment>/` (pnp-characterization,
 #     resistor-flavor-characterization, resistor-tc-single-length,
 #     mos-matching-characterization, ...) is evidence captured by a human/agent
@@ -59,6 +69,37 @@ jobs:
 
       - name: npm run check:ci
         run: npm run check:ci
+
+  signoff:
+    name: T1 signoff re-grade (klt signoff --check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install klt at the pinned grader revision
+        # Pinned, not floating: the T1 item skeleton is parsed out of
+        # klayout-tools' own docs/design-evidence-tiers.md at run time, so a
+        # floating main would make the committed report disagree with a re-run
+        # for reasons unrelated to this block's evidence. Bumping the pin is a
+        # deliberate act -- see signoff/klt-pin.txt.
+        run: |
+          set -euo pipefail
+          pin="$(grep -v '^[[:space:]]*#' signoff/klt-pin.txt | grep -v '^[[:space:]]*$' | head -1)"
+          echo "klayout-tools @ ${pin}"
+          python3 -m pip install --upgrade pip
+          python3 -m pip install "klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@${pin}"
+          klt --version
+
+      - name: Re-grade the block manifest against the committed report
+        # `klt signoff --manifest` exits 3 when the block is not yet T1 -- this
+        # block's current state, not an error. check_signoff.py uses `--check`,
+        # which exits 0 when the committed report still reproduces and 3 when
+        # it drifted, and fails only on drift or a failure to verify.
+        run: python3 signoff/check_signoff.py --run-klt
 
   pdk-smoke:
     name: PDK-gated harness smoke test (nightly / workflow_dispatch / 'run-pdk-smoke' label)

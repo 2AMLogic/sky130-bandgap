@@ -1,0 +1,22 @@
+{
+  "comment": [
+    "Which committed artifact each content_hash in block-manifest.json pins.",
+    "klt signoff compares a manifest pin against the *cited envelope's own*",
+    "recorded input hash. Whether it also re-hashes the artifact itself",
+    "(citation.input_verified) depends on the envelope kind and on whether the",
+    "path the envelope names still resolves -- for every citation below it does",
+    "not (the DRC envelope names an absolute path in a since-removed worktree,",
+    "the LVS envelope predates provenance.input, and a generic envelope is",
+    "never re-hashed), so input_verified is null on all of them and a change",
+    "to the artifact would not move the grade.",
+    "",
+    "This file closes that gap: signoff/check_signoff.py re-hashes every path",
+    "below and fails when it no longer equals the manifest's pin for that item.",
+    "It is stdlib-only and PDK-free, so it runs in the headless CI checks job."
+  ],
+  "inputs": {
+    "3": "layout/bandgap-core/reports/20260817-020222-13476b7/bandgap_core_routed.gds",
+    "4": "layout/bandgap-core/reports/20260817-020222-13476b7/bandgap_core_routed.extract.spice",
+    "8": "design/block-characterization-report.md"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "kind": "generic",
+  "status": "pass",
+  "summary": "T1 item 8 only: design/block-characterization-report.md is the one aggregated block-level artifact rolling up every ratified spec row (target / measured / binding corner / verdict / evidence record), current against the newest sim/ and layout/ records on disk. 'pass' asserts that the artifact exists and is current -- NOT that the block meets its spec: the report itself records FAIL rows (temp coefficient at every corner; startup time at fast corners) and a STALE trim row.",
+  "source": "design/block-characterization-report.md",
+  "provenance": {
+    "input": {
+      "path": "design/block-characterization-report.md",
+      "content_hash": "sha256:81fcf4c5c91e80d3b8d9f11861d5a7e5197087fcaa8cb15770e9ae33f40369e1"
+    }
+  }
+}

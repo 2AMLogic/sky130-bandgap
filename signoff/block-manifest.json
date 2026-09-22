@@ -1,0 +1,18 @@
+{
+  "block": "sky130-bandgap",
+  "kind": "analog",
+  "evidence": {
+    "3": {
+      "file": "layout/bandgap-core/reports/20260817-020222-13476b7/drc.json",
+      "content_hash": "sha256:8fa40aaae6e588e9b8d11539b0e5cac9c3d3b06f126e233340c6de30dc35d5ae"
+    },
+    "4": {
+      "file": "layout/bandgap-core/reports/20260817-020222-13476b7/lvs.combined.json",
+      "content_hash": "sha256:c77289bf67c0ad7bcccf7cc89490b3c416264a333c51b043ed6d6f7deb709dad"
+    },
+    "8": {
+      "file": "signoff/characterization-evidence.json",
+      "content_hash": "sha256:81fcf4c5c91e80d3b8d9f11861d5a7e5197087fcaa8cb15770e9ae33f40369e1"
+    }
+  }
+}

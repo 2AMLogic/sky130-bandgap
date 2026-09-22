@@ -52,8 +52,8 @@ Separately, the sole Monte Carlo run on file predates both the ratified
 spec and the current design's error-amp resize, so the statistical evidence
 for the dominant accuracy term is stale (#180). Nothing here has been taped
 out or measured in silicon yet. See the maturity ladder below for where
-things currently stand, and issue #175's ten-item T1/bronze checklist
-re-read (5/10 pass as of 2026-08-15) for the full evidence-tier accounting.
+things currently stand, and [`signoff/`](signoff/README.md) for the
+evidence-tier (T1) verdict of record.
 
 **Built agent-native.** Every schematic, testbench, decision record, and
 line of documentation in this repo was produced by AI agents working from
@@ -125,10 +125,14 @@ records at or after the post-#193 design/layout.
 What remains: curvature correction (the engineering work DR-009 defers; the
 TC row stays a disclosed FAIL until it lands), the trim-network evidence
 refresh, and the operator tier award.
-Issue #175's ten-item T1/bronze checklist re-read puts the block at
-**5/10 pass** (design sources, layout, DRC, LVS, testbenches), with items
-5 (PVT vs. ratified spec), 6 (Monte Carlo), and 8 (block-level
-characterization report) blocking — no bronze/T1 claim is made here.
+**Evidence tier (T1)**: graded mechanically, not hand-read. The verdict of
+record is the newest `klt signoff --manifest` report under
+[`signoff/reports/`](signoff/reports/), graded from
+[`signoff/block-manifest.json`](signoff/block-manifest.json) and re-checked
+in CI; [`signoff/README.md`](signoff/README.md) explains each row and carries
+the coverage disclosures the grader does not enforce. (This replaces issue
+#175's hand-maintained ten-item re-read, which the checklist's eleventh item
+invalidated.) No bronze/T1 claim is made here.
 
 ## Environment setup
 
