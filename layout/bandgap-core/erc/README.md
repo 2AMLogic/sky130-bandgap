@@ -163,3 +163,22 @@ A `klt` build with a well-side tie selector (klayout-tools#2339 proposes
 entries, `layout/requirements-erc.txt`'s pin is bumped, the flow is re-run, and
 item 11 can be claimed met on a single report. It is **not** cleared by redrawing
 the layout — the layout is already correct.
+
+## Where the graded verdict lives
+
+`signoff/signoff-report.json` — the committed `klt signoff --manifest` report
+(issue #282) — is this block's verdict of record, and its item-11 row cites the
+newest record here plus item 4's own `lvs.combined.json`. It renders
+**`supply_spec_disclosed_tool_limitation`**: unmet, but mechanically
+distinguishable from `supply_spec_incomplete` ("nobody declared ties at all")
+and from `supply_spec_disclosed_unexpressible` ("there is no tap to name").
+`layout/bin/run-erc-supply-flow.sh` re-points that citation at every new record
+it writes; `./signoff/regenerate.sh` re-grades, and CI fails on any drift.
+
+**`klt signoff` re-reads `erc-supply-spec.json` off disk** from the path the
+report's own `spec` field names (`docs/cli/signoff.md`: without it, "every
+declared supply resolved to one island" and "no supply was ever declared" are
+indistinguishable — both report zero findings). That is why the flow runs from
+the repo root with **repo-relative** paths, and why the spec must stay committed
+beside the evidence: an absolute path baked into a committed report resolves on
+exactly one machine.

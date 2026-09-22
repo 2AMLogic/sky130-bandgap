@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "file": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-281/layout/bandgap-core/reports/20260817-020222-13476b7/bandgap_core_routed.gds",
-  "spec": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-281/layout/bandgap-core/erc-supply-spec.json",
+  "file": "layout/bandgap-core/reports/20260817-020222-13476b7/bandgap_core_routed.gds",
+  "spec": "layout/bandgap-core/erc-supply-spec.json",
   "pdk": "sky130",
   "findings_only": false,
   "gate_role": "poly",

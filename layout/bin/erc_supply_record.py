@@ -243,8 +243,11 @@ def main() -> int:
     lines.append("")
     lines.append(
         "This gate covers the supply-island half of item 11 only. The item as a "
-        "whole stays **unmet** while `erc.missing_tie` is uncomputed — see "
-        "[`../README.md`](../README.md) and `docs/t1-checklist.md`."
+        "whole stays **unmet** while `erc.missing_tie` is uncomputed — the "
+        "machine-graded verdict of record is `signoff/signoff-report.json` "
+        "(see `signoff/README.md`), which renders item 11 "
+        "`supply_spec_disclosed_tool_limitation`. See "
+        "[`../README.md`](../README.md) for why."
     )
     lines.append("")
 

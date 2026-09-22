@@ -30,9 +30,24 @@ set -euo pipefail
 
 LAYOUT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO_ROOT="$(cd "$LAYOUT_DIR/.." && pwd)"
-CELL_DIR="$LAYOUT_DIR/bandgap-core"
 VENV="$LAYOUT_DIR/.venv-erc"
 KLT="$VENV/bin/klt"
+
+# Every `klt erc` invocation below runs from the repo root with REPO-RELATIVE
+# input paths, and this is load-bearing, not cosmetic. `klt erc` echoes the
+# paths it was handed verbatim into its report's own `file` and `spec` fields,
+# and `klt signoff` RE-READS the spec off disk from that `spec` field when it
+# grades T1 item 11 (docs/cli/signoff.md: "klt signoff reads the ERC spec
+# document off disk" -- without it, "every declared supply resolved to one
+# island" and "no supply was ever declared" are indistinguishable, since both
+# report zero findings). An absolute path baked into a committed report
+# resolves on exactly one machine, which is the provenance-hygiene hazard
+# `design-evidence-tiers.md`'s "Provenance hygiene in evidence records"
+# section warns about and which already cost this repo item 6's citation
+# (signoff/README.md's item-6 row). Repo-relative paths make the committed
+# report gradeable anywhere the repo is checked out.
+cd "$REPO_ROOT"
+CELL_DIR="layout/bandgap-core"
 
 # Routed GDSs to check, newest last. The newest is the one the block's
 # freshness rule cares about; the older one is kept because
@@ -56,7 +71,7 @@ fi
 "$KLT" --version
 
 TS_UTC="$(date -u +%Y%m%d-%H%M%S)"
-SHORT_SHA="$(git -C "$REPO_ROOT" rev-parse --short HEAD)"
+SHORT_SHA="$(git rev-parse --short HEAD)"
 RECORD_ID="${TS_UTC}-${SHORT_SHA}"
 OUT_DIR="$CELL_DIR/erc/$RECORD_ID"
 mkdir -p "$OUT_DIR"
@@ -102,3 +117,10 @@ run_erc "$CELL_DIR/erc-nwell-tie-spec.known-gap.vss.json" "$NEWEST" \
 python3 "$LAYOUT_DIR/bin/erc_supply_record.py" \
   --out-dir "$OUT_DIR" --record-id "$RECORD_ID" --repo-root "$REPO_ROOT" \
   --klt "$KLT" --gds-records "${GDS_RECORDS[@]}" --newest "$NEWEST"
+
+# Refresh the committed `klt signoff` manifest's item-11 citation, so the
+# block's machine-graded T1 tracker points at the record this run just wrote
+# rather than at a previous one. Regrading is signoff/regenerate.sh's job --
+# run it next (CI's `signoff` job re-grades and fails on any drift).
+python3 "$LAYOUT_DIR/bin/erc_signoff_citation.py" \
+  --record-id "$RECORD_ID" --newest "$NEWEST"
