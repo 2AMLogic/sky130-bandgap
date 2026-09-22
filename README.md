@@ -52,9 +52,9 @@ Separately, the sole Monte Carlo run on file predates both the ratified
 spec and the current design's error-amp resize, so the statistical evidence
 for the dominant accuracy term is stale (#180). Nothing here has been taped
 out or measured in silicon yet. See the maturity ladder below for where
-things currently stand, and [`docs/t1-checklist.md`](docs/t1-checklist.md) —
-this block's gap-to-T1 tracker, **7/11 pass as of 2026-09-22** — for the full
-evidence-tier accounting.
+things currently stand, and [`signoff/README.md`](signoff/README.md) — this
+block's machine-graded gap-to-T1 tracker, an eleven-row `klt signoff
+--manifest` verdict — for the full evidence-tier accounting.
 
 **Built agent-native.** Every schematic, testbench, decision record, and
 line of documentation in this repo was produced by AI agents working from
@@ -126,17 +126,13 @@ records at or after the post-#193 design/layout.
 What remains: curvature correction (the engineering work DR-009 defers; the
 TC row stays a disclosed FAIL until it lands), the trim-network evidence
 refresh, and the operator tier award.
-[`docs/t1-checklist.md`](docs/t1-checklist.md) is the standing gap-to-T1
-tracker and puts the block at **7/11 pass as of 2026-09-22**, with items
-5 (PVT vs. ratified spec — the TC row), 7 (post-layout: no `klt pex`
-upstream), and 11 (power delivery, structural: the `erc.missing_tie` half is
-blocked by
-[klayout-tools#2339](https://github.com/2AMLogic/klayout-tools/issues/2339))
-blocking — no bronze/T1 claim is made here. **The checklist gained an
-eleventh item on 2026-09-17** (power delivery, structural), so the earlier
-`5/10` figure from issue #175's 2026-08-15 re-read was taken against a
-checklist that no longer exists; the denominator, not just the numerator,
-has moved.
+**The T1/bronze checklist state is now graded, not hand-read**: issue #175's
+one-time ten-item re-read (2026-08-15, pre-dating the checklist's eleventh
+item) is superseded by the committed `klt signoff` block manifest —
+[`signoff/README.md`](signoff/README.md) is the current verdict of record
+(today: **2/11 T1 items graded `met`**; see that file's row-by-row table for
+why each remaining row is `unmet` and what would close it) — no bronze/T1
+claim is made here.
 
 ## Environment setup
 

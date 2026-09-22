@@ -1,0 +1,14 @@
+{
+  "block": "sky130-bandgap",
+  "kind": "analog",
+  "evidence": {
+    "3": {
+      "file": "layout/bandgap-core/reports/20260817-020222-13476b7/drc.json",
+      "content_hash": "sha256:8fa40aaae6e588e9b8d11539b0e5cac9c3d3b06f126e233340c6de30dc35d5ae"
+    },
+    "8": {
+      "file": "signoff/evidence/characterization.generic.json",
+      "content_hash": "sha256:2266977c36e4efde1c06022f22480d9eae91f9bb449bca6ec90a0bc335456959"
+    }
+  }
+}

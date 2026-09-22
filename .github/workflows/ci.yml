@@ -24,6 +24,12 @@ name: CI
 #     run of the same PDK-gated runner, not a repeatable CI check — re-running
 #     them here would mint new append-only records on every push, which is not
 #     what CI is for. See sim/README.md for how to reproduce a claim by hand.
+#   - `klt signoff --manifest signoff/block-manifest.json` (issue #282) --
+#     re-grades this block's T1 checklist manifest and requires the result to
+#     stay byte-identical to the committed signoff/signoff-report.json, so a
+#     cited artifact that has since changed fails here instead of rotting
+#     silently. -> `signoff` job below, every push/PR. Headless, no PDK
+#     needed (PyPI-only `klayout-tools` install). See signoff/README.md.
 
 on:
   push:
@@ -59,6 +65,26 @@ jobs:
 
       - name: npm run check:ci
         run: npm run check:ci
+
+  signoff:
+    name: klt signoff (T1 tier-verdict freshness)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      # Keep this pin in sync with signoff/regenerate.sh's KLT_VERSION and
+      # scripts/ci/check_signoff_freshness.py's KLT_VERSION. The released
+      # registry wheel carries the git tag identity the freshness check
+      # asserts; same-version snapshots can grade this checklist differently.
+      - name: Install the pinned grading klt (klayout-tools)
+        run: pip install klayout-tools==0.6.0
+
+      - name: Re-grade the block manifest; require the committed report to match
+        run: ./scripts/ci/check-signoff-freshness.sh
 
   pdk-smoke:
     name: PDK-gated harness smoke test (nightly / workflow_dispatch / 'run-pdk-smoke' label)
