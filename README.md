@@ -125,10 +125,13 @@ records at or after the post-#193 design/layout.
 What remains: curvature correction (the engineering work DR-009 defers; the
 TC row stays a disclosed FAIL until it lands), the trim-network evidence
 refresh, and the operator tier award.
-Issue #175's ten-item T1/bronze checklist re-read puts the block at
-**5/10 pass** (design sources, layout, DRC, LVS, testbenches), with items
-5 (PVT vs. ratified spec), 6 (Monte Carlo), and 8 (block-level
-characterization report) blocking — no bronze/T1 claim is made here.
+**The T1/bronze checklist state is now graded, not hand-read**: issue #175's
+one-time ten-item re-read (2026-08-15, pre-dating the checklist's eleventh
+item) is superseded by the committed `klt signoff` block manifest —
+[`signoff/README.md`](signoff/README.md) is the current verdict of record
+(today: **2/11 T1 items graded `met`**; see that file's row-by-row table for
+why each remaining row is `unmet` and what would close it) — no bronze/T1
+claim is made here.
 
 ## Environment setup
 

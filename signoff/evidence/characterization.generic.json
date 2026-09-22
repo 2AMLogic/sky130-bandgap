@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "kind": "generic",
+  "status": "pass",
+  "summary": "Block-level characterization report: one row per ratified spec parameter (target/measured/binding corner/verdict) rolling up items 3-7's evidence, with disclosed FAILs (box-method TC, post-layout output accuracy, startup-time, startup-ramp partial, Trim no-evidence) stated plainly rather than summarized away.",
+  "source": "design/block-characterization-report.md",
+  "provenance": {
+    "input": {
+      "content_hash": "sha256:2266977c36e4efde1c06022f22480d9eae91f9bb449bca6ec90a0bc335456959"
+    }
+  }
+}
