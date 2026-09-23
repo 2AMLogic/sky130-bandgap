@@ -7,15 +7,16 @@ manifest structurally cannot cover, and issue #292 exists to close.
 
 Why re-grading is not enough
 ----------------------------
-`signoff/block-manifest.json` pins each citation to a `content_hash`. That
-hash is **not** the hash of the cited envelope file -- it is the hash of the
-artifact that envelope *describes*, copied from the envelope's own
-`provenance.input.content_hash` (see `layout/bin/erc_signoff_citation.py`'s
-module docstring, and `signoff/regenerate.sh` step 1 for item 8). When
-`klt signoff --manifest` grades a citation it compares the manifest pin
-against that recorded hash and stops there: it never opens the artifact. The
-committed `signoff/signoff-report.json` shows the consequence directly --
-`citation.input_verified` is `null` on every row, including every `met` one.
+`signoff/block-manifest.json` pins each citation to a `content_hash`. For
+items 3 and 8 that hash is **not** the hash of the cited envelope file -- it
+is the hash of the artifact that envelope *describes*, copied from the
+envelope's own `provenance.input.content_hash` (see
+`layout/bin/erc_signoff_citation.py`'s module docstring, and
+`signoff/regenerate.sh` step 1 for item 8). When `klt signoff --manifest`
+grades that kind of citation it compares the manifest pin against the recorded
+hash and stops there: it never opens the artifact. The committed
+`signoff/signoff-report.json` shows the consequence directly --
+`citation.input_verified` is `null` on both of those rows.
 
 So the two sides can keep agreeing with each other while the artifact they
 both claim to describe has moved on:
@@ -31,6 +32,22 @@ both claim to describe has moved on:
 `scripts/ci/check_signoff_freshness.py` (byte-compare of a fresh re-grade
 against the committed report) therefore cannot catch either case -- the fresh
 render is identical. This check closes that gap.
+
+Item 6 is the exception, and it inverts
+---------------------------------------
+A `klt yield` report carries no `provenance` block at all, so there is no
+recorded hash to compare against and `klt signoff` opens and hashes the
+sample-set document the report names in its own `samples` field. Item 6 is
+therefore the one row whose `citation.input_verified` is `true`, and a
+re-grade *does* catch an edit to the artifact behind it: the pinned document
+is hashed at grading time, so `check-signoff-freshness.sh`'s byte-compare
+fails -- the opposite of items 3 and 8 above. What this check adds for item 6
+is coverage the re-grade cannot give (it runs klt-free and PDK-free in the
+`checks` job) rather than a hash the re-grade misses, and with no
+envelope-recorded hash to compare, item 6 is verified on two of the three legs
+below rather than three. It is also why that `samples` value must stay
+repo-relative (issue #288): `klt signoff` resolves it from the directory
+grading runs in, so an absolute, machine-local path resolves nowhere else.
 
 What it asserts
 ---------------

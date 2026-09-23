@@ -34,17 +34,18 @@ commit the refreshed report.
 
 ### What `klt signoff` cannot check, and why the pin check exists
 
-Every `content_hash` in `block-manifest.json` pins the artifact the cited
-envelope **describes** — copied from that envelope's own
-`provenance.input.content_hash` — not the envelope file. When `klt signoff`
-grades a citation it compares the manifest pin against that *recorded* hash
-and stops there; it never opens the artifact. The committed report says so
-itself: `citation.input_verified` is `null` on every row, including every
-`met` one.
+**Items 3 and 8** cite envelopes that record their own
+`provenance.input.content_hash`, and their `content_hash` in
+`block-manifest.json` is copied from that recorded value — it pins the
+artifact the envelope **describes**, not the envelope file. When `klt signoff`
+grades that kind of citation it compares the manifest pin against the
+*recorded* hash and stops there; it never opens the artifact. The committed
+report says so itself: `citation.input_verified` is `null` on both of those
+rows.
 
-So the manifest and the envelope can keep agreeing with each other while the
-artifact they both claim to describe has moved on, and a pure re-grade renders
-byte-identically:
+So for items 3 and 8 the manifest and the envelope can keep agreeing with each
+other while the artifact they both claim to describe has moved on, and a pure
+re-grade renders byte-identically:
 
 - **item 3** — the DRC envelope records its input as an absolute path into the
   worktree that produced it (`/Users/…/.loom/worktrees/issue-178/…`), which
@@ -54,13 +55,29 @@ byte-identically:
 - **item 8** — the generic envelope is hand-rolled and never re-derived at
   grading time. Edit `design/block-characterization-report.md` and, again, the
   render does not change.
-- **item 6** — a `klt yield` report carries no `provenance` block *at all*, so
-  there is no recorded hash for the three-way agreement to compare against;
-  `klt signoff` hashes the sample-set document the report names in its own
-  `samples` field instead. `check_signoff_pins.py` re-hashes that same
-  document, so this row is verified on two of the three legs rather than
-  three — which is also why that `samples` value has to stay repo-relative
-  (issue #288).
+
+**Item 6 is the exception, and it runs the other way.** A `klt yield` report
+carries no `provenance` block *at all*, so there is no recorded hash to
+compare against — `klt signoff` opens and hashes the sample-set document the
+report names in its own `samples` field instead. That is precisely the leg the
+paragraph above says never happens, and the committed report shows it
+happening: item 6 is the one row whose `citation.input_verified` is `true`.
+
+What a re-grade does and does not catch therefore **inverts** for item 6. The
+manifest pins
+`sha256(sim/monte-carlo-untrimmed/records/20260923-062524-1e38c62-klt-yield-input.json)`
+and `klt signoff` hashes that same document at grading time, so editing it
+stops the computed hash matching the pin and
+`scripts/ci/check-signoff-freshness.sh`'s byte-identical re-grade **fails** —
+unlike items 3 and 8, where the same edit is invisible. That is also why the
+`samples` value has to stay **repo-relative** (issue #288): `klt signoff`
+resolves it from the directory grading runs in, so an absolute, machine-local
+path resolves nowhere else and the row silently loses this check. What
+`check_signoff_pins.py` adds for item 6 is not a hash the re-grade misses but
+coverage the re-grade cannot give: it runs klt-free and PDK-free in the
+`checks` job, and it re-hashes the artifact at the repo-relative path declared
+in `pinned-inputs.json`. With no envelope-recorded hash to compare against,
+item 6 is verified on two of the three legs below rather than three.
 
 `check_signoff_pins.py` closes that gap by asserting a three-way agreement per
 pin: **manifest pin == `sha256` of the committed artifact == the hash the
