@@ -155,7 +155,7 @@ manifest unmodified.
 | Record | Points | Status |
 |---|---|---|
 | `20260910-004925-e8e2e46` | 45 (full matrix) | **Current full-matrix result** — FAIL 16/45 on `vref_spread`. #284's manifest edit is purely additive, so every value here still stands. |
-| `20260923-085206-1e38c62` | 4 (subset) | First post-layout record carrying `vref_spread_early` / `vref_converge`, on the extracted DUT. **Does not supersede** the row above. Deliberately narrower than the schematic side's 10-point subset because a post-layout corner costs roughly twice a schematic one; host-capacity-limited, full-matrix re-run tracked in #303. |
+| `20260923-093126-079a778` | 2 (subset: `sf` × −40/125 °C × 3.63 V) | First post-layout record carrying `vref_spread_early` / `vref_converge`, on the extracted DUT. **Does not supersede** the row above. Its two points are a strict subset of the schematic-side record `sim/startup-ramp/records/20260923-092903-079a778`'s four (`sf`, `tt` × −40/125 °C × 3.63 V), so the two are directly comparable on the `sf` pair they share: `sf/−40 °C/3.63 V` is the global worst-case `vref_spread` corner of the whole matrix on **both** representations, and `sf/125 °C/3.63 V` is a corner where the spread is exactly 0 V, which is what exercises `vref_converge`'s 1e-5 V numerical tolerance on extracted parasitics. Narrower than the schematic side because a post-layout corner of this deck costs roughly twice a schematic one; host-capacity-limited, full-matrix re-run tracked in #303. |
 
 This bench's script still defaults to the **full 45-point matrix**. The subset
 above was taken through the `--process/--temp/--supply/--subset-reason` flags

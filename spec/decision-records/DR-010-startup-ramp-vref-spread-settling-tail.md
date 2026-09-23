@@ -255,8 +255,11 @@ bounded exception covering the latter.
 - `sim/startup-ramp/` and `sim/startup-ramp-post-layout/` are both re-run against
   the current design (the post-layout wrapper reuses this manifest unchanged, so
   one edit reaches both). New records:
-  `sim/startup-ramp/records/20260923-085003-1e38c62` (10 points) and
-  `sim/startup-ramp-post-layout/records/20260923-085206-1e38c62` (4 points).
+  `sim/startup-ramp/records/20260923-092903-079a778` (4 points: `sf`, `tt` ×
+  −40/125 °C × 3.63 V) and
+  `sim/startup-ramp-post-layout/records/20260923-093126-079a778` (2 points: the
+  `sf` pair of the same four — a strict subset, so the two are comparable on the
+  corners they share).
 - **Those two records are deliberately SUBSETS and deliberately do NOT supersede
   the full-matrix records.** `20260910-010233-e8e2e46` (45 points, FAIL 13/45) and
   `20260910-004925-e8e2e46` (45 points, FAIL 16/45) remain the current
