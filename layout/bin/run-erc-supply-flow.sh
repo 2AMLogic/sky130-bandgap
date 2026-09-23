@@ -50,12 +50,13 @@ cd "$REPO_ROOT"
 CELL_DIR="layout/bandgap-core"
 
 # Routed GDSs to check, newest last. The newest is the one the block's
-# freshness rule cares about; the older one is kept because
-# design/block-characterization-report.md and DR-007/DR-008 still cite its
-# geometry, so an item-11 read of it stays directly comparable.
+# freshness rule cares about; the older ones are kept because
+# design/block-characterization-report.md and DR-007/DR-008 still cite their
+# geometry, so an item-11 read of them stays directly comparable.
 GDS_RECORDS=(
   20260811-221633-a0ee5e7
   20260817-020222-13476b7
+  20260923-070209-dbd57a9
 )
 
 if [[ ! -x "$KLT" || "${1:-}" == "--force" ]]; then

@@ -1,0 +1,526 @@
+* extracted by klt extract --deck sky130
+
+* cell bandgap_core_routed
+* pin D1
+* pin D2
+* pin GDRV
+* pin NE
+* pin NG
+* pin PN
+* pin TAIL
+* pin VA
+* pin VB
+* pin VBQ
+* pin VDD
+* pin VOUT
+* pin VSS
+.SUBCKT bandgap_core_routed D1 D2 GDRV NE NG PN TAIL VA VB VBQ VDD VOUT VSS
+* device instance $1 r0 *1 180.13,52.67 nfet
+M$1 VSS D1 D1 VSS nfet L=20U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $2 r0 *1 201.37,52.67 nfet
+M$2 VSS D2 D2 VSS nfet L=20U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $3 r0 *1 222.61,52.67 nfet
+M$3 VSS D1 D1 VSS nfet L=20U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $4 r0 *1 243.85,52.67 nfet
+M$4 VSS D2 D2 VSS nfet L=20U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $5 r0 *1 180.13,61.49 nfet
+M$5 VSS D2 D2 VSS nfet L=20U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $6 r0 *1 201.37,61.49 nfet
+M$6 VSS D1 D1 VSS nfet L=20U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $7 r0 *1 222.61,61.49 nfet
+M$7 VSS D2 D2 VSS nfet L=20U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $8 r0 *1 243.85,61.49 nfet
+M$8 VSS D1 D1 VSS nfet L=20U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $9 r0 *1 208.02,105.9 nfet
+M$9 VSS D2 PN VSS nfet L=20U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $10 r0 *1 229.26,105.9 nfet
+M$10 VSS D1 GDRV VSS nfet L=20U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $11 r0 *1 250.5,105.9 nfet
+M$11 VSS D2 PN VSS nfet L=20U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $12 r0 *1 271.74,105.9 nfet
+M$12 VSS D1 GDRV VSS nfet L=20U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $13 r0 *1 208.02,114.72 nfet
+M$13 VSS D1 GDRV VSS nfet L=20U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $14 r0 *1 229.26,114.72 nfet
+M$14 VSS D2 PN VSS nfet L=20U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $15 r0 *1 250.5,114.72 nfet
+M$15 VSS D1 GDRV VSS nfet L=20U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $16 r0 *1 271.74,114.72 nfet
+M$16 VSS D2 PN VSS nfet L=20U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $17 r0 *1 0.92,144.06 nfet
+M$17 VDD VOUT GDRV VSS nfet L=1U W=4U AS=1.68P AD=1.68P PS=8.84U PD=8.84U
+* device instance $18 r0 *1 103.77,173.34 nfet
+M$18 GDRV NG VSS VSS nfet L=0.5U W=10U AS=4.2P AD=4.2P PS=20.84U PD=20.84U
+* device instance $19 r0 *1 18.51,173.34 nfet
+M$19 NG VOUT NE VSS nfet L=0.5U W=48U AS=20.16P AD=20.16P PS=96.84U PD=96.84U
+* device instance $20 r0 *1 67.62,46.67 pfet
+M$20 D2 VA TAIL VDD pfet L=10U W=20U AS=8.4P AD=8.4P PS=40.84U PD=40.84U
+* device instance $21 r0 *1 78.86,46.67 pfet
+M$21 D1 VB TAIL VDD pfet L=10U W=20U AS=8.4P AD=8.4P PS=40.84U PD=40.84U
+* device instance $22 r0 *1 90.1,46.67 pfet
+M$22 D2 VA TAIL VDD pfet L=10U W=20U AS=8.4P AD=8.4P PS=40.84U PD=40.84U
+* device instance $23 r0 *1 101.34,46.67 pfet
+M$23 D1 VB TAIL VDD pfet L=10U W=20U AS=8.4P AD=8.4P PS=40.84U PD=40.84U
+* device instance $24 r0 *1 112.58,46.67 pfet
+M$24 D2 VA TAIL VDD pfet L=10U W=20U AS=8.4P AD=8.4P PS=40.84U PD=40.84U
+* device instance $25 r0 *1 123.82,46.67 pfet
+M$25 D1 VB TAIL VDD pfet L=10U W=20U AS=8.4P AD=8.4P PS=40.84U PD=40.84U
+* device instance $26 r0 *1 135.06,46.67 pfet
+M$26 D2 VA TAIL VDD pfet L=10U W=20U AS=8.4P AD=8.4P PS=40.84U PD=40.84U
+* device instance $27 r0 *1 146.3,46.67 pfet
+M$27 D1 VB TAIL VDD pfet L=10U W=20U AS=8.4P AD=8.4P PS=40.84U PD=40.84U
+* device instance $28 r0 *1 39.4,61.49 pfet
+M$28 TAIL GDRV VDD VDD pfet L=2U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $29 r0 *1 39.4,52.67 pfet
+M$29 VOUT GDRV VDD VDD pfet L=2U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $30 r0 *1 42.64,61.49 pfet
+M$30 VOUT GDRV VDD VDD pfet L=2U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $31 r0 *1 42.64,52.67 pfet
+M$31 TAIL GDRV VDD VDD pfet L=2U W=8U AS=3.36P AD=3.36P PS=16.84U PD=16.84U
+* device instance $32 r0 *1 67.62,67.49 pfet
+M$32 D1 VB TAIL VDD pfet L=10U W=20U AS=8.4P AD=8.4P PS=40.84U PD=40.84U
+* device instance $33 r0 *1 78.86,67.49 pfet
+M$33 D2 VA TAIL VDD pfet L=10U W=20U AS=8.4P AD=8.4P PS=40.84U PD=40.84U
+* device instance $34 r0 *1 90.1,67.49 pfet
+M$34 D1 VB TAIL VDD pfet L=10U W=20U AS=8.4P AD=8.4P PS=40.84U PD=40.84U
+* device instance $35 r0 *1 101.34,67.49 pfet
+M$35 D2 VA TAIL VDD pfet L=10U W=20U AS=8.4P AD=8.4P PS=40.84U PD=40.84U
+* device instance $36 r0 *1 112.58,67.49 pfet
+M$36 D1 VB TAIL VDD pfet L=10U W=20U AS=8.4P AD=8.4P PS=40.84U PD=40.84U
+* device instance $37 r0 *1 123.82,67.49 pfet
+M$37 D2 VA TAIL VDD pfet L=10U W=20U AS=8.4P AD=8.4P PS=40.84U PD=40.84U
+* device instance $38 r0 *1 135.06,67.49 pfet
+M$38 D1 VB TAIL VDD pfet L=10U W=20U AS=8.4P AD=8.4P PS=40.84U PD=40.84U
+* device instance $39 r0 *1 146.3,67.49 pfet
+M$39 D2 VA TAIL VDD pfet L=10U W=20U AS=8.4P AD=8.4P PS=40.84U PD=40.84U
+* device instance $40 r0 *1 20.51,106.9 pfet
+M$40 PN PN VDD VDD pfet L=20U W=6U AS=2.52P AD=2.52P PS=12.84U PD=12.84U
+* device instance $41 r0 *1 20.51,113.72 pfet
+M$41 GDRV PN VDD VDD pfet L=20U W=6U AS=2.52P AD=2.52P PS=12.84U PD=12.84U
+* device instance $42 r0 *1 41.75,113.72 pfet
+M$42 PN PN VDD VDD pfet L=20U W=6U AS=2.52P AD=2.52P PS=12.84U PD=12.84U
+* device instance $43 r0 *1 41.75,106.9 pfet
+M$43 GDRV PN VDD VDD pfet L=20U W=6U AS=2.52P AD=2.52P PS=12.84U PD=12.84U
+* device instance $44 r0 *1 62.99,113.72 pfet
+M$44 GDRV PN VDD VDD pfet L=20U W=6U AS=2.52P AD=2.52P PS=12.84U PD=12.84U
+* device instance $45 r0 *1 62.99,106.9 pfet
+M$45 PN PN VDD VDD pfet L=20U W=6U AS=2.52P AD=2.52P PS=12.84U PD=12.84U
+* device instance $46 r0 *1 84.23,106.9 pfet
+M$46 GDRV PN VDD VDD pfet L=20U W=6U AS=2.52P AD=2.52P PS=12.84U PD=12.84U
+* device instance $47 r0 *1 84.23,113.72 pfet
+M$47 PN PN VDD VDD pfet L=20U W=6U AS=2.52P AD=2.52P PS=12.84U PD=12.84U
+* device instance $48 r0 *1 105.47,106.9 pfet
+M$48 PN PN VDD VDD pfet L=20U W=6U AS=2.52P AD=2.52P PS=12.84U PD=12.84U
+* device instance $49 r0 *1 105.47,113.72 pfet
+M$49 GDRV PN VDD VDD pfet L=20U W=6U AS=2.52P AD=2.52P PS=12.84U PD=12.84U
+* device instance $50 r0 *1 126.71,106.9 pfet
+M$50 GDRV PN VDD VDD pfet L=20U W=6U AS=2.52P AD=2.52P PS=12.84U PD=12.84U
+* device instance $51 r0 *1 126.71,113.72 pfet
+M$51 PN PN VDD VDD pfet L=20U W=6U AS=2.52P AD=2.52P PS=12.84U PD=12.84U
+* device instance $52 r0 *1 147.95,106.9 pfet
+M$52 PN PN VDD VDD pfet L=20U W=6U AS=2.52P AD=2.52P PS=12.84U PD=12.84U
+* device instance $53 r0 *1 147.95,113.72 pfet
+M$53 GDRV PN VDD VDD pfet L=20U W=6U AS=2.52P AD=2.52P PS=12.84U PD=12.84U
+* device instance $54 r0 *1 169.19,113.72 pfet
+M$54 PN PN VDD VDD pfet L=20U W=6U AS=2.52P AD=2.52P PS=12.84U PD=12.84U
+* device instance $55 r0 *1 169.19,106.9 pfet
+M$55 GDRV PN VDD VDD pfet L=20U W=6U AS=2.52P AD=2.52P PS=12.84U PD=12.84U
+* device instance $56 r0 *1 131.93,158.13 pfet
+M$56 VDD GDRV VDD VDD pfet L=20U W=30U AS=12.6P AD=12.6P PS=60.84U PD=60.84U
+* device instance $57 r0 *1 153.17,158.13 pfet
+M$57 VDD GDRV VDD VDD pfet L=20U W=30U AS=12.6P AD=12.6P PS=60.84U PD=60.84U
+* device instance $58 r0 *1 174.41,158.13 pfet
+M$58 VDD GDRV VDD VDD pfet L=20U W=30U AS=12.6P AD=12.6P PS=60.84U PD=60.84U
+* device instance $59 r0 *1 195.65,158.13 pfet
+M$59 VDD GDRV VDD VDD pfet L=20U W=30U AS=12.6P AD=12.6P PS=60.84U PD=60.84U
+* device instance $60 r0 *1 216.89,158.13 pfet
+M$60 VDD GDRV VDD VDD pfet L=20U W=30U AS=12.6P AD=12.6P PS=60.84U PD=60.84U
+* device instance $61 r0 *1 238.13,158.13 pfet
+M$61 VDD GDRV VDD VDD pfet L=20U W=30U AS=12.6P AD=12.6P PS=60.84U PD=60.84U
+* device instance $62 r0 *1 259.37,158.13 pfet
+M$62 VDD GDRV VDD VDD pfet L=20U W=30U AS=12.6P AD=12.6P PS=60.84U PD=60.84U
+* device instance $63 r0 *1 280.61,158.13 pfet
+M$63 VDD GDRV VDD VDD pfet L=20U W=30U AS=12.6P AD=12.6P PS=60.84U PD=60.84U
+* device instance $64 r0 *1 75.61,174.45 pfet
+M$64 NG NG \$182 VDD pfet L=20U W=1U AS=0.42P AD=0.42P PS=2.84U PD=2.84U
+* device instance $65 r0 *1 75.61,172.63 pfet
+M$65 \$182 \$182 GDRV VDD pfet L=20U W=1U AS=0.42P AD=0.42P PS=2.84U PD=2.84U
+* device instance $66 r0 *1 131.93,188.95 pfet
+M$66 VDD GDRV VDD VDD pfet L=20U W=30U AS=12.6P AD=12.6P PS=60.84U PD=60.84U
+* device instance $67 r0 *1 153.17,188.95 pfet
+M$67 VDD GDRV VDD VDD pfet L=20U W=30U AS=12.6P AD=12.6P PS=60.84U PD=60.84U
+* device instance $68 r0 *1 174.41,188.95 pfet
+M$68 VDD GDRV VDD VDD pfet L=20U W=30U AS=12.6P AD=12.6P PS=60.84U PD=60.84U
+* device instance $69 r0 *1 195.65,188.95 pfet
+M$69 VDD GDRV VDD VDD pfet L=20U W=30U AS=12.6P AD=12.6P PS=60.84U PD=60.84U
+* device instance $70 r0 *1 216.89,188.95 pfet
+M$70 VDD GDRV VDD VDD pfet L=20U W=30U AS=12.6P AD=12.6P PS=60.84U PD=60.84U
+* device instance $71 r0 *1 238.13,188.95 pfet
+M$71 VDD GDRV VDD VDD pfet L=20U W=30U AS=12.6P AD=12.6P PS=60.84U PD=60.84U
+* device instance $72 r0 *1 259.37,188.95 pfet
+M$72 VDD GDRV VDD VDD pfet L=20U W=30U AS=12.6P AD=12.6P PS=60.84U PD=60.84U
+* device instance $73 r0 *1 280.61,188.95 pfet
+M$73 VDD GDRV VDD VDD pfet L=20U W=30U AS=12.6P AD=12.6P PS=60.84U PD=60.84U
+* device instance $74 r0 *1 12.96,1.31 pnp
+Q$74 VSS VSS VA pnp AE=0.4624P PE=2.72U AB=0.7744P PB=3.52U AC=0.7744P PC=3.52U
++ NE=1
+* device instance $75 r0 *1 14.86,1.31 pnp
+Q$75 VSS VSS VA pnp AE=0.4624P PE=2.72U AB=0.7744P PB=3.52U AC=0.7744P PC=3.52U
++ NE=1
+* device instance $76 r0 *1 16.76,1.31 pnp
+Q$76 VSS VSS VA pnp AE=0.4624P PE=2.72U AB=0.7744P PB=3.52U AC=0.7744P PC=3.52U
++ NE=1
+* device instance $77 r0 *1 18.66,1.31 pnp
+Q$77 VSS VSS VA pnp AE=0.4624P PE=2.72U AB=0.7744P PB=3.52U AC=0.7744P PC=3.52U
++ NE=1
+* device instance $78 r0 *1 12.96,2.39 pnp
+Q$78 VSS VSS VA pnp AE=0.4624P PE=2.72U AB=0.7744P PB=3.52U AC=0.7744P PC=3.52U
++ NE=1
+* device instance $79 r0 *1 14.86,2.39 pnp
+Q$79 VSS VSS VA pnp AE=0.4624P PE=2.72U AB=0.7744P PB=3.52U AC=0.7744P PC=3.52U
++ NE=1
+* device instance $80 r0 *1 16.76,2.39 pnp
+Q$80 VSS VSS VA pnp AE=0.4624P PE=2.72U AB=0.7744P PB=3.52U AC=0.7744P PC=3.52U
++ NE=1
+* device instance $81 r0 *1 18.66,2.39 pnp
+Q$81 VSS VSS VA pnp AE=0.4624P PE=2.72U AB=0.7744P PB=3.52U AC=0.7744P PC=3.52U
++ NE=1
+* device instance $82 r0 *1 260.38,2.67 pnp
+Q$82 VSS VSS VBQ pnp AE=11.56P PE=13.6U AB=12.96P PB=14.4U AC=12.96P PC=14.4U
++ NE=1
+* device instance $83 r0 *1 265,2.67 pnp
+Q$83 VSS VSS VBQ pnp AE=11.56P PE=13.6U AB=12.96P PB=14.4U AC=12.96P PC=14.4U
++ NE=1
+* device instance $84 r0 *1 269.62,2.67 pnp
+Q$84 VSS VSS VBQ pnp AE=11.56P PE=13.6U AB=12.96P PB=14.4U AC=12.96P PC=14.4U
++ NE=1
+* device instance $85 r0 *1 274.24,2.67 pnp
+Q$85 VSS VSS VBQ pnp AE=11.56P PE=13.6U AB=12.96P PB=14.4U AC=12.96P PC=14.4U
++ NE=1
+* device instance $86 r0 *1 260.38,6.47 pnp
+Q$86 VSS VSS VBQ pnp AE=11.56P PE=13.6U AB=12.96P PB=14.4U AC=12.96P PC=14.4U
++ NE=1
+* device instance $87 r0 *1 265,6.47 pnp
+Q$87 VSS VSS VBQ pnp AE=11.56P PE=13.6U AB=12.96P PB=14.4U AC=12.96P PC=14.4U
++ NE=1
+* device instance $88 r0 *1 269.62,6.47 pnp
+Q$88 VSS VSS VBQ pnp AE=11.56P PE=13.6U AB=12.96P PB=14.4U AC=12.96P PC=14.4U
++ NE=1
+* device instance $89 r0 *1 274.24,6.47 pnp
+Q$89 VSS VSS VBQ pnp AE=11.56P PE=13.6U AB=12.96P PB=14.4U AC=12.96P PC=14.4U
++ NE=1
+* device instance $90 r0 *1 38.39,143.37 pnp
+Q$90 VSS VSS NE pnp AE=0.4624P PE=2.72U AB=0.7744P PB=3.52U AC=0.7744P PC=3.52U
++ NE=1
+* device instance $91 r0 *1 40.29,143.37 pnp
+Q$91 VSS VSS NE pnp AE=0.4624P PE=2.72U AB=0.7744P PB=3.52U AC=0.7744P PC=3.52U
++ NE=1
+* device instance $92 r0 *1 42.19,143.37 pnp
+Q$92 VSS VSS NE pnp AE=0.4624P PE=2.72U AB=0.7744P PB=3.52U AC=0.7744P PC=3.52U
++ NE=1
+* device instance $93 r0 *1 44.09,143.37 pnp
+Q$93 VSS VSS NE pnp AE=0.4624P PE=2.72U AB=0.7744P PB=3.52U AC=0.7744P PC=3.52U
++ NE=1
+* device instance $94 r0 *1 38.39,144.45 pnp
+Q$94 VSS VSS NE pnp AE=0.4624P PE=2.72U AB=0.7744P PB=3.52U AC=0.7744P PC=3.52U
++ NE=1
+* device instance $95 r0 *1 40.29,144.45 pnp
+Q$95 VSS VSS NE pnp AE=0.4624P PE=2.72U AB=0.7744P PB=3.52U AC=0.7744P PC=3.52U
++ NE=1
+* device instance $96 r0 *1 42.19,144.45 pnp
+Q$96 VSS VSS NE pnp AE=0.4624P PE=2.72U AB=0.7744P PB=3.52U AC=0.7744P PC=3.52U
++ NE=1
+* device instance $97 r0 *1 44.09,144.45 pnp
+Q$97 VSS VSS NE pnp AE=0.4624P PE=2.72U AB=0.7744P PB=3.52U AC=0.7744P PC=3.52U
++ NE=1
+* device instance $98 r0 *1 54.29,0.5 res_high_po
+R$98 VOUT \$7 VSS 2003.841367 res_high_po
+* device instance $99 r0 *1 60.63,0.5 res_high_po
+R$99 VOUT \$8 VSS 2003.841367 res_high_po
+* device instance $100 r0 *1 66.97,0.5 res_high_po
+R$100 \$7 \$9 VSS 2003.841367 res_high_po
+* device instance $101 r0 *1 73.31,0.5 res_high_po
+R$101 \$8 \$10 VSS 2003.841367 res_high_po
+* device instance $102 r0 *1 79.65,0.5 res_high_po
+R$102 \$9 \$11 VSS 2003.841367 res_high_po
+* device instance $103 r0 *1 85.99,0.5 res_high_po
+R$103 \$10 \$12 VSS 2003.841367 res_high_po
+* device instance $104 r0 *1 92.33,0.5 res_high_po
+R$104 \$11 \$13 VSS 2003.841367 res_high_po
+* device instance $105 r0 *1 98.67,0.5 res_high_po
+R$105 \$12 \$14 VSS 2003.841367 res_high_po
+* device instance $106 r0 *1 105.01,0.5 res_high_po
+R$106 \$13 \$15 VSS 2003.841367 res_high_po
+* device instance $107 r0 *1 111.35,0.5 res_high_po
+R$107 \$14 \$16 VSS 2003.841367 res_high_po
+* device instance $108 r0 *1 54.29,3.3 res_high_po
+R$108 \$21 \$36 VSS 2003.841367 res_high_po
+* device instance $109 r0 *1 54.29,1.9 res_high_po
+R$109 \$22 \$23 VSS 2003.841367 res_high_po
+* device instance $110 r0 *1 60.63,1.9 res_high_po
+R$110 \$21 \$24 VSS 2003.841367 res_high_po
+* device instance $111 r0 *1 60.63,3.3 res_high_po
+R$111 \$22 \$37 VSS 2003.841367 res_high_po
+* device instance $112 r0 *1 66.97,1.9 res_high_po
+R$112 \$23 \$25 VSS 2003.841367 res_high_po
+* device instance $113 r0 *1 66.97,3.3 res_high_po
+R$113 \$36 \$38 VSS 2003.841367 res_high_po
+* device instance $114 r0 *1 73.31,1.9 res_high_po
+R$114 \$24 \$26 VSS 2003.841367 res_high_po
+* device instance $115 r0 *1 73.31,3.3 res_high_po
+R$115 \$37 \$39 VSS 2003.841367 res_high_po
+* device instance $116 r0 *1 79.65,1.9 res_high_po
+R$116 \$25 \$27 VSS 2003.841367 res_high_po
+* device instance $117 r0 *1 79.65,3.3 res_high_po
+R$117 \$38 \$40 VSS 2003.841367 res_high_po
+* device instance $118 r0 *1 85.99,3.3 res_high_po
+R$118 \$39 \$41 VSS 2003.841367 res_high_po
+* device instance $119 r0 *1 85.99,1.9 res_high_po
+R$119 \$26 \$28 VSS 2003.841367 res_high_po
+* device instance $120 r0 *1 92.33,1.9 res_high_po
+R$120 \$27 \$29 VSS 2003.841367 res_high_po
+* device instance $121 r0 *1 92.33,3.3 res_high_po
+R$121 \$40 \$42 VSS 2003.841367 res_high_po
+* device instance $122 r0 *1 98.67,3.3 res_high_po
+R$122 \$41 \$43 VSS 2003.841367 res_high_po
+* device instance $123 r0 *1 98.67,1.9 res_high_po
+R$123 \$28 \$30 VSS 2003.841367 res_high_po
+* device instance $124 r0 *1 105.01,3.3 res_high_po
+R$124 \$42 \$44 VSS 2003.841367 res_high_po
+* device instance $125 r0 *1 105.01,1.9 res_high_po
+R$125 \$29 \$16 VSS 2003.841367 res_high_po
+* device instance $126 r0 *1 111.35,1.9 res_high_po
+R$126 \$30 \$15 VSS 2003.841367 res_high_po
+* device instance $127 r0 *1 111.35,3.3 res_high_po
+R$127 \$43 \$45 VSS 2003.841367 res_high_po
+* device instance $128 r0 *1 54.29,4.7 res_high_po
+R$128 \$47 \$48 VSS 2003.841367 res_high_po
+* device instance $129 r0 *1 60.63,4.7 res_high_po
+R$129 \$46 \$49 VSS 2003.841367 res_high_po
+* device instance $130 r0 *1 66.97,4.7 res_high_po
+R$130 \$48 \$50 VSS 2003.841367 res_high_po
+* device instance $131 r0 *1 73.31,4.7 res_high_po
+R$131 \$49 \$51 VSS 2003.841367 res_high_po
+* device instance $132 r0 *1 79.65,4.7 res_high_po
+R$132 \$50 \$52 VSS 2003.841367 res_high_po
+* device instance $133 r0 *1 85.99,4.7 res_high_po
+R$133 \$51 \$53 VSS 2003.841367 res_high_po
+* device instance $134 r0 *1 92.33,4.7 res_high_po
+R$134 \$52 \$54 VSS 2003.841367 res_high_po
+* device instance $135 r0 *1 98.67,4.7 res_high_po
+R$135 \$53 \$55 VSS 2003.841367 res_high_po
+* device instance $136 r0 *1 105.01,4.7 res_high_po
+R$136 \$54 \$45 VSS 2003.841367 res_high_po
+* device instance $137 r0 *1 111.35,4.7 res_high_po
+R$137 \$55 \$44 VSS 2003.841367 res_high_po
+* device instance $138 r0 *1 54.29,6.1 res_high_po
+R$138 \$46 \$56 VSS 2003.841367 res_high_po
+* device instance $139 r0 *1 60.63,6.1 res_high_po
+R$139 \$47 \$57 VSS 2003.841367 res_high_po
+* device instance $140 r0 *1 66.97,6.1 res_high_po
+R$140 \$56 \$58 VSS 2003.841367 res_high_po
+* device instance $141 r0 *1 73.31,6.1 res_high_po
+R$141 \$57 \$59 VSS 2003.841367 res_high_po
+* device instance $142 r0 *1 79.65,6.1 res_high_po
+R$142 \$58 \$60 VSS 2003.841367 res_high_po
+* device instance $143 r0 *1 85.99,6.1 res_high_po
+R$143 \$59 \$61 VSS 2003.841367 res_high_po
+* device instance $144 r0 *1 92.33,6.1 res_high_po
+R$144 \$60 \$62 VSS 2003.841367 res_high_po
+* device instance $145 r0 *1 98.67,6.1 res_high_po
+R$145 \$61 \$63 VSS 2003.841367 res_high_po
+* device instance $146 r0 *1 105.01,6.1 res_high_po
+R$146 \$62 \$64 VSS 2003.841367 res_high_po
+* device instance $147 r0 *1 111.35,6.1 res_high_po
+R$147 \$63 \$65 VSS 2003.841367 res_high_po
+* device instance $148 r0 *1 54.29,7.5 res_high_po
+R$148 \$67 \$68 VSS 2003.841367 res_high_po
+* device instance $149 r0 *1 60.63,7.5 res_high_po
+R$149 \$66 \$69 VSS 2003.841367 res_high_po
+* device instance $150 r0 *1 66.97,7.5 res_high_po
+R$150 \$68 \$70 VSS 2003.841367 res_high_po
+* device instance $151 r0 *1 73.31,7.5 res_high_po
+R$151 \$69 \$71 VSS 2003.841367 res_high_po
+* device instance $152 r0 *1 79.65,7.5 res_high_po
+R$152 \$70 \$72 VSS 2003.841367 res_high_po
+* device instance $153 r0 *1 85.99,7.5 res_high_po
+R$153 \$71 \$73 VSS 2003.841367 res_high_po
+* device instance $154 r0 *1 92.33,7.5 res_high_po
+R$154 \$72 \$74 VSS 2003.841367 res_high_po
+* device instance $155 r0 *1 98.67,7.5 res_high_po
+R$155 \$73 \$75 VSS 2003.841367 res_high_po
+* device instance $156 r0 *1 105.01,7.5 res_high_po
+R$156 \$74 \$65 VSS 2003.841367 res_high_po
+* device instance $157 r0 *1 111.35,7.5 res_high_po
+R$157 \$75 \$64 VSS 2003.841367 res_high_po
+* device instance $158 r0 *1 54.29,8.9 res_high_po
+R$158 \$66 \$78 VSS 2003.841367 res_high_po
+* device instance $159 r0 *1 60.63,8.9 res_high_po
+R$159 \$67 \$79 VSS 2003.841367 res_high_po
+* device instance $160 r0 *1 66.97,8.9 res_high_po
+R$160 \$78 \$80 VSS 2003.841367 res_high_po
+* device instance $161 r0 *1 73.31,8.9 res_high_po
+R$161 \$79 \$81 VSS 2003.841367 res_high_po
+* device instance $162 r0 *1 79.65,8.9 res_high_po
+R$162 \$80 \$82 VSS 2003.841367 res_high_po
+* device instance $163 r0 *1 85.99,8.9 res_high_po
+R$163 \$81 \$83 VSS 2003.841367 res_high_po
+* device instance $164 r0 *1 92.33,8.9 res_high_po
+R$164 \$82 \$84 VSS 2003.841367 res_high_po
+* device instance $165 r0 *1 98.67,8.9 res_high_po
+R$165 \$83 \$85 VSS 2003.841367 res_high_po
+* device instance $166 r0 *1 105.01,8.9 res_high_po
+R$166 \$84 \$86 VSS 2003.841367 res_high_po
+* device instance $167 r0 *1 111.35,8.9 res_high_po
+R$167 \$85 \$99 VSS 2003.841367 res_high_po
+* device instance $168 r0 *1 134.62,8.9 res_high_po
+R$168 \$2 \$89 VSS 542.118769 res_high_po
+* device instance $169 r0 *1 136.46,8.9 res_high_po
+R$169 \$168 \$90 VSS 542.118769 res_high_po
+* device instance $170 r0 *1 138.3,8.9 res_high_po
+R$170 \$89 \$91 VSS 542.118769 res_high_po
+* device instance $171 r0 *1 140.14,8.9 res_high_po
+R$171 \$90 \$92 VSS 542.118769 res_high_po
+* device instance $172 r0 *1 141.98,8.9 res_high_po
+R$172 \$91 \$93 VSS 542.118769 res_high_po
+* device instance $173 r0 *1 143.82,8.9 res_high_po
+R$173 \$92 \$94 VSS 542.118769 res_high_po
+* device instance $174 r0 *1 145.66,8.9 res_high_po
+R$174 \$93 \$95 VSS 542.118769 res_high_po
+* device instance $175 r0 *1 147.5,8.9 res_high_po
+R$175 \$94 \$96 VSS 542.118769 res_high_po
+* device instance $176 r0 *1 149.34,8.9 res_high_po
+R$176 \$95 \$97 VSS 542.118769 res_high_po
+* device instance $177 r0 *1 151.18,8.9 res_high_po
+R$177 \$96 \$101 VSS 542.118769 res_high_po
+* device instance $178 r0 *1 54.29,10.3 res_high_po
+R$178 \$102 \$103 VSS 2003.841367 res_high_po
+* device instance $179 r0 *1 54.29,11.7 res_high_po
+R$179 \$98 \$120 VSS 2003.841367 res_high_po
+* device instance $180 r0 *1 60.63,10.3 res_high_po
+R$180 \$98 \$104 VSS 2003.841367 res_high_po
+* device instance $181 r0 *1 60.63,11.7 res_high_po
+R$181 \$102 \$121 VSS 2003.841367 res_high_po
+* device instance $182 r0 *1 66.97,10.3 res_high_po
+R$182 \$103 \$105 VSS 2003.841367 res_high_po
+* device instance $183 r0 *1 66.97,11.7 res_high_po
+R$183 \$120 \$122 VSS 2003.841367 res_high_po
+* device instance $184 r0 *1 73.31,11.7 res_high_po
+R$184 \$121 \$123 VSS 2003.841367 res_high_po
+* device instance $185 r0 *1 73.31,10.3 res_high_po
+R$185 \$104 \$106 VSS 2003.841367 res_high_po
+* device instance $186 r0 *1 79.65,10.3 res_high_po
+R$186 \$105 \$107 VSS 2003.841367 res_high_po
+* device instance $187 r0 *1 79.65,11.7 res_high_po
+R$187 \$122 \$124 VSS 2003.841367 res_high_po
+* device instance $188 r0 *1 85.99,11.7 res_high_po
+R$188 \$123 \$125 VSS 2003.841367 res_high_po
+* device instance $189 r0 *1 85.99,10.3 res_high_po
+R$189 \$106 \$108 VSS 2003.841367 res_high_po
+* device instance $190 r0 *1 92.33,11.7 res_high_po
+R$190 \$124 \$126 VSS 2003.841367 res_high_po
+* device instance $191 r0 *1 92.33,10.3 res_high_po
+R$191 \$107 \$109 VSS 2003.841367 res_high_po
+* device instance $192 r0 *1 98.67,11.7 res_high_po
+R$192 \$125 \$127 VSS 2003.841367 res_high_po
+* device instance $193 r0 *1 98.67,10.3 res_high_po
+R$193 \$108 \$110 VSS 2003.841367 res_high_po
+* device instance $194 r0 *1 105.01,10.3 res_high_po
+R$194 \$109 \$99 VSS 2003.841367 res_high_po
+* device instance $195 r0 *1 105.01,11.7 res_high_po
+R$195 \$126 \$128 VSS 2003.841367 res_high_po
+* device instance $196 r0 *1 111.35,10.3 res_high_po
+R$196 \$110 \$86 VSS 2003.841367 res_high_po
+* device instance $197 r0 *1 111.35,11.7 res_high_po
+R$197 \$127 \$129 VSS 2003.841367 res_high_po
+* device instance $198 r0 *1 134.62,11.7 res_high_po
+R$198 \$100 \$130 VSS 542.118769 res_high_po
+* device instance $199 r0 *1 134.62,10.3 res_high_po
+R$199 \$111 \$112 VSS 542.118769 res_high_po
+* device instance $200 r0 *1 136.46,10.3 res_high_po
+R$200 \$100 \$113 VSS 542.118769 res_high_po
+* device instance $201 r0 *1 136.46,11.7 res_high_po
+R$201 \$111 \$131 VSS 542.118769 res_high_po
+* device instance $202 r0 *1 138.3,10.3 res_high_po
+R$202 \$112 \$114 VSS 542.118769 res_high_po
+* device instance $203 r0 *1 138.3,11.7 res_high_po
+R$203 \$130 \$132 VSS 542.118769 res_high_po
+* device instance $204 r0 *1 140.14,10.3 res_high_po
+R$204 \$113 \$115 VSS 542.118769 res_high_po
+* device instance $205 r0 *1 140.14,11.7 res_high_po
+R$205 \$131 \$133 VSS 542.118769 res_high_po
+* device instance $206 r0 *1 141.98,11.7 res_high_po
+R$206 \$132 \$134 VSS 542.118769 res_high_po
+* device instance $207 r0 *1 141.98,10.3 res_high_po
+R$207 \$114 \$116 VSS 542.118769 res_high_po
+* device instance $208 r0 *1 143.82,11.7 res_high_po
+R$208 \$133 \$135 VSS 542.118769 res_high_po
+* device instance $209 r0 *1 143.82,10.3 res_high_po
+R$209 \$115 \$117 VSS 542.118769 res_high_po
+* device instance $210 r0 *1 145.66,10.3 res_high_po
+R$210 \$116 \$118 VSS 542.118769 res_high_po
+* device instance $211 r0 *1 145.66,11.7 res_high_po
+R$211 \$134 \$136 VSS 542.118769 res_high_po
+* device instance $212 r0 *1 147.5,11.7 res_high_po
+R$212 \$135 \$137 VSS 542.118769 res_high_po
+* device instance $213 r0 *1 147.5,10.3 res_high_po
+R$213 \$117 \$119 VSS 542.118769 res_high_po
+* device instance $214 r0 *1 149.34,11.7 res_high_po
+R$214 \$136 \$138 VSS 542.118769 res_high_po
+* device instance $215 r0 *1 149.34,10.3 res_high_po
+R$215 \$118 \$101 VSS 542.118769 res_high_po
+* device instance $216 r0 *1 151.18,11.7 res_high_po
+R$216 \$137 \$139 VSS 542.118769 res_high_po
+* device instance $217 r0 *1 151.18,10.3 res_high_po
+R$217 \$119 \$97 VSS 542.118769 res_high_po
+* device instance $218 r0 *1 66.97,13.1 res_high_po
+R$218 \$168 \$142 VSS 2003.841367 res_high_po
+* device instance $219 r0 *1 73.31,13.1 res_high_po
+R$219 \$2 \$143 VSS 2003.841367 res_high_po
+* device instance $220 r0 *1 79.65,13.1 res_high_po
+R$220 \$142 \$144 VSS 2003.841367 res_high_po
+* device instance $221 r0 *1 85.99,13.1 res_high_po
+R$221 \$143 \$145 VSS 2003.841367 res_high_po
+* device instance $222 r0 *1 92.33,13.1 res_high_po
+R$222 \$144 \$146 VSS 2003.841367 res_high_po
+* device instance $223 r0 *1 98.67,13.1 res_high_po
+R$223 \$145 \$147 VSS 2003.841367 res_high_po
+* device instance $224 r0 *1 105.01,13.1 res_high_po
+R$224 \$146 \$129 VSS 2003.841367 res_high_po
+* device instance $225 r0 *1 111.35,13.1 res_high_po
+R$225 \$147 \$128 VSS 2003.841367 res_high_po
+* device instance $226 r0 *1 134.62,13.1 res_high_po
+R$226 VB \$150 VSS 542.118769 res_high_po
+* device instance $227 r0 *1 136.46,13.1 res_high_po
+R$227 VA \$151 VSS 542.118769 res_high_po
+* device instance $228 r0 *1 138.3,13.1 res_high_po
+R$228 \$150 \$152 VSS 542.118769 res_high_po
+* device instance $229 r0 *1 140.14,13.1 res_high_po
+R$229 \$151 \$153 VSS 542.118769 res_high_po
+* device instance $230 r0 *1 141.98,13.1 res_high_po
+R$230 \$152 \$154 VSS 542.118769 res_high_po
+* device instance $231 r0 *1 143.82,13.1 res_high_po
+R$231 \$153 \$155 VSS 542.118769 res_high_po
+* device instance $232 r0 *1 145.66,13.1 res_high_po
+R$232 \$154 \$156 VSS 542.118769 res_high_po
+* device instance $233 r0 *1 147.5,13.1 res_high_po
+R$233 \$155 \$157 VSS 542.118769 res_high_po
+* device instance $234 r0 *1 149.34,13.1 res_high_po
+R$234 \$156 \$139 VSS 542.118769 res_high_po
+* device instance $235 r0 *1 151.18,13.1 res_high_po
+R$235 \$157 \$138 VSS 542.118769 res_high_po
+* device instance $236 r0 *1 183.45,13.1 res_high_po
+R$236 VB \$160 VSS 2003.841367 res_high_po
+* device instance $237 r0 *1 189.79,13.1 res_high_po
+R$237 \$160 \$161 VSS 2003.841367 res_high_po
+* device instance $238 r0 *1 196.13,13.1 res_high_po
+R$238 \$161 \$162 VSS 2003.841367 res_high_po
+* device instance $239 r0 *1 202.47,13.1 res_high_po
+R$239 \$162 \$163 VSS 2003.841367 res_high_po
+* device instance $240 r0 *1 208.81,13.1 res_high_po
+R$240 \$163 \$164 VSS 2003.841367 res_high_po
+* device instance $241 r0 *1 215.15,13.1 res_high_po
+R$241 \$164 \$165 VSS 2003.841367 res_high_po
+* device instance $242 r0 *1 221.49,13.1 res_high_po
+R$242 \$165 VBQ VSS 2003.841367 res_high_po
+.ENDS bandgap_core_routed

@@ -3476,6 +3476,224 @@ re-run `sim/output-voltage-tc-post-layout`. Explicitly **not** the levers to
 reach for: re-routing `bus_res_series`' inter-unit jumpers, or absorbing the
 delta into `n_r2` -- both would compensate a tool bug with silicon.
 
+### 7ee. Thirty-third increment (issue #283): the "closed upstream 2026-08-12" premise above was wrong -- klayout-tools#800 was closed **not planned**, not fixed; the residual is a different, still-open upstream defect (klayout-tools#2359)
+
+Section 7dd's own "Suggested next increment" assumed klayout-tools#800 had a
+merged fix to bump past. It did not: re-checking the issue directly shows it
+was closed **`not_planned`** on 2026-08-12, not fixed. The closing comment
+(from the tool maintainer, not this repo) reproduced this issue's own literal
+repro steps against a synthetic layout and found the described mechanism --
+`klt extract --parasitics`'s poly role subtracting only MOS gates, not
+recognised resistor bodies -- **does not exist in the code**: `_resolve_resistors`
+already removes every recognised resistor body from the net-parasitics `poly`
+region *before* the MOS-gate subtraction step even runs, confirmed by direct
+inspection of the installed source (`_resolve_resistors`/`_compute_parasitics`
+in `klayout_tools/extract.py`, klt v0.5.0). The closer explicitly invited a
+fresh repro against real geometry if the anomaly persisted.
+
+**It does persist -- re-verified empirically, not assumed.** The bare `klt` on
+`PATH` `sim/bin/post_layout_common.py` invokes is now v0.5.0 (git
+`6bf5610939a096b81605a381e70454bf1cb20316`, tagged `v0.5.0`, released
+2026-09-15 -- five weeks past #800's closure). Running
+`klt extract layout/bandgap-core/reports/20260817-020222-13476b7/bandgap_core_routed.gds --deck sky130 --top bandgap_core_routed --parasitics --format json`
+directly against that build reproduces the prior snapshot's numbers **bit for
+bit**: `total_resistance_ohm` 226256.0625 (unchanged to four decimal places),
+and the internal chain-node signature is still exactly `2 x 229.7271/229.7272
+= 459.4543` ohm. A `klt` version bump alone does not, and per the finding
+below cannot, close this row.
+
+**Root cause, now correctly identified: klayout-tools#2359 (open), not #800.**
+A sibling investigation (issue #284, same date) filed
+[klayout-tools#2359](https://github.com/2AMLogic/klayout-tools/issues/2359)
+against the real mechanism: `_n_squares` fits **one** equivalent rectangle to
+a net's *total* merged area/perimeter, which overstates R by roughly an order
+of magnitude for a short, wide fragment current crosses along its short axis
+-- exactly what is left on a chain-internal net once the (correctly
+subtracted) resistor bodies are removed: two contacted, unmarked resistor
+heads plus a metal jumper. That issue's own minimal repro reports **359.96
+ohm** of poly role resistance on the internal net of a two-unit
+`res_generic_po` chain built from documented-generic (0.42 um head, 5 um
+marked body) sky130 dimensions -- matching this snapshot's own by-layer
+breakdown (poly role 359.9576 ohm of the 459.4543 ohm total) to four
+significant figures. klayout-tools#2359 is **open, unfixed** as of this
+writing (2026-09-23).
+
+**Consequence for this row.** The FAIL is real and not clearable by any `klt`
+build available today, but the strength and specificity of the #2359 match
+(same mechanism, same order of magnitude, matching digits) is evidence
+*against* reading it as a real design defect in the drawn resistor network --
+it is far more consistent with a still-open extraction-geometry limitation
+than with the divider's actual electrical behavior. See
+`sim/output-voltage-tc-post-layout/README.md` and
+`design/block-characterization-report.md` row 1b for the corrected citation
+and the re-graded verdict text. **Not touched here**: `layout/requirements.txt`'s
+pin (this finding concerns the bare-`PATH` `klt` `sim/bin/post_layout_common.py`
+invokes, not the commit-pinned layout DRC/LVS flow this file tracks; no
+`layout/.venv` exists in this environment to safely bump-and-reverify that
+separate pin under this file's own non-regression discipline) and rows 3a/3b
+(box-method TC, DR-009 -- explicitly out of scope, not re-litigated here).
+
+### 7ff. Thirty-fourth increment: the "`mismatch_count` 0 -> 12 under a newer `klt`" finding investigated (issue #288) -- it is not a version-to-version regression and not an accounting re-baseline, it is a **nondeterministic** combine; pin NOT bumped, filed as klayout-tools#2374
+
+**What was reported.** Issue #282's signoff-manifest work observed that
+re-running the *committed, unmodified* `lvs.combined.request.json` against the
+*committed* netlists of
+`layout/bandgap-core/reports/20260817-020222-13476b7/`, but under the
+currently-installed `klt` (`0.5.0+g2f64ab88bfcc`) instead of the `klt` 0.2.0
+that produced the committed report, reported `status: mismatch`,
+`mismatch_count: 12` where the committed report says `status: match`,
+`mismatch_count: 0`. Read as a version-to-version regression, that would put
+this file's whole "`klt lvs` (combined) `mismatch_count=0`" scoreboard line --
+and the root README's claim resting on it -- in doubt.
+
+**What it actually is.** The newer build's verdict is **not reproducible run
+to run**. `layout/bin/measure_combine_devices_determinism.py` (new, this
+increment) re-runs the one committed request N times and tallies the verdict:
+
+| build | `combine_devices_max_attempts` | deterministic | 1000-trial tally |
+| --- | --- | --- | --- |
+| `acb0ae6c` (this file's pin) | n/a — predates the retry entirely | **yes** | 1000x `mismatch_count: 0` |
+| `2f64ab88` (installed) | build default (5) | **NO** | 762x `0`, 238x `12` |
+| `2f64ab88` (installed) | `1` | **yes** | 1000x `0` |
+
+Records: `layout/bandgap-core/combine-determinism/20260923-062919-1e38c62/`.
+
+So the committed `mismatch_count: 0` is **not falsified** -- it is exactly
+what the pinned build reports, deterministically, 1000 times out of 1000, and
+exactly what the newer build reports too whenever its combine step is kept off
+the one code path identified below. The "12" is a false `mismatch`, not a
+newly-detected defect: all twelve findings are `device.property` on the two
+PNP groups (`ae`/`ab`/`pb`/`ac`/`pc`/`ne`), reporting a combined device whose
+parameters were accumulated under an inverted rule.
+
+**The isolated variable.** klayout-tools#1185/#1186 added a bounded retry to
+`_combine_devices_safely` that runs every attempt but the last against an
+independent `Netlist.dup()` copy, adopting the first clean one via
+`Netlist.assign()`. With a budget of 1 the only attempt *is* the last one, so
+the combine runs directly against the netlist and the `dup()` round trip never
+happens -- and determinism returns. Confirmed further, below `klt`'s own API:
+the wrong parameter set is already present on the `dup()` copy *before*
+`assign()` (24/120 trials), and the device class survives `dup()` byte-identical
+in type, name, parameter order and `is_primary` flags (80/80 trials), so
+neither `assign()` nor a reshaped device class is the cause. A `git bisect`
+over the 920 first-parent commits between the two builds lands on `66f73d0c`
+-- the #1186 merge itself -- with its immediate predecessor 300/300
+deterministic under the identical probe.
+
+**Disposition: genuine tool regression, not a re-baseline.** This is
+deliberately *not* a repeat of Section 7z's question. It is not the
+`combine_devices` `fixed_offset_ohm` accounting change (klayout-tools#559/#583/
+#587) this file already declined once and DR-003 ratified against. The
+measurement record says so mechanically rather than by assertion -- its
+`finding_totals` table is, across all 1000 trials, exactly twelve keys, all of
+them `device.property/PNP/Q{1,2}/{ae,pe→ab,pb,ac,pc,ne}`-shaped geometry
+parameters on the two PNP groups, each appearing on the same 238 trials. No
+`res_high_po` finding, no topology finding, no `net.*` finding, ever. The
+resistors this file's Section 7z/7y history is about match on every trial of
+both outcomes. There is therefore no physical claim to re-ratify and **no
+decision record is owed**: nothing about this layout, this repo's per-primitive
+accounting, or the ratified spec is in question.
+
+(`layout/bin/measure_fixed_offset_variants.py` was re-run under the installed
+build as a cross-check and agrees -- its `primary_nodeck` row, this flow's own
+request shape, reports `R2A`/`R2B`/`R1` as `matched` while carrying the twelve
+PNP findings. It was deliberately **not** minted as a record: every one of its
+four variants uses `options.combine_devices: true`, so its own numbers are
+flake-contaminated on this build, and committing a record whose rendered
+conclusion is drawn from contaminated numbers would put a false claim about
+DR-003 into the evidence trail. Re-run it for a verdict only on a build where
+the determinism record above reads `deterministic: yes`.)
+
+Filed under this repo's friction protocol as
+**[klayout-tools#2374](https://github.com/2AMLogic/klayout-tools/issues/2374)**
+(bug-class-identical to klayout-tools#1497 -- a silent parameter mis-merge with
+no exception and no `device.combine_incomplete` warning -- but reached via the
+#1185 retry path and affecting `DeviceClassBJT3Transistor`).
+
+**What did NOT change, on purpose.**
+
+- `layout/requirements.txt`'s pin stays at `acb0ae6c`. Section 7dd's suggested
+  next increment (bump past klayout-tools#800's `--parasitics` fix) now carries
+  a prerequisite it did not have: any bump that crosses `66f73d0c` picks this
+  nondeterminism up, so it should wait for klayout-tools#2374, or pass
+  `options.combine_devices_max_attempts: 1` in this flow's request documents as
+  part of the same bump. Do not bump and hope.
+- The root `README.md`'s `mismatch_count: 0` claim stands unchanged -- the
+  measurement above is what supports it, not a single lucky invocation.
+- `signoff/block-manifest.json` item 4 stays **uncited and `unmet`**. Its
+  blocker is unchanged (the committed 0.2.0 report's `provenance.input` is
+  `null`, so no `content_hash` can be pinned against it) and this increment
+  adds a second, independent reason not to close it the obvious way: the only
+  builds that *do* populate `provenance.input.content_hash` are the ones whose
+  combine step is intermittently wrong, so minting a fresh, hash-pinnable LVS
+  report today would pin a verdict that does not reproduce. Item 4 closes on
+  klayout-tools#2374, not on a re-run.
+
+### 7gg. Thirty-fifth increment: the startup injector is drawn into the composed cell (issue #285) -- `devices.matched` 16 -> 22, and the first PSRR number this design has ever had with an injector attached
+
+*(Numbered 7gg: 7ee is issue #283's citation correction and 7ff is issue #288's combine-determinism finding, both landed while this increment was in flight.)*
+-> #2359 citation correction, issue #283.)*
+
+**What was wrong.** `design/startup_injector.sch` had no layout. The composed
+cell therefore shipped without it, and -- because `reference.spice`
+transcribed `design/bandgap_core.sch` alone -- `klt lvs` was clean across a
+gap **both sides shared**. Every post-layout record in `sim/` was a
+measurement of a circuit the schematic-level rows do not describe, which is
+what made `design/block-characterization-report.md` rows 8a and 8e describe
+two different circuits while sitting in the same table.
+
+**What was drawn.** Five new blocks, all on the existing row 3 (`amp_cc`'s):
+`su_ref` (a `diff_pair` at `splits=1` for MPC1/MPC2, the injector's only
+matched pair), `su_sense`/`su_inj`/`su_clamp` (single-unit `mos_array`
+blocks for MNS/MNI/MNC, which share W/L with nothing), and `pnp_su` (a
+`bjt_array` identical to `pnp_ctat` -- QS is the same unit device at the same
+count). Row 3 was reused rather than a sixth row opened, and that is an AREA
+decision: row 3 is 63.38 um tall and 102 um narrower than the widest row, so
+the tallest injector block (MNS, 48.82 um) fits inside height the floorplan
+already pays for. A sixth row would have cost `ROW_MARGIN_UM` + 48.82 um
+across the cell's full width, ~21,000 um^2, which lands the cell over
+DR-007's 80,000 um^2 budget. Measured cost of the chosen shape: 66,293 ->
+**70,360 um^2** (+6.1 %, 12 % margin remaining).
+
+**The one generator-level thing that had to change.** `bus_mos_comb` derived
+its horizontal trunk-lane spacing purely from the device row's own height
+(`height / (lanes + 1)`). Every block drawn before this one has rows >= 6 um
+tall, so that formula was always legal by accident. On MPC1/MPC2's W=1
+devices it derives a **0.25 um** pitch against met1's 0.24 um width plus the
+deck's 0.14 um `met1.space.1` -- and the first drawn attempt produced six
+drawn-short conflicts and seven `met1.space.1` violations, i.e. two nodes'
+trunks merged into one conductor, which reads *downstream* as better
+connectivity. Two changes close it: a `MOS_LANE_PITCH_UM` floor (a row too
+short for its own lanes now **raises instead of drawing**), and a per-row
+*dense rank* of the block-wide node order so a node absent from a row does
+not leave a gap that pushes the outermost lane past the row edge. The rank is
+a rank, never a re-ordering, which is what preserves the comb's planarity
+argument. `layout/tests/test_routed_flow_gates.py::TestCombLanePitch` asserts
+both properties plus the non-regression one: rows >= 6 um still get the old
+height-derived spacing, so every previously drawn block reproduces unchanged.
+
+**Result.** DRC clean, met2-DRC clean, `klt lvs` (with `combine_devices`)
+`match` at `mismatch_count: 0` with **22/22 devices and 14/14 nets** matched,
+up from 16/16 and 11/11 (`layout/bandgap-core/reports/20260923-070209-dbd57a9/`).
+
+**What the re-run measured, including the part that is not good news.** Five
+post-layout benches were re-run against the injector-inclusive extracted
+netlist. `startup-time-post-layout` flipped FAIL 45/45 -> **PASS 45/45**
+(`gdrv_final` 1.598-2.611 V; the degenerate all-off state parks it at VDD) --
+the injector demonstrably works in the drawn cell. `psrr-dc-post-layout`
+flipped the other way: PASS 45/45 -> **FAIL 25/45**, `psrr_band_min` down to
+22.75 dB against DR-006's 60 dB floor, corroborated by
+`line-regulation-post-layout`'s `line_shift_mv` going 0.038 -> 18.47 mV at
+the same worst corner. The degradation is monotone in supply and
+fast-PMOS-selective (worst at `sf`/`ff`/3.63 V, ~0 dB at `fs`/-40 C), which
+is the signature of MPC1/MPC2's supply-dependent standing current out of the
+amplifier's high-impedance GDRV node -- **not** of the NMOS clamp MNC, which
+would show the opposite process selectivity. This is the first PSRR number
+this design has ever had with an injector attached at all (`sim/psrr-dc`
+instantiates `design/bandgap_core.sym` alone), so it is newly *measured*
+rather than necessarily newly *introduced*. Disposition is issue **#300**;
+the explicitly wrong lever is removing the injector from the layout again.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five

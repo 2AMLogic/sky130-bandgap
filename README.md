@@ -5,6 +5,8 @@ open PDK, designed end-to-end by AI agents driving
 [klayout-tools](https://github.com/2AMLogic/klayout-tools) and the open-source
 xschem + ngspice analog flow.
 
+![fleet burndown](https://raw.githubusercontent.com/2AMLogic/2am/main/fleet-metrics/charts/sky130-bandgap.svg)
+
 **Status: active development.** Simulation and device characterization work
 is underway, and bandgap-core layout is DRC-clean and fully routed — all 12
 of 12 schematic inter-block nets joined across every block they reach,
@@ -13,7 +15,16 @@ pins. As of issue #62's thirty-first increment, `klt lvs` itself reports
 **`mismatch_count: 0`** against the xschem-derived reference netlist — the
 error amp's compensation cap (`MCC`) is now drawn as the `pfet`
 MOS-as-capacitor device `design/error_amp.sch` specifies, matching the
-reference netlist's own `MMCC` device exactly. A `cap_mim` MIM-cap overlay
+reference netlist's own `MMCC` device exactly. That `0` is *measured*, not
+sampled from one lucky run: the committed request reproduces it 1000 times
+out of 1000 on the `klt` build `layout/requirements.txt` pins. Re-running the
+same request under a **newer** `klt` reports it only ~76% of the time and a
+false `mismatch_count: 12` on the rest — a nondeterministic combine step
+introduced upstream, filed from this repo as
+[klayout-tools#2374](https://github.com/2AMLogic/klayout-tools/issues/2374),
+measured into `layout/bandgap-core/combine-determinism/` and dispositioned in
+`layout/matching-plan.md` Section 7ff. The pin is deliberately not bumped past
+it. A `cap_mim` MIM-cap overlay
 (the zero-incremental-footprint alternative) was checked and found
 infeasible on two independent grounds — see
 [`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)
@@ -104,19 +115,25 @@ is recorded in
 [DR-009](spec/decision-records/DR-009-tc-floor-disposition-defer-curvature-correction.md):
 keep the row as ratified, disclose the FAIL, defer curvature correction). Trim has no evidence against the current
 ratified design at all (STALE, unaffected by this cycle). The remaining
-six ratified rows are mixed, not a clean pass: PSRR, supply (operability),
-Iq, area, and startup
+six ratified rows are mixed, not a clean pass: PSRR (schematic), supply
+(operability), Iq, area, and startup
 self-starting all pass on the current design/layout (re-run 2026-09
 against the post-#193 chained-array resize — see
 `sim/psrr-dc/records/20260909-232410-e8e2e46.md`,
-`sim/quiescent-current/records/20260909-232410-e8e2e46.md`,
+`sim/quiescent-current-post-layout/records/20260923-072514-dbd57a9.md`,
 `sim/startup-stability/records/20260909-232410-e8e2e46.md`, and their
 `-post-layout` counterparts), but the startup **time** (< 1 ms) half fails
 at 13/45 (schematic) and 16/45 (post-layout) fastest-corner points — see
 `sim/startup-ramp/records/20260910-010233-e8e2e46.md` and
-`sim/startup-ramp-post-layout/records/20260910-004925-e8e2e46.md` — and the
-core-as-composed startup-time bench fails everywhere by construction (no
-injector layout yet). See
+`sim/startup-ramp-post-layout/records/20260910-004925-e8e2e46.md` — and
+**PSRR post-layout now fails 25/45** since the startup injector was drawn
+into the composed cell (issue #285, disposition tracked in #300;
+`sim/psrr-dc-post-layout/records/20260923-073641-dbd4dda.md`). The
+core-as-composed startup-time bench, which used to fail everywhere by
+construction because the cell shipped no injector, now **passes 45/45
+post-layout** for the same reason
+(`sim/startup-time-post-layout/records/20260923-070906-dbd57a9.md`); its
+schematic half still measures the bare core and still fails, correctly. See
 [`design/block-characterization-report.md`](design/block-characterization-report.md)
 for the full row-by-row scoreboard. Post-layout extraction itself is
 no longer pending — seven `sim/*-post-layout/` suites (line-regulation,
@@ -130,7 +147,7 @@ refresh, and the operator tier award.
 one-time ten-item re-read (2026-08-15, pre-dating the checklist's eleventh
 item) is superseded by the committed `klt signoff` block manifest —
 [`signoff/README.md`](signoff/README.md) is the current verdict of record
-(today: **2/11 T1 items graded `met`**; see that file's row-by-row table for
+(today: **3/11 T1 items graded `met`**; see that file's row-by-row table for
 why each remaining row is `unmet` and what would close it) — no bronze/T1
 claim is made here.
 

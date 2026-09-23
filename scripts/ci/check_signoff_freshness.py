@@ -1,21 +1,29 @@
 #!/usr/bin/env python3
 """Re-grade the committed klt signoff block manifest and require the report to match.
 
-This is the "CI re-runs it, so a manifest citing an artifact that has since
-changed fails rather than rotting" half of issue #282's acceptance criteria.
+This is the *grading* half of issue #282's acceptance criteria.
 signoff/signoff-report.json is the verdict of record; this check re-runs
 `klt signoff --manifest signoff/block-manifest.json --tiers-doc
 signoff/design-evidence-tiers.md --format json` with the same pinned
 released klt (see signoff/regenerate.sh for why the distribution identity
 matters) and requires byte-identical output. Any drift fails loudly:
 
-  - a cited artifact whose committed content changed (layout GDS/DRC report,
-    characterization report) changes a pinned content_hash check from `met`
-    to `stale_evidence`,
+  - an edited evidence envelope changes a row's status/reason (e.g. flipping
+    a cited envelope's `status`, or re-pointing a citation at another file),
   - a manifest/vendored-checklist edit changes rows or `source_doc` pins,
   - a grading-klt change renders differently under the same manifest.
 
-The fix for any of those is the same one-liner: ./signoff/regenerate.sh
+What this check does NOT catch, and never could (issue #292): a change to
+the *artifact* a citation's `content_hash` describes. `klt signoff` compares
+that pin against the hash the cited envelope itself recorded and never opens
+the artifact -- `citation.input_verified` is `null` on every row of the
+committed report -- so rewriting `bandgap_core_routed.gds` or editing
+`design/block-characterization-report.md` leaves this re-render
+byte-identical. That is `scripts/ci/check_signoff_pins.py`'s job, which
+re-hashes each pinned artifact offline in the `checks` job. The two checks
+are complements, not substitutes.
+
+The fix for drift here is the same one-liner: ./signoff/regenerate.sh
 (then commit the refreshed report -- that is the ceremony that keeps the
 mechanical verdict honest instead of hand-patched).
 """

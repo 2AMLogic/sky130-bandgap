@@ -3,20 +3,24 @@
   "kind": "analog",
   "evidence": {
     "3": {
-      "file": "layout/bandgap-core/reports/20260817-020222-13476b7/drc.json",
-      "content_hash": "sha256:8fa40aaae6e588e9b8d11539b0e5cac9c3d3b06f126e233340c6de30dc35d5ae"
+      "file": "layout/bandgap-core/reports/20260923-070209-dbd57a9/drc.json",
+      "content_hash": "sha256:311c0f14cdd85aa5255018c590cbe755e31fd1ac81e04895d6302fea2146aae9"
+    },
+    "6": {
+      "file": "sim/monte-carlo-untrimmed/records/20260923-062524-1e38c62-klt-yield.json",
+      "content_hash": "sha256:0b01d0dd123b8fae9bbb8044263f00c2f14fc8e1d9afea6e8856a712421b1694"
     },
     "8": {
       "file": "signoff/evidence/characterization.generic.json",
-      "content_hash": "sha256:2266977c36e4efde1c06022f22480d9eae91f9bb449bca6ec90a0bc335456959"
+      "content_hash": "sha256:3aaf18f2b578ad13a8bf11a11e1e5394102eab57279ced156426ab7c1b61badc"
     },
     "11": [
       {
-        "file": "layout/bandgap-core/erc/20260922-235513-70ce985/erc.20260817-020222-13476b7.json",
-        "content_hash": "sha256:8fa40aaae6e588e9b8d11539b0e5cac9c3d3b06f126e233340c6de30dc35d5ae"
+        "file": "layout/bandgap-core/erc/20260923-091422-f87c12b/erc.20260923-070209-dbd57a9.json",
+        "content_hash": "sha256:311c0f14cdd85aa5255018c590cbe755e31fd1ac81e04895d6302fea2146aae9"
       },
       {
-        "file": "layout/bandgap-core/reports/20260817-020222-13476b7/lvs.combined.json"
+        "file": "layout/bandgap-core/reports/20260923-070209-dbd57a9/lvs.combined.json"
       }
     ]
   }

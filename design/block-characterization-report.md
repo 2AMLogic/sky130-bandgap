@@ -15,17 +15,24 @@ below): a FAIL is reported as FAIL, with its number, not omitted or rounded towa
 the target.** One row (box-method temp coefficient, schematic and post-layout) fails
 at every corner on the freshest evidence — the TC-floor disposition is an open
 operator question tracked in #179, out of this report's scope to resolve. The
-post-layout output-accuracy row also fails at every corner, but as a disclosed
-extraction artifact (klayout-tools#800), not a design defect. Two startup-time rows
-(schematic and post-layout) fail at every corner **by construction** — the composed
-cell ships no startup injector yet. The startup-ramp rows (schematic and post-layout)
-partially fail at the fastest process corners. One row (Trim) has no evidence against
-the current ratified design at all. Everything else — output accuracy (schematic),
-PSRR, Iq, supply operability, line regulation, area, and startup self-starting — now
-passes, including the statistical (Monte Carlo) evidence for the dominant accuracy
-term, which flips from failing at every non-cold temperature to passing at all three
-once re-run against the current chained-array design. All of that is stated plainly
-below, not summarized away.
+post-layout output-accuracy row also fails at almost every corner; re-investigated by
+issue #283, it is neither a resolved "fixed-upstream" tool artifact (the prior
+citation, klayout-tools#800, was closed **not planned**, not fixed) nor
+confirmed to be a design defect — a re-run against a `klt` build five weeks past
+#800's closure reproduces the same parasitics bit-for-bit and matches a different,
+still-**open** upstream defect (klayout-tools#2359) digit-for-digit. **Row 4b (PSRR,
+post-layout) now fails 25 of 45 corners** — a verdict flip, and the single most
+important number in this revision: it is the measured cost of drawing the startup
+injector into the composed cell (#285), and it is tracked as a real, open spec
+violation in **#300**, not re-graded away here. The startup-ramp rows (schematic and
+post-layout) partially fail at the fastest process corners. One row (Trim) has no
+evidence against the current ratified design at all. Everything else — output
+accuracy (schematic), Iq, supply operability, line regulation, area, and startup
+self-starting — passes, including the statistical (Monte Carlo) evidence for the
+dominant accuracy term. **The startup-time row 8e's post-layout half flips the other
+way, FAIL 45/45 → PASS 45/45**, for the same reason: the composed cell that used to
+ship no injector now draws one. All of that is stated plainly below, not summarized
+away.
 
 ## 0. Freshness / regeneration rule
 
@@ -36,9 +43,12 @@ below, not summarized away.
   **Read every citation's own commit/record-id, not this header** — this report is a
   snapshot; a record it cites is authoritative for its own claim only as of that
   record's own `Repo state` field.
-- **Freshest layout report cited throughout**: `layout/bandgap-core/reports/20260817-020222-13476b7/`
-  (routed, DRC-clean, `klt lvs`-clean, `mismatch_count: 0`, generated against the
-  current chained-array `n_r2=51` design; no layout regeneration has landed since).
+- **Freshest layout report cited throughout**: `layout/bandgap-core/reports/20260923-070209-dbd57a9/`
+  (routed, DRC-clean, met2-DRC-clean, `klt lvs`-clean, `mismatch_count: 0`, **22/22
+  devices matched — 16 core + the 6 startup-injector devices #285 drew in**,
+  generated against the current chained-array `n_r2=51` design). It supersedes
+  `20260817-020222-13476b7`, which is still on disk and is still the record rows
+  8b/8d cite, for the reason those two rows state.
 - **This artifact is stale, not wrong, the moment any of the following changes**:
   a new `sim/output-voltage-tc(-post-layout)/`, `sim/monte-carlo-untrimmed/`,
   `sim/psrr-dc(-post-layout)/`, `sim/quiescent-current(-post-layout)/`,
@@ -55,6 +65,30 @@ below, not summarized away.
   first commit and every subsequent one).
 - **A pointer to this rule also lives in [`sim/README.md`](../sim/README.md)** (added by
   this same change) so a reader who starts there is routed here.
+- **Revision, 2026-09-23 (issue #292) — tool-claim correction only, no row re-derived.**
+  §1, §3 row 7, and §4 asserted three things about `klt` that had gone stale since this
+  report was generated: that `klt signoff --manifest` "does not work in this
+  environment" (klayout-tools#1050, closed upstream 2026-08-16) and that `klt pex` "is
+  still not implemented upstream" (klayout-tools Epic #709, closed 2026-08-14). Both are
+  corrected in place, with the superseded claim quoted rather than deleted. **No
+  measured value, verdict, binding corner, or citation in §2/§3 was touched** — the
+  "Generated against `e8e2e46`" basis above still describes every row, and this revision
+  is not a regeneration. It does change this file's bytes, which is deliberate: T1 item
+  8 pins this report's `sha256`, so `./signoff/regenerate.sh` was re-run and
+  `signoff/evidence/characterization.generic.json`, `signoff/block-manifest.json`, and
+  `signoff/signoff-report.json` were re-committed with it.
+- **Revision, 2026-09-23 (issue #285) — the composed cell now contains the startup
+  injector, and six rows are re-derived against it.** `design/startup_injector.sch`
+  had no layout, so every post-layout row in this report was a measurement of a
+  circuit the schematic rows do not describe. It is now drawn into the composed cell
+  (`layout/bandgap-core/reports/20260923-070209-dbd57a9/`, DRC-clean, LVS-clean at
+  22/22 devices) and `layout/bandgap-core/reference.spice` carries its six devices
+  too, so both sides of LVS stop sharing the omission. Rows **1b, 3b, 4b, 4c, 5c, 6b,
+  7 and 8e** are re-derived from post-layout records appended the same day against
+  that layout record; rows **8b and 8d** are deliberately **not** re-run (see their
+  own rows and #299). Two verdict flips, both real and both disclosed: 8e's
+  post-layout half FAIL 45/45 → **PASS 45/45**, and 4b PASS 45/45 → **FAIL 25/45**
+  (tracked as #300). §3 items 3/4/5/7 are re-derived to match.
 
 ## 1. What `klt signoff` already produces, and what it does not
 
@@ -75,32 +109,35 @@ below.
   extraction agreeing on one input. That result backs item 3/4's rows in Section 2
   directly, instead of this report re-deriving pass/fail by hand. Re-run directly for
   this regeneration (issue #279), not merely re-cited.
-- **Tier-verdict mode (`klt signoff --manifest`) does not work in this environment, for
-  a real, generic (non-design-specific) reason**: the pinned `klt` build (`0.2.0`, `uv
-  tool install`) cannot locate `docs/design-evidence-tiers.md` — the doc-parsing modes
-  compute that path relative to the installed package's own site-packages location
-  (`Path(__file__).resolve().parent.parent.parent / "docs" / "design-evidence-tiers.md"`),
-  which only resolves for an in-place source checkout, not a packaged install; the wheel
-  does not bundle `docs/` as package data, and there is no `--tiers-doc` override flag.
-  Confirmed directly:
+- **Tier-verdict mode (`klt signoff --manifest`) works, and is now this block's T1
+  verdict of record** (corrected 2026-09-23, issue #292 — see the revision note in §0).
+  `signoff/block-manifest.json` + the committed, mechanically re-graded
+  `signoff/signoff-report.json` are the authoritative per-item T1 reading for this
+  block; [`signoff/README.md`](../signoff/README.md) explains the verdict row by row and
+  CI re-grades it on every push/PR. **This report is no longer the T1 checklist's
+  reading**; it remains item 8's own evidence artifact (the aggregated per-spec-row
+  roll-up in §2), cited from that manifest via
+  `signoff/evidence/characterization.generic.json`.
 
-  ```
-  $ echo '{"kind":"analog","block":"bandgap-core","evidence":{}}' | klt signoff --manifest - --format json
-  {"schema_version": 1, "error": {"command": "signoff", "message": "could not read
-  design-evidence-tiers doc at '.../lib/python3.12/docs/design-evidence-tiers.md': ..."}}
-  ```
+  The earlier revision of this section recorded the opposite, correctly for its time:
+  the then-pinned `klt` build (`0.2.0`, `uv tool install`) could not locate
+  `docs/design-evidence-tiers.md`, because the doc-parsing modes computed that path
+  relative to the installed package's own site-packages location, which resolves only
+  for an in-place source checkout and not a packaged install — and there was no
+  `--tiers-doc` override flag. That was a packaging gap in `klt` itself, generic to any
+  consumer installing it the documented way, and was filed upstream per this repo's
+  friction protocol as
+  **[2AMLogic/klayout-tools#1050](https://github.com/2AMLogic/klayout-tools/issues/1050)** —
+  **closed upstream 2026-08-16**. `--tiers-doc` is exactly how `signoff/regenerate.sh`
+  now grades (against a vendored, pinned copy of the checklist doc).
 
-  This is a packaging gap in `klt` itself, not something fixable from this repo, and it
-  is generic to any consumer installing `klt` the documented way — filed upstream per
-  this repo's friction protocol, kept tool-scoped and design-agnostic:
-  **[2AMLogic/klayout-tools#1050](https://github.com/2AMLogic/klayout-tools/issues/1050)**.
-  Until it lands, items 5–7 (PVT vs. ratified spec, Monte Carlo, post-layout) are graded
-  by hand below, from the same `sim/*/records/*.json` envelopes a fixed `--manifest`
-  mode would eventually consume — but note those records use **this repo's own**
-  corner-run/record schema (`record_id`/`matrix`/`corners`/…), not `klt`'s
-  `schema_version`/`kind` envelope contract (`klt` has no `sim` verb of its own), so even
-  a fixed `--manifest` mode would need a translation step for items 5–7 that items 3/4
-  do not.
+  What has *not* changed: items 5–7 (PVT vs. ratified spec, Monte Carlo, post-layout)
+  are still graded by hand below, and are still **uncited** in the manifest. This repo's
+  `sim/*/records/*.json` use **this repo's own** corner-run/record schema
+  (`record_id`/`matrix`/`corners`/…), not `klt`'s `schema_version`/`kind` envelope
+  contract (`klt` has no `sim` verb of its own), so a working `--manifest` mode still
+  needs a translation step for items 5–7 that items 3/4 do not — citing a near-miss
+  envelope to turn those rows green is the documented anti-pattern, not a shortcut.
 
 ## 2. Per-ratified-spec-row scoreboard
 
@@ -110,27 +147,27 @@ Supply, Iq, Area, Startup), each amended where a later DR applies.
 | # | Parameter | Target | Measured (binding corner) | Verdict | Evidence |
 |---|---|---|---|---|---|
 | 1a | Output reference — untrimmed, corner-matrix half (schematic) | 1.20 V ±2 % (1.176–1.224 V), −40…125 °C | `vref_27` 1.210068–1.212093 V; `vref_min` 1.186028–1.189076 V — inside the [1.176, 1.224] V window at **every** corner (this row's own `vref_min`/`vref_27`/`vref_max` measurements all pass; the bench's separate `tc_ppm` measurement is what fails, see row 3a — the two are graded independently within the same corner run) | **PASS 45/45** — a verdict flip from the pre-#193 evidence, which measured `vref_min` as low as 1.12969 V (below the floor at every corner) | `sim/output-voltage-tc/records/20260817-015751-13476b7.md` (post-#193 chained-array design; unchanged since — out of this issue's rerun scope, cited as the newest record on disk) |
-| 1b | Output reference — untrimmed, corner-matrix half, post-layout (extracted) | same | `vref_27` 1.192907–1.194771 V (passes); `vref_min` 1.166584–1.169708 V — below the 1.176 V floor at every corner. This is an **artifact FAIL**: klayout-tools#800's `klt extract --parasitics` poly double-count inflates the drawn resistor network's effective resistance, shifting `vref_min` down 8-10 mV; filed generically upstream, fixed there 2026-08-12, absent from the installed `klt` build this repo pins | **FAIL 15/15 (artifact)** | `sim/output-voltage-tc-post-layout/records/20260817-020357-13476b7.md` (same provenance note as row 1a) |
+| 1b | Output reference — untrimmed, corner-matrix half, post-layout (extracted) | same | `vref_27` 1.193300–1.199550 V (passes); `vref_min` 1.167045–1.186483 V — below the 1.176 V floor at 14 of 15 corners (`ff, 3.63 V` clears it at 1.186483 V). Re-measured for issue #285 against the injector-inclusive composed cell, which moved the numbers (the injector loads GDRV — see rows 4b/5c) without changing the disposition; the immediately preceding record, `20260923-061116-1e38c62` (#283, pre-injector), read 1.166584–1.169708 V and failed at every corner. **The prior "artifact FAIL" attribution was corrected by issue #283 and stands**: klayout-tools#800 was closed **not planned** (2026-08-12), not fixed — its own closing investigation showed the described body-double-count mechanism does not exist in the code, and a fresh `klt extract --parasitics` at the currently-installed `klt` 0.5.0 (git `6bf5610`, released 2026-09-15, 5+ weeks past #800's closure) reproduced the prior snapshot's parasitics bit-for-bit (`total_resistance_ohm` 226256.0625; internal chain-node signature 2×229.7271/229.7272=459.4543 Ω), so no `klt` version bump clears this row. The matching signature is instead traced to a different, still-**open** upstream defect, klayout-tools#2359 (a sibling investigation under issue #284): `klt extract --parasitics`'s single-rectangle squares-fit overstates a short/wide fragment's resistance (a resistor's own unmarked head + landing pad) — that issue's own generic repro reports 359.96 Ω on an internal chain node, matching this design's measured 359.9576 Ω to four significant figures. This is evidence *against*, not for, a real design defect, though it remains formally unconfirmed either way pending an upstream fix | **FAIL 14/15 (disclosed, open upstream defect klayout-tools#2359 — not a version-bumpable artifact, not confirmed as a design defect)** | `sim/output-voltage-tc-post-layout/records/20260923-074724-dbd4dda.md` (issue #285 re-run against the injector-inclusive cell; supersedes `20260923-061116-1e38c62`, which supersedes `20260817-020357-13476b7` and its "artifact, fixed upstream" citation) |
 | 1c | Output reference — untrimmed, mismatch-MC half (3σ, N≥300, local mismatch, `tt_mm`) | The record's own per-point PASS/FAIL gate: ≥50 % of converged draws inside the ±2 % window — a **sanity floor**, per the record's own caveat, not itself the literal 3σ spec threshold | Yield (of converged draws) inside [1.176, 1.224] V: **79.41 %** (−40 °C) / **95.67 %** (27 °C) / **93.33 %** (125 °C), N=300 each, MC-off control and second-seed checks pass. Binding: **−40 °C** (79.41 %, still comfortably above the 50 % sanity floor) | **PASS** — a verdict flip from the pre-#193 evidence, which measured 0.00 % yield at 125 °C | `sim/monte-carlo-untrimmed/records/20260817-121131-d7d85b6.md` (post-#193 chained-array design, closed by issue #180/PR #196; out of this issue's rerun scope, cited as the newest record on disk) |
 | 2 | Trim (1-point `res_high_po`, ≥±5 % range, ≤0.25 %/step) | monotonic-in-code, downward span ≥1.5×3σ MC spread, LSB ≤25 % of window half-width | No trim-criteria evidence exists against the current ratified spec/design (this issue does not re-run this bench — out of scope) | **STALE — no current-design verdict** | `sim/trim-lsb-chained/records/20260806-052035-dea0ca5.md` (2026-08-06, unchanged) |
 | 3a | Temp coefficient (schematic) | < 50 ppm/°C (box method) | 142.44–158.97 ppm/°C at **every** corner. Binding: **fs** (158.97 ppm/°C, worst; best corner `sf` at 142.44 ppm/°C still fails) | **FAIL 45/45** | `sim/output-voltage-tc/records/20260817-015751-13476b7.md` (TC-floor disposition tracked in #179; out of this issue's rerun scope) |
-| 3b | Temp coefficient, post-layout | same | 167.88–186.98 ppm/°C at every corner. Binding: **fs** (186.98 ppm/°C, worst) | **FAIL 15/15** | `sim/output-voltage-tc-post-layout/records/20260817-020357-13476b7.md` |
+| 3b | Temp coefficient, post-layout | same | 89.81–185.61 ppm/°C. Binding: **sf, 3.63 V** (185.61 ppm/°C, worst); the best corner (`ff, 3.63 V`, 89.81 ppm/°C) is the same one whose `vref_min` clears row 1b's floor, and is still 1.8× the 50 ppm/°C line | **FAIL 15/15** | `sim/output-voltage-tc-post-layout/records/20260923-074724-dbd4dda.md` (supersedes `20260817-020357-13476b7`) |
 | 4a | PSRR (schematic) | > 60 dB DC–1 kHz (band-min, DR-006) | `psrr_band_min` 67.34–75.18 dB. Binding: **sf, −40 °C, 2.97 V** (67.34 dB, closest to the floor) | **PASS 45/45** | `sim/psrr-dc/records/20260909-232410-e8e2e46.md` (re-run against the post-#193 design; supersedes `20260815-020301-001d1b7`) |
-| 4b | PSRR, post-layout | same | `psrr_band_min` 66.30–75.54 dB. Binding: **sf, −40 °C, 2.97 V** (66.30 dB — 6.30 dB above the floor) | **PASS 45/45** | `sim/psrr-dc-post-layout/records/20260909-232410-e8e2e46.md` (re-run against the post-#193 layout; supersedes `20260815-034139-001d1b7`) |
-| 4c | PSRR stretch (> 30 dB @ 1 MHz) | informational | `psrr_1m` 15.72–16.87 dB (schematic), 13.60–14.92 dB (post-layout) — **below** the stretch line at every corner | **FAIL (stretch, non-blocking)** | same two records |
+| 4b | PSRR, post-layout | same | `psrr_band_min` **22.75**–74.32 dB. Binding: **ff, 125 °C, 3.63 V** (22.75 dB — **37.25 dB below** the floor). **Verdict flip, and a real open spec violation (#300), not a re-grade**: the bench, its manifest and the harness are unchanged from the 45/45-PASS baseline (`20260909-232410-e8e2e46`, 66.30–75.54 dB); the only variable is that the composed cell now contains the startup injector (#285). Degradation is monotone in supply and fast-PMOS-selective (worst at `sf`/`ff` and 3.63 V, ~0 dB at `fs`/−40 °C), the signature of MPC1/MPC2's supply-dependent standing current out of the amplifier's high-impedance GDRV node. Independently corroborated by row 5c, which moved the same way at the same corners. **This is the first PSRR number this repo has ever measured with the injector attached at all** — row 4a instantiates `design/bandgap_core.sym` alone — so it is newly *measured*, not necessarily newly *introduced* | **FAIL 25/45** (was PASS 45/45) | `sim/psrr-dc-post-layout/records/20260923-073641-dbd4dda.md` (supersedes `20260909-232410-e8e2e46`); disposition tracked in **#300** |
+| 4c | PSRR stretch (> 30 dB @ 1 MHz) | informational | `psrr_1m` 15.72–16.87 dB (schematic), 13.40–14.69 dB (post-layout) — **below** the stretch line at every corner | **FAIL (stretch, non-blocking)** | `sim/psrr-dc/records/20260909-232410-e8e2e46.md` (schematic), `sim/psrr-dc-post-layout/records/20260923-073641-dbd4dda.md` (post-layout) |
 | 5 | Supply — operability (3.3 V ±10 %) | operate 2.97–3.63 V | every corner-matrix bench in this table (rows 1a/1b/3a/3b/4a/4b/6a/6b/8a–8d) sweeps this full 2.97–3.63 V range without solver divergence | **PASS** | as cited per row |
 | 5b | Supply — line-regulation shift (informational; no dedicated ratified line item yet, see `sim/line-regulation`'s own claim text) | shift must fit inside the ±2 % accuracy window (48 mV p-p) — necessary, not sufficient | Overall: PASS 45/45 (out of this issue's rerun scope) | **PASS 45/45** | `sim/line-regulation/records/20260817-021208-13476b7.md` |
-| 5c | Supply — line regulation, post-layout | same | Overall: PASS 15/15 — now ratified-graded, clearing the prior draft-window staleness | **PASS 15/15** | `sim/line-regulation-post-layout/records/20260817-022402-13476b7.md` |
+| 5c | Supply — line regulation, post-layout | same | Overall: PASS 15/15, but with the **margin substantially eroded** by the injector (#285): `line_shift_mv` 0.065–**18.47** mV (was 0.015–0.038 mV) against the 48 mV p-p window, and `line_psrr_db` **31.06**–80.19 dB (was 84.90–93.13 dB). Worst corner `ff, 125 °C` — the same corner and the same magnitude as row 4b's worst, which is what makes the two benches corroborate each other rather than repeat each other. Still passes its own bound; recorded here because the shift is 480× and the cause is #300's | **PASS 15/15 (margin eroded)** | `sim/line-regulation-post-layout/records/20260923-075227-dbd4dda.md` (supersedes `20260817-022402-13476b7`) |
 | 5d | Supply stretch (1.8 V-core Banba variant) | — | not implemented; wave-1 scope explicitly defers it | **N/A / deferred** | [DR-001](../spec/decision-records/DR-001-supply-flavor-scope.md) |
 | 6a | Iq (schematic) | < 50 µA | 20.08–32.82 µA | **PASS 45/45** | `sim/quiescent-current/records/20260909-232410-e8e2e46.md` (re-run against the post-#193 design; supersedes `20260816-085818-69a8867`) |
-| 6b | Iq, post-layout | same | 14.61–26.11 µA | **PASS 45/45** | `sim/quiescent-current-post-layout/records/20260909-232410-e8e2e46.md` (re-run against the post-#193 layout; supersedes `20260815-035028-001d1b7` — this record's **first ratified-graded** result, clearing the prior draft-claim-text staleness) |
+| 6b | Iq, post-layout | same | 14.62–26.85 µA — the injector costs at most **+0.74 µA** (worst corner `ff, 125 °C, 3.63 V`: 26.85 µA against the pre-injector 26.11 µA), leaving 23 µA of headroom under the 50 µA line | **PASS 45/45** | `sim/quiescent-current-post-layout/records/20260923-072514-dbd57a9.md` (re-run against the injector-inclusive layout, #285; supersedes `20260909-232410-e8e2e46`) |
 | 6c | Iq stretch (< 20 µA) | informational | not met at any corner (20.08 µA best case, schematic) | **FAIL (stretch, non-blocking)** | same two records |
-| 7 | Area | < 0.08 mm² (80,000 µm², DR-007) | composed bbox **66,293 µm²** (≈17 % margin under budget) | **PASS** | `layout/bandgap-core/reports/20260817-020222-13476b7/record.md` |
+| 7 | Area | < 0.08 mm² (80,000 µm², DR-007) | composed bbox **70,360 µm²** (≈12 % margin under budget). Grew 66,293 → 70,360 µm² (+4,067 µm², +6.1 %) when the startup injector's five blocks were drawn in (#285); they share the existing `amp_cc` row rather than opening a sixth one, which is what keeps the growth to one row's width instead of ~21,000 µm² of new cell height. **DR-007's 80,000 µm² budget is unchanged** — this row records a measured area inside the ratified budget, not a request to raise it, so the AREA-EFF efficiency-read precondition on *growing* an AREA row is not engaged | **PASS** | `layout/bandgap-core/reports/20260923-070209-dbd57a9/record.md` |
 | 8a | Startup — self-starting (no other stable state), schematic, core+injector | exactly one DC operating point over 0…VDD on GDRV | **45/45 corner-point checks PASS** (plus 2 corner-sensitivity checks, also PASS) | **PASS** | `sim/startup-stability/records/20260909-232410-e8e2e46.md` (re-run against the post-#193 design; supersedes `20260815-032111-001d1b7`) |
-| 8b | Startup — self-starting, post-layout, extracted core + schematic injector | same | **8/8 checks PASS** (by-design worst-corner subset, unchanged — see the record's own subset reason) | **PASS** | `sim/startup-stability-post-layout/records/20260909-232410-e8e2e46.md` (re-run against the post-#193 layout; supersedes `20260815-040144-001d1b7`) |
+| 8b | Startup — self-starting, post-layout, extracted core + schematic injector | same | **8/8 checks PASS** (by-design worst-corner subset, unchanged — see the record's own subset reason). **This row cites the superseded `20260817-020222-13476b7` layout, deliberately**: the bench's DUT is the extracted core wired to a *separately netlisted* schematic injector, plus bare-core control instances. Now that the composed cell draws its own injector (#285), re-running it unchanged would put two injectors on the DUT instances and silently convert the controls into injector-equipped ones — so it was not re-run. Restructuring it is **#299** | **PASS (against a superseded layout record)** | `sim/startup-stability-post-layout/records/20260909-232410-e8e2e46.md` (layout record `20260817-020222-13476b7`) |
 | 8c | Startup — time < 1 ms, schematic, core+injector | **Two things, graded separately since #284/DR-010.** (i) the ratified half: `t_start` < 1 ms; (ii) the bench's own additional cross-condition `vref` convergence-spread check, ≤ 1 mV — a bound **no ratified row states** | (i) **PASS 45/45** — worst `t_start` over all corners and all three ramp profiles is `+146 µs` against the 1 ms bound, and no `t_start_*` measurement has failed in any record this bench has ever produced. (ii) **FAIL 13/45** at `ff`/`sf` process plus `tt/−40 °C/3.63 V`, 1.15–13.66 mV. Root-caused by #284 as a **fixed-sample-time artifact, not a second operating point**: cross-reading `sim/startup-stability/`'s free-running DC solve (`vref_dut`) at the same 45 corners puts the DC equilibrium **strictly inside** the interval the three copies span at all 13 failing corners — the slow-ramp copy above it at 13/13, the fast-ramp copy below it at 13/13 — i.e. all three are still converging on one point from opposite sides. `ncross_su = 1` at all 45 corners (row 8a) independently excludes a second equilibrium | **MIXED** — ratified `< 1 ms` half **PASS 45/45**; consistency check **FAIL 13/45** (up from 10/45 pre-#193 — the resistor-array resize measurably widens this margin gap), carried as the bounded, characterized exception **DR-010**, which keeps the 1 mV bound and the sample point unchanged and leaves the residual charged against issue #11's budget | `sim/startup-ramp/records/20260910-010233-e8e2e46.md` (full 45-point matrix, post-#193 design; supersedes `20260812-073050-7eb5be4`) — **still the current full-matrix result**, since #284's manifest edit is purely additive and changed no existing measurement, bound or sample point. Convergence evidence for the new `vref_converge` gate: `sim/startup-ramp/records/20260923-092903-079a778.md` (4-point subset, host-capacity-limited, does **not** supersede the above; full-matrix re-run tracked in #303). Disposition: [DR-010](../spec/decision-records/DR-010-startup-ramp-vref-spread-settling-tail.md) |
-| 8d | Startup — time, post-layout | same two things, extracted core + schematic injector | (i) **PASS 45/45**, same as 8c — `t_start_s` moves sub-microsecond under extraction at every corner that flips. (ii) **FAIL 16/45**, same failure shape and the same cold/skewed `ff`/`sf` cluster, worst 16.75 mV at `sf/−40 °C/3.63 V`; post-layout **inherits** 8c's artifact rather than adding a mechanism — extraction only nudges already-near-threshold corners across the 1 mV cliff, in both directions | **MIXED** — ratified `< 1 ms` half **PASS 45/45**; consistency check **FAIL 16/45** (up from 12/45 pre-#193), same DR-010 exception | `sim/startup-ramp-post-layout/records/20260910-004925-e8e2e46.md` (full 45-point matrix, post-#193 layout; supersedes `20260812-043245-7eb5be4`) — **still the current full-matrix result**, same reason as 8c. Convergence evidence: `sim/startup-ramp-post-layout/records/20260923-093126-079a778.md` (2-point subset, host-capacity-limited, does **not** supersede the above; #303) |
-| 8e | Startup — core-as-composed (no injector) | informational (the injector is drawn only as a schematic block, `design/startup_injector.sch`, and has no layout yet, so the composed/routed cell in row 7's own report does not include it) | 45/45 and 45/45 FAIL — **expected**: the composed cell as merged ships no injector | **FAIL (expected, disclosed)** | `sim/startup-time/records/20260909-232410-e8e2e46.md` (supersedes `20260816-085818-69a8867`), `sim/startup-time-post-layout/records/20260910-010233-e8e2e46.md` (supersedes `20260812-034744-6767688`) |
+| 8d | Startup — time, post-layout | same two things, extracted core + schematic injector. **Both cited records are against the superseded `20260817-020222-13476b7` layout, for exactly the same reason as row 8b** — same mixed-provenance DUT construction, same double-injector hazard since #285, same restructuring issue **#299**. The #284 subset re-run below was taken against that same pre-#285 layout record and is the newest valid record here; `sim/startup-ramp-post-layout/run_post_layout_startup_ramp.py` now refuses to run against a layout that draws the injector | (i) **PASS 45/45**, same as 8c — `t_start_s` moves sub-microsecond under extraction at every corner that flips. (ii) **FAIL 16/45**, same failure shape and the same cold/skewed `ff`/`sf` cluster, worst 16.75 mV at `sf/−40 °C/3.63 V`; post-layout **inherits** 8c's artifact rather than adding a mechanism — extraction only nudges already-near-threshold corners across the 1 mV cliff, in both directions | **MIXED** — ratified `< 1 ms` half **PASS 45/45**; consistency check **FAIL 16/45** (up from 12/45 pre-#193), same DR-010 exception — **and both against a superseded layout record** (#299) | `sim/startup-ramp-post-layout/records/20260910-004925-e8e2e46.md` (full 45-point matrix, post-#193 layout; supersedes `20260812-043245-7eb5be4`) — **still the current full-matrix result**, same reason as 8c. Convergence evidence: `sim/startup-ramp-post-layout/records/20260923-093126-079a778.md` (2-point subset, host-capacity-limited, does **not** supersede the above; #303) |
+| 8e | Startup — core-as-composed | informational — and no longer a by-construction FAIL on the post-layout side. `design/startup_injector.sch` is now **drawn into the composed cell** (#285), so the two halves of this row deliberately measure different circuits: the schematic half is still `design/bandgap_core.sym` alone (the unprotected core), the post-layout half is the cell that would be fabricated | Schematic: 45/45 **FAIL**, unchanged and still expected — the bare core parks in the all-off degenerate state. Post-layout: **45/45 PASS**, `t_start` 0.0678–0.1818 ms against the < 1 ms budget, and `gdrv_final` 1.598–2.611 V at every corner (the degenerate state parks GDRV at VDD ≥ 2.97 V, so this is the drawn injector actively evicting it) | **Schematic FAIL 45/45 (expected) · post-layout PASS 45/45 (verdict flip)** | `sim/startup-time/records/20260909-232410-e8e2e46.md` (schematic, unchanged), `sim/startup-time-post-layout/records/20260923-070906-dbd57a9.md` (supersedes `20260910-010233-e8e2e46`) |
 
 ### Reading the "Startup" row as one ratified claim
 
@@ -141,14 +178,26 @@ text (not a report-writing simplification — the benches say this themselves):
 `startup-ramp` (the < 1 ms half — **the ratified `t_start` measurement passes at every
 corner of every record this bench has ever produced**; what fails at 13–16 of 45 corners
 is the bench's *own additional* `vref_spread` convergence-consistency check, a 1 mV bound
-no ratified row states, up from 10–12/45 pre-#193), and `startup-time` (the core exactly as composed today, with
-**no** injector attached at all, which **fails everywhere by construction** because the
-routed cell doesn't yet include one). Reporting only `startup-stability`'s PASS (as the
+no ratified row states, up from 10–12/45 pre-#193), and `startup-time` (the core
+exactly as composed today — which, since #285, **includes** the drawn injector on the
+post-layout side and still excludes it on the schematic side, so that bench now
+**passes 45/45 post-layout** and still **fails 45/45 at schematic level**, both
+correctly). Reporting only `startup-stability`'s PASS (as the
 top-level README currently does in its maturity-ladder summary line) would round the
 Startup row toward the target — this report does not do that; the row is **mixed**, not
-a clean PASS, and the `startup-ramp` partial FAIL plus the injector-less `startup-time`
+a clean PASS, and the `startup-ramp` partial FAIL plus the bare-core `startup-time`
 FAIL are both disclosed here rather than omitted. This report does not modify the
 README; see §5.
+
+**What #285 changed about this subsection.** Before it, all three benches agreed that
+the *composed* cell had no injector, and row 8e's FAIL was the honest statement of
+that gap. Now the composed cell has one. That splits the three benches into two
+groups rather than three: `startup-time` measures the composed cell directly and its
+post-layout half flipped to PASS; `startup-stability` and `startup-ramp` still wire a
+*separately netlisted* schematic injector onto the core and therefore can no longer be
+re-run post-layout without double-counting it (#299). Rows 8b/8d's PASS/FAIL verdicts
+are unchanged and still true of the layout record they name — they are simply no
+longer statements about the freshest layout.
 
 **Update (2026-09-23, issue #284 / [DR-010](../spec/decision-records/DR-010-startup-ramp-vref-spread-settling-tail.md)):
 rounding the other way is also a rounding.** Rows 8c/8d previously folded
@@ -171,11 +220,11 @@ row remains **mixed** — DR-010 makes the mixture legible, it does not dissolve
 
 | Item | Verdict | Freshness | Artifact(s) |
 |---|---|---|---|
-| 3. DRC | **PASS, disclosed gaps** | 2026-08-17, `layout/bandgap-core/reports/20260817-020222-13476b7/` | `drc.json` (`violation_count: 0`, deck `sky130` content-hash `sha256:aa7aca65…`) + `met2-drc.json` (supplementary met2-min-area checker, `violation_count: 0`) — both fed into the `klt signoff` envelope-aggregation run in §1 |
-| 4. LVS | **PASS, single-engine** | same report dir | `lvs.combined.json` (`mismatch_count: 0`, 11/11 nets, 16/16 devices, engine `klayout` only) — same `klt signoff` run |
-| 5. Full PVT vs. ratified spec | **MIXED** | 2026-08-17 (`sim/output-voltage-tc(-post-layout)/records/20260817-0*-13476b7`) | row 1a (output accuracy, schematic) now **PASSES 45/45** (verdict flip from the pre-#193 evidence); row 1b (post-layout) still **FAILs 15/15**, but as a disclosed extraction artifact (klayout-tools#800), not a design defect; rows 3a/3b (box-method TC) still **FAIL 45/45 and 15/15** at every corner — the TC-floor disposition is tracked in #179 and is explicitly out of this report's (and issue #279's) scope to resolve |
+| 3. DRC | **PASS, disclosed gaps** | 2026-09-23, `layout/bandgap-core/reports/20260923-070209-dbd57a9/` (the injector-inclusive cell, #285) | `drc.json` (`violation_count: 0`, deck `sky130` content-hash `sha256:aa7aca65…`) + `met2-drc.json` (supplementary met2-min-area checker, `violation_count: 0`). The `klt signoff` envelope-aggregation run quoted in §1 was made against the previous report dir; its four envelopes are the same four checks, still clean, on the new one |
+| 4. LVS | **PASS, single-engine** | same report dir | `lvs.combined.json` (`mismatch_count: 0`, 14/14 nets, **22/22 devices** — 16 core + the 6 injector devices #285 drew in, up from 11/11 and 16/16 — engine `klayout` only). This is the item the whole of #285 turns on: LVS was previously clean across a gap **both sides shared**, because `reference.spice` transcribed `design/bandgap_core.sch` alone. Both sides now carry the injector |
+| 5. Full PVT vs. ratified spec | **MIXED, one new open violation** | 2026-08-17 (schematic rows) through 2026-09-23 (`sim/*-post-layout/records/20260923-*-dbd*`, #285) | row 1a (output accuracy, schematic) **PASSES 45/45**; row 1b (post-layout) **FAILs 14/15**, attributed to the still-open upstream defect klayout-tools#2359 rather than to a design defect (issue #283 corrected the earlier "fixed upstream, klayout-tools#800" citation — #800 was closed *not planned*, and no `klt` version bump clears this row), and re-measured by #285 against the injector-inclusive cell; rows 3a/3b (box-method TC) still **FAIL 45/45 and 15/15** — TC-floor disposition tracked in #179, out of scope here; **row 4b (PSRR, post-layout) flipped to FAIL 25/45** once the injector was drawn into the cell, tracked as an open spec violation in **#300** and corroborated by row 5c's eroded line-regulation margin |
 | 6. Monte Carlo | **PASS** (fresh, not stale) | 2026-08-17, commits `d7d85b6`/`aa5324e` | `sim/monte-carlo-untrimmed/records/20260817-121131-d7d85b6.md` — re-run against the **current** chained-array design (`n_r2=51`, issue #193) and the ratified ±2 % window; yield is now 79.4–95.7 % across all three temperatures (row 1c), a verdict flip from the pre-#193 0.00 % yield at 125 °C. The contributor-breakdown half `sim/error-amp-offset-mc/records/20260817-130441-aa5324e.md` (closed by issue #180/PR #196) is likewise current, closing the staleness this report previously flagged. |
-| 7. Post-layout | **CURRENT, one disclosed artifact and one expected gap** | 2026-08-17 through 2026-09-10 (this issue, #279), layout report `20260817-020222-13476b7` | Mechanism is current: `klt extract --parasitics` → `sim/bin/post_layout_common.py` re-runs every schematic-level bench. Every post-layout suite now carries a ratified-graded record at or after the post-#193 design/layout (`13476b7`/`d7d85b6` for the four benches out of this issue's rerun scope; `e8e2e46` for the six this issue re-ran — PSRR, Iq, and the three startup benches). Where the schematic row passes, the post-layout rerun passes (rows 4b/6b/8b); where it fails, post-layout inherits (rows 1b [artifact], 3b, 8d) or worsens (8d's FAIL count, 12→16/45) rather than fixing. `klt pex` (the machine-checkable parasitic-delta grader `docs/cli/signoff.md` names as the only accepted automated evidence for this item) is still not implemented upstream ([klayout-tools Epic #709](https://github.com/2AMLogic/klayout-tools/issues/709)) — the extraction-based re-run above remains the manual substitute this repo actually has. **No bench remains draft-graded**: `sim/quiescent-current-post-layout/` and `sim/startup-time-post-layout/` (the two issue #279 named) now carry their first ratified-graded records; `sim/line-regulation-post-layout/` was already cleared by issue #193. |
+| 7. Post-layout | **CURRENT, one disclosed artifact, one open violation, one deferred pair** | 2026-09-23 (#285), layout report `20260923-070209-dbd57a9` | **The extracted netlist is now a netlist of the whole ratified design.** Until #285 the composed cell omitted `design/startup_injector.sch` entirely, so every row in this section measured a circuit the schematic rows do not describe; that is closed. Mechanism is unchanged: `klt extract --parasitics` → `sim/bin/post_layout_common.py` re-runs each schematic-level bench. Five of the seven post-layout benches were re-run against the injector-inclusive cell on 2026-09-23 (rows 1b, 3b, 4b, 5c, 6b, 8e); the two that were not — `startup-stability-post-layout` and `startup-ramp-post-layout`, rows 8b/8d — are deferred to **#299** because their mixed-provenance DUT would double-count the now-drawn injector, and they still cite the superseded `20260817-020222-13476b7`. Outcomes: one verdict flip up (8e, FAIL 45/45 → PASS 45/45 — the injector demonstrably works in the drawn cell), one verdict flip down (4b, PASS 45/45 → FAIL 25/45, **#300**), one margin erosion inside its bound (5c), and no change of disposition on rows 1b [artifact] / 3b / 6b. `klt pex` (the machine-checkable parasitic-delta grader `docs/cli/signoff.md` names as the only accepted automated evidence for this item) **has landed upstream** — [klayout-tools Epic #709](https://github.com/2AMLogic/klayout-tools/issues/709) closed 2026-08-14 and `docs/cli/pex.md` documents the verb (corrected 2026-09-23, issue #292; this row previously said it was "still not implemented upstream"). What is true is that **this repo has not produced a `klt pex` report**: the extraction-based re-run above is still the substitute it actually has, and T1 item 7 is uncited in `signoff/block-manifest.json` for exactly that reason (`klt extract --parasitics` output is not the `delta[]`/`reference_netlist`/`corner_count` shape item 7 accepts). The gap is now this repo's, not the tool's. **No bench remains draft-graded**: `sim/quiescent-current-post-layout/` and `sim/startup-time-post-layout/` (the two issue #279 named) now carry their first ratified-graded records; `sim/line-regulation-post-layout/` was already cleared by issue #193. |
 
 ## 4. Known blind spots (disclosed, not fixed here)
 
@@ -194,15 +243,31 @@ surfaced:
   (`klayout`) agreeing with itself — the independent-second-engine cross-check
   [klayout-tools#343](https://github.com/2AMLogic/klayout-tools/issues/343) describes
   has not landed.
-- **No `klt pex`.** The machine-checkable parasitic-delta post-layout grader named by
-  `docs/cli/signoff.md` does not exist upstream yet
-  ([klayout-tools Epic #709](https://github.com/2AMLogic/klayout-tools/issues/709));
-  this repo's extraction-based re-simulation (`klt extract --parasitics` translated and
-  re-run through every schematic-level bench) is the manual substitute.
-- **`klt signoff --manifest`/`--fleet` unusable from a packaged install.** Confirmed and
-  filed generically upstream:
-  [2AMLogic/klayout-tools#1050](https://github.com/2AMLogic/klayout-tools/issues/1050)
-  (§1 above). The envelope-aggregation mode (no `--manifest`) works and is used in §1/§3.
+- **No `klt pex` *run* in this repo** (corrected 2026-09-23, issue #292 — this bullet
+  previously read "No `klt pex`", claiming the verb did not exist upstream). The
+  machine-checkable parasitic-delta post-layout grader named by `docs/cli/signoff.md`
+  **does** exist upstream now:
+  [klayout-tools Epic #709](https://github.com/2AMLogic/klayout-tools/issues/709) closed
+  2026-08-14 and `docs/cli/pex.md` documents it. This repo has simply never run it — its
+  post-layout evidence is still extraction-based re-simulation (`klt extract
+  --parasitics` translated and re-run through every schematic-level bench), which T1
+  item 7 does not accept, so that item stays uncited in `signoff/block-manifest.json`.
+  The blind spot is real; its cause is this repo's, not the tool's.
+- **`klt signoff --manifest`/`--fleet` — resolved, no longer a blind spot** (corrected
+  2026-09-23, issue #292; this bullet previously read "unusable from a packaged
+  install"). [2AMLogic/klayout-tools#1050](https://github.com/2AMLogic/klayout-tools/issues/1050)
+  closed upstream 2026-08-16, and tier-verdict mode is what
+  [`signoff/`](../signoff/README.md) now grades this block with on every push/PR (§1
+  above). The envelope-aggregation mode (no `--manifest`) also still works and is used
+  in §1/§3.
+- **A manifest pin does not prove the artifact behind it is unchanged** (issue #292).
+  `klt signoff` compares each citation's `content_hash` against the hash the cited
+  envelope *recorded*, never against the artifact itself
+  (`citation.input_verified: null` on every row of `signoff/signoff-report.json`), so
+  re-grading alone cannot detect an edit to this report or a rewrite of the routed GDS.
+  That is covered separately, and only since #292, by `scripts/ci/check_signoff_pins.py`
+  in CI's `checks` job — which is why editing this file requires re-running
+  `./signoff/regenerate.sh` (it re-pins item 8's envelope from this file's bytes).
 - **Trim-network evidence is stale against the current ratified design** (row 2) — the
   same class of gap #180 flagged for Monte Carlo (now closed) and issue #279 closed for
   PSRR/Iq/startup; no issue currently tracks a refresh of `sim/trim-lsb-chained/`, and
@@ -218,17 +283,22 @@ surfaced:
   `layout/README.md`, and DR-007/DR-008 all cite a composed-bbox figure of
   **73,989 µm²**, measured against an earlier layout report
   (`layout/bandgap-core/reports/20260811-221633-a0ee5e7/`). The freshest layout report
-  (`20260817-020222-13476b7`, generated for the DR-003 chained-array resize at
-  `n_r2=51`) measures **66,293 µm²** — smaller, and still comfortably within the DR-007
-  80,000 µm² budget either way, so no verdict changes. This report cites the fresher
-  number (row 7) and flags the drift rather than editing those other files, which are
-  outside this issue's scope.
+  (`20260923-070209-dbd57a9`, the injector-inclusive cell of #285) measures
+  **70,360 µm²** — still smaller than the figure those docs cite, and still comfortably
+  within the DR-007 80,000 µm² budget either way, so no verdict changes. The
+  intermediate `20260817-020222-13476b7` (pre-injector) measured 66,293 µm². This
+  report cites the freshest number (row 7) and flags the drift rather than editing
+  those other files, which are outside this issue's scope.
 
 ## 5. What this report deliberately does not do
 
 - **Does not modify** any spec row, decision record, `product/` file, or existing
   `sim/*/records/*` file (append-only, per `CLAUDE.md` and this issue's own
-  constraints). Row values above are transcribed from existing records, not re-derived.
+  constraints). Row values above are transcribed from records, never re-derived by
+  hand. (The 2026-09-23 #285 revision *appended* new records — five post-layout benches
+  re-run against the injector-inclusive layout — and transcribed those; it edited none.
+  In particular it does **not** relax DR-006 to accommodate row 4b's new FAIL: that
+  disposition is #300's, and a failing row is reported failing.)
 - **Does not fix** the currently-failing TC-floor row — its disposition is an open
   operator question tracked in #179, a separate issue by design (see #175's
   decomposition, #176), and this report's job is to state the current verdicts

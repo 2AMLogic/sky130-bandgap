@@ -162,3 +162,22 @@ above was taken through the `--process/--temp/--supply/--subset-reason` flags
 issue #284 added to `sim/bin/post_layout_common.py`, precisely so that a
 capacity-limited re-run states its reason inside the record rather than being
 done by editing the runner script.
+
+### Interaction with #285/#299 (noted after the fact)
+
+`20260923-093126-079a778` was taken against layout record
+`20260817-020222-13476b7` — the same **pre-#285** layout every other record in
+this directory cites, and the freshest one at the time it ran. Issue #285 has
+since drawn `design/startup_injector.sch` into the composed cell, which breaks
+this bench's mixed-provenance premise (the separately netlisted schematic
+injector would be a *second* one, and the bare-core control would stop being
+bare), so `run_post_layout_startup_ramp.py` now **refuses** to run against a
+layout that draws the injector and `sim/bin/post_layout_common.py` carries the
+structural guard. Restructuring is **#299**.
+
+Nothing above is invalidated by that: this record measures the same DUT
+construction, against the same layout record, as the full-matrix record it sits
+alongside, and row 8d of `design/block-characterization-report.md` carries the
+superseded-layout disclosure for both. It is simply the **last** record this
+bench can mint in its current shape — the `vref_converge` evidence it carries
+had to be taken before #299 lands, or not at all.

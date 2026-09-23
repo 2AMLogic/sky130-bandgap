@@ -52,53 +52,89 @@ in the table above:
 2. `R1` rises 32 %, so the branch current falls ≈ 24 %, which drops
    `VEB(Q1)` — and with it the whole curve — by a further ≈ 7.4 mV.
 
-## The residual is a known, already-fixed-upstream `klt` artifact — not physics
+## The residual — corrected 2026-09-23 (issue #283): NOT a fixed-upstream artifact. It is a different, still-open `klt` defect (klayout-tools#2359), not physics, and not clearable by a version bump
 
-It is **not** thin-metal jumper resistance, and it must not be designed
-around. It is
-[klayout-tools#800](https://github.com/2AMLogic/klayout-tools/issues/800):
-`klt extract --parasitics` builds each net's star-R from the net's poly
-shapes and subtracts only the MOS **gate** regions, not recognised
-**resistor bodies** — so every drawn `res_high_po` body is charged once as
-the device's own value *and* again as net parasitic resistance on the two
-nets abutting it. That issue was filed from this repo's own friction
-protocol and is **closed upstream (2026-08-12)**. The build that produced
-this snapshot is not.
+**This section previously said klayout-tools#800 was "closed upstream
+2026-08-12" and that bumping `klt` past its fix would clear this row. That
+premise was wrong**, and issue #283 re-investigated it directly rather than
+carrying the error forward. klayout-tools#800 was closed **`not_planned`**,
+not fixed: the tool maintainer reproduced this repo's own repro steps against
+a synthetic layout and found the described mechanism — the poly parasitics
+role subtracting only MOS gates, not recognised resistor bodies — **does not
+exist in the code**. `_resolve_resistors` already removes every recognised
+resistor body from the `poly` region used for net parasitics *before* the
+MOS-gate subtraction step runs (confirmed directly against the installed
+source, `klayout_tools/extract.py`, klt v0.5.0). The closer explicitly
+invited a fresh repro against real geometry if the anomaly persisted.
 
-Every number above matches that issue's stated signature exactly:
+**It does persist — re-verified against the currently-installed build, not
+assumed.** The bare `klt` on `PATH` this module invokes is now **v0.5.0**
+(git `6bf5610939a096b81605a381e70454bf1cb20316`, tag `v0.5.0`, released
+2026-09-15 — five weeks past #800's closure; `klt version --format json`).
+Running `klt extract <this record's GDS> --deck sky130 --top
+bandgap_core_routed --parasitics --format json` directly against that build
+reproduces this snapshot's numbers **bit for bit**: `total_resistance_ohm`
+226256.0625 (unchanged to four decimal places) and the internal chain-node
+signature still exactly `2 × 229.7271/229.7272 = 459.4543` ohm. A `klt`
+version bump alone does not — and, per the root cause below, cannot — clear
+this row.
 
-- it reports "+29.8 %" on a chain's end-to-end DC resistance; this record
-  measures +29.5 / +29.7 % on `R2A`/`R2B`;
-- it predicts an internal-node net reporting ≈ 459 Ω (two abutting 5 µm × 1 µm
-  bodies = 10 squares × the deck's 48.2 Ω/sq generic poly); this snapshot's
-  internal chain nets report 2 × 229.727 Ω = **459.45 Ω**;
-- total parasitic resistance (226 256 Ω) is **97.5 %** of total device
-  resistance (232 088 Ω) — i.e. very nearly the whole resistor stack, counted
-  twice.
+**The real mechanism: klayout-tools#2359 (open), a sibling finding, not
+#800.** A parallel investigation (issue #284, same date) filed
+[klayout-tools#2359](https://github.com/2AMLogic/klayout-tools/issues/2359)
+against the actual cause: `_n_squares` fits **one** equivalent rectangle to a
+net's *total* merged area/perimeter, which overstates R by roughly an order
+of magnitude for a short, wide fragment whose current crosses along its short
+axis — exactly what is left on a chain-internal net once the (correctly
+subtracted) marked resistor bodies are removed: two contacted, unmarked
+resistor heads plus a metal jumper. That issue's own minimal repro (generic
+sky130 `res_generic_po` dimensions, no design-specific values) reports
+**359.96 Ω** of poly-role resistance on such an internal net — matching this
+snapshot's own by-layer breakdown (poly role 359.9576 Ω of the 459.4543 Ω
+total) to four significant figures. klayout-tools#2359 is **open, unfixed**
+as of 2026-09-23.
 
-Verified directly against the installed build rather than inferred: the
-`klt` on `PATH` that `sim/bin/post_layout_common.py` invokes is
-`klayout-tools @ git+…@a482d393` (0.2.0), and its
-`extract.py` poly-role construction still reads
-`[layer_index["nfet_gate"], layer_index["pfet_gate"]]` as the whole subtract
-list, with no resistor-body term. `layout/requirements.txt`'s own pin
-(`acb0ae6`, 2026-08-06) also predates the fix.
+Every number this section previously attributed to #800 is still numerically
+correct — it was the *citation*, not the arithmetic, that was wrong:
 
-**Consequence for this record**: its `vref_*` numbers understate the drawn
-part by ~17 mV, and its FAIL on the accuracy row is an artifact FAIL. The
-correct next increment is to **bump `klt` past klayout-tools#800's fix and
-re-extract** (this repo's documented pin-bump discipline: range-check the
-commits, re-run `layout/bin/run-trivial-cell-flow.sh` for non-regression,
-then re-run this bench), **not** to re-size `n_r2` and **not** to re-route
-the array's inter-unit jumpers. Both of those would compensate a tool bug
-with silicon.
+- +29.8 % on a chain's end-to-end DC resistance ↔ this record's +29.5 / +29.7 %
+  on `R2A`/`R2B`;
+- ≈ 459 Ω per internal-node net ↔ this snapshot's 2 × 229.727 Ω = 459.45 Ω,
+  now matched to #2359's own generic repro rather than #800's refuted one;
+- total parasitic resistance (226 256 Ω) is still 97.5 % of total device
+  resistance (232 088 Ω).
 
-**A second, repo-side gap this exposed**: `sim/bin/post_layout_common.py`
-invokes bare `klt` from `PATH`, while `layout/bin/run-bandgap-routed-flow.sh`
-uses the commit-pinned `layout/.venv/bin/klt`. So the layout records and the
-post-layout sim records can be — and here are — produced by *different* `klt`
-builds, with nothing in either record forcing them to agree. The pin-bump
-increment should close that too.
+**Consequence for this record.** The FAIL is real and, as of this writing,
+not clearable by any `klt` build — but the strength and specificity of the
+#2359 match (same mechanism, same magnitude, matching digits against a
+generic repro built independently of this design) is evidence *against*
+reading it as a real design defect in the drawn resistor network. It remains
+far more consistent with a still-open extraction-geometry limitation than
+with the divider's actual electrical behavior, so **the correct disposition
+is still not** to re-size `n_r2` and **not** to re-route the array's
+inter-unit jumpers — both would compensate a tool bug (now correctly
+identified, not yet fixed) with silicon. See
+`design/block-characterization-report.md` row 1b for the re-graded verdict
+text.
+
+**A second, repo-side gap this still exposes, not closed by this record**:
+`sim/bin/post_layout_common.py` invokes bare `klt` from `PATH` (currently
+v0.5.0), while `layout/bin/run-bandgap-routed-flow.sh` uses the
+commit-pinned `layout/.venv/bin/klt` (`layout/requirements.txt`'s
+`acb0ae6`, 2026-08-06). So the layout records and the post-layout sim
+records can be — and are — produced by *different* `klt` builds, with
+nothing in either record forcing them to agree. Left open: no
+`layout/.venv` exists in this environment to safely bump and re-verify
+`layout/requirements.txt`'s pin under that file's own non-regression
+discipline, and it does not bear on this finding either way (this section's
+re-verification used the same bare-`PATH` `klt` the sim harness itself
+invokes). Each post-layout record's own parasitics-snapshot
+(`parasitics-snapshot/<layout-record-id>/bandgap_core_routed.pex.json`)
+already records exactly which `klt`/`klayout` build produced it, in its own
+`provenance.klt_version`/`provenance.klayout_version` fields — that is the
+per-record pin of record for this bare-`PATH` flow, since no dedicated
+version-pin file exists for it (unlike `layout/requirements.txt`'s commit
+pin for the layout DRC/LVS flow).
 
 **Why no re-size was attempted anyway.** Even taking the extracted numbers at
 face value, the untrimmed lever is an integer `n_r2` worth ≈ 8.9 mV per step:

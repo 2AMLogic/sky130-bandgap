@@ -9,8 +9,19 @@ name: CI
 #     pass/fail gates — drawn-short, label-collision, coverage scoring, and
 #     (via the `pip install klayout` step below) the met2 escape plane's own
 #     DRC rules in `test_met2_drc.py` — the curated sky130 deck declares no
-#     `met2.*`/`via.*` rule, so that file is the only thing checking it)
+#     `met2.*`/`via.*` rule, so that file is the only thing checking it,
+#     and `sim/tests/`'s coverage of the evidence-minting harnesses, which
+#     guards the provenance-hygiene invariants a committed, append-only
+#     record can never be repaired for afterwards, issue #288)
 #     -> `checks` job below, every push/PR. Headless, no PDK needed.
+#   - `scripts/ci/check_signoff_pins.py` (issue #292), run by that same
+#     `check:ci` — re-hashes the committed artifact behind every
+#     `content_hash` in signoff/block-manifest.json and fails when one has
+#     changed. This is the check `klt signoff` structurally cannot perform:
+#     it compares each pin against the hash the cited *envelope* recorded and
+#     never opens the artifact, so `citation.input_verified` is null on every
+#     row and a re-grade of a rewritten GDS renders byte-identically.
+#     Stdlib-only, no klt/PDK/network. -> `checks` job, every push/PR.
 #   - `sim/bin/corner-run.py sim/pdk-smoke` (the harness's own liveness test:
 #     proves the pinned sky130 PDK models load in ngspice, xschem netlists
 #     headlessly, and the PVT knobs actually reach the simulator) -> requires
@@ -27,9 +38,11 @@ name: CI
 #   - `klt signoff --manifest signoff/block-manifest.json` (issue #282) --
 #     re-grades this block's T1 checklist manifest and requires the result to
 #     stay byte-identical to the committed signoff/signoff-report.json, so a
-#     cited artifact that has since changed fails here instead of rotting
-#     silently. -> `signoff` job below, every push/PR. Headless, no PDK
-#     needed (PyPI-only `klayout-tools` install). See signoff/README.md.
+#     manifest/citation/grader change fails here instead of rotting silently.
+#     -> `signoff` job below, every push/PR. Headless, no PDK needed
+#     (PyPI-only `klayout-tools` install). See signoff/README.md. This is the
+#     *grading* half only: a change to the cited artifact itself is caught by
+#     the pin check in the `checks` job above, not here (issue #292).
 
 on:
   push:

@@ -90,6 +90,14 @@ if [ "$SIGNOFF_RC" -ne 0 ] && [ "$SIGNOFF_RC" -ne 3 ]; then
     exit "$SIGNOFF_RC"
 fi
 
+# 3. Re-verify every manifest pin against the artifact it describes. `klt
+#    signoff` never opens those artifacts (it compares the pin against the
+#    hash the cited envelope recorded, so `citation.input_verified` is null
+#    on every row) -- so a pin can keep grading `met` while the committed
+#    artifact behind it has moved on. Catch that here, at the desk, rather
+#    than in CI. See scripts/ci/check_signoff_pins.py (issue #292).
+python3 scripts/ci/check_signoff_pins.py
+
 python3 - "$KLT_VERSION" <<'EOF'
 import json
 import sys
