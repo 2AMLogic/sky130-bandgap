@@ -1,0 +1,4671 @@
+{
+  "author": "loom-builder (issue #300)",
+  "corners": [
+    {
+      "corner_id": "tt_-40c_2.97v",
+      "elapsed_s": 29.753,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/tt_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 69.34736
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 63.59632
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 63.59632
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 15.66991
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_-40c_3.30v",
+      "elapsed_s": 33.62,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/tt_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 66.79618
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 59.65625
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 59.65625
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.15385
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_-40c_3.63v",
+      "elapsed_s": 21.807,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/tt_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 65.10367
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 56.16161
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 56.16161
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.59752
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_27c_2.97v",
+      "elapsed_s": 22.605,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/tt_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 70.47028
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 60.59284
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 60.59284
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 15.7919
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_27c_3.30v",
+      "elapsed_s": 20.458,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/tt_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 68.45999
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 58.48947
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 58.48947
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.23479
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_27c_3.63v",
+      "elapsed_s": 22.213,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/tt_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 64.47874
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 56.40492
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 56.40492
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.64291
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_125c_2.97v",
+      "elapsed_s": 21.209,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/tt_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 84.58207
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 68.61715
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 68.61715
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 15.86789
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_125c_3.30v",
+      "elapsed_s": 19.897,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/tt_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 58.21137
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 57.79162
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 57.79162
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.25168
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "tt_125c_3.63v",
+      "elapsed_s": 19.315,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/tt_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 33.41061
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 33.41726
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 33.41061
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.65281
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_-40c_2.97v",
+      "elapsed_s": 36.274,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ss_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 79.51175
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 68.84177
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 68.84177
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 15.79847
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_-40c_3.30v",
+      "elapsed_s": 21.606,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ss_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 75.76844
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 67.57349
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 67.57349
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.25439
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_-40c_3.63v",
+      "elapsed_s": 24.533,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ss_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 72.93513
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 64.97669
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 64.97669
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.6554
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_27c_2.97v",
+      "elapsed_s": 46.433,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ss_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 80.14532
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 67.61091
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 67.61091
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 15.82079
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_27c_3.30v",
+      "elapsed_s": 22.735,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ss_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 75.45173
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 66.00016
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 66.00016
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.19188
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_27c_3.63v",
+      "elapsed_s": 38.342,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ss_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 71.94802
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 63.85314
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 63.85314
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.51447
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_125c_2.97v",
+      "elapsed_s": 33.53,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ss_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 88.78689
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 73.02536
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 73.02536
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 15.74302
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_125c_3.30v",
+      "elapsed_s": 33.753,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ss_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 70.88527
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 69.71446
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 69.71446
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 15.98153
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_125c_3.63v",
+      "elapsed_s": 36.421,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ss_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 43.61836
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 43.71772
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 43.61836
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.17995
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_-40c_2.97v",
+      "elapsed_s": 40.23,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ff_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 58.71695
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 55.20112
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 54.91944
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 15.52884
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_-40c_3.30v",
+      "elapsed_s": 29.648,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ff_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 56.33579
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 49.59609
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 49.25666
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.00958
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_-40c_3.63v",
+      "elapsed_s": 30.287,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ff_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 54.82167
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 45.61913
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 45.40203
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.4525
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_27c_2.97v",
+      "elapsed_s": 24.349,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ff_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 61.66356
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 52.57889
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 52.30736
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 15.64859
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_27c_3.30v",
+      "elapsed_s": 23.432,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ff_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 60.14822
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 50.16262
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 49.98128
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.09018
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_27c_3.63v",
+      "elapsed_s": 23.897,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ff_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 45.96686
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 46.71786
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 45.96686
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.50132
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_125c_2.97v",
+      "elapsed_s": 21.033,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ff_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 67.20858
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 64.91271
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 64.91271
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 15.70796
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_125c_3.30v",
+      "elapsed_s": 20.878,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ff_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 36.10279
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 36.19758
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 36.10279
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.10095
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_125c_3.63v",
+      "elapsed_s": 19.701,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/ff_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 24.77854
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 24.77884
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 24.77854
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.65858
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_-40c_2.97v",
+      "elapsed_s": 38.701,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/sf_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 48.41104
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 46.00245
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 45.10262
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 15.6965
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_-40c_3.30v",
+      "elapsed_s": 37.673,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/sf_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 45.80254
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 39.51136
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 38.90448
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.20658
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_-40c_3.63v",
+      "elapsed_s": 25.538,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/sf_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 44.36581
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 35.1393
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 34.79492
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.68453
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_27c_2.97v",
+      "elapsed_s": 28.603,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/sf_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 53.42943
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 44.51531
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 43.94552
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 15.82337
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_27c_3.30v",
+      "elapsed_s": 33.805,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/sf_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 52.18064
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 41.98606
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 41.64321
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.2828
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_27c_3.63v",
+      "elapsed_s": 24.61,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/sf_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 51.1136
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 39.86385
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 39.6784
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.70892
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_125c_2.97v",
+      "elapsed_s": 25.819,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/sf_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 73.23647
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 68.21423
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 68.21423
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 15.88738
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_125c_3.30v",
+      "elapsed_s": 24.991,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/sf_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 65.3008
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 64.07915
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 64.07915
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.28167
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "sf_125c_3.63v",
+      "elapsed_s": 22.698,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/sf_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 42.43712
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 42.44864
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 42.43712
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.64942
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_-40c_2.97v",
+      "elapsed_s": 44.054,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/fs_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 84.84845
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 67.50576
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 67.50576
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 15.63624
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_-40c_3.30v",
+      "elapsed_s": 21.683,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/fs_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 81.55227
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 67.66469
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 67.66469
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.10488
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_-40c_3.63v",
+      "elapsed_s": 20.608,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/fs_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 78.24853
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 67.43086
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 67.43086
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.53224
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_27c_2.97v",
+      "elapsed_s": 20.302,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/fs_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 86.25203
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 67.53925
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 67.53925
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 15.75171
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_27c_3.30v",
+      "elapsed_s": 19.525,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/fs_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 79.79866
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 67.377
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 67.377
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.18672
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_27c_3.63v",
+      "elapsed_s": 20.948,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/fs_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 62.29435
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 62.64502
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 62.29435
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.58604
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_125c_2.97v",
+      "elapsed_s": 21.355,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/fs_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 69.62868
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 66.00851
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 66.00851
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 15.82305
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "fs",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_125c_3.30v",
+      "elapsed_s": 23.936,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/fs_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 47.06617
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 47.03103
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 47.03103
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.20942
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "fs_125c_3.63v",
+      "elapsed_s": 20.72,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/fs_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 38.79804
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 38.79455
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 38.79455
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 16.62195
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    }
+  ],
+  "experiment": {
+    "claim": "README.md 'Target specification' (DR-005, amended by DR-006) row 'PSRR' (> 60 dB DC-1 kHz target; > 30 dB @ 1 MHz stretch, out of scope for wave 1 per DR-001), for the 3.3 V primary flavor, measured at SCHEMATIC level on design/bandgap_core.sch WITH design/startup_injector.sch attached to the same GDRV/VREF/VDD/VSS nets -- i.e. the circuit the composed layout has actually contained since issue #285, with no extraction step in the loop. Everything except the attached injector is identical to sim/psrr-dc/ (row 4a): same open-circuit VREF readout, same 1 V AC magnitude on the supply so v(vref) is the supply-to-reference transfer function and PSRR = -db(v(vref)), same 45-corner PVT matrix, same measurements, same DR-006 60 dB DC-1 kHz band-min floor. This bench exists to settle issue #300: it discriminates between the two competing explanations for row 4b's post-layout FAIL 25/45 (design property of the injector's MPC1/MPC2 reference stack vs. a klt extract --parasitics artifact, klayout-tools#2359). It is a diagnostic companion to row 4a, not a replacement for it -- row 4a remains the bare-core schematic PSRR claim, and the difference between the two rows IS the injector's cost with extraction held out.",
+    "provenance": "schematic",
+    "provenance_source": "sim/psrr-dc-with-injector/testbench/tb_vref_psrr_injector.sch",
+    "slug": "psrr-dc-with-injector",
+    "statistical_convention": "N/A (corner-matrix claim)",
+    "title": "Power-supply rejection ratio, DC-1 kHz band + 1 MHz spot, untrimmed core WITH the startup injector attached (schematic level)"
+  },
+  "git": {
+    "branch": "feature/issue-300",
+    "dirty": true,
+    "sha": "af9ff1e"
+  },
+  "links": {
+    "corners_dir": "sim/psrr-dc-with-injector/corners/20260923-124813-af9ff1e/",
+    "json": "sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e.json",
+    "manifest": "sim/psrr-dc-with-injector/experiment.json",
+    "netlist_snapshot": "sim/psrr-dc-with-injector/netlist-snapshots/20260923-124813-af9ff1e.spice",
+    "record": "sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e.md",
+    "testbench": "sim/psrr-dc-with-injector/testbench/tb_vref_psrr_injector.sch"
+  },
+  "matrix": {
+    "is_subset": false,
+    "n_points": 45,
+    "point_ids": [
+      "tt_-40c_2.97v",
+      "tt_-40c_3.30v",
+      "tt_-40c_3.63v",
+      "tt_27c_2.97v",
+      "tt_27c_3.30v",
+      "tt_27c_3.63v",
+      "tt_125c_2.97v",
+      "tt_125c_3.30v",
+      "tt_125c_3.63v",
+      "ss_-40c_2.97v",
+      "ss_-40c_3.30v",
+      "ss_-40c_3.63v",
+      "ss_27c_2.97v",
+      "ss_27c_3.30v",
+      "ss_27c_3.63v",
+      "ss_125c_2.97v",
+      "ss_125c_3.30v",
+      "ss_125c_3.63v",
+      "ff_-40c_2.97v",
+      "ff_-40c_3.30v",
+      "ff_-40c_3.63v",
+      "ff_27c_2.97v",
+      "ff_27c_3.30v",
+      "ff_27c_3.63v",
+      "ff_125c_2.97v",
+      "ff_125c_3.30v",
+      "ff_125c_3.63v",
+      "sf_-40c_2.97v",
+      "sf_-40c_3.30v",
+      "sf_-40c_3.63v",
+      "sf_27c_2.97v",
+      "sf_27c_3.30v",
+      "sf_27c_3.63v",
+      "sf_125c_2.97v",
+      "sf_125c_3.30v",
+      "sf_125c_3.63v",
+      "fs_-40c_2.97v",
+      "fs_-40c_3.30v",
+      "fs_-40c_3.63v",
+      "fs_27c_2.97v",
+      "fs_27c_3.30v",
+      "fs_27c_3.63v",
+      "fs_125c_2.97v",
+      "fs_125c_3.30v",
+      "fs_125c_3.63v"
+    ],
+    "points": [
+      [
+        "tt",
+        -40.0,
+        2.97
+      ],
+      [
+        "tt",
+        -40.0,
+        3.3
+      ],
+      [
+        "tt",
+        -40.0,
+        3.63
+      ],
+      [
+        "tt",
+        27.0,
+        2.97
+      ],
+      [
+        "tt",
+        27.0,
+        3.3
+      ],
+      [
+        "tt",
+        27.0,
+        3.63
+      ],
+      [
+        "tt",
+        125.0,
+        2.97
+      ],
+      [
+        "tt",
+        125.0,
+        3.3
+      ],
+      [
+        "tt",
+        125.0,
+        3.63
+      ],
+      [
+        "ss",
+        -40.0,
+        2.97
+      ],
+      [
+        "ss",
+        -40.0,
+        3.3
+      ],
+      [
+        "ss",
+        -40.0,
+        3.63
+      ],
+      [
+        "ss",
+        27.0,
+        2.97
+      ],
+      [
+        "ss",
+        27.0,
+        3.3
+      ],
+      [
+        "ss",
+        27.0,
+        3.63
+      ],
+      [
+        "ss",
+        125.0,
+        2.97
+      ],
+      [
+        "ss",
+        125.0,
+        3.3
+      ],
+      [
+        "ss",
+        125.0,
+        3.63
+      ],
+      [
+        "ff",
+        -40.0,
+        2.97
+      ],
+      [
+        "ff",
+        -40.0,
+        3.3
+      ],
+      [
+        "ff",
+        -40.0,
+        3.63
+      ],
+      [
+        "ff",
+        27.0,
+        2.97
+      ],
+      [
+        "ff",
+        27.0,
+        3.3
+      ],
+      [
+        "ff",
+        27.0,
+        3.63
+      ],
+      [
+        "ff",
+        125.0,
+        2.97
+      ],
+      [
+        "ff",
+        125.0,
+        3.3
+      ],
+      [
+        "ff",
+        125.0,
+        3.63
+      ],
+      [
+        "sf",
+        -40.0,
+        2.97
+      ],
+      [
+        "sf",
+        -40.0,
+        3.3
+      ],
+      [
+        "sf",
+        -40.0,
+        3.63
+      ],
+      [
+        "sf",
+        27.0,
+        2.97
+      ],
+      [
+        "sf",
+        27.0,
+        3.3
+      ],
+      [
+        "sf",
+        27.0,
+        3.63
+      ],
+      [
+        "sf",
+        125.0,
+        2.97
+      ],
+      [
+        "sf",
+        125.0,
+        3.3
+      ],
+      [
+        "sf",
+        125.0,
+        3.63
+      ],
+      [
+        "fs",
+        -40.0,
+        2.97
+      ],
+      [
+        "fs",
+        -40.0,
+        3.3
+      ],
+      [
+        "fs",
+        -40.0,
+        3.63
+      ],
+      [
+        "fs",
+        27.0,
+        2.97
+      ],
+      [
+        "fs",
+        27.0,
+        3.3
+      ],
+      [
+        "fs",
+        27.0,
+        3.63
+      ],
+      [
+        "fs",
+        125.0,
+        2.97
+      ],
+      [
+        "fs",
+        125.0,
+        3.3
+      ],
+      [
+        "fs",
+        125.0,
+        3.63
+      ]
+    ],
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "subset_reason": "",
+    "supply_v": [
+      2.97,
+      3.3,
+      3.63
+    ],
+    "temperature_c": [
+      -40.0,
+      27.0,
+      125.0
+    ]
+  },
+  "overall_pass": false,
+  "pdk": {
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "lib_file": "/home/ubuntu/.volare/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "root": "/home/ubuntu/.volare",
+    "variant": "sky130A"
+  },
+  "record_id": "20260923-124813-af9ff1e",
+  "spread_checks": [
+    {
+      "measurement": "psrr_dc",
+      "min_spread": 0.5,
+      "n": 45,
+      "note": "DC rejection must move by at least 0.5 dB across the 45-point matrix. A dead-flat result would mean the corner/temperature/supply knobs are not reaching the simulator.",
+      "observed_spread": 64.00835000000001,
+      "pass": true,
+      "reason": ""
+    }
+  ],
+  "supersedes": "",
+  "timestamp": "2026-09-23T12:48:13Z",
+  "tools": {
+    "ngspice": "ngspice-46 : Circuit level simulation program",
+    "platform": "Linux 7.0.0-1010-aws x86_64",
+    "python": "3.12.3",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}
