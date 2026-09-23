@@ -1,0 +1,53 @@
+{
+  "_comment": [
+    "KNOWN-GAP reproduction, half 1 of 2. NOT the item-11 artifact --",
+    "layout/bandgap-core/erc-supply-spec.json is. This file exists so the",
+    "gap that spec's ties_disclosure names is reproducible from this repo",
+    "rather than only asserted.",
+    "",
+    "Identical to erc-supply-spec.json's stackup/vias/nets, plus one ties[]",
+    "entry declaring the n-well tie at VDD. klt erc checks EVERY merged",
+    "shape on ties[].well_layer against that one net, and this block's",
+    "nwell 64/20 holds two differently-biased well classes:",
+    "",
+    "  - 4 PMOS-body wells, tapped up to VDD          -> pass",
+    "  - 2 vertical-PNP base wells, tapped up to VSS  -> reported as",
+    "    erc.missing_tie by THIS spec, though they are correctly tied",
+    "",
+    "Expected result: erc_status 'violations', exactly 2 erc.missing_tie",
+    "findings, both bounding the PNP base wells (the only two nwell shapes",
+    "that contain pnp.drawing 82/44 geometry). Zero erc.supply_short --",
+    "klayout-tools#2169's well-conductor collapse is fixed on klt 0.6.0",
+    "(#2186) and does not reproduce here.",
+    "",
+    "Read together with erc-nwell-tie-spec.known-gap.vss.json, whose four",
+    "findings are the exact complement: between them the two runs account",
+    "for all six nwell shapes and show each one tapped to its correct",
+    "supply. Upstream: 2AMLogic/klayout-tools#2339."
+  ],
+  "stackup": [
+    { "name": "poly", "layer": "66/20", "role": "gate", "active_layer": "65/20" },
+    { "name": "li1",  "layer": "67/20" },
+    { "name": "met1", "layer": "68/20", "label_layer": "68/5" },
+    { "name": "met2", "layer": "69/20" }
+  ],
+  "vias": [
+    { "name": "licon1", "layer": "66/44", "between": ["poly", "li1"] },
+    { "name": "mcon",   "layer": "67/44", "between": ["li1", "met1"] },
+    { "name": "via",    "layer": "68/44", "between": ["met1", "met2"] }
+  ],
+  "nets": [
+    { "name": "VDD", "kind": "supply" },
+    { "name": "VSS", "kind": "supply" }
+  ],
+  "ties": [
+    {
+      "name": "nwell_tie_vdd",
+      "well_layer": "64/20",
+      "tap_layer": "65/44",
+      "tap_is_dedicated": true,
+      "connect_to": "li1",
+      "net": "VDD"
+    }
+  ]
+}

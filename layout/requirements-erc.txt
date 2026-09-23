@@ -1,0 +1,52 @@
+# Pinned klayout-tools (`klt`) install for layout/'s ERC supply flow
+# (T1 item 11, issue #281) -- deliberately SEPARATE from requirements.txt.
+#
+# Why a second pin instead of bumping requirements.txt:
+#
+#   requirements.txt pins the DRC/LVS flow at commit acb0ae6c (2026-08-05).
+#   Every committed report under layout/bandgap-core/reports/ and
+#   layout/trivial-cell/reports/ was produced by that build, and
+#   layout/README.md's own bump rule requires re-running both flows and
+#   refreshing those records whenever the pin moves. `klt erc`'s supply-spec
+#   surface did not exist in usable form at that commit -- the pieces item 11
+#   grades (ties[] tap/well narrowing, erc_coverage, ties_disclosure, the
+#   deck-driven device-body carve-out, and the provenance block carrying the
+#   input content hash) all landed in September 2026. Bumping the shared pin
+#   to pick them up would drag the whole DRC/LVS evidence trail along with it,
+#   which is a much larger, separately-reviewable change than adding one
+#   static structural check. So the ERC flow gets its own pin and its own
+#   virtualenv (layout/.venv-erc), and the DRC/LVS evidence trail stays
+#   exactly where it is.
+#
+# Current pin: released tag v0.6.0 (commit c622e8addb362491664d44ba4d717f354ca88bbd,
+# 2026-09-22). A released tag, not a floating branch and not a bare commit,
+# for the same reproducibility discipline requirements.txt applies -- a
+# re-run months from now installs the identical build.
+#
+# What v0.6.0 specifically buys this flow, each verifiable in the committed
+# report's own provenance block:
+#
+#   - 2AMLogic/klayout-tools#2186 -- ties[] well conduction is scoped to its
+#     taps and the tie graph is isolated from the primary connectivity graph,
+#     fixing #2169's false erc.supply_short on any routed design. Re-confirmed
+#     against this block: the two known-gap tie specs in
+#     layout/bandgap-core/ declare a tie and report zero erc.supply_short.
+#   - #2183/#2205/#2217 -- `--deck sky130` carves the curated deck's own
+#     device-body markers (here: the res_high_po poly-resistor bodies) out of
+#     the conductor roles, so a drawn resistor is not read as a wire bridging
+#     the nets at its two ends.
+#   - #1979 -- stackup[0].active_layer, so the antenna denominator is
+#     poly n diff rather than raw poly area.
+#   - #1968/#2036/#2238 -- the status + provenance block whose
+#     provenance.input.content_hash is what ties the committed report to the
+#     committed GDS.
+#   - #2234/#2247/#2255 -- ties_disclosure, including kind "tool_limitation",
+#     which is how this spec states honestly that erc.missing_tie was not
+#     computed and why.
+#
+# Bump this pin when picking up new `klt erc` capability (in particular, a
+# well-side tie selector -- 2AMLogic/klayout-tools#2339 -- would let the
+# ties_disclosure in layout/bandgap-core/erc-supply-spec.json be replaced by a
+# real, checked ties[] declaration), and re-run
+# layout/bin/run-erc-supply-flow.sh to append a fresh record.
+klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@c622e8addb362491664d44ba4d717f354ca88bbd

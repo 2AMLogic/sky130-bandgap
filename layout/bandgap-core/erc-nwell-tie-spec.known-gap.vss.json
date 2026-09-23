@@ -1,0 +1,44 @@
+{
+  "_comment": [
+    "KNOWN-GAP reproduction, half 2 of 2. NOT the item-11 artifact --",
+    "layout/bandgap-core/erc-supply-spec.json is. See",
+    "erc-nwell-tie-spec.known-gap.vdd.json for the full explanation.",
+    "",
+    "This half declares the same n-well tie at VSS instead of VDD.",
+    "",
+    "Expected result: erc_status 'violations', exactly 4 erc.missing_tie",
+    "findings -- the four PMOS-body wells, which are correctly tapped up to",
+    "VDD and are therefore reported by THIS spec. The exact complement of",
+    "the .vdd.json half's two findings.",
+    "",
+    "Neither half is a layout defect. Both together are the evidence that",
+    "all six nwell shapes are tapped to their correct supply, and that klt",
+    "erc has no way to say so in one report. Upstream:",
+    "2AMLogic/klayout-tools#2339."
+  ],
+  "stackup": [
+    { "name": "poly", "layer": "66/20", "role": "gate", "active_layer": "65/20" },
+    { "name": "li1",  "layer": "67/20" },
+    { "name": "met1", "layer": "68/20", "label_layer": "68/5" },
+    { "name": "met2", "layer": "69/20" }
+  ],
+  "vias": [
+    { "name": "licon1", "layer": "66/44", "between": ["poly", "li1"] },
+    { "name": "mcon",   "layer": "67/44", "between": ["li1", "met1"] },
+    { "name": "via",    "layer": "68/44", "between": ["met1", "met2"] }
+  ],
+  "nets": [
+    { "name": "VDD", "kind": "supply" },
+    { "name": "VSS", "kind": "supply" }
+  ],
+  "ties": [
+    {
+      "name": "nwell_tie_vss",
+      "well_layer": "64/20",
+      "tap_layer": "65/44",
+      "tap_is_dedicated": true,
+      "connect_to": "li1",
+      "net": "VSS"
+    }
+  ]
+}

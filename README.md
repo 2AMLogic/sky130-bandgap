@@ -52,8 +52,9 @@ Separately, the sole Monte Carlo run on file predates both the ratified
 spec and the current design's error-amp resize, so the statistical evidence
 for the dominant accuracy term is stale (#180). Nothing here has been taped
 out or measured in silicon yet. See the maturity ladder below for where
-things currently stand, and issue #175's ten-item T1/bronze checklist
-re-read (5/10 pass as of 2026-08-15) for the full evidence-tier accounting.
+things currently stand, and [`signoff/README.md`](signoff/README.md) — this
+block's machine-graded gap-to-T1 tracker, an eleven-row `klt signoff
+--manifest` verdict — for the full evidence-tier accounting.
 
 **Built agent-native.** Every schematic, testbench, decision record, and
 line of documentation in this repo was produced by AI agents working from
