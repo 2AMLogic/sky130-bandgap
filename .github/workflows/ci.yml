@@ -9,7 +9,10 @@ name: CI
 #     pass/fail gates — drawn-short, label-collision, coverage scoring, and
 #     (via the `pip install klayout` step below) the met2 escape plane's own
 #     DRC rules in `test_met2_drc.py` — the curated sky130 deck declares no
-#     `met2.*`/`via.*` rule, so that file is the only thing checking it)
+#     `met2.*`/`via.*` rule, so that file is the only thing checking it,
+#     and `sim/tests/`'s coverage of the evidence-minting harnesses, which
+#     guards the provenance-hygiene invariants a committed, append-only
+#     record can never be repaired for afterwards, issue #288)
 #     -> `checks` job below, every push/PR. Headless, no PDK needed.
 #   - `scripts/ci/check_signoff_pins.py` (issue #292), run by that same
 #     `check:ci` — re-hashes the committed artifact behind every
