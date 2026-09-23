@@ -115,19 +115,25 @@ is recorded in
 [DR-009](spec/decision-records/DR-009-tc-floor-disposition-defer-curvature-correction.md):
 keep the row as ratified, disclose the FAIL, defer curvature correction). Trim has no evidence against the current
 ratified design at all (STALE, unaffected by this cycle). The remaining
-six ratified rows are mixed, not a clean pass: PSRR, supply (operability),
-Iq, area, and startup
+six ratified rows are mixed, not a clean pass: PSRR (schematic), supply
+(operability), Iq, area, and startup
 self-starting all pass on the current design/layout (re-run 2026-09
 against the post-#193 chained-array resize — see
 `sim/psrr-dc/records/20260909-232410-e8e2e46.md`,
-`sim/quiescent-current/records/20260909-232410-e8e2e46.md`,
+`sim/quiescent-current-post-layout/records/20260923-072514-dbd57a9.md`,
 `sim/startup-stability/records/20260909-232410-e8e2e46.md`, and their
 `-post-layout` counterparts), but the startup **time** (< 1 ms) half fails
 at 13/45 (schematic) and 16/45 (post-layout) fastest-corner points — see
 `sim/startup-ramp/records/20260910-010233-e8e2e46.md` and
-`sim/startup-ramp-post-layout/records/20260910-004925-e8e2e46.md` — and the
-core-as-composed startup-time bench fails everywhere by construction (no
-injector layout yet). See
+`sim/startup-ramp-post-layout/records/20260910-004925-e8e2e46.md` — and
+**PSRR post-layout now fails 25/45** since the startup injector was drawn
+into the composed cell (issue #285, disposition tracked in #300;
+`sim/psrr-dc-post-layout/records/20260923-073641-dbd4dda.md`). The
+core-as-composed startup-time bench, which used to fail everywhere by
+construction because the cell shipped no injector, now **passes 45/45
+post-layout** for the same reason
+(`sim/startup-time-post-layout/records/20260923-070906-dbd57a9.md`); its
+schematic half still measures the bare core and still fails, correctly. See
 [`design/block-characterization-report.md`](design/block-characterization-report.md)
 for the full row-by-row scoreboard. Post-layout extraction itself is
 no longer pending — seven `sim/*-post-layout/` suites (line-regulation,
