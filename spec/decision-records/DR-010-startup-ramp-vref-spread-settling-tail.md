@@ -138,13 +138,32 @@ i.e. +38 % simulation time per corner, and re-measured:
 | `ss/−40 °C/2.97 V` | 0.201 mV | 0.146 mV | −27 % |
 
 A 38 % longer window buys a ~17–28 % spread reduction and clears **one** of the
-13 failing corners — the marginal one. The failing cluster is at 2.5–13.7 mV,
-i.e. 2.5×–13.7× over bound; at that contraction rate the window required to bring
-the worst corner under 1 mV is two orders of magnitude past this bench's own
-`< 1 ms` scope, paid on 45 corners × 4 simulated copies × 2 representations. The
-relevant fact is not the exact extrapolated number (the tail is not a single
-exponential, so extrapolating it precisely is not meaningful) but the ratio: no
-*proportionate* window closes this.
+13 failing corners — the marginal one.
+
+**And the tail flattens, which is the part that settles the question.** The new
+`vref_spread_early` tap measures the contraction over the *earlier* interval
+`1.45 → 2.45 ms` on the same corners (records
+`sim/startup-ramp/records/20260923-092903-079a778`,
+`sim/startup-ramp-post-layout/records/20260923-093126-079a778`):
+
+| corner | representation | `1.45 ms` | `2.45 ms` | contraction |
+|---|---|---|---|---|
+| `sf/−40 °C/3.63 V` (worst overall) | schematic | 22.740 mV | 13.661 mV | −39.9 % |
+| `sf/−40 °C/3.63 V` (worst overall) | post-layout | 27.506 mV | 16.746 mV | −39.1 % |
+| `tt/−40 °C/3.63 V` (marginal) | schematic | 2.016 mV | 1.152 mV | −42.9 % |
+| `sf/125 °C/3.63 V` | both | 0.000 mV | 0.000 mV | — |
+
+Put the two intervals side by side at the **same** corner, `tt/−40 °C/3.63 V`:
+**−42.9 %** over `1.45 → 2.45 ms`, then only **−17 %** over `2.45 → 3.40 ms`. The
+decay is markedly slower than exponential — an exponential fitted to the early
+interval would predict clearing 1 mV a few milliseconds later, and the measured
+later interval shows it does not. So extrapolating a specific required window is
+not meaningful, and this record deliberately does not quote one. What the two
+intervals *do* establish is the shape of the trade: each additional millisecond
+of window costs ~40 % more simulation time on 45 corners × 4 simulated copies ×
+2 representations and removes a **shrinking** fraction of a residual that starts
+at 13.7× (schematic) and 16.7× (post-layout) over bound at the worst corner. No
+*proportionate* window closes this, and that is the finding — not a number.
 
 ## Decision
 
@@ -284,6 +303,13 @@ bounded exception covering the latter.
   deliberately is refused from the command line rather than silently overridden.
 - Per-corner simulation cost is **unchanged** — the new taps read a trajectory
   already being solved.
+- **The additivity claim is verified, not asserted.** On the four (schematic) and
+  two (post-layout) corners the new records share with the full-matrix ones, every
+  measurement reproduces **bit-identically** except `t_start_f` at
+  `sf/−40 °C/3.63 V`, which differs by 1 ps (schematic) / 5 ps (post-layout) —
+  interpolation round-off against a 1 ms bound — even though the new runs were made
+  on a different OS and architecture (Linux x86_64 vs Darwin arm64). So the new taps
+  perturbed nothing, and the full-matrix corner counts stand without re-derivation.
 - Every future record of these two benches carries a per-corner contraction
   (`vref_spread_early` → `vref_spread`), so the "is it converging or is it stuck"
   question is answerable from the record itself instead of by cross-reading a

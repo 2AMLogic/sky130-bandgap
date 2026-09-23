@@ -107,6 +107,22 @@ The residual stays charged against issue #11's budget and rows 8c/8d of
 `design/block-characterization-report.md` stay FAIL on this check — DR-010 is the
 numbered, bounded exception covering it, not a waiver.
 
+### The new record re-derives the old one exactly
+
+`20260923-092903-079a778` re-ran four of `20260910-010233-e8e2e46`'s corners with
+the post-#284 manifest, on a **different OS and architecture** (Linux x86_64 vs
+the Darwin arm64 the full-matrix record was minted on). Comparing the two record
+JSONs measurement by measurement on those four corners: every value is
+**bit-identical** except `t_start_f` at `sf/−40 °C/3.63 V`, which differs by
+**1 ps** (−227.641 ns vs −227.640 ns) — interpolation round-off on a fast-ramp
+crossing, against a 1 ms bound. The post-layout pair reproduces the same way
+(5 ps on the same measurement).
+
+That is the concrete evidence for "the manifest edit is purely additive": the
+three new `at=1.45e-3` taps did not perturb a single existing number, so the
+full-matrix record's 13/45 corner count needs no re-derivation. It is also, as a
+by-product, a cross-platform reproducibility check this bench had never had.
+
 ### Record index update
 
 | Record | Points | Status |
