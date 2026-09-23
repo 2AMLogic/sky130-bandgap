@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "engine": "klayout",
+  "layout": "bandgap_core_routed.extract.spice",
+  "reference": "reference.spice",
+  "top": "BANDGAP_CORE_ROUTED",
+  "status": "match",
+  "mismatch_count": 0,
+  "category_counts": {},
+  "counts": {
+    "nets": {
+      "layout": 14,
+      "reference": 14,
+      "matched": 14
+    },
+    "devices": {
+      "layout": 22,
+      "reference": 22,
+      "matched": 22
+    },
+    "pins": {
+      "layout": 13,
+      "reference": 4,
+      "matched": 13
+    }
+  },
+  "device_classes": null,
+  "environment": {
+    "engine": "klayout",
+    "engine_version": "0.30.12",
+    "layout_sha256": "29937be4094b51b79d898ea0f4ed0aeb5c8ab4fbd97823f56a49789b229799a2",
+    "reference_sha256": "e722ce6553b3008772dcc3ae79fcaea76713311d068ffb95ca824f13e6e69c6e",
+    "extracted_netlist": null
+  },
+  "provenance": {
+    "klt_version": "0.2.0",
+    "klayout_version": "0.30.12",
+    "pdk": null,
+    "deck": null,
+    "input": null
+  },
+  "mismatches": [],
+  "net_correspondence": [
+    {
+      "layout": "D1",
+      "reference": "D1",
+      "pin": true
+    },
+    {
+      "layout": "D2",
+      "reference": "D2",
+      "pin": true
+    },
+    {
+      "layout": "GDRV",
+      "reference": "GDRV",
+      "pin": true
+    },
+    {
+      "layout": "$182",
+      "reference": "NC1",
+      "pin": false
+    },
+    {
+      "layout": "NE",
+      "reference": "NE",
+      "pin": true
+    },
+    {
+      "layout": "NG",
+      "reference": "NG",
+      "pin": true
+    },
+    {
+      "layout": "PN",
+      "reference": "PN",
+      "pin": true
+    },
+    {
+      "layout": "TAIL",
+      "reference": "TAIL",
+      "pin": true
+    },
+    {
+      "layout": "VA",
+      "reference": "VA",
+      "pin": true
+    },
+    {
+      "layout": "VB",
+      "reference": "VB",
+      "pin": true
+    },
+    {
+      "layout": "VBQ",
+      "reference": "VBQ",
+      "pin": true
+    },
+    {
+      "layout": "VDD",
+      "reference": "VDD",
+      "pin": true
+    },
+    {
+      "layout": "VOUT",
+      "reference": "VOUT",
+      "pin": true
+    },
+    {
+      "layout": "VSS",
+      "reference": "VSS",
+      "pin": true
+    }
+  ],
+  "combine_devices": true
+}

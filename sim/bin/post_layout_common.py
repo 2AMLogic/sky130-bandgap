@@ -156,6 +156,55 @@ def resolve_latest_layout(bandgap_core_dir: Path) -> tuple[str, Path, Path]:
     return record_id, record_dir, gds
 
 
+#: Device cards `layout/bandgap-core/reference.spice` states for the startup
+#: injector (issue #285). The layout flow copies its reference netlist into
+#: every record directory, so the record itself says whether the cell it
+#: describes draws the injector -- no GDS parsing needed.
+_INJECTOR_REFERENCE_CARDS = ("MMPC1", "MMPC2", "MMNS", "MMNI", "MMNC", "QQS")
+
+
+def layout_record_draws_injector(record_dir: Path) -> bool:
+    """True if this layout record's own reference netlist carries the startup
+    injector's devices, i.e. the composed cell draws it (issue #285)."""
+    reference = record_dir / "reference.spice"
+    if not reference.is_file():
+        raise PostLayoutError(f"no reference.spice in layout record {record_dir}")
+    text = reference.read_text()
+    return all(re.search(rf"^{card}\s", text, re.M) for card in _INJECTOR_REFERENCE_CARDS)
+
+
+def refuse_if_layout_draws_injector(slug: str) -> None:
+    """Abort a MIXED-PROVENANCE startup bench whose testbench netlists its own
+    `design/startup_injector.sym` instances alongside the extracted core.
+
+    Such a bench is only correct while the composed cell has NO injector of its
+    own. Since issue #285 it has one, so running unchanged would put two
+    injectors on every injector-equipped instance and would silently convert
+    the bench's bare-core CONTROL instances into injector-equipped ones -- a
+    wrong answer that looks like a normal run, with numbers, and would be
+    appended to `sim/`'s append-only evidence before anyone noticed. A guard
+    is therefore the only safe shape: this is a structural refusal, not a
+    docstring warning, precisely because the failure is invisible in the
+    output.
+
+    Restructuring these two benches (their own post-layout testbench, and a
+    decision about the control instances, which the drawn cell cannot express
+    any more) is tracked in issue #299.
+    """
+    record_id, record_dir, _gds = resolve_latest_layout(LAYOUT_BANDGAP_CORE_DIR)
+    if not layout_record_draws_injector(record_dir):
+        return
+    raise PostLayoutError(
+        f"{slug}: refusing to run against layout record {record_id}, which DRAWS "
+        "the startup injector (issue #285). This bench wraps a testbench that "
+        "netlists design/startup_injector.sym separately, so the run would "
+        "double-count the injector on its DUT instances and silently make its "
+        "bare-core control instances injector-equipped. See issue #299 for the "
+        "restructuring this bench needs; until then the newest valid record here "
+        "is the one taken against a pre-#285 layout record."
+    )
+
+
 # --------------------------------------------------------------------------
 # klt extract --parasitics
 # --------------------------------------------------------------------------
@@ -214,7 +263,22 @@ def run_klt_extract_parasitics(
 _UNIT_SUFFIX_RE = re.compile(r"(-?\d+\.?\d*)[UP]\b")
 _M_RE = re.compile(r"^(M\$\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(nfet|pfet)\s+(.*)$")
 _Q_RE = re.compile(r"^(Q\$\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+pnp\s+AE=([0-9.]+)P.*$")
-_R_RE = re.compile(r"^(R\$\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+([0-9.]+)\s+res_high_po$")
+# Trailing device parameters after the model name are OPTIONAL and ignored.
+# They have to be: KLayout 0.30.10 wrote `R$n <a> <b> <bulk> <value>
+# res_high_po` and 0.30.12 writes `... res_high_po L=5U W=1U`, and this
+# pattern was anchored on `res_high_po$`. Against the newer writer it matched
+# nothing at all, so every resistor fell through untranslated and
+# `run_post_layout_experiment`'s own translation-coverage guard aborted the
+# run (`translated ... res=0, extraction reports ... res_high_po=145`) --
+# which is the guard doing its job, but it stopped every post-layout bench in
+# the suite from running at all. The geometry is not needed either way: the
+# translated card is a plain ngspice resistor stated at the extracted
+# `<value>` in ohms, so L/W carry no information the value does not already
+# carry. Reproduced on the unmodified pre-issue-#285 layout record, i.e. this
+# is an environment/KLayout-version brittleness, not a layout change.
+_R_RE = re.compile(
+    r"^(R\$\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+([0-9.]+)\s+res_high_po\b.*$"
+)
 
 # Boundary between the two PNP unit sizes this design draws (0.4624 um^2
 # small/CTAT vs 11.56 um^2 large/PTAT) -- see module docstring point 2.

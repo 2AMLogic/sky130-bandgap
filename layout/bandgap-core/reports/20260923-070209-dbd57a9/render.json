@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "file": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_routed.gds",
+  "output_dir": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders",
+  "width": 1600,
+  "height": 900,
+  "background": "#ffffff",
+  "overview": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/overview.png",
+  "layer_count": 16,
+  "rendered_count": 16,
+  "layers": [
+    {
+      "layer": 64,
+      "datatype": 20,
+      "name": null,
+      "shapes": 13,
+      "annotation": false,
+      "path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/64_20.png",
+      "rendered": true
+    },
+    {
+      "layer": 65,
+      "datatype": 20,
+      "name": null,
+      "shapes": 148,
+      "annotation": false,
+      "path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/65_20.png",
+      "rendered": true
+    },
+    {
+      "layer": 65,
+      "datatype": 44,
+      "name": null,
+      "shapes": 44,
+      "annotation": false,
+      "path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/65_44.png",
+      "rendered": true
+    },
+    {
+      "layer": 66,
+      "datatype": 13,
+      "name": null,
+      "shapes": 157,
+      "annotation": false,
+      "path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/66_13.png",
+      "rendered": true
+    },
+    {
+      "layer": 66,
+      "datatype": 20,
+      "name": null,
+      "shapes": 303,
+      "annotation": false,
+      "path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/66_20.png",
+      "rendered": true
+    },
+    {
+      "layer": 66,
+      "datatype": 44,
+      "name": null,
+      "shapes": 739,
+      "annotation": false,
+      "path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/66_44.png",
+      "rendered": true
+    },
+    {
+      "layer": 67,
+      "datatype": 20,
+      "name": null,
+      "shapes": 616,
+      "annotation": false,
+      "path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/67_20.png",
+      "rendered": true
+    },
+    {
+      "layer": 67,
+      "datatype": 44,
+      "name": null,
+      "shapes": 564,
+      "annotation": false,
+      "path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/67_44.png",
+      "rendered": true
+    },
+    {
+      "layer": 68,
+      "datatype": 5,
+      "name": null,
+      "shapes": 13,
+      "annotation": false,
+      "path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/68_5.png",
+      "rendered": true
+    },
+    {
+      "layer": 68,
+      "datatype": 20,
+      "name": null,
+      "shapes": 1044,
+      "annotation": false,
+      "path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/68_20.png",
+      "rendered": true
+    },
+    {
+      "layer": 68,
+      "datatype": 44,
+      "name": null,
+      "shapes": 26,
+      "annotation": false,
+      "path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/68_44.png",
+      "rendered": true
+    },
+    {
+      "layer": 69,
+      "datatype": 20,
+      "name": null,
+      "shapes": 56,
+      "annotation": false,
+      "path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/69_20.png",
+      "rendered": true
+    },
+    {
+      "layer": 82,
+      "datatype": 44,
+      "name": null,
+      "shapes": 36,
+      "annotation": false,
+      "path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/82_44.png",
+      "rendered": true
+    },
+    {
+      "layer": 83,
+      "datatype": 20,
+      "name": null,
+      "shapes": 24,
+      "annotation": false,
+      "path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/83_20.png",
+      "rendered": true
+    },
+    {
+      "layer": 86,
+      "datatype": 20,
+      "name": null,
+      "shapes": 157,
+      "annotation": false,
+      "path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/86_20.png",
+      "rendered": true
+    },
+    {
+      "layer": 94,
+      "datatype": 20,
+      "name": null,
+      "shapes": 157,
+      "annotation": false,
+      "path": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/renders/94_20.png",
+      "rendered": true
+    }
+  ]
+}

@@ -3629,6 +3629,71 @@ no exception and no `device.combine_incomplete` warning -- but reached via the
   report today would pin a verdict that does not reproduce. Item 4 closes on
   klayout-tools#2374, not on a re-run.
 
+### 7gg. Thirty-fifth increment: the startup injector is drawn into the composed cell (issue #285) -- `devices.matched` 16 -> 22, and the first PSRR number this design has ever had with an injector attached
+
+*(Numbered 7gg: 7ee is issue #283's citation correction and 7ff is issue #288's combine-determinism finding, both landed while this increment was in flight.)*
+-> #2359 citation correction, issue #283.)*
+
+**What was wrong.** `design/startup_injector.sch` had no layout. The composed
+cell therefore shipped without it, and -- because `reference.spice`
+transcribed `design/bandgap_core.sch` alone -- `klt lvs` was clean across a
+gap **both sides shared**. Every post-layout record in `sim/` was a
+measurement of a circuit the schematic-level rows do not describe, which is
+what made `design/block-characterization-report.md` rows 8a and 8e describe
+two different circuits while sitting in the same table.
+
+**What was drawn.** Five new blocks, all on the existing row 3 (`amp_cc`'s):
+`su_ref` (a `diff_pair` at `splits=1` for MPC1/MPC2, the injector's only
+matched pair), `su_sense`/`su_inj`/`su_clamp` (single-unit `mos_array`
+blocks for MNS/MNI/MNC, which share W/L with nothing), and `pnp_su` (a
+`bjt_array` identical to `pnp_ctat` -- QS is the same unit device at the same
+count). Row 3 was reused rather than a sixth row opened, and that is an AREA
+decision: row 3 is 63.38 um tall and 102 um narrower than the widest row, so
+the tallest injector block (MNS, 48.82 um) fits inside height the floorplan
+already pays for. A sixth row would have cost `ROW_MARGIN_UM` + 48.82 um
+across the cell's full width, ~21,000 um^2, which lands the cell over
+DR-007's 80,000 um^2 budget. Measured cost of the chosen shape: 66,293 ->
+**70,360 um^2** (+6.1 %, 12 % margin remaining).
+
+**The one generator-level thing that had to change.** `bus_mos_comb` derived
+its horizontal trunk-lane spacing purely from the device row's own height
+(`height / (lanes + 1)`). Every block drawn before this one has rows >= 6 um
+tall, so that formula was always legal by accident. On MPC1/MPC2's W=1
+devices it derives a **0.25 um** pitch against met1's 0.24 um width plus the
+deck's 0.14 um `met1.space.1` -- and the first drawn attempt produced six
+drawn-short conflicts and seven `met1.space.1` violations, i.e. two nodes'
+trunks merged into one conductor, which reads *downstream* as better
+connectivity. Two changes close it: a `MOS_LANE_PITCH_UM` floor (a row too
+short for its own lanes now **raises instead of drawing**), and a per-row
+*dense rank* of the block-wide node order so a node absent from a row does
+not leave a gap that pushes the outermost lane past the row edge. The rank is
+a rank, never a re-ordering, which is what preserves the comb's planarity
+argument. `layout/tests/test_routed_flow_gates.py::TestCombLanePitch` asserts
+both properties plus the non-regression one: rows >= 6 um still get the old
+height-derived spacing, so every previously drawn block reproduces unchanged.
+
+**Result.** DRC clean, met2-DRC clean, `klt lvs` (with `combine_devices`)
+`match` at `mismatch_count: 0` with **22/22 devices and 14/14 nets** matched,
+up from 16/16 and 11/11 (`layout/bandgap-core/reports/20260923-070209-dbd57a9/`).
+
+**What the re-run measured, including the part that is not good news.** Five
+post-layout benches were re-run against the injector-inclusive extracted
+netlist. `startup-time-post-layout` flipped FAIL 45/45 -> **PASS 45/45**
+(`gdrv_final` 1.598-2.611 V; the degenerate all-off state parks it at VDD) --
+the injector demonstrably works in the drawn cell. `psrr-dc-post-layout`
+flipped the other way: PASS 45/45 -> **FAIL 25/45**, `psrr_band_min` down to
+22.75 dB against DR-006's 60 dB floor, corroborated by
+`line-regulation-post-layout`'s `line_shift_mv` going 0.038 -> 18.47 mV at
+the same worst corner. The degradation is monotone in supply and
+fast-PMOS-selective (worst at `sf`/`ff`/3.63 V, ~0 dB at `fs`/-40 C), which
+is the signature of MPC1/MPC2's supply-dependent standing current out of the
+amplifier's high-impedance GDRV node -- **not** of the NMOS clamp MNC, which
+would show the opposite process selectivity. This is the first PSRR number
+this design has ever had with an injector attached at all (`sim/psrr-dc`
+instantiates `design/bandgap_core.sym` alone), so it is newly *measured*
+rather than necessarily newly *introduced*. Disposition is issue **#300**;
+the explicitly wrong lever is removing the injector from the layout again.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five
