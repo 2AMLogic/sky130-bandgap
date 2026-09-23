@@ -55,6 +55,18 @@ below, not summarized away.
   first commit and every subsequent one).
 - **A pointer to this rule also lives in [`sim/README.md`](../sim/README.md)** (added by
   this same change) so a reader who starts there is routed here.
+- **Revision, 2026-09-23 (issue #292) — tool-claim correction only, no row re-derived.**
+  §1, §3 row 7, and §4 asserted three things about `klt` that had gone stale since this
+  report was generated: that `klt signoff --manifest` "does not work in this
+  environment" (klayout-tools#1050, closed upstream 2026-08-16) and that `klt pex` "is
+  still not implemented upstream" (klayout-tools Epic #709, closed 2026-08-14). Both are
+  corrected in place, with the superseded claim quoted rather than deleted. **No
+  measured value, verdict, binding corner, or citation in §2/§3 was touched** — the
+  "Generated against `e8e2e46`" basis above still describes every row, and this revision
+  is not a regeneration. It does change this file's bytes, which is deliberate: T1 item
+  8 pins this report's `sha256`, so `./signoff/regenerate.sh` was re-run and
+  `signoff/evidence/characterization.generic.json`, `signoff/block-manifest.json`, and
+  `signoff/signoff-report.json` were re-committed with it.
 
 ## 1. What `klt signoff` already produces, and what it does not
 
@@ -75,32 +87,35 @@ below.
   extraction agreeing on one input. That result backs item 3/4's rows in Section 2
   directly, instead of this report re-deriving pass/fail by hand. Re-run directly for
   this regeneration (issue #279), not merely re-cited.
-- **Tier-verdict mode (`klt signoff --manifest`) does not work in this environment, for
-  a real, generic (non-design-specific) reason**: the pinned `klt` build (`0.2.0`, `uv
-  tool install`) cannot locate `docs/design-evidence-tiers.md` — the doc-parsing modes
-  compute that path relative to the installed package's own site-packages location
-  (`Path(__file__).resolve().parent.parent.parent / "docs" / "design-evidence-tiers.md"`),
-  which only resolves for an in-place source checkout, not a packaged install; the wheel
-  does not bundle `docs/` as package data, and there is no `--tiers-doc` override flag.
-  Confirmed directly:
+- **Tier-verdict mode (`klt signoff --manifest`) works, and is now this block's T1
+  verdict of record** (corrected 2026-09-23, issue #292 — see the revision note in §0).
+  `signoff/block-manifest.json` + the committed, mechanically re-graded
+  `signoff/signoff-report.json` are the authoritative per-item T1 reading for this
+  block; [`signoff/README.md`](../signoff/README.md) explains the verdict row by row and
+  CI re-grades it on every push/PR. **This report is no longer the T1 checklist's
+  reading**; it remains item 8's own evidence artifact (the aggregated per-spec-row
+  roll-up in §2), cited from that manifest via
+  `signoff/evidence/characterization.generic.json`.
 
-  ```
-  $ echo '{"kind":"analog","block":"bandgap-core","evidence":{}}' | klt signoff --manifest - --format json
-  {"schema_version": 1, "error": {"command": "signoff", "message": "could not read
-  design-evidence-tiers doc at '.../lib/python3.12/docs/design-evidence-tiers.md': ..."}}
-  ```
+  The earlier revision of this section recorded the opposite, correctly for its time:
+  the then-pinned `klt` build (`0.2.0`, `uv tool install`) could not locate
+  `docs/design-evidence-tiers.md`, because the doc-parsing modes computed that path
+  relative to the installed package's own site-packages location, which resolves only
+  for an in-place source checkout and not a packaged install — and there was no
+  `--tiers-doc` override flag. That was a packaging gap in `klt` itself, generic to any
+  consumer installing it the documented way, and was filed upstream per this repo's
+  friction protocol as
+  **[2AMLogic/klayout-tools#1050](https://github.com/2AMLogic/klayout-tools/issues/1050)** —
+  **closed upstream 2026-08-16**. `--tiers-doc` is exactly how `signoff/regenerate.sh`
+  now grades (against a vendored, pinned copy of the checklist doc).
 
-  This is a packaging gap in `klt` itself, not something fixable from this repo, and it
-  is generic to any consumer installing `klt` the documented way — filed upstream per
-  this repo's friction protocol, kept tool-scoped and design-agnostic:
-  **[2AMLogic/klayout-tools#1050](https://github.com/2AMLogic/klayout-tools/issues/1050)**.
-  Until it lands, items 5–7 (PVT vs. ratified spec, Monte Carlo, post-layout) are graded
-  by hand below, from the same `sim/*/records/*.json` envelopes a fixed `--manifest`
-  mode would eventually consume — but note those records use **this repo's own**
-  corner-run/record schema (`record_id`/`matrix`/`corners`/…), not `klt`'s
-  `schema_version`/`kind` envelope contract (`klt` has no `sim` verb of its own), so even
-  a fixed `--manifest` mode would need a translation step for items 5–7 that items 3/4
-  do not.
+  What has *not* changed: items 5–7 (PVT vs. ratified spec, Monte Carlo, post-layout)
+  are still graded by hand below, and are still **uncited** in the manifest. This repo's
+  `sim/*/records/*.json` use **this repo's own** corner-run/record schema
+  (`record_id`/`matrix`/`corners`/…), not `klt`'s `schema_version`/`kind` envelope
+  contract (`klt` has no `sim` verb of its own), so a working `--manifest` mode still
+  needs a translation step for items 5–7 that items 3/4 do not — citing a near-miss
+  envelope to turn those rows green is the documented anti-pattern, not a shortcut.
 
 ## 2. Per-ratified-spec-row scoreboard
 
@@ -156,7 +171,7 @@ README; see §5.
 | 4. LVS | **PASS, single-engine** | same report dir | `lvs.combined.json` (`mismatch_count: 0`, 11/11 nets, 16/16 devices, engine `klayout` only) — same `klt signoff` run |
 | 5. Full PVT vs. ratified spec | **MIXED** | 2026-08-17 (`sim/output-voltage-tc(-post-layout)/records/20260817-0*-13476b7`) | row 1a (output accuracy, schematic) now **PASSES 45/45** (verdict flip from the pre-#193 evidence); row 1b (post-layout) still **FAILs 15/15**, but as a disclosed extraction artifact (klayout-tools#800), not a design defect; rows 3a/3b (box-method TC) still **FAIL 45/45 and 15/15** at every corner — the TC-floor disposition is tracked in #179 and is explicitly out of this report's (and issue #279's) scope to resolve |
 | 6. Monte Carlo | **PASS** (fresh, not stale) | 2026-08-17, commits `d7d85b6`/`aa5324e` | `sim/monte-carlo-untrimmed/records/20260817-121131-d7d85b6.md` — re-run against the **current** chained-array design (`n_r2=51`, issue #193) and the ratified ±2 % window; yield is now 79.4–95.7 % across all three temperatures (row 1c), a verdict flip from the pre-#193 0.00 % yield at 125 °C. The contributor-breakdown half `sim/error-amp-offset-mc/records/20260817-130441-aa5324e.md` (closed by issue #180/PR #196) is likewise current, closing the staleness this report previously flagged. |
-| 7. Post-layout | **CURRENT, one disclosed artifact and one expected gap** | 2026-08-17 through 2026-09-10 (this issue, #279), layout report `20260817-020222-13476b7` | Mechanism is current: `klt extract --parasitics` → `sim/bin/post_layout_common.py` re-runs every schematic-level bench. Every post-layout suite now carries a ratified-graded record at or after the post-#193 design/layout (`13476b7`/`d7d85b6` for the four benches out of this issue's rerun scope; `e8e2e46` for the six this issue re-ran — PSRR, Iq, and the three startup benches). Where the schematic row passes, the post-layout rerun passes (rows 4b/6b/8b); where it fails, post-layout inherits (rows 1b [artifact], 3b, 8d) or worsens (8d's FAIL count, 12→16/45) rather than fixing. `klt pex` (the machine-checkable parasitic-delta grader `docs/cli/signoff.md` names as the only accepted automated evidence for this item) is still not implemented upstream ([klayout-tools Epic #709](https://github.com/2AMLogic/klayout-tools/issues/709)) — the extraction-based re-run above remains the manual substitute this repo actually has. **No bench remains draft-graded**: `sim/quiescent-current-post-layout/` and `sim/startup-time-post-layout/` (the two issue #279 named) now carry their first ratified-graded records; `sim/line-regulation-post-layout/` was already cleared by issue #193. |
+| 7. Post-layout | **CURRENT, one disclosed artifact and one expected gap** | 2026-08-17 through 2026-09-10 (this issue, #279), layout report `20260817-020222-13476b7` | Mechanism is current: `klt extract --parasitics` → `sim/bin/post_layout_common.py` re-runs every schematic-level bench. Every post-layout suite now carries a ratified-graded record at or after the post-#193 design/layout (`13476b7`/`d7d85b6` for the four benches out of this issue's rerun scope; `e8e2e46` for the six this issue re-ran — PSRR, Iq, and the three startup benches). Where the schematic row passes, the post-layout rerun passes (rows 4b/6b/8b); where it fails, post-layout inherits (rows 1b [artifact], 3b, 8d) or worsens (8d's FAIL count, 12→16/45) rather than fixing. `klt pex` (the machine-checkable parasitic-delta grader `docs/cli/signoff.md` names as the only accepted automated evidence for this item) **has landed upstream** — [klayout-tools Epic #709](https://github.com/2AMLogic/klayout-tools/issues/709) closed 2026-08-14 and `docs/cli/pex.md` documents the verb (corrected 2026-09-23, issue #292; this row previously said it was "still not implemented upstream"). What is true is that **this repo has not produced a `klt pex` report**: the extraction-based re-run above is still the substitute it actually has, and T1 item 7 is uncited in `signoff/block-manifest.json` for exactly that reason (`klt extract --parasitics` output is not the `delta[]`/`reference_netlist`/`corner_count` shape item 7 accepts). The gap is now this repo's, not the tool's. **No bench remains draft-graded**: `sim/quiescent-current-post-layout/` and `sim/startup-time-post-layout/` (the two issue #279 named) now carry their first ratified-graded records; `sim/line-regulation-post-layout/` was already cleared by issue #193. |
 
 ## 4. Known blind spots (disclosed, not fixed here)
 
@@ -175,15 +190,31 @@ surfaced:
   (`klayout`) agreeing with itself — the independent-second-engine cross-check
   [klayout-tools#343](https://github.com/2AMLogic/klayout-tools/issues/343) describes
   has not landed.
-- **No `klt pex`.** The machine-checkable parasitic-delta post-layout grader named by
-  `docs/cli/signoff.md` does not exist upstream yet
-  ([klayout-tools Epic #709](https://github.com/2AMLogic/klayout-tools/issues/709));
-  this repo's extraction-based re-simulation (`klt extract --parasitics` translated and
-  re-run through every schematic-level bench) is the manual substitute.
-- **`klt signoff --manifest`/`--fleet` unusable from a packaged install.** Confirmed and
-  filed generically upstream:
-  [2AMLogic/klayout-tools#1050](https://github.com/2AMLogic/klayout-tools/issues/1050)
-  (§1 above). The envelope-aggregation mode (no `--manifest`) works and is used in §1/§3.
+- **No `klt pex` *run* in this repo** (corrected 2026-09-23, issue #292 — this bullet
+  previously read "No `klt pex`", claiming the verb did not exist upstream). The
+  machine-checkable parasitic-delta post-layout grader named by `docs/cli/signoff.md`
+  **does** exist upstream now:
+  [klayout-tools Epic #709](https://github.com/2AMLogic/klayout-tools/issues/709) closed
+  2026-08-14 and `docs/cli/pex.md` documents it. This repo has simply never run it — its
+  post-layout evidence is still extraction-based re-simulation (`klt extract
+  --parasitics` translated and re-run through every schematic-level bench), which T1
+  item 7 does not accept, so that item stays uncited in `signoff/block-manifest.json`.
+  The blind spot is real; its cause is this repo's, not the tool's.
+- **`klt signoff --manifest`/`--fleet` — resolved, no longer a blind spot** (corrected
+  2026-09-23, issue #292; this bullet previously read "unusable from a packaged
+  install"). [2AMLogic/klayout-tools#1050](https://github.com/2AMLogic/klayout-tools/issues/1050)
+  closed upstream 2026-08-16, and tier-verdict mode is what
+  [`signoff/`](../signoff/README.md) now grades this block with on every push/PR (§1
+  above). The envelope-aggregation mode (no `--manifest`) also still works and is used
+  in §1/§3.
+- **A manifest pin does not prove the artifact behind it is unchanged** (issue #292).
+  `klt signoff` compares each citation's `content_hash` against the hash the cited
+  envelope *recorded*, never against the artifact itself
+  (`citation.input_verified: null` on every row of `signoff/signoff-report.json`), so
+  re-grading alone cannot detect an edit to this report or a rewrite of the routed GDS.
+  That is covered separately, and only since #292, by `scripts/ci/check_signoff_pins.py`
+  in CI's `checks` job — which is why editing this file requires re-running
+  `./signoff/regenerate.sh` (it re-pins item 8's envelope from this file's bytes).
 - **Trim-network evidence is stale against the current ratified design** (row 2) — the
   same class of gap #180 flagged for Monte Carlo (now closed) and issue #279 closed for
   PSRR/Iq/startup; no issue currently tracks a refresh of `sim/trim-lsb-chained/`, and

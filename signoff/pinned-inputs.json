@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "comment": "Every `content_hash` in signoff/block-manifest.json pins the artifact the cited envelope *describes* (its own `provenance.input.content_hash`), not the envelope file. `klt signoff` cannot re-hash that artifact -- it only compares the manifest pin against the hash the envelope recorded, so both sides can agree while the artifact on disk has moved on (citation.input_verified is null on every row). This file names, per pinned citation, where that artifact lives in this repo, so scripts/ci/check_signoff_pins.py can re-hash it. Issue #292; see signoff/README.md.",
+  "pins": [
+    {
+      "item": "3",
+      "describes": "layout/bandgap-core/reports/20260817-020222-13476b7/bandgap_core_routed.gds",
+      "note": "drc.json records its input as an absolute path into the worktree that produced it (/Users/.../.loom/worktrees/issue-178/...), which resolves on no other machine -- filed upstream as klayout-tools#2340. This is that same stream's committed, repo-relative location."
+    },
+    {
+      "item": "8",
+      "describes": "design/block-characterization-report.md",
+      "note": "characterization.generic.json is the hand-rolled `kind: generic` envelope asserting this report; signoff/regenerate.sh step 1 refreshes both the envelope's provenance.input.content_hash and the manifest pin from the report's own bytes."
+    },
+    {
+      "item": "11",
+      "index": 0,
+      "describes": "layout/bandgap-core/reports/20260817-020222-13476b7/bandgap_core_routed.gds",
+      "note": "the `klt erc` supply run pins the same routed GDS item 3 grades (its envelope records the repo-relative path itself). Item 11's second citation (lvs.combined.json) is deliberately unpinned -- see layout/bin/erc_signoff_citation.py -- so it has no entry here."
+    }
+  ]
+}
