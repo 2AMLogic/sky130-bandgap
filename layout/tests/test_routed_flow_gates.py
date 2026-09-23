@@ -1235,10 +1235,35 @@ class TestMosCombPlan(unittest.TestCase):
             self.assertEqual(set(seen), expected, bid)
 
     def test_every_comb_net_is_a_declared_inter_block_node(self) -> None:
+        """...unless the block itself declares the node as block-internal.
+
+        A comb net no inter-block route names is normally a typo -- the node
+        would be drawn inside one block and joined to nothing. The one honest
+        exception is a schematic node whose every terminal really is on that
+        block, which `BLOCK_INTERNAL_COMB_NETS` has to say explicitly; an
+        undeclared one still fails here.
+        """
         declared = {spec["net"] for spec in bus_routing.INTER_BLOCK_MET1}
         for bid, spec in self._combs().items():
+            internal = bus_routing.BLOCK_INTERNAL_COMB_NETS.get(bid, set())
             for entry in spec["nets"]:
-                self.assertIn(entry["net"], declared, f"{bid}:{entry['net']}")
+                self.assertIn(
+                    entry["net"], declared | internal, f"{bid}:{entry['net']}"
+                )
+
+    def test_block_internal_comb_nets_really_are_block_internal(self) -> None:
+        """The exemption above must not become a way to hide an unrouted
+        node: a net declared block-internal may not also appear in
+        INTER_BLOCK_MET1, and must actually be a comb net of the block that
+        declares it."""
+        declared = {spec["net"] for spec in bus_routing.INTER_BLOCK_MET1}
+        combs = self._combs()
+        for bid, nets in bus_routing.BLOCK_INTERNAL_COMB_NETS.items():
+            self.assertIn(bid, combs, bid)
+            comb_nets = {e["net"] for e in combs[bid]["nets"]}
+            for net in nets:
+                self.assertIn(net, comb_nets, f"{bid}:{net}")
+                self.assertNotIn(net, declared, f"{bid}:{net}")
 
     def test_every_inter_block_comb_terminal_exists_in_its_block(self) -> None:
         """The reverse direction: a route asking for a comb point the block
@@ -2532,3 +2557,141 @@ class TestInternalNetLabelling(unittest.TestCase):
             if spec.get("internal")
         }
         self.assertEqual(internal, {"TRIM_A": "R2A", "TRIM_B": "R2B"})
+
+
+class TestCombLanePitch(unittest.TestCase):
+    """`bus_mos_comb` packs one horizontal trunk lane per node inside each
+    device row. Until issue #285 the lane spacing was derived purely from the
+    row's own height (`height / (lanes + 1)`), which silently produces an
+    ILLEGAL pitch once the row is short enough -- 0.25 um on the startup
+    injector's W=1 MPC1/MPC2 reference, against met1's 0.24 um width plus the
+    deck's 0.14 um `met1.space.1`. The drawn result was six drawn-short
+    conflicts and seven `met1.space.1` violations: two nodes' trunks merged
+    into one conductor, which reads downstream as *better* connectivity.
+
+    Two properties close it, and both are asserted here rather than left to
+    an end-to-end run: the pitch never goes below `MOS_LANE_PITCH_UM`, and a
+    row that cannot hold its own lanes at that pitch raises instead of
+    drawing. The third -- that the lane index is a dense rank of the
+    block-wide order *within each row* -- is what lets a three-node block
+    with one device per row fit at all.
+    """
+
+    GAP_UM = 0.4
+
+    def _report(self, w_um: float) -> dict[str, object]:
+        """A two-row `diff_pair`-shaped report with `splits=1`: M1 alone in
+        the bottom row, M2 alone in the top one."""
+        rows = [0.0, w_um + self.GAP_UM]
+        ports: list[dict[str, object]] = []
+        for half, y0 in (("M1", rows[0]), ("M2", rows[1])):
+            for name, x in ((f"{half}_1_S", 0.2), (f"{half}_1_D", 2.0)):
+                ports.append({
+                    "name": name, "x_um": x, "y_um": y0 + w_um / 2.0,
+                    "width_um": w_um,
+                    "layer": {"layer": met1_bus.LI1_LAYER[0],
+                              "datatype": met1_bus.LI1_LAYER[1]},
+                    "direction_deg": 180 if name.endswith("_S") else 0,
+                })
+            ports.append({
+                "name": f"{half}_1_G", "x_um": 1.1, "y_um": y0 + w_um + 0.1,
+                "width_um": 0.42,
+                "layer": {"layer": 66, "datatype": 20},
+                "direction_deg": 90,
+            })
+        return {
+            "ports": ports,
+            "bbox_um": {"x0": 0.0, "y0": 0.0, "x1": 2.4,
+                        "y1": 2 * w_um + self.GAP_UM + 0.2},
+        }
+
+    def _draw(self, w_um: float, groups: list[dict[str, object]]):
+        bus = met1_bus.Met1Bus()
+        halves = {
+            "drain_suffix": "_D", "drain_facing": 0,
+            "source_suffix": "_S", "source_facing": 180,
+            "devices": {"MPC1": "M1", "MPC2": "M2"},
+        }
+        saved = bus_routing.MOS_HALVES.get("_probe")
+        bus_routing.MOS_HALVES["_probe"] = halves
+        try:
+            records = bus_routing.bus_mos_comb(
+                bus, "_probe", self._report(w_um), {"x": 0.0, "y": 0.0},
+                "W", groups,
+            )
+        finally:
+            if saved is None:
+                del bus_routing.MOS_HALVES["_probe"]
+            else:  # pragma: no cover -- only if a real block is ever named _probe
+                bus_routing.MOS_HALVES["_probe"] = saved
+        return bus, records
+
+    #: The real MPC1/MPC2 comb: NC1 spans both rows, NG is MPC2's alone,
+    #: GDRV is MPC1's alone -- so no row ever carries more than two lanes.
+    INJECTOR_GROUPS = [
+        {"net": "NC1", "terminals": [("MPC1", "drain"), ("MPC1", "gate"),
+                                     ("MPC2", "source")]},
+        {"net": "NG", "terminals": [("MPC2", "drain"), ("MPC2", "gate")]},
+        {"net": "GDRV", "terminals": [("MPC1", "source")]},
+    ]
+
+    def test_three_nodes_on_a_1um_device_draw_no_short(self) -> None:
+        bus, _ = self._draw(1.0, self.INJECTOR_GROUPS)
+        self.assertEqual(bus.conflicts(), [])
+
+    @staticmethod
+    def _lanes_by_row(records) -> dict[int, list[float]]:
+        """`{device row index: sorted lane y's}` read back out of the comb's
+        own escape records (each is named `<block>:<net>:<tag><band>`)."""
+        rows: dict[int, dict[str, float]] = {}
+        for record in records:
+            for name, _x, y in record["escapes"]:
+                band = int(name[-1])
+                rows.setdefault(band, {})[record["net"]] = y
+        return {band: sorted(nets.values()) for band, nets in rows.items()}
+
+    def test_lane_pitch_never_goes_below_the_met1_minimum(self) -> None:
+        """The property the drawn-short check above is a consequence of."""
+        _, records = self._draw(1.0, self.INJECTOR_GROUPS)
+        rows = self._lanes_by_row(records)
+        self.assertEqual(sorted(rows), [0, 1])
+        for lanes in rows.values():
+            self.assertEqual(len(lanes), 2)
+            for lower, upper in zip(lanes, lanes[1:]):
+                self.assertGreaterEqual(
+                    round(upper - lower, 6), bus_routing.MOS_LANE_PITCH_UM
+                )
+
+    def test_a_row_too_short_for_its_own_lanes_raises(self) -> None:
+        """Three nodes that all reach into the SAME row cannot fit a 1 um
+        row at a legal pitch, and the flow must say so rather than draw it."""
+        groups = [
+            {"net": "A", "terminals": [("MPC1", "drain")]},
+            {"net": "B", "terminals": [("MPC1", "gate")]},
+            {"net": "C", "terminals": [("MPC1", "source")]},
+        ]
+        with self.assertRaises(ValueError) as caught:
+            self._draw(1.0, groups)
+        self.assertIn("too short", str(caught.exception))
+
+    def test_a_tall_row_still_spreads_lanes_across_its_own_height(self) -> None:
+        """The floor must be a floor, not a fixed pitch: every block drawn
+        before issue #285 has rows 6 um or taller, and this asserts their
+        lane spacing is still the height-derived one (so those layouts
+        reproduce unchanged)."""
+        w_um = 8.0
+        groups = [
+            {"net": "A", "terminals": [("MPC1", "drain"), ("MPC2", "drain")]},
+            {"net": "B", "terminals": [("MPC1", "source"), ("MPC2", "source")]},
+        ]
+        _, records = self._draw(w_um, groups)
+        bottom = self._lanes_by_row(records)[0]
+        self.assertEqual(len(bottom), 2)
+        # `escapes` rounds to 3 dp, so assert against the same rounding
+        # rather than against the exact third -- the point is that the pitch
+        # is height-derived (2.667 um, far above the floor), not exact
+        # arithmetic.
+        self.assertAlmostEqual(
+            bottom[1] - bottom[0], w_um / 3.0, delta=0.002
+        )
+        self.assertGreater(bottom[1] - bottom[0], bus_routing.MOS_LANE_PITCH_UM)

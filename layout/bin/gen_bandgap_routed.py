@@ -754,6 +754,89 @@ AMP_M_PMIRR = 8
 AMP_M_CC = 16
 
 # ---------------------------------------------------------------------------
+# Startup-injector parameters, transcribed from design/startup_injector.sch's
+# own SU_PARAMS block and its six device cards (issue #285). Until this
+# increment the injector was drawn only as a schematic and the composed cell
+# shipped without it, which is what made row 8e of
+# design/block-characterization-report.md a by-construction FAIL and what
+# made every post-layout row a measurement of a circuit the schematic rows do
+# not describe. See STARTUP_INJECTOR_NOTE.
+# ---------------------------------------------------------------------------
+#: MPC1/MPC2, the two-high diode-connected PMOS reference fed *from* GDRV
+#: (`.param m_ref=1`, W=1 L=20 each). Both are `pfet_g5v0d10v5` with their
+#: bulk on VDD, so they are one matched pair in one n-well -- exactly the
+#: shape `klt gen diff_pair` draws, and the only injector devices that pair
+#: at all (every other one has its own W/L).
+SU_W_REF_UM = 1.0
+SU_L_REF_UM = 20.0
+M_SU_REF = 1
+#: MNS, the sense NMOS whose gate is the core's own VOUT (`.param
+#: m_sense=1`, W=48 L=0.5).
+SU_W_SENSE_UM = 48.0
+SU_L_SENSE_UM = 0.5
+M_SU_SENSE = 1
+#: MNI, the injector NMOS that evicts the degenerate state by pulling GDRV
+#: down (`.param m_inj=1`, W=10 L=0.5).
+SU_W_INJ_UM = 10.0
+SU_L_INJ_UM = 0.5
+M_SU_INJ = 1
+#: MNC, the railed-branch clamp (issue #52; `.param m_clamp=1`, W=4 L=1).
+SU_W_CLAMP_UM = 4.0
+SU_L_CLAMP_UM = 1.0
+M_SU_CLAMP = 1
+#: QS, the diode-connected PNP that references MNS's release threshold to a
+#: VBE (`.param m_pnp=8`) -- the same `pnp_05v5_W0p68L0p68` unit device the
+#: core's CTAT array uses, at the same 8-unit count, so it is drawn with the
+#: identical `bjt_array` params as `pnp_ctat`.
+N_PNP_SU = 8
+
+#: Why the injector's three single-transistor blocks are `mos_array` rather
+#: than `diff_pair`, and why that needs no new intra-block bus kind.
+STARTUP_INJECTOR_NOTE = (
+    "design/startup_injector.sch has six devices and only ONE matched pair "
+    "among them: MPC1/MPC2, the two-high diode-connected PMOS reference "
+    "(both W=1 L=20, both bulk-on-VDD), which is drawn as a `diff_pair` "
+    "with `splits=1` and bussed by the same `bus_mos_comb` every other MOS "
+    "group in this cell uses. MNS (W=48 L=0.5), MNI (W=10 L=0.5) and MNC "
+    "(W=4 L=1) share no W/L with anything, so each is a `mos_array` at "
+    "`rows=1, cols=1, dummy=0` -- a single unit device. A one-unit array "
+    "has no fingers to bus, so those three blocks declare no `bus` entry at "
+    "all and the inter-block router reaches their `U0_S`/`U0_D`/`U0_G` pads "
+    "directly through the same named-pad terminal shape the resistor blocks "
+    "use. They are the only MOS blocks here generated with the generator's "
+    "own `gate_contact` param: the `diff_pair` groups get their gate licon "
+    "and li1 riser drawn by this flow instead (met1_bus.gate_contact, "
+    "MOS_GATE_NOTE), which is the cheaper choice across 52 pfet fingers but "
+    "buys nothing on a single device -- and `gate_contact` is what turns "
+    "`U0_G` from a bare-poly port into the li1 pad a met1 route can via "
+    "down to."
+)
+
+#: What the composed cell now measures, and what it did not before. Kept as a
+#: note rather than a comment because record.md quotes it: the extracted
+#: netlist every post-layout bench runs on is only a netlist of the ratified
+#: schematic if the injector is in it.
+STARTUP_COMPOSED_NOTE = (
+    "Before this increment the composed cell was the core + error amplifier "
+    "only. `design/startup_injector.sch` was drawn as a schematic block and "
+    "never laid out, so `klt extract` on the composed GDS produced a "
+    "netlist of a DIFFERENT circuit from the one the schematic-level "
+    "benches measure -- and the two startup rows of "
+    "design/block-characterization-report.md said so: row 8a (schematic, "
+    "core+injector) PASSed while row 8e (composed, no injector) FAILed "
+    "45/45 by construction. LVS was clean across that gap because both "
+    "sides of the comparison omitted the injector: `reference.spice` "
+    "transcribed `design/bandgap_core.sch` alone. Both sides now carry it "
+    "-- six devices (MPC1, MPC2, MNS, MNI, MNC, QS) and three nodes "
+    "internal to the injector (NC1, NG, NE) -- so the extracted netlist is "
+    "a netlist of the whole ratified design and the post-layout suite "
+    "measures the circuit the schematic rows describe. VSENSE is not a "
+    "separate node in the composed cell: design/startup_injector.sym's "
+    "VSENSE input is driven by the core's VOUT, so MNS's and MNC's gates "
+    "land on the drawn VOUT net directly."
+)
+
+# ---------------------------------------------------------------------------
 # Block definitions. Each maps to one `klt gen` call. `row` groups blocks into
 # stacked bands; blocks within a row are placed left-to-right in the order
 # listed. Relative to gen_bandgap_floorplan.py's BLOCKS this list differs in
@@ -1064,6 +1147,138 @@ BLOCKS: list[dict[str, Any]] = [
         "matched_group_label": "MN3/MN4 (amp NMOS mirror outputs)",
         "real_target": f"amp_m_nmirr={AMP_M_NMIRR}, W=8 L=20 "
         "(design/error_amp.sch); drawn 1:1",
+    },
+    # --- design/startup_injector.sch (issue #285) ---------------------------
+    # All five injector blocks share row 3 with `amp_cc` rather than opening a
+    # row of their own, and that is an AREA decision, not a routing one: row 3
+    # is 63.38 um tall (amp_cc sets it) and 102 um narrower than the widest
+    # row, so five blocks whose tallest is MNS's 48.82 um fit inside the
+    # height the floorplan already pays for. A sixth row would have cost
+    # ROW_MARGIN_UM + 48.82 um of new height across the cell's full width --
+    # ~21,000 um^2, which lands the composed cell over DR-007's 80,000 um^2
+    # budget. Widening one existing row costs ~4,000 um^2 instead. See
+    # STARTUP_INJECTOR_NOTE for the generator choice and
+    # STARTUP_COMPOSED_NOTE for what drawing them changes about the evidence.
+    {
+        "id": "su_clamp",
+        "row": 3,
+        "align": "bottom",
+        "generator": "mos_array",
+        "params": {
+            "w_um": SU_W_CLAMP_UM,
+            "l_um": SU_L_CLAMP_UM,
+            "rows": 1,
+            "cols": 1,
+            "dummy": 0,
+            "flavor": "nfet",
+            "gate_contact": True,
+        },
+        "matched_group_label": "MNC (railed-branch clamp NMOS, issue #52)",
+        "real_target": f"m_clamp={M_SU_CLAMP}, W={SU_W_CLAMP_UM:.0f} "
+        f"L={SU_L_CLAMP_UM:.0f} (design/startup_injector.sch); drawn 1:1 as "
+        "a single unit device -- it pairs with nothing else in the cell",
+    },
+    {
+        "id": "su_sense",
+        "row": 3,
+        "generator": "mos_array",
+        "params": {
+            "w_um": SU_W_SENSE_UM,
+            "l_um": SU_L_SENSE_UM,
+            "rows": 1,
+            "cols": 1,
+            "dummy": 0,
+            "flavor": "nfet",
+            "gate_contact": True,
+        },
+        "matched_group_label": "MNS (VBE-referenced sense NMOS)",
+        "real_target": f"m_sense={M_SU_SENSE}, W={SU_W_SENSE_UM:.0f} "
+        f"L={SU_L_SENSE_UM:.1f} (design/startup_injector.sch); drawn 1:1 as "
+        "a single unit device, gate on the core's own VOUT (the schematic's "
+        "VSENSE input)",
+    },
+    {
+        "id": "pnp_su",
+        "row": 3,
+        "align": "bottom",
+        "generator": "bjt_array",
+        "params": {
+            "emitter_um": 0.68,
+            "rows": 2,
+            "cols": 4,
+            "dummy": 1,
+            "ratio": 8,
+            "topology": "common_centroid",
+            "add_collector_ring": True,
+            "ring_gap_side": "N",
+            "ring_gap_um": 2.0,
+        },
+        "bus": {"kind": "bjt_parallel", "nets": {"_E": "NE", "_B": "VSS"}},
+        "matched_group_label": "QS (startup threshold PNP, small unit "
+        "W0p68L0p68)",
+        "real_target": f"m_pnp={N_PNP_SU} sky130_fd_pr__pnp_05v5_W0p68L0p68 "
+        "(design/startup_injector.sch); drawn 1:1 (8 real units, 2x4 "
+        "common-centroid) -- the identical unit device and count as "
+        "`pnp_ctat`, so it is drawn with identical params",
+    },
+    {
+        "id": "su_ref",
+        "row": 3,
+        "generator": "diff_pair",
+        "params": {
+            "w_um": SU_W_REF_UM,
+            "l_um": SU_L_REF_UM,
+            "splits": M_SU_REF,
+            "flavor": "pfet",
+            "mirror": True,
+            "add_guard_ring": True,
+            "ring_gap_side": "W",
+            "ring_gap_um": 2.0,
+        },
+        "bus": {
+            "kind": "mos_comb",
+            "spine_side": "W",
+            "nets": [
+                {"net": "NC1",
+                 "terminals": [("MPC1", "drain"), ("MPC1", "gate"),
+                               ("MPC2", "source")]},
+                {"net": "NG",
+                 "terminals": [("MPC2", "drain"), ("MPC2", "gate")]},
+                # GDRV last, so it is the node that also gets a spine-side
+                # escape (it has the most partners off this block). At
+                # `splits=1` each device is a single unit in a single device
+                # row, so this block's three nodes never put more than two
+                # lanes in the same 1 um row -- see the per-row dense rank in
+                # bus_mos_comb and MOS_LANE_PITCH_UM.
+                {"net": "GDRV", "terminals": [("MPC1", "source")]},
+            ],
+        },
+        "matched_group_label": "MPC1/MPC2 (two-high diode-connected PMOS "
+        "reference, fed from GDRV)",
+        "real_target": f"m_ref={M_SU_REF}, W={SU_W_REF_UM:.0f} "
+        f"L={SU_L_REF_UM:.0f} each (design/startup_injector.sch); drawn 1:1 "
+        "-- the injector's only matched pair, and the only one of its six "
+        "devices a `diff_pair` can express. NC1, the node between the two "
+        "diodes, is entirely internal to this block and is drawn by its own "
+        "intra-block comb",
+    },
+    {
+        "id": "su_inj",
+        "row": 3,
+        "generator": "mos_array",
+        "params": {
+            "w_um": SU_W_INJ_UM,
+            "l_um": SU_L_INJ_UM,
+            "rows": 1,
+            "cols": 1,
+            "dummy": 0,
+            "flavor": "nfet",
+            "gate_contact": True,
+        },
+        "matched_group_label": "MNI (degenerate-state eviction NMOS)",
+        "real_target": f"m_inj={M_SU_INJ}, W={SU_W_INJ_UM:.0f} "
+        f"L={SU_L_INJ_UM:.1f} (design/startup_injector.sch); drawn 1:1 as a "
+        "single unit device",
     },
     {
         "id": "amp_cc",
@@ -1414,17 +1629,33 @@ SCHEMATIC_INTER_BLOCK_NETS: list[dict[str, Any]] = [
     },
     {
         "net": "VOUT",
-        "blocks": ["core_mirror", "res_r2"],
+        "blocks": ["core_mirror", "res_r2", "su_sense", "su_clamp"],
         "hops": ["VOUT"],
-        "schematic": "MPOUT drain + both R2A/R2B tops (the reference output)",
+        "schematic": "MPOUT drain + both R2A/R2B tops (the reference "
+        "output) + the startup injector's VSENSE input (MNS/MNC gates)",
     },
     {
         "net": "GDRV",
-        "blocks": ["core_mirror", "amp_pmirr", "amp_nmirr", "amp_cc"],
+        "blocks": ["core_mirror", "amp_pmirr", "amp_nmirr", "amp_cc",
+                   "su_ref", "su_inj", "su_clamp"],
         "hops": ["GDRV"],
         "schematic": "amp output (MP4/MN3 drains) + MPOUT/MPAMP gates + "
-        "MCC's gate -- one node in the schematic and, since the "
+        "MCC's gate + the startup injector's MPC1 source, MNI drain and "
+        "MNC source -- one node in the schematic and, since the "
         "gate-contact gap closed, one drawn node in the layout too",
+    },
+    {
+        "net": "NG",
+        "blocks": ["su_ref", "su_sense", "su_inj"],
+        "hops": ["NG"],
+        "schematic": "MPC2 diode drain/gate + MNS drain + MNI gate "
+        "(design/startup_injector.sch)",
+    },
+    {
+        "net": "NE",
+        "blocks": ["su_sense", "pnp_su"],
+        "hops": ["NE"],
+        "schematic": "MNS source + QS emitter (design/startup_injector.sch)",
     },
     {
         "net": "TAIL",
@@ -1452,14 +1683,17 @@ SCHEMATIC_INTER_BLOCK_NETS: list[dict[str, Any]] = [
     },
     {
         "net": "VDD",
-        "blocks": ["core_mirror", "amp_input_pair", "amp_pmirr", "amp_cc"],
+        "blocks": ["core_mirror", "amp_input_pair", "amp_pmirr", "amp_cc",
+                   "su_ref", "su_clamp"],
         "hops": ["VDD"],
         "schematic": "supply trunk: MPOUT/MPAMP sources + MP1/MP2 well side "
-        "+ MP3/MP4 sources + MCC drain/source",
+        "+ MP3/MP4 sources + MCC drain/source + the startup injector's "
+        "MPC1/MPC2 n-well tap and MNC drain",
     },
     {
         "net": "VSS",
-        "blocks": ["amp_nload", "amp_nmirr", "pnp_ctat", "pnp_ptat"],
+        "blocks": ["amp_nload", "amp_nmirr", "pnp_ctat", "pnp_ptat",
+                   "su_inj", "pnp_su"],
         "hops": ["VSS"],
         "schematic": "ground trunk: MN1-MN4 sources + both PNPs' base ties. "
         "The three resistor blocks' res_high_po bulk terminals "

@@ -314,4 +314,37 @@ RR1  VBQ VB   VSS 14026.89 res_high_po
 * AB/PB/AC/PC deliberately left unstated (0, this device class's default).
 QQ1 VSS VSS VA  pnp AE=3.6992P PE=21.76U NE=8
 QQ2 VSS VSS VBQ pnp AE=92.48P  PE=108.8U NE=8
+* ---- startup injector (design/startup_injector.sch), flattened ---------
+* Added by issue #285. Until then this file transcribed design/
+* bandgap_core.sch ALONE and the layout it is compared against drew the
+* same subset -- so LVS was clean across a gap both sides shared, and the
+* extracted netlist every post-layout bench runs on was a netlist of a
+* circuit the schematic-level benches do not measure (row 8a vs row 8e of
+* design/block-characterization-report.md). Both sides now carry the
+* injector.
+*
+* VSENSE is not a node of this subcircuit. design/startup_injector.sym's
+* VSENSE is an INPUT pin, and design/startup_injector.sch's own header says
+* what drives it -- "senses the core's own output on VSENSE" -- so in the
+* composed cell it is the core's VOUT, and MNS's and MNC's gates are
+* written on VOUT directly. NC1, NG and NE are internal to the injector and
+* appear nowhere else.
+*
+* W/L/mult transcribed verbatim from the schematic's six device cards and
+* its SU_PARAMS block (m_ref=1, m_sense=1, m_pnp=8, m_inj=1, m_clamp=1).
+* Card order is D G S B, the same as every M-card above.
+*   MPC1: S=GDRV G=NC1 D=NC1 B=VDD   (diode-connected, fed FROM GDRV)
+*   MPC2: S=NC1  G=NG   D=NG  B=VDD  (diode-connected, second of the stack)
+*   MNS : D=NG   G=VSENSE=VOUT S=NE  B=VSS
+*   MNI : D=GDRV G=NG   S=VSS  B=VSS
+*   MNC : D=VDD  G=VSENSE=VOUT S=GDRV B=VSS  (railed-branch clamp, #52)
+MMPC1 NC1  NC1  GDRV VDD pfet L=20U  W=1U  m=1
+MMPC2 NG   NG   NC1  VDD pfet L=20U  W=1U  m=1
+MMNS  NG   VOUT NE   VSS nfet L=0.5U W=48U m=1
+MMNI  GDRV NG   VSS  VSS nfet L=0.5U W=10U m=1
+MMNC  VDD  VOUT GDRV VSS nfet L=1U   W=4U  m=1
+* QS is the same vendor unit device and the same 8-unit count as Q1, so it
+* carries the identical AE/PE/NE (see the PNP EMITTER-GEOMETRY CORRECTION
+* note above); AB/PB/AC/PC deliberately unstated for the same reason.
+QQS VSS VSS NE  pnp AE=3.6992P PE=21.76U NE=8
 .ends bandgap_core

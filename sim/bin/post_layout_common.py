@@ -214,7 +214,22 @@ def run_klt_extract_parasitics(
 _UNIT_SUFFIX_RE = re.compile(r"(-?\d+\.?\d*)[UP]\b")
 _M_RE = re.compile(r"^(M\$\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(nfet|pfet)\s+(.*)$")
 _Q_RE = re.compile(r"^(Q\$\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+pnp\s+AE=([0-9.]+)P.*$")
-_R_RE = re.compile(r"^(R\$\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+([0-9.]+)\s+res_high_po$")
+# Trailing device parameters after the model name are OPTIONAL and ignored.
+# They have to be: KLayout 0.30.10 wrote `R$n <a> <b> <bulk> <value>
+# res_high_po` and 0.30.12 writes `... res_high_po L=5U W=1U`, and this
+# pattern was anchored on `res_high_po$`. Against the newer writer it matched
+# nothing at all, so every resistor fell through untranslated and
+# `run_post_layout_experiment`'s own translation-coverage guard aborted the
+# run (`translated ... res=0, extraction reports ... res_high_po=145`) --
+# which is the guard doing its job, but it stopped every post-layout bench in
+# the suite from running at all. The geometry is not needed either way: the
+# translated card is a plain ngspice resistor stated at the extracted
+# `<value>` in ohms, so L/W carry no information the value does not already
+# carry. Reproduced on the unmodified pre-issue-#285 layout record, i.e. this
+# is an environment/KLayout-version brittleness, not a layout change.
+_R_RE = re.compile(
+    r"^(R\$\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+([0-9.]+)\s+res_high_po\b.*$"
+)
 
 # Boundary between the two PNP unit sizes this design draws (0.4624 um^2
 # small/CTAT vs 11.56 um^2 large/PTAT) -- see module docstring point 2.

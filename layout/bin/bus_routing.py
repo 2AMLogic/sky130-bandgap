@@ -279,6 +279,17 @@ MOS_HALVES: dict[str, dict[str, Any]] = {
         "source_suffix": "_S", "source_facing": DIRECTION_WEST,
         "devices": {"MCC_A": "M1", "MCC_B": "M2"},
     },
+    "su_ref": {
+        # design/startup_injector.sch's MPC1/MPC2 (issue #285). Unlike every
+        # other entry here the two halves are NOT interchangeable even
+        # electrically: MPC1's source is GDRV and MPC2's is NC1, so binding
+        # them the wrong way round draws the two-high diode stack upside
+        # down -- a topology error DRC and the drawn-short check are both
+        # blind to, which is exactly what MOS_HALF_NOTE exists for.
+        "drain_suffix": "_D", "drain_facing": DIRECTION_EAST,
+        "source_suffix": "_S", "source_facing": DIRECTION_WEST,
+        "devices": {"MPC1": "M1", "MPC2": "M2"},
+    },
 }
 
 
@@ -292,6 +303,24 @@ MOS_SPINE_CLEARANCE_UM = 0.6
 #: `met1_bus.WIRE_WIDTH_UM` (0.24) wide and the deck's `met1.space.1` is 0.14,
 #: so 0.4 is the tightest legal pitch.
 MOS_SPINE_PITCH_UM = 0.4
+#: Minimum centre-to-centre pitch (um) between the horizontal *trunk lanes*
+#: `bus_mos_comb` packs inside one device row, for the same reason as
+#: MOS_SPINE_PITCH_UM above: 0.24 um of met1 plus the deck's 0.14 um
+#: `met1.space.1` is 0.38, so 0.4 is the tightest legal pitch.
+#:
+#: The lane spacing was derived purely from the device row's own height
+#: (`band_height / (lanes + 1)`) until issue #285. That is fine for every
+#: block drawn before it -- the narrowest device row in this cell is 6 um
+#: (amp_pmirr, W=6) carrying 3 lanes, i.e. 1.5 um of pitch, and the tightest
+#: of all is amp_nmirr's 8 um row carrying 5 lanes at 1.33 um -- so this
+#: floor is a no-op on all of them and the flow reproduces byte-identically.
+#: It is not fine for the startup injector's MPC1/MPC2 reference, whose
+#: devices are W=1: three lanes in a 1 um row derives a 0.25 um pitch, and
+#: the result was 6 drawn-short conflicts and 7 `met1.space.1` violations --
+#: a geometry the drawn-short check caught and DRC confirmed, but which the
+#: old formula had no way to refuse. A floor makes the failure mode "raise
+#: before drawing" instead of "draw a short".
+MOS_LANE_PITCH_UM = 0.4
 #: Distances (um) past the block edge a comb's escape stub is tried at, nearest
 #: first. Several, because two neighbouring blocks' escape stubs share the
 #: placement channel between them and can land on the same track.
@@ -473,16 +502,47 @@ def bus_mos_comb(
     outward = 1.0 if spine_side == "W" else -1.0
 
     records: list[dict[str, Any]] = []
+    # Each node's pads, resolved once up front, so a *row* can be lane-indexed
+    # by the nodes that actually reach into it rather than by every node on the
+    # block. The two indices agree -- and this whole pre-pass is a no-op --
+    # whenever every node has pads in both rows, which is true of every block
+    # drawn with `splits >= 2`: `diff_pair` interleaves both devices' units
+    # into both rows in a cross-quad, so each node is present in both. It is
+    # NOT true at `splits=1` (the injector's MPC1/MPC2 reference, issue #285),
+    # where each device is a single unit in a single row: there, three nodes
+    # on the block means at most two in any one row, and lane-indexing by the
+    # block-wide position would leave a gap wide enough to push the outermost
+    # lane past the row's own edge.
+    #
+    # Ordering -- not just count -- is what the comb's planarity argument
+    # rests on (see this function's docstring), so the per-row index is a
+    # *dense rank* of the block-wide order, never a re-ordering of it: node
+    # k's lane stays strictly nearer the row gap than node k+1's in every row
+    # both appear in, which is what keeps an outer node's trunk clear of an
+    # inner node's spine.
+    group_pads: list[list[tuple[str, float, float, bool]]] = []
+    for spec in groups:
+        pads_of: list[tuple[str, float, float, bool]] = []
+        for device, terminal in spec["terminals"]:
+            pads_of.extend(
+                mos_group_pads(block_id, report, origin, device, terminal)
+            )
+        group_pads.append(pads_of)
+    band_members: list[list[int]] = [
+        [
+            gi
+            for gi, pads_of in enumerate(group_pads)
+            if any(_band_index(bands, p[2]) == bi for p in pads_of)
+        ]
+        for bi in range(len(bands))
+    ]
+
     for index, spec in enumerate(groups):
         net = spec["net"]
         offset = MOS_SPINE_CLEARANCE_UM + index * MOS_SPINE_PITCH_UM
         spine_x = west - offset if spine_side == "W" else east + offset
 
-        pads: list[tuple[str, float, float, bool]] = []
-        for device, terminal in spec["terminals"]:
-            pads.extend(
-                mos_group_pads(block_id, report, origin, device, terminal)
-            )
+        pads = group_pads[index]
 
         bus.net(net)
         lane_ys: list[float] = []
@@ -492,11 +552,29 @@ def bus_mos_comb(
             in_band = [p for p in pads if _band_index(bands, p[2]) == band_index]
             if not in_band:
                 continue
-            step = (y1 - y0) / (lanes + 1)
+            # Lanes are spread across the row's own height, but never closer
+            # than met1 can legally be drawn (MOS_LANE_PITCH_UM). A row too
+            # short to hold its own lanes at that pitch is refused here
+            # rather than drawn as a short: the shapes would be legal metal
+            # belonging to two different nodes, which is exactly the class of
+            # error `Met1Bus.conflicts` exists to catch after the fact.
+            members = band_members[band_index]
+            band_lanes = len(members)
+            rank = members.index(index)
+            step = max((y1 - y0) / (band_lanes + 1), MOS_LANE_PITCH_UM)
+            if band_lanes * step > (y1 - y0) + 1e-9:
+                raise ValueError(
+                    f"block '{block_id}': device row {band_index} is "
+                    f"{y1 - y0:.3f} um tall, too short for {band_lanes} bus "
+                    f"lanes at the {MOS_LANE_PITCH_UM} um minimum met1 pitch "
+                    f"({band_lanes * step:.3f} um needed). Move a node off "
+                    "this block's comb onto a direct pad terminal, or draw "
+                    "the group with more device width."
+                )
             lane_y = (
-                y1 - (index + 1) * step
+                y1 - (rank + 1) * step
                 if band_index == 0
-                else y0 + (index + 1) * step
+                else y0 + (rank + 1) * step
             )
             lane_ys.append(lane_y)
             xs = [spine_x, edge_x]
@@ -604,6 +682,41 @@ def mos_comb(block: str, net: str) -> dict[str, Any]:
     return {"block": block, "comb": (block, net)}
 
 
+def mos_pad(
+    block: str, device: str, terminal: str, unit: int = 1, escape: bool = True
+) -> dict[str, Any]:
+    """One INTER_BLOCK_MET1 terminal naming a single *named* finger pad of a
+    `diff_pair` block, bound to a schematic device through MOS_HALVES.
+
+    The comb (:func:`mos_comb`) is the right shape whenever a node has
+    several fingers to gather; it is the wrong one when a node has exactly
+    one pad on the block, because each comb node still costs a full trunk
+    lane inside the device row. On a wide device that is free. On the
+    injector's W=1 MPC1/MPC2 reference the row is 1 um tall and a third lane
+    does not fit at all (MOS_LANE_PITCH_UM) -- so `GDRV`, whose only terminal
+    on that block is MPC1's source, is reached at its pad instead.
+    """
+    entry = MOS_HALVES[block]
+    half = entry["devices"][device]
+    suffix = "_G" if terminal == "gate" else entry[f"{terminal}_suffix"]
+    return {"block": block, "port": f"{half}_{unit}{suffix}", "escape": escape}
+
+
+def mos_unit(block: str, terminal: str, escape: bool = True) -> dict[str, Any]:
+    """One INTER_BLOCK_MET1 terminal naming a single-unit `mos_array` block's
+    own source/drain/gate pad -- the startup injector's MNS/MNI/MNC (issue
+    #285, STARTUP_INJECTOR_NOTE).
+
+    A one-unit array has nothing to bus, so unlike :func:`mos_comb` there is
+    no spine to reach: the generator's `U0_S`/`U0_D`/`U0_G` pads *are* the
+    node's only geometry, and each is a plain li1 pad the general router vias
+    down to. `gate_contact` in the block's own params is what makes `U0_G`
+    one of them rather than the bare poly a `diff_pair` reports (MOS_GATE_NOTE).
+    """
+    suffix = {"drain": "D", "source": "S", "gate": "G"}[terminal]
+    return {"block": block, "port": f"U0_{suffix}", "escape": escape}
+
+
 def trim_tap_port(leg: int, code: int) -> str:
     """The `res_trim` port that selects DR-002 trim `code` (<= 0) on `leg`.
 
@@ -629,6 +742,26 @@ def trim_tap_port(leg: int, code: int) -> str:
     j = N_R2_TRIM_UNITS + code - 1
     return f"R{leg}_A" if j < 0 else f"R{2 * j + leg}_B"
 
+
+#: Schematic nodes whose every terminal lives inside ONE block's own comb, so
+#: they are complete the moment `bus_mos_comb` draws them and correctly have
+#: no INTER_BLOCK_MET1 entry.
+#:
+#: Declared rather than inferred. "A comb node that no inter-block route names
+#: is a typo" was a true invariant for every block drawn before issue #285 and
+#: `layout/tests/test_routed_flow_gates.py` asserts it, so a node that really
+#: is block-internal has to say so here instead of quietly weakening the
+#: check: an un-declared comb net is still a typo, and still fails that test.
+#: These nets get no met1 label either (labels come from INTER_BLOCK_MET1), so
+#: they extract as anonymous nets and `klt lvs` pairs them topologically --
+#: which is the right outcome for a node no post-layout testbench needs to
+#: address by name.
+BLOCK_INTERNAL_COMB_NETS: dict[str, set[str]] = {
+    # design/startup_injector.sch's NC1: the node between MPC1's
+    # diode-connected drain/gate and MPC2's source. Both devices are the two
+    # halves of `su_ref`, so the node never leaves the block.
+    "su_ref": {"NC1"},
+}
 
 #: The bandgap core's inter-block nodes that this flow draws on met1.
 #:
@@ -675,9 +808,16 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
             mos_comb("core_mirror", "VOUT"),
             {"block": "res_r2", "port": "R0_A", "leg": 0},
             {"block": "res_r2", "port": "R1_A", "leg": 1},
+            # The startup injector's VSENSE input (issue #285). It is not a
+            # node of its own in the composed cell: design/startup_injector.
+            # sym's VSENSE pin is driven by the core's VOUT, so MNS's and
+            # MNC's gates land on this net directly.
+            mos_unit("su_sense", "gate"),
+            mos_unit("su_clamp", "gate"),
         ],
         "schematic": "MPOUT's drain and the high ends of both divider legs "
-        "-- the reference output",
+        "-- the reference output -- plus the startup injector's VSENSE "
+        "input (MNS's and MNC's gates)",
     },
     {
         "net": "TRIM_B",
@@ -716,12 +856,18 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
             bulk_terminal("amp_input_pair"),
             bulk_terminal("amp_pmirr"),
             bulk_terminal("amp_cc"),
+            # Startup injector (issue #285): MNC's drain, and the n-well tap
+            # of the MPC1/MPC2 pair (both diodes' bulk is VDD in
+            # design/startup_injector.sch, not their own sources).
+            mos_unit("su_clamp", "drain"),
+            bulk_terminal("su_ref"),
         ],
         "schematic": "VDD trunk: MPOUT/MPAMP and MP3/MP4 sources, MCC's "
         "drain+source (it is wired D=S=B=VDD, a MOS capacitor) -- every "
         "finger of all five, not one pad per block -- plus each PMOS "
         "group's n-well guard-ring tap (the reference's pfet bulk "
-        "terminal)",
+        "terminal), and the startup injector's MNC drain and MPC1/MPC2 "
+        "n-well tap",
     },
     {
         "net": "VSS",
@@ -732,10 +878,20 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
             bulk_terminal("amp_nmirr"),
             {"trunk": ("pnp_ctat", "VSS")},
             {"trunk": ("pnp_ptat", "VSS")},
+            # Startup injector (issue #285): MNI's source and QS's
+            # base/collector tie. The three single-unit `mos_array` NMOS
+            # blocks draw no guard ring of their own, so their *body*
+            # terminals are not routed here -- they resolve to this same
+            # drawn VSS net through the design's substrate identity
+            # (SUBSTRATE_NET_NOTE), exactly as the reference's `VSS` bulk
+            # node says they should.
+            mos_unit("su_inj", "source"),
+            {"trunk": ("pnp_su", "VSS")},
         ],
         "schematic": "VSS trunk: every finger of all four amp NMOS sources "
-        "(MN1-MN4), both NMOS groups' substrate guard-ring taps, and both "
-        "PNP base ties (the diode-connected PNPs' base sits on VSS)",
+        "(MN1-MN4), both NMOS groups' substrate guard-ring taps, both "
+        "core PNP base ties (the diode-connected PNPs' base sits on VSS), "
+        "and the startup injector's MNI source and QS base tie",
     },
     {
         "net": "TAIL",
@@ -752,10 +908,18 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
             mos_comb("amp_nmirr", "GDRV"),
             mos_comb("core_mirror", "GDRV"),
             mos_comb("amp_cc", "GDRV"),
+            # Startup injector (issue #285). GDRV is the node the whole cell
+            # exists to move: MPC1's source feeds the diode reference FROM
+            # it, MNI's drain evicts the degenerate state by pulling it down,
+            # and MNC's source is the railed-branch clamp's low side.
+            mos_comb("su_ref", "GDRV"),
+            mos_unit("su_inj", "drain"),
+            mos_unit("su_clamp", "source"),
         ],
         "schematic": "the amp's output -- MP4's and MN3's drains -- the "
-        "core mirror's gate drive, and MCC's gate (the compensation cap "
-        "sits from AOUT/GDRV to VDD), one node in the schematic and now "
+        "core mirror's gate drive, MCC's gate (the compensation cap "
+        "sits from AOUT/GDRV to VDD), and the startup injector's MPC1 "
+        "source / MNI drain / MNC source: one node in the schematic and "
         "one drawn node in the layout",
     },
     {
@@ -786,6 +950,32 @@ INTER_BLOCK_MET1: list[dict[str, Any]] = [
         ],
         "schematic": "MN4's drain, MP3's diode-connected drain/gate, and "
         "MP4's gate",
+    },
+    # --- design/startup_injector.sch's own inter-block nodes (issue #285) ---
+    # NC1, the node between the two diode-connected PMOS, is NOT here: both
+    # of its terminals live inside `su_ref`, so its comb draws it whole and
+    # there is nothing for this router to join.
+    {
+        "net": "NG",
+        "terminals": [
+            mos_comb("su_ref", "NG"),
+            mos_unit("su_sense", "drain"),
+            mos_unit("su_inj", "gate"),
+        ],
+        "schematic": "MPC2's diode-connected drain/gate, MNS's drain and "
+        "MNI's gate -- the injector's internal gate-drive node, held high "
+        "by the PMOS reference while the core is dead and pulled down by "
+        "MNS once VOUT clears a VBE",
+    },
+    {
+        "net": "NE",
+        "terminals": [
+            mos_unit("su_sense", "source"),
+            {"trunk": ("pnp_su", "NE")},
+        ],
+        "schematic": "MNS's source on QS's emitter -- the diode-connected "
+        "PNP that references the release threshold to a VBE instead of to a "
+        "MOS threshold alone",
     },
 ]
 
