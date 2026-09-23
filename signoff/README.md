@@ -15,17 +15,56 @@ re-read cannot even enumerate today's row set.
 |---|---|
 | `block-manifest.json` | The block manifest: this block's declared `kind` and, per T1 item, the evidence envelope cited behind it, each pinned to a `content_hash` of the committed artifact it grades. This is the file the fleet roll-up (2AMLogic/2am#956) consumes. |
 | `signoff-report.json` | The committed `klt signoff --manifest block-manifest.json --tiers-doc design-evidence-tiers.md --format json` output — the graded per-item `met`/`unmet` table with a `reason` on every `unmet` row. Regenerate with `./signoff/regenerate.sh`. |
-| `regenerate.sh` | Refreshes the item-8 evidence pin and re-grades the manifest with the pinned released klt, overwriting `signoff-report.json`. |
+| `regenerate.sh` | Refreshes the item-8 evidence pin, re-grades the manifest with the pinned released klt (overwriting `signoff-report.json`), and re-verifies every pin against the artifact it describes. |
+| `pinned-inputs.json` | Per pinned citation, **where in this repo the artifact that pin describes actually lives**. Neither the manifest nor the evidence envelopes hold that: a `content_hash` is the hash of the artifact the envelope *describes*, and the envelope's own path field may be absolute and machine-local (item 3's is). `scripts/ci/check_signoff_pins.py` needs it to re-hash the artifact — see "What `klt signoff` cannot check" below. |
 | (item 11's citation) | Lives outside this directory, under [`layout/bandgap-core/erc/`](../layout/bandgap-core/erc/README.md), because it is produced by a layout flow (`layout/bin/run-erc-supply-flow.sh`) rather than hand-assembled here. That flow re-points this manifest's item-11 entry at each new record it writes (`layout/bin/erc_signoff_citation.py`); re-grading is still `./signoff/regenerate.sh`'s job. Item 11 is the one T1 item whose `evidence` entry is a JSON **array** — the `klt erc` supply run plus item 4's own LVS report. |
 | `evidence/characterization.generic.json` | The hand-rolled `kind: generic` envelope (issue #1152's item-8-only wrapper) asserting the aggregated [`design/block-characterization-report.md`](../design/block-characterization-report.md), pinned to that report's own `content_hash`. |
 | `design-evidence-tiers.md` | Vendored copy of `klayout-tools`' checklist definition ([`docs/design-evidence-tiers.md`](https://github.com/2AMLogic/klayout-tools/blob/main/docs/design-evidence-tiers.md)), pinned at upstream commit `08825416` ("feat(signoff): carry a mixed-signal manifest's declared partition boundary", 2026-09-22; file `sha256:63eeec72e3d849761cf32dcf091af5728b069b1515e32bb3138e9454303671e5`). Passed to grading via `--tiers-doc` so the checklist doc and the grading `klt` build agree on the same 11-item skeleton even as upstream keeps moving; re-pin when a materially newer doc lands. |
 
-CI (the `signoff` job in `.github/workflows/ci.yml`) re-grades the manifest on
-every push/PR and requires byte-identical output to the committed
-`signoff-report.json` — so a manifest citation whose underlying artifact has
-since changed (the cited DRC report's layout, the characterization report)
-fails CI instead of silently rotting. The fix is always the same one-liner:
-`./signoff/regenerate.sh`, then commit the refreshed report.
+CI checks this directory in **two** places, and they catch different things:
+
+| CI job | Check | Catches |
+|---|---|---|
+| `signoff` | `scripts/ci/check-signoff-freshness.sh` — re-grades the manifest with the pinned released klt and requires byte-identical output to the committed `signoff-report.json` | an edited/re-pointed evidence envelope, a manifest or vendored-checklist edit, a grader that renders differently |
+| `checks` | `scripts/ci/check_signoff_pins.py` (via `npm run check:ci`; stdlib-only, no klt/PDK) — re-hashes the committed artifact behind every `content_hash` | **a change to the artifact a pin describes** (the routed GDS behind items 3/11, the characterization report behind item 8) |
+
+The fix for either is the same one-liner: `./signoff/regenerate.sh`, then
+commit the refreshed report.
+
+### What `klt signoff` cannot check, and why the pin check exists
+
+Every `content_hash` in `block-manifest.json` pins the artifact the cited
+envelope **describes** — copied from that envelope's own
+`provenance.input.content_hash` — not the envelope file. When `klt signoff`
+grades a citation it compares the manifest pin against that *recorded* hash
+and stops there; it never opens the artifact. The committed report says so
+itself: `citation.input_verified` is `null` on every row, including both
+`met` ones.
+
+So the manifest and the envelope can keep agreeing with each other while the
+artifact they both claim to describe has moved on, and a pure re-grade renders
+byte-identically:
+
+- **item 3** — the DRC envelope records its input as an absolute path into the
+  worktree that produced it (`/Users/…/.loom/worktrees/issue-178/…`), which
+  resolves on no other machine. Filed upstream as
+  [klayout-tools#2340](https://github.com/2AMLogic/klayout-tools/issues/2340).
+  Rewrite `bandgap_core_routed.gds` and the render does not change.
+- **item 8** — the generic envelope is hand-rolled and never re-derived at
+  grading time. Edit `design/block-characterization-report.md` and, again, the
+  render does not change.
+
+`check_signoff_pins.py` closes that gap by asserting a three-way agreement per
+pin: **manifest pin == `sha256` of the committed artifact == the hash the
+cited envelope recorded**. `pinned-inputs.json` supplies the missing piece —
+the artifact's repo-relative path — and must stay 1:1 with the manifest's
+pinned citations: a new pinned citation with no entry there fails the check,
+as does an entry for a citation that no longer exists. That is deliberate;
+adding a citation should require saying what its hash describes.
+
+Item 11's second citation (`lvs.combined.json`) is deliberately **unpinned**
+(see `layout/bin/erc_signoff_citation.py` for why), so it has no entry and the
+check reports it as skipped rather than silently ignoring it.
 
 ## Grader distribution discipline
 
