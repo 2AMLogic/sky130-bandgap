@@ -4,8 +4,8 @@
   "pins": [
     {
       "item": "3",
-      "describes": "layout/bandgap-core/reports/20260817-020222-13476b7/bandgap_core_routed.gds",
-      "note": "drc.json records its input as an absolute path into the worktree that produced it (/Users/.../.loom/worktrees/issue-178/...), which resolves on no other machine -- filed upstream as klayout-tools#2340. This is that same stream's committed, repo-relative location."
+      "describes": "layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_routed.gds",
+      "note": "drc.json records its input as an absolute path into the worktree that produced it (/Users/.../.loom/worktrees/issue-178/...), which resolves on no other machine -- filed upstream as klayout-tools#2340. This is that same stream's committed, repo-relative location. Re-pinned to the injector-inclusive record (issue #302) -- item 3's pin moves together with item 11's below so the manifest does not end up citing DRC on one cell and ERC/LVS on another."
     },
     {
       "item": "6",
@@ -20,8 +20,8 @@
     {
       "item": "11",
       "index": 0,
-      "describes": "layout/bandgap-core/reports/20260817-020222-13476b7/bandgap_core_routed.gds",
-      "note": "the `klt erc` supply run pins the same routed GDS item 3 grades (its envelope records the repo-relative path itself). Item 11's second citation (lvs.combined.json) is deliberately unpinned -- see layout/bin/erc_signoff_citation.py -- so it has no entry here."
+      "describes": "layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_routed.gds",
+      "note": "the `klt erc` supply run pins the same routed GDS item 3 grades (its envelope records the repo-relative path itself). Item 11's second citation (lvs.combined.json) is deliberately unpinned -- see layout/bin/erc_signoff_citation.py -- so it has no entry here. Re-pinned to the injector-inclusive record (issue #302), together with item 3, after re-running layout/bin/run-erc-supply-flow.sh against it."
     }
   ]
 }
