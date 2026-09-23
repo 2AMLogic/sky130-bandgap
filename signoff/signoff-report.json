@@ -53,11 +53,11 @@
       "reason": null,
       "graded_by_build": true,
       "citation": {
-        "file": "layout/bandgap-core/reports/20260817-020222-13476b7/drc.json",
+        "file": "layout/bandgap-core/reports/20260923-070209-dbd57a9/drc.json",
         "command": null,
         "kind": "drc",
         "check_status": "clean",
-        "content_hash": "sha256:8fa40aaae6e588e9b8d11539b0e5cac9c3d3b06f126e233340c6de30dc35d5ae",
+        "content_hash": "sha256:311c0f14cdd85aa5255018c590cbe755e31fd1ac81e04895d6302fea2146aae9",
         "input_verified": null,
         "exit_status": 0,
         "coverage": {
@@ -151,7 +151,7 @@
         "command": null,
         "kind": "generic",
         "check_status": "pass",
-        "content_hash": "sha256:77aac82131ade2982be9d2a4511db26247fd30b521640d7c1571c2b55542754b",
+        "content_hash": "sha256:1d2ffdf04502e28920d19247004f14367e24091f44d58edb2c30c0005d6e677d",
         "input_verified": null,
         "exit_status": 0
       }
