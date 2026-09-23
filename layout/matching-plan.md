@@ -3476,6 +3476,63 @@ re-run `sim/output-voltage-tc-post-layout`. Explicitly **not** the levers to
 reach for: re-routing `bus_res_series`' inter-unit jumpers, or absorbing the
 delta into `n_r2` -- both would compensate a tool bug with silicon.
 
+### 7ee. Thirty-third increment (issue #283): the "closed upstream 2026-08-12" premise above was wrong -- klayout-tools#800 was closed **not planned**, not fixed; the residual is a different, still-open upstream defect (klayout-tools#2359)
+
+Section 7dd's own "Suggested next increment" assumed klayout-tools#800 had a
+merged fix to bump past. It did not: re-checking the issue directly shows it
+was closed **`not_planned`** on 2026-08-12, not fixed. The closing comment
+(from the tool maintainer, not this repo) reproduced this issue's own literal
+repro steps against a synthetic layout and found the described mechanism --
+`klt extract --parasitics`'s poly role subtracting only MOS gates, not
+recognised resistor bodies -- **does not exist in the code**: `_resolve_resistors`
+already removes every recognised resistor body from the net-parasitics `poly`
+region *before* the MOS-gate subtraction step even runs, confirmed by direct
+inspection of the installed source (`_resolve_resistors`/`_compute_parasitics`
+in `klayout_tools/extract.py`, klt v0.5.0). The closer explicitly invited a
+fresh repro against real geometry if the anomaly persisted.
+
+**It does persist -- re-verified empirically, not assumed.** The bare `klt` on
+`PATH` `sim/bin/post_layout_common.py` invokes is now v0.5.0 (git
+`6bf5610939a096b81605a381e70454bf1cb20316`, tagged `v0.5.0`, released
+2026-09-15 -- five weeks past #800's closure). Running
+`klt extract layout/bandgap-core/reports/20260817-020222-13476b7/bandgap_core_routed.gds --deck sky130 --top bandgap_core_routed --parasitics --format json`
+directly against that build reproduces the prior snapshot's numbers **bit for
+bit**: `total_resistance_ohm` 226256.0625 (unchanged to four decimal places),
+and the internal chain-node signature is still exactly `2 x 229.7271/229.7272
+= 459.4543` ohm. A `klt` version bump alone does not, and per the finding
+below cannot, close this row.
+
+**Root cause, now correctly identified: klayout-tools#2359 (open), not #800.**
+A sibling investigation (issue #284, same date) filed
+[klayout-tools#2359](https://github.com/2AMLogic/klayout-tools/issues/2359)
+against the real mechanism: `_n_squares` fits **one** equivalent rectangle to
+a net's *total* merged area/perimeter, which overstates R by roughly an order
+of magnitude for a short, wide fragment current crosses along its short axis
+-- exactly what is left on a chain-internal net once the (correctly
+subtracted) resistor bodies are removed: two contacted, unmarked resistor
+heads plus a metal jumper. That issue's own minimal repro reports **359.96
+ohm** of poly role resistance on the internal net of a two-unit
+`res_generic_po` chain built from documented-generic (0.42 um head, 5 um
+marked body) sky130 dimensions -- matching this snapshot's own by-layer
+breakdown (poly role 359.9576 ohm of the 459.4543 ohm total) to four
+significant figures. klayout-tools#2359 is **open, unfixed** as of this
+writing (2026-09-23).
+
+**Consequence for this row.** The FAIL is real and not clearable by any `klt`
+build available today, but the strength and specificity of the #2359 match
+(same mechanism, same order of magnitude, matching digits) is evidence
+*against* reading it as a real design defect in the drawn resistor network --
+it is far more consistent with a still-open extraction-geometry limitation
+than with the divider's actual electrical behavior. See
+`sim/output-voltage-tc-post-layout/README.md` and
+`design/block-characterization-report.md` row 1b for the corrected citation
+and the re-graded verdict text. **Not touched here**: `layout/requirements.txt`'s
+pin (this finding concerns the bare-`PATH` `klt` `sim/bin/post_layout_common.py`
+invokes, not the commit-pinned layout DRC/LVS flow this file tracks; no
+`layout/.venv` exists in this environment to safely bump-and-reverify that
+separate pin under this file's own non-regression discipline) and rows 3a/3b
+(box-method TC, DR-009 -- explicitly out of scope, not re-litigated here).
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five
