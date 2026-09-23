@@ -607,16 +607,65 @@ def build_extracted_body(
     return body, provenance
 
 
+def _csv_list(value: str) -> list[str]:
+    return [v.strip() for v in value.split(",") if v.strip()]
+
+
+def _csv_floats(value: str) -> list[float]:
+    return [float(v) for v in _csv_list(value)]
+
+
 def parse_post_layout_args(argv: list[str], doc: str = "") -> argparse.Namespace:
     """The flag set every `sim/*-post-layout/run_*.py` accepts (the subset of
     `corner-run.py`'s flags that is meaningful when the matrix, measurements
-    and deck all come from the wrapped experiment's own manifest)."""
+    and deck all come from the wrapped experiment's own manifest).
+
+    `--process` / `--temp` / `--supply` / `--subset-reason` mirror
+    `corner-run.py`'s flags of the same names and exist for the same reason
+    (issue #284): a post-layout bench that declares a full matrix in its own
+    runner script previously had NO way to be re-run over fewer points without
+    editing that script, so a host too slow to carry the full matrix serially
+    left the bench un-re-runnable rather than re-runnable-with-a-stated-reason.
+    They are opt-in and change no default: omit them and the bench resolves
+    exactly the matrix it always did. `sim/README.md`'s subset rule is enforced
+    on this path the same way it is on `corner-run.py`'s -- `--subset-reason` is
+    REQUIRED as soon as the resolved matrix is a subset, and the reason is
+    written into the record body.
+
+    Note the argparse gotcha these flags inherit from `corner-run.py`: a
+    negative temperature must be passed as `--temp=-40` (with the `=`), because
+    a bare `--temp -40` is read as a missing argument followed by an unknown
+    option.
+    """
     p = argparse.ArgumentParser(description=doc)
     p.add_argument("--supersedes", default="")
     p.add_argument("--author", default="")
     p.add_argument("--timeout", type=int, default=300)
     p.add_argument("--allow-pdk-mismatch", action="store_true")
     p.add_argument("--dry-run", action="store_true")
+    p.add_argument(
+        "--process",
+        type=_csv_list,
+        default=None,
+        help="process corners (default: the wrapped manifest's, or this bench's own pin)",
+    )
+    p.add_argument(
+        "--temp",
+        type=_csv_floats,
+        default=None,
+        help="temperatures in C, e.g. --temp=-40,125 (default: as above)",
+    )
+    p.add_argument(
+        "--supply",
+        type=_csv_floats,
+        default=None,
+        help="supply voltages (default: as above)",
+    )
+    p.add_argument(
+        "--subset-reason",
+        default="",
+        help="why a subset of the full PVT matrix is acceptable (required for subsets)",
+    )
     return p.parse_args(argv)
 
 
@@ -677,6 +726,35 @@ def run_post_layout_experiment(
     HarnessError/PostLayoutError to 1).
     """
     args = parse_post_layout_args(argv)
+
+    # CLI axis overrides (issue #284) may only fill in an axis this bench's own
+    # runner script leaves open. An axis the script pins deliberately -- because
+    # the deck sweeps it INTERNALLY, or because the bench's acceptance criteria
+    # scope it to worst corners -- is not negotiable from the command line: a
+    # caller who "restored" line-regulation's supply axis here would silently be
+    # re-running ngspice's own .dc sweep 3 times, and the record would not say so.
+    for axis, caller_value, cli_value in (
+        ("process", process_override, args.process),
+        ("temp", temp_override, args.temp),
+        ("supply", supply_override, args.supply),
+    ):
+        if cli_value is not None and caller_value is not None:
+            raise cr.HarnessError(
+                f"{slug}: --{axis} given on the command line, but this bench's own "
+                f"runner script already pins its {axis} axis to {caller_value!r} for a "
+                "reason stated in that script; edit the script (and its stated reason) "
+                "rather than overriding it per-invocation"
+            )
+    process_override = args.process if process_override is None else process_override
+    temp_override = args.temp if temp_override is None else temp_override
+    supply_override = args.supply if supply_override is None else supply_override
+    if args.subset_reason:
+        subset_reason = (
+            f"{subset_reason.rstrip()} {args.subset_reason}".strip()
+            if subset_reason
+            else args.subset_reason
+        )
+
     pin = cr.load_pin()
     pdk = cr.resolve_pdk(pin)
     if not pdk.matches_pin and not args.allow_pdk_mismatch:

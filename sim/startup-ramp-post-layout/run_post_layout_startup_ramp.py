@@ -33,10 +33,30 @@ extracted netlist (adaptive-timestep `tran`, not a non-continuation forced
 DC sweep), so the full matrix is not a burden and gives strictly stronger
 evidence than a subset would.
 
+"Roughly a minute" is a property of the HOST, not of the deck, and issue #284
+found the difference matters: the same corner that took ~105 s on the Darwin
+arm64 machine `20260910-004925-e8e2e46` was minted on took well over half an
+hour on the shared Linux x86_64 fleet host, where a 45-point serial re-run is
+not practical. This script's DEFAULT is still the full matrix -- nothing below
+pins an axis -- but the shared runner now accepts
+`--process/--temp/--supply/--subset-reason` (issue #284,
+`sim/bin/post_layout_common.parse_post_layout_args`) so a capacity-limited
+re-run states its reason in the record instead of being done by editing this
+file. `sim/startup-ramp-post-layout/README.md` indexes which records are
+subsets and why. Note the ORDER of the two gates: the #285 refusal above fires
+first, so those flags are only reachable once #299 restructures this bench --
+they are recorded here because #284's own 2-point subset record
+(`20260923-093126-079a778`, taken against the pre-#285 layout record while that
+was still the freshest one) was produced with them, and whatever #299 builds
+will have the same host-capacity problem to state in its records.
+
 Usage
 -----
     sim/startup-ramp-post-layout/run_post_layout_startup_ramp.py
     sim/startup-ramp-post-layout/run_post_layout_startup_ramp.py --dry-run
+    # capacity-limited subset (reason is REQUIRED and is written into the record):
+    sim/startup-ramp-post-layout/run_post_layout_startup_ramp.py \
+        --process tt,sf --temp=-40,125 --supply=3.63 --subset-reason "..."
 
 Exit status: 0 all checks passed, 2 a record was written but something
 failed, 1 harness/setup error (no record written) -- same convention as

@@ -121,3 +121,63 @@ as written — this is a dated addendum, not a rewrite.
   `sim/startup-ramp/README.md`/`experiment.json`'s own notes for that
   history. This file documents only the *incremental* effect of extraction
   on top of it.
+
+## Update (2026-09-23, issue #284 / DR-010): the `vref_spread` FAIL is root-caused, and this bench inherits the root cause too
+
+Issue #284 root-caused the `vref_spread` failures this README has been tracking
+as "this bench's own pre-existing margin problem". They are a **fixed-sample-time
+artifact**, not a second operating point and not an extraction effect:
+`sim/startup-stability/`'s free-running DC solve (`vref_dut`) puts the true
+equilibrium **strictly inside** the interval the three startup-condition copies
+span at every failing corner, i.e. the copies are converging on one point from
+opposite sides at the `at=2.45e-3` sample point. Full evidence and the corrected
+diagnosis: `sim/startup-ramp/README.md`'s own dated update and
+`spec/decision-records/DR-010-startup-ramp-vref-spread-settling-tail.md`.
+
+That does not change what this file already says about **extraction**: the
+divergence findings above stand exactly as written. It sharpens them. If the
+underlying quantity is a not-yet-settled residual rather than a settled operating
+point, then "extraction nudges already-near-threshold corners across the 0.001 V
+cliff in both directions" is precisely what a small perturbation to a slow
+settling trajectory should look like — which is why the flipped set changed
+membership between the two cycles (`ff`/`sf` in the first, `tt` in the second)
+while the cluster carrying the real risk did not.
+
+Nothing in the wrapped manifest was loosened: the 1 mV bound, the `at=2.45e-3`
+sample point and the 2.5 ms window are unchanged. The manifest gained
+`vref_spread_early` (informational) and `vref_converge` (bounded ≤ 1e-5 V, a new
+gate asserting the spread contracts between two sample times), at zero
+incremental simulation cost, and this bench inherits both because it reuses that
+manifest unmodified.
+
+### Record index update
+
+| Record | Points | Status |
+|---|---|---|
+| `20260910-004925-e8e2e46` | 45 (full matrix) | **Current full-matrix result** — FAIL 16/45 on `vref_spread`. #284's manifest edit is purely additive, so every value here still stands. |
+| `20260923-093126-079a778` | 2 (subset: `sf` × −40/125 °C × 3.63 V) | First post-layout record carrying `vref_spread_early` / `vref_converge`, on the extracted DUT. **Does not supersede** the row above. Its two points are a strict subset of the schematic-side record `sim/startup-ramp/records/20260923-092903-079a778`'s four (`sf`, `tt` × −40/125 °C × 3.63 V), so the two are directly comparable on the `sf` pair they share: `sf/−40 °C/3.63 V` is the global worst-case `vref_spread` corner of the whole matrix on **both** representations, and `sf/125 °C/3.63 V` is a corner where the spread is exactly 0 V, which is what exercises `vref_converge`'s 1e-5 V numerical tolerance on extracted parasitics. Narrower than the schematic side because a post-layout corner of this deck costs roughly twice a schematic one; host-capacity-limited, full-matrix re-run tracked in #303. |
+
+This bench's script still defaults to the **full 45-point matrix**. The subset
+above was taken through the `--process/--temp/--supply/--subset-reason` flags
+issue #284 added to `sim/bin/post_layout_common.py`, precisely so that a
+capacity-limited re-run states its reason inside the record rather than being
+done by editing the runner script.
+
+### Interaction with #285/#299 (noted after the fact)
+
+`20260923-093126-079a778` was taken against layout record
+`20260817-020222-13476b7` — the same **pre-#285** layout every other record in
+this directory cites, and the freshest one at the time it ran. Issue #285 has
+since drawn `design/startup_injector.sch` into the composed cell, which breaks
+this bench's mixed-provenance premise (the separately netlisted schematic
+injector would be a *second* one, and the bare-core control would stop being
+bare), so `run_post_layout_startup_ramp.py` now **refuses** to run against a
+layout that draws the injector and `sim/bin/post_layout_common.py` carries the
+structural guard. Restructuring is **#299**.
+
+Nothing above is invalidated by that: this record measures the same DUT
+construction, against the same layout record, as the full-matrix record it sits
+alongside, and row 8d of `design/block-characterization-report.md` carries the
+superseded-layout disclosure for both. It is simply the **last** record this
+bench can mint in its current shape — the `vref_converge` evidence it carries
+had to be taken before #299 lands, or not at all.
