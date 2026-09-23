@@ -1,0 +1,125 @@
+{
+  "slug": "psrr-dc-with-injector",
+  "title": "Power-supply rejection ratio, DC-1 kHz band + 1 MHz spot, untrimmed core WITH the startup injector attached (schematic level)",
+  "claim": "README.md 'Target specification' (DR-005, amended by DR-006) row 'PSRR' (> 60 dB DC-1 kHz target; > 30 dB @ 1 MHz stretch, out of scope for wave 1 per DR-001), for the 3.3 V primary flavor, measured at SCHEMATIC level on design/bandgap_core.sch WITH design/startup_injector.sch attached to the same GDRV/VREF/VDD/VSS nets -- i.e. the circuit the composed layout has actually contained since issue #285, with no extraction step in the loop. Everything except the attached injector is identical to sim/psrr-dc/ (row 4a): same open-circuit VREF readout, same 1 V AC magnitude on the supply so v(vref) is the supply-to-reference transfer function and PSRR = -db(v(vref)), same 45-corner PVT matrix, same measurements, same DR-006 60 dB DC-1 kHz band-min floor. This bench exists to settle issue #300: it discriminates between the two competing explanations for row 4b's post-layout FAIL 25/45 (design property of the injector's MPC1/MPC2 reference stack vs. a klt extract --parasitics artifact, klayout-tools#2359). It is a diagnostic companion to row 4a, not a replacement for it -- row 4a remains the bare-core schematic PSRR claim, and the difference between the two rows IS the injector's cost with extraction held out.",
+  "provenance": "schematic",
+  "provenance_source": "sim/psrr-dc-with-injector/testbench/tb_vref_psrr_injector.sch",
+  "schematic": "testbench/tb_vref_psrr_injector.sch",
+  "statistical_convention": "N/A (corner-matrix claim)",
+  "corners": {
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "temperature_c": [
+      -40,
+      27,
+      125
+    ],
+    "supply_v": [
+      2.97,
+      3.3,
+      3.63
+    ]
+  },
+  "quick_subset": [
+    [
+      "tt",
+      27,
+      3.3
+    ]
+  ],
+  "deck": {
+    "options": [
+      "wnflag=1",
+      "reltol=1e-6",
+      "vntol=1e-9",
+      "abstol=1e-15"
+    ],
+    "params": {},
+    "analyses": [
+      "ac dec 10 0.1 1meg"
+    ]
+  },
+  "measurements": [
+    {
+      "name": "psrr_dc",
+      "expr": "-db(v(vref)[0])",
+      "unit": "dB",
+      "min": 60.0,
+      "note": "Supply rejection at the lowest swept frequency (0.1 Hz), the DC edge of the band the spec line asks for (DC-1 kHz target column, DR-006). Kept as its own pass/fail point (not just the band's floor) because it is the historically-reported DC figure."
+    },
+    {
+      "name": "f_dc",
+      "expr": "real(frequency[0])",
+      "unit": "Hz",
+      "min": 0.09,
+      "max": 0.11,
+      "note": "Index guard for psrr_dc: asserts that vector index 0 really is the 0.1 Hz point. Protects the DC rejection figure from being silently read off the wrong frequency if the sweep spec changes."
+    },
+    {
+      "name": "psrr_1k",
+      "expr": "-db(v(vref)[40])",
+      "unit": "dB",
+      "min": 60.0,
+      "note": "Supply rejection at 1 kHz, the far edge of the ratified DC-1 kHz target band (DR-006). Historically treated as the band's pass/fail floor because PSRR has been monotonically decreasing with frequency in every recorded corner, making 1 kHz the worst point inside [0.1 Hz, 1 kHz] -- but that monotonicity was an observation, not an assertion. psrr_band_min (below) now checks the whole band's interior directly instead of relying on this edge-monotonicity argument (issue #127); psrr_1k is retained as its own pass/fail point for continuity with pre-#127 records."
+    },
+    {
+      "name": "f_1k",
+      "expr": "real(frequency[40])",
+      "unit": "Hz",
+      "min": 900.0,
+      "max": 1100.0,
+      "note": "Index guard for psrr_1k: asserts that vector index 40 really is the 1 kHz point."
+    },
+    {
+      "name": "psrr_band_min",
+      "expr": "minimum(-db(v(vref)[0,40]))",
+      "unit": "dB",
+      "min": 60.0,
+      "note": "Issue #127: worst-case rejection anywhere across the ratified DC-1 kHz band (indices 0..40 = 0.1 Hz .. 1 kHz inclusive, 41 points), not just at the two edges psrr_dc/psrr_1k check. The two-edge check silently assumed monotonic rolloff between 0.1 Hz and 1 kHz -- true on every corner on file today, but not asserted, so a future amplifier change (different MCC, mirror, output stage) that opened an interior dip below 60 dB would have passed the old two-point check while violating the DR-006 band claim. Verified empirically against the pinned toolchain (ngspice-46) that `minimum(-db(v(vref)[0,40]))` evaluates to a plain real scalar equal to psrr_1k on this circuit (the band's floor is the 1 kHz edge), not a complex pair -- `minimum()`/`vecmin()` are interchangeable here per that check, `minimum()` chosen to match this experiment's other minimum()-based measurements (see output-voltage-tc) rather than startup-stability's vecmin() convention."
+    },
+    {
+      "name": "psrr_1m",
+      "expr": "-db(v(vref)[70])",
+      "unit": "dB",
+      "note": "Informational (no enforced limit): rejection at the 1 MHz spot the stretch column (DR-006, > 30 dB @ 1 MHz) names. Not enforced because the entire Stretch column is out of scope for wave 1 per DR-001's scope note -- same convention as every other row's stretch value in this suite (see output-voltage-tc, quiescent-current experiments). Recorded so the stretch figure is on file once the 1.8 V-variant / stretch scope is picked up."
+    },
+    {
+      "name": "f_1m",
+      "expr": "real(frequency[70])",
+      "unit": "Hz",
+      "min": 900000.0,
+      "max": 1100000.0,
+      "note": "Index guard for psrr_1m: asserts that vector index 70 really is the 1 MHz point."
+    },
+    {
+      "name": "n_ac_points",
+      "expr": "length(v(vref))",
+      "unit": "",
+      "min": 71,
+      "max": 71,
+      "note": "Guard: asserts the AC sweep produced the expected 71 points (0.1 Hz .. 1 MHz, 10/decade). A collapsed sweep would make the indexed readouts above meaningless."
+    }
+  ],
+  "spread_checks": [
+    {
+      "measurement": "psrr_dc",
+      "min_spread": 0.5,
+      "note": "DC rejection must move by at least 0.5 dB across the 45-point matrix. A dead-flat result would mean the corner/temperature/supply knobs are not reaching the simulator."
+    }
+  ],
+  "notes": [
+    "The AC magnitude of 1 V on the supply is a linearization scale factor, not a physical ripple amplitude: AC analysis is linear, so the transfer function is independent of it.",
+    "The large-signal DC counterpart of this quantity is measured independently by sim/line-regulation/ (its line_psrr_db measurement). They are related but not identical: psrr_dc here is the LOCAL slope at one supply bias point, line_psrr_db there is the AVERAGE slope over the whole 0.66 V range, so on a characteristic with a shallow interior minimum a few dB of difference is expected and line_psrr_db is the conservative figure. A difference of tens of dB is not expected and means one of the two benches is not resolving the circuit -- which is exactly what the first line-regulation run showed before its solver tolerances were tightened.",
+    "Solver tolerances are tightened well past ngspice's defaults: reltol=1e-6 (default 1e-3), vntol=1e-9 (default 1e-6), abstol=1e-15 (default 1e-12). This is a MEASUREMENT-RESOLUTION requirement, not a taste preference. At the default reltol=1e-3 the DC solver is only obliged to converge a ~1.175 V node to ~1.2 mV, and the first run of sim/line-regulation/ (record 20260803-100723-77b96e3) duly reported a 0.11 .. 1.27 mV supply-induced output shift that, on inspection of the raw sweep, was non-monotonic point-to-point jitter at exactly that amplitude -- i.e. the solver's convergence noise floor, not a property of the circuit. Re-run with these tolerances the same sweep is smooth and monotone with a shallow minimum near 3.45 V, and the shift drops to tens of microvolts. Every DC-based bench in this suite shares the setting so that all four are read off the same, resolved operating point.",
+    "Issue #123 / DR-006: the sweep was widened from 0.1 Hz-100 kHz to 0.1 Hz-1 MHz (10 points/decade, 61 -> 71 points) purely to reach the 1 MHz stretch spot -- the DC-1 kHz target band was already fully inside the old sweep. psrr_1k gained an enforced >= 60 dB limit (previously informational) because DR-006 restates the target column as a DC-1 kHz *band*, not a DC point: certifying only the 0.1 Hz edge no longer certifies the row. The prior evidence trail (e.g. records 20260803-100710-77b96e3, 20260803-115352-7759435) already shows psrr_1k landing 61.9-66.0 dB across all 45 corners -- comfortably above the new floor -- and psrr_dc always exceeding psrr_1k in every one of those corners, which is the monotonic-rolloff evidence the two-edge check relies on.",
+    "Issue #127: added psrr_band_min = minimum(-db(v(vref)[0,40])), the worst-case rejection anywhere across the band's 41 sampled points (0.1 Hz .. 1 kHz), enforced at the same >= 60 dB floor. Closes the gap left by the two-edge (psrr_dc/psrr_1k) check, which only proved the band's endpoints pass and relied on an unasserted monotonic-rolloff assumption to infer the interior also passes -- true on every corner recorded to date, but not guaranteed for a future amplifier change (different MCC, mirror, output stage) that could introduce an interior dip. Verified empirically against the pinned toolchain (record 20260811-214913-197d1b0's tt/27C/3.3V point, reproduced by hand outside the harness) that ngspice's minimum() evaluates a real (non-complex) scalar for a -db()-wrapped slice, equal to psrr_1k on this circuit today (band floor sits at the 1 kHz edge, as expected from the monotonic rolloff). psrr_dc and psrr_1k are both retained unchanged.",
+    "Issue #300: this manifest's corners, deck, measurements, limits and spread_checks are a byte-identical reuse of sim/psrr-dc/experiment.json's -- only slug/title/claim/schematic/provenance_source differ, plus this note. That is deliberate and is the point of the experiment: the ONLY variable between sim/psrr-dc/ and this bench is the design/startup_injector.sym instance (XSU) attached to GDRV/VREF in the testbench. If the manifests ever diverge, this bench stops being a controlled comparison against row 4a and the disposition recorded in design/block-characterization-report.md stops being supported.",
+    "Issue #300, what a verdict here means: a FAIL at or near ff/125 C/3.63 V (the binding corner of the post-layout record 20260923-073641-dbd4dda) shows the supply-rejection collapse is a property of the DESIGN, reproducible with no extraction step anywhere in the loop, and independently corroborates the MPC1/MPC2 hypothesis in #300's body (corroborates, not proves -- it confirms the injector is the cause, not which of its devices). A clean PASS 45/45 here would instead implicate klt extract --parasitics (klayout-tools#2359, open) as the dominant term and refute that hypothesis for this mechanism. Both outcomes are successful outcomes for this bench.",
+    "The injector's VSENSE pin is a high-impedance gate and its VDD pin feeds only the two PMOS bulks, so attaching it adds no resistive load on VREF and no always-on DC path from the supply. Whatever it does to this measurement, it does through GDRV -- the amplifier's high-impedance output node -- which is exactly the mechanism under test."
+  ]
+}
