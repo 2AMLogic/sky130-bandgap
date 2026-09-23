@@ -5,6 +5,22 @@ bandgap-core layout (issue #62) instead of `design/bandgap_core.sch` --
 issue #16, the first of the two remaining "#10 startup/degenerate-state
 checks" increments (the other is `sim/startup-ramp-post-layout/`).
 
+**SUPERSEDED PREMISE (issue #285) -- this bench REFUSES to run against the
+current layout.** Everything below was true until `design/startup_injector.sch`
+was drawn into the composed cell. It no longer is: the extracted
+`bandgap_core` body now contains the injector's six devices, so wiring a
+separately netlisted schematic injector onto it would double-count the
+injector on the DUT instances (XDUT/XSW) and would silently turn this bench's
+bare-core CONTROL instances (XREF/XSWN) into injector-equipped ones -- with
+no sign of either in the output. `run()` therefore calls
+`plc.refuse_if_layout_draws_injector()` and exits 1 rather than appending a
+wrong record to `sim/`. Restructuring this bench -- its own post-layout
+testbench, and a decision about what the control instance should be now that
+the drawn cell cannot express one -- is **issue #299**. The newest valid
+record in this directory is the one taken against a pre-#285 layout record,
+which is what `design/block-characterization-report.md` row 8b cites, with
+that disclosure.
+
 MIXED-PROVENANCE DUT, not all-extracted like the five earlier post-layout
 benches (`output-voltage-tc`, `quiescent-current`, `psrr-dc`, `line-regulation`,
 `startup-time`): `layout/bandgap-core/` composes the core + amplifier only --
@@ -125,6 +141,10 @@ SUBSET_REASON = (
 
 
 def run(argv: list[str]) -> int:
+    # The MIXED-PROVENANCE premise above is only true while the composed cell
+    # has no injector of its own. Issue #285 drew one in, so this refuses
+    # rather than minting a double-injector record (issue #299).
+    plc.refuse_if_layout_draws_injector(SLUG)
     return plc.run_post_layout_experiment(
         cr,
         here=HERE,

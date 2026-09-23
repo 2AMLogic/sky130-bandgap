@@ -5,6 +5,16 @@ startup-TIME claim, against the routed, LVS-clean bandgap-core layout
 the two remaining "#10 startup/degenerate-state checks" increments (the
 sibling is `sim/startup-stability-post-layout/`).
 
+**SUPERSEDED PREMISE (issue #285) -- this bench REFUSES to run against the
+current layout**, for exactly the reason its sibling does: the composed cell
+now draws `design/startup_injector.sch` itself, so the separately netlisted
+schematic injector below would be a SECOND one on XSLOW/XFAST/XDEGN, and the
+bare-core control XNOSU would stop being bare. `run()` calls
+`plc.refuse_if_layout_draws_injector()` and exits 1 instead of appending a
+wrong record. Restructuring is **issue #299**; the newest valid record here is
+the one taken against a pre-#285 layout record, which
+`design/block-characterization-report.md` row 8d cites with that disclosure.
+
 MIXED-PROVENANCE DUT, same shape as `sim/startup-stability-post-layout/`
 (see that script's module docstring for the full mechanism and the
 `strip_schematic_subckts()` bug this pair of benches found and fixed in
@@ -72,6 +82,10 @@ CLAIM_TAIL = (
 
 
 def run(argv: list[str]) -> int:
+    # The MIXED-PROVENANCE premise above is only true while the composed cell
+    # has no injector of its own. Issue #285 drew one in, so this refuses
+    # rather than minting a double-injector record (issue #299).
+    plc.refuse_if_layout_draws_injector(SLUG)
     return plc.run_post_layout_experiment(
         cr,
         here=HERE,

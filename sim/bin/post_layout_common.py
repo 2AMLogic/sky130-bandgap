@@ -156,6 +156,55 @@ def resolve_latest_layout(bandgap_core_dir: Path) -> tuple[str, Path, Path]:
     return record_id, record_dir, gds
 
 
+#: Device cards `layout/bandgap-core/reference.spice` states for the startup
+#: injector (issue #285). The layout flow copies its reference netlist into
+#: every record directory, so the record itself says whether the cell it
+#: describes draws the injector -- no GDS parsing needed.
+_INJECTOR_REFERENCE_CARDS = ("MMPC1", "MMPC2", "MMNS", "MMNI", "MMNC", "QQS")
+
+
+def layout_record_draws_injector(record_dir: Path) -> bool:
+    """True if this layout record's own reference netlist carries the startup
+    injector's devices, i.e. the composed cell draws it (issue #285)."""
+    reference = record_dir / "reference.spice"
+    if not reference.is_file():
+        raise PostLayoutError(f"no reference.spice in layout record {record_dir}")
+    text = reference.read_text()
+    return all(re.search(rf"^{card}\s", text, re.M) for card in _INJECTOR_REFERENCE_CARDS)
+
+
+def refuse_if_layout_draws_injector(slug: str) -> None:
+    """Abort a MIXED-PROVENANCE startup bench whose testbench netlists its own
+    `design/startup_injector.sym` instances alongside the extracted core.
+
+    Such a bench is only correct while the composed cell has NO injector of its
+    own. Since issue #285 it has one, so running unchanged would put two
+    injectors on every injector-equipped instance and would silently convert
+    the bench's bare-core CONTROL instances into injector-equipped ones -- a
+    wrong answer that looks like a normal run, with numbers, and would be
+    appended to `sim/`'s append-only evidence before anyone noticed. A guard
+    is therefore the only safe shape: this is a structural refusal, not a
+    docstring warning, precisely because the failure is invisible in the
+    output.
+
+    Restructuring these two benches (their own post-layout testbench, and a
+    decision about the control instances, which the drawn cell cannot express
+    any more) is tracked in issue #299.
+    """
+    record_id, record_dir, _gds = resolve_latest_layout(LAYOUT_BANDGAP_CORE_DIR)
+    if not layout_record_draws_injector(record_dir):
+        return
+    raise PostLayoutError(
+        f"{slug}: refusing to run against layout record {record_id}, which DRAWS "
+        "the startup injector (issue #285). This bench wraps a testbench that "
+        "netlists design/startup_injector.sym separately, so the run would "
+        "double-count the injector on its DUT instances and silently make its "
+        "bare-core control instances injector-equipped. See issue #299 for the "
+        "restructuring this bench needs; until then the newest valid record here "
+        "is the one taken against a pre-#285 layout record."
+    )
+
+
 # --------------------------------------------------------------------------
 # klt extract --parasitics
 # --------------------------------------------------------------------------
