@@ -1,0 +1,6 @@
+{
+  "schema": 1,
+  "in_tree": [
+    { "block": "error_amp", "sibling": "2AMLogic/sky130-opamp", "status": "evaluate" }
+  ]
+}
