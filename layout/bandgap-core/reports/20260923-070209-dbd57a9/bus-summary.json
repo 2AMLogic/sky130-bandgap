@@ -1,0 +1,3232 @@
+{
+  "pnp_ctat": {
+    "kind": "bjt_parallel",
+    "nets": [
+      {
+        "terminal": "E",
+        "net": "VA",
+        "columns": 4,
+        "pads": 8,
+        "trunk_y_um": 3.39,
+        "trunk_x0_um": 12.96,
+        "trunk_x1_um": 18.66
+      },
+      {
+        "terminal": "B",
+        "net": "VSS",
+        "columns": 4,
+        "pads": 8,
+        "trunk_y_um": 0.31,
+        "trunk_x0_um": 13.91,
+        "trunk_x1_um": 19.61
+      }
+    ]
+  },
+  "res_r2": {
+    "kind": "res_series",
+    "legs": 2,
+    "links": [
+      {
+        "leg": 0,
+        "from": "R0_B",
+        "to": "R2_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R2_B",
+        "to": "R4_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R4_B",
+        "to": "R6_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R6_B",
+        "to": "R8_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R8_B",
+        "to": "R10_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R10_B",
+        "to": "R12_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R12_B",
+        "to": "R14_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R14_B",
+        "to": "R16_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R16_B",
+        "to": "R18_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R18_B",
+        "to": "R20_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R20_B",
+        "to": "R22_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R22_B",
+        "to": "R24_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R24_B",
+        "to": "R26_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R26_B",
+        "to": "R28_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R28_B",
+        "to": "R30_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R30_B",
+        "to": "R32_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R32_B",
+        "to": "R34_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R34_B",
+        "to": "R36_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R36_B",
+        "to": "R38_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R38_B",
+        "to": "R40_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R40_B",
+        "to": "R42_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R42_B",
+        "to": "R44_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R44_B",
+        "to": "R46_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R46_B",
+        "to": "R48_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R48_B",
+        "to": "R50_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R50_B",
+        "to": "R52_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R52_B",
+        "to": "R54_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R54_B",
+        "to": "R56_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R56_B",
+        "to": "R58_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R58_B",
+        "to": "R60_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R60_B",
+        "to": "R62_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R62_B",
+        "to": "R64_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R64_B",
+        "to": "R66_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R66_B",
+        "to": "R68_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R68_B",
+        "to": "R70_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R70_B",
+        "to": "R72_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R72_B",
+        "to": "R74_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R74_B",
+        "to": "R76_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R76_B",
+        "to": "R78_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R78_B",
+        "to": "R80_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R80_B",
+        "to": "R82_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R82_B",
+        "to": "R84_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R84_B",
+        "to": "R86_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R86_B",
+        "to": "R88_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R88_B",
+        "to": "R90_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R90_B",
+        "to": "R92_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R92_B",
+        "to": "R94_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R94_B",
+        "to": "R96_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R1_B",
+        "to": "R3_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R3_B",
+        "to": "R5_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R5_B",
+        "to": "R7_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R7_B",
+        "to": "R9_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R9_B",
+        "to": "R11_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R11_B",
+        "to": "R13_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R13_B",
+        "to": "R15_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R15_B",
+        "to": "R17_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R17_B",
+        "to": "R19_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R19_B",
+        "to": "R21_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R21_B",
+        "to": "R23_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R23_B",
+        "to": "R25_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R25_B",
+        "to": "R27_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R27_B",
+        "to": "R29_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R29_B",
+        "to": "R31_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R31_B",
+        "to": "R33_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R33_B",
+        "to": "R35_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R35_B",
+        "to": "R37_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R37_B",
+        "to": "R39_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R39_B",
+        "to": "R41_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R41_B",
+        "to": "R43_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R43_B",
+        "to": "R45_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R45_B",
+        "to": "R47_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R47_B",
+        "to": "R49_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R49_B",
+        "to": "R51_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R51_B",
+        "to": "R53_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R53_B",
+        "to": "R55_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R55_B",
+        "to": "R57_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R57_B",
+        "to": "R59_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R59_B",
+        "to": "R61_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R61_B",
+        "to": "R63_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R63_B",
+        "to": "R65_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R65_B",
+        "to": "R67_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R67_B",
+        "to": "R69_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R69_B",
+        "to": "R71_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R71_B",
+        "to": "R73_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R73_B",
+        "to": "R75_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R75_B",
+        "to": "R77_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R77_B",
+        "to": "R79_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R79_B",
+        "to": "R81_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R81_B",
+        "to": "R83_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R83_B",
+        "to": "R85_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R85_B",
+        "to": "R87_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R87_B",
+        "to": "R89_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R89_B",
+        "to": "R91_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R91_B",
+        "to": "R93_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R93_B",
+        "to": "R95_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R95_B",
+        "to": "R97_A",
+        "routed": true
+      }
+    ]
+  },
+  "res_trim": {
+    "kind": "res_series",
+    "legs": 2,
+    "links": [
+      {
+        "leg": 0,
+        "from": "R0_B",
+        "to": "R2_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R2_B",
+        "to": "R4_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R4_B",
+        "to": "R6_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R6_B",
+        "to": "R8_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R8_B",
+        "to": "R10_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R10_B",
+        "to": "R12_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R12_B",
+        "to": "R14_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R14_B",
+        "to": "R16_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R16_B",
+        "to": "R18_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R18_B",
+        "to": "R20_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R20_B",
+        "to": "R22_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R22_B",
+        "to": "R24_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R24_B",
+        "to": "R26_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R26_B",
+        "to": "R28_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R28_B",
+        "to": "R30_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R30_B",
+        "to": "R32_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R32_B",
+        "to": "R34_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R34_B",
+        "to": "R36_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R36_B",
+        "to": "R38_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R1_B",
+        "to": "R3_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R3_B",
+        "to": "R5_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R5_B",
+        "to": "R7_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R7_B",
+        "to": "R9_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R9_B",
+        "to": "R11_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R11_B",
+        "to": "R13_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R13_B",
+        "to": "R15_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R15_B",
+        "to": "R17_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R17_B",
+        "to": "R19_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R19_B",
+        "to": "R21_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R21_B",
+        "to": "R23_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R23_B",
+        "to": "R25_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R25_B",
+        "to": "R27_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R27_B",
+        "to": "R29_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R29_B",
+        "to": "R31_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R31_B",
+        "to": "R33_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R33_B",
+        "to": "R35_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R35_B",
+        "to": "R37_A",
+        "routed": true
+      },
+      {
+        "leg": 1,
+        "from": "R37_B",
+        "to": "R39_A",
+        "routed": true
+      }
+    ]
+  },
+  "res_r1": {
+    "kind": "res_series",
+    "legs": 1,
+    "links": [
+      {
+        "leg": 0,
+        "from": "R0_B",
+        "to": "R1_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R1_B",
+        "to": "R2_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R2_B",
+        "to": "R3_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R3_B",
+        "to": "R4_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R4_B",
+        "to": "R5_A",
+        "routed": true
+      },
+      {
+        "leg": 0,
+        "from": "R5_B",
+        "to": "R6_A",
+        "routed": true
+      }
+    ]
+  },
+  "pnp_ptat": {
+    "kind": "bjt_parallel",
+    "nets": [
+      {
+        "terminal": "E",
+        "net": "VBQ",
+        "columns": 4,
+        "pads": 8,
+        "trunk_y_um": 7.47,
+        "trunk_x0_um": 260.38,
+        "trunk_x1_um": 274.24
+      },
+      {
+        "terminal": "B",
+        "net": "VSS",
+        "columns": 4,
+        "pads": 8,
+        "trunk_y_um": 1.67,
+        "trunk_x0_um": 262.69,
+        "trunk_x1_um": 276.55
+      }
+    ]
+  },
+  "core_mirror": {
+    "kind": "mos_comb",
+    "nets": [
+      {
+        "net": "VDD",
+        "spine_side": "W",
+        "terminals": [
+          "MPOUT.source",
+          "MPAMP.source"
+        ],
+        "pads": 4,
+        "gate_contacts": 0,
+        "spine_x_um": 36.31,
+        "escapes": [
+          [
+            "core_mirror:VDD:far0",
+            46.33,
+            55.07
+          ],
+          [
+            "core_mirror:VDD:far1",
+            46.33,
+            59.09
+          ]
+        ]
+      },
+      {
+        "net": "GDRV",
+        "spine_side": "W",
+        "terminals": [
+          "MPOUT.gate",
+          "MPAMP.gate"
+        ],
+        "pads": 4,
+        "gate_contacts": 4,
+        "spine_x_um": 35.91,
+        "escapes": [
+          [
+            "core_mirror:GDRV:far0",
+            46.33,
+            53.47
+          ],
+          [
+            "core_mirror:GDRV:far1",
+            46.33,
+            60.69
+          ]
+        ]
+      },
+      {
+        "net": "TAIL",
+        "spine_side": "W",
+        "terminals": [
+          "MPAMP.drain"
+        ],
+        "pads": 2,
+        "gate_contacts": 0,
+        "spine_x_um": 35.51,
+        "escapes": [
+          [
+            "core_mirror:TAIL:far0",
+            46.33,
+            51.87
+          ],
+          [
+            "core_mirror:TAIL:far1",
+            46.33,
+            62.29
+          ]
+        ]
+      },
+      {
+        "net": "VOUT",
+        "spine_side": "W",
+        "terminals": [
+          "MPOUT.drain"
+        ],
+        "pads": 2,
+        "gate_contacts": 0,
+        "spine_x_um": 35.11,
+        "escapes": [
+          [
+            "core_mirror:VOUT:far0",
+            46.33,
+            50.27
+          ],
+          [
+            "core_mirror:VOUT:spine0",
+            33.91,
+            50.27
+          ],
+          [
+            "core_mirror:VOUT:far1",
+            46.33,
+            63.89
+          ],
+          [
+            "core_mirror:VOUT:spine1",
+            33.91,
+            63.89
+          ]
+        ]
+      }
+    ]
+  },
+  "amp_input_pair": {
+    "kind": "mos_comb",
+    "nets": [
+      {
+        "net": "D1",
+        "spine_side": "W",
+        "terminals": [
+          "MP1.drain"
+        ],
+        "pads": 8,
+        "gate_contacts": 0,
+        "spine_x_um": 60.53,
+        "escapes": [
+          [
+            "amp_input_pair:D1:far0",
+            153.99,
+            53.337
+          ],
+          [
+            "amp_input_pair:D1:far1",
+            153.99,
+            60.823
+          ]
+        ]
+      },
+      {
+        "net": "D2",
+        "spine_side": "W",
+        "terminals": [
+          "MP2.drain"
+        ],
+        "pads": 8,
+        "gate_contacts": 0,
+        "spine_x_um": 60.13,
+        "escapes": [
+          [
+            "amp_input_pair:D2:far0",
+            153.99,
+            50.003
+          ],
+          [
+            "amp_input_pair:D2:far1",
+            153.99,
+            64.157
+          ]
+        ]
+      },
+      {
+        "net": "VB",
+        "spine_side": "W",
+        "terminals": [
+          "MP1.gate"
+        ],
+        "pads": 8,
+        "gate_contacts": 8,
+        "spine_x_um": 59.73,
+        "escapes": [
+          [
+            "amp_input_pair:VB:far0",
+            153.99,
+            46.67
+          ],
+          [
+            "amp_input_pair:VB:far1",
+            153.99,
+            67.49
+          ]
+        ]
+      },
+      {
+        "net": "VA",
+        "spine_side": "W",
+        "terminals": [
+          "MP2.gate"
+        ],
+        "pads": 8,
+        "gate_contacts": 8,
+        "spine_x_um": 59.33,
+        "escapes": [
+          [
+            "amp_input_pair:VA:far0",
+            153.99,
+            43.337
+          ],
+          [
+            "amp_input_pair:VA:far1",
+            153.99,
+            70.823
+          ]
+        ]
+      },
+      {
+        "net": "TAIL",
+        "spine_side": "W",
+        "terminals": [
+          "MP1.source",
+          "MP2.source"
+        ],
+        "pads": 16,
+        "gate_contacts": 0,
+        "spine_x_um": 58.93,
+        "escapes": [
+          [
+            "amp_input_pair:TAIL:far0",
+            153.99,
+            40.003
+          ],
+          [
+            "amp_input_pair:TAIL:spine0",
+            57.73,
+            40.003
+          ],
+          [
+            "amp_input_pair:TAIL:far1",
+            153.99,
+            74.157
+          ],
+          [
+            "amp_input_pair:TAIL:spine1",
+            57.73,
+            74.157
+          ]
+        ]
+      }
+    ]
+  },
+  "amp_nload": {
+    "kind": "mos_comb",
+    "nets": [
+      {
+        "net": "D1",
+        "spine_side": "E",
+        "terminals": [
+          "MN1.drain",
+          "MN1.gate"
+        ],
+        "pads": 8,
+        "gate_contacts": 4,
+        "spine_x_um": 255.79,
+        "escapes": [
+          [
+            "amp_nload:D1:far0",
+            167.59,
+            54.67
+          ],
+          [
+            "amp_nload:D1:far1",
+            167.59,
+            59.49
+          ]
+        ]
+      },
+      {
+        "net": "D2",
+        "spine_side": "E",
+        "terminals": [
+          "MN2.drain",
+          "MN2.gate"
+        ],
+        "pads": 8,
+        "gate_contacts": 4,
+        "spine_x_um": 256.19,
+        "escapes": [
+          [
+            "amp_nload:D2:far0",
+            167.59,
+            52.67
+          ],
+          [
+            "amp_nload:D2:far1",
+            167.59,
+            61.49
+          ]
+        ]
+      },
+      {
+        "net": "VSS",
+        "spine_side": "E",
+        "terminals": [
+          "MN1.source",
+          "MN2.source"
+        ],
+        "pads": 8,
+        "gate_contacts": 0,
+        "spine_x_um": 256.59,
+        "escapes": [
+          [
+            "amp_nload:VSS:far0",
+            167.59,
+            50.67
+          ],
+          [
+            "amp_nload:VSS:spine0",
+            257.79,
+            50.67
+          ],
+          [
+            "amp_nload:VSS:far1",
+            167.59,
+            63.49
+          ],
+          [
+            "amp_nload:VSS:spine1",
+            257.79,
+            63.49
+          ]
+        ]
+      }
+    ]
+  },
+  "amp_pmirr": {
+    "kind": "mos_comb",
+    "nets": [
+      {
+        "net": "GDRV",
+        "spine_side": "W",
+        "terminals": [
+          "MP4.drain"
+        ],
+        "pads": 8,
+        "gate_contacts": 0,
+        "spine_x_um": 8.42,
+        "escapes": [
+          [
+            "amp_pmirr:GDRV:far0",
+            181.88,
+            108.4
+          ],
+          [
+            "amp_pmirr:GDRV:far1",
+            181.88,
+            112.22
+          ]
+        ]
+      },
+      {
+        "net": "PN",
+        "spine_side": "W",
+        "terminals": [
+          "MP3.drain",
+          "MP3.gate",
+          "MP4.gate"
+        ],
+        "pads": 24,
+        "gate_contacts": 16,
+        "spine_x_um": 8.02,
+        "escapes": [
+          [
+            "amp_pmirr:PN:far0",
+            181.88,
+            106.9
+          ],
+          [
+            "amp_pmirr:PN:far1",
+            181.88,
+            113.72
+          ]
+        ]
+      },
+      {
+        "net": "VDD",
+        "spine_side": "W",
+        "terminals": [
+          "MP3.source",
+          "MP4.source"
+        ],
+        "pads": 16,
+        "gate_contacts": 0,
+        "spine_x_um": 7.62,
+        "escapes": [
+          [
+            "amp_pmirr:VDD:far0",
+            181.88,
+            105.4
+          ],
+          [
+            "amp_pmirr:VDD:spine0",
+            6.42,
+            105.4
+          ],
+          [
+            "amp_pmirr:VDD:far1",
+            181.88,
+            115.22
+          ],
+          [
+            "amp_pmirr:VDD:spine1",
+            6.42,
+            115.22
+          ]
+        ]
+      }
+    ]
+  },
+  "amp_nmirr": {
+    "kind": "mos_comb",
+    "nets": [
+      {
+        "net": "GDRV",
+        "spine_side": "E",
+        "terminals": [
+          "MN3.drain"
+        ],
+        "pads": 4,
+        "gate_contacts": 0,
+        "spine_x_um": 283.68,
+        "escapes": [
+          [
+            "amp_nmirr:GDRV:far0",
+            195.48,
+            108.567
+          ],
+          [
+            "amp_nmirr:GDRV:far1",
+            195.48,
+            112.053
+          ]
+        ]
+      },
+      {
+        "net": "PN",
+        "spine_side": "E",
+        "terminals": [
+          "MN4.drain"
+        ],
+        "pads": 4,
+        "gate_contacts": 0,
+        "spine_x_um": 284.08,
+        "escapes": [
+          [
+            "amp_nmirr:PN:far0",
+            195.48,
+            107.233
+          ],
+          [
+            "amp_nmirr:PN:far1",
+            195.48,
+            113.387
+          ]
+        ]
+      },
+      {
+        "net": "D1",
+        "spine_side": "E",
+        "terminals": [
+          "MN3.gate"
+        ],
+        "pads": 4,
+        "gate_contacts": 4,
+        "spine_x_um": 284.48,
+        "escapes": [
+          [
+            "amp_nmirr:D1:far0",
+            195.48,
+            105.9
+          ],
+          [
+            "amp_nmirr:D1:far1",
+            195.48,
+            114.72
+          ]
+        ]
+      },
+      {
+        "net": "D2",
+        "spine_side": "E",
+        "terminals": [
+          "MN4.gate"
+        ],
+        "pads": 4,
+        "gate_contacts": 4,
+        "spine_x_um": 284.88,
+        "escapes": [
+          [
+            "amp_nmirr:D2:far0",
+            195.48,
+            104.567
+          ],
+          [
+            "amp_nmirr:D2:far1",
+            195.48,
+            116.053
+          ]
+        ]
+      },
+      {
+        "net": "VSS",
+        "spine_side": "E",
+        "terminals": [
+          "MN3.source",
+          "MN4.source"
+        ],
+        "pads": 8,
+        "gate_contacts": 0,
+        "spine_x_um": 285.28,
+        "escapes": [
+          [
+            "amp_nmirr:VSS:far0",
+            195.48,
+            103.233
+          ],
+          [
+            "amp_nmirr:VSS:spine0",
+            286.48,
+            103.233
+          ],
+          [
+            "amp_nmirr:VSS:far1",
+            195.48,
+            117.387
+          ],
+          [
+            "amp_nmirr:VSS:spine1",
+            286.48,
+            117.387
+          ]
+        ]
+      }
+    ]
+  },
+  "pnp_su": {
+    "kind": "bjt_parallel",
+    "nets": [
+      {
+        "terminal": "E",
+        "net": "NE",
+        "columns": 4,
+        "pads": 8,
+        "trunk_y_um": 145.45,
+        "trunk_x0_um": 38.39,
+        "trunk_x1_um": 44.09
+      },
+      {
+        "terminal": "B",
+        "net": "VSS",
+        "columns": 4,
+        "pads": 8,
+        "trunk_y_um": 142.37,
+        "trunk_x0_um": 39.34,
+        "trunk_x1_um": 45.04
+      }
+    ]
+  },
+  "su_ref": {
+    "kind": "mos_comb",
+    "nets": [
+      {
+        "net": "NC1",
+        "spine_side": "W",
+        "terminals": [
+          "MPC1.drain",
+          "MPC1.gate",
+          "MPC2.source"
+        ],
+        "pads": 3,
+        "gate_contacts": 1,
+        "spine_x_um": 63.52,
+        "escapes": [
+          [
+            "su_ref:NC1:far0",
+            88.3,
+            172.73
+          ],
+          [
+            "su_ref:NC1:far1",
+            88.3,
+            174.35
+          ]
+        ]
+      },
+      {
+        "net": "NG",
+        "spine_side": "W",
+        "terminals": [
+          "MPC2.drain",
+          "MPC2.gate"
+        ],
+        "pads": 2,
+        "gate_contacts": 1,
+        "spine_x_um": 63.12,
+        "escapes": [
+          [
+            "su_ref:NG:far1",
+            88.3,
+            174.75
+          ]
+        ]
+      },
+      {
+        "net": "GDRV",
+        "spine_side": "W",
+        "terminals": [
+          "MPC1.source"
+        ],
+        "pads": 1,
+        "gate_contacts": 0,
+        "spine_x_um": 62.72,
+        "escapes": [
+          [
+            "su_ref:GDRV:far0",
+            88.3,
+            172.33
+          ],
+          [
+            "su_ref:GDRV:spine0",
+            61.52,
+            172.33
+          ]
+        ]
+      }
+    ]
+  },
+  "amp_cc": {
+    "kind": "mos_comb",
+    "nets": [
+      {
+        "net": "VDD",
+        "spine_side": "W",
+        "terminals": [
+          "MCC_A.drain",
+          "MCC_A.source",
+          "MCC_B.drain",
+          "MCC_B.source"
+        ],
+        "pads": 32,
+        "gate_contacts": 0,
+        "spine_x_um": 119.84,
+        "escapes": [
+          [
+            "amp_cc:VDD:far0",
+            293.3,
+            163.13
+          ],
+          [
+            "amp_cc:VDD:far1",
+            293.3,
+            183.95
+          ]
+        ]
+      },
+      {
+        "net": "GDRV",
+        "spine_side": "W",
+        "terminals": [
+          "MCC_A.gate",
+          "MCC_B.gate"
+        ],
+        "pads": 16,
+        "gate_contacts": 16,
+        "spine_x_um": 119.44,
+        "escapes": [
+          [
+            "amp_cc:GDRV:far0",
+            293.3,
+            153.13
+          ],
+          [
+            "amp_cc:GDRV:spine0",
+            118.24,
+            153.13
+          ],
+          [
+            "amp_cc:GDRV:far1",
+            293.3,
+            193.95
+          ],
+          [
+            "amp_cc:GDRV:spine1",
+            118.24,
+            193.95
+          ]
+        ]
+      }
+    ]
+  },
+  "_inter_block": [
+    {
+      "net": "TRIM_B",
+      "routed": true,
+      "internal_to": "R2B",
+      "schematic": "R2B's coarse 240 um into leg B of the same fine ladder",
+      "terminals": [
+        "res_r2.R97_B",
+        "res_trim.R1_A"
+      ],
+      "blocks": [
+        "res_r2",
+        "res_trim"
+      ],
+      "hops": [
+        {
+          "detour_um": null,
+          "via_channel": true,
+          "points": [
+            [
+              34.69,
+              13.35
+            ],
+            [
+              35.69,
+              13.35
+            ],
+            [
+              35.69,
+              14.54
+            ],
+            [
+              126.27,
+              14.54
+            ],
+            [
+              126.27,
+              9.15
+            ]
+          ],
+          "from": "res_r2.R97_B",
+          "to": "res_trim.R1_A",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VB",
+      "routed": true,
+      "internal_to": null,
+      "schematic": "the R2B leg's low end (at trim code 0, the far end of its fine ladder) to R1's head and MP1's gate -- the amp's VINP node",
+      "terminals": [
+        "res_trim.R39_B",
+        "amp_input_pair:VB:far0",
+        "res_r1.R0_A"
+      ],
+      "blocks": [
+        "amp_input_pair",
+        "res_r1",
+        "res_trim"
+      ],
+      "hops": [
+        {
+          "detour_um": null,
+          "via_channel": true,
+          "points": [
+            [
+              134.16,
+              13.35
+            ],
+            [
+              134.16,
+              15.74
+            ],
+            [
+              154.85,
+              15.74
+            ],
+            [
+              154.85,
+              46.67
+            ],
+            [
+              153.99,
+              46.67
+            ]
+          ],
+          "from": "res_trim.R39_B",
+          "to": "amp_input_pair:VB:far0",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              153.99,
+              46.67
+            ],
+            [
+              163.85,
+              46.67
+            ],
+            [
+              163.85,
+              13.1
+            ]
+          ],
+          "from": "amp_input_pair:VB:far0",
+          "to": "res_r1.R0_A",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VBQ",
+      "routed": true,
+      "internal_to": null,
+      "schematic": "R1's tail to Q2's emitter bus",
+      "terminals": [
+        "res_r1.R6_B",
+        "pnp_ptat:VBQ trunk"
+      ],
+      "blocks": [
+        "pnp_ptat",
+        "res_r1"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              241.09,
+              13.1
+            ],
+            [
+              274.24,
+              13.1
+            ],
+            [
+              274.24,
+              7.47
+            ]
+          ],
+          "from": "res_r1.R6_B",
+          "to": "pnp_ptat:VBQ trunk",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VDD",
+      "routed": true,
+      "internal_to": null,
+      "schematic": "VDD trunk: MPOUT/MPAMP and MP3/MP4 sources, MCC's drain+source (it is wired D=S=B=VDD, a MOS capacitor) -- every finger of all five, not one pad per block -- plus each PMOS group's n-well guard-ring tap (the reference's pfet bulk terminal), and the startup injector's MNC drain and MPC1/MPC2 n-well tap",
+      "terminals": [
+        "su_clamp.U0_D",
+        "amp_pmirr:VDD:spine1",
+        "core_mirror.TAP_N",
+        "core_mirror:VDD:far1",
+        "su_ref.TAP_S",
+        "amp_pmirr.TAP_N",
+        "amp_input_pair.TAP_N",
+        "amp_cc.TAP_S",
+        "amp_cc:VDD:far0"
+      ],
+      "blocks": [
+        "amp_cc",
+        "amp_input_pair",
+        "amp_pmirr",
+        "core_mirror",
+        "su_clamp",
+        "su_ref"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              5.84,
+              144.06
+            ],
+            [
+              6.42,
+              144.06
+            ],
+            [
+              6.42,
+              115.22
+            ]
+          ],
+          "from": "su_clamp.U0_D",
+          "to": "amp_pmirr:VDD:spine1",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              6.42,
+              115.22
+            ],
+            [
+              6.42,
+              66.62
+            ],
+            [
+              41.02,
+              66.62
+            ]
+          ],
+          "from": "amp_pmirr:VDD:spine1",
+          "to": "core_mirror.TAP_N",
+          "routed": true
+        },
+        {
+          "detour_um": null,
+          "via_channel": true,
+          "points": [
+            [
+              41.02,
+              66.62
+            ],
+            [
+              41.02,
+              69.83
+            ],
+            [
+              48.13,
+              69.83
+            ],
+            [
+              48.13,
+              59.09
+            ],
+            [
+              46.33,
+              59.09
+            ]
+          ],
+          "from": "core_mirror.TAP_N",
+          "to": "core_mirror:VDD:far1",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "met2": true,
+          "via1_drops": [
+            [
+              46.33,
+              59.09
+            ],
+            [
+              75.61,
+              171.42
+            ]
+          ],
+          "points": [
+            [
+              46.33,
+              59.09
+            ],
+            [
+              75.61,
+              59.09
+            ],
+            [
+              75.61,
+              171.42
+            ]
+          ],
+          "from": "core_mirror:VDD:far1",
+          "to": "su_ref.TAP_S",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              75.61,
+              171.42
+            ],
+            [
+              94.85,
+              171.42
+            ],
+            [
+              94.85,
+              117.85
+            ]
+          ],
+          "from": "su_ref.TAP_S",
+          "to": "amp_pmirr.TAP_N",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "met2": true,
+          "via1_drops": [
+            [
+              94.85,
+              117.85
+            ],
+            [
+              106.96,
+              78.62
+            ]
+          ],
+          "points": [
+            [
+              94.85,
+              117.85
+            ],
+            [
+              106.96,
+              117.85
+            ],
+            [
+              106.96,
+              78.62
+            ]
+          ],
+          "from": "amp_pmirr.TAP_N",
+          "to": "amp_input_pair.TAP_N",
+          "routed": true
+        },
+        {
+          "detour_um": null,
+          "via_channel": true,
+          "points": [
+            [
+              106.96,
+              78.62
+            ],
+            [
+              106.96,
+              81.98
+            ],
+            [
+              193.68,
+              81.98
+            ],
+            [
+              193.68,
+              142.42
+            ],
+            [
+              206.27,
+              142.42
+            ]
+          ],
+          "from": "amp_input_pair.TAP_N",
+          "to": "amp_cc.TAP_S",
+          "routed": true
+        },
+        {
+          "detour_um": null,
+          "via_channel": true,
+          "points": [
+            [
+              206.27,
+              142.42
+            ],
+            [
+              206.27,
+              143.94
+            ],
+            [
+              293.7,
+              143.94
+            ],
+            [
+              293.7,
+              163.13
+            ],
+            [
+              293.3,
+              163.13
+            ]
+          ],
+          "from": "amp_cc.TAP_S",
+          "to": "amp_cc:VDD:far0",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VSS",
+      "routed": true,
+      "internal_to": null,
+      "schematic": "VSS trunk: every finger of all four amp NMOS sources (MN1-MN4), both NMOS groups' substrate guard-ring taps, both core PNP base ties (the diode-connected PNPs' base sits on VSS), and the startup injector's MNI source and QS base tie",
+      "terminals": [
+        "pnp_ctat:VSS trunk",
+        "pnp_su:VSS trunk",
+        "su_inj.U0_S",
+        "amp_nload:VSS:far1",
+        "amp_nmirr:VSS:far0",
+        "amp_nload.TAP_N",
+        "amp_nmirr.TAP_S",
+        "pnp_ptat:VSS trunk"
+      ],
+      "blocks": [
+        "amp_nload",
+        "amp_nmirr",
+        "pnp_ctat",
+        "pnp_ptat",
+        "pnp_su",
+        "su_inj"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "met2": true,
+          "via1_drops": [
+            [
+              19.61,
+              0.31
+            ],
+            [
+              45.04,
+              142.37
+            ]
+          ],
+          "points": [
+            [
+              19.61,
+              0.31
+            ],
+            [
+              45.04,
+              0.31
+            ],
+            [
+              45.04,
+              142.37
+            ]
+          ],
+          "from": "pnp_ctat:VSS trunk",
+          "to": "pnp_su:VSS trunk",
+          "routed": true
+        },
+        {
+          "detour_um": null,
+          "via_channel": true,
+          "points": [
+            [
+              45.04,
+              142.37
+            ],
+            [
+              48.13,
+              142.37
+            ],
+            [
+              48.13,
+              179.44
+            ],
+            [
+              99.1,
+              179.44
+            ],
+            [
+              99.1,
+              173.34
+            ]
+          ],
+          "from": "pnp_su:VSS trunk",
+          "to": "su_inj.U0_S",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "met2": true,
+          "via1_drops": [
+            [
+              99.1,
+              173.34
+            ],
+            [
+              167.59,
+              63.49
+            ]
+          ],
+          "points": [
+            [
+              99.1,
+              173.34
+            ],
+            [
+              167.59,
+              173.34
+            ],
+            [
+              167.59,
+              63.49
+            ]
+          ],
+          "from": "su_inj.U0_S",
+          "to": "amp_nload:VSS:far1",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              167.59,
+              63.49
+            ],
+            [
+              195.48,
+              63.49
+            ],
+            [
+              195.48,
+              103.233
+            ]
+          ],
+          "from": "amp_nload:VSS:far1",
+          "to": "amp_nmirr:VSS:far0",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              195.48,
+              103.233
+            ],
+            [
+              211.99,
+              103.233
+            ],
+            [
+              211.99,
+              66.62
+            ]
+          ],
+          "from": "amp_nmirr:VSS:far0",
+          "to": "amp_nload.TAP_N",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              211.99,
+              66.62
+            ],
+            [
+              239.88,
+              66.62
+            ],
+            [
+              239.88,
+              101.19
+            ]
+          ],
+          "from": "amp_nload.TAP_N",
+          "to": "amp_nmirr.TAP_S",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              239.88,
+              101.19
+            ],
+            [
+              276.55,
+              101.19
+            ],
+            [
+              276.55,
+              1.67
+            ]
+          ],
+          "from": "amp_nmirr.TAP_S",
+          "to": "pnp_ptat:VSS trunk",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "TAIL",
+      "routed": true,
+      "internal_to": null,
+      "schematic": "MPAMP drain to the amp input pair's common source",
+      "terminals": [
+        "core_mirror:TAIL:far0",
+        "amp_input_pair:TAIL:spine0"
+      ],
+      "blocks": [
+        "amp_input_pair",
+        "core_mirror"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              46.33,
+              51.87
+            ],
+            [
+              57.73,
+              51.87
+            ],
+            [
+              57.73,
+              40.003
+            ]
+          ],
+          "from": "core_mirror:TAIL:far0",
+          "to": "amp_input_pair:TAIL:spine0",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "GDRV",
+      "routed": true,
+      "internal_to": null,
+      "schematic": "the amp's output -- MP4's and MN3's drains -- the core mirror's gate drive, MCC's gate (the compensation cap sits from AOUT/GDRV to VDD), and the startup injector's MPC1 source / MNI drain / MNC source: one node in the schematic and one drawn node in the layout",
+      "terminals": [
+        "su_clamp.U0_S",
+        "core_mirror:GDRV:far1",
+        "su_ref:GDRV:spine0",
+        "su_inj.U0_D",
+        "amp_cc:GDRV:spine0",
+        "amp_pmirr:GDRV:far1",
+        "amp_nmirr:GDRV:far1"
+      ],
+      "blocks": [
+        "amp_cc",
+        "amp_nmirr",
+        "amp_pmirr",
+        "core_mirror",
+        "su_clamp",
+        "su_inj",
+        "su_ref"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "met2": true,
+          "via1_drops": [
+            [
+              -4.0,
+              144.06
+            ],
+            [
+              46.33,
+              60.69
+            ]
+          ],
+          "points": [
+            [
+              -4.0,
+              144.06
+            ],
+            [
+              46.33,
+              144.06
+            ],
+            [
+              46.33,
+              60.69
+            ]
+          ],
+          "from": "su_clamp.U0_S",
+          "to": "core_mirror:GDRV:far1",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "met2": true,
+          "via1_drops": [
+            [
+              46.33,
+              60.69
+            ],
+            [
+              61.52,
+              172.33
+            ]
+          ],
+          "points": [
+            [
+              46.33,
+              60.69
+            ],
+            [
+              61.52,
+              60.69
+            ],
+            [
+              61.52,
+              172.33
+            ]
+          ],
+          "from": "core_mirror:GDRV:far1",
+          "to": "su_ref:GDRV:spine0",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              61.52,
+              172.33
+            ],
+            [
+              108.44,
+              172.33
+            ],
+            [
+              108.44,
+              173.34
+            ]
+          ],
+          "from": "su_ref:GDRV:spine0",
+          "to": "su_inj.U0_D",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              108.44,
+              173.34
+            ],
+            [
+              118.24,
+              173.34
+            ],
+            [
+              118.24,
+              153.13
+            ]
+          ],
+          "from": "su_inj.U0_D",
+          "to": "amp_cc:GDRV:spine0",
+          "routed": true
+        },
+        {
+          "detour_um": null,
+          "via_channel": true,
+          "points": [
+            [
+              118.24,
+              153.13
+            ],
+            [
+              118.24,
+              152.36
+            ],
+            [
+              183.68,
+              152.36
+            ],
+            [
+              183.68,
+              112.22
+            ],
+            [
+              181.88,
+              112.22
+            ]
+          ],
+          "from": "amp_cc:GDRV:spine0",
+          "to": "amp_pmirr:GDRV:far1",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "met2": true,
+          "via1_drops": [
+            [
+              181.88,
+              112.22
+            ],
+            [
+              195.48,
+              112.053
+            ]
+          ],
+          "points": [
+            [
+              181.88,
+              112.22
+            ],
+            [
+              195.48,
+              112.22
+            ],
+            [
+              195.48,
+              112.053
+            ]
+          ],
+          "from": "amp_pmirr:GDRV:far1",
+          "to": "amp_nmirr:GDRV:far1",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "D1",
+      "routed": true,
+      "internal_to": null,
+      "schematic": "MP1's drain, MN1's diode-connected drain/gate, and MN3's gate",
+      "terminals": [
+        "amp_input_pair:D1:far1",
+        "amp_nload:D1:far1",
+        "amp_nmirr:D1:far0"
+      ],
+      "blocks": [
+        "amp_input_pair",
+        "amp_nload",
+        "amp_nmirr"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              153.99,
+              60.823
+            ],
+            [
+              167.59,
+              60.823
+            ],
+            [
+              167.59,
+              59.49
+            ]
+          ],
+          "from": "amp_input_pair:D1:far1",
+          "to": "amp_nload:D1:far1",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "met2": true,
+          "via1_drops": [
+            [
+              167.59,
+              59.49
+            ],
+            [
+              195.48,
+              105.9
+            ]
+          ],
+          "points": [
+            [
+              167.59,
+              59.49
+            ],
+            [
+              195.48,
+              59.49
+            ],
+            [
+              195.48,
+              105.9
+            ]
+          ],
+          "from": "amp_nload:D1:far1",
+          "to": "amp_nmirr:D1:far0",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "D2",
+      "routed": true,
+      "internal_to": null,
+      "schematic": "MP2's drain, MN2's diode-connected drain/gate, and MN4's gate",
+      "terminals": [
+        "amp_nload:D2:far1",
+        "amp_input_pair:D2:far1",
+        "amp_nmirr:D2:far0"
+      ],
+      "blocks": [
+        "amp_input_pair",
+        "amp_nload",
+        "amp_nmirr"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.4,
+          "points": [
+            [
+              167.59,
+              61.49
+            ],
+            [
+              167.59,
+              61.89
+            ],
+            [
+              150.39,
+              61.89
+            ],
+            [
+              150.39,
+              64.157
+            ],
+            [
+              153.99,
+              64.157
+            ]
+          ],
+          "from": "amp_nload:D2:far1",
+          "to": "amp_input_pair:D2:far1",
+          "routed": true
+        },
+        {
+          "detour_um": -6.0,
+          "met2": true,
+          "via1_drops": [
+            [
+              153.99,
+              64.157
+            ],
+            [
+              196.28,
+              104.567
+            ]
+          ],
+          "points": [
+            [
+              153.99,
+              64.157
+            ],
+            [
+              153.99,
+              58.157
+            ],
+            [
+              196.28,
+              58.157
+            ],
+            [
+              196.28,
+              104.567
+            ]
+          ],
+          "from": "amp_input_pair:D2:far1",
+          "to": "amp_nmirr:D2:far0",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "PN",
+      "routed": true,
+      "internal_to": null,
+      "schematic": "MN4's drain, MP3's diode-connected drain/gate, and MP4's gate",
+      "terminals": [
+        "amp_pmirr:PN:far0",
+        "amp_nmirr:PN:far0"
+      ],
+      "blocks": [
+        "amp_nmirr",
+        "amp_pmirr"
+      ],
+      "hops": [
+        {
+          "detour_um": 1.2,
+          "met2": true,
+          "via1_drops": [
+            [
+              181.88,
+              106.9
+            ],
+            [
+              195.48,
+              107.233
+            ]
+          ],
+          "points": [
+            [
+              181.88,
+              106.9
+            ],
+            [
+              181.88,
+              108.1
+            ],
+            [
+              195.48,
+              108.1
+            ],
+            [
+              195.48,
+              107.233
+            ]
+          ],
+          "from": "amp_pmirr:PN:far0",
+          "to": "amp_nmirr:PN:far0",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "NG",
+      "routed": true,
+      "internal_to": null,
+      "schematic": "MPC2's diode-connected drain/gate, MNS's drain and MNI's gate -- the injector's internal gate-drive node, held high by the PMOS reference while the core is dead and pulled down by MNS once VOUT clears a VBE",
+      "terminals": [
+        "su_sense.U0_D",
+        "su_ref:NG:far1",
+        "su_inj.U0_G"
+      ],
+      "blocks": [
+        "su_inj",
+        "su_ref",
+        "su_sense"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "met2": true,
+          "via1_drops": [
+            [
+              23.18,
+              173.34
+            ],
+            [
+              88.7,
+              174.75
+            ]
+          ],
+          "points": [
+            [
+              23.18,
+              173.34
+            ],
+            [
+              88.7,
+              173.34
+            ],
+            [
+              88.7,
+              174.75
+            ]
+          ],
+          "from": "su_sense.U0_D",
+          "to": "su_ref:NG:far1",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "met2": true,
+          "via1_drops": [
+            [
+              88.7,
+              174.75
+            ],
+            [
+              103.77,
+              178.95
+            ]
+          ],
+          "points": [
+            [
+              88.7,
+              174.75
+            ],
+            [
+              103.77,
+              174.75
+            ],
+            [
+              103.77,
+              178.95
+            ]
+          ],
+          "from": "su_ref:NG:far1",
+          "to": "su_inj.U0_G",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "NE",
+      "routed": true,
+      "internal_to": null,
+      "schematic": "MNS's source on QS's emitter -- the diode-connected PNP that references the release threshold to a VBE instead of to a MOS threshold alone",
+      "terminals": [
+        "su_sense.U0_S",
+        "pnp_su:NE trunk"
+      ],
+      "blocks": [
+        "pnp_su",
+        "su_sense"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              13.84,
+              173.34
+            ],
+            [
+              13.84,
+              145.45
+            ],
+            [
+              44.09,
+              145.45
+            ]
+          ],
+          "from": "su_sense.U0_S",
+          "to": "pnp_su:NE trunk",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VA",
+      "routed": true,
+      "internal_to": null,
+      "schematic": "the R2A leg's low end (at trim code 0, the far end of its fine ladder) to Q1's emitter bus and MP2's gate -- the amp's VINN node",
+      "terminals": [
+        "pnp_ctat:VA trunk",
+        "res_trim.R38_B",
+        "amp_input_pair:VA:far0"
+      ],
+      "blocks": [
+        "amp_input_pair",
+        "pnp_ctat",
+        "res_trim"
+      ],
+      "hops": [
+        {
+          "detour_um": null,
+          "via_channel": true,
+          "points": [
+            [
+              18.66,
+              3.39
+            ],
+            [
+              18.66,
+              15.74
+            ],
+            [
+              127.27,
+              15.74
+            ],
+            [
+              127.27,
+              12.85
+            ],
+            [
+              136.0,
+              12.85
+            ]
+          ],
+          "from": "pnp_ctat:VA trunk",
+          "to": "res_trim.R38_B",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "met2": true,
+          "via1_drops": [
+            [
+              136.0,
+              12.85
+            ],
+            [
+              153.99,
+              43.337
+            ]
+          ],
+          "points": [
+            [
+              136.0,
+              12.85
+            ],
+            [
+              153.99,
+              12.85
+            ],
+            [
+              153.99,
+              43.337
+            ]
+          ],
+          "from": "res_trim.R38_B",
+          "to": "amp_input_pair:VA:far0",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "TRIM_A",
+      "routed": true,
+      "internal_to": "R2A",
+      "schematic": "R2A's coarse 240 um into leg A of the fine trim ladder that carries the leg's last 10 um (DR-002, downward-only)",
+      "terminals": [
+        "res_r2.R96_B",
+        "res_trim.R0_A"
+      ],
+      "blocks": [
+        "res_r2",
+        "res_trim"
+      ],
+      "hops": [
+        {
+          "detour_um": -8.8,
+          "points": [
+            [
+              34.69,
+              12.85
+            ],
+            [
+              31.09,
+              12.85
+            ],
+            [
+              31.09,
+              -0.15
+            ],
+            [
+              126.27,
+              -0.15
+            ],
+            [
+              126.27,
+              8.65
+            ]
+          ],
+          "from": "res_r2.R96_B",
+          "to": "res_trim.R0_A",
+          "routed": true
+        }
+      ]
+    },
+    {
+      "net": "VOUT",
+      "routed": true,
+      "internal_to": null,
+      "schematic": "MPOUT's drain and the high ends of both divider legs -- the reference output -- plus the startup injector's VSENSE input (MNS's and MNC's gates)",
+      "terminals": [
+        "res_r2.R0_A",
+        "res_r2.R1_A",
+        "core_mirror:VOUT:spine1",
+        "su_clamp.U0_G",
+        "su_sense.U0_G"
+      ],
+      "blocks": [
+        "core_mirror",
+        "res_r2",
+        "su_clamp",
+        "su_sense"
+      ],
+      "hops": [
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              34.69,
+              0.25
+            ],
+            [
+              34.69,
+              0.25
+            ],
+            [
+              34.69,
+              0.75
+            ]
+          ],
+          "from": "res_r2.R0_A",
+          "to": "res_r2.R1_A",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "met2": true,
+          "via1_drops": [
+            [
+              34.69,
+              1.55
+            ],
+            [
+              33.91,
+              63.89
+            ]
+          ],
+          "points": [
+            [
+              34.69,
+              1.55
+            ],
+            [
+              33.91,
+              1.55
+            ],
+            [
+              33.91,
+              63.89
+            ]
+          ],
+          "from": "res_r2.R1_A",
+          "to": "core_mirror:VOUT:spine1",
+          "routed": true
+        },
+        {
+          "detour_um": 0.8,
+          "points": [
+            [
+              33.91,
+              63.89
+            ],
+            [
+              33.91,
+              64.69
+            ],
+            [
+              -7.6,
+              64.69
+            ],
+            [
+              -7.6,
+              146.67
+            ],
+            [
+              -4.0,
+              146.67
+            ]
+          ],
+          "from": "core_mirror:VOUT:spine1",
+          "to": "su_clamp.U0_G",
+          "routed": true
+        },
+        {
+          "detour_um": 0.0,
+          "points": [
+            [
+              -4.0,
+              146.67
+            ],
+            [
+              -4.0,
+              197.95
+            ],
+            [
+              23.18,
+              197.95
+            ]
+          ],
+          "from": "su_clamp.U0_G",
+          "to": "su_sense.U0_G",
+          "routed": true
+        }
+      ]
+    }
+  ],
+  "_route_order_attempts": [
+    {
+      "order": [
+        "VA",
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "PN",
+        "NG",
+        "NE"
+      ],
+      "failed": [
+        "GDRV",
+        "NE"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 12,
+      "hops_routed": 39
+    },
+    {
+      "order": [
+        "TRIM_A",
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "PN",
+        "NG",
+        "NE",
+        "VA"
+      ],
+      "failed": [
+        "GDRV",
+        "NE"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 12,
+      "hops_routed": 39
+    },
+    {
+      "order": [
+        "VOUT",
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "PN",
+        "NG",
+        "NE",
+        "VA",
+        "TRIM_A"
+      ],
+      "failed": [
+        "GDRV",
+        "NE",
+        "TRIM_A"
+      ],
+      "conflicts": 1,
+      "schematic_nets_drawn": 12,
+      "hops_routed": 38
+    },
+    {
+      "order": [
+        "TRIM_B",
+        "VB",
+        "VBQ",
+        "VDD",
+        "VSS",
+        "TAIL",
+        "GDRV",
+        "D1",
+        "D2",
+        "PN",
+        "NG",
+        "NE",
+        "VA",
+        "TRIM_A",
+        "VOUT"
+      ],
+      "failed": [],
+      "conflicts": 0,
+      "schematic_nets_drawn": 14,
+      "hops_routed": 41
+    }
+  ],
+  "_route_order_used": [
+    "TRIM_B",
+    "VB",
+    "VBQ",
+    "VDD",
+    "VSS",
+    "TAIL",
+    "GDRV",
+    "D1",
+    "D2",
+    "PN",
+    "NG",
+    "NE",
+    "VA",
+    "TRIM_A",
+    "VOUT"
+  ],
+  "_conflicts": [],
+  "_components": {
+    "VA": 1,
+    "VSS": 1,
+    "res_r2:leg0:0-2": 1,
+    "res_r2:leg0:2-4": 1,
+    "res_r2:leg0:4-6": 1,
+    "res_r2:leg0:6-8": 1,
+    "res_r2:leg0:8-10": 1,
+    "res_r2:leg0:10-12": 1,
+    "res_r2:leg0:12-14": 1,
+    "res_r2:leg0:14-16": 1,
+    "res_r2:leg0:16-18": 1,
+    "res_r2:leg0:18-20": 1,
+    "res_r2:leg0:20-22": 1,
+    "res_r2:leg0:22-24": 1,
+    "res_r2:leg0:24-26": 1,
+    "res_r2:leg0:26-28": 1,
+    "res_r2:leg0:28-30": 1,
+    "res_r2:leg0:30-32": 1,
+    "res_r2:leg0:32-34": 1,
+    "res_r2:leg0:34-36": 1,
+    "res_r2:leg0:36-38": 1,
+    "res_r2:leg0:38-40": 1,
+    "res_r2:leg0:40-42": 1,
+    "res_r2:leg0:42-44": 1,
+    "res_r2:leg0:44-46": 1,
+    "res_r2:leg0:46-48": 1,
+    "res_r2:leg0:48-50": 1,
+    "res_r2:leg0:50-52": 1,
+    "res_r2:leg0:52-54": 1,
+    "res_r2:leg0:54-56": 1,
+    "res_r2:leg0:56-58": 1,
+    "res_r2:leg0:58-60": 1,
+    "res_r2:leg0:60-62": 1,
+    "res_r2:leg0:62-64": 1,
+    "res_r2:leg0:64-66": 1,
+    "res_r2:leg0:66-68": 1,
+    "res_r2:leg0:68-70": 1,
+    "res_r2:leg0:70-72": 1,
+    "res_r2:leg0:72-74": 1,
+    "res_r2:leg0:74-76": 1,
+    "res_r2:leg0:76-78": 1,
+    "res_r2:leg0:78-80": 1,
+    "res_r2:leg0:80-82": 1,
+    "res_r2:leg0:82-84": 1,
+    "res_r2:leg0:84-86": 1,
+    "res_r2:leg0:86-88": 1,
+    "res_r2:leg0:88-90": 1,
+    "res_r2:leg0:90-92": 1,
+    "res_r2:leg0:92-94": 1,
+    "res_r2:leg0:94-96": 1,
+    "res_r2:leg1:1-3": 1,
+    "res_r2:leg1:3-5": 1,
+    "res_r2:leg1:5-7": 1,
+    "res_r2:leg1:7-9": 1,
+    "res_r2:leg1:9-11": 1,
+    "res_r2:leg1:11-13": 1,
+    "res_r2:leg1:13-15": 1,
+    "res_r2:leg1:15-17": 1,
+    "res_r2:leg1:17-19": 1,
+    "res_r2:leg1:19-21": 1,
+    "res_r2:leg1:21-23": 1,
+    "res_r2:leg1:23-25": 1,
+    "res_r2:leg1:25-27": 1,
+    "res_r2:leg1:27-29": 1,
+    "res_r2:leg1:29-31": 1,
+    "res_r2:leg1:31-33": 1,
+    "res_r2:leg1:33-35": 1,
+    "res_r2:leg1:35-37": 1,
+    "res_r2:leg1:37-39": 1,
+    "res_r2:leg1:39-41": 1,
+    "res_r2:leg1:41-43": 1,
+    "res_r2:leg1:43-45": 1,
+    "res_r2:leg1:45-47": 1,
+    "res_r2:leg1:47-49": 1,
+    "res_r2:leg1:49-51": 1,
+    "res_r2:leg1:51-53": 1,
+    "res_r2:leg1:53-55": 1,
+    "res_r2:leg1:55-57": 1,
+    "res_r2:leg1:57-59": 1,
+    "res_r2:leg1:59-61": 1,
+    "res_r2:leg1:61-63": 1,
+    "res_r2:leg1:63-65": 1,
+    "res_r2:leg1:65-67": 1,
+    "res_r2:leg1:67-69": 1,
+    "res_r2:leg1:69-71": 1,
+    "res_r2:leg1:71-73": 1,
+    "res_r2:leg1:73-75": 1,
+    "res_r2:leg1:75-77": 1,
+    "res_r2:leg1:77-79": 1,
+    "res_r2:leg1:79-81": 1,
+    "res_r2:leg1:81-83": 1,
+    "res_r2:leg1:83-85": 1,
+    "res_r2:leg1:85-87": 1,
+    "res_r2:leg1:87-89": 1,
+    "res_r2:leg1:89-91": 1,
+    "res_r2:leg1:91-93": 1,
+    "res_r2:leg1:93-95": 1,
+    "res_r2:leg1:95-97": 1,
+    "res_trim:leg0:0-2": 1,
+    "res_trim:leg0:2-4": 1,
+    "res_trim:leg0:4-6": 1,
+    "res_trim:leg0:6-8": 1,
+    "res_trim:leg0:8-10": 1,
+    "res_trim:leg0:10-12": 1,
+    "res_trim:leg0:12-14": 1,
+    "res_trim:leg0:14-16": 1,
+    "res_trim:leg0:16-18": 1,
+    "res_trim:leg0:18-20": 1,
+    "res_trim:leg0:20-22": 1,
+    "res_trim:leg0:22-24": 1,
+    "res_trim:leg0:24-26": 1,
+    "res_trim:leg0:26-28": 1,
+    "res_trim:leg0:28-30": 1,
+    "res_trim:leg0:30-32": 1,
+    "res_trim:leg0:32-34": 1,
+    "res_trim:leg0:34-36": 1,
+    "res_trim:leg0:36-38": 1,
+    "res_trim:leg1:1-3": 1,
+    "res_trim:leg1:3-5": 1,
+    "res_trim:leg1:5-7": 1,
+    "res_trim:leg1:7-9": 1,
+    "res_trim:leg1:9-11": 1,
+    "res_trim:leg1:11-13": 1,
+    "res_trim:leg1:13-15": 1,
+    "res_trim:leg1:15-17": 1,
+    "res_trim:leg1:17-19": 1,
+    "res_trim:leg1:19-21": 1,
+    "res_trim:leg1:21-23": 1,
+    "res_trim:leg1:23-25": 1,
+    "res_trim:leg1:25-27": 1,
+    "res_trim:leg1:27-29": 1,
+    "res_trim:leg1:29-31": 1,
+    "res_trim:leg1:31-33": 1,
+    "res_trim:leg1:33-35": 1,
+    "res_trim:leg1:35-37": 1,
+    "res_trim:leg1:37-39": 1,
+    "res_r1:leg0:0-1": 1,
+    "res_r1:leg0:1-2": 1,
+    "res_r1:leg0:2-3": 1,
+    "res_r1:leg0:3-4": 1,
+    "res_r1:leg0:4-5": 1,
+    "res_r1:leg0:5-6": 1,
+    "VBQ": 1,
+    "VDD": 1,
+    "GDRV": 1,
+    "TAIL": 1,
+    "VOUT": 1,
+    "D1": 1,
+    "D2": 1,
+    "VB": 1,
+    "PN": 1,
+    "NE": 1,
+    "NC1": 1,
+    "NG": 1,
+    "TRIM_B": 1,
+    "TRIM_A": 1
+  }
+}

@@ -1,0 +1,178 @@
+{
+  "schema": "klt.gen_compose.request/1",
+  "pdk": {
+    "variant": "sky130A"
+  },
+  "blocks": [
+    {
+      "id": "pnp_ctat",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/pnp_ctat.gen.json"
+    },
+    {
+      "id": "res_r2",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/res_r2.gen.json"
+    },
+    {
+      "id": "res_trim",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/res_trim.gen.json"
+    },
+    {
+      "id": "res_r1",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/res_r1.gen.json"
+    },
+    {
+      "id": "pnp_ptat",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/pnp_ptat.gen.json"
+    },
+    {
+      "id": "core_mirror",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/core_mirror.gen.json"
+    },
+    {
+      "id": "amp_input_pair",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/amp_input_pair.gen.json"
+    },
+    {
+      "id": "amp_nload",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/amp_nload.gen.json"
+    },
+    {
+      "id": "amp_pmirr",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/amp_pmirr.gen.json"
+    },
+    {
+      "id": "amp_nmirr",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/amp_nmirr.gen.json"
+    },
+    {
+      "id": "su_clamp",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/su_clamp.gen.json"
+    },
+    {
+      "id": "su_sense",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/su_sense.gen.json"
+    },
+    {
+      "id": "pnp_su",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/pnp_su.gen.json"
+    },
+    {
+      "id": "su_ref",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/su_ref.gen.json"
+    },
+    {
+      "id": "su_inj",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/su_inj.gen.json"
+    },
+    {
+      "id": "amp_cc",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/amp_cc.gen.json"
+    },
+    {
+      "id": "bandgap_core_bus",
+      "generator_report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_bus.gen.json"
+    }
+  ],
+  "placement": {
+    "strategy": "explicit",
+    "order": [
+      "pnp_ctat",
+      "res_r2",
+      "res_trim",
+      "res_r1",
+      "pnp_ptat",
+      "core_mirror",
+      "amp_input_pair",
+      "amp_nload",
+      "amp_pmirr",
+      "amp_nmirr",
+      "su_clamp",
+      "su_sense",
+      "pnp_su",
+      "su_ref",
+      "su_inj",
+      "amp_cc",
+      "bandgap_core_bus"
+    ],
+    "origins_um": {
+      "pnp_ctat": {
+        "x": 12.620000000000001,
+        "y": 0.97
+      },
+      "res_r2": {
+        "x": 51.37,
+        "y": 0.0
+      },
+      "res_trim": {
+        "x": 133.95,
+        "y": 8.399999999999999
+      },
+      "res_r1": {
+        "x": 180.52999999999997,
+        "y": 12.6
+      },
+      "pnp_ptat": {
+        "x": 258.67999999999995,
+        "y": 0.97
+      },
+      "core_mirror": {
+        "x": 37.98000000000001,
+        "y": 48.67
+      },
+      "amp_input_pair": {
+        "x": 62.20000000000001,
+        "y": 36.67
+      },
+      "amp_nload": {
+        "x": 169.71,
+        "y": 48.67
+      },
+      "amp_pmirr": {
+        "x": 10.09000000000001,
+        "y": 103.89999999999998
+      },
+      "amp_nmirr": {
+        "x": 197.6,
+        "y": 101.89999999999999
+      },
+      "su_clamp": {
+        "x": 0.0,
+        "y": 142.06
+      },
+      "su_sense": {
+        "x": 17.84,
+        "y": 149.34
+      },
+      "pnp_su": {
+        "x": 38.05,
+        "y": 143.03
+      },
+      "su_ref": {
+        "x": 65.19,
+        "y": 172.13
+      },
+      "su_inj": {
+        "x": 103.10000000000001,
+        "y": 168.34
+      },
+      "amp_cc": {
+        "x": 121.51,
+        "y": 143.13
+      },
+      "bandgap_core_bus": {
+        "x": 0.0,
+        "y": 0.0
+      }
+    }
+  },
+  "connectivity": [],
+  "pins": [],
+  "routing": {
+    "layer_role": "metal",
+    "width_um": 0.5
+  },
+  "options": {
+    "cell_name": "bandgap_core_routed_inner",
+    "output": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-285/layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_routed_inner.gds"
+  }
+}

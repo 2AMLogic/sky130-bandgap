@@ -12,12 +12,23 @@ time) -- the other four landed as PR #134, #137, #139 and #142.
 with GDRV exposed and no startup injector attached (its own manifest claim
 says so explicitly -- the core cell as merged by issue #8 has no injector,
 and a failure here is a statement about the missing injector, not about the
-bench). The routed layout this bench now measures is that same bare core:
-`layout/bandgap-core/` composes the core + amplifier and promotes GDRV as a
-pin; the injector (`design/startup_injector.sch`, issue #10) has no layout
-at all yet. So the schematic-level and post-layout DUTs are the same
-circuit, and the comparison is apples to apples -- unlike the two sibling
-startup benches, whose injector half necessarily stays schematic-level.
+bench).
+
+**The post-layout DUT is no longer that same circuit (issue #285).** Until
+issue #285 the routed layout WAS the bare core -- `layout/bandgap-core/`
+composed the core + amplifier and promoted GDRV as a pin, and
+`design/startup_injector.sch` had no layout at all -- so the schematic-level
+and post-layout DUTs matched and the comparison was apples to apples. The
+injector is now drawn into the composed cell, so the extracted netlist this
+bench runs is core + injector while the wrapped schematic bench stays the
+bare core. That asymmetry is deliberate and is the WHOLE POINT of the row
+this bench feeds (`design/block-characterization-report.md` row 8e): the
+schematic side records what the unprotected core does (park in the
+degenerate all-off state), the post-layout side records what the cell that
+would actually be fabricated does. A verdict flip between the two halves of
+row 8e is therefore the expected outcome of drawing the injector, not a
+provenance error -- and the numbers that name it are `gdrv_final` (parks at
+VDD without an injector, pulled down with one) and `t_start_ms`.
 
 Full 45-point PVT matrix: nothing in this bench's deck sweeps a PVT axis
 internally (the supply ramp is a `pulse()` shaped by `t_ramp` on the corner's
@@ -63,14 +74,16 @@ CLAIM_TAIL = (
     "through 1.08 V (90% of the 1.20 V draft nominal), open-circuit, over the full "
     "45-point PVT matrix, via klt extract --parasitics translated to a simulatable "
     "netlist (sim/bin/post_layout_common.py) -- NOT design/bandgap_core.sch directly; "
-    "see 'Netlist provenance' below. NOTE: the same no-injector caveat the schematic-"
-    "level manifest carries applies unchanged here, and for the same reason -- the "
-    "composed layout is the core cell with GDRV promoted as a pin, and "
-    "design/startup_injector.sch has no layout yet -- so this bench measures the "
-    "extracted core AS DRAWN. A failure here is a statement about the missing "
-    "injector, not about the bench or the extraction; the injector-equipped "
-    "post-layout benches are sim/startup-ramp-post-layout/ and "
-    "sim/startup-stability-post-layout/."
+    "see 'Netlist provenance' below. NOTE: the no-injector caveat the schematic-level "
+    "manifest carries does NOT apply to this record any more (issue #285). The "
+    "composed cell now DRAWS design/startup_injector.sch -- six devices (MPC1, MPC2, "
+    "MNS, MNI, MNC, QS), LVS-matched against a reference netlist that carries them "
+    "too -- so this bench measures the extracted core AS DRAWN, injector included, "
+    "while the wrapped schematic bench stays the bare core. The two halves of this "
+    "spec line therefore measure DIFFERENT circuits on purpose: schematic = the "
+    "unprotected core (parks in the all-off degenerate state), post-layout = the "
+    "cell that would be fabricated. Read this record against the layout record named "
+    "under 'Netlist provenance', not against the schematic-level record."
 )
 
 
