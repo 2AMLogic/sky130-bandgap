@@ -99,12 +99,22 @@ without re-deriving any of the above.
 4. **One generic per-bench runner** (`run_post_layout_experiment`): the
    chaining itself, the record minting, the append-only refusal, the corner
    loop and the `provenance: extracted` record schema are IDENTICAL for
-   every bench -- the only per-bench variables are the wrapped experiment
-   slug, its testbench, the claim sentence and whether that bench's own
-   manifest matrix is collapsed on an axis the deck sweeps internally. So
-   each `sim/<slug>-post-layout/run_*.py` is a ~40-line declaration of those
+   every bench -- the only per-bench variables are the experiment slug, its
+   testbench, the claim sentence and whether that bench's own manifest matrix
+   is collapsed on an axis the deck sweeps internally. So each
+   `sim/<slug>-post-layout/run_*.py` is a ~40-line declaration of those
    variables, not a copy of the runner (`sim/README.md`'s "copy this script"
    note predates this distillation; copying is no longer the pattern).
+
+   Most post-layout benches WRAP their schematic-level sibling's manifest and
+   testbench unchanged, so the only variable between the two benches' records
+   is the DUT body. Two of them cannot, and carry their own `experiment.json`
+   + `testbench/` instead (issue #299): `sim/startup-stability-post-layout/`
+   and `sim/startup-ramp-post-layout/`, whose schematic-level siblings measure
+   quantities that are differences against a BARE-CORE control instance --
+   and since issue #285 drew `design/startup_injector.sch` into the composed
+   cell, no bare extracted core exists to be that control. Those two pass
+   `claim_tail=None`; see `run_post_layout_experiment`'s own docstring.
 
 5. **The parasitics extraction is shared across benches**
    (`resolve_parasitics_snapshot`): every post-layout record for a given
@@ -173,35 +183,49 @@ def layout_record_draws_injector(record_dir: Path) -> bool:
     return all(re.search(rf"^{card}\s", text, re.M) for card in _INJECTOR_REFERENCE_CARDS)
 
 
-def refuse_if_layout_draws_injector(slug: str) -> None:
-    """Abort a MIXED-PROVENANCE startup bench whose testbench netlists its own
-    `design/startup_injector.sym` instances alongside the extracted core.
+def require_layout_draws_injector(slug: str) -> None:
+    """Abort a startup bench whose whole claim is about the COMPOSED cell --
+    core + injector as drawn -- if the layout record under test does not draw
+    the injector (issue #299).
 
-    Such a bench is only correct while the composed cell has NO injector of its
-    own. Since issue #285 it has one, so running unchanged would put two
-    injectors on every injector-equipped instance and would silently convert
-    the bench's bare-core CONTROL instances into injector-equipped ones -- a
-    wrong answer that looks like a normal run, with numbers, and would be
-    appended to `sim/`'s append-only evidence before anyone noticed. A guard
-    is therefore the only safe shape: this is a structural refusal, not a
-    docstring warning, precisely because the failure is invisible in the
-    output.
+    This is the structural precondition that replaced the bare-core CONTROL
+    instances `sim/startup-stability-post-layout/` and
+    `sim/startup-ramp-post-layout/` used to carry. Until issue #285 those
+    benches wrapped their schematic-level testbench unchanged: the extracted
+    core swapped in for every `design/bandgap_core.sym` instance while the
+    testbench's own separately netlisted `design/startup_injector.sym`
+    instances stayed schematic-level, and its bare-core control instances
+    stayed bare. #285 drew the injector into the composed cell, which
+    falsifies both halves of that construction at once -- the DUT instances
+    would carry TWO injectors and the controls would silently become
+    injector-equipped, with nothing in the output saying so.
 
-    Restructuring these two benches (their own post-layout testbench, and a
-    decision about the control instances, which the drawn cell cannot express
-    any more) is tracked in issue #299.
+    The restructured benches (issue #299) instantiate `design/bandgap_core.sym`
+    ALONE and rely on the extracted body to supply the injector, so the
+    dangerous direction is now the opposite one: running them against a
+    core-only layout record would quietly measure an unprotected core and
+    report it as the composed cell. Hence this guard, which is the mirror image
+    of the `refuse_if_layout_draws_injector()` guard it replaces.
+
+    A missing injector would also fail those benches' own bounds
+    (`imin_off_su`/`i_off_su` collapse to leakage level; `t_start_g` finds no
+    VREF crossing at all) -- but a precondition that names the cause beats a
+    corner matrix full of unexplained FAILs, and it fires before any ngspice
+    time is spent.
     """
     record_id, record_dir, _gds = resolve_latest_layout(LAYOUT_BANDGAP_CORE_DIR)
-    if not layout_record_draws_injector(record_dir):
+    if layout_record_draws_injector(record_dir):
         return
     raise PostLayoutError(
-        f"{slug}: refusing to run against layout record {record_id}, which DRAWS "
-        "the startup injector (issue #285). This bench wraps a testbench that "
-        "netlists design/startup_injector.sym separately, so the run would "
-        "double-count the injector on its DUT instances and silently make its "
-        "bare-core control instances injector-equipped. See issue #299 for the "
-        "restructuring this bench needs; until then the newest valid record here "
-        "is the one taken against a pre-#285 layout record."
+        f"{slug}: refusing to run against layout record {record_id}, whose own "
+        "reference netlist does NOT state the startup injector's six device "
+        "cards (MPC1, MPC2, MNS, MNI, MNC, QS). This bench's DUT is the "
+        "COMPOSED cell: its testbench instantiates design/bandgap_core.sym "
+        "alone and expects the extracted body to supply the injector, so "
+        "running against a core-only layout record would measure an "
+        "unprotected core and record it as the composed cell (issue #299). "
+        "Re-run against a layout record that draws the injector (issue #285), "
+        "or use the schematic-level bench for a bare-core claim."
     )
 
 
@@ -669,13 +693,86 @@ def parse_post_layout_args(argv: list[str], doc: str = "") -> argparse.Namespace
     return p.parse_args(argv)
 
 
+def resolve_record_claim_and_title(
+    *,
+    slug: str,
+    wrapped_experiment: str,
+    raw: dict,
+    fallback_title: str,
+    claim_tail: str | None,
+    claim_split: str | None,
+    error,
+) -> tuple[str, str, bool]:
+    """Decide the `claim` and `title` an `extracted`-provenance record carries,
+    for either of the two manifest shapes `run_post_layout_experiment` supports.
+
+    Extracted from that function so the rule is testable without a PDK, ngspice
+    or `klt` on PATH -- every branch below is a mislabeling guard, which is
+    exactly the kind of thing that should not first be exercised at the moment
+    a record is being written. `error` is the exception class to raise (the
+    caller passes `cr.HarnessError`; a test can pass anything).
+
+    Returns `(claim_text, title, owns_its_manifest)`.
+
+    - **Wrapping shape** (`claim_tail` is a string): the manifest belongs to
+      the SCHEMATIC-level bench and its claim's trailing sentence describes
+      that DUT ("Measures design/bandgap_core.sch ..."), which is accurate for
+      that manifest's own records and misleading for this one. Keep the
+      spec-line identification up to `claim_split` (default `"Measures "`),
+      replace the provenance tail with `claim_tail`, and mark the title
+      `-- POST-LAYOUT (extracted netlist)`. Passing `claim_split` explicitly
+      makes its presence mandatory, so a manifest that does not contain the
+      marker fails loudly instead of silently keeping its schematic-level
+      sentence.
+    - **Own-manifest shape** (`claim_tail is None`, issue #299): the manifest
+      is the post-layout bench's own, already written for the extracted DUT.
+      Claim and title are used verbatim. Legal only when the manifest IS this
+      bench's own -- otherwise the result would be another bench's
+      schematic-level claim copied verbatim into an extracted-provenance
+      record, the same mislabeling the `claim_split` guard prevents.
+    """
+    if claim_tail is not None:
+        marker = claim_split if claim_split is not None else "Measures "
+        if claim_split is not None and claim_split not in raw["claim"]:
+            raise error(
+                f"{slug}: claim_split {claim_split!r} does not occur in "
+                f"{wrapped_experiment}'s own claim -- the post-layout record would keep "
+                "that manifest's schematic-level provenance sentence verbatim"
+            )
+        claim_head = raw["claim"].split(marker)[0].rstrip()
+        title = raw.get("title", fallback_title) + " -- POST-LAYOUT (extracted netlist)"
+        return claim_head + " " + claim_tail, title, False
+
+    if wrapped_experiment != slug:
+        raise error(
+            f"{slug}: claim_tail=None means 'this manifest is already written for "
+            f"the post-layout DUT', but this bench wraps {wrapped_experiment}'s "
+            "manifest -- using another bench's claim verbatim in an "
+            "extracted-provenance record is exactly the mislabeling the "
+            "claim_split guard exists to prevent; supply a claim_tail instead"
+        )
+    if claim_split is not None:
+        raise error(
+            f"{slug}: claim_split is meaningless with claim_tail=None (nothing is "
+            "being replaced) -- pass one or the other, not both"
+        )
+    if raw.get("provenance") != "extracted":
+        raise error(
+            f"{slug}: claim_tail=None uses this manifest's claim verbatim in an "
+            "extracted-provenance record, so the manifest must declare "
+            f"\"provenance\": \"extracted\" itself -- it declares "
+            f"{raw.get('provenance')!r}"
+        )
+    return raw["claim"], raw.get("title", fallback_title), True
+
+
 def run_post_layout_experiment(
     cr,
     here: Path,
     slug: str,
     wrapped_experiment: str,
     wrapped_schematic: str,
-    claim_tail: str,
+    claim_tail: str | None,
     argv: list[str],
     temp_override: list[float] | None = None,
     supply_override: list[float] | None = None,
@@ -686,12 +783,22 @@ def run_post_layout_experiment(
     """Run one bench's whole post-layout re-verification and write its record.
 
     `here` is the `sim/<slug>/` directory of the POST-LAYOUT experiment (the
-    caller's own `Path(__file__).parent`); `wrapped_experiment` is the
-    schematic-level slug under `sim/` whose `experiment.json` supplies the
-    corner matrix, deck options and measurement limits UNCHANGED (never
-    edited -- the only variable between its records and this one is the DUT
-    body); `wrapped_schematic` is that bench's own testbench, netlisted
-    unmodified.
+    caller's own `Path(__file__).parent`); `wrapped_experiment` is the slug
+    under `sim/` whose `experiment.json` supplies the corner matrix, deck
+    options and measurement limits, and `wrapped_schematic` is the testbench
+    netlisted to carry them.
+
+    Two shapes, both supported here:
+
+    - **Wrapping** (the usual one, and what "wrapped" in these parameter names
+      means): `wrapped_experiment` is the SCHEMATIC-level bench whose manifest
+      and testbench are reused UNCHANGED -- never edited, so the only variable
+      between its records and this one is the DUT body. Pass a `claim_tail`
+      (and, where the manifest's claim needs it, a `claim_split`).
+    - **Own-manifest** (issue #299): `wrapped_experiment == slug` and the
+      post-layout bench carries its own `experiment.json` + `testbench/`
+      because the schematic-level bench's measurements cannot be reused at
+      all. Pass `claim_tail=None`; see below.
 
     `temp_override`/`supply_override`/`process_override` restrict the runner's
     outer temperature/supply/process axis. Two distinct reasons a bench does
@@ -720,6 +827,28 @@ def run_post_layout_experiment(
     whose claim does not contain the marker would otherwise silently keep its
     "... design/bandgap_core.sch ..." sentence in an `extracted`-provenance
     record, which is exactly the mislabeling issue #16 is guarding against.
+
+    `claim_tail=None` selects the OTHER manifest shape this runner supports
+    (issue #299): a bench that owns its own post-layout manifest instead of
+    wrapping a schematic-level one. There is then no schematic-level
+    provenance sentence to split off -- the manifest's `claim` is already
+    written for the extracted DUT -- so it is used verbatim and the title is
+    taken verbatim too (no `-- POST-LAYOUT (extracted netlist)` suffix, since
+    the manifest says it itself). This is only legal when the manifest IS this
+    bench's own (`wrapped_experiment == slug`); passing `claim_tail=None`
+    while wrapping somebody else's manifest would copy that bench's
+    schematic-level claim into an `extracted`-provenance record verbatim,
+    which is the same mislabeling the `claim_split` guard above exists to
+    prevent, so it raises instead.
+
+    Two benches need that shape rather than the wrapping one:
+    `sim/startup-stability-post-layout/` and `sim/startup-ramp-post-layout/`.
+    Their schematic-level manifests measure control-dependent quantities
+    (`imin_off_bare`, `i_off_bare`, `ncross_bare`, `dvref`, `i_standing`,
+    `i_su_standing`, `vref_n`, `gn_n`) against a bare-core control instance
+    the drawn cell cannot express since issue #285 drew the injector into it,
+    so reusing those manifests unchanged is not possible at all -- see either
+    manifest's own "WHY THIS MANIFEST EXISTS" note.
 
     Exit status matches `corner-run.py`: 0 all checks passed, 2 a record was
     written but something failed (raises otherwise, so the caller maps
@@ -768,19 +897,15 @@ def run_post_layout_experiment(
         raise cr.HarnessError("klt (klayout-tools) not found on PATH")
 
     exp = cr.load_experiment(SIM_DIR / wrapped_experiment)
-    # exp.raw["claim"]'s trailing sentence describes the SCHEMATIC bench this
-    # record wraps ("Measures design/bandgap_core.sch ...") -- accurate for the
-    # manifest's own schematic-level records, misleading for this one. Keep the
-    # spec-line identification, replace the provenance tail.
-    marker = claim_split if claim_split is not None else "Measures "
-    if claim_split is not None and claim_split not in exp.raw["claim"]:
-        raise cr.HarnessError(
-            f"{slug}: claim_split {claim_split!r} does not occur in "
-            f"{wrapped_experiment}'s own claim -- the post-layout record would keep "
-            "that manifest's schematic-level provenance sentence verbatim"
-        )
-    claim_head = exp.raw["claim"].split(marker)[0].rstrip()
-    claim_text = claim_head + " " + claim_tail
+    claim_text, title, owns_its_manifest = resolve_record_claim_and_title(
+        slug=slug,
+        wrapped_experiment=wrapped_experiment,
+        raw=exp.raw,
+        fallback_title=exp.slug,
+        claim_tail=claim_tail,
+        claim_split=claim_split,
+        error=cr.HarnessError,
+    )
 
     class _Args:
         quick = False
@@ -836,14 +961,15 @@ def run_post_layout_experiment(
 
     experiment_fields = {
         "slug": slug,
-        "title": exp.raw.get("title", exp.slug) + " -- POST-LAYOUT (extracted netlist)",
+        "title": title,
         "claim": claim_text,
         "provenance": "extracted",
         "provenance_source": (
             f"{layout_provenance['layout_gds']} via `klt extract --parasitics` "
             f"(layout record {layout_provenance['layout_record_id']}), translated by "
-            "sim/bin/post_layout_common.py, wrapped over the unmodified "
-            f"{wrapped_schematic}"
+            "sim/bin/post_layout_common.py, "
+            + ("over this bench's own " if owns_its_manifest else "wrapped over the unmodified ")
+            + f"{wrapped_schematic}"
         ),
         "statistical_convention": exp.raw.get("statistical_convention", "N/A"),
     }

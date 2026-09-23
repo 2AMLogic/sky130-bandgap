@@ -1,0 +1,116 @@
+{
+  "slug": "startup-stability-post-layout",
+  "title": "Startup: the degenerate zero-current state is not an operating point of the COMPOSED LAYOUT CELL -- POST-LAYOUT (extracted netlist)",
+  "claim": "spec/topology-survey.md Startup row (\"self-starting, < 1 ms\") -- the no-other-stable-state half, on the cell that would actually be fabricated. Substantiates that the ROUTED, LVS-clean bandgap-core layout (issue #62) -- which since issue #285 DRAWS design/startup_injector.sch inside the composed cell (MPC1, MPC2, MNS, MNI, MNC, QS) -- has exactly ONE DC operating point over the whole 0..VDD range of its startup node GDRV, and that the loop is pulled downhill by a bounded-below current everywhere in the degenerate region rather than merely somewhere in it. The DUT is the composed cell ALONE: this bench instantiates design/bandgap_core.sym with NO separate design/startup_injector.sym instance, because the extracted body already contains one, and it carries NO bare-core control instance, because the drawn cell cannot express one (issue #299 -- see the 'dropped measurements' note below for what that costs and where those claims still live). The extracted core comes from klt extract --parasitics translated to a simulatable netlist (sim/bin/post_layout_common.py), NOT design/bandgap_core.sch directly -- see 'Netlist provenance' below. The schematic-level counterpart of this claim, WITH its bare-core control, is sim/startup-stability/ (report row 8a); the startup TIME claim on this same composed cell is the sibling post-layout bench sim/startup-ramp-post-layout/; the +/-1% output-accuracy claim is issue #11.",
+  "provenance": "extracted",
+  "provenance_source": "layout/bandgap-core/ via klt extract --parasitics, wrapped over sim/startup-stability-post-layout/testbench/tb_startup_stability_pl.sch",
+  "schematic": "testbench/tb_startup_stability_pl.sch",
+  "statistical_convention": "N/A (corner-matrix claim, not a distribution claim)",
+  "corners": {
+    "process": ["tt", "ss", "ff", "sf", "fs"],
+    "temperature_c": [-40, 27, 125],
+    "supply_v": [2.97, 3.3, 3.63]
+  },
+  "quick_subset": [
+    ["tt", 27, 3.3]
+  ],
+  "deck": {
+    "options": ["wnflag=1"],
+    "params": {},
+    "analyses": [
+      "dc valpha 0 1 0.004",
+      "let ifsu = -i(vpsw)",
+      "let ssu = ifsu / (abs(ifsu) + 1e-18)"
+    ]
+  },
+  "measurements": [
+    {
+      "name": "ncross_su",
+      "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+      "unit": "",
+      "min": 0.5,
+      "max": 1.5,
+      "note": "Number of sign changes of iforce(GDRV) over the full 0..VDD sweep of the composed (core+injector) cell, i.e. the number of DC operating points of the loop. Must be exactly 1. The arithmetic is a shifted-product sign count over the fixed 251-point grid: sum over adjacent pairs of sgn*sgn is (npairs - 2*ncross)."
+    },
+    {
+      "name": "alpha_eq",
+      "expr": "1 - mean((ssu+1)/2)",
+      "unit": "",
+      "min": 0.2,
+      "max": 0.74,
+      "note": "Normalized sweep position of that single operating point (GDRV_eq / VDD). Given exactly one crossing, the fraction of the sweep on the iforce > 0 side is 1 - alpha_eq. Bounded at 0.74 so the degenerate-region windows used by itrav_min (alpha >= 0.75) and imin_off_su (alpha >= 0.90) are *proven* to lie strictly above the operating point at every corner rather than assumed to."
+    },
+    {
+      "name": "itrav_min",
+      "expr": "vecmin(ifsu[188,250])",
+      "unit": "A",
+      "min": 1e-9,
+      "note": "THE key margin number for this cell. Smallest *signed* iforce anywhere in the top quarter of the sweep (GDRV in 0.75*VDD .. VDD) -- i.e. the weakest downhill pull the loop sees anywhere on the run from the degenerate state back to the operating point, excluding the neighbourhood of the operating point itself. A positive floor here is what rules out a *stall*: a startup circuit can satisfy 'exactly one equilibrium' and still take milliseconds if this number sags into the picoamps somewhere in the middle, which is exactly the failure mode the first version of this cell had. Bound and rationale identical to sim/startup-stability/'s measurement of the same name; what differs is only the DUT body."
+    },
+    {
+      "name": "imin_off_su",
+      "expr": "vecmin(abs(ifsu[225,250]))",
+      "unit": "A",
+      "min": 1e-8,
+      "note": "Smallest |iforce| anywhere in the top 10 % of the sweep (GDRV in 0.9*VDD .. VDD) -- the neighbourhood of the degenerate all-off state. A floor here means there is no equilibrium *and no near-equilibrium* in that region: the circuit is pulling GDRV down by at least this much everywhere in it. THIS IS ALSO THIS BENCH'S CONTROL, INVERTED INTO A BOUND. The schematic-level bench proves the degenerate state is a real equilibrium of the unprotected core with the companion measurement imin_off_bare (<= 1e-9 A on a bare-core instance). No bare extracted core exists to instantiate here, so that companion is dropped -- but its job survives: a composed cell whose injector had gone missing (or whose injector the extraction had silently dropped) would report exactly that leakage-level number here, three orders of magnitude under this floor, and this bench would FAIL rather than report a plausible-looking single crossing."
+    },
+    {
+      "name": "i_off_su",
+      "expr": "ifsu[250]",
+      "unit": "A",
+      "min": 1e-6,
+      "note": "iforce at GDRV = VDD exactly: the current an external source would have to inject to hold the composed cell in its zero-current state. Microamps means the drawn injector is actively evicting it. Second half of the inverted control described under imin_off_su: the bare core's counterpart (i_off_bare, <= 1e-9 A at the same point) is what this number would collapse onto if the injector were absent."
+    },
+    {
+      "name": "i_on_su",
+      "expr": "ifsu[0]",
+      "unit": "A",
+      "max": -1e-6,
+      "note": "iforce at GDRV = 0 (mirror fully on). Strongly negative: the circuit pushes GDRV back up. Together with i_off_su > 0 this brackets the single crossing and fixes its direction -- negative below, positive above, i.e. the one operating point is a STABLE one, not a repeller."
+    },
+    {
+      "name": "vref_dut",
+      "expr": "v(vrefd)[0]",
+      "unit": "V",
+      "min": 1.1,
+      "max": 1.3,
+      "note": "Untrimmed reference output of the free-running composed cell. Sanity band only, NOT the +/-1% spec window (issue #11), and NOT the post-layout accuracy row (that is report row 1b, sim/output-voltage-tc-post-layout/)."
+    },
+    {
+      "name": "vgdrv_dut",
+      "expr": "v(gd)[0]",
+      "unit": "V",
+      "min": 1.0,
+      "max": 3.2,
+      "note": "Operating-point voltage of the startup node on the free-running instance. Cross-checks alpha_eq: this should equal alpha_eq * VDD, which is a check on the sweep arithmetic performed by an entirely different instance."
+    },
+    {
+      "name": "isup_dut",
+      "expr": "-i(v1)[0]",
+      "unit": "A",
+      "min": 5e-6,
+      "max": 5e-5,
+      "note": "Total quiescent supply current of the composed cell. Upper bound is the < 50 uA Iq budget from design/device-characterization-summary.md. The post-layout Iq row proper is 6b (sim/quiescent-current-post-layout/); this is the same quantity read out of this bench's own free-running instance as a cross-check that the DUT is biased where that bench says it is."
+    }
+  ],
+  "spread_checks": [
+    {
+      "measurement": "vgdrv_dut",
+      "min_spread": 0.3,
+      "note": "The startup node's operating voltage tracks the supply (GDRV ~ VDD - |Vgs_p|), so a multi-corner run must show it moving by more than the +/-10 % supply span. A flat vgdrv_dut across the matrix means the corner/supply knobs are not reaching the simulator."
+    },
+    {
+      "measurement": "vref_dut",
+      "min_spread": 0.01,
+      "note": "Untrimmed output over process and temperature must move by more than 10 mV; a frozen value would indicate the .lib corner or .temp injection stopped taking effect."
+    }
+  ],
+  "notes": [
+    "WHY THIS MANIFEST EXISTS INSTEAD OF REUSING sim/startup-stability/experiment.json (issue #299). Until issue #285 the composed layout cell drew no startup injector, so the post-layout bench could wrap the schematic-level testbench unchanged: the extracted core swapped in for every design/bandgap_core.sym instance while the separately netlisted design/startup_injector.sym instances stayed schematic-level, and the bare-core control instances stayed bare. #285 drew the injector into the composed cell, which falsifies both halves of that construction at once -- the wrapped testbench's DUT instances would carry TWO injectors, and its CONTROL instances would silently become injector-equipped. Neither is visible in the output: the bench would still just produce numbers. So the post-layout claim needed its own testbench (design/bandgap_core.sym alone, no injector symbol, no control instance) and therefore its own measurement set.",
+    "DROPPED MEASUREMENTS AND WHERE THOSE CLAIMS STILL LIVE. Six measurements of sim/startup-stability/experiment.json are deliberately absent here, all six of them control-dependent. (1) imin_off_bare, (2) i_off_bare and (3) ncross_bare are statements about the UNPROTECTED core: it has a real zero-current equilibrium, and the bare core+amp loop's own extra pair of equilibria at the hot/3.63 V corners (the issue-#52 finding) is what MNC removes from the composite. The drawn cell has an injector, so there is no extracted bare core to measure them on, and measuring them on a schematic-netlisted bare core placed alongside an extracted one would make every comparison a mixture of the injector's effect and the extraction's. They remain a schematic-level claim, carried by report row 8a (sim/startup-stability/records/, 45/45 PASS). Their falsifiability job -- 'this bench must fail if the injector is not actually in the DUT' -- is carried here by imin_off_su's and i_off_su's own floors plus the runner's require_layout_draws_injector() precondition; see those two notes. (4) dvref, (5) i_standing and (6) i_su_standing price what ATTACHING the injector costs the running circuit (output shift, supply-current delta, the injector's own ground-return residual). All three are differences between an injector-equipped instance and a bare-core one, or a probe in a separately netlisted injector's ground return; the composed cell is monolithic, so none of the three has a post-layout meaning at all. The injector-cost claim stays schematic-level (row 8a) -- and note that the post-layout consequences of attaching the injector ARE measured, just not as a difference inside this bench: report row 4b (sim/psrr-dc-post-layout/, the PSRR collapse, issue #300), row 6b (sim/quiescent-current-post-layout/, +0.74 uA worst case) and row 1b (sim/output-voltage-tc-post-layout/) each re-ran the same layout record before and after #285.",
+    "The sweep grid is fixed at 251 points on purpose: the sign-change count and the degenerate-region windows index that grid by literal position, so a supply-dependent point count would silently change what those measurements mean. The forcing source is 'vsup'*v(ALPHA) rather than a directly swept voltage source precisely so the grid can stay fixed while the range still tracks the supply corner.",
+    "This experiment is also the arbitrarily-slow-ramp limit of sim/startup-ramp-post-layout/: a supply ramp slower than every time constant in the loop is quasi-static, and a quasi-static trajectory can only stall at a DC equilibrium OR crawl through a region where the net current is near zero. ncross_su covers the first, itrav_min covers the second. Together they cover ramp rates no finite transient can.",
+    "A single-corner run of this manifest can never report an overall PASS: the two spread_checks need at least two corner points to observe a spread, and report FAIL with reason 'fewer than two corner points' on a one-point matrix. That is by design -- the spread checks exist to catch a harness that has stopped applying corners -- so read a one-corner record for its per-measurement verdicts and treat its corner-sensitivity lines as not-applicable rather than as a result.",
+    "This manifest's corners block states the full 45-point matrix so that any run over fewer points is flagged as a subset and has to state its reason in the record (sim/README.md's subset rule). The bench's own runner pins an 8-point worst-corner subset by default -- issue #16's Acceptance Criteria phrase this bullet 'at worst corners' -- and states that reason; see run_post_layout_startup_stability.py's SUBSET_REASON."
+  ]
+}
