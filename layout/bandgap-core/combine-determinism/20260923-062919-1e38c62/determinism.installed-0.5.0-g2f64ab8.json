@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "harness": "layout/bin/measure_combine_devices_determinism.py",
+  "record_id": "20260923-062919-1e38c62",
+  "source_record": "layout/bandgap-core/reports/20260817-020222-13476b7",
+  "request": "layout/bandgap-core/reports/20260817-020222-13476b7/lvs.combined.request.json",
+  "repo_sha": "1e38c626225f7e338f72f4ceac10945cb1ad4308",
+  "klt_pin": "klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@acb0ae6c11e667eb93ee7de272d64298517f7fab",
+  "klt_version": {
+    "module_location": "(outside this repo -- pinned by lvs_module_sha256 below)",
+    "lvs_module_sha256": "sha256:4e89c659a40632a867348f220bf5087cc2731d0799e0aacad75ffb512d2cb9f2",
+    "declared_ref": "git 2f64ab88bfccbdeb9e9b5e46325977fe82a6e17f (editable checkout on PATH)",
+    "schema_version": 1,
+    "version": "0.5.0+g2f64ab88bfcc",
+    "package_version": "0.5.0",
+    "git_commit": "2f64ab88bfccbdeb9e9b5e46325977fe82a6e17f",
+    "git_tag": null,
+    "dirty": false,
+    "is_release": false,
+    "klayout_version": "0.30.10",
+    "klayout_version_expected": "0.30.10"
+  },
+  "python_version": "3.12.3",
+  "tag": "installed-0.5.0-g2f64ab8",
+  "trials": 1000,
+  "variants": [
+    {
+      "variant": "as_committed",
+      "supported": true,
+      "trials": 1000,
+      "deterministic": false,
+      "mismatch_counts": {
+        "0": 762,
+        "12": 238
+      },
+      "statuses": {
+        "mismatch": 238,
+        "match": 762
+      },
+      "category_totals": {
+        "device.property": 2856
+      },
+      "finding_totals": {
+        "device.property/PNP/Q1/ab": 238,
+        "device.property/PNP/Q1/ac": 238,
+        "device.property/PNP/Q1/ae": 238,
+        "device.property/PNP/Q1/ne": 238,
+        "device.property/PNP/Q1/pb": 238,
+        "device.property/PNP/Q1/pc": 238,
+        "device.property/PNP/Q2/ab": 238,
+        "device.property/PNP/Q2/ac": 238,
+        "device.property/PNP/Q2/ae": 238,
+        "device.property/PNP/Q2/ne": 238,
+        "device.property/PNP/Q2/pb": 238,
+        "device.property/PNP/Q2/pc": 238
+      },
+      "clean_fraction": 0.762
+    },
+    {
+      "variant": "max_attempts_1",
+      "supported": true,
+      "trials": 1000,
+      "deterministic": true,
+      "mismatch_counts": {
+        "0": 1000
+      },
+      "statuses": {
+        "match": 1000
+      },
+      "category_totals": {},
+      "finding_totals": {},
+      "clean_fraction": 1.0
+    }
+  ]
+}

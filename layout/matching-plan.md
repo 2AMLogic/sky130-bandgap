@@ -3533,6 +3533,102 @@ invokes, not the commit-pinned layout DRC/LVS flow this file tracks; no
 separate pin under this file's own non-regression discipline) and rows 3a/3b
 (box-method TC, DR-009 -- explicitly out of scope, not re-litigated here).
 
+### 7ff. Thirty-fourth increment: the "`mismatch_count` 0 -> 12 under a newer `klt`" finding investigated (issue #288) -- it is not a version-to-version regression and not an accounting re-baseline, it is a **nondeterministic** combine; pin NOT bumped, filed as klayout-tools#2374
+
+**What was reported.** Issue #282's signoff-manifest work observed that
+re-running the *committed, unmodified* `lvs.combined.request.json` against the
+*committed* netlists of
+`layout/bandgap-core/reports/20260817-020222-13476b7/`, but under the
+currently-installed `klt` (`0.5.0+g2f64ab88bfcc`) instead of the `klt` 0.2.0
+that produced the committed report, reported `status: mismatch`,
+`mismatch_count: 12` where the committed report says `status: match`,
+`mismatch_count: 0`. Read as a version-to-version regression, that would put
+this file's whole "`klt lvs` (combined) `mismatch_count=0`" scoreboard line --
+and the root README's claim resting on it -- in doubt.
+
+**What it actually is.** The newer build's verdict is **not reproducible run
+to run**. `layout/bin/measure_combine_devices_determinism.py` (new, this
+increment) re-runs the one committed request N times and tallies the verdict:
+
+| build | `combine_devices_max_attempts` | deterministic | 1000-trial tally |
+| --- | --- | --- | --- |
+| `acb0ae6c` (this file's pin) | n/a — predates the retry entirely | **yes** | 1000x `mismatch_count: 0` |
+| `2f64ab88` (installed) | build default (5) | **NO** | 762x `0`, 238x `12` |
+| `2f64ab88` (installed) | `1` | **yes** | 1000x `0` |
+
+Records: `layout/bandgap-core/combine-determinism/20260923-062919-1e38c62/`.
+
+So the committed `mismatch_count: 0` is **not falsified** -- it is exactly
+what the pinned build reports, deterministically, 1000 times out of 1000, and
+exactly what the newer build reports too whenever its combine step is kept off
+the one code path identified below. The "12" is a false `mismatch`, not a
+newly-detected defect: all twelve findings are `device.property` on the two
+PNP groups (`ae`/`ab`/`pb`/`ac`/`pc`/`ne`), reporting a combined device whose
+parameters were accumulated under an inverted rule.
+
+**The isolated variable.** klayout-tools#1185/#1186 added a bounded retry to
+`_combine_devices_safely` that runs every attempt but the last against an
+independent `Netlist.dup()` copy, adopting the first clean one via
+`Netlist.assign()`. With a budget of 1 the only attempt *is* the last one, so
+the combine runs directly against the netlist and the `dup()` round trip never
+happens -- and determinism returns. Confirmed further, below `klt`'s own API:
+the wrong parameter set is already present on the `dup()` copy *before*
+`assign()` (24/120 trials), and the device class survives `dup()` byte-identical
+in type, name, parameter order and `is_primary` flags (80/80 trials), so
+neither `assign()` nor a reshaped device class is the cause. A `git bisect`
+over the 920 first-parent commits between the two builds lands on `66f73d0c`
+-- the #1186 merge itself -- with its immediate predecessor 300/300
+deterministic under the identical probe.
+
+**Disposition: genuine tool regression, not a re-baseline.** This is
+deliberately *not* a repeat of Section 7z's question. It is not the
+`combine_devices` `fixed_offset_ohm` accounting change (klayout-tools#559/#583/
+#587) this file already declined once and DR-003 ratified against. The
+measurement record says so mechanically rather than by assertion -- its
+`finding_totals` table is, across all 1000 trials, exactly twelve keys, all of
+them `device.property/PNP/Q{1,2}/{ae,pe→ab,pb,ac,pc,ne}`-shaped geometry
+parameters on the two PNP groups, each appearing on the same 238 trials. No
+`res_high_po` finding, no topology finding, no `net.*` finding, ever. The
+resistors this file's Section 7z/7y history is about match on every trial of
+both outcomes. There is therefore no physical claim to re-ratify and **no
+decision record is owed**: nothing about this layout, this repo's per-primitive
+accounting, or the ratified spec is in question.
+
+(`layout/bin/measure_fixed_offset_variants.py` was re-run under the installed
+build as a cross-check and agrees -- its `primary_nodeck` row, this flow's own
+request shape, reports `R2A`/`R2B`/`R1` as `matched` while carrying the twelve
+PNP findings. It was deliberately **not** minted as a record: every one of its
+four variants uses `options.combine_devices: true`, so its own numbers are
+flake-contaminated on this build, and committing a record whose rendered
+conclusion is drawn from contaminated numbers would put a false claim about
+DR-003 into the evidence trail. Re-run it for a verdict only on a build where
+the determinism record above reads `deterministic: yes`.)
+
+Filed under this repo's friction protocol as
+**[klayout-tools#2374](https://github.com/2AMLogic/klayout-tools/issues/2374)**
+(bug-class-identical to klayout-tools#1497 -- a silent parameter mis-merge with
+no exception and no `device.combine_incomplete` warning -- but reached via the
+#1185 retry path and affecting `DeviceClassBJT3Transistor`).
+
+**What did NOT change, on purpose.**
+
+- `layout/requirements.txt`'s pin stays at `acb0ae6c`. Section 7dd's suggested
+  next increment (bump past klayout-tools#800's `--parasitics` fix) now carries
+  a prerequisite it did not have: any bump that crosses `66f73d0c` picks this
+  nondeterminism up, so it should wait for klayout-tools#2374, or pass
+  `options.combine_devices_max_attempts: 1` in this flow's request documents as
+  part of the same bump. Do not bump and hope.
+- The root `README.md`'s `mismatch_count: 0` claim stands unchanged -- the
+  measurement above is what supports it, not a single lucky invocation.
+- `signoff/block-manifest.json` item 4 stays **uncited and `unmet`**. Its
+  blocker is unchanged (the committed 0.2.0 report's `provenance.input` is
+  `null`, so no `content_hash` can be pinned against it) and this increment
+  adds a second, independent reason not to close it the obvious way: the only
+  builds that *do* populate `provenance.input.content_hash` are the ones whose
+  combine step is intermittently wrong, so minting a fresh, hash-pinnable LVS
+  report today would pin a verdict that does not reproduce. Item 4 closes on
+  klayout-tools#2374, not on a re-run.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five

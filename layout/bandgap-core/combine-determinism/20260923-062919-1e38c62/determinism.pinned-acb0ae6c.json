@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "harness": "layout/bin/measure_combine_devices_determinism.py",
+  "record_id": "20260923-062919-1e38c62",
+  "source_record": "layout/bandgap-core/reports/20260817-020222-13476b7",
+  "request": "layout/bandgap-core/reports/20260817-020222-13476b7/lvs.combined.request.json",
+  "repo_sha": "1e38c626225f7e338f72f4ceac10945cb1ad4308",
+  "klt_pin": "klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@acb0ae6c11e667eb93ee7de272d64298517f7fab",
+  "klt_version": {
+    "module_location": "(outside this repo -- pinned by lvs_module_sha256 below)",
+    "lvs_module_sha256": "sha256:554d692750819c8cf67ed7e0eecea75ee384c23a0f2dc44ea1ef329557e811e5",
+    "declared_ref": "git acb0ae6c11e667eb93ee7de272d64298517f7fab (layout/requirements.txt pin)",
+    "version": "0.5.0",
+    "build_identity_available": false
+  },
+  "python_version": "3.12.3",
+  "tag": "pinned-acb0ae6c",
+  "trials": 1000,
+  "variants": [
+    {
+      "variant": "as_committed",
+      "supported": true,
+      "trials": 1000,
+      "deterministic": true,
+      "mismatch_counts": {
+        "0": 1000
+      },
+      "statuses": {
+        "match": 1000
+      },
+      "category_totals": {},
+      "finding_totals": {},
+      "clean_fraction": 1.0
+    },
+    {
+      "variant": "max_attempts_1",
+      "supported": false,
+      "detail": "this build predates klayout-tools#1185 entirely -- it has no combine retry budget and never runs combine_devices() against a Netlist.dup() copy, so there is no round trip to isolate",
+      "trials": 0
+    }
+  ]
+}

@@ -135,6 +135,7 @@ layout/
     met1_bus.py               # hand-drawn met1 bussing + the met2/via1 escape plane
     met2_drc.py               # DRC for the met2 plane the curated deck has no rules for
     measure_mim_overlay_feasibility.py  # re-runnable "can MCC be a MiM overlay?" measurement
+    measure_combine_devices_determinism.py  # re-runnable "does klt lvs's verdict reproduce?" measurement
     render-record.py          # renders + verdict-checks a record's record.md
   tests/                      # PDK-free unit coverage for the flows' own gates
   .venv/                      # gitignored -- `klt` install, created by setup-venv.sh
@@ -145,6 +146,9 @@ layout/
     erc/
       README.md               # what the item-11 evidence does and does not establish
       <record-id>/            # erc.<gds-record-id>.json + record.md, one dir per flow run
+    combine-determinism/
+      <record-id>/            # determinism.<build-tag>.{json,md}: is the committed
+                              # klt lvs verdict reproducible on a given klt build?
   trivial-cell/
     reference.spice                    # known-good LVS reference netlist
     reference.broken-device.spice      # negative control 1: device.property corruption
@@ -434,6 +438,37 @@ this layout physically pays the head resistance once per separately contacted
 instance, so re-reporting each leg at the single-device value would state a
 resistance the fabricated cell does not have. See
 `layout/matching-plan.md` Section 7z.
+
+### The LVS verdict is reproducible on the pinned build — and not on newer ones
+
+A `mismatch_count: 0` is only evidence if re-running the same request gets the
+same answer. `layout/bin/measure_combine_devices_determinism.py` checks exactly
+that: it re-runs the record's own committed `lvs.combined.request.json` N times
+and tallies the verdict, writing to
+`layout/bandgap-core/combine-determinism/<record-id>/`.
+
+At the shipped record, on the `klt` build `requirements.txt` pins, the answer is
+`mismatch_count: 0` on **1000 of 1000** trials. On the newer `klt` builds it is
+`0` on 762 and a false `mismatch_count: 12` on 238 — same request, same
+netlists, same process. Setting `options.combine_devices_max_attempts: 1`
+restores 1000/1000, which isolates the cause to the `Netlist.dup()` copy that
+klayout-tools#1185/#1186's combine-retry mitigation runs its adopted attempt
+against (bisected to `66f73d0c`, the #1186 merge itself). The twelve findings
+are all `device.property` on the two PNP groups, reporting a combined device
+whose emitter/base/collector geometry was accumulated under an inverted rule —
+so it is a tool defect, not a newly-detected layout defect, and **not** a
+repeat of the `fixed_offset_ohm` accounting question above (the resistors match
+in both outcomes). Filed as
+[klayout-tools#2374](https://github.com/2AMLogic/klayout-tools/issues/2374);
+full disposition in `layout/matching-plan.md` Section 7ff.
+
+Two consequences worth stating plainly: (1) any future `requirements.txt` bump
+that crosses `66f73d0c` inherits this, so it should wait for #2374 or pass
+`options.combine_devices_max_attempts: 1` in this flow's request documents as
+part of the same bump; (2) T1 item 4 stays uncited in
+`signoff/block-manifest.json` — the only builds that populate
+`provenance.input.content_hash` (which a manifest citation needs) are the ones
+whose combine step is intermittently wrong.
 
 **The underlying real-electrical finding behind that cause is still true and
 is why the resize happened at all — issue #98 confirmed it is real and

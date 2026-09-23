@@ -15,7 +15,7 @@ module docstring, and `signoff/regenerate.sh` step 1 for item 8). When
 `klt signoff --manifest` grades a citation it compares the manifest pin
 against that recorded hash and stops there: it never opens the artifact. The
 committed `signoff/signoff-report.json` shows the consequence directly --
-`citation.input_verified` is `null` on every row, including both `met` ones.
+`citation.input_verified` is `null` on every row, including every `met` one.
 
 So the two sides can keep agreeing with each other while the artifact they
 both claim to describe has moved on:

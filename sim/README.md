@@ -155,6 +155,8 @@ sim/
     corner-run.py                    # PVT corner runner
     pdk-env.sh                       # `source` for interactive use
   build/                             # gitignored scratch (decks, xschem netlists)
+  tests/                             # unit coverage for the evidence-minting
+                                     # harnesses (run by `npm run check:ci`)
   <experiment-slug>/                 # e.g. pdk-smoke, output-voltage-tc, psrr-dc
     experiment.json                  # manifest: claim, corners, measurements, limits
     testbench/                       # xschem schematic(s) for this experiment
@@ -208,6 +210,26 @@ even to typo fixes, because the append-only guarantee is the whole point of an
 evidence trail. Corrections mint a new record that references the prior one via
 **Supersedes**. This mirrors the status/supersession language used for `spec/`
 decision records, so both conventions read as one house style.
+
+**Re-minting a derived envelope.** A record's *derived* artifacts — a `klt
+yield` envelope emitted from the record's own corner logs, say — are records
+too, and the rule is the same: when one has to be regenerated (a harness bug
+baked something wrong into it), it is re-minted under a **new** record id
+beside the original, never rewritten. `sim/monte-carlo-untrimmed/
+emit_klt_yield.py --envelope-id <new-id>` is that mode: it reads the source
+record's committed corner logs, writes `<new-id>-klt-yield{-input}.json` plus a
+`<new-id>-klt-yield.md` note carrying the **Supersedes** line and the reason,
+leaves the source record's own `.json`/`.md` untouched, and refuses outright if
+any of the three target files already exists. Worked example:
+`records/20260923-062524-1e38c62-klt-yield.md` (issue #288 — the superseded
+envelope had leaked an absolute, machine-local `samples` path).
+
+**Provenance hygiene applies to what a harness writes, not only to what a
+human writes.** Repo-relative paths only; an external input is pinned by
+identity (name/version/`content_hash`), never by its location on one machine.
+The full rule is `signoff/design-evidence-tiers.md` → "Provenance hygiene in
+evidence records"; `sim/tests/` holds the checks that keep committed records
+honest about it.
 
 ---
 

@@ -6,6 +6,10 @@
       "file": "layout/bandgap-core/reports/20260817-020222-13476b7/drc.json",
       "content_hash": "sha256:8fa40aaae6e588e9b8d11539b0e5cac9c3d3b06f126e233340c6de30dc35d5ae"
     },
+    "6": {
+      "file": "sim/monte-carlo-untrimmed/records/20260923-062524-1e38c62-klt-yield.json",
+      "content_hash": "sha256:0b01d0dd123b8fae9bbb8044263f00c2f14fc8e1d9afea6e8856a712421b1694"
+    },
     "8": {
       "file": "signoff/evidence/characterization.generic.json",
       "content_hash": "sha256:841f4a636600ecb2d6ce9411161f9d3b22967230b8c2d22367aa025a19575f3c"

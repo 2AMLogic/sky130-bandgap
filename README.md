@@ -15,7 +15,16 @@ pins. As of issue #62's thirty-first increment, `klt lvs` itself reports
 **`mismatch_count: 0`** against the xschem-derived reference netlist — the
 error amp's compensation cap (`MCC`) is now drawn as the `pfet`
 MOS-as-capacitor device `design/error_amp.sch` specifies, matching the
-reference netlist's own `MMCC` device exactly. A `cap_mim` MIM-cap overlay
+reference netlist's own `MMCC` device exactly. That `0` is *measured*, not
+sampled from one lucky run: the committed request reproduces it 1000 times
+out of 1000 on the `klt` build `layout/requirements.txt` pins. Re-running the
+same request under a **newer** `klt` reports it only ~76% of the time and a
+false `mismatch_count: 12` on the rest — a nondeterministic combine step
+introduced upstream, filed from this repo as
+[klayout-tools#2374](https://github.com/2AMLogic/klayout-tools/issues/2374),
+measured into `layout/bandgap-core/combine-determinism/` and dispositioned in
+`layout/matching-plan.md` Section 7ff. The pin is deliberately not bumped past
+it. A `cap_mim` MIM-cap overlay
 (the zero-incremental-footprint alternative) was checked and found
 infeasible on two independent grounds — see
 [`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)
@@ -132,7 +141,7 @@ refresh, and the operator tier award.
 one-time ten-item re-read (2026-08-15, pre-dating the checklist's eleventh
 item) is superseded by the committed `klt signoff` block manifest —
 [`signoff/README.md`](signoff/README.md) is the current verdict of record
-(today: **2/11 T1 items graded `met`**; see that file's row-by-row table for
+(today: **3/11 T1 items graded `met`**; see that file's row-by-row table for
 why each remaining row is `unmet` and what would close it) — no bronze/T1
 claim is made here.
 
