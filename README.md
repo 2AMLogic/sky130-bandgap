@@ -5,6 +5,8 @@ open PDK, designed end-to-end by AI agents driving
 [klayout-tools](https://github.com/2AMLogic/klayout-tools) and the open-source
 xschem + ngspice analog flow.
 
+![fleet burndown](https://raw.githubusercontent.com/2AMLogic/2am/main/fleet-metrics/charts/sky130-bandgap.svg)
+
 **Status: active development.** Simulation and device characterization work
 is underway, and bandgap-core layout is DRC-clean and fully routed — all 12
 of 12 schematic inter-block nets joined across every block they reach,
