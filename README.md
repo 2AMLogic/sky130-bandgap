@@ -124,7 +124,7 @@ against the post-#193 chained-array resize — see
 `sim/startup-stability/records/20260909-232410-e8e2e46.md`, and their
 `-post-layout` counterparts), but the startup **time** (< 1 ms) half fails
 at 13/45 (schematic) and 16/45 (post-layout) fastest-corner points — see
-`sim/startup-ramp/records/20260910-010233-e8e2e46.md` and
+`sim/startup-ramp/records/20260923-202758-81803b1.md` and
 `sim/startup-ramp-post-layout/records/20260910-004925-e8e2e46.md` — and
 **PSRR post-layout now fails 25/45** since the startup injector was drawn
 into the composed cell (issue #285, disposition tracked in #300;

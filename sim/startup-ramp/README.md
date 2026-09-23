@@ -129,3 +129,42 @@ by-product, a cross-platform reproducibility check this bench had never had.
 |---|---|---|
 | `20260910-010233-e8e2e46` | 45 (full matrix) | **Current full-matrix result** — FAIL 13/45 on `vref_spread`. #284's manifest edit is purely additive, so every value here still stands. |
 | `20260923-092903-079a778` | 4 (subset: `sf`, `tt` × −40/125 °C × 3.63 V) | First record carrying `vref_spread_early` / `vref_converge`. **Does not supersede** the row above. Same four points as the post-layout sibling `sim/startup-ramp-post-layout/records/20260923-093126-079a778`, so the two are directly comparable. Subset because the fleet host runs a corner of this deck 20–30× slower than the Darwin arm64 machine the full-matrix record was minted on — a 10-point subset was started first and abandoned after its first corner took 37 minutes wall. Full-matrix re-run tracked in #303. |
+
+## Update (2026-09-23, issue #303): the full-matrix re-run is `20260923-202758-81803b1`
+
+`20260923-202758-81803b1` re-runs the full 45-point matrix on the post-#284
+manifest, superseding `20260910-010233-e8e2e46`. It was minted on a Darwin
+arm64 host again (about a minute per corner under load average 14 - the
+fast-host class this issue exists to use; `tools.platform` in the record JSON
+says so), and it is **bit-identical to the record it supersedes on every
+shared measurement at all 45 corners** - a stronger re-derivation than #284's
+4-point cross-platform check, which saw a 1 ps `t_start_f` interpolation diff
+on one corner. Worst `t_start` is unchanged at +147.143 us (`ss/125 C/2.97 V`,
+slow ramp) against the 1 ms bound, and `vref_spread` fails the **same 13/45
+corners at the same values** (worst 13.661 mV at `sf/-40 C/3.63 V`) - DR-010's
+disposition is unchanged, by construction.
+
+What the re-run adds is full-matrix coverage of the two #284 measurements:
+`vref_spread_early` is carried informational at every corner, and
+**`vref_converge` passes 45/45** - at or below 0 V at every corner, i.e. the
+three copies' spread contracts between `at=1.45e-3` and `at=2.45e-3`
+everywhere, with the largest (least-negative) value exactly 0 V at the 125 C
+corners where the spread itself is already 0 and the 1e-5 V bound's numerical
+tolerance applies. The 4-point subset's convergence evidence is superseded by
+this record.
+
+The **post-layout** twin of this re-run is still open:
+`sim/startup-ramp-post-layout/run_post_layout_startup_ramp.py` refuses to run
+against layout record `20260923-070209-dbd57a9`, which draws the startup
+injector (#285) - the double-injector hazard - so that bench's current
+full-matrix record remains `20260910-004925-e8e2e46` until #299 restructures
+it. This issue's schematic half is complete; the post-layout half rides on
+#299.
+
+### Record index update
+
+| Record | Points | Status |
+|---|---|---|
+| `20260910-010233-e8e2e46` | 45 (full matrix) | Superseded by `20260923-202758-81803b1` - bit-identical on every shared measurement, so every value here still stands. |
+| `20260923-092903-079a778` | 4 (subset) | First record carrying `vref_spread_early` / `vref_converge`; superseded in coverage by the row below. |
+| `20260923-202758-81803b1` | 45 (full matrix) | **Current full-matrix result** (#303) - `vref_spread` FAIL on the same 13/45 corners at the same values; **`vref_converge` PASS 45/45**; `vref_spread_early` informational at all 45 corners. |
