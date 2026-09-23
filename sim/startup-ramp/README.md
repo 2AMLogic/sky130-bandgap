@@ -61,3 +61,55 @@ one operating point to converge to. The 1 mV bound is deliberately **not**
 loosened and the sample point is deliberately **not** moved; the 2.90 mV stays
 charged against issue #11's budget until a record with a longer settling window
 retires it.
+
+## Update (2026-09-23, issue #284 / DR-010): the section above is superseded in its diagnosis
+
+**Read this before the "standing `vref_spread` FAIL" section above.** That
+section's diagnosis — "an underdamped settling tail still ringing at the
+`at=2.45e-3` sample point at the cold/fast corner" — is **wrong about which copy
+lags**, and is retained above only because this repo does not rewrite history.
+Issue #284 measured it instead of inferring it.
+
+**What it actually is.** `sim/startup-stability/`'s testbench carries a
+*free-running* core+injector instance (`XDUT`, node `VREFD`, own supply, no
+forcing source) and reports its **DC operating point** as `vref_dut`, at the same
+45 corners. Cross-reading that against `records/20260910-010233-e8e2e46.json`
+corner by corner: at all 13 corners where `vref_spread` fails, the DC equilibrium
+lies **strictly inside** the interval the three transient copies span. The
+slow-ramp copy `v_s` is above it at 13 of 13 (+0.13 … +2.88 mV); the fast-ramp
+copy `v_f` is below it at 13 of 13 (−0.38 … −4.62 mV); the degenerate-start copy
+`v_g` is below it at 12 of 13. At the worst corner, `sf/−40 °C/3.63 V`:
+
+| | value | vs. DC |
+|---|---|---|
+| `vref_dut` (DC, `startup-stability`) | 1.221454 V | — |
+| `v_s` (slow ramp, `at=2.45e-3`) | 1.223660 V | **+2.21 mV** |
+| `v_f` = `v_g` (fast ramp / degenerate) | 1.216830 V | **−4.62 mV** |
+
+So the three copies are not settling anywhere different — they are closing on
+**one** point from **opposite sides**, and at the worst corner the *fast and
+degenerate* copies carry the larger residual, not the slow one. The old wording
+implied the opposite, and an earlier attempt at this issue acted on it (moving the
+sample point later to give the slow copy more budget) before the measurement
+above showed that targets the smaller term.
+
+**What changed in the bench.** Nothing was loosened. The 1 mV bound, the
+`at=2.45e-3` sample point and the `tran 200n 2.5m uic` window are all exactly as
+they were, so records stay comparable. `experiment.json` gained three
+`meas … find … at=1.45e-3` taps on the trajectory already being solved, and the
+two measurements they feed: `vref_spread_early` (informational) and
+**`vref_converge`** (bounded ≤ 1e-5 V) — a real gate asserting the spread
+*contracts* between the two sample times, which is the claim `vref_spread`'s note
+has always made and could never itself test.
+
+**Disposition.** `spec/decision-records/DR-010-startup-ramp-vref-spread-settling-tail.md`.
+The residual stays charged against issue #11's budget and rows 8c/8d of
+`design/block-characterization-report.md` stay FAIL on this check — DR-010 is the
+numbered, bounded exception covering it, not a waiver.
+
+### Record index update
+
+| Record | Points | Status |
+|---|---|---|
+| `20260910-010233-e8e2e46` | 45 (full matrix) | **Current full-matrix result** — FAIL 13/45 on `vref_spread`. #284's manifest edit is purely additive, so every value here still stands. |
+| `20260923-085003-1e38c62` | 10 (subset) | First record carrying `vref_spread_early` / `vref_converge`. **Does not supersede** the row above. Subset because the fleet host runs a corner of this deck 20–30× slower than the Darwin arm64 machine the full-matrix record was minted on; full-matrix re-run tracked in #303. |

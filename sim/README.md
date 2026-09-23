@@ -372,8 +372,15 @@ Such a script still has to behave like the harness:
 - commit the netlist snapshot and one raw log per ngspice invocation, with the
   exact deck embedded in the log;
 - state the process/temperature/supply subset justification **in the record
-  body** — there is no `--subset-reason` flag on this path, and "the runner
-  enforces it" no longer applies, so the justification is a prose obligation;
+  body**. Since issue #284 the shared runner *does* accept
+  `--process` / `--temp` / `--supply` / `--subset-reason` on this path too, and
+  enforces the reason exactly as `corner-run.py` does — but only for an axis the
+  bench's own script leaves open. An axis the script pins deliberately (because
+  the deck sweeps it internally, or because the bench's acceptance criteria scope
+  it to worst corners) is refused from the command line with an error naming the
+  pin, so a per-invocation override can never quietly undo a pin whose reason
+  lives in the script. Anything the flags do not cover is still a prose
+  obligation;
 - carry a **control point that must fail if the mechanism under test is not
   actually active** (e.g. `sim/pnp-mismatch/` re-runs its deck on the plain
   `tt` section, where every σ must come back exactly 0). A Monte Carlo harness
@@ -384,7 +391,7 @@ Such a script still has to behave like the harness:
 | Flag | Effect |
 |---|---|
 | `--print-env` | print PDK env exports and exit |
-| `--process tt,ss` / `--temp 27` / `--supply 3.3` | override a matrix axis (marks the run a subset) |
+| `--process tt,ss` / `--temp 27` / `--supply 3.3` | override a matrix axis (marks the run a subset). A **negative** temperature needs the `=` form, `--temp=-40,125` — a bare `--temp -40` is read by argparse as a missing argument followed by an unknown option |
 | `--quick` | run the manifest's `quick_subset` only |
 | `--subset-reason "…"` | **required** for any subset; recorded verbatim |
 | `--supersedes <record-id>` | record which prior record this replaces |

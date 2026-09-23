@@ -128,8 +128,8 @@ Supply, Iq, Area, Startup), each amended where a later DR applies.
 | 7 | Area | < 0.08 mm² (80,000 µm², DR-007) | composed bbox **66,293 µm²** (≈17 % margin under budget) | **PASS** | `layout/bandgap-core/reports/20260817-020222-13476b7/record.md` |
 | 8a | Startup — self-starting (no other stable state), schematic, core+injector | exactly one DC operating point over 0…VDD on GDRV | **45/45 corner-point checks PASS** (plus 2 corner-sensitivity checks, also PASS) | **PASS** | `sim/startup-stability/records/20260909-232410-e8e2e46.md` (re-run against the post-#193 design; supersedes `20260815-032111-001d1b7`) |
 | 8b | Startup — self-starting, post-layout, extracted core + schematic injector | same | **8/8 checks PASS** (by-design worst-corner subset, unchanged — see the record's own subset reason) | **PASS** | `sim/startup-stability-post-layout/records/20260909-232410-e8e2e46.md` (re-run against the post-#193 layout; supersedes `20260815-040144-001d1b7`) |
-| 8c | Startup — time < 1 ms, schematic, core+injector | `t_start` and cross-condition `vref` convergence spread bounded | **32/45 PASS**, 13 FAIL at `ff`/`sf` process (the convergence-spread check exceeds its 1 mV bound; the raw `t_start_ms` figures are all well inside the 1 ms budget) | **FAIL 13/45** (up from 10/45 pre-#193 — the resistor-array resize measurably widens this margin gap) | `sim/startup-ramp/records/20260910-010233-e8e2e46.md` (re-run against the post-#193 design; supersedes `20260812-073050-7eb5be4`) |
-| 8d | Startup — time, post-layout | same, extracted core + schematic injector | **29/45 PASS**, 16 FAIL, same failure shape | **FAIL 16/45** (up from 12/45 pre-#193) | `sim/startup-ramp-post-layout/records/20260910-004925-e8e2e46.md` (re-run against the post-#193 layout; supersedes `20260812-043245-7eb5be4`) |
+| 8c | Startup — time < 1 ms, schematic, core+injector | **Two things, graded separately since #284/DR-010.** (i) the ratified half: `t_start` < 1 ms; (ii) the bench's own additional cross-condition `vref` convergence-spread check, ≤ 1 mV — a bound **no ratified row states** | (i) **PASS 45/45** — worst `t_start` over all corners and all three ramp profiles is `+146 µs` against the 1 ms bound, and no `t_start_*` measurement has failed in any record this bench has ever produced. (ii) **FAIL 13/45** at `ff`/`sf` process plus `tt/−40 °C/3.63 V`, 1.15–13.66 mV. Root-caused by #284 as a **fixed-sample-time artifact, not a second operating point**: cross-reading `sim/startup-stability/`'s free-running DC solve (`vref_dut`) at the same 45 corners puts the DC equilibrium **strictly inside** the interval the three copies span at all 13 failing corners — the slow-ramp copy above it at 13/13, the fast-ramp copy below it at 13/13 — i.e. all three are still converging on one point from opposite sides. `ncross_su = 1` at all 45 corners (row 8a) independently excludes a second equilibrium | **MIXED** — ratified `< 1 ms` half **PASS 45/45**; consistency check **FAIL 13/45** (up from 10/45 pre-#193 — the resistor-array resize measurably widens this margin gap), carried as the bounded, characterized exception **DR-010**, which keeps the 1 mV bound and the sample point unchanged and leaves the residual charged against issue #11's budget | `sim/startup-ramp/records/20260910-010233-e8e2e46.md` (full 45-point matrix, post-#193 design; supersedes `20260812-073050-7eb5be4`) — **still the current full-matrix result**, since #284's manifest edit is purely additive and changed no existing measurement, bound or sample point. Convergence evidence for the new `vref_converge` gate: `sim/startup-ramp/records/20260923-085003-1e38c62.md` (10-point subset, host-capacity-limited, does **not** supersede the above; full-matrix re-run tracked in #303). Disposition: [DR-010](../spec/decision-records/DR-010-startup-ramp-vref-spread-settling-tail.md) |
+| 8d | Startup — time, post-layout | same two things, extracted core + schematic injector | (i) **PASS 45/45**, same as 8c — `t_start_s` moves sub-microsecond under extraction at every corner that flips. (ii) **FAIL 16/45**, same failure shape and the same cold/skewed `ff`/`sf` cluster, worst 16.75 mV at `sf/−40 °C/3.63 V`; post-layout **inherits** 8c's artifact rather than adding a mechanism — extraction only nudges already-near-threshold corners across the 1 mV cliff, in both directions | **MIXED** — ratified `< 1 ms` half **PASS 45/45**; consistency check **FAIL 16/45** (up from 12/45 pre-#193), same DR-010 exception | `sim/startup-ramp-post-layout/records/20260910-004925-e8e2e46.md` (full 45-point matrix, post-#193 layout; supersedes `20260812-043245-7eb5be4`) — **still the current full-matrix result**, same reason as 8c. Convergence evidence: `sim/startup-ramp-post-layout/records/20260923-085206-1e38c62.md` (4-point subset, host-capacity-limited, does **not** supersede the above; #303) |
 | 8e | Startup — core-as-composed (no injector) | informational (the injector is drawn only as a schematic block, `design/startup_injector.sch`, and has no layout yet, so the composed/routed cell in row 7's own report does not include it) | 45/45 and 45/45 FAIL — **expected**: the composed cell as merged ships no injector | **FAIL (expected, disclosed)** | `sim/startup-time/records/20260909-232410-e8e2e46.md` (supersedes `20260816-085818-69a8867`), `sim/startup-time-post-layout/records/20260910-010233-e8e2e46.md` (supersedes `20260812-034744-6767688`) |
 
 ### Reading the "Startup" row as one ratified claim
@@ -138,8 +138,10 @@ DR-005's single "Startup: self-starting, < 1 ms" line is verified by **three** d
 benches, each disclosing exactly what it does and doesn't cover in its own `**Claim**`
 text (not a report-writing simplification — the benches say this themselves):
 `startup-stability` (the no-other-stable-state half, **passes**),
-`startup-ramp` (the < 1 ms half, **partially fails** — 13–16 of 45 corners at the
-fastest process corners, up from 10–12/45 pre-#193), and `startup-time` (the core exactly as composed today, with
+`startup-ramp` (the < 1 ms half — **the ratified `t_start` measurement passes at every
+corner of every record this bench has ever produced**; what fails at 13–16 of 45 corners
+is the bench's *own additional* `vref_spread` convergence-consistency check, a 1 mV bound
+no ratified row states, up from 10–12/45 pre-#193), and `startup-time` (the core exactly as composed today, with
 **no** injector attached at all, which **fails everywhere by construction** because the
 routed cell doesn't yet include one). Reporting only `startup-stability`'s PASS (as the
 top-level README currently does in its maturity-ladder summary line) would round the
@@ -147,6 +149,23 @@ Startup row toward the target — this report does not do that; the row is **mix
 a clean PASS, and the `startup-ramp` partial FAIL plus the injector-less `startup-time`
 FAIL are both disclosed here rather than omitted. This report does not modify the
 README; see §5.
+
+**Update (2026-09-23, issue #284 / [DR-010](../spec/decision-records/DR-010-startup-ramp-vref-spread-settling-tail.md)):
+rounding the other way is also a rounding.** Rows 8c/8d previously folded
+`startup-ramp`'s `vref_spread` check into the same Target cell as `t_start`, so a
+`vref_spread` FAIL read as the ratified `< 1 ms` line failing. It is not: `vref_spread`
+is a consistency check this bench invented on top of the ratified halves, with a bound no
+ratified row states, and #284 root-caused its failures as a **fixed-sample-time artifact**
+— `sim/startup-stability/`'s free-running DC solve puts the true equilibrium strictly
+inside the interval the three startup-condition copies span, at all 13 failing corners, so
+they are converging on one point from opposite sides rather than settling anywhere
+different. The response was deliberately *not* to loosen anything: the 1 mV bound, the
+`at=2.45e-3` sample point and the 2.5 ms window are all unchanged, the rows stay **FAIL**
+on that check, and the residual stays charged against issue #11's ±1 % budget. What
+changed is that rows 8c/8d now grade the two claims in separate cells, the bench measures
+its own convergence (`vref_converge`, a new bounded gate), and the residual is carried
+under a numbered, bounded exception (DR-010) instead of a testbench comment. The Startup
+row remains **mixed** — DR-010 makes the mixture legible, it does not dissolve it.
 
 ## 3. Items 3–7 verification rollup, with freshness
 
