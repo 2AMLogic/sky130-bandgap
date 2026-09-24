@@ -636,11 +636,27 @@ def parse_post_layout_args(argv: list[str], doc: str = "") -> argparse.Namespace
     negative temperature must be passed as `--temp=-40` (with the `=`), because
     a bare `--temp -40` is read as a missing argument followed by an unknown
     option.
+
+    `-j`/`--jobs` also mirrors `corner-run.py`'s flag of the same name (issue
+    #308): default `1` runs the matrix serially (today's unchanged behavior),
+    `> 1` runs that many corners concurrently via
+    `run_matrix_and_write_record()`'s shared implementation.
     """
     p = argparse.ArgumentParser(description=doc)
     p.add_argument("--supersedes", default="")
     p.add_argument("--author", default="")
     p.add_argument("--timeout", type=int, default=300)
+    p.add_argument(
+        "-j",
+        "--jobs",
+        type=int,
+        default=1,
+        help=(
+            "run up to N corners concurrently (default: 1, serial -- today's "
+            "behavior). Each corner is an independent ngspice process with its "
+            "own --timeout, enforced per-process either way"
+        ),
+    )
     p.add_argument("--allow-pdk-mismatch", action="store_true")
     p.add_argument("--dry-run", action="store_true")
     p.add_argument(

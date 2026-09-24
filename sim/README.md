@@ -195,6 +195,7 @@ number, limit and verdict, for tooling):
 | Netlist provenance | `schematic` (`design/…`, `sim/…/testbench/…`) or `extracted` (post-layout, `layout/…`) — required so post-layout re-runs are distinguishable |
 | PDK | variant + open_pdks commit actually used, whether it matches `sim/pdk.json`, and the model library path |
 | Tools | ngspice / xschem / OS / python versions used |
+| Jobs | how many corners ran concurrently (`--jobs`/`-j`; `1` = serial, today's default) |
 | Repo state | short sha, branch, and whether the working tree was dirty at run time |
 | Corner matrix run | the (process, temperature, supply) points actually executed; must be the full PVT matrix unless a subset reason is recorded |
 | Statistical convention | N samples and sigma level for distribution claims (e.g. Monte Carlo mismatch); `N/A` for corner-matrix claims |
@@ -418,6 +419,7 @@ Such a script still has to behave like the harness:
 | `--subset-reason "…"` | **required** for any subset; recorded verbatim |
 | `--supersedes <record-id>` | record which prior record this replaces |
 | `--author`, `--timeout` | record author (default `git config user.email`), per-corner ngspice timeout |
+| `-j N`, `--jobs N` | run up to `N` corners concurrently (default: `1`, serial -- today's unchanged behavior). Each corner is an independent `ngspice` process with its own scratch deck and its own `--timeout`, enforced per-process regardless of `N`; corner results are always written into the record in matrix order, never completion order. Recorded in the written record's `jobs` field |
 | `--allow-pdk-mismatch` | run against a non-pinned PDK; the record flags it |
 | `--dry-run` | netlist, print the corner list and one deck, write nothing under `sim/<slug>/` |
 
