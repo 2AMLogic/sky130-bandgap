@@ -1,0 +1,139 @@
+{
+  "slug": "startup-ramp-post-layout",
+  "title": "Startup: supply-ramp transient startup time of the COMPOSED LAYOUT CELL against the < 1 ms spec line -- POST-LAYOUT (extracted netlist)",
+  "claim": "spec/topology-survey.md Startup row (\"self-starting, < 1 ms\") -- the startup-TIME half, on the cell that would actually be fabricated. Measures, in a single transient per PVT point, how long the ROUTED, LVS-clean bandgap-core layout (issue #62) -- which since issue #285 DRAWS design/startup_injector.sch inside the composed cell (MPC1, MPC2, MNS, MNI, MNC, QS) -- takes to bring VOUT up after the supply arrives, on a slow ramp, on a fast ramp, and from the worst case of all: placed *in* the degenerate zero-current state at full supply and asked to leave it. The DUT is the composed cell ALONE: this bench instantiates design/bandgap_core.sym with NO separate design/startup_injector.sym instance, because the extracted body already contains one, and it carries NO bare-core control copy, because the drawn cell cannot express one (issue #299 -- see the 'dropped measurements' note below for what that costs and where those claims still live). The extracted core comes from klt extract --parasitics translated to a simulatable netlist (sim/bin/post_layout_common.py), NOT design/bandgap_core.sch directly -- see 'Netlist provenance' below. The schematic-level counterpart of this claim, WITH its bare-core control copy, is sim/startup-ramp/ (report row 8c); the no-other-stable-state half on this same composed cell is the sibling post-layout bench sim/startup-stability-post-layout/; the +/-1% output-accuracy claim is issue #11.",
+  "provenance": "extracted",
+  "provenance_source": "layout/bandgap-core/ via klt extract --parasitics, wrapped over sim/startup-ramp-post-layout/testbench/tb_startup_ramp_pl.sch",
+  "schematic": "testbench/tb_startup_ramp_pl.sch",
+  "statistical_convention": "N/A (corner-matrix claim, not a distribution claim)",
+  "corners": {
+    "process": ["tt", "ss", "ff", "sf", "fs"],
+    "temperature_c": [-40, 27, 125],
+    "supply_v": [2.97, 3.3, 3.63]
+  },
+  "quick_subset": [
+    ["tt", 27, 3.3]
+  ],
+  "deck": {
+    "options": ["wnflag=1"],
+    "params": {
+      "t_slow": "1e-3",
+      "t_fast": "1e-6"
+    },
+    "analyses": [
+      "tran 200n 2.5m uic",
+      "meas tran t_vdd_s when v(vdds)=2.90 rise=1",
+      "meas tran t_ref_s when v(vrefs)=1.05 rise=1",
+      "meas tran t_vdd_f when v(vddf)=2.90 rise=1",
+      "meas tran t_ref_f when v(vreff)=1.05 rise=1",
+      "meas tran t_vdd_g when v(vddg)=2.90 rise=1",
+      "meas tran t_ref_g when v(vrefg)=1.05 rise=1",
+      "meas tran v_s find v(vrefs) at=2.45e-3",
+      "meas tran v_f find v(vreff) at=2.45e-3",
+      "meas tran v_g find v(vrefg) at=2.45e-3",
+      "meas tran isg find i(vdeg) at=2.45e-3",
+      "meas tran v_s1 find v(vrefs) at=1.45e-3",
+      "meas tran v_f1 find v(vreff) at=1.45e-3",
+      "meas tran v_g1 find v(vrefg) at=1.45e-3"
+    ]
+  },
+  "measurements": [
+    {
+      "name": "t_start_s",
+      "expr": "t_ref_s - t_vdd_s",
+      "unit": "s",
+      "max": 1e-3,
+      "note": "SLOW RAMP (0 -> vsup in t_slow = 1 ms). Startup time measured the way the spec line means it: from the supply arriving (VDD crossing 2.90 V) to VREF crossing 1.05 V. 2.90 V is used rather than the 2.97 V minimum-supply endpoint so the crossing exists even at the 2.97 V corner, where the ramp only *reaches* 2.97 V. Negative means the reference was already up before the supply finished arriving, which is normal on a slow ramp and is a pass -- hence no lower limit."
+    },
+    {
+      "name": "t_start_f",
+      "expr": "t_ref_f - t_vdd_f",
+      "unit": "s",
+      "max": 1e-3,
+      "note": "FAST RAMP (0 -> vsup in t_fast = 1 us). Same definition. The fast ramp is the case where the loop has no time to follow the supply, so the cell is closest to being handed a full rail with every internal node still at zero."
+    },
+    {
+      "name": "t_start_g",
+      "expr": "t_ref_g - t_vdd_g",
+      "unit": "s",
+      "max": 1e-3,
+      "note": "DEGENERATE START -- the case this claim is really about, and THIS BENCH'S CONTROL INVERTED INTO A BOUND. The supply steps to vsup in 1 ns AND the mirror gate GG is initialised to vsup by the testbench's .ic, i.e. the composed cell is placed *in* the zero-current state, at full supply, and asked to leave it. The two ramps above start from GDRV = 0, which is the over-driven side of the loop, not the stuck side, so on their own they would not test the startup circuit at all. The schematic-level bench pairs this with a bare-core control copy (vref_n <= 0.95 V, gn_n >= 2.5 V) that must stay stuck; no bare extracted core exists to instantiate here, so that copy is dropped -- but its job survives, because a DUT with no working injector never produces the v(VREFG) = 1.05 V crossing this measurement is the difference of, the `meas tran ... when` writes no vector, and the corner is recorded as a failure."
+    },
+    {
+      "name": "t_abs_s",
+      "expr": "t_ref_s",
+      "unit": "s",
+      "max": 2.2e-3,
+      "note": "Absolute time of the slow ramp's VREF crossing from t = 0, bounded by (the 1 ms ramp + the 1 ms spec line + margin). Recorded so a negative t_start_s is never the only number on the page."
+    },
+    {
+      "name": "vref_s",
+      "expr": "v_s",
+      "unit": "V",
+      "min": 1.1,
+      "max": 1.3,
+      "note": "Settled output after the slow ramp. Sanity band only, NOT the +/-1% spec window (issue #11)."
+    },
+    {
+      "name": "vref_f",
+      "expr": "v_f",
+      "unit": "V",
+      "min": 1.1,
+      "max": 1.3,
+      "note": "Settled output after the fast ramp."
+    },
+    {
+      "name": "vref_g",
+      "expr": "v_g",
+      "unit": "V",
+      "min": 1.1,
+      "max": 1.3,
+      "note": "Settled output after the degenerate start."
+    },
+    {
+      "name": "vref_spread",
+      "expr": "abs(v_s - v_g) + abs(v_s - v_f)",
+      "unit": "V",
+      "max": 1e-3,
+      "note": "Asserts the three copies converge to the *same* operating point. A startup circuit that left the cell in a different (e.g. over-driven) stable state, or that stayed partly engaged on one profile and not another, would show up as a ramp-rate-dependent output. This is the transient counterpart of sim/startup-stability-post-layout/'s single-crossing claim. The bound is 1 mV and the at=2.45e-3 sample point is unchanged from sim/startup-ramp/'s measurement of the same name, deliberately: DR-010 (issue #284) diagnosed the residual this check reports as a fixed-sample-time settling artifact rather than a second stable state, kept the bound, and added vref_converge below as the bounded gate that tests the convergence claim directly. Read this measurement together with vref_converge, and see DR-010 plus sim/startup-ramp/experiment.json's own note on this measurement for the full diagnosis -- it is a bound no ratified spec row states, so a FAIL here is not a failure of the < 1 ms line (which is t_start_s / t_start_f / t_start_g)."
+    },
+    {
+      "name": "vref_spread_early",
+      "expr": "abs(v_s1 - v_g1) + abs(v_s1 - v_f1)",
+      "unit": "V",
+      "note": "INFORMATIONAL (deliberately unbounded): the same spread expression as vref_spread, sampled 1 ms earlier at at=1.45e-3 instead of at=2.45e-3. It exists so every record carries, at every corner, the raw material for the question the fixed-sample-time bound cannot answer on its own -- is the spread shrinking, and how fast. Paired with vref_spread it gives a two-point contraction per corner at zero incremental simulation cost (same transient, extra 'meas ... find ... at=' taps). 1.45e-3 is chosen as t_slow + 0.45 ms: past the slow ramp's completion and past its output overshoot peak at every corner, so both samples are on the same monotone settling leg."
+    },
+    {
+      "name": "vref_converge",
+      "expr": "(abs(v_s - v_g) + abs(v_s - v_f)) - (abs(v_s1 - v_g1) + abs(v_s1 - v_f1))",
+      "unit": "V",
+      "max": 1e-5,
+      "note": "BOUNDED GATE, and the measurement that tests what vref_spread's note has always CLAIMED to test: the three copies must be getting closer together over time, i.e. vref_spread must CONTRACT between at=1.45e-3 and at=2.45e-3. A negative value is convergence. If the three startup conditions were settling toward genuinely different operating points -- the failure mode vref_spread exists to catch -- this difference would be zero or positive no matter how long the window, and this gate would fail where a mere fixed-time magnitude check cannot distinguish 'diverged' from 'not yet arrived'. Added by issue #284 / DR-010 on the schematic-level bench; carried here unchanged so the two halves of report row 8c/8d stay directly comparable. The bound is 1e-5 V rather than exactly 0 V: at the 125 degC corners the spread is already at this deck's own print resolution at BOTH sample points, so the sign of a sub-10-uV difference there is numerical, not physical."
+    },
+    {
+      "name": "isup_g",
+      "expr": "-isg",
+      "unit": "A",
+      "min": 5e-6,
+      "max": 5e-5,
+      "note": "Settled total supply current of the degenerate-start copy. Lower bound proves it really did start; upper bound is the < 50 uA Iq budget from design/device-characterization-summary.md, i.e. the injector is not still sinking current after handing over."
+    }
+  ],
+  "spread_checks": [
+    {
+      "measurement": "vref_g",
+      "min_spread": 0.01,
+      "note": "Untrimmed output over process and temperature must move by more than 10 mV; a frozen value would indicate the .lib corner or .temp injection stopped taking effect."
+    }
+  ],
+  "notes": [
+    "WHY THIS MANIFEST EXISTS INSTEAD OF REUSING sim/startup-ramp/experiment.json (issue #299). Until issue #285 the composed layout cell drew no startup injector, so the post-layout bench could wrap the schematic-level testbench unchanged: the extracted core swapped in for every design/bandgap_core.sym instance while the separately netlisted design/startup_injector.sym instances stayed schematic-level, and the bare-core control copy stayed bare. #285 drew the injector into the composed cell, which falsifies both halves of that construction at once -- the wrapped testbench's XSLOW/XFAST/XDEG copies would carry TWO injectors, and its XDEGN control copy would silently become injector-equipped. Neither is visible in the output: the bench would still just produce numbers, and the control-dependent ones would be wrong for reasons that have nothing to do with the design. So the post-layout claim needed its own testbench (design/bandgap_core.sym alone, no injector symbol, no control copy) and therefore its own measurement set.",
+    "DROPPED MEASUREMENTS AND WHERE THOSE CLAIMS STILL LIVE. Two measurements of sim/startup-ramp/experiment.json are deliberately absent here, both of them the bare-core control copy XDEGN's: vref_n (<= 0.95 V -- the unprotected core, given the same degenerate initial condition and the same 1 ns supply step, must stay stuck) and gn_n (>= 2.5 V -- and stuck in the degenerate state specifically, its mirror gate still parked near the rail, not merely slow). The drawn cell has an injector, so there is no extracted bare core to run that copy on, and running it on a schematic-netlisted bare core placed alongside an extracted one would make it a mixed-provenance construction rather than a control. Those two statements remain a schematic-level claim, carried by report row 8c (sim/startup-ramp/records/). Their falsifiability job -- 'this bench must fail if the DUT has no working injector' -- is carried here by t_start_g, which cannot be measured at all on a cell that stays stuck; see that measurement's note. Report row 8e's post-layout half (sim/startup-time-post-layout/) is the same composed cell measured from the same degenerate start over the full 45-point matrix, and its gdrv_final measurement is the direct post-layout counterpart of gn_n: 1.598-2.611 V, i.e. pulled off the rail the degenerate state parks it on.",
+    "Three independent copies of the DUT are simulated in one transient so a PVT point costs one ngspice invocation: slow ramp, fast ramp and degenerate start. They share only the ground node, and each has its own supply source, so they cannot interact through a rail. (The schematic-level bench runs a fourth, the no-injector control; see the note above.)",
+    "The transient runs with UIC: every node starts at 0 V except the degenerate copy's mirror gate, which the testbench's .ic places at the supply rail. There is no .nodeset and no preloaded operating point.",
+    "t_slow = 1 ms and t_fast = 1 us are deck params rather than schematic constants so the same testbench can be re-run at other ramp rates without editing the schematic.",
+    "A corner where a 'meas ... when' finds no crossing writes no vector, and the runner records the measurement as missing, i.e. as a failure. That is the intended behaviour: a corner that does not start inside the transient window is a failing corner, not an absent one -- and on this bench it is also what makes t_start_g a working control (see its note).",
+    "WHAT THIS BENCH DOES AND DOES NOT GRADE AGAINST THE RATIFIED SPEC. DR-005's ratified Startup row is 'self-starting, < 1 ms'. Its two halves are the no-other-stable-state claim (sibling bench sim/startup-stability-post-layout/) and the startup-TIME claim (t_start_s / t_start_f / t_start_g here). vref_spread is NOT one of those halves: it is an additional consistency check this bench family invented on top of them, with a bound (1 mV) that no ratified row states. That is not a reason to drop or loosen it -- it catches a real failure mode and it stays graded -- but it IS the reason design/block-characterization-report.md rows 8c/8d report the two separately rather than rolling a vref_spread FAIL up as a failure of the < 1 ms line. See DR-010.",
+    "This manifest's corners block states the full 45-point matrix. A single transient corner of this bench completes in roughly a minute on the extracted netlist on a fast, idle machine -- but that is a property of the HOST, not of the deck: issue #284 found the same corner taking well over half an hour on the shared Linux fleet host. The runner pins no axis, so the default is the full matrix; a capacity-limited re-run passes --process/--temp/--supply with a REQUIRED --subset-reason that is written into the record (sim/bin/post_layout_common.parse_post_layout_args). sim/startup-ramp-post-layout/README.md indexes which records are subsets and why."
+  ]
+}

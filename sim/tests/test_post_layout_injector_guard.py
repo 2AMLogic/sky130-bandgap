@@ -1,15 +1,25 @@
 #!/usr/bin/env python3
-"""The guard that stops a mixed-provenance startup bench from double-counting
-the drawn startup injector (issue #285, follow-up #299).
+"""The guard that keeps the two post-layout startup benches pointed at the DUT
+they claim to measure (issue #285, restructured by issue #299).
 
-`sim/startup-stability-post-layout/` and `sim/startup-ramp-post-layout/` wrap a
-testbench that netlists `design/startup_injector.sym` instances of its own
-alongside the extracted core, and that is only correct while the composed cell
-draws NO injector. Since #285 it draws one. The failure mode if the guard is
-missing is the dangerous kind: the run succeeds, produces plausible numbers,
-and appends them to `sim/`'s append-only evidence -- the DUT instances quietly
-carry two injectors and the bench's bare-core CONTROL instances quietly carry
-one. Nothing in the output says so. So the refusal is asserted here rather
+`sim/startup-stability-post-layout/` and `sim/startup-ramp-post-layout/` are
+claims about the COMPOSED cell -- core + startup injector as drawn. Since #299
+they instantiate `design/bandgap_core.sym` ALONE and rely on the extracted body
+to supply the injector, so the dangerous direction is running them against a
+layout record that does NOT draw it: the run would succeed, produce plausible
+numbers on an unprotected core, and append them to `sim/`'s append-only
+evidence as the composed cell's. `require_layout_draws_injector()` is the
+structural precondition that refuses instead -- and it is also what replaced
+the bare-core CONTROL instances those benches carried before #299, which the
+drawn cell cannot express any more.
+
+It is the mirror image of the pre-#299 `refuse_if_layout_draws_injector()`
+guard, which existed for the opposite hazard: back when those benches wrapped
+a testbench that netlisted its own `design/startup_injector.sym` instances,
+running against an injector-drawing layout record would have double-counted
+the injector on the DUT instances and silently made the controls
+injector-equipped. Both guards exist for the same reason -- the failure they
+catch is invisible in the output -- so the refusal is asserted here rather
 than left to a reviewer noticing.
 
 Deliberately exercised against synthetic layout-record directories, not the
@@ -89,7 +99,12 @@ class TestLayoutRecordDrawsInjector(unittest.TestCase):
             plc.layout_record_draws_injector(self._record(None))
 
 
-class TestRefuseIfLayoutDrawsInjector(unittest.TestCase):
+INJECTOR_INCLUSIVE = CORE_ONLY.replace(
+    ".ends bandgap_core", INJECTOR_CARDS + ".ends bandgap_core"
+)
+
+
+class TestRequireLayoutDrawsInjector(unittest.TestCase):
     """The refusal itself, driven through a synthetic `reports/LATEST` tree."""
 
     def _layout_dir(self, reference_text: str) -> Path:
@@ -105,21 +120,31 @@ class TestRefuseIfLayoutDrawsInjector(unittest.TestCase):
         saved = plc.LAYOUT_BANDGAP_CORE_DIR
         plc.LAYOUT_BANDGAP_CORE_DIR = self._layout_dir(reference_text)
         try:
-            return plc.refuse_if_layout_draws_injector("a-startup-bench")
+            return plc.require_layout_draws_injector("a-startup-bench")
         finally:
             plc.LAYOUT_BANDGAP_CORE_DIR = saved
 
-    def test_pre_injector_layout_is_allowed_through(self) -> None:
-        self.assertIsNone(self._run_against(CORE_ONLY))
+    def test_injector_inclusive_layout_is_allowed_through(self) -> None:
+        self.assertIsNone(self._run_against(INJECTOR_INCLUSIVE))
 
-    def test_injector_inclusive_layout_is_refused(self) -> None:
-        text = CORE_ONLY.replace(".ends bandgap_core", INJECTOR_CARDS + ".ends bandgap_core")
+    def test_core_only_layout_is_refused(self) -> None:
+        """The post-#299 hazard: these benches instantiate the core symbol
+        alone and expect the extracted body to supply the injector, so a
+        core-only layout record would be measured -- and recorded -- as the
+        composed cell."""
         with self.assertRaises(plc.PostLayoutError) as caught:
-            self._run_against(text)
+            self._run_against(CORE_ONLY)
         message = str(caught.exception)
         self.assertIn("a-startup-bench", message)
         self.assertIn("#299", message)
-        self.assertIn("double-count", message)
+        self.assertIn("20260101-000000-abcdefg", message)
+
+    def test_the_pre_299_guard_is_gone(self) -> None:
+        """The two guards are mutually exclusive by construction -- one refuses
+        exactly the layout records the other requires -- so leaving both on the
+        module invites a bench calling the wrong one and refusing every layout
+        record in existence."""
+        self.assertFalse(hasattr(plc, "refuse_if_layout_draws_injector"))
 
 
 if __name__ == "__main__":
