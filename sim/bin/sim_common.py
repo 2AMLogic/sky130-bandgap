@@ -33,6 +33,7 @@ import shutil
 import subprocess
 import sys
 from collections.abc import Sequence
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 from types import ModuleType
@@ -360,23 +361,45 @@ def run_matrix_and_write_record(
 
     `args` needs `.timeout`/`.author`/`.supersedes` attributes (both
     callers' `argparse.Namespace` already have them under those names).
+    `.jobs` is optional -- missing or `<= 1` runs the corner loop serially,
+    identical to before this parameter existed; `> 1` runs up to that many
+    corners concurrently via `ThreadPoolExecutor` (issue #308). Each corner
+    is an independent `ngspice` subprocess with its own scratch deck file
+    (`run_dir / f"{corner.id}.deck.spice"`) and its own per-corner
+    `--timeout`, so concurrency is bookkeeping only -- a corner hitting its
+    own timeout has no effect on any sibling's timeout or result.
 
     Returns `(record, overall)` so each caller keeps its own exit-code
     mapping.
     """
-    results = []
-    for i, corner in enumerate(matrix, start=1):
+    jobs = max(1, getattr(args, "jobs", 1) or 1)
+
+    # `results` is pre-sized and index-keyed (never `list.append()` inside the
+    # worker) so the record's corner order is always matrix order, regardless
+    # of completion order under concurrency -- this is what keeps records
+    # diff-comparable across `jobs` values (issue #308).
+    results: list[dict | None] = [None] * len(matrix)
+
+    def _run_one(item: tuple[int, object]) -> None:
+        i, corner = item
         log_path = corners_dir / f"{corner.id}.log"
         res = cr.run_corner(exp, pdk, corner, body, run_dir, log_path, args.timeout)
-        results.append(res)
+        results[i] = res
         summary = ", ".join(
             f"{c['name']}={'n/a' if c['value'] is None else format(c['value'], '.6g')}"
             for c in res["measurements"]
         )
         print(
-            f"[{i:>3}/{len(matrix)}] {corner.id:<20} "
+            f"[{i + 1:>3}/{len(matrix)}] {corner.id:<20} "
             f"{'PASS' if res['pass'] else 'FAIL'}  {summary}"
         )
+
+    if jobs <= 1:
+        for item in enumerate(matrix):
+            _run_one(item)
+    else:
+        with ThreadPoolExecutor(max_workers=jobs) as pool:
+            list(pool.map(_run_one, enumerate(matrix)))
 
     spreads = cr.spread_checks(exp, results)
     overall = all(r["pass"] for r in results) and all(s["pass"] for s in spreads)
@@ -399,6 +422,7 @@ def run_matrix_and_write_record(
             "lib_file": str(pdk.lib_file),
         },
         "tools": cr.tool_versions(),
+        "jobs": jobs,
         "git": git_info,
         "matrix": {
             "process": cr.unique_in_order(c.process for c in matrix),
@@ -789,19 +813,30 @@ def render_record_id_experiment(record_id: str, slug: str, title: str) -> list[s
 
 
 def render_pdk_tools_repo_state(r: dict) -> list[str]:
-    """`PDK` (pin-state ternary) + `Tools` + `Repo state` (dirty-tree
-    ternary) lines shared verbatim across every experiment's
-    `render_record()` (issue #191)."""
+    """`PDK` (pin-state ternary) + `Tools` + optional `Jobs` + `Repo state`
+    (dirty-tree ternary) lines shared verbatim across every experiment's
+    `render_record()` (issue #191).
+
+    `Jobs` is only emitted when `r["jobs"]` is present -- `corner-run.py`/
+    `post_layout_common.py` records always set it (issue #308), but the
+    bespoke Monte Carlo scripts that also call this helper don't run their
+    sweeps through `run_matrix_and_write_record()` and so never set it."""
     pdk = r["pdk"]
     pin_state = "matches sim/pdk.json pin" if pdk["matches_pin"] else "**MISMATCH vs sim/pdk.json pin**"
     tools = r["tools"]
-    return [
+    lines = [
         f"- **PDK**: {pdk['variant']} @ open_pdks `{pdk['installed_commit']}` ({pin_state}); "
         f"models `{pdk['lib_file']}`",
         f"- **Tools**: {tools['ngspice']}; {tools['xschem']}; {tools['platform']}",
-        f"- **Repo state**: `{r['git']['sha']}` on `{r['git']['branch']}`"
-        + (" (working tree dirty at run time)" if r["git"]["dirty"] else " (clean working tree)"),
     ]
+    if "jobs" in r:
+        n = r["jobs"]
+        lines.append(f"- **Jobs**: {n} ({'serial' if n <= 1 else f'{n} concurrent corner workers'})")
+    lines.append(
+        f"- **Repo state**: `{r['git']['sha']}` on `{r['git']['branch']}`"
+        + (" (working tree dirty at run time)" if r["git"]["dirty"] else " (clean working tree)")
+    )
+    return lines
 
 
 def render_log(header_lines, pdk, rc, timed_out, stamp, sections, raw) -> str:

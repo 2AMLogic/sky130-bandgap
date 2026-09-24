@@ -695,6 +695,17 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument("--author", default="", help="record author (default: git user.email)")
     p.add_argument("--timeout", type=int, default=300, help="per-corner ngspice timeout (s)")
     p.add_argument(
+        "-j",
+        "--jobs",
+        type=int,
+        default=1,
+        help=(
+            "run up to N corners concurrently (default: 1, serial -- today's "
+            "behavior). Each corner is an independent ngspice process with its "
+            "own --timeout, enforced per-process either way"
+        ),
+    )
+    p.add_argument(
         "--allow-pdk-mismatch",
         action="store_true",
         help="run even if the installed PDK differs from the sim/pdk.json pin",

@@ -1,0 +1,206 @@
+{
+  "author": "robb@2amlogic.com",
+  "corners": [
+    {
+      "corner_id": "tt_27c_3.30v",
+      "elapsed_s": 24.338,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/pdk-smoke/corners/20260924-052103-95b5717/tt_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "v(vg)",
+          "max": 1.4,
+          "min": 0.4,
+          "name": "vgs",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.9305283
+        },
+        {
+          "expr": "-i(v1)",
+          "max": 0.0001,
+          "min": 1e-07,
+          "name": "isup",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.369472e-06
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ss_-40c_2.97v",
+      "elapsed_s": 23.046,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/pdk-smoke/corners/20260924-052103-95b5717/ss_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "v(vg)",
+          "max": 1.4,
+          "min": 0.4,
+          "name": "vgs",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.01973
+        },
+        {
+          "expr": "-i(v1)",
+          "max": 0.0001,
+          "min": 1e-07,
+          "name": "isup",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.95027e-06
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 300
+    },
+    {
+      "corner_id": "ff_125c_3.63v",
+      "elapsed_s": 32.839,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/pdk-smoke/corners/20260924-052103-95b5717/ff_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "v(vg)",
+          "max": 1.4,
+          "min": 0.4,
+          "name": "vgs",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 0.8148856
+        },
+        {
+          "expr": "-i(v1)",
+          "max": 0.0001,
+          "min": 1e-07,
+          "name": "isup",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.815114e-06
+        }
+      ],
+      "ngspice_exit": 0,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 300
+    }
+  ],
+  "experiment": {
+    "claim": "Harness bring-up only -- NOT a spec claim. Substantiates that the pinned sky130 PDK models load in ngspice, that xschem netlists to a deck the runner can drive, and that the process/voltage/temperature knobs measurably change the result. Spec-line claims live in their own experiment directories once spec/ is ratified (see issue #1).",
+    "provenance": "schematic",
+    "provenance_source": "sim/pdk-smoke/testbench/tb_pdk_smoke.sch",
+    "slug": "pdk-smoke",
+    "statistical_convention": "N/A (corner-matrix check, not a distribution claim)",
+    "title": "Harness smoke test: sky130 models in ngspice via xschem"
+  },
+  "git": {
+    "branch": "feature/issue-308",
+    "dirty": true,
+    "sha": "95b5717"
+  },
+  "jobs": 1,
+  "links": {
+    "corners_dir": "sim/pdk-smoke/corners/20260924-052103-95b5717/",
+    "json": "sim/pdk-smoke/records/20260924-052103-95b5717.json",
+    "manifest": "sim/pdk-smoke/experiment.json",
+    "netlist_snapshot": "sim/pdk-smoke/netlist-snapshots/20260924-052103-95b5717.spice",
+    "record": "sim/pdk-smoke/records/20260924-052103-95b5717.md",
+    "testbench": "sim/pdk-smoke/testbench/tb_pdk_smoke.sch"
+  },
+  "matrix": {
+    "is_subset": true,
+    "n_points": 3,
+    "point_ids": [
+      "tt_27c_3.30v",
+      "ss_-40c_2.97v",
+      "ff_125c_3.63v"
+    ],
+    "points": [
+      [
+        "tt",
+        27.0,
+        3.3
+      ],
+      [
+        "ss",
+        -40.0,
+        2.97
+      ],
+      [
+        "ff",
+        125.0,
+        3.63
+      ]
+    ],
+    "process": [
+      "tt",
+      "ss",
+      "ff"
+    ],
+    "subset_reason": "issue-308 manual verification: jobs=1 baseline",
+    "supply_v": [
+      2.97,
+      3.3,
+      3.63
+    ],
+    "temperature_c": [
+      -40.0,
+      27.0,
+      125.0
+    ]
+  },
+  "overall_pass": true,
+  "pdk": {
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "lib_file": "/Users/rwalters/.volare/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "root": "/Users/rwalters/.volare",
+    "variant": "sky130A"
+  },
+  "record_id": "20260924-052103-95b5717",
+  "spread_checks": [
+    {
+      "measurement": "vgs",
+      "min_spread": 0.05,
+      "n": 3,
+      "note": "Guards against a silently corner-blind harness: if every corner returns the same vgs, the .lib/.temp injection is not taking effect.",
+      "observed_spread": 0.20484440000000004,
+      "pass": true,
+      "reason": ""
+    }
+  ],
+  "supersedes": "",
+  "timestamp": "2026-09-24T05:21:03Z",
+  "tools": {
+    "ngspice": "ngspice-46 : Circuit level simulation program",
+    "platform": "Darwin 27.0.0 arm64",
+    "python": "3.14.7",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}
