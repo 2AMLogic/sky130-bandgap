@@ -181,3 +181,88 @@ alongside, and row 8d of `design/block-characterization-report.md` carries the
 superseded-layout disclosure for both. It is simply the **last** record this
 bench can mint in its current shape — the `vref_converge` evidence it carries
 had to be taken before #299 lands, or not at all.
+
+## Update (2026-09-24, issue #299): the bench was restructured onto an all-extracted DUT, and the divergence comparison above is retired
+
+The section immediately above called `20260923-093126-079a778` "the **last**
+record this bench can mint in its current shape." That is what happened.
+Issue #299 replaced the shape.
+
+**Decided DUT shape: the composed cell alone, with no schematic-level
+control.** This bench no longer wraps `sim/startup-ramp/`'s testbench or
+manifest. It carries its own `testbench/tb_startup_ramp_pl.sch` — three
+`design/bandgap_core.sym` copies (XSLOW, XFAST, XDEG) and no
+`design/startup_injector.sym` anywhere in the deck, because since #285 the
+extracted body supplies the injector — and its own `experiment.json`.
+
+A schematic-netlisted bare core placed *alongside* the extracted ones was
+considered and rejected: it would make the control a mixed-provenance
+construction rather than a control.
+
+### What that costs
+
+Two measurements are gone: `vref_n` (≤ 0.95 V — the unprotected core, given
+the same degenerate initial condition, must stay stuck) and `gn_n` (≥ 2.5 V —
+and stuck *in the degenerate state specifically*, its mirror gate still parked
+near the rail). Both were readings on the bare-core control copy `XDEGN`,
+which the drawn monolithic cell cannot express.
+
+They are not lost. `vref_n`/`gn_n` remain a schematic-level claim on report
+row 8c, and `gn_n` has a direct post-layout counterpart in report row 8e:
+`sim/startup-time-post-layout/`'s `gdrv_final`, measured on this **same**
+composed cell from the **same** degenerate start over the full 45-point matrix
+(1.598–2.611 V — pulled off the rail the degenerate state parks it on).
+
+The control's falsifiability job inside this bench is carried by `t_start_g`
+plus the runner's `require_layout_draws_injector()` precondition. `t_start_g`
+is the time to leave the degenerate state; a cell with no working injector
+never produces the `v(VREFG) = 1.05 V` crossing that measurement is the
+difference of, and a `meas tran ... when` that finds no crossing writes no
+vector, so the corner is recorded as a failure rather than reading plausibly.
+
+### Record index update
+
+| Record | Points | Status |
+|---|---|---|
+| `20260924-041313-999407b` | 45 (full matrix) | **Current result**, and the first from the restructured all-extracted bench. Layout record `20260923-070209-dbd57a9`. `Overall: FAIL` — see the breakdown below. |
+| `20260910-004925-e8e2e46` | 45 (full matrix) | History. Pre-#299 mixed-provenance DUT against the pre-#285 layout record `20260817-020222-13476b7`. Superseded **in role**, not by a `Supersedes` field: it measures a different DUT construction, so it is not a baseline the row above can be differenced against. |
+| `20260923-093126-079a778` | 2 (subset) | History, same reason. |
+
+`Overall: FAIL` decomposes exactly as rows 8c/8d grade it:
+
+- **The ratified `< 1 ms` half passes 45/45.** Worst `t_start` over all 45
+  corners and all three ramp profiles is **+169 µs** (`t_start_s`,
+  `ss/125 °C/2.97 V`); `t_start_f` ≤ 27.1 µs; `t_start_g` ≤ 45.6 µs and
+  resolves at every single corner.
+- **`vref_spread` fails 13/45**, worst 18.46 mV at `sf/−40 °C/3.63 V` — the
+  DR-010 fixed-sample-time artifact, unchanged in kind. `vref_converge` passes
+  45/45 (≤ 0 V everywhere), so the spread is still contracting at the sample
+  point at every corner, which is the contraction gate #284 added precisely to
+  distinguish "not settled yet" from "settling somewhere else".
+
+### The divergence finding, restated for the new shape
+
+The 2026-09-10 addendum's headline was "post-layout now fails 3 more corners
+than schematic" (16/45 vs 13/45). On the restructured bench that gap
+**closes**: this record fails **13/45, the same count as the schematic-level
+record** `sim/startup-ramp/records/20260923-202758-81803b1`, and **12 of the 13
+are the same corners** — `ff_27c_3.63v` fails at schematic and passes here,
+`tt_-40c_3.30v` the reverse.
+
+Read that carefully: it is **not** evidence that extraction got cleaner. Two
+variables moved at once (the DUT construction *and* the layout record), so the
+two records above are not separable, and this addendum does not claim a
+separation. What it does support is the weaker, still useful statement the
+earlier addenda were reaching for — the `vref_spread` failures are a property
+of the **circuit's settling behaviour**, not of the extraction: with the
+injector now present on both representations, the post-layout and
+schematic-level benches land on essentially the same corner set at the same
+count, and the residual disagreement is one corner in each direction, both
+within a few hundred microvolts of the 1 mV cliff.
+
+Nothing in DR-010 is loosened by any of this: the 1 mV bound, the
+`at=2.45e-3` sample point and the 2.5 ms window are unchanged, the row stays
+FAIL on that check, and the residual stays charged against issue #11's budget.
+
+Per this repo's append-only convention, the sections above are left exactly as
+written — this is a dated addendum, not a rewrite.

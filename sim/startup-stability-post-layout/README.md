@@ -128,3 +128,80 @@ as written — this is a dated addendum, not a rewrite.
   `sim/startup-stability`'s own notes for where this design's margin is
   thinnest). The sibling `sim/startup-ramp-post-layout/` runs the full
   matrix instead, since a single corner there is far cheaper.
+
+## Update (2026-09-24, issue #299): the bench was restructured, and `dvref` is no longer measured here
+
+Issue #285 drew `design/startup_injector.sch` into the composed layout cell.
+That ended the mixed-provenance construction every record above was taken
+with — extracted core + separately netlisted schematic injector + bare-core
+control instances — because against an injector-inclusive extracted body the
+DUT instances (XDUT/XSW) would carry **two** injectors and the control
+instances (XREF/XSWN) would silently stop being bare. Neither shows up in the
+output.
+
+**Decided DUT shape: the composed cell alone, with no schematic-level
+control.** This bench no longer wraps `sim/startup-stability/`'s testbench or
+manifest. It carries its own `testbench/tb_startup_stability_pl.sch` —
+`design/bandgap_core.sym` instances only (XSW with GDRV forced, XDUT
+free-running), with no `design/startup_injector.sym` anywhere in the deck —
+and its own `experiment.json`.
+
+A schematic-netlisted bare core placed *alongside* the extracted one was
+considered and rejected: every difference it produced would be a mixture of
+"what the injector costs" and "what the extraction costs", which is the
+mixed-provenance mistake being removed rather than a repair of it.
+
+### What that costs, stated rather than absorbed
+
+Six measurements are gone from this bench: `imin_off_bare`, `i_off_bare`,
+`ncross_bare` (statements about the unprotected core) and `dvref`,
+`i_standing`, `i_su_standing` (the price of *attaching* the injector). The
+first three remain a schematic-level claim, carried by report row 8a. The
+last three have **no post-layout meaning at all** against a monolithic drawn
+cell — there is no "before attaching" instance to difference against.
+
+**So the `dvref` watch item this README's 2026-09-10 addendum raised is no
+longer tracked by this bench.** That is a real, disclosed reduction in
+coverage, not a resolution: the 19.31 mV-against-±20 mV worst corner was a
+post-layout number, and nothing post-layout measures it now. What did not
+disappear is the schematic-level half of the same trend (8.00 → 14.66 mV over
+the same two cycles), which `sim/startup-stability/` still measures at all 45
+corners, and the post-layout *consequences* of the injector being in the cell,
+which report rows 1b / 4b / 6b each measured by re-running the same layout
+record before and after #285. Anyone picking the watch item back up should
+start from row 4b (`sim/psrr-dc-with-injector/`, #300), which is the
+schematic-level-control pattern that works here.
+
+### What replaces the control's falsifiability job
+
+Two things, both in-bench:
+
+- **Structurally**: `post_layout_common.require_layout_draws_injector()` — the
+  mirror image of the `refuse_if_layout_draws_injector()` guard this bench used
+  to call — aborts before any ngspice time is spent unless the layout record
+  under test states the injector's six device cards (`MMPC1`, `MMPC2`,
+  `MMNS`, `MMNI`, `MMNC`, `QQS` — the SPICE cards `design/startup_injector.sch`'s
+  `MPC1`/`MPC2`/`MNS`/`MNI`/`MNC`/`QS` netlist to) in its own LVS reference
+  netlist. The dangerous direction
+  is now a core-only layout being measured and recorded as the composed cell.
+- **Numerically**: `imin_off_su` (≥ 1e-8 A) and `i_off_su` (≥ 1e-6 A) *are* the
+  bare core's failure mode stated as a bound. An absent injector collapses both
+  onto the leakage level `imin_off_bare`/`i_off_bare` used to report — orders of
+  magnitude under the floor.
+
+### First record from the new shape
+
+`20260924-041313-999407b`, against layout record `20260923-070209-dbd57a9`
+(the injector-inclusive composed cell), same 8-point worst-corner subset:
+`Overall: PASS`, 8/8, plus both corner-sensitivity checks. `ncross_su = 1` at
+every corner. `imin_off_su` 23.5 µA – 1.00 mA and `i_off_su` 306 µA – 1.25 mA,
+three to five orders of magnitude clear of their floors.
+
+Comparison with the records above is **not** a like-for-like extraction
+divergence: the DUT construction changed at the same time as the layout, so
+the two are not separable in this pair. That is why this addendum reports the
+new record's own absolute numbers and their distance from their own bounds,
+rather than a delta against `20260909-232410-e8e2e46`.
+
+Per this repo's append-only convention, the sections above are left exactly as
+written — this is a dated addendum, not a rewrite.
