@@ -65,6 +65,22 @@ class MismatchPoint:
     purpose: str
 
 
+def csv_list(value: str) -> list[str]:
+    """Split a `--process`-style comma-separated flag value into stripped,
+    non-empty tokens.
+
+    Shared by `corner-run.py`'s and the post-layout benches'
+    `--process`/`--temp`/`--supply` `type=` callbacks (issue #313) -- both
+    previously carried byte-for-byte private copies of this function.
+    """
+    return [v.strip() for v in value.split(",") if v.strip()]
+
+
+def csv_floats(value: str) -> list[float]:
+    """Like `csv_list()`, but float-casts each token (for `--temp`/`--supply`)."""
+    return [float(v) for v in csv_list(value)]
+
+
 def add_common_args(
     parser: argparse.ArgumentParser,
     *,

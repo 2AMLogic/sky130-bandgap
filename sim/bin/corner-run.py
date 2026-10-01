@@ -668,23 +668,21 @@ def render_record(record: dict) -> str:
 # --------------------------------------------------------------------------
 
 
-def csv_list(value: str) -> list[str]:
-    return [v.strip() for v in value.split(",") if v.strip()]
-
-
-def csv_floats(value: str) -> list[float]:
-    return [float(v) for v in csv_list(value)]
-
-
 def parse_args(argv: list[str]) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description="PVT corner runner for sky130-bandgap (see sim/README.md)"
     )
     p.add_argument("experiment", nargs="?", help="path to sim/<experiment-slug>/")
     p.add_argument("--print-env", action="store_true", help="print PDK env exports and exit")
-    p.add_argument("--process", type=csv_list, help="process corners (default: manifest)")
-    p.add_argument("--temp", type=csv_floats, help="temperatures in °C (default: manifest)")
-    p.add_argument("--supply", type=csv_floats, help="supply voltages (default: manifest)")
+    p.add_argument(
+        "--process", type=sim_common.csv_list, help="process corners (default: manifest)"
+    )
+    p.add_argument(
+        "--temp", type=sim_common.csv_floats, help="temperatures in °C (default: manifest)"
+    )
+    p.add_argument(
+        "--supply", type=sim_common.csv_floats, help="supply voltages (default: manifest)"
+    )
     p.add_argument("--quick", action="store_true", help="run the manifest's quick_subset only")
     p.add_argument(
         "--subset-reason",

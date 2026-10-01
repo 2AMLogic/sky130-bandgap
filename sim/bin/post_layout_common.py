@@ -631,14 +631,6 @@ def build_extracted_body(
     return body, provenance
 
 
-def _csv_list(value: str) -> list[str]:
-    return [v.strip() for v in value.split(",") if v.strip()]
-
-
-def _csv_floats(value: str) -> list[float]:
-    return [float(v) for v in _csv_list(value)]
-
-
 def parse_post_layout_args(argv: list[str], doc: str = "") -> argparse.Namespace:
     """The flag set every `sim/*-post-layout/run_*.py` accepts (the subset of
     `corner-run.py`'s flags that is meaningful when the matrix, measurements
@@ -685,19 +677,19 @@ def parse_post_layout_args(argv: list[str], doc: str = "") -> argparse.Namespace
     p.add_argument("--dry-run", action="store_true")
     p.add_argument(
         "--process",
-        type=_csv_list,
+        type=sim_common.csv_list,
         default=None,
         help="process corners (default: the wrapped manifest's, or this bench's own pin)",
     )
     p.add_argument(
         "--temp",
-        type=_csv_floats,
+        type=sim_common.csv_floats,
         default=None,
         help="temperatures in C, e.g. --temp=-40,125 (default: as above)",
     )
     p.add_argument(
         "--supply",
-        type=_csv_floats,
+        type=sim_common.csv_floats,
         default=None,
         help="supply voltages (default: as above)",
     )
