@@ -81,6 +81,7 @@ BUILD_DIR = SIM_DIR / "build" / "psrr-injector-attribution"
 sys.path.insert(0, str(SIM_DIR / "bin"))
 from sim_common import (  # noqa: E402
     check_pdk_and_ngspice,
+    load_base_body as _load_base_body,
     load_corner_run,
     parse_measurements,
     render_pdk_tools_repo_state,
@@ -216,17 +217,14 @@ VARIANTS_BY_NAME = {v.name: v for v in VARIANTS}
 
 def load_base_body() -> list[str]:
     """Read the cited record's netlist snapshot, strip `.end`, and assert it is
-    the body this script believes it is cutting."""
-    if not BASE_SNAPSHOT.is_file():
-        raise cr.HarnessError(f"missing base netlist snapshot: {BASE_SNAPSHOT}")
-    lines = [ln for ln in BASE_SNAPSHOT.read_text().splitlines() if ln.strip().lower() != ".end"]
-    present = {ln.strip() for ln in lines if ln.strip().startswith(".param ")}
-    missing = EXPECTED_PARAMS - present
-    if missing:
-        raise cr.HarnessError(
-            f"base snapshot {BASE_SNAPSHOT} is missing expected injector .param line(s) "
-            f"{sorted(missing)} -- the cited record's injector sizing may have drifted"
-        )
+    the body this script believes it is cutting.
+
+    The snapshot read, `.end` strip and `EXPECTED_PARAMS` drift check are the
+    canonical `sim_common.load_base_body()` (shared with the other bespoke
+    body-substitution scripts). Only the exactly-once check on
+    `TARGET_PREFIXES` below is specific to this bench's six-device cut.
+    """
+    lines = _load_base_body(BASE_SNAPSHOT, EXPECTED_PARAMS)
     for prefix in TARGET_PREFIXES:
         n = sum(1 for ln in lines if ln.startswith(prefix))
         if n != 1:
