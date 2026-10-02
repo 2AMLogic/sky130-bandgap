@@ -131,6 +131,13 @@ and
 **PSRR post-layout now fails 25/45** since the startup injector was drawn
 into the composed cell (issue #285, disposition tracked in #300;
 `sim/psrr-dc-post-layout/records/20260923-073641-dbd4dda.md`). The
+design-cause mechanism is now identified by direct measurement — the
+injector's `MPC1`/`MPC2` diode-connected PMOS reference stack dominates,
+confirmed by `sim/psrr-injector-attribution/` — but a fix has not landed:
+every device-resize candidate tried either fails to clear 45/45 or erodes
+`sim/startup-stability`'s own margin floor; see
+[DR-011](spec/decision-records/DR-011-startup-injector-psrr-fix-infeasible-by-resize.md)
+and issues #306/#315. The
 core-as-composed startup-time bench, which used to fail everywhere by
 construction because the cell shipped no injector, now **passes 45/45
 post-layout** for the same reason
