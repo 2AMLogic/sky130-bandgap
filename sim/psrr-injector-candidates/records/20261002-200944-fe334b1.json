@@ -1,0 +1,5128 @@
+{
+  "record_id": "20261002-200944-fe334b1",
+  "timestamp": "2026-10-02T20:09:44.044027+00:00",
+  "author": "loom-builder (issue #315)",
+  "experiment": {
+    "slug": "psrr-injector-candidates",
+    "title": "Candidate screening: non-resize fixes for the startup injector's DC-1 kHz PSRR collapse (issues #306, #315)",
+    "provenance": "schematic",
+    "provenance_source": "sim/psrr-dc-with-injector/netlist-snapshots/20260923-124813-af9ff1e.spice",
+    "wrapped_schematic": "sim/psrr-dc-with-injector/testbench/tb_vref_psrr_injector.sch",
+    "statistical_convention": "N/A (deterministic corner-matrix screen)"
+  },
+  "pdk": {
+    "family": "sky130",
+    "variant": "sky130A",
+    "dir": "/home/ubuntu/.volare/sky130A",
+    "installed_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "pinned_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "matches_pin": true,
+    "lib_file": "/home/ubuntu/.volare/sky130A/libs.tech/combined/sky130.lib.spice"
+  },
+  "tools": {
+    "ngspice": "ngspice-46 : Circuit level simulation program",
+    "xschem": "XSCHEM V3.4.7",
+    "platform": "Linux 7.0.0-1010-aws x86_64",
+    "python": "3.12.3"
+  },
+  "git": {
+    "sha": "fe334b1",
+    "branch": "feature/issue-315",
+    "dirty": true
+  },
+  "matrix": {
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "temperature_c": [
+      -40.0,
+      27.0,
+      125.0
+    ],
+    "supply_v": [
+      2.97,
+      3.3,
+      3.63
+    ],
+    "is_subset": false
+  },
+  "variants": [
+    "base",
+    "ref3",
+    "ref3_ngclamp"
+  ],
+  "cited_record": "sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e.md",
+  "cited": {
+    "tt_-40c_2.97v": 63.59632,
+    "tt_-40c_3.30v": 59.65625,
+    "tt_-40c_3.63v": 56.16161,
+    "tt_27c_2.97v": 60.59284,
+    "tt_27c_3.30v": 58.48947,
+    "tt_27c_3.63v": 56.40492,
+    "tt_125c_2.97v": 68.61715,
+    "tt_125c_3.30v": 57.79162,
+    "tt_125c_3.63v": 33.41061,
+    "ss_-40c_2.97v": 68.84177,
+    "ss_-40c_3.30v": 67.57349,
+    "ss_-40c_3.63v": 64.97669,
+    "ss_27c_2.97v": 67.61091,
+    "ss_27c_3.30v": 66.00016,
+    "ss_27c_3.63v": 63.85314,
+    "ss_125c_2.97v": 73.02536,
+    "ss_125c_3.30v": 69.71446,
+    "ss_125c_3.63v": 43.61836,
+    "ff_-40c_2.97v": 54.91944,
+    "ff_-40c_3.30v": 49.25666,
+    "ff_-40c_3.63v": 45.40203,
+    "ff_27c_2.97v": 52.30736,
+    "ff_27c_3.30v": 49.98128,
+    "ff_27c_3.63v": 45.96686,
+    "ff_125c_2.97v": 64.91271,
+    "ff_125c_3.30v": 36.10279,
+    "ff_125c_3.63v": 24.77854,
+    "sf_-40c_2.97v": 45.10262,
+    "sf_-40c_3.30v": 38.90448,
+    "sf_-40c_3.63v": 34.79492,
+    "sf_27c_2.97v": 43.94552,
+    "sf_27c_3.30v": 41.64321,
+    "sf_27c_3.63v": 39.6784,
+    "sf_125c_2.97v": 68.21423,
+    "sf_125c_3.30v": 64.07915,
+    "sf_125c_3.63v": 42.43712,
+    "fs_-40c_2.97v": 67.50576,
+    "fs_-40c_3.30v": 67.66469,
+    "fs_-40c_3.63v": 67.43086,
+    "fs_27c_2.97v": 67.53925,
+    "fs_27c_3.30v": 67.377,
+    "fs_27c_3.63v": 62.29435,
+    "fs_125c_2.97v": 66.00851,
+    "fs_125c_3.30v": 47.03103,
+    "fs_125c_3.63v": 38.79455
+  },
+  "ceiling_record": "sim/psrr-dc/records/20260909-232410-e8e2e46.md",
+  "ceiling": {
+    "tt_-40c_2.97v": 67.44011,
+    "tt_-40c_3.30v": 67.93914,
+    "tt_-40c_3.63v": 68.352,
+    "tt_27c_2.97v": 67.83106,
+    "tt_27c_3.30v": 68.25788,
+    "tt_27c_3.63v": 68.52732,
+    "tt_125c_2.97v": 68.09048,
+    "tt_125c_3.30v": 68.56522,
+    "tt_125c_3.63v": 68.61291,
+    "ss_-40c_2.97v": 69.76628,
+    "ss_-40c_3.30v": 71.21342,
+    "ss_-40c_3.63v": 72.41118,
+    "ss_27c_2.97v": 70.85803,
+    "ss_27c_3.30v": 72.71758,
+    "ss_27c_3.63v": 73.79086,
+    "ss_125c_2.97v": 72.01266,
+    "ss_125c_3.30v": 75.17566,
+    "ss_125c_3.63v": 75.06098,
+    "ff_-40c_2.97v": 67.3866,
+    "ff_-40c_3.30v": 67.88044,
+    "ff_-40c_3.63v": 68.27114,
+    "ff_27c_2.97v": 67.76676,
+    "ff_27c_3.30v": 68.18237,
+    "ff_27c_3.63v": 68.40875,
+    "ff_125c_2.97v": 68.05116,
+    "ff_125c_3.30v": 68.4739,
+    "ff_125c_3.63v": 68.41269,
+    "sf_-40c_2.97v": 67.33911,
+    "sf_-40c_3.30v": 67.84779,
+    "sf_-40c_3.63v": 68.29801,
+    "sf_27c_2.97v": 67.73451,
+    "sf_27c_3.30v": 68.18348,
+    "sf_27c_3.63v": 68.52091,
+    "sf_125c_2.97v": 67.91595,
+    "sf_125c_3.30v": 68.49609,
+    "sf_125c_3.63v": 68.70447,
+    "fs_-40c_2.97v": 67.53278,
+    "fs_-40c_3.30v": 68.01603,
+    "fs_-40c_3.63v": 68.37597,
+    "fs_27c_2.97v": 67.91554,
+    "fs_27c_3.30v": 68.3151,
+    "fs_27c_3.63v": 68.48264,
+    "fs_125c_2.97v": 68.22108,
+    "fs_125c_3.30v": 68.60624,
+    "fs_125c_3.63v": 68.41323
+  },
+  "jobs": 2,
+  "points": [
+    {
+      "variant": "base",
+      "corner_id": "ff_-40c_2.97v",
+      "process": "ff",
+      "temperature_c": -40.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 58.71695,
+        "f_dc": 0.1,
+        "psrr_1k": 55.20112,
+        "f_1k": 1000.0,
+        "psrr_band_min": 54.91944,
+        "psrr_1m": 15.52884,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.216442,
+        "v_gdrv": 1.704831,
+        "i_vdd": -2.04606e-05,
+        "v_ng": 0.4717527,
+        "v_ne": 0.4717505,
+        "v_nc1": 1.61437
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ff_-40c_3.30v",
+      "process": "ff",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 56.33579,
+        "f_dc": 0.1,
+        "psrr_1k": 49.59609,
+        "f_1k": 1000.0,
+        "psrr_band_min": 49.25666,
+        "psrr_1m": 16.00958,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.216889,
+        "v_gdrv": 2.036265,
+        "i_vdd": -2.05017e-05,
+        "v_ng": 0.4946058,
+        "v_ne": 0.4946006,
+        "v_nc1": 1.697718
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ff_-40c_3.63v",
+      "process": "ff",
+      "temperature_c": -40.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 54.82167,
+        "f_dc": 0.1,
+        "psrr_1k": 45.61913,
+        "f_1k": 1000.0,
+        "psrr_band_min": 45.40203,
+        "psrr_1m": 16.4525,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217441,
+        "v_gdrv": 2.367611,
+        "i_vdd": -2.05366e-05,
+        "v_ng": 0.5089063,
+        "v_ne": 0.5088971,
+        "v_nc1": 1.771223
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ff_125c_2.97v",
+      "process": "ff",
+      "temperature_c": 125.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 67.20858,
+        "f_dc": 0.1,
+        "psrr_1k": 64.91271,
+        "f_1k": 1000.0,
+        "psrr_band_min": 64.91271,
+        "psrr_1m": 15.70796,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186563,
+        "v_gdrv": 1.879243,
+        "i_vdd": -3.23803e-05,
+        "v_ng": 0.005798938,
+        "v_ne": 0.00579893,
+        "v_nc1": 1.041628
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ff_125c_3.30v",
+      "process": "ff",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 36.10279,
+        "f_dc": 0.1,
+        "psrr_1k": 36.19758,
+        "f_1k": 1000.0,
+        "psrr_band_min": 36.10279,
+        "psrr_1m": 16.10095,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.187752,
+        "v_gdrv": 2.21071,
+        "i_vdd": -3.24473e-05,
+        "v_ng": 0.09857937,
+        "v_ne": 0.09857931,
+        "v_nc1": 1.261806
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ff_125c_3.63v",
+      "process": "ff",
+      "temperature_c": 125.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 24.77854,
+        "f_dc": 0.1,
+        "psrr_1k": 24.77884,
+        "f_1k": 1000.0,
+        "psrr_band_min": 24.77854,
+        "psrr_1m": 16.65858,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.200879,
+        "v_gdrv": 2.539318,
+        "i_vdd": -3.31317e-05,
+        "v_ng": 0.2560454,
+        "v_ne": 0.2560446,
+        "v_nc1": 1.511501
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ff_27c_2.97v",
+      "process": "ff",
+      "temperature_c": 27.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 61.66356,
+        "f_dc": 0.1,
+        "psrr_1k": 52.57889,
+        "f_1k": 1000.0,
+        "psrr_band_min": 52.30736,
+        "psrr_1m": 15.64859,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210913,
+        "v_gdrv": 1.775127,
+        "i_vdd": -2.57614e-05,
+        "v_ng": 0.3246475,
+        "v_ne": 0.3246475,
+        "v_nc1": 1.366635
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ff_27c_3.30v",
+      "process": "ff",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 60.14822,
+        "f_dc": 0.1,
+        "psrr_1k": 50.16262,
+        "f_1k": 1000.0,
+        "psrr_band_min": 49.98128,
+        "psrr_1m": 16.09018,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.211211,
+        "v_gdrv": 2.106684,
+        "i_vdd": -2.57903e-05,
+        "v_ng": 0.3328912,
+        "v_ne": 0.3328912,
+        "v_nc1": 1.437593
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ff_27c_3.63v",
+      "process": "ff",
+      "temperature_c": 27.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 45.96686,
+        "f_dc": 0.1,
+        "psrr_1k": 46.71786,
+        "f_1k": 1000.0,
+        "psrr_band_min": 45.96686,
+        "psrr_1m": 16.50132,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.211823,
+        "v_gdrv": 2.438088,
+        "i_vdd": -2.58264e-05,
+        "v_ng": 0.3487623,
+        "v_ne": 0.3487623,
+        "v_nc1": 1.5214
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "fs_-40c_2.97v",
+      "process": "fs",
+      "temperature_c": -40.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 84.84845,
+        "f_dc": 0.1,
+        "psrr_1k": 67.50576,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.50576,
+        "psrr_1m": 15.63624,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217519,
+        "v_gdrv": 1.745899,
+        "i_vdd": -2.06905e-05,
+        "v_ng": 0.4741884,
+        "v_ne": 0.4740479,
+        "v_nc1": 1.584506
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "fs_-40c_3.30v",
+      "process": "fs",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 81.55227,
+        "f_dc": 0.1,
+        "psrr_1k": 67.66469,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.66469,
+        "psrr_1m": 16.10488,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217543,
+        "v_gdrv": 2.077427,
+        "i_vdd": -2.07057e-05,
+        "v_ng": 0.4964733,
+        "v_ne": 0.4961451,
+        "v_nc1": 1.666972
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "fs_-40c_3.63v",
+      "process": "fs",
+      "temperature_c": -40.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 78.24853,
+        "f_dc": 0.1,
+        "psrr_1k": 67.43086,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.43086,
+        "psrr_1m": 16.53224,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217576,
+        "v_gdrv": 2.408889,
+        "i_vdd": -2.07107e-05,
+        "v_ng": 0.5106883,
+        "v_ne": 0.5101025,
+        "v_nc1": 1.740034
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "fs_125c_2.97v",
+      "process": "fs",
+      "temperature_c": 125.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 69.62868,
+        "f_dc": 0.1,
+        "psrr_1k": 66.00851,
+        "f_1k": 1000.0,
+        "psrr_band_min": 66.00851,
+        "psrr_1m": 15.82305,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186126,
+        "v_gdrv": 1.919659,
+        "i_vdd": -3.26839e-05,
+        "v_ng": 0.01960148,
+        "v_ne": 0.01960144,
+        "v_nc1": 1.068464
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "fs_125c_3.30v",
+      "process": "fs",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 47.06617,
+        "f_dc": 0.1,
+        "psrr_1k": 47.03103,
+        "f_1k": 1000.0,
+        "psrr_band_min": 47.03103,
+        "psrr_1m": 16.20942,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186731,
+        "v_gdrv": 2.251256,
+        "i_vdd": -3.27181e-05,
+        "v_ng": 0.1933834,
+        "v_ne": 0.1933829,
+        "v_nc1": 1.327118
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "fs_125c_3.63v",
+      "process": "fs",
+      "temperature_c": 125.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 38.79804,
+        "f_dc": 0.1,
+        "psrr_1k": 38.79455,
+        "f_1k": 1000.0,
+        "psrr_band_min": 38.79455,
+        "psrr_1m": 16.62195,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.189163,
+        "v_gdrv": 2.582323,
+        "i_vdd": -3.28428e-05,
+        "v_ng": 0.2914141,
+        "v_ne": 0.2914048,
+        "v_nc1": 1.551294
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "fs_27c_2.97v",
+      "process": "fs",
+      "temperature_c": 27.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 86.25203,
+        "f_dc": 0.1,
+        "psrr_1k": 67.53925,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.53925,
+        "psrr_1m": 15.75171,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210606,
+        "v_gdrv": 1.816098,
+        "i_vdd": -2.59878e-05,
+        "v_ng": 0.3258002,
+        "v_ne": 0.3258,
+        "v_nc1": 1.336142
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "fs_27c_3.30v",
+      "process": "fs",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 79.79866,
+        "f_dc": 0.1,
+        "psrr_1k": 67.377,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.377,
+        "psrr_1m": 16.18672,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.21063,
+        "v_gdrv": 2.147714,
+        "i_vdd": -2.59993e-05,
+        "v_ng": 0.334374,
+        "v_ne": 0.3343738,
+        "v_nc1": 1.407371
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "fs_27c_3.63v",
+      "process": "fs",
+      "temperature_c": 27.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 62.29435,
+        "f_dc": 0.1,
+        "psrr_1k": 62.64502,
+        "f_1k": 1000.0,
+        "psrr_band_min": 62.29435,
+        "psrr_1m": 16.58604,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.21074,
+        "v_gdrv": 2.47923,
+        "i_vdd": -2.60066e-05,
+        "v_ng": 0.376792,
+        "v_ne": 0.3767906,
+        "v_nc1": 1.539776
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "sf_-40c_2.97v",
+      "process": "sf",
+      "temperature_c": -40.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 48.41104,
+        "f_dc": 0.1,
+        "psrr_1k": 46.00245,
+        "f_1k": 1000.0,
+        "psrr_band_min": 45.10262,
+        "psrr_1m": 15.6965,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.218114,
+        "v_gdrv": 1.572652,
+        "i_vdd": -2.07695e-05,
+        "v_ng": 0.4652183,
+        "v_ne": 0.4652179,
+        "v_nc1": 1.696026
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "sf_-40c_3.30v",
+      "process": "sf",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 45.80254,
+        "f_dc": 0.1,
+        "psrr_1k": 39.51136,
+        "f_1k": 1000.0,
+        "psrr_band_min": 38.90448,
+        "psrr_1m": 16.20658,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.219605,
+        "v_gdrv": 1.903832,
+        "i_vdd": -2.08808e-05,
+        "v_ng": 0.4905284,
+        "v_ne": 0.4905274,
+        "v_nc1": 1.782363
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "sf_-40c_3.63v",
+      "process": "sf",
+      "temperature_c": -40.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 44.36581,
+        "f_dc": 0.1,
+        "psrr_1k": 35.1393,
+        "f_1k": 1000.0,
+        "psrr_band_min": 34.79492,
+        "psrr_1m": 16.68453,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.221454,
+        "v_gdrv": 2.234862,
+        "i_vdd": -2.09949e-05,
+        "v_ng": 0.5059798,
+        "v_ne": 0.505978,
+        "v_nc1": 1.857696
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "sf_125c_2.97v",
+      "process": "sf",
+      "temperature_c": 125.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 73.23647,
+        "f_dc": 0.1,
+        "psrr_1k": 68.21423,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.21423,
+        "psrr_1m": 15.88738,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.189801,
+        "v_gdrv": 1.743213,
+        "i_vdd": -3.28327e-05,
+        "v_ng": 0.0005766472,
+        "v_ne": 0.0005766464,
+        "v_nc1": 1.017029
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "sf_125c_3.30v",
+      "process": "sf",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 65.3008,
+        "f_dc": 0.1,
+        "psrr_1k": 64.07915,
+        "f_1k": 1000.0,
+        "psrr_band_min": 64.07915,
+        "psrr_1m": 16.28167,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.189911,
+        "v_gdrv": 2.074946,
+        "i_vdd": -3.2855e-05,
+        "v_ng": 0.002342096,
+        "v_ne": 0.002342093,
+        "v_nc1": 1.148703
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "sf_125c_3.63v",
+      "process": "sf",
+      "temperature_c": 125.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 42.43712,
+        "f_dc": 0.1,
+        "psrr_1k": 42.44864,
+        "f_1k": 1000.0,
+        "psrr_band_min": 42.43712,
+        "psrr_1m": 16.64942,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.190632,
+        "v_gdrv": 2.406426,
+        "i_vdd": -3.28984e-05,
+        "v_ng": 0.03622674,
+        "v_ne": 0.0362267,
+        "v_nc1": 1.338527
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "sf_27c_2.97v",
+      "process": "sf",
+      "temperature_c": 27.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 53.42943,
+        "f_dc": 0.1,
+        "psrr_1k": 44.51531,
+        "f_1k": 1000.0,
+        "psrr_band_min": 43.94552,
+        "psrr_1m": 15.82337,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.214205,
+        "v_gdrv": 1.641025,
+        "i_vdd": -2.61837e-05,
+        "v_ng": 0.3221094,
+        "v_ne": 0.3221094,
+        "v_nc1": 1.452388
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "sf_27c_3.30v",
+      "process": "sf",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 52.18064,
+        "f_dc": 0.1,
+        "psrr_1k": 41.98606,
+        "f_1k": 1000.0,
+        "psrr_band_min": 41.64321,
+        "psrr_1m": 16.2828,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.214963,
+        "v_gdrv": 1.972477,
+        "i_vdd": -2.62498e-05,
+        "v_ng": 0.3306844,
+        "v_ne": 0.3306844,
+        "v_nc1": 1.52457
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "sf_27c_3.63v",
+      "process": "sf",
+      "temperature_c": 27.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 51.1136,
+        "f_dc": 0.1,
+        "psrr_1k": 39.86385,
+        "f_1k": 1000.0,
+        "psrr_band_min": 39.6784,
+        "psrr_1m": 16.70892,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.215828,
+        "v_gdrv": 2.303822,
+        "i_vdd": -2.63071e-05,
+        "v_ng": 0.3375836,
+        "v_ne": 0.3375836,
+        "v_nc1": 1.592432
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ss_-40c_2.97v",
+      "process": "ss",
+      "temperature_c": -40.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 79.51175,
+        "f_dc": 0.1,
+        "psrr_1k": 68.84177,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.84177,
+        "psrr_1m": 15.79847,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217109,
+        "v_gdrv": 1.617,
+        "i_vdd": -2.04962e-05,
+        "v_ng": 0.4679165,
+        "v_ne": 0.4678898,
+        "v_nc1": 1.666266
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ss_-40c_3.30v",
+      "process": "ss",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 75.76844,
+        "f_dc": 0.1,
+        "psrr_1k": 67.57349,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.57349,
+        "psrr_1m": 16.25439,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217154,
+        "v_gdrv": 1.95033,
+        "i_vdd": -2.02989e-05,
+        "v_ng": 0.4924968,
+        "v_ne": 0.4924294,
+        "v_nc1": 1.751567
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ss_-40c_3.63v",
+      "process": "ss",
+      "temperature_c": -40.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 72.93513,
+        "f_dc": 0.1,
+        "psrr_1k": 64.97669,
+        "f_1k": 1000.0,
+        "psrr_band_min": 64.97669,
+        "psrr_1m": 16.6554,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217217,
+        "v_gdrv": 2.283918,
+        "i_vdd": -2.00826e-05,
+        "v_ng": 0.507693,
+        "v_ne": 0.5075686,
+        "v_nc1": 1.826296
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ss_125c_2.97v",
+      "process": "ss",
+      "temperature_c": 125.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 88.78689,
+        "f_dc": 0.1,
+        "psrr_1k": 73.02536,
+        "f_1k": 1000.0,
+        "psrr_band_min": 73.02536,
+        "psrr_1m": 15.74302,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186755,
+        "v_gdrv": 1.78778,
+        "i_vdd": -3.25594e-05,
+        "v_ng": 0.0008134043,
+        "v_ne": 0.0008134028,
+        "v_nc1": 1.006322
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ss_125c_3.30v",
+      "process": "ss",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 70.88527,
+        "f_dc": 0.1,
+        "psrr_1k": 69.71446,
+        "f_1k": 1000.0,
+        "psrr_band_min": 69.71446,
+        "psrr_1m": 15.98153,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186783,
+        "v_gdrv": 2.122302,
+        "i_vdd": -3.23053e-05,
+        "v_ng": 0.007911412,
+        "v_ne": 0.007911398,
+        "v_nc1": 1.173344
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ss_125c_3.63v",
+      "process": "ss",
+      "temperature_c": 125.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 43.61836,
+        "f_dc": 0.1,
+        "psrr_1k": 43.71772,
+        "f_1k": 1000.0,
+        "psrr_band_min": 43.61836,
+        "psrr_1m": 16.17995,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.18738,
+        "v_gdrv": 2.457154,
+        "i_vdd": -3.20742e-05,
+        "v_ng": 0.131189,
+        "v_ne": 0.1311889,
+        "v_nc1": 1.409502
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ss_27c_2.97v",
+      "process": "ss",
+      "temperature_c": 27.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 80.14532,
+        "f_dc": 0.1,
+        "psrr_1k": 67.61091,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.61091,
+        "psrr_1m": 15.82079,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210823,
+        "v_gdrv": 1.685882,
+        "i_vdd": -2.58207e-05,
+        "v_ng": 0.3237163,
+        "v_ne": 0.3237163,
+        "v_nc1": 1.422185
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ss_27c_3.30v",
+      "process": "ss",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 75.45173,
+        "f_dc": 0.1,
+        "psrr_1k": 66.00016,
+        "f_1k": 1000.0,
+        "psrr_band_min": 66.00016,
+        "psrr_1m": 16.19188,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210867,
+        "v_gdrv": 2.019734,
+        "i_vdd": -2.55869e-05,
+        "v_ng": 0.3322183,
+        "v_ne": 0.3322183,
+        "v_nc1": 1.493874
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "ss_27c_3.63v",
+      "process": "ss",
+      "temperature_c": 27.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 71.94802,
+        "f_dc": 0.1,
+        "psrr_1k": 63.85314,
+        "f_1k": 1000.0,
+        "psrr_band_min": 63.85314,
+        "psrr_1m": 16.51447,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210935,
+        "v_gdrv": 2.353932,
+        "i_vdd": -2.53406e-05,
+        "v_ng": 0.3391076,
+        "v_ne": 0.3391075,
+        "v_nc1": 1.561392
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "tt_-40c_2.97v",
+      "process": "tt",
+      "temperature_c": -40.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 69.34736,
+        "f_dc": 0.1,
+        "psrr_1k": 63.59632,
+        "f_1k": 1000.0,
+        "psrr_band_min": 63.59632,
+        "psrr_1m": 15.66991,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.216582,
+        "v_gdrv": 1.65972,
+        "i_vdd": -2.06362e-05,
+        "v_ng": 0.4698575,
+        "v_ne": 0.4698496,
+        "v_nc1": 1.640478
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "tt_-40c_3.30v",
+      "process": "tt",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 66.79618,
+        "f_dc": 0.1,
+        "psrr_1k": 59.65625,
+        "f_1k": 1000.0,
+        "psrr_band_min": 59.65625,
+        "psrr_1m": 16.15385,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.216715,
+        "v_gdrv": 1.991225,
+        "i_vdd": -2.06641e-05,
+        "v_ng": 0.4935492,
+        "v_ne": 0.4935301,
+        "v_nc1": 1.724786
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "tt_-40c_3.63v",
+      "process": "tt",
+      "temperature_c": -40.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 65.10367,
+        "f_dc": 0.1,
+        "psrr_1k": 56.16161,
+        "f_1k": 1000.0,
+        "psrr_band_min": 56.16161,
+        "psrr_1m": 16.59752,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.216882,
+        "v_gdrv": 2.322658,
+        "i_vdd": -2.06804e-05,
+        "v_ng": 0.5082768,
+        "v_ne": 0.5082423,
+        "v_nc1": 1.798887
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "tt_125c_2.97v",
+      "process": "tt",
+      "temperature_c": 125.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 84.58207,
+        "f_dc": 0.1,
+        "psrr_1k": 68.61715,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.61715,
+        "psrr_1m": 15.86789,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186544,
+        "v_gdrv": 1.831832,
+        "i_vdd": -3.26722e-05,
+        "v_ng": 0.001828901,
+        "v_ne": 0.001828898,
+        "v_nc1": 1.017989
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "tt_125c_3.30v",
+      "process": "tt",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 58.21137,
+        "f_dc": 0.1,
+        "psrr_1k": 57.79162,
+        "f_1k": 1000.0,
+        "psrr_band_min": 57.79162,
+        "psrr_1m": 16.25168,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186675,
+        "v_gdrv": 2.163548,
+        "i_vdd": -3.26881e-05,
+        "v_ng": 0.02653894,
+        "v_ne": 0.02653891,
+        "v_nc1": 1.203309
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "tt_125c_3.63v",
+      "process": "tt",
+      "temperature_c": 125.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 33.41061,
+        "f_dc": 0.1,
+        "psrr_1k": 33.41726,
+        "f_1k": 1000.0,
+        "psrr_band_min": 33.41061,
+        "psrr_1m": 16.65281,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.190026,
+        "v_gdrv": 2.4944,
+        "i_vdd": -3.28653e-05,
+        "v_ng": 0.2083167,
+        "v_ne": 0.2083164,
+        "v_nc1": 1.46511
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "tt_27c_2.97v",
+      "process": "tt",
+      "temperature_c": 27.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 70.47028,
+        "f_dc": 0.1,
+        "psrr_1k": 60.59284,
+        "f_1k": 1000.0,
+        "psrr_band_min": 60.59284,
+        "psrr_1m": 15.7919,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210635,
+        "v_gdrv": 1.729106,
+        "i_vdd": -2.59706e-05,
+        "v_ng": 0.324186,
+        "v_ne": 0.324186,
+        "v_nc1": 1.394538
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "tt_27c_3.30v",
+      "process": "tt",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 68.45999,
+        "f_dc": 0.1,
+        "psrr_1k": 58.48947,
+        "f_1k": 1000.0,
+        "psrr_band_min": 58.48947,
+        "psrr_1m": 16.23479,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210747,
+        "v_gdrv": 2.060705,
+        "i_vdd": -2.59936e-05,
+        "v_ng": 0.3325491,
+        "v_ne": 0.332549,
+        "v_nc1": 1.465847
+      }
+    },
+    {
+      "variant": "base",
+      "corner_id": "tt_27c_3.63v",
+      "process": "tt",
+      "temperature_c": 27.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 64.47874,
+        "f_dc": 0.1,
+        "psrr_1k": 56.40492,
+        "f_1k": 1000.0,
+        "psrr_band_min": 56.40492,
+        "psrr_1m": 16.64291,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210892,
+        "v_gdrv": 2.392218,
+        "i_vdd": -2.60068e-05,
+        "v_ng": 0.3399616,
+        "v_ne": 0.3399616,
+        "v_nc1": 1.534204
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ff_-40c_2.97v",
+      "process": "ff",
+      "temperature_c": -40.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 55.40489,
+        "f_dc": 0.1,
+        "psrr_1k": 50.39313,
+        "f_1k": 1000.0,
+        "psrr_band_min": 48.56587,
+        "psrr_1m": 15.53638,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.216761,
+        "v_gdrv": 1.704755,
+        "i_vdd": -2.04781e-05,
+        "v_ng": 0.4954355,
+        "v_ne": 0.4954301,
+        "v_nc1": 2.512397
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ff_-40c_3.30v",
+      "process": "ff",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 53.75518,
+        "f_dc": 0.1,
+        "psrr_1k": 45.32082,
+        "f_1k": 1000.0,
+        "psrr_band_min": 43.91394,
+        "psrr_1m": 16.02346,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217382,
+        "v_gdrv": 2.036148,
+        "i_vdd": -2.05287e-05,
+        "v_ng": 0.5138876,
+        "v_ne": 0.5138762,
+        "v_nc1": 2.658732
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ff_-40c_3.63v",
+      "process": "ff",
+      "temperature_c": -40.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 52.48179,
+        "f_dc": 0.1,
+        "psrr_1k": 41.60591,
+        "f_1k": 1000.0,
+        "psrr_band_min": 40.65456,
+        "psrr_1m": 16.47481,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.218112,
+        "v_gdrv": 2.367452,
+        "i_vdd": -2.05735e-05,
+        "v_ng": 0.5257093,
+        "v_ne": 0.5256902,
+        "v_nc1": 2.793403
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ff_125c_2.97v",
+      "process": "ff",
+      "temperature_c": 125.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 80.77861,
+        "f_dc": 0.1,
+        "psrr_1k": 68.8553,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.8553,
+        "psrr_1m": 15.71493,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186527,
+        "v_gdrv": 1.879251,
+        "i_vdd": -3.23784e-05,
+        "v_ng": 0.0007789717,
+        "v_ne": 0.0007789706,
+        "v_nc1": 1.673146
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ff_125c_3.30v",
+      "process": "ff",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 75.35116,
+        "f_dc": 0.1,
+        "psrr_1k": 68.55426,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.55426,
+        "psrr_1m": 16.10493,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.18657,
+        "v_gdrv": 2.210985,
+        "i_vdd": -3.23857e-05,
+        "v_ng": 0.0008714964,
+        "v_ne": 0.0008714952,
+        "v_nc1": 1.793843
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ff_125c_3.63v",
+      "process": "ff",
+      "temperature_c": 125.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 71.05857,
+        "f_dc": 0.1,
+        "psrr_1k": 67.5017,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.5017,
+        "psrr_1m": 16.4679,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186643,
+        "v_gdrv": 2.542607,
+        "i_vdd": -3.23875e-05,
+        "v_ng": 0.001038553,
+        "v_ne": 0.001038551,
+        "v_nc1": 1.92259
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ff_27c_2.97v",
+      "process": "ff",
+      "temperature_c": 27.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 59.65061,
+        "f_dc": 0.1,
+        "psrr_1k": 50.12868,
+        "f_1k": 1000.0,
+        "psrr_band_min": 49.27929,
+        "psrr_1m": 15.65071,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.211144,
+        "v_gdrv": 1.775072,
+        "i_vdd": -2.57739e-05,
+        "v_ng": 0.338088,
+        "v_ne": 0.338088,
+        "v_nc1": 2.195531
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ff_27c_3.30v",
+      "process": "ff",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 58.29353,
+        "f_dc": 0.1,
+        "psrr_1k": 47.64637,
+        "f_1k": 1000.0,
+        "psrr_band_min": 47.00712,
+        "psrr_1m": 16.09328,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.211517,
+        "v_gdrv": 2.106611,
+        "i_vdd": -2.58069e-05,
+        "v_ng": 0.3461306,
+        "v_ne": 0.3461306,
+        "v_nc1": 2.3296
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ff_27c_3.63v",
+      "process": "ff",
+      "temperature_c": 27.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 57.03791,
+        "f_dc": 0.1,
+        "psrr_1k": 45.4835,
+        "f_1k": 1000.0,
+        "psrr_band_min": 45.0502,
+        "psrr_1m": 16.50208,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.211949,
+        "v_gdrv": 2.438058,
+        "i_vdd": -2.58332e-05,
+        "v_ng": 0.3526597,
+        "v_ne": 0.3526596,
+        "v_nc1": 2.456605
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "fs_-40c_2.97v",
+      "process": "fs",
+      "temperature_c": -40.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 83.1557,
+        "f_dc": 0.1,
+        "psrr_1k": 67.21708,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.21708,
+        "psrr_1m": 15.63754,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217527,
+        "v_gdrv": 1.745897,
+        "i_vdd": -2.0691e-05,
+        "v_ng": 0.4991432,
+        "v_ne": 0.498778,
+        "v_nc1": 2.462954
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "fs_-40c_3.30v",
+      "process": "fs",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 80.32019,
+        "f_dc": 0.1,
+        "psrr_1k": 67.0406,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.0406,
+        "psrr_1m": 16.10661,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217555,
+        "v_gdrv": 2.077424,
+        "i_vdd": -2.07064e-05,
+        "v_ng": 0.5168834,
+        "v_ne": 0.5161196,
+        "v_nc1": 2.606858
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "fs_-40c_3.63v",
+      "process": "fs",
+      "temperature_c": -40.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 77.27098,
+        "f_dc": 0.1,
+        "psrr_1k": 66.31938,
+        "f_1k": 1000.0,
+        "psrr_band_min": 66.31938,
+        "psrr_1m": 16.53448,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217592,
+        "v_gdrv": 2.408885,
+        "i_vdd": -2.07116e-05,
+        "v_ng": 0.5287281,
+        "v_ne": 0.5274347,
+        "v_nc1": 2.739958
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "fs_125c_2.97v",
+      "process": "fs",
+      "temperature_c": 125.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 90.42745,
+        "f_dc": 0.1,
+        "psrr_1k": 68.56727,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.56727,
+        "psrr_1m": 15.83416,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186079,
+        "v_gdrv": 1.91967,
+        "i_vdd": -3.26814e-05,
+        "v_ng": 0.0007912786,
+        "v_ne": 0.000791277,
+        "v_nc1": 1.619599
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "fs_125c_3.30v",
+      "process": "fs",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 86.79768,
+        "f_dc": 0.1,
+        "psrr_1k": 68.89505,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.89505,
+        "psrr_1m": 16.22201,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186082,
+        "v_gdrv": 2.251408,
+        "i_vdd": -3.26839e-05,
+        "v_ng": 0.0009040603,
+        "v_ne": 0.0009040584,
+        "v_nc1": 1.743227
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "fs_125c_3.63v",
+      "process": "fs",
+      "temperature_c": 125.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 75.76838,
+        "f_dc": 0.1,
+        "psrr_1k": 68.42934,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.42934,
+        "psrr_1m": 16.58161,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186114,
+        "v_gdrv": 2.583034,
+        "i_vdd": -3.2682e-05,
+        "v_ng": 0.001497045,
+        "v_ne": 0.001497042,
+        "v_nc1": 1.913678
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "fs_27c_2.97v",
+      "process": "fs",
+      "temperature_c": 27.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 84.49223,
+        "f_dc": 0.1,
+        "psrr_1k": 67.13553,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.13553,
+        "psrr_1m": 15.75076,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210618,
+        "v_gdrv": 1.816095,
+        "i_vdd": -2.59885e-05,
+        "v_ng": 0.3398106,
+        "v_ne": 0.3398103,
+        "v_nc1": 2.143995
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "fs_27c_3.30v",
+      "process": "fs",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 79.61128,
+        "f_dc": 0.1,
+        "psrr_1k": 66.73026,
+        "f_1k": 1000.0,
+        "psrr_band_min": 66.73026,
+        "psrr_1m": 16.18553,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210645,
+        "v_gdrv": 2.14771,
+        "i_vdd": -2.60002e-05,
+        "v_ng": 0.3476536,
+        "v_ne": 0.3476533,
+        "v_nc1": 2.27642
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "fs_27c_3.63v",
+      "process": "fs",
+      "temperature_c": 27.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 75.43227,
+        "f_dc": 0.1,
+        "psrr_1k": 65.80252,
+        "f_1k": 1000.0,
+        "psrr_band_min": 65.80252,
+        "psrr_1m": 16.58581,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210689,
+        "v_gdrv": 2.479242,
+        "i_vdd": -2.60039e-05,
+        "v_ng": 0.3540479,
+        "v_ne": 0.3540474,
+        "v_nc1": 2.402071
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "sf_-40c_2.97v",
+      "process": "sf",
+      "temperature_c": -40.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 45.05384,
+        "f_dc": 0.1,
+        "psrr_1k": 41.74826,
+        "f_1k": 1000.0,
+        "psrr_band_min": 39.39816,
+        "psrr_1m": 15.71056,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.218898,
+        "v_gdrv": 1.572461,
+        "i_vdd": -2.08129e-05,
+        "v_ng": 0.485297,
+        "v_ne": 0.4852961,
+        "v_nc1": 2.645587
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "sf_-40c_3.30v",
+      "process": "sf",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 43.24205,
+        "f_dc": 0.1,
+        "psrr_1k": 35.7069,
+        "f_1k": 1000.0,
+        "psrr_band_min": 33.98114,
+        "psrr_1m": 16.23338,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.220973,
+        "v_gdrv": 1.903499,
+        "i_vdd": -2.09566e-05,
+        "v_ng": 0.507683,
+        "v_ne": 0.5076811,
+        "v_nc1": 2.800304
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "sf_-40c_3.63v",
+      "process": "sf",
+      "temperature_c": -40.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 42.06664,
+        "f_dc": 0.1,
+        "psrr_1k": 31.53436,
+        "f_1k": 1000.0,
+        "psrr_band_min": 30.34534,
+        "psrr_1m": 16.72637,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.223412,
+        "v_gdrv": 2.234388,
+        "i_vdd": -2.11036e-05,
+        "v_ng": 0.5212368,
+        "v_ne": 0.5212335,
+        "v_nc1": 2.940618
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "sf_125c_2.97v",
+      "process": "sf",
+      "temperature_c": 125.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 73.41817,
+        "f_dc": 0.1,
+        "psrr_1k": 68.20189,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.20189,
+        "psrr_1m": 15.88591,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.189804,
+        "v_gdrv": 1.743213,
+        "i_vdd": -3.28328e-05,
+        "v_ng": 0.0007444262,
+        "v_ne": 0.0007444253,
+        "v_nc1": 1.827936
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "sf_125c_3.30v",
+      "process": "sf",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 70.24362,
+        "f_dc": 0.1,
+        "psrr_1k": 67.14606,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.14606,
+        "psrr_1m": 16.2853,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.18989,
+        "v_gdrv": 2.074951,
+        "i_vdd": -3.28539e-05,
+        "v_ng": 0.0008350283,
+        "v_ne": 0.0008350272,
+        "v_nc1": 1.951039
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "sf_125c_3.63v",
+      "process": "sf",
+      "temperature_c": 125.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 68.08459,
+        "f_dc": 0.1,
+        "psrr_1k": 66.04227,
+        "f_1k": 1000.0,
+        "psrr_band_min": 66.04227,
+        "psrr_1m": 16.65693,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.190005,
+        "v_gdrv": 2.406575,
+        "i_vdd": -3.28654e-05,
+        "v_ng": 0.0009268798,
+        "v_ne": 0.0009268786,
+        "v_nc1": 2.06948
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "sf_27c_2.97v",
+      "process": "sf",
+      "temperature_c": 27.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 51.4808,
+        "f_dc": 0.1,
+        "psrr_1k": 42.34091,
+        "f_1k": 1000.0,
+        "psrr_band_min": 41.2825,
+        "psrr_1m": 15.82984,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.214709,
+        "v_gdrv": 1.640902,
+        "i_vdd": -2.62112e-05,
+        "v_ng": 0.3338993,
+        "v_ne": 0.3338993,
+        "v_nc1": 2.339091
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "sf_27c_3.30v",
+      "process": "sf",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 50.27508,
+        "f_dc": 0.1,
+        "psrr_1k": 39.70791,
+        "f_1k": 1000.0,
+        "psrr_band_min": 38.89822,
+        "psrr_1m": 16.29229,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.215656,
+        "v_gdrv": 1.972308,
+        "i_vdd": -2.62877e-05,
+        "v_ng": 0.3426199,
+        "v_ne": 0.3426199,
+        "v_nc1": 2.477877
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "sf_27c_3.63v",
+      "process": "sf",
+      "temperature_c": 27.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 49.24203,
+        "f_dc": 0.1,
+        "psrr_1k": 37.4564,
+        "f_1k": 1000.0,
+        "psrr_band_min": 36.89189,
+        "psrr_1m": 16.72201,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.21673,
+        "v_gdrv": 2.303604,
+        "i_vdd": -2.63565e-05,
+        "v_ng": 0.3496035,
+        "v_ne": 0.3496035,
+        "v_nc1": 2.608653
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ss_-40c_2.97v",
+      "process": "ss",
+      "temperature_c": -40.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 76.50506,
+        "f_dc": 0.1,
+        "psrr_1k": 67.58558,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.58558,
+        "psrr_1m": 15.80432,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.21713,
+        "v_gdrv": 1.616995,
+        "i_vdd": -2.04974e-05,
+        "v_ng": 0.489637,
+        "v_ne": 0.4895767,
+        "v_nc1": 2.597957
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ss_-40c_3.30v",
+      "process": "ss",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 73.66707,
+        "f_dc": 0.1,
+        "psrr_1k": 65.08338,
+        "f_1k": 1000.0,
+        "psrr_band_min": 65.08338,
+        "psrr_1m": 16.25783,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217189,
+        "v_gdrv": 1.950321,
+        "i_vdd": -2.03008e-05,
+        "v_ng": 0.5107075,
+        "v_ne": 0.510566,
+        "v_nc1": 2.749346
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ss_-40c_3.63v",
+      "process": "ss",
+      "temperature_c": -40.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 71.23323,
+        "f_dc": 0.1,
+        "psrr_1k": 61.94982,
+        "f_1k": 1000.0,
+        "psrr_band_min": 61.55741,
+        "psrr_1m": 16.65855,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217268,
+        "v_gdrv": 2.283905,
+        "i_vdd": -2.00853e-05,
+        "v_ng": 0.5238069,
+        "v_ne": 0.5235544,
+        "v_nc1": 2.887467
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ss_125c_2.97v",
+      "process": "ss",
+      "temperature_c": 125.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 86.44827,
+        "f_dc": 0.1,
+        "psrr_1k": 73.00692,
+        "f_1k": 1000.0,
+        "psrr_band_min": 73.00692,
+        "psrr_1m": 15.74423,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186755,
+        "v_gdrv": 1.78778,
+        "i_vdd": -3.25593e-05,
+        "v_ng": 0.0007563561,
+        "v_ne": 0.0007563547,
+        "v_nc1": 1.774756
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ss_125c_3.30v",
+      "process": "ss",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 84.8717,
+        "f_dc": 0.1,
+        "psrr_1k": 75.64304,
+        "f_1k": 1000.0,
+        "psrr_band_min": 75.64304,
+        "psrr_1m": 15.99322,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186757,
+        "v_gdrv": 2.122309,
+        "i_vdd": -3.2304e-05,
+        "v_ng": 0.0008472108,
+        "v_ne": 0.0008472092,
+        "v_nc1": 1.896742
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ss_125c_3.63v",
+      "process": "ss",
+      "temperature_c": 125.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 75.4965,
+        "f_dc": 0.1,
+        "psrr_1k": 74.06873,
+        "f_1k": 1000.0,
+        "psrr_band_min": 74.06873,
+        "psrr_1m": 16.20163,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186793,
+        "v_gdrv": 2.457298,
+        "i_vdd": -3.20432e-05,
+        "v_ng": 0.0009395876,
+        "v_ne": 0.0009395859,
+        "v_nc1": 2.014264
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ss_27c_2.97v",
+      "process": "ss",
+      "temperature_c": 27.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 77.84263,
+        "f_dc": 0.1,
+        "psrr_1k": 66.13151,
+        "f_1k": 1000.0,
+        "psrr_band_min": 66.13151,
+        "psrr_1m": 15.82028,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210852,
+        "v_gdrv": 1.685875,
+        "i_vdd": -2.58223e-05,
+        "v_ng": 0.3361881,
+        "v_ne": 0.336188,
+        "v_nc1": 2.288747
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ss_27c_3.30v",
+      "process": "ss",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 73.85144,
+        "f_dc": 0.1,
+        "psrr_1k": 64.07888,
+        "f_1k": 1000.0,
+        "psrr_band_min": 64.07888,
+        "psrr_1m": 16.19145,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210907,
+        "v_gdrv": 2.019724,
+        "i_vdd": -2.55891e-05,
+        "v_ng": 0.3447085,
+        "v_ne": 0.3447084,
+        "v_nc1": 2.425634
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "ss_27c_3.63v",
+      "process": "ss",
+      "temperature_c": 27.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 70.80281,
+        "f_dc": 0.1,
+        "psrr_1k": 61.79067,
+        "f_1k": 1000.0,
+        "psrr_band_min": 61.54709,
+        "psrr_1m": 16.51431,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210987,
+        "v_gdrv": 2.35392,
+        "i_vdd": -2.53434e-05,
+        "v_ng": 0.3515624,
+        "v_ne": 0.3515623,
+        "v_nc1": 2.554885
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "tt_-40c_2.97v",
+      "process": "tt",
+      "temperature_c": -40.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 66.18153,
+        "f_dc": 0.1,
+        "psrr_1k": 60.43491,
+        "f_1k": 1000.0,
+        "psrr_band_min": 59.9206,
+        "psrr_1m": 15.6771,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.216663,
+        "v_gdrv": 1.659701,
+        "i_vdd": -2.06406e-05,
+        "v_ng": 0.4926208,
+        "v_ne": 0.4926024,
+        "v_nc1": 2.555647
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "tt_-40c_3.30v",
+      "process": "tt",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 64.37211,
+        "f_dc": 0.1,
+        "psrr_1k": 56.02725,
+        "f_1k": 1000.0,
+        "psrr_band_min": 55.07398,
+        "psrr_1m": 16.16503,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.216844,
+        "v_gdrv": 1.991194,
+        "i_vdd": -2.06713e-05,
+        "v_ng": 0.5123045,
+        "v_ne": 0.5122634,
+        "v_nc1": 2.704411
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "tt_-40c_3.63v",
+      "process": "tt",
+      "temperature_c": -40.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 62.94504,
+        "f_dc": 0.1,
+        "psrr_1k": 52.49627,
+        "f_1k": 1000.0,
+        "psrr_band_min": 51.72859,
+        "psrr_1m": 16.61057,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217061,
+        "v_gdrv": 2.322614,
+        "i_vdd": -2.06904e-05,
+        "v_ng": 0.5247163,
+        "v_ne": 0.524645,
+        "v_nc1": 2.840747
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "tt_125c_2.97v",
+      "process": "tt",
+      "temperature_c": 125.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 119.9864,
+        "f_dc": 0.1,
+        "psrr_1k": 68.83284,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.83284,
+        "psrr_1m": 15.87081,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186539,
+        "v_gdrv": 1.831834,
+        "i_vdd": -3.26719e-05,
+        "v_ng": 0.0007676071,
+        "v_ne": 0.0007676059,
+        "v_nc1": 1.724174
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "tt_125c_3.30v",
+      "process": "tt",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 81.98597,
+        "f_dc": 0.1,
+        "psrr_1k": 69.01299,
+        "f_1k": 1000.0,
+        "psrr_band_min": 69.01299,
+        "psrr_1m": 16.26419,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186553,
+        "v_gdrv": 2.163577,
+        "i_vdd": -3.26817e-05,
+        "v_ng": 0.0008586981,
+        "v_ne": 0.0008586967,
+        "v_nc1": 1.845385
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "tt_125c_3.63v",
+      "process": "tt",
+      "temperature_c": 125.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 75.33956,
+        "f_dc": 0.1,
+        "psrr_1k": 68.60437,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.60437,
+        "psrr_1m": 16.63021,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186593,
+        "v_gdrv": 2.495209,
+        "i_vdd": -3.26845e-05,
+        "v_ng": 0.0009557815,
+        "v_ne": 0.00095578,
+        "v_nc1": 1.963092
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "tt_27c_2.97v",
+      "process": "tt",
+      "temperature_c": 27.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 68.46196,
+        "f_dc": 0.1,
+        "psrr_1k": 58.54485,
+        "f_1k": 1000.0,
+        "psrr_band_min": 58.29994,
+        "psrr_1m": 15.79185,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210716,
+        "v_gdrv": 1.729086,
+        "i_vdd": -2.5975e-05,
+        "v_ng": 0.3371523,
+        "v_ne": 0.3371523,
+        "v_nc1": 2.242471
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "tt_27c_3.30v",
+      "process": "tt",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 66.65163,
+        "f_dc": 0.1,
+        "psrr_1k": 56.23673,
+        "f_1k": 1000.0,
+        "psrr_band_min": 55.8984,
+        "psrr_1m": 16.23496,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210855,
+        "v_gdrv": 2.060679,
+        "i_vdd": -2.59995e-05,
+        "v_ng": 0.3454289,
+        "v_ne": 0.3454289,
+        "v_nc1": 2.377923
+      }
+    },
+    {
+      "variant": "ref3",
+      "corner_id": "tt_27c_3.63v",
+      "process": "tt",
+      "temperature_c": 27.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 65.01641,
+        "f_dc": 0.1,
+        "psrr_1k": 54.14557,
+        "f_1k": 1000.0,
+        "psrr_band_min": 53.85831,
+        "psrr_1m": 16.64321,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.211024,
+        "v_gdrv": 2.392186,
+        "i_vdd": -2.60141e-05,
+        "v_ng": 0.3521173,
+        "v_ne": 0.3521173,
+        "v_nc1": 2.506035
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ff_-40c_2.97v",
+      "process": "ff",
+      "temperature_c": -40.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 90.01491,
+        "f_dc": 0.1,
+        "psrr_1k": 67.55639,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.55639,
+        "psrr_1m": 15.73508,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.216013,
+        "v_gdrv": 1.704934,
+        "i_vdd": -2.04371e-05,
+        "v_ng": 2.9621e-06,
+        "v_ne": 2.9621e-06,
+        "v_nc1": 2.216683
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ff_-40c_3.30v",
+      "process": "ff",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 86.12796,
+        "f_dc": 0.1,
+        "psrr_1k": 68.05585,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.05585,
+        "psrr_1m": 16.20793,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.216027,
+        "v_gdrv": 2.03647,
+        "i_vdd": -2.04543e-05,
+        "v_ng": 3.440396e-06,
+        "v_ne": 3.440396e-06,
+        "v_nc1": 2.340084
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ff_-40c_3.63v",
+      "process": "ff",
+      "temperature_c": -40.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 82.12299,
+        "f_dc": 0.1,
+        "psrr_1k": 68.44912,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.44912,
+        "psrr_1m": 16.63916,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.216047,
+        "v_gdrv": 2.367942,
+        "i_vdd": -2.04601e-05,
+        "v_ng": 3.925058e-06,
+        "v_ne": 3.925058e-06,
+        "v_nc1": 2.457526
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ff_125c_2.97v",
+      "process": "ff",
+      "temperature_c": 125.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 81.04633,
+        "f_dc": 0.1,
+        "psrr_1k": 68.10485,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.10485,
+        "psrr_1m": 15.9392,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186523,
+        "v_gdrv": 1.879252,
+        "i_vdd": -3.23782e-05,
+        "v_ng": 5.986443e-06,
+        "v_ne": 5.986435e-06,
+        "v_nc1": 1.672661
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ff_125c_3.30v",
+      "process": "ff",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 75.52063,
+        "f_dc": 0.1,
+        "psrr_1k": 67.87793,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.87793,
+        "psrr_1m": 16.33082,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186566,
+        "v_gdrv": 2.210986,
+        "i_vdd": -3.23854e-05,
+        "v_ng": 6.688804e-06,
+        "v_ne": 6.688795e-06,
+        "v_nc1": 1.793291
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ff_125c_3.63v",
+      "process": "ff",
+      "temperature_c": 125.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 71.33053,
+        "f_dc": 0.1,
+        "psrr_1k": 67.04774,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.04774,
+        "psrr_1m": 16.69558,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186637,
+        "v_gdrv": 2.542608,
+        "i_vdd": -3.23872e-05,
+        "v_ng": 7.958295e-06,
+        "v_ne": 7.958284e-06,
+        "v_nc1": 1.92204
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ff_27c_2.97v",
+      "process": "ff",
+      "temperature_c": 27.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 105.7356,
+        "f_dc": 0.1,
+        "psrr_1k": 67.94165,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.94165,
+        "psrr_1m": 15.86266,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210083,
+        "v_gdrv": 1.775325,
+        "i_vdd": -2.57164e-05,
+        "v_ng": 3.797719e-06,
+        "v_ne": 3.797719e-06,
+        "v_nc1": 1.989618
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ff_27c_3.30v",
+      "process": "ff",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 87.37707,
+        "f_dc": 0.1,
+        "psrr_1k": 68.35884,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.35884,
+        "psrr_1m": 16.30256,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210091,
+        "v_gdrv": 2.106951,
+        "i_vdd": -2.57297e-05,
+        "v_ng": 4.361013e-06,
+        "v_ne": 4.361013e-06,
+        "v_nc1": 2.112183
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ff_27c_3.63v",
+      "process": "ff",
+      "temperature_c": 27.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 80.40544,
+        "f_dc": 0.1,
+        "psrr_1k": 68.57782,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.57782,
+        "psrr_1m": 16.70767,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210113,
+        "v_gdrv": 2.438494,
+        "i_vdd": -2.57337e-05,
+        "v_ng": 4.931129e-06,
+        "v_ne": 4.931129e-06,
+        "v_nc1": 2.229422
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "fs_-40c_2.97v",
+      "process": "fs",
+      "temperature_c": -40.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 89.87704,
+        "f_dc": 0.1,
+        "psrr_1k": 67.7318,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.7318,
+        "psrr_1m": 15.81006,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217509,
+        "v_gdrv": 1.745901,
+        "i_vdd": -2.069e-05,
+        "v_ng": 4.151464e-06,
+        "v_ne": 4.151464e-06,
+        "v_nc1": 2.16199
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "fs_-40c_3.30v",
+      "process": "fs",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 85.84634,
+        "f_dc": 0.1,
+        "psrr_1k": 68.22093,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.22093,
+        "psrr_1m": 16.27875,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217523,
+        "v_gdrv": 2.077432,
+        "i_vdd": -2.07046e-05,
+        "v_ng": 4.809371e-06,
+        "v_ne": 4.809371e-06,
+        "v_nc1": 2.28389
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "fs_-40c_3.63v",
+      "process": "fs",
+      "temperature_c": -40.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 81.54218,
+        "f_dc": 0.1,
+        "psrr_1k": 68.58209,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.58209,
+        "psrr_1m": 16.70613,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217544,
+        "v_gdrv": 2.408897,
+        "i_vdd": -2.0709e-05,
+        "v_ng": 5.475603e-06,
+        "v_ne": 5.475603e-06,
+        "v_nc1": 2.400096
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "fs_125c_2.97v",
+      "process": "fs",
+      "temperature_c": 125.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 90.34552,
+        "f_dc": 0.1,
+        "psrr_1k": 68.47287,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.47287,
+        "psrr_1m": 16.02966,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186079,
+        "v_gdrv": 1.91967,
+        "i_vdd": -3.26814e-05,
+        "v_ng": 7.556074e-06,
+        "v_ne": 7.556059e-06,
+        "v_nc1": 1.619105
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "fs_125c_3.30v",
+      "process": "fs",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 86.8864,
+        "f_dc": 0.1,
+        "psrr_1k": 68.79347,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.79347,
+        "psrr_1m": 16.41931,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186081,
+        "v_gdrv": 2.251408,
+        "i_vdd": -3.26839e-05,
+        "v_ng": 8.622139e-06,
+        "v_ne": 8.622121e-06,
+        "v_nc1": 1.742692
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "fs_125c_3.63v",
+      "process": "fs",
+      "temperature_c": 125.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 75.91587,
+        "f_dc": 0.1,
+        "psrr_1k": 68.36485,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.36485,
+        "psrr_1m": 16.78164,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186113,
+        "v_gdrv": 2.583034,
+        "i_vdd": -3.2682e-05,
+        "v_ng": 1.421317e-05,
+        "v_ne": 1.421314e-05,
+        "v_nc1": 1.91312
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "fs_27c_2.97v",
+      "process": "fs",
+      "temperature_c": 27.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 102.5546,
+        "f_dc": 0.1,
+        "psrr_1k": 68.12136,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.12136,
+        "psrr_1m": 15.94947,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210563,
+        "v_gdrv": 1.816109,
+        "i_vdd": -2.59855e-05,
+        "v_ng": 5.033573e-06,
+        "v_ne": 5.033573e-06,
+        "v_nc1": 1.935418
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "fs_27c_3.30v",
+      "process": "fs",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 86.7821,
+        "f_dc": 0.1,
+        "psrr_1k": 68.52456,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.52456,
+        "psrr_1m": 16.38602,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210571,
+        "v_gdrv": 2.147728,
+        "i_vdd": -2.59962e-05,
+        "v_ng": 5.767586e-06,
+        "v_ne": 5.767586e-06,
+        "v_nc1": 2.05668
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "fs_27c_3.63v",
+      "process": "fs",
+      "temperature_c": 27.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 79.6689,
+        "f_dc": 0.1,
+        "psrr_1k": 68.68494,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.68494,
+        "psrr_1m": 16.78808,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210595,
+        "v_gdrv": 2.479264,
+        "i_vdd": -2.59987e-05,
+        "v_ng": 6.510084e-06,
+        "v_ne": 6.510084e-06,
+        "v_nc1": 2.172813
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "sf_-40c_2.97v",
+      "process": "sf",
+      "temperature_c": -40.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 91.14256,
+        "f_dc": 0.1,
+        "psrr_1k": 67.49978,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.49978,
+        "psrr_1m": 15.88891,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.2168,
+        "v_gdrv": 1.572973,
+        "i_vdd": -2.0697e-05,
+        "v_ng": 2.683397e-06,
+        "v_ne": 2.683397e-06,
+        "v_nc1": 2.364789
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "sf_-40c_3.30v",
+      "process": "sf",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 87.0856,
+        "f_dc": 0.1,
+        "psrr_1k": 68.01375,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.01375,
+        "psrr_1m": 16.37359,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.216812,
+        "v_gdrv": 1.904512,
+        "i_vdd": -2.07263e-05,
+        "v_ng": 3.140249e-06,
+        "v_ne": 3.140249e-06,
+        "v_nc1": 2.492407
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "sf_-40c_3.63v",
+      "process": "sf",
+      "temperature_c": -40.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 83.86863,
+        "f_dc": 0.1,
+        "psrr_1k": 68.46842,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.46842,
+        "psrr_1m": 16.81665,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.216829,
+        "v_gdrv": 2.235984,
+        "i_vdd": -2.07387e-05,
+        "v_ng": 3.604007e-06,
+        "v_ne": 3.604007e-06,
+        "v_nc1": 2.613215
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "sf_125c_2.97v",
+      "process": "sf",
+      "temperature_c": 125.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 73.65163,
+        "f_dc": 0.1,
+        "psrr_1k": 67.227,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.227,
+        "psrr_1m": 16.10421,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.189796,
+        "v_gdrv": 1.743215,
+        "i_vdd": -3.28325e-05,
+        "v_ng": 5.628878e-06,
+        "v_ne": 5.62887e-06,
+        "v_nc1": 1.827478
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "sf_125c_3.30v",
+      "process": "sf",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 70.43067,
+        "f_dc": 0.1,
+        "psrr_1k": 66.47835,
+        "f_1k": 1000.0,
+        "psrr_band_min": 66.47835,
+        "psrr_1m": 16.50422,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.189881,
+        "v_gdrv": 2.074953,
+        "i_vdd": -3.28534e-05,
+        "v_ng": 6.30539e-06,
+        "v_ne": 6.305382e-06,
+        "v_nc1": 1.950514
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "sf_125c_3.63v",
+      "process": "sf",
+      "temperature_c": 125.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 68.2512,
+        "f_dc": 0.1,
+        "psrr_1k": 65.64269,
+        "f_1k": 1000.0,
+        "psrr_band_min": 65.64269,
+        "psrr_1m": 16.87636,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.189994,
+        "v_gdrv": 2.406578,
+        "i_vdd": -3.28648e-05,
+        "v_ng": 6.989007e-06,
+        "v_ne": 6.988998e-06,
+        "v_nc1": 2.068884
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "sf_27c_2.97v",
+      "process": "sf",
+      "temperature_c": 27.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 101.6112,
+        "f_dc": 0.1,
+        "psrr_1k": 67.90216,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.90216,
+        "psrr_1m": 16.01926,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.212093,
+        "v_gdrv": 1.641542,
+        "i_vdd": -2.60685e-05,
+        "v_ng": 3.495687e-06,
+        "v_ne": 3.495687e-06,
+        "v_nc1": 2.140217
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "sf_27c_3.30v",
+      "process": "sf",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 89.87033,
+        "f_dc": 0.1,
+        "psrr_1k": 68.34866,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.34866,
+        "psrr_1m": 16.46993,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.212098,
+        "v_gdrv": 1.973175,
+        "i_vdd": -2.60933e-05,
+        "v_ng": 4.040532e-06,
+        "v_ne": 4.040532e-06,
+        "v_nc1": 2.266371
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "sf_27c_3.63v",
+      "process": "sf",
+      "temperature_c": 27.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 82.88446,
+        "f_dc": 0.1,
+        "psrr_1k": 68.67856,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.67856,
+        "psrr_1m": 16.88521,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.212114,
+        "v_gdrv": 2.304724,
+        "i_vdd": -2.61041e-05,
+        "v_ng": 4.592742e-06,
+        "v_ne": 4.592742e-06,
+        "v_nc1": 2.386577
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ss_-40c_2.97v",
+      "process": "ss",
+      "temperature_c": -40.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 95.82841,
+        "f_dc": 0.1,
+        "psrr_1k": 70.02246,
+        "f_1k": 1000.0,
+        "psrr_band_min": 70.02246,
+        "psrr_1m": 15.98317,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217077,
+        "v_gdrv": 1.617008,
+        "i_vdd": -2.04944e-05,
+        "v_ng": 3.700615e-06,
+        "v_ne": 3.700615e-06,
+        "v_nc1": 2.310856
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ss_-40c_3.30v",
+      "process": "ss",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 87.78258,
+        "f_dc": 0.1,
+        "psrr_1k": 71.50975,
+        "f_1k": 1000.0,
+        "psrr_band_min": 71.50975,
+        "psrr_1m": 16.43451,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217086,
+        "v_gdrv": 1.950347,
+        "i_vdd": -2.02951e-05,
+        "v_ng": 4.31862e-06,
+        "v_ne": 4.31862e-06,
+        "v_nc1": 2.436693
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ss_-40c_3.63v",
+      "process": "ss",
+      "temperature_c": -40.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 82.07182,
+        "f_dc": 0.1,
+        "psrr_1k": 72.73193,
+        "f_1k": 1000.0,
+        "psrr_band_min": 72.73193,
+        "psrr_1m": 16.83405,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.217106,
+        "v_gdrv": 2.283945,
+        "i_vdd": -2.00764e-05,
+        "v_ng": 4.945415e-06,
+        "v_ne": 4.945415e-06,
+        "v_nc1": 2.55608
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ss_125c_2.97v",
+      "process": "ss",
+      "temperature_c": 125.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 86.33662,
+        "f_dc": 0.1,
+        "psrr_1k": 72.66206,
+        "f_1k": 1000.0,
+        "psrr_band_min": 72.66206,
+        "psrr_1m": 15.9408,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186754,
+        "v_gdrv": 1.787781,
+        "i_vdd": -3.25593e-05,
+        "v_ng": 7.087999e-06,
+        "v_ne": 7.087986e-06,
+        "v_nc1": 1.774289
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ss_125c_3.30v",
+      "process": "ss",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 84.98196,
+        "f_dc": 0.1,
+        "psrr_1k": 75.25087,
+        "f_1k": 1000.0,
+        "psrr_band_min": 75.25087,
+        "psrr_1m": 16.19036,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186756,
+        "v_gdrv": 2.122309,
+        "i_vdd": -3.23039e-05,
+        "v_ng": 7.929755e-06,
+        "v_ne": 7.92974e-06,
+        "v_nc1": 1.896206
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ss_125c_3.63v",
+      "process": "ss",
+      "temperature_c": 125.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 75.53973,
+        "f_dc": 0.1,
+        "psrr_1k": 74.00401,
+        "f_1k": 1000.0,
+        "psrr_band_min": 74.00401,
+        "psrr_1m": 16.39897,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186792,
+        "v_gdrv": 2.457299,
+        "i_vdd": -3.20431e-05,
+        "v_ng": 8.78293e-06,
+        "v_ne": 8.782914e-06,
+        "v_nc1": 2.013659
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ss_27c_2.97v",
+      "process": "ss",
+      "temperature_c": 27.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 94.80589,
+        "f_dc": 0.1,
+        "psrr_1k": 71.14509,
+        "f_1k": 1000.0,
+        "psrr_band_min": 71.14509,
+        "psrr_1m": 16.02122,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210708,
+        "v_gdrv": 1.685911,
+        "i_vdd": -2.58143e-05,
+        "v_ng": 4.599257e-06,
+        "v_ne": 4.599257e-06,
+        "v_nc1": 2.086634
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ss_27c_3.30v",
+      "process": "ss",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 89.24431,
+        "f_dc": 0.1,
+        "psrr_1k": 73.06388,
+        "f_1k": 1000.0,
+        "psrr_band_min": 73.06388,
+        "psrr_1m": 16.39352,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210711,
+        "v_gdrv": 2.019773,
+        "i_vdd": -2.55783e-05,
+        "v_ng": 5.303636e-06,
+        "v_ne": 5.303636e-06,
+        "v_nc1": 2.211286
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "ss_27c_3.63v",
+      "process": "ss",
+      "temperature_c": 27.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 80.16071,
+        "f_dc": 0.1,
+        "psrr_1k": 74.12669,
+        "f_1k": 1000.0,
+        "psrr_band_min": 74.12669,
+        "psrr_1m": 16.71713,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210732,
+        "v_gdrv": 2.353983,
+        "i_vdd": -2.53295e-05,
+        "v_ng": 6.017013e-06,
+        "v_ne": 6.017013e-06,
+        "v_nc1": 2.330245
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "tt_-40c_2.97v",
+      "process": "tt",
+      "temperature_c": -40.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 90.50404,
+        "f_dc": 0.1,
+        "psrr_1k": 67.62123,
+        "f_1k": 1000.0,
+        "psrr_band_min": 67.62123,
+        "psrr_1m": 15.86957,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.216466,
+        "v_gdrv": 1.659748,
+        "i_vdd": -2.06298e-05,
+        "v_ng": 3.297673e-06,
+        "v_ne": 3.297673e-06,
+        "v_nc1": 2.264123
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "tt_-40c_3.30v",
+      "process": "tt",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 86.5575,
+        "f_dc": 0.1,
+        "psrr_1k": 68.12603,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.12603,
+        "psrr_1m": 16.34662,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.216479,
+        "v_gdrv": 1.991282,
+        "i_vdd": -2.06511e-05,
+        "v_ng": 3.839164e-06,
+        "v_ne": 3.839164e-06,
+        "v_nc1": 2.38872
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "tt_-40c_3.63v",
+      "process": "tt",
+      "temperature_c": -40.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 82.79528,
+        "f_dc": 0.1,
+        "psrr_1k": 68.54228,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.54228,
+        "psrr_1m": 16.78182,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.216498,
+        "v_gdrv": 2.32275,
+        "i_vdd": -2.06592e-05,
+        "v_ng": 4.38813e-06,
+        "v_ne": 4.38813e-06,
+        "v_nc1": 2.50712
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "tt_125c_2.97v",
+      "process": "tt",
+      "temperature_c": 125.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 131.2892,
+        "f_dc": 0.1,
+        "psrr_1k": 68.418,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.418,
+        "psrr_1m": 16.08295,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186537,
+        "v_gdrv": 1.831834,
+        "i_vdd": -3.26719e-05,
+        "v_ng": 6.50022e-06,
+        "v_ne": 6.500209e-06,
+        "v_nc1": 1.723698
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "tt_125c_3.30v",
+      "process": "tt",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 82.14781,
+        "f_dc": 0.1,
+        "psrr_1k": 68.58651,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.58651,
+        "psrr_1m": 16.47819,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.186551,
+        "v_gdrv": 2.163578,
+        "i_vdd": -3.26816e-05,
+        "v_ng": 7.262562e-06,
+        "v_ne": 7.262551e-06,
+        "v_nc1": 1.84484
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "tt_125c_3.63v",
+      "process": "tt",
+      "temperature_c": 125.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 75.43412,
+        "f_dc": 0.1,
+        "psrr_1k": 68.24151,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.24151,
+        "psrr_1m": 16.84607,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.18659,
+        "v_gdrv": 2.49521,
+        "i_vdd": -3.26844e-05,
+        "v_ng": 8.073053e-06,
+        "v_ne": 8.07304e-06,
+        "v_nc1": 1.962485
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "tt_27c_2.97v",
+      "process": "tt",
+      "temperature_c": 27.0,
+      "supply_v": 2.97,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 121.5018,
+        "f_dc": 0.1,
+        "psrr_1k": 68.01825,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.01825,
+        "psrr_1m": 16.00219,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.21033,
+        "v_gdrv": 1.729179,
+        "i_vdd": -2.5954e-05,
+        "v_ng": 4.166961e-06,
+        "v_ne": 4.166961e-06,
+        "v_nc1": 2.038427
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "tt_27c_3.30v",
+      "process": "tt",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 88.61886,
+        "f_dc": 0.1,
+        "psrr_1k": 68.44849,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.44849,
+        "psrr_1m": 16.44597,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210337,
+        "v_gdrv": 2.060804,
+        "i_vdd": -2.59712e-05,
+        "v_ng": 4.794965e-06,
+        "v_ne": 4.794965e-06,
+        "v_nc1": 2.162021
+      }
+    },
+    {
+      "variant": "ref3_ngclamp",
+      "corner_id": "tt_27c_3.63v",
+      "process": "tt",
+      "temperature_c": 27.0,
+      "supply_v": 3.63,
+      "ngspice_exit": 0,
+      "timed_out": false,
+      "measurements": {
+        "psrr_dc": 81.45464,
+        "f_dc": 0.1,
+        "psrr_1k": 68.71467,
+        "f_1k": 1000.0,
+        "psrr_band_min": 68.71467,
+        "psrr_1m": 16.85457,
+        "f_1m": 1000000.0,
+        "n_ac_points": 71.0,
+        "v_vref": 1.210356,
+        "v_gdrv": 2.392347,
+        "i_vdd": -2.59776e-05,
+        "v_ng": 5.430816e-06,
+        "v_ne": 5.430816e-06,
+        "v_nc1": 2.280111
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "sweep_guards[base/ff_-40c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ff_-40c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ff_-40c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ff_125c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ff_125c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ff_125c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ff_27c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ff_27c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ff_27c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/fs_-40c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/fs_-40c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/fs_-40c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/fs_125c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/fs_125c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/fs_125c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/fs_27c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/fs_27c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/fs_27c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/sf_-40c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/sf_-40c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/sf_-40c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/sf_125c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/sf_125c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/sf_125c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/sf_27c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/sf_27c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/sf_27c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ss_-40c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ss_-40c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ss_-40c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ss_125c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ss_125c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ss_125c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ss_27c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ss_27c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/ss_27c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/tt_-40c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/tt_-40c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/tt_-40c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/tt_125c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/tt_125c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/tt_125c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/tt_27c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/tt_27c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[base/tt_27c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ff_-40c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ff_-40c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ff_-40c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ff_125c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ff_125c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ff_125c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ff_27c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ff_27c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ff_27c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/fs_-40c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/fs_-40c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/fs_-40c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/fs_125c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/fs_125c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/fs_125c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/fs_27c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/fs_27c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/fs_27c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/sf_-40c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/sf_-40c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/sf_-40c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/sf_125c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/sf_125c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/sf_125c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/sf_27c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/sf_27c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/sf_27c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ss_-40c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ss_-40c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ss_-40c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ss_125c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ss_125c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ss_125c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ss_27c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ss_27c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/ss_27c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/tt_-40c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/tt_-40c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/tt_-40c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/tt_125c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/tt_125c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/tt_125c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/tt_27c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/tt_27c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3/tt_27c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ff_-40c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ff_-40c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ff_-40c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ff_125c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ff_125c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ff_125c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ff_27c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ff_27c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ff_27c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/fs_-40c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/fs_-40c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/fs_-40c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/fs_125c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/fs_125c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/fs_125c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/fs_27c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/fs_27c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/fs_27c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/sf_-40c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/sf_-40c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/sf_-40c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/sf_125c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/sf_125c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/sf_125c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/sf_27c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/sf_27c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/sf_27c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ss_-40c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ss_-40c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ss_-40c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ss_125c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ss_125c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ss_125c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ss_27c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ss_27c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/ss_27c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/tt_-40c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/tt_-40c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/tt_-40c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/tt_125c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/tt_125c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/tt_125c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/tt_27c_2.97v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/tt_27c_3.30v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "sweep_guards[ref3_ngclamp/tt_27c_3.63v]",
+      "pass": true,
+      "detail": "n_ac_points=71.0 f_dc=0.1 f_1k=1000.0 f_1m=1000000.0 (expect 71 / 0.1 Hz / 1 kHz / 1 MHz)"
+    },
+    {
+      "name": "base_reproduces_cited_record[tt_-40c_2.97v]",
+      "pass": true,
+      "detail": "base psrr_band_min=63.596 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 63.596 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[tt_-40c_3.30v]",
+      "pass": true,
+      "detail": "base psrr_band_min=59.656 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 59.656 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[tt_-40c_3.63v]",
+      "pass": true,
+      "detail": "base psrr_band_min=56.162 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 56.162 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[tt_27c_2.97v]",
+      "pass": true,
+      "detail": "base psrr_band_min=60.593 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 60.593 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[tt_27c_3.30v]",
+      "pass": true,
+      "detail": "base psrr_band_min=58.489 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 58.489 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[tt_27c_3.63v]",
+      "pass": true,
+      "detail": "base psrr_band_min=56.405 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 56.405 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[tt_125c_2.97v]",
+      "pass": true,
+      "detail": "base psrr_band_min=68.617 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 68.617 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[tt_125c_3.30v]",
+      "pass": true,
+      "detail": "base psrr_band_min=57.792 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 57.792 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[tt_125c_3.63v]",
+      "pass": true,
+      "detail": "base psrr_band_min=33.411 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 33.411 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ss_-40c_2.97v]",
+      "pass": true,
+      "detail": "base psrr_band_min=68.842 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 68.842 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ss_-40c_3.30v]",
+      "pass": true,
+      "detail": "base psrr_band_min=67.573 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 67.573 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ss_-40c_3.63v]",
+      "pass": true,
+      "detail": "base psrr_band_min=64.977 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 64.977 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ss_27c_2.97v]",
+      "pass": true,
+      "detail": "base psrr_band_min=67.611 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 67.611 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ss_27c_3.30v]",
+      "pass": true,
+      "detail": "base psrr_band_min=66.0 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 66.0 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ss_27c_3.63v]",
+      "pass": true,
+      "detail": "base psrr_band_min=63.853 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 63.853 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ss_125c_2.97v]",
+      "pass": true,
+      "detail": "base psrr_band_min=73.025 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 73.025 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ss_125c_3.30v]",
+      "pass": true,
+      "detail": "base psrr_band_min=69.714 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 69.714 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ss_125c_3.63v]",
+      "pass": true,
+      "detail": "base psrr_band_min=43.618 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 43.618 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ff_-40c_2.97v]",
+      "pass": true,
+      "detail": "base psrr_band_min=54.919 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 54.919 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ff_-40c_3.30v]",
+      "pass": true,
+      "detail": "base psrr_band_min=49.257 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 49.257 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ff_-40c_3.63v]",
+      "pass": true,
+      "detail": "base psrr_band_min=45.402 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 45.402 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ff_27c_2.97v]",
+      "pass": true,
+      "detail": "base psrr_band_min=52.307 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 52.307 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ff_27c_3.30v]",
+      "pass": true,
+      "detail": "base psrr_band_min=49.981 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 49.981 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ff_27c_3.63v]",
+      "pass": true,
+      "detail": "base psrr_band_min=45.967 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 45.967 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ff_125c_2.97v]",
+      "pass": true,
+      "detail": "base psrr_band_min=64.913 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 64.913 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ff_125c_3.30v]",
+      "pass": true,
+      "detail": "base psrr_band_min=36.103 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 36.103 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[ff_125c_3.63v]",
+      "pass": true,
+      "detail": "base psrr_band_min=24.779 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 24.779 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[sf_-40c_2.97v]",
+      "pass": true,
+      "detail": "base psrr_band_min=45.103 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 45.103 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[sf_-40c_3.30v]",
+      "pass": true,
+      "detail": "base psrr_band_min=38.904 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 38.904 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[sf_-40c_3.63v]",
+      "pass": true,
+      "detail": "base psrr_band_min=34.795 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 34.795 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[sf_27c_2.97v]",
+      "pass": true,
+      "detail": "base psrr_band_min=43.946 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 43.946 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[sf_27c_3.30v]",
+      "pass": true,
+      "detail": "base psrr_band_min=41.643 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 41.643 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[sf_27c_3.63v]",
+      "pass": true,
+      "detail": "base psrr_band_min=39.678 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 39.678 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[sf_125c_2.97v]",
+      "pass": true,
+      "detail": "base psrr_band_min=68.214 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 68.214 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[sf_125c_3.30v]",
+      "pass": true,
+      "detail": "base psrr_band_min=64.079 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 64.079 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[sf_125c_3.63v]",
+      "pass": true,
+      "detail": "base psrr_band_min=42.437 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 42.437 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[fs_-40c_2.97v]",
+      "pass": true,
+      "detail": "base psrr_band_min=67.506 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 67.506 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[fs_-40c_3.30v]",
+      "pass": true,
+      "detail": "base psrr_band_min=67.665 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 67.665 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[fs_-40c_3.63v]",
+      "pass": true,
+      "detail": "base psrr_band_min=67.431 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 67.431 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[fs_27c_2.97v]",
+      "pass": true,
+      "detail": "base psrr_band_min=67.539 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 67.539 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[fs_27c_3.30v]",
+      "pass": true,
+      "detail": "base psrr_band_min=67.377 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 67.377 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[fs_27c_3.63v]",
+      "pass": true,
+      "detail": "base psrr_band_min=62.294 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 62.294 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[fs_125c_2.97v]",
+      "pass": true,
+      "detail": "base psrr_band_min=66.009 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 66.009 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[fs_125c_3.30v]",
+      "pass": true,
+      "detail": "base psrr_band_min=47.031 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 47.031 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "base_reproduces_cited_record[fs_125c_3.63v]",
+      "pass": true,
+      "detail": "base psrr_band_min=38.795 dB vs sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e 38.795 dB (tolerance 0.5 dB)"
+    },
+    {
+      "name": "candidate_clears_floor[tt_-40c_2.97v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=67.621 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[tt_-40c_3.30v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.126 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[tt_-40c_3.63v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.542 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[tt_27c_2.97v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.018 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[tt_27c_3.30v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.448 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[tt_27c_3.63v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.715 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[tt_125c_2.97v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.418 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[tt_125c_3.30v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.587 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[tt_125c_3.63v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.242 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ss_-40c_2.97v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=70.022 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ss_-40c_3.30v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=71.51 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ss_-40c_3.63v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=72.732 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ss_27c_2.97v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=71.145 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ss_27c_3.30v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=73.064 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ss_27c_3.63v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=74.127 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ss_125c_2.97v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=72.662 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ss_125c_3.30v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=75.251 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ss_125c_3.63v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=74.004 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ff_-40c_2.97v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=67.556 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ff_-40c_3.30v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.056 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ff_-40c_3.63v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.449 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ff_27c_2.97v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=67.942 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ff_27c_3.30v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.359 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ff_27c_3.63v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.578 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ff_125c_2.97v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.105 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ff_125c_3.30v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=67.878 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[ff_125c_3.63v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=67.048 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[sf_-40c_2.97v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=67.5 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[sf_-40c_3.30v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.014 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[sf_-40c_3.63v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.468 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[sf_27c_2.97v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=67.902 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[sf_27c_3.30v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.349 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[sf_27c_3.63v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.679 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[sf_125c_2.97v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=67.227 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[sf_125c_3.30v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=66.478 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[sf_125c_3.63v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=65.643 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[fs_-40c_2.97v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=67.732 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[fs_-40c_3.30v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.221 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[fs_-40c_3.63v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.582 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[fs_27c_2.97v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.121 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[fs_27c_3.30v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.525 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[fs_27c_3.63v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.685 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[fs_125c_2.97v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.473 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[fs_125c_3.30v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.793 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_clears_floor[fs_125c_3.63v]",
+      "pass": true,
+      "detail": "`ref3_ngclamp` psrr_band_min=68.365 dB vs >= 60.0 dB (DR-006)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[tt_-40c_2.97v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 67.44 dB - `ref3_ngclamp` 67.621 dB = -0.181 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[tt_-40c_3.30v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 67.939 dB - `ref3_ngclamp` 68.126 dB = -0.187 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[tt_-40c_3.63v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.352 dB - `ref3_ngclamp` 68.542 dB = -0.19 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[tt_27c_2.97v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 67.831 dB - `ref3_ngclamp` 68.018 dB = -0.187 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[tt_27c_3.30v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.258 dB - `ref3_ngclamp` 68.448 dB = -0.191 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[tt_27c_3.63v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.527 dB - `ref3_ngclamp` 68.715 dB = -0.187 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[tt_125c_2.97v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.09 dB - `ref3_ngclamp` 68.418 dB = -0.328 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[tt_125c_3.30v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.565 dB - `ref3_ngclamp` 68.587 dB = -0.021 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[tt_125c_3.63v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.613 dB - `ref3_ngclamp` 68.242 dB = 0.371 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ss_-40c_2.97v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 69.766 dB - `ref3_ngclamp` 70.022 dB = -0.256 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ss_-40c_3.30v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 71.213 dB - `ref3_ngclamp` 71.51 dB = -0.296 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ss_-40c_3.63v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 72.411 dB - `ref3_ngclamp` 72.732 dB = -0.321 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ss_27c_2.97v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 70.858 dB - `ref3_ngclamp` 71.145 dB = -0.287 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ss_27c_3.30v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 72.718 dB - `ref3_ngclamp` 73.064 dB = -0.346 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ss_27c_3.63v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 73.791 dB - `ref3_ngclamp` 74.127 dB = -0.336 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ss_125c_2.97v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 72.013 dB - `ref3_ngclamp` 72.662 dB = -0.649 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ss_125c_3.30v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 75.176 dB - `ref3_ngclamp` 75.251 dB = -0.075 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ss_125c_3.63v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 75.061 dB - `ref3_ngclamp` 74.004 dB = 1.057 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ff_-40c_2.97v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 67.387 dB - `ref3_ngclamp` 67.556 dB = -0.17 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ff_-40c_3.30v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 67.88 dB - `ref3_ngclamp` 68.056 dB = -0.175 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ff_-40c_3.63v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.271 dB - `ref3_ngclamp` 68.449 dB = -0.178 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ff_27c_2.97v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 67.767 dB - `ref3_ngclamp` 67.942 dB = -0.175 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ff_27c_3.30v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.182 dB - `ref3_ngclamp` 68.359 dB = -0.176 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ff_27c_3.63v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.409 dB - `ref3_ngclamp` 68.578 dB = -0.169 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ff_125c_2.97v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.051 dB - `ref3_ngclamp` 68.105 dB = -0.054 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ff_125c_3.30v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.474 dB - `ref3_ngclamp` 67.878 dB = 0.596 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[ff_125c_3.63v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.413 dB - `ref3_ngclamp` 67.048 dB = 1.365 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[sf_-40c_2.97v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 67.339 dB - `ref3_ngclamp` 67.5 dB = -0.161 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[sf_-40c_3.30v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 67.848 dB - `ref3_ngclamp` 68.014 dB = -0.166 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[sf_-40c_3.63v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.298 dB - `ref3_ngclamp` 68.468 dB = -0.17 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[sf_27c_2.97v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 67.735 dB - `ref3_ngclamp` 67.902 dB = -0.168 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[sf_27c_3.30v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.183 dB - `ref3_ngclamp` 68.349 dB = -0.165 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[sf_27c_3.63v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.521 dB - `ref3_ngclamp` 68.679 dB = -0.158 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[sf_125c_2.97v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 67.916 dB - `ref3_ngclamp` 67.227 dB = 0.689 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[sf_125c_3.30v]",
+      "pass": false,
+      "detail": "sim/psrr-dc row 4a 68.496 dB - `ref3_ngclamp` 66.478 dB = 2.018 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[sf_125c_3.63v]",
+      "pass": false,
+      "detail": "sim/psrr-dc row 4a 68.704 dB - `ref3_ngclamp` 65.643 dB = 3.062 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[fs_-40c_2.97v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 67.533 dB - `ref3_ngclamp` 67.732 dB = -0.199 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[fs_-40c_3.30v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.016 dB - `ref3_ngclamp` 68.221 dB = -0.205 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[fs_-40c_3.63v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.376 dB - `ref3_ngclamp` 68.582 dB = -0.206 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[fs_27c_2.97v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 67.916 dB - `ref3_ngclamp` 68.121 dB = -0.206 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[fs_27c_3.30v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.315 dB - `ref3_ngclamp` 68.525 dB = -0.209 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[fs_27c_3.63v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.483 dB - `ref3_ngclamp` 68.685 dB = -0.202 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[fs_125c_2.97v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.221 dB - `ref3_ngclamp` 68.473 dB = -0.252 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[fs_125c_3.30v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.606 dB - `ref3_ngclamp` 68.793 dB = -0.187 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "candidate_within_bare_core_ceiling[fs_125c_3.63v]",
+      "pass": true,
+      "detail": "sim/psrr-dc row 4a 68.413 dB - `ref3_ngclamp` 68.365 dB = 0.048 dB (must be <= 2.0 dB)"
+    },
+    {
+      "name": "base_still_fails_somewhere",
+      "pass": true,
+      "detail": "`base` FAILs 24/45 corners, worst 24.779 dB at `ff_125c_3.63v` (this record's argument for the extra device(s) depends on this being > 0)"
+    },
+    {
+      "name": "ref3_still_fails_somewhere",
+      "pass": true,
+      "detail": "`ref3` FAILs 18/45 corners, worst 30.345 dB at `sf_-40c_3.63v` (this record's argument for the extra device(s) depends on this being > 0)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[tt_-40c_2.97v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.4926 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[tt_-40c_3.30v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.5123 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[tt_-40c_3.63v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.5247 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[tt_27c_2.97v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.3372 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[tt_27c_3.30v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.3454 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[tt_27c_3.63v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.3521 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[tt_125c_2.97v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.0008 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[tt_125c_3.30v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.0009 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[tt_125c_3.63v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.001 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ss_-40c_2.97v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.4896 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ss_-40c_3.30v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.5107 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ss_-40c_3.63v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.5238 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ss_27c_2.97v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.3362 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ss_27c_3.30v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.3447 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ss_27c_3.63v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.3516 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ss_125c_2.97v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.0008 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ss_125c_3.30v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.0008 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ss_125c_3.63v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.0009 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ff_-40c_2.97v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.4954 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ff_-40c_3.30v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.5139 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ff_-40c_3.63v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.5257 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ff_27c_2.97v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.3381 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ff_27c_3.30v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.3461 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ff_27c_3.63v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.3527 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ff_125c_2.97v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.0008 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ff_125c_3.30v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.0009 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[ff_125c_3.63v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.001 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[sf_-40c_2.97v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.4853 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[sf_-40c_3.30v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.5077 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[sf_-40c_3.63v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.5212 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[sf_27c_2.97v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.3339 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[sf_27c_3.30v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.3426 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[sf_27c_3.63v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.3496 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[sf_125c_2.97v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.0007 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[sf_125c_3.30v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.0008 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[sf_125c_3.63v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.0009 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[fs_-40c_2.97v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.4991 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[fs_-40c_3.30v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.5169 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[fs_-40c_3.63v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.5287 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[fs_27c_2.97v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.3398 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[fs_27c_3.30v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.3477 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[fs_27c_3.63v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.354 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[fs_125c_2.97v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.0008 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[fs_125c_3.30v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.0009 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    },
+    {
+      "name": "ng_clamp_holds_mni_off[fs_125c_3.63v]",
+      "pass": true,
+      "detail": "v(NG) ref3=0.0015 V -> `ref3_ngclamp`=0.0 V (must be <= 0.05 V and below `ref3`'s)"
+    }
+  ],
+  "overall_pass": false,
+  "links": {
+    "base_snapshot": "sim/psrr-dc-with-injector/netlist-snapshots/20260923-124813-af9ff1e.spice",
+    "cited_record": "sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e.json",
+    "ceiling_record": "sim/psrr-dc/records/20260909-232410-e8e2e46.json",
+    "attribution": "sim/psrr-injector-attribution/",
+    "companion_manifest": "sim/psrr-dc-with-injector/experiment.json",
+    "runner": "sim/psrr-injector-candidates/run_psrr_injector_candidates.py"
+  }
+}
