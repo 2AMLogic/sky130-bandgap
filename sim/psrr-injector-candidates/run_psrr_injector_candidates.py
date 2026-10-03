@@ -196,8 +196,10 @@ class Edit:
     `insert`    -- insert a literal card after `anchor`'s card.
     """
 
-    def __init__(self, anchor: str, *, retarget=None, clone=None, nodes=None, insert=None):
+    def __init__(self, anchor: str, *, retarget=None, clone=None, nodes=None, insert=None,
+                 set_line=None):
         self.anchor = anchor
+        self.set_line = set_line
         self.retarget = retarget
         self.clone = clone
         self.nodes = nodes
@@ -246,7 +248,21 @@ VARIANTS = (
         costs="two added devices, no resize; same `itrav_min` trade as `ngclamp`",
     ),
 )
-VARIANTS_BY_NAME = {v.name: v for v in VARIANTS}
+def _knob(name: str, anchor: str, value: str, base_edits=NGCLAMP_EDITS) -> Variant:
+    return Variant(
+        name, base_edits + (Edit(anchor, set_line=f"{anchor}{value}"),),
+        what=f"`MNG` clamp with `{anchor}{value}` (a multiplicity/knob change on the shipped two-high body)",
+        costs="added `MNG`; knob change trades running conduction against eviction margin",
+    )
+
+
+EXTRA_VARIANTS = (
+    _knob("ng_mref0p5", ".param m_ref=", "0.5"),
+    _knob("ng_mref0p25", ".param m_ref=", "0.25"),
+    _knob("ng_mpnp4", ".param m_pnp=", "4"),
+    _knob("ng_mpnp16", ".param m_pnp=", "16"),
+)
+VARIANTS_BY_NAME = {v.name: v for v in VARIANTS + EXTRA_VARIANTS}
 
 #: The candidate this record is primarily about, and the one whose per-corner
 #: DR-006 verdict is a check rather than a reported number.
@@ -296,6 +312,9 @@ def variant_body(base: list[str], variant: Variant) -> list[str]:
     body = list(base)
     for edit in variant.edits:
         i = _anchor_index(body, edit.anchor, variant.name)
+        if edit.set_line is not None:
+            body[i] = edit.set_line
+            continue
         name, _nodes, rest = _split_card(body[i])
         if edit.retarget is not None:
             body[i] = " ".join([name, *edit.retarget, rest])
