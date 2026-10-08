@@ -142,3 +142,9 @@ face value, the untrimmed lever is an integer `n_r2` worth ≈ 8.9 mV per step:
 `fs`) while pushing the *schematic* `vref_max` over the 1.224 V ceiling at 6 of
 15 (process, supply) points. There is no integer `n_r2` at which both
 representations sit inside DR-005's window while a 17 mV offset separates them.
+
+## Experiment description and record history
+
+Moved verbatim from the "Experiments that do not go through the corner runner" table in `sim/README.md` (issue #339). The newest entry under `records/` is authoritative for the current verdict; the text below was written when the cited records were current.
+
+**Post-layout (`provenance: extracted`) re-run of `sim/output-voltage-tc`'s claim (issue #16)** against the routed, LVS-clean `layout/bandgap-core/` GDS (issue #62) instead of `design/bandgap_core.sch` — the DUT body is not something xschem-netlisting a schematic can produce, since it comes from `klt extract --parasitics` (real per-net routing RC) with its generic LVS device-class placeholders translated to simulatable sky130 vendor models; see `sim/bin/post_layout_common.py`'s module docstring for the full translation methodology (including a discovered, worked-around ngspice/sky130-BSIM-binning unit-suffix quirk) and `sim/output-voltage-tc-post-layout/records/` for the evidence. Wraps `sim/output-voltage-tc/testbench/tb_vref_tc.sch` unmodified (same body-substitution convention as the two rows above), swapping the netlisted `.subckt bandgap_core`/`.subckt error_amp` blocks for the translated, extracted layout instead of a resistor-array edit

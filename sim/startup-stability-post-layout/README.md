@@ -205,3 +205,32 @@ rather than a delta against `20260909-232410-e8e2e46`.
 
 Per this repo's append-only convention, the sections above are left exactly as
 written — this is a dated addendum, not a rewrite.
+
+## Experiment description and record history
+
+Moved verbatim from the "Experiments that do not go through the corner runner" table in `sim/README.md` (issue #339). The newest entry under `records/` is authoritative for the current verdict; the text below was written when the cited records were current.
+
+**RESTRUCTURED by issue #299 — this is one of only two post-layout benches that does NOT wrap its schematic-level sibling.** It carries its own `testbench/tb_startup_stability_pl.sch` and its own `experiment.json`. The DUT is the **composed cell alone**: `design/bandgap_core.sym` instances only (XSW forced, XDUT free-running), with no `design/startup_injector.sym` anywhere in the deck, because since issue #285 the extracted body supplies the injector itself. The manifest **drops** the six measurements that were readings on or differences against a bare-core control instance (`imin_off_bare`, `i_off_bare`, `ncross_bare`, `dvref`, `i_standing`, `i_su_standing`) — a drawn monolithic cell cannot express such a control, and a schematic-netlisted bare core placed alongside an extracted one would mix "what the injector costs" with "what the extraction costs". Those claims stay at schematic level (report row 8a). What replaces the delta is a bound plus a precondition: `imin_off_su` ≥ 1e-8 A and `i_off_su` ≥ 1e-6 A are the bare core's failure mode stated as a floor, and `post_layout_common.require_layout_draws_injector()` refuses the run outright against a layout record whose LVS reference netlist does not state the injector's six device cards (`MMPC1`, `MMPC2`, `MMNS`, `MMNI`, `MMNC`, `QQS`) (the mirror image of the `refuse_if_layout_draws_injector()` guard it replaces). Current record `20260924-041313-999407b`, `Overall: PASS` 8/8, against layout record `20260923-070209-dbd57a9`; report row 8b. Historical description (the pre-#299 mixed-provenance shape, which produced every earlier record here): **Post-layout (`provenance: extracted`) re-run of `sim/startup-stability`'s degenerate-state / single-equilibrium claim (issue #16, the first of the two remaining "#10 startup/degenerate-state checks" increments)** — a MIXED-provenance DUT, not all-extracted like the six rows above: the extracted, translated `bandgap_core` swaps in for every `design/bandgap_core.sym` instance, but `design/startup_injector.sch` stays netlisted unmodified since it has no layout yet (`layout/bandgap-core/` composes core + amplifier only). Worst-corner 8-point SUBSET (process in {ff, ss} x temperature in {-40, 125} C x supply in {2.97, 3.63} V — issue #16's Acceptance Criteria phrase this bullet "at worst corners", unlike the full-matrix "#11 testbench suite" bullet). `Overall: PASS`, 8/8 — exactly one DC operating point at every corner, the degenerate zero-current state actively driven away from by microamps. Its own worst injector-attach cost (`dvref`) is +15.5 mV at `ff/125 C/3.63 V`, well inside the bench's ±20 mV bound but nearly double the schematic-level design's own +8.70 mV worst case (record `20260803-204236-f41373d`) — a real, documented divergence, see its `README.md`. This pair of benches is also where a `sim/bin/post_layout_common.py` `strip_schematic_subckts()` bug was found and fixed: a lazy-wildcard header-matching gap could let stripping `error_amp` collaterally delete the `startup_injector` block sandwiched between it and `bandgap_core` in netlisting order — see that function's docstring
+
+### Note shared with `sim/startup-ramp-post-layout/` (moved verbatim from `sim/README.md`)
+
+Both `startup-stability-post-layout` and `startup-ramp-post-layout` needed no
+new body-assembly code beyond the bugfix above: `build_extracted_body()`'s
+`.subckt`-scoped `strip_schematic_subckts()` already only removes the NAMED
+`bandgap_core`/`error_amp` blocks, so a testbench that also netlists
+`design/startup_injector.sym` (untouched by that name) gets a correct mixed
+extracted-core/schematic-injector body for free once the collateral-deletion
+bug above is fixed — no separate mixed-provenance assembly path was required
+after all. This closes out issue #16's own "Adding the remaining post-layout
+re-runs" note that used to live here.
+
+**Superseded by issue #285/#299, kept for the record.** The paragraph above
+describes a construction that no longer exists: the composed cell draws the
+injector now, so there is no schematic injector left to assemble alongside the
+extracted core, and both benches instantiate `design/bandgap_core.sym` alone.
+`build_extracted_body()` and `strip_schematic_subckts()` are unchanged and the
+bugfix they carry is still load-bearing for every other bench — what changed is
+only that these two benches no longer exercise the mixed case. The DUT-shape
+decision and what it costs are stated in each bench's own `experiment.json`
+("WHY THIS MANIFEST EXISTS" / "DROPPED MEASUREMENTS") and in
+`design/block-characterization-report.md`'s 2026-09-24 revision entry.
