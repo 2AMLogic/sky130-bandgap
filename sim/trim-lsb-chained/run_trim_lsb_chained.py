@@ -66,6 +66,12 @@ klt (0.5.0) does not, so this script appends `v(vref)` to that `.save` line
 in the request netlist (otherwise `v(vref)` is not found and every
 measurement is empty).
 
+DR-005 qualification (issue #333): DR-002's checks above are engineering/scoping
+criteria. The ratified DR-005 Trim row (range >= +/-5 % of 1.20 V, resolution
+<= 0.25 %/step, >= 5 bits equivalent) is graded separately by `qualify_dr005()`
+and never changes `overall_pass`; `--qualify-dr005 <record.json>` mints the
+append-only derived qualification record from an existing record's results.
+
 Usage
 -----
     sim/trim-lsb-chained/run_trim_lsb_chained.py             # full batch run
@@ -81,6 +87,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import re
 import shutil
 import sys
@@ -532,6 +539,285 @@ def corner_summary(results: dict, config: str, proc: str, supply: float) -> dict
 
 
 # --------------------------------------------------------------------------
+# DR-005 qualification (issue #333) -- graded SEPARATELY from DR-002 above
+# --------------------------------------------------------------------------
+# DR-002 is an engineering/scoping decision (downward-only trim, graded for
+# monotonicity, span vs the MC spread and LSB vs the +/-1 % window). DR-005 is
+# the ratified spec row:
+#
+#   Trim: 1-point resistor trim (binary-weighted segments, res_high_po),
+#   range >= +/-5 %, resolution <= 0.25 %/step (>=5 bits equiv.), magnitude
+#   only; performed at 27 C.            (spec/decision-records/DR-005-...)
+#
+# Nothing here feeds `evaluate()`/`overall_pass`: a DR-002 engineering PASS
+# and a DR-005 FAIL are two different true statements about the same data.
+# No threshold is relaxed; see MAGNITUDE_ONLY_NOTE for the one wording
+# question that is disclosed rather than ruled on.
+DR005_NOMINAL_V = 1.20
+DR005_RANGE_FRACTION = 0.05  # +/-5 % of the specified 1.20 V -> 60 mV each direction
+DR005_RESOLUTION_PCT = 0.25  # <= 0.25 % of 1.20 V per adjacent-code step -> 3.0 mV
+DR005_MIN_BITS = 5.0  # >= 5 bits equivalent -> >= 32 effective codes
+DR005_TOL_V = 1e-9  # 1 nV: float slack so exact-boundary values grade as the spec says
+DR005_RECORD_SUFFIX = "dr005-qualification"
+
+DR005_REQUIREMENTS = ("range_up", "range_down", "resolution", "code_coverage")
+
+MAGNITUDE_ONLY_NOTE = (
+    "DR-005's Trim row ends 'magnitude only'. It does not define the phrase. This grader reads it as: the trim "
+    "adjusts the DC MAGNITUDE of VREF only (it is not a temperature-coefficient or curvature trim), and it "
+    "does NOT read it as permission for one-sided (unipolar) trim, because the same row states the range as "
+    "'+/-5 %', i.e. both directions. Under that reading the range requirement is 60 mV up AND 60 mV down "
+    "from the 27 C untrimmed (code 0) point at 1.20 V. NARROW OPERATOR QUESTION (not decided here, range NOT "
+    "waived): does 'magnitude only' intend to allow a one-sided trim, so that only one direction need reach "
+    "5 %? The verdict on this evidence does not depend on the answer: the demonstrated downward movement "
+    "(about 3.2 % of 1.20 V) is itself below 5 %, so range FAILS under either reading; only the up-direction "
+    "line would change, from FAIL to not-applicable."
+)
+
+
+def _dr005_corner(series: dict[int, float | None], codes) -> dict:
+    """Metrics for one corner. `series` maps code -> vref_27 (None/absent = missing)."""
+    missing = [c for c in codes if series.get(c) is None]
+    if missing:
+        return {"complete": False, "missing_codes": missing}
+    ordered = sorted(codes)
+    v = {c: float(series[c]) for c in ordered}
+    base = v[0]  # code 0 = the untrimmed starting point; trim range is movement from it
+    up_v = max(v.values()) - base
+    down_v = base - min(v.values())
+    steps = [abs(v[b] - v[a]) for a, b in zip(ordered, ordered[1:])]
+    signed = [v[b] - v[a] for a, b in zip(ordered, ordered[1:])]
+    # effective levels: codes on the longest strictly monotonic run (a repeated or reversed
+    # level adds no resolvable trim position)
+    best = run = 1
+    for s in signed:
+        run = run + 1 if s > 0 else 1
+        best = max(best, run)
+    return {
+        "complete": True,
+        "n_codes": len(ordered),
+        "n_codes_up": sum(1 for c in ordered if c > 0),
+        "n_codes_down": sum(1 for c in ordered if c < 0),
+        "v_code0": base,
+        "up_mv": up_v * 1000,
+        "down_mv": down_v * 1000,
+        "up_pct": up_v / DR005_NOMINAL_V * 100,
+        "down_pct": down_v / DR005_NOMINAL_V * 100,
+        "reach_up_mv": (max(v.values()) - DR005_NOMINAL_V) * 1000,
+        "reach_down_mv": (DR005_NOMINAL_V - min(v.values())) * 1000,
+        "max_step_mv": max(steps) * 1000,
+        "max_step_pct": max(steps) / DR005_NOMINAL_V * 100,
+        "effective_codes": best,
+        "effective_bits": math.log2(best) if best > 0 else 0.0,
+    }
+
+
+def qualify_dr005(results: dict, config: str = GRADED_CONFIG, codes=CHAINED_CODES) -> dict:
+    """Grade the literal DR-005 Trim row from `results` ({(config, proc, supply, code): {...}}).
+
+    Per requirement the verdict is PASS, FAIL or INSUFFICIENT_EVIDENCE (a corner has missing
+    values and nothing already fails); FAIL dominates INSUFFICIENT_EVIDENCE. `results` values
+    may carry vref_27=None.
+    """
+    corners: dict[str, dict] = {}
+    for supply in SUPPLIES:
+        for proc in PROCESSES:
+            series = {c: (results.get((config, proc, supply, c)) or {}).get("vref_27") for c in codes}
+            corners[f"{proc}_{supply:.2f}v"] = _dr005_corner(series, codes)
+    done = [c for c in corners.values() if c["complete"]]
+    n_incomplete = len(corners) - len(done)
+
+    need_v = DR005_RANGE_FRACTION * DR005_NOMINAL_V
+    res_v = DR005_RESOLUTION_PCT / 100 * DR005_NOMINAL_V
+    min_codes = math.ceil(2 ** DR005_MIN_BITS - 1e-12)
+
+    def verdict(fails: bool, any_data: bool) -> str:
+        if fails:
+            return "FAIL"
+        return "PASS" if any_data and not n_incomplete else "INSUFFICIENT_EVIDENCE"
+
+    def worst(key, fn):
+        return fn(c[key] for c in done) if done else None
+
+    req: dict[str, dict] = {}
+    for tag, key in (("range_up", "up_mv"), ("range_down", "down_mv")):
+        w = worst(key, min)
+        req[tag] = {
+            "requirement": f"trim range {'up' if tag == 'range_up' else 'down'} >= {DR005_RANGE_FRACTION:.0%} "
+                           f"of {DR005_NOMINAL_V:.2f} V = {need_v * 1000:.1f} mV (movement from the code-0 point)",
+            "required_mv": need_v * 1000,
+            "worst_mv": w,
+            "worst_pct": None if w is None else w / 1000 / DR005_NOMINAL_V * 100,
+            "verdict": verdict(any(c[key] / 1000 < need_v - DR005_TOL_V for c in done), bool(done)),
+        }
+    w = worst("max_step_mv", max)
+    req["resolution"] = {
+        "requirement": f"largest adjacent-code step <= {DR005_RESOLUTION_PCT}% of {DR005_NOMINAL_V:.2f} V "
+                       f"= {res_v * 1000:.3f} mV",
+        "limit_mv": res_v * 1000,
+        "worst_mv": w,
+        "worst_pct": None if w is None else w / 1000 / DR005_NOMINAL_V * 100,
+        "verdict": verdict(any(c["max_step_mv"] / 1000 > res_v + DR005_TOL_V for c in done), bool(done)),
+    }
+    w = worst("effective_codes", min)
+    req["code_coverage"] = {
+        "requirement": f">= {DR005_MIN_BITS:g} bits equivalent = >= {min_codes} distinct, strictly monotonic "
+                       "trim levels",
+        "required_codes": min_codes,
+        "worst_codes": w,
+        "worst_bits": None if w is None else math.log2(w),
+        "verdict": verdict(any(c["effective_bits"] < DR005_MIN_BITS - 1e-12 for c in done), bool(done)),
+    }
+    verdicts = [r["verdict"] for r in req.values()]
+    overall = ("FAIL" if "FAIL" in verdicts else
+               "INSUFFICIENT_EVIDENCE" if "INSUFFICIENT_EVIDENCE" in verdicts else "PASS")
+    return {
+        "overall": overall,
+        "requirements": req,
+        "corners": corners,
+        "n_corners": len(corners),
+        "n_incomplete_corners": n_incomplete,
+        "direction": {
+            "codes_up": sorted({c["n_codes_up"] for c in done}),
+            "codes_down": sorted({c["n_codes_down"] for c in done}),
+            "note": "DR-002 certifies downward codes only (0..-16); no upward code exists, so the up "
+                    "direction demonstrates 0 mV." if done and all(c["n_codes_up"] == 0 for c in done) else "",
+        },
+        "thresholds": {"nominal_v": DR005_NOMINAL_V, "range_fraction": DR005_RANGE_FRACTION,
+                       "resolution_pct": DR005_RESOLUTION_PCT, "min_bits": DR005_MIN_BITS},
+        "magnitude_only": MAGNITUDE_ONLY_NOTE,
+    }
+
+
+def parse_results_json(raw: dict) -> dict:
+    """Inverse of the record JSON's `results` flattening."""
+    out = {}
+    for k, v in raw.items():
+        cfg, proc, supply, code = k.split("|")
+        out[(cfg, proc, float(supply), int(code))] = v
+    return out
+
+
+def _fmt(x, nd=3):
+    return "n/a" if x is None else f"{x:.{nd}f}"
+
+
+def render_dr005_section(q: dict) -> list[str]:
+    L = ["## DR-005 qualification (literal Trim row; separate from the DR-002 checks above)", ""]
+    L.append(f"**DR-005 verdict: {q['overall'].replace('_', ' ')}**. DR-002 engineering checks are unaffected by "
+             "this section.")
+    L.append("")
+    L.append("| requirement (DR-005 Trim row) | worst corner | verdict |")
+    L.append("|---|---|---|")
+    r = q["requirements"]
+    L.append(f"| {r['range_up']['requirement']} | {_fmt(r['range_up']['worst_mv'])} mV "
+             f"({_fmt(r['range_up']['worst_pct'])} %) | **{r['range_up']['verdict']}** |")
+    L.append(f"| {r['range_down']['requirement']} | {_fmt(r['range_down']['worst_mv'])} mV "
+             f"({_fmt(r['range_down']['worst_pct'])} %) | **{r['range_down']['verdict']}** |")
+    L.append(f"| {r['resolution']['requirement']} | {_fmt(r['resolution']['worst_mv'], 4)} mV "
+             f"({_fmt(r['resolution']['worst_pct'], 4)} %) | **{r['resolution']['verdict']}** |")
+    L.append(f"| {r['code_coverage']['requirement']} | {r['code_coverage']['worst_codes']} levels "
+             f"({_fmt(r['code_coverage']['worst_bits'])} bits) | **{r['code_coverage']['verdict']}** |")
+    L.append("")
+    if q["direction"]["note"]:
+        L.append(f"- **Direction**: {q['direction']['note']}")
+    L.append(f"- **Incomplete corners**: {q['n_incomplete_corners']} of {q['n_corners']}.")
+    L.append("- **Range basis**: movement of VREF(27 C) away from the code-0 (untrimmed) point, as a share of the "
+             "specified 1.20 V (not of the measured VREF). Absolute reach versus 1.20 V is listed per corner "
+             "below for context; it is smaller still on the down side because code 0 sits above 1.20 V.")
+    L.append("")
+    L.append("| corner | up (mV) | down (mV) | down (% of 1.20 V) | reach vs 1.20 V up/down (mV) | max step (mV) | "
+             "max step (%) | effective codes (bits) |")
+    L.append("|---|---|---|---|---|---|---|---|")
+    for name, c in q["corners"].items():
+        if not c["complete"]:
+            L.append(f"| {name} | INCOMPLETE (missing codes {c['missing_codes']}) | | | | | | |")
+            continue
+        L.append(f"| {name} | {c['up_mv']:.3f} | {c['down_mv']:.3f} | {c['down_pct']:.3f} | "
+                 f"{c['reach_up_mv']:+.3f} / {c['reach_down_mv']:+.3f} | {c['max_step_mv']:.4f} | "
+                 f"{c['max_step_pct']:.4f} | {c['effective_codes']} ({c['effective_bits']:.2f}) |")
+    L.append("")
+    L.append(f"- **'Magnitude only'**: {q['magnitude_only']}")
+    L.append("")
+    return L
+
+
+def mint_dr005_record(source_json: Path, author: str = "") -> tuple[Path, Path]:
+    """Append-only derived qualification record beside `source_json`; refuses to overwrite."""
+    src = json.loads(source_json.read_text())
+    source_md = source_json.with_suffix(".md")
+    rec_id = f"{src['record_id']}-{DR005_RECORD_SUFFIX}"
+    out_json = source_json.parent / f"{rec_id}.json"
+    out_md = source_json.parent / f"{rec_id}.md"
+    for p in (out_json, out_md):
+        if p.exists():
+            raise cr.HarnessError(f"{p.name} exists; records are append-only (mint a new id)")
+    q = qualify_dr005(parse_results_json(src["results"]))
+    git_info = cr.git_state()
+    now = datetime.now(timezone.utc)
+    rel = lambda p: str(p.resolve().relative_to(REPO_ROOT))  # noqa: E731
+    rec = {
+        "record_id": rec_id,
+        "kind": "derived-qualification",
+        "timestamp": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "author": author or cr.default_author(),
+        "supersedes": None,
+        "source_record": {
+            "record_id": src["record_id"],
+            "json": rel(source_json), "json_sha256": sha256_file(source_json),
+            "md": rel(source_md), "md_sha256": sha256_file(source_md),
+            "issue": 327,
+        },
+        "input_hashes": src["provenance"],
+        "request_netlist_sha256": src.get("request_netlist_sha256"),
+        "models_lib_sha256": src.get("local_models_sha256"),
+        "sizing": src["sizing"],
+        "git": git_info,
+        "dr002_engineering": {"overall_pass": src["overall_pass"],
+                              "checks": len(src["checks"]),
+                              "checks_failed": sum(1 for c in src["checks"] if not c["pass"])},
+        "dr005_qualification": q,
+        "new_simulation": False,
+    }
+    out_json.write_text(json.dumps(rec, indent=2, sort_keys=True, default=str) + "\n")
+    L = [f"# Record {rec_id}", "",
+         f"- **Record ID**: {rec_id}",
+         f"- **Experiment**: `{SLUG}` -- derived DR-005 Trim-row qualification (issue #333)",
+         f"- **Claim**: issue #333 -- grade the literal DR-005 Trim row (range >= +/-5 % of 1.20 V, resolution "
+         f"<= 0.25 %/step, >= 5 bits equivalent) from the measurements of record `{src['record_id']}` "
+         "(issue #327), separately from DR-002's engineering checks. No new simulation was run; every number is "
+         "recomputed from that record's committed `results`.",
+         f"- **Source measurements**: `{rel(source_json)}` (sha256 `{rec['source_record']['json_sha256']}`), "
+         f"`{rel(source_md)}` (sha256 `{rec['source_record']['md_sha256']}`)",
+         f"- **Input hashes (from the source record)**: netlist body `{src['provenance']['netlist_body_sha256']}`; "
+         + "; ".join(f"`{k}` `{v}`" for k, v in sorted(src["provenance"]["schematic_sha256"].items())),
+         f"- **Sizing**: `n_r1={src['sizing']['n_r1']:g}`, `n_r2={src['sizing']['n_r2']:g}`, "
+         f"`r_lseg_trim={src['sizing']['r_lseg_trim']:g}` um, `n_r2_fine={src['sizing']['n_r2_fine']:g}`",
+         f"- **DR-002 engineering result (unchanged, from the source record)**: "
+         f"{'PASS' if src['overall_pass'] else 'FAIL'} ({rec['dr002_engineering']['checks_failed']} of "
+         f"{rec['dr002_engineering']['checks']} checks failed)",
+         f"- **Repo state**: `{git_info['sha']}`",
+         f"- **Timestamp / author**: {rec['timestamp']}, {rec['author']}",
+         "- **Supersedes**: (none -- first DR-005 qualification of this trim network; the source record is "
+         "untouched and remains the DR-002 engineering record)",
+         ""]
+    L.extend(render_dr005_section(q))
+    L.append("## Determination")
+    L.append("")
+    L.append("The DR-002 engineering PASS stands: the trim network is monotonic, collapse-free and its downward "
+             "span/LSB satisfy DR-002's scoping criteria. The ratified DR-005 Trim row is **not demonstrated**: "
+             "see the per-requirement verdicts above. Resolution is the only literal requirement that holds. "
+             "Closing the range and code-coverage gaps needs circuit changes (extra/upward codes), which are "
+             "separate work, as is any spec ruling. DR-005 is not relaxed by this record.")
+    L.append("")
+    L.append(f"Written by `sim/{SLUG}/run_trim_lsb_chained.py --qualify-dr005`. Append-only: never edit this "
+             "file -- a correction is a new record with a `Supersedes` field (see `sim/README.md`).")
+    L.append("")
+    out_md.write_text("\n".join(L))
+    return out_md, out_json
+
+
+# --------------------------------------------------------------------------
 # record
 # --------------------------------------------------------------------------
 def render_record(r: dict) -> str:
@@ -674,6 +960,8 @@ def render_record(r: dict) -> str:
     add("")
     add(r["determination"])
     add("")
+    if r.get("dr005_qualification"):
+        L.extend(render_dr005_section(r["dr005_qualification"]))
     add("## Batch execution")
     add("")
     add("| request | fleet job id | status | instance | lifecycle | fleet elapsed (s) | submit-to-collect wall (s) |")
@@ -848,6 +1136,7 @@ def verify(args) -> int:
         "checks": checks,
         "overall_pass": overall,
         "determination": build_determination(results, checks, sizing),
+        "dr005_qualification": qualify_dr005(results),
         "links": {
             "corners_dir": str(corners_dir.relative_to(REPO_ROOT)) + "/",
             "json": str(record_json.relative_to(REPO_ROOT)),
@@ -870,12 +1159,21 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--n-r2", type=int, default=None,
                    help="override n_r2 (default: read from design/bandgap_core.sch); what-if use only")
+    p.add_argument("--qualify-dr005", metavar="SOURCE_JSON", default=None,
+                   help="no simulation: mint the append-only derived DR-005 qualification record beside an "
+                        "existing record JSON of this experiment (issue #333)")
     add_common_args(p, timeout_default=1800)
     return p.parse_args(argv)
 
 
 def main(argv: list[str]) -> int:
-    return verify(parse_args(argv))
+    args = parse_args(argv)
+    if args.qualify_dr005:
+        out_md, out_json = mint_dr005_record(Path(args.qualify_dr005).resolve(), args.author)
+        print(f"record : {out_md.relative_to(REPO_ROOT)}")
+        print(f"json   : {out_json.relative_to(REPO_ROOT)}")
+        return 0
+    return verify(args)
 
 
 if __name__ == "__main__":
