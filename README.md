@@ -7,65 +7,46 @@ xschem + ngspice analog flow.
 
 ![fleet burndown](https://raw.githubusercontent.com/2AMLogic/2am/main/fleet-metrics/charts/sky130-bandgap.svg)
 
-**Status: active development.** Simulation and device characterization work
-is underway, and bandgap-core layout is DRC-clean and fully routed — all 12
-of 12 schematic inter-block nets joined across every block they reach,
-extracted PNP/MOS/resistor devices, and 11 correctly promoted top-level
-pins. As of issue #62's thirty-first increment, `klt lvs` itself reports
-**`mismatch_count: 0`** against the xschem-derived reference netlist — the
-error amp's compensation cap (`MCC`) is now drawn as the `pfet`
-MOS-as-capacitor device `design/error_amp.sch` specifies, matching the
-reference netlist's own `MMCC` device exactly. That `0` is *measured*, not
-sampled from one lucky run: the committed request reproduces it 1000 times
-out of 1000 on the `klt` build `layout/requirements.txt` pins. Re-running the
-same request under a **newer** `klt` reports it only ~76% of the time and a
-false `mismatch_count: 12` on the rest — a nondeterministic combine step
-introduced upstream, filed from this repo as
-[klayout-tools#2374](https://github.com/2AMLogic/klayout-tools/issues/2374),
-measured into `layout/bandgap-core/combine-determinism/` and dispositioned in
-`layout/matching-plan.md` Section 7ff. The pin is deliberately not bumped past
-it. A `cap_mim` MIM-cap overlay
-(the zero-incremental-footprint alternative) was checked and found
-infeasible on two independent grounds — see
+**Status: active development, not spec-conformant.** Bandgap-core layout is
+DRC-clean, fully routed, and `klt lvs` reports **`mismatch_count: 0`** (22/22
+devices matched; the composed cell is 70,360 µm², inside the `< 0.08 mm²`
+budget of [DR-007](spec/decision-records/DR-007-mcc-area-budget.md)). Nothing
+here has been taped out or measured in silicon. Ladder: simulation-complete →
+layout DRC/LVS-clean → shuttle seat → measured silicon over temperature;
+current position is mid-ladder, a **layout-complete** block with disclosed
+spec failures. The verdicts below are copied from
+[`design/block-characterization-report.md`](design/block-characterization-report.md)
+(section 2 is the row-by-row record; read it, not this table, for numbers and
+binding corners). The report is a dated snapshot; the newest `sim/*/records/`
+entry is authoritative for its own claim.
+
+| Spec row | Verdict | Where |
+|---|---|---|
+| Output reference, ±2% untrimmed | Schematic **PASS 45/45**; mismatch MC **PASS** (79–96% yield inside the window, N=300); post-layout **FAIL 14/15** (`vref_min` below 1.176 V; open upstream klayout-tools#2359, not confirmed as a design defect) | report rows 1a–1c |
+| Trim | **STALE** — no evidence against the current ratified design | report row 2 |
+| Temp coefficient, `< 50 ppm/°C` | **FAIL at every corner** — 142–159 ppm/°C schematic, 90–186 ppm/°C post-layout; disposition (keep the row, disclose the FAIL, defer curvature correction) in [DR-009](spec/decision-records/DR-009-tc-floor-disposition-defer-curvature-correction.md) | report rows 3a–3b |
+| PSRR, `> 60 dB` DC–1 kHz | Schematic **PASS 45/45**; post-layout **FAIL 25/45** since the startup injector was drawn in (worst 22.75 dB); resize cannot fix it, [DR-011](spec/decision-records/DR-011-startup-injector-psrr-fix-infeasible-by-resize.md), issues #300/#315 | report rows 4a–4f |
+| Supply, 3.3 V ±10% | **PASS** (operability; line regulation PASS, post-layout margin eroded by the injector) | report rows 5–5c |
+| Iq, `< 50 µA` | **PASS 45/45** schematic and post-layout (the `< 20 µA` stretch is not met) | report rows 6a–6c |
+| Area, `< 0.08 mm²` | **PASS** (70,360 µm²) | report row 7 |
+| Startup, self-starting `< 1 ms` | **MIXED** — self-starting **PASS** (schematic 45/45, post-layout 8/8); the ratified `t_start < 1 ms` measurement passes everywhere, but the startup-ramp `vref` spread check **FAILS 13/45** schematic and post-layout ([DR-010](spec/decision-records/DR-010-startup-ramp-vref-spread-settling-tail.md)); the bare-core startup-time bench fails by construction | report rows 8a–8e |
+
+LVS determinism, the `combine_devices` resistor accounting, the `MCC` cap and
+the pinned `klt` build are explained in
 [`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)
-and `layout/matching-plan.md` Sections 7bb/7cc. Drawing `MCC` pushes the
-composed cell to 73,989 µm²; the Area budget was relaxed from 50,000 µm² to
-80,000 µm² (`< 0.08 mm²`) to accommodate the now-measured drawn figure,
-ratified in
-[DR-007](spec/decision-records/DR-007-mcc-area-budget.md) (operator, issue
-#62) — the composed cell is now within budget. The routed R2A/R2B/R1 array's per-instance head
-resistance — which issue #98 confirmed with independent real-SPICE evidence
-is a real, material electrical effect of the layout's own folded topology,
-not an LVS-extraction artifact, ratified in
-[DR-003](spec/decision-records/DR-003-res-array-head-resistance-sizing.md) —
-was closed by issue #99's `n_r2` 54 → 50 resize plus issue #108's
-chained-value `reference.spice` convention. An upstream `combine_devices`
-correction
-([klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559),
-closed via [#583](https://github.com/2AMLogic/klayout-tools/pull/583)/[#587](https://github.com/2AMLogic/klayout-tools/pull/587))
-_would_ make `klt lvs` re-report those resistors at the single-device value
-instead; it is picked up in the pinned `klt` build and measured under all
-four accounting variants, and deliberately **not** adopted — doing so would
-regress `mismatch_count` and would state a resistance the fabricated
-cell does not have. See
-[`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)
-for the full record. **Known gaps, disclosed here rather than only in the
-maturity ladder below**: two of the seven ratified spec rows currently fail
-at every corner on the freshest evidence — box-method temperature
-coefficient (142.4–159.0 ppm/°C schematic, 167.9–186.9 ppm/°C post-layout,
-measured against the ratified `< 50 ppm/°C` target after issue #178's
-`n_r2` 50→51 resize; the `R2/R1` ratio lever is now exhausted against the
-accuracy row, and the remaining gap is device-driven, see
-[DR-009](spec/decision-records/DR-009-tc-floor-disposition-defer-curvature-correction.md))
-and untrimmed output accuracy (`vref` falls outside the ratified ±2% window
-over temperature, down to ~1.130 V at hot corners) — tracked in #178.
-Separately, the sole Monte Carlo run on file predates both the ratified
-spec and the current design's error-amp resize, so the statistical evidence
-for the dominant accuracy term is stale (#180). Nothing here has been taped
-out or measured in silicon yet. See the maturity ladder below for where
-things currently stand, and [`signoff/README.md`](signoff/README.md) — this
-block's machine-graded gap-to-T1 tracker, an eleven-row `klt signoff
---manifest` verdict — for the full evidence-tier accounting.
+and `layout/matching-plan.md` (Sections 7bb/7cc/7ff); the `klt` pin is
+deliberately not bumped past the nondeterministic combine step
+([klayout-tools#2374](https://github.com/2AMLogic/klayout-tools/issues/2374)).
+What remains: curvature correction (the TC row stays a disclosed FAIL until it
+lands), the injector PSRR fix, the trim-network evidence refresh, and the
+operator tier award.
+
+**The T1/bronze checklist state is graded, not hand-read**:
+[`signoff/README.md`](signoff/README.md) — this block's machine-graded
+gap-to-T1 tracker, an eleven-row `klt signoff --manifest` verdict — is the
+current verdict of record (today: **3/11 T1 items graded `met`**; see that
+file's row-by-row table for why each remaining row is `unmet` and what would
+close it) — no bronze/T1 claim is made here.
 
 **Built agent-native.** Every schematic, testbench, decision record, and
 line of documentation in this repo was produced by AI agents working from
@@ -95,70 +76,6 @@ two PDKs is the portability proof. The PSRR row is stated in the same
 frequency-qualified form gf180-bandgap uses (`> 60 dB DC–1 kHz` target,
 `> 30 dB @ 1 MHz` stretch) as of DR-006 — closing the one deferred
 port-parity gap DR-005 flagged.
-
-Maturity ladder: simulation-complete → layout DRC/LVS-clean → shuttle
-seat → measured silicon over temperature. Current position: mid-ladder —
-bandgap-core layout is DRC-clean, fully routed, and `klt lvs`-clean
-(`mismatch_count: 0`), and the composed cell is within the Area budget
-relaxed to `< 0.08 mm²` by [DR-007](spec/decision-records/DR-007-mcc-area-budget.md)
-(operator-ratified) — a **layout-complete** block. It is **not** currently
-spec-conformant: one of the eight ratified spec rows fails at every corner
-on the freshest evidence — box-method temp coefficient measures
-142–159 ppm/°C on the schematic and 168–187 ppm/°C on the extracted
-post-layout netlist, against the ratified `< 50 ppm/°C` target (untrimmed
-`vref` itself is now inside the ratified ±2% window at every corner — see
-`sim/output-voltage-tc/records/20260817-015751-13476b7.md` and
-`sim/output-voltage-tc-post-layout/records/20260817-020357-13476b7.md`
-for the measured numbers; the `R2/R1` sizing lever that could once have
-narrowed this gap is exhausted against the accuracy row, and the disposition
-is recorded in
-[DR-009](spec/decision-records/DR-009-tc-floor-disposition-defer-curvature-correction.md):
-keep the row as ratified, disclose the FAIL, defer curvature correction). Trim has no evidence against the current
-ratified design at all (STALE, unaffected by this cycle). The remaining
-six ratified rows are mixed, not a clean pass: PSRR (schematic), supply
-(operability), Iq, area, and startup
-self-starting all pass on the current design/layout (re-run 2026-09
-against the post-#193 chained-array resize — see
-`sim/psrr-dc/records/20260909-232410-e8e2e46.md`,
-`sim/quiescent-current-post-layout/records/20260923-072514-dbd57a9.md`,
-`sim/startup-stability/records/20260909-232410-e8e2e46.md`, and their
-`-post-layout` counterparts), but the startup **time** (< 1 ms) half fails
-at 13/45 (schematic) and 13/45 (post-layout) fastest-corner points — see
-`sim/startup-ramp/records/20260923-202758-81803b1.md` and
-`sim/startup-ramp-post-layout/records/20260924-041313-999407b.md`, the first
-post-layout record from the restructured, all-extracted bench (issue #299) —
-and
-**PSRR post-layout now fails 25/45** since the startup injector was drawn
-into the composed cell (issue #285, disposition tracked in #300;
-`sim/psrr-dc-post-layout/records/20260923-073641-dbd4dda.md`). The
-design-cause mechanism is now identified by direct measurement — the
-injector's `MPC1`/`MPC2` diode-connected PMOS reference stack dominates,
-confirmed by `sim/psrr-injector-attribution/` — but a fix has not landed:
-every device-resize candidate tried either fails to clear 45/45 or erodes
-`sim/startup-stability`'s own margin floor; see
-[DR-011](spec/decision-records/DR-011-startup-injector-psrr-fix-infeasible-by-resize.md)
-and issues #306/#315. The
-core-as-composed startup-time bench, which used to fail everywhere by
-construction because the cell shipped no injector, now **passes 45/45
-post-layout** for the same reason
-(`sim/startup-time-post-layout/records/20260923-070906-dbd57a9.md`); its
-schematic half still measures the bare core and still fails, correctly. See
-[`design/block-characterization-report.md`](design/block-characterization-report.md)
-for the full row-by-row scoreboard. Post-layout extraction itself is
-no longer pending — seven `sim/*-post-layout/` suites (line-regulation,
-output-voltage-tc, psrr-dc, quiescent-current, startup-ramp,
-startup-stability, startup-time) are committed, all now with ratified-graded
-records at or after the post-#193 design/layout.
-What remains: curvature correction (the engineering work DR-009 defers; the
-TC row stays a disclosed FAIL until it lands), the trim-network evidence
-refresh, and the operator tier award.
-**The T1/bronze checklist state is now graded, not hand-read**: issue #175's
-one-time ten-item re-read (2026-08-15, pre-dating the checklist's eleventh
-item) is superseded by the committed `klt signoff` block manifest —
-[`signoff/README.md`](signoff/README.md) is the current verdict of record
-(today: **3/11 T1 items graded `met`**; see that file's row-by-row table for
-why each remaining row is `unmet` and what would close it) — no bronze/T1
-claim is made here.
 
 ## Environment setup
 
