@@ -94,7 +94,19 @@ spec/          ratified spec + decision records
 design/        schematics / netlists (xschem)
 sim/           testbenches + PVT corner results (ngspice)
 layout/        GDS + DRC/LVS reports (klayout-tools driven)
-measurements/  silicon characterization (empty until tape-out)
+signoff/       machine-graded T1 signoff report, pinned inputs, manifest, regenerate script
+scripts/       CI check scripts (scripts/ci/: signoff pin and freshness checks)
+docs/          environment setup
+ratification/  ee-key and market-key ratification rubrics
+measurements/  silicon characterization (empty until tape-out; only a .gitkeep today)
+reuse.lock.json  reuse-lock bookkeeping against the sibling opamp repo
+WORK_PLAN.md   guide-generated work plan (do not hand-edit)
+WORK_LOG.md    guide-generated log of merged PRs and closed issues (do not hand-edit)
+package.json   npm scripts for lint, test and CI checks
+loom.sh        convenience wrapper to start the Loom daemon
+CLAUDE.md      agent instructions
+LICENSE        Apache License 2.0
+.gitattributes, .gitignore  git configuration
 ```
 
 ## History
