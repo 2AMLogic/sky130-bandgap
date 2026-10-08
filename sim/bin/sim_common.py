@@ -353,6 +353,7 @@ def run_matrix_and_write_record(
     experiment_fields: dict,
     links: dict,
     record_extra: dict | None = None,
+    execute_matrix=None,
 ) -> tuple[dict, bool]:
     """Run every corner in `matrix`, write the append-only record, and print
     the closing summary -- the block `corner-run.py::main()` and
@@ -385,6 +386,17 @@ def run_matrix_and_write_record(
     `--timeout`, so concurrency is bookkeeping only -- a corner hitting its
     own timeout has no effect on any sibling's timeout or result.
 
+    `execute_matrix`, when given (issue #320, `corner-run.py --backend batch`),
+    replaces the per-corner `cr.run_corner()` loop: it is called as
+    `execute_matrix(matrix, corners_dir)` and must return `(results, blockers,
+    extra)` -- `results` in matrix order and one dict per corner exactly as
+    `run_corner()` returns, `blockers` a list of reasons the overall verdict
+    cannot be PASS even if every listed corner passed (missing/duplicate
+    corners, a remote PDK that does not match the pin), `extra` merged into
+    the record like `record_extra`. It raises rather than returning when no
+    results could be obtained, in which case no record is written and
+    nothing is run locally. Callers that do not pass it are unchanged.
+
     Returns `(record, overall)` so each caller keeps its own exit-code
     mapping.
     """
@@ -410,7 +422,20 @@ def run_matrix_and_write_record(
             f"{'PASS' if res['pass'] else 'FAIL'}  {summary}"
         )
 
-    if jobs <= 1:
+    blockers: list[str] = []
+    if execute_matrix is not None:
+        results, blockers, batch_extra = execute_matrix(matrix, corners_dir)
+        record_extra = {**(record_extra or {}), **batch_extra}
+        for i, res in enumerate(results):
+            summary = ", ".join(
+                f"{c['name']}={'n/a' if c['value'] is None else format(c['value'], '.6g')}"
+                for c in res["measurements"]
+            )
+            print(
+                f"[{i + 1:>3}/{len(matrix)}] {res['corner_id']:<20} "
+                f"{'PASS' if res['pass'] else 'FAIL'}  {summary}"
+            )
+    elif jobs <= 1:
         for item in enumerate(matrix):
             _run_one(item)
     else:
@@ -418,7 +443,11 @@ def run_matrix_and_write_record(
             list(pool.map(_run_one, enumerate(matrix)))
 
     spreads = cr.spread_checks(exp, results)
-    overall = all(r["pass"] for r in results) and all(s["pass"] for s in spreads)
+    overall = (
+        all(r["pass"] for r in results)
+        and all(s["pass"] for s in spreads)
+        and not blockers
+    )
 
     snapshot.parent.mkdir(parents=True, exist_ok=True)
     snapshot.write_text("\n".join(body) + "\n.end\n")
@@ -462,6 +491,8 @@ def run_matrix_and_write_record(
             "record": str(record_md.relative_to(cr.REPO_ROOT)),
         },
     }
+    if execute_matrix is not None:
+        record["overall_blockers"] = blockers
     if record_extra:
         record.update(record_extra)
 
@@ -845,7 +876,9 @@ def render_pdk_tools_repo_state(r: dict) -> list[str]:
         f"models `{pdk['lib_file']}`",
         f"- **Tools**: {tools['ngspice']}; {tools['xschem']}; {tools['platform']}",
     ]
-    if "jobs" in r:
+    if "jobs" in r and r["jobs"] is None:
+        lines.append("- **Jobs**: n/a (corners executed on the batch fleet; see Execution)")
+    elif "jobs" in r:
         n = r["jobs"]
         lines.append(f"- **Jobs**: {n} ({'serial' if n <= 1 else f'{n} concurrent corner workers'})")
     lines.append(
