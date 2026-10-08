@@ -175,3 +175,9 @@ rewrite.
   (this record reuses it unchanged so the two are comparable), so this
   record's inherited claim head carries the stale wording. The limit itself
   is unchanged, so no verdict depends on it.
+
+## Experiment description and record history
+
+Moved verbatim from the "Experiments that do not go through the corner runner" table in `sim/README.md` (issue #339). The newest entry under `records/` is authoritative for the current verdict; the text below was written when the cited records were current.
+
+**Post-layout (`provenance: extracted`) re-run of `sim/quiescent-current`'s Iq claim (issue #16)**, same extracted-layout DUT body as the row above, wrapping `sim/quiescent-current/testbench/tb_vref_iq.sch` unmodified. Runs the FULL 45-point matrix (nothing swept inside the deck, so no axis is collapsed). Its `README.md` carries the divergence finding required by issue #16 — post-layout Iq is 35.8 % below the schematic-level record, attributed to R1 growing 55 % (the drawn chained array's per-unit head resistance, plus a `klt extract --parasitics` short/wide-fragment resistance overstatement on the array's internal nodes — klayout-tools#2359, open; previously mis-attributed to the since-refuted klayout-tools#800, corrected by issue #283)

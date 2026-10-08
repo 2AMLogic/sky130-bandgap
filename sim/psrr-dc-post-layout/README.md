@@ -289,3 +289,9 @@ above are left exactly as written — this is a dated addendum, not a rewrite.
   scalars, following `sim/psrr-dc/`'s own manifest), so a shape comparison
   of the whole rolloff (not just the two edges) between the two records
   would need a re-run with `write`/vector dump added to the deck.
+
+## Experiment description and record history
+
+Moved verbatim from the "Experiments that do not go through the corner runner" table in `sim/README.md` (issue #339). The newest entry under `records/` is authoritative for the current verdict; the text below was written when the cited records were current.
+
+**Post-layout (`provenance: extracted`) re-run of `sim/psrr-dc`'s PSRR claim (issue #16)**, same extracted-layout DUT body as the two rows above, wrapping `sim/psrr-dc/testbench/tb_vref_psrr.sch` unmodified. Runs the FULL 45-point matrix (the AC sweep lives entirely inside the deck, so no PVT axis is collapsed). Its `README.md` carries the divergence finding required by issue #16 — post-layout `psrr_band_min`/`psrr_1k` (the DC-1 kHz band floor, issue #127) drops by a tight, near-constant 4.05 dB ± 0.36 dB across every one of the 45 corners regardless of process/temperature/supply, flipping 34/45 corners from PASS to FAIL against the ratified > 60 dB floor (schematic-level margin was already thin, 62.65-66.73 dB). Attributed to the extracted VDD/VSS-path parasitics sitting directly in the small-signal supply-to-VREF transfer function this bench measures — unlike Iq, where the same parasitic network is only a second-order bias-point effect — though the finding does not isolate which specific net's R or C in the shared 813 R + 151 C snapshot dominates
