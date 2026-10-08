@@ -1,0 +1,51 @@
+{
+  "analysis": {
+    "args": "temp -40 125 11",
+    "kind": "dc"
+  },
+  "backend": "batch",
+  "batch": {
+    "capacity_wait_s": 3600,
+    "poll_interval_s": 10,
+    "runner_version_check": "enforce"
+  },
+  "corners": {
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "temperature_c": [
+      27
+    ]
+  },
+  "engine": "ngspice",
+  "measurements": [
+    {
+      "name": "vref_27",
+      "spice": ".meas dc vref_27 FIND v(vref) AT=27",
+      "unit": "V"
+    },
+    {
+      "name": "vref_min",
+      "spice": ".meas dc vref_min MIN v(vref)",
+      "unit": "V"
+    },
+    {
+      "name": "vref_max",
+      "spice": ".meas dc vref_max MAX v(vref)",
+      "unit": "V"
+    }
+  ],
+  "models": {
+    "lib": "libs.tech/combined/sky130.lib.spice",
+    "pdk": "sky130A"
+  },
+  "netlist": "netlist.cir",
+  "options": {
+    "keep_artifacts": true,
+    "timeout_s": 1800
+  }
+}

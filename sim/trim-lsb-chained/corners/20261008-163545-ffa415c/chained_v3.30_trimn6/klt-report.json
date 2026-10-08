@@ -1,0 +1,394 @@
+{
+  "corner_count": 5,
+  "corners": [
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-327/sim/build/trim-lsb-chained/20261008-163545-ffa415c/requests/chained_v3.30_trimn6/klt-out/tt_novdd_27C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-327/sim/build/trim-lsb-chained/20261008-163545-ffa415c/requests/chained_v3.30_trimn6/klt-out/tt_novdd_27C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "tt/novdd/27C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": null,
+          "name": "vref_27",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.19589
+        },
+        {
+          "margin": null,
+          "name": "vref_min",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.16788
+        },
+        {
+          "margin": null,
+          "name": "vref_max",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.20503
+        }
+      ],
+      "monte_carlo": null,
+      "process": "tt",
+      "runtime_s": 12.948,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": 27
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-327/sim/build/trim-lsb-chained/20261008-163545-ffa415c/requests/chained_v3.30_trimn6/klt-out/ss_novdd_27C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-327/sim/build/trim-lsb-chained/20261008-163545-ffa415c/requests/chained_v3.30_trimn6/klt-out/ss_novdd_27C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "ss/novdd/27C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": null,
+          "name": "vref_27",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.19627
+        },
+        {
+          "margin": null,
+          "name": "vref_min",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.16818
+        },
+        {
+          "margin": null,
+          "name": "vref_max",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.20563
+        }
+      ],
+      "monte_carlo": null,
+      "process": "ss",
+      "runtime_s": 13.124,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": 27
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-327/sim/build/trim-lsb-chained/20261008-163545-ffa415c/requests/chained_v3.30_trimn6/klt-out/ff_novdd_27C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-327/sim/build/trim-lsb-chained/20261008-163545-ffa415c/requests/chained_v3.30_trimn6/klt-out/ff_novdd_27C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "ff/novdd/27C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": null,
+          "name": "vref_27",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.19563
+        },
+        {
+          "margin": null,
+          "name": "vref_min",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.16769
+        },
+        {
+          "margin": null,
+          "name": "vref_max",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.2047
+        }
+      ],
+      "monte_carlo": null,
+      "process": "ff",
+      "runtime_s": 12.962,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": 27
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-327/sim/build/trim-lsb-chained/20261008-163545-ffa415c/requests/chained_v3.30_trimn6/klt-out/sf_novdd_27C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-327/sim/build/trim-lsb-chained/20261008-163545-ffa415c/requests/chained_v3.30_trimn6/klt-out/sf_novdd_27C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "sf/novdd/27C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": null,
+          "name": "vref_27",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.19755
+        },
+        {
+          "margin": null,
+          "name": "vref_min",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.17047
+        },
+        {
+          "margin": null,
+          "name": "vref_max",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.20539
+        }
+      ],
+      "monte_carlo": null,
+      "process": "sf",
+      "runtime_s": 12.979,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": 27
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-327/sim/build/trim-lsb-chained/20261008-163545-ffa415c/requests/chained_v3.30_trimn6/klt-out/fs_novdd_27C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-327/sim/build/trim-lsb-chained/20261008-163545-ffa415c/requests/chained_v3.30_trimn6/klt-out/fs_novdd_27C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "fs/novdd/27C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": null,
+          "name": "vref_27",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.19614
+        },
+        {
+          "margin": null,
+          "name": "vref_min",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.16757
+        },
+        {
+          "margin": null,
+          "name": "vref_max",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.2062
+        }
+      ],
+      "monte_carlo": null,
+      "process": "fs",
+      "runtime_s": 13.074,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": 27
+    }
+  ],
+  "coverage": {
+    "checked": [
+      "measurement:[0,\"tt/novdd/27C\",\"vref_27\"]/observation",
+      "measurement:[0,\"tt/novdd/27C\",\"vref_max\"]/observation",
+      "measurement:[0,\"tt/novdd/27C\",\"vref_min\"]/observation",
+      "measurement:[1,\"ss/novdd/27C\",\"vref_27\"]/observation",
+      "measurement:[1,\"ss/novdd/27C\",\"vref_max\"]/observation",
+      "measurement:[1,\"ss/novdd/27C\",\"vref_min\"]/observation",
+      "measurement:[2,\"ff/novdd/27C\",\"vref_27\"]/observation",
+      "measurement:[2,\"ff/novdd/27C\",\"vref_max\"]/observation",
+      "measurement:[2,\"ff/novdd/27C\",\"vref_min\"]/observation",
+      "measurement:[3,\"sf/novdd/27C\",\"vref_27\"]/observation",
+      "measurement:[3,\"sf/novdd/27C\",\"vref_max\"]/observation",
+      "measurement:[3,\"sf/novdd/27C\",\"vref_min\"]/observation",
+      "measurement:[4,\"fs/novdd/27C\",\"vref_27\"]/observation",
+      "measurement:[4,\"fs/novdd/27C\",\"vref_max\"]/observation",
+      "measurement:[4,\"fs/novdd/27C\",\"vref_min\"]/observation"
+    ],
+    "corners_simulated": 5,
+    "inapplicable": [
+      {
+        "id": "measurement:[0,\"tt/novdd/27C\",\"vref_27\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"tt/novdd/27C\",\"vref_max\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"tt/novdd/27C\",\"vref_min\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"ss/novdd/27C\",\"vref_27\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"ss/novdd/27C\",\"vref_max\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"ss/novdd/27C\",\"vref_min\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[2,\"ff/novdd/27C\",\"vref_27\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[2,\"ff/novdd/27C\",\"vref_max\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[2,\"ff/novdd/27C\",\"vref_min\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[3,\"sf/novdd/27C\",\"vref_27\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[3,\"sf/novdd/27C\",\"vref_max\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[3,\"sf/novdd/27C\",\"vref_min\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[4,\"fs/novdd/27C\",\"vref_27\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[4,\"fs/novdd/27C\",\"vref_max\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[4,\"fs/novdd/27C\",\"vref_min\"]/limits",
+        "reason": "characterization_without_limits"
+      }
+    ],
+    "known": true,
+    "measurements_declared": 3,
+    "measurements_with_limits": 0,
+    "nothing_checked": false,
+    "nothing_checked_reasons": [],
+    "schema_version": 1,
+    "skipped": [],
+    "unknown": [],
+    "unrecognized_limit_keys": []
+  },
+  "diagnostic_counts": {
+    "by_code": {},
+    "by_severity": {},
+    "corners_with_diagnostics": 0
+  },
+  "environment": {
+    "engine": "ngspice",
+    "engine_version": "46",
+    "models_lib": {
+      "path": null,
+      "scope": "external"
+    },
+    "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+    "netlist_sha256": "b2edb996d35ee9047655cd959a1fb095aef089888fe36eb021f1e2a18dc20a0a",
+    "ngspice_binary": "/home/ubuntu/.local/bin/ngspice",
+    "remote": {
+      "ami_id": "ami-0e40e3245f1923ac8",
+      "availability_zone": "us-east-1a",
+      "bucket": "2am-batch-jobs-221082181346",
+      "concurrency": "1",
+      "elapsed_seconds": 20,
+      "exit_code": "0",
+      "instance_id": "i-0d78d13495d9455c7",
+      "instance_type": "m7i.4xlarge",
+      "job_id": "klt-sim-a69a9f60833e",
+      "lifecycle": "spot",
+      "physical_cores": "8",
+      "provider": "aws-batch-fleet",
+      "region": "us-east-1",
+      "spot": true,
+      "state": "done"
+    }
+  },
+  "errored": 0,
+  "failed": 0,
+  "inconclusive": 0,
+  "measurements": [
+    {
+      "limits": null,
+      "name": "vref_27",
+      "status": "pass",
+      "unit": "V",
+      "worst_case": {
+        "corner_id": "tt/novdd/27C",
+        "margin": null,
+        "value": 1.19589
+      }
+    },
+    {
+      "limits": null,
+      "name": "vref_min",
+      "status": "pass",
+      "unit": "V",
+      "worst_case": {
+        "corner_id": "tt/novdd/27C",
+        "margin": null,
+        "value": 1.16788
+      }
+    },
+    {
+      "limits": null,
+      "name": "vref_max",
+      "status": "pass",
+      "unit": "V",
+      "worst_case": {
+        "corner_id": "tt/novdd/27C",
+        "margin": null,
+        "value": 1.20503
+      }
+    }
+  ],
+  "metrics": {
+    "sim__corner__count": 5,
+    "sim__corner__errored_count": 0,
+    "sim__corner__failed_count": 0,
+    "sim__corner__inconclusive_count": 0,
+    "sim__corner__passed_count": 5
+  },
+  "netlist": {
+    "path": "sim/build/trim-lsb-chained/20261008-163545-ffa415c/requests/chained_v3.30_trimn6/netlist.cir",
+    "scope": "repo"
+  },
+  "passed": 5,
+  "provenance": {
+    "deck": {
+      "content_hash": "sha256:48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+      "name": "sky130.lib.spice",
+      "released": false
+    },
+    "input": {
+      "content_hash": "sha256:b2edb996d35ee9047655cd959a1fb095aef089888fe36eb021f1e2a18dc20a0a",
+      "role": "netlist"
+    },
+    "klayout_version": "0.30.12",
+    "klt_version": "0.6.0+g1eb3e4bfd0f5",
+    "pdk": {
+      "name": "sky130A",
+      "source": "search root: ~/.volare",
+      "version": "open_pdks c6d73a35f524070e85faff4a6a9eef49553ebc2b"
+    }
+  },
+  "schema_version": 3,
+  "status": "pass"
+}
