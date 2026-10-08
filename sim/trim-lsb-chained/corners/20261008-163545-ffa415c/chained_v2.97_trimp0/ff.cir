@@ -1,0 +1,12 @@
+* klt sim -- generated corner deck, do not edit
+.lib /opt/pdk/sky130A/libs.tech/combined/sky130.lib.spice ff
+.include /var/tmp/eda-job-klt-sim-ce790e6a33cb/inputs/netlist.cir
+.temp 27
+.meas dc vref_27 FIND v(vref) AT=27
+.meas dc vref_min MIN v(vref)
+.meas dc vref_max MAX v(vref)
+.control
+dc temp -40 125 11
+quit
+.endc
+.end

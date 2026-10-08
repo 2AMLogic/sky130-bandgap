@@ -23,7 +23,7 @@ entry is authoritative for its own claim.
 | Spec row | Verdict | Where |
 |---|---|---|
 | Output reference, ±2% untrimmed | Schematic **PASS 45/45**; mismatch MC **PASS** (79–96% yield inside the window, N=300); post-layout **FAIL 14/15** (`vref_min` below 1.176 V; open upstream klayout-tools#2359, not confirmed as a design defect) | report rows 1a–1c |
-| Trim | **STALE** — no evidence against the current ratified design | report row 2 |
+| Trim | **PASS** (schematic-level, 15/15 corners) — monotonic, downward span 38.46–38.75 mV, LSB 2.404–2.422 mV/code (≤ 3.000), re-derived at the current `n_r2=51` design; a post-layout extracted-chain trim check is not yet done | report row 2 |
 | Temp coefficient, `< 50 ppm/°C` | **FAIL at every corner** — 142–159 ppm/°C schematic, 90–186 ppm/°C post-layout; disposition (keep the row, disclose the FAIL, defer curvature correction) in [DR-009](spec/decision-records/DR-009-tc-floor-disposition-defer-curvature-correction.md) | report rows 3a–3b |
 | PSRR, `> 60 dB` DC–1 kHz | Schematic **PASS 45/45**; post-layout **FAIL 25/45** since the startup injector was drawn in (worst 22.75 dB); resize cannot fix it, [DR-011](spec/decision-records/DR-011-startup-injector-psrr-fix-infeasible-by-resize.md), issues #300/#315 | report rows 4a–4f |
 | Supply, 3.3 V ±10% | **PASS** (operability; line regulation PASS, post-layout margin eroded by the injector) | report rows 5–5c |
@@ -38,8 +38,7 @@ and `layout/matching-plan.md` (Sections 7bb/7cc/7ff); the `klt` pin is
 deliberately not bumped past the nondeterministic combine step
 ([klayout-tools#2374](https://github.com/2AMLogic/klayout-tools/issues/2374)).
 What remains: curvature correction (the TC row stays a disclosed FAIL until it
-lands), the injector PSRR fix, the trim-network evidence refresh, and the
-operator tier award.
+lands), the injector PSRR fix, and the operator tier award.
 
 **The T1/bronze checklist state is graded, not hand-read**:
 [`signoff/README.md`](signoff/README.md) — this block's machine-graded
