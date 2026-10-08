@@ -1,0 +1,129 @@
+{
+  "author": "loom-builder (issue #334)",
+  "conventions": [
+    "Mean and sample standard deviation (n-1) of the converged draws; 3-sigma bounds are mean +/- 3 sigma; a bound exactly on a window limit passes.",
+    "A 3-sigma calculation is parametric (presumes near-normal draws). It is not an empirical confidence guarantee; the empirical in-window fraction and its exact Clopper-Pearson 95 % interval are reported beside it and are never merged with it. The two can disagree (yield above 50 % while mean +/- 3 sigma is outside the window).",
+    "tt_mm is LOCAL MISMATCH at the nominal (tt) process point only. It is not full process-plus-mismatch coverage. The process-corner matrix (report row 1a) is deterministic, mismatch-free evidence; its extrema are not combined with the MC spread because summing unrelated extrema is not a supported statistical claim.",
+    "Joint process x mismatch coverage is UNAVAILABLE in the committed evidence (joint_process_mismatch_available = False); a spec PASS is therefore unreachable on this evidence even if every temperature's 3-sigma bounds fit.",
+    "DR-005 requires N >= 300; applied to CONVERGED draws (non-converged startup artifacts, issue #10, are not mismatch data). Short N cannot PASS but can FAIL."
+  ],
+  "determination": "DR-005 spec verdict on the committed evidence: **FAIL**. Mean +/- 3 sigma extends outside the window at -40 C, 27 C, 125 C. Below the required converged N: -40 C (238). The >=50 % harness sanity floor and the T1 item 6 evidence-existence verdict are unchanged and do not imply spec conformance. Circuit correction or broader Monte Carlo (joint process x mismatch, more converged draws) is separate follow-up work; DR-005 is not relaxed by this record.",
+  "git_sha": "f07b110",
+  "kind": "derived-qualification",
+  "qualification": {
+    "confidence": 0.95,
+    "joint_process_mismatch_available": false,
+    "n_required_converged": 300,
+    "sanity_floor": 0.5,
+    "sigmas": 3.0,
+    "temperatures": [
+      {
+        "converged_n": 238,
+        "harness_sanity": "PASS",
+        "in_window_n": 189,
+        "lower_3sigma_v": 1.1985274862436934,
+        "margin_lower_mv": 22.527486243693495,
+        "margin_upper_mv": -15.152068378155192,
+        "mean_v": 1.2188397773109243,
+        "n_sufficient": false,
+        "reason": "mean +/- 3 sigma extends outside the window",
+        "requested_n": 300,
+        "sample_max_v": 1.233907,
+        "sample_min_v": 1.192778,
+        "sigma_v": 0.006770763689076938,
+        "spec": "FAIL",
+        "temperature_c": -40.0,
+        "three_sigma_inside_window": false,
+        "upper_3sigma_v": 1.2391520683781552,
+        "yield_ci95": [
+          0.7371161264964479,
+          0.8436333467948063
+        ],
+        "yield_empirical": 0.7941176470588235
+      },
+      {
+        "converged_n": 300,
+        "harness_sanity": "PASS",
+        "in_window_n": 287,
+        "lower_3sigma_v": 1.1897374638825469,
+        "margin_lower_mv": 13.73746388254693,
+        "margin_upper_mv": -8.60702945078673,
+        "mean_v": 1.2111722466666668,
+        "n_sufficient": true,
+        "reason": "mean +/- 3 sigma extends outside the window",
+        "requested_n": 300,
+        "sample_max_v": 1.228211,
+        "sample_min_v": 1.187878,
+        "sigma_v": 0.007144927594706676,
+        "spec": "FAIL",
+        "temperature_c": 27.0,
+        "three_sigma_inside_window": false,
+        "upper_3sigma_v": 1.2326070294507867,
+        "yield_ci95": [
+          0.9270385357797222,
+          0.9767281589953176
+        ],
+        "yield_empirical": 0.9566666666666667
+      },
+      {
+        "converged_n": 300,
+        "harness_sanity": "PASS",
+        "in_window_n": 280,
+        "lower_3sigma_v": 1.1651038491153984,
+        "margin_lower_mv": -10.896150884601497,
+        "margin_upper_mv": 14.816509115398446,
+        "mean_v": 1.18714367,
+        "n_sufficient": true,
+        "reason": "mean +/- 3 sigma extends outside the window",
+        "requested_n": 300,
+        "sample_max_v": 1.20533,
+        "sample_min_v": 1.165613,
+        "sigma_v": 0.007346606961533841,
+        "spec": "FAIL",
+        "temperature_c": 125.0,
+        "three_sigma_inside_window": false,
+        "upper_3sigma_v": 1.2091834908846015,
+        "yield_ci95": [
+          0.8989143547885916,
+          0.9588059837861016
+        ],
+        "yield_empirical": 0.9333333333333333
+      }
+    ],
+    "verdicts": {
+      "evidence_existence": "PRESENT",
+      "harness_sanity": "PASS",
+      "spec": "FAIL"
+    },
+    "window_v": [
+      1.176,
+      1.224
+    ]
+  },
+  "record_id": "20260817-121131-d7d85b6-dr005-qualification",
+  "source": {
+    "klt_yield_input": {
+      "path": "sim/monte-carlo-untrimmed/records/20260923-062524-1e38c62-klt-yield-input.json",
+      "sha256": "0b01d0dd123b8fae9bbb8044263f00c2f14fc8e1d9afea6e8856a712421b1694"
+    },
+    "logs": {
+      "tt_mm_all_-40c_3.30v": {
+        "path": "sim/monte-carlo-untrimmed/corners/20260817-121131-d7d85b6/tt_mm_all_-40c_3.30v.log",
+        "sha256": "639e5236342efca81826afd48c8633c62829623f0adf0319bbdb0012d2b3891c"
+      },
+      "tt_mm_all_125c_3.30v": {
+        "path": "sim/monte-carlo-untrimmed/corners/20260817-121131-d7d85b6/tt_mm_all_125c_3.30v.log",
+        "sha256": "71a987a1ee5a02582e9b17778a227adcaed9fab8780e29c4ed92f97a220a14ad"
+      },
+      "tt_mm_all_27c_3.30v": {
+        "path": "sim/monte-carlo-untrimmed/corners/20260817-121131-d7d85b6/tt_mm_all_27c_3.30v.log",
+        "sha256": "4d884942a2f322ac290a288f08dbeca8b9c6d9454d8fa2a2f385f579fe7b59b3"
+      }
+    },
+    "record_id": "20260817-121131-d7d85b6",
+    "source_record": "sim/monte-carlo-untrimmed/records/20260817-121131-d7d85b6.json",
+    "source_sha256": "4be185639309da8e290e726adf60a391c4b2fb3c017a43ac72666959a269651e"
+  },
+  "supersedes": null,
+  "timestamp": "2026-10-08T19:07:38Z"
+}

@@ -79,6 +79,14 @@ coverage the re-grade cannot give: it runs klt-free and PDK-free in the
 in `pinned-inputs.json`. With no envelope-recorded hash to compare against,
 item 6 is verified on two of the three legs below rather than three.
 
+**What item 6 means (and does not).** Item 6 is an *evidence-existence* check: a committed, pinned `klt yield`
+envelope exists. The native envelope declares no `target_yield`, so its status can only be `reported`, never
+failed, and `met` says nothing about accuracy conformance. Output-accuracy conformance is graded separately by the
+derived DR-005 qualification
+`sim/monte-carlo-untrimmed/records/20260817-121131-d7d85b6-dr005-qualification.json`
+(issue #334; mean ± 3σ against the ratified window, currently **FAIL**), and the ≥50 % harness sanity floor is a
+third, weaker verdict. None of the three substitutes for another.
+
 `check_signoff_pins.py` closes that gap by asserting a three-way agreement per
 pin: **manifest pin == `sha256` of the committed artifact == the hash the
 cited envelope recorded**. `pinned-inputs.json` supplies the missing piece —
