@@ -8,12 +8,13 @@
 # requires the rendered tier report to be byte-identical to the committed
 # signoff/signoff-report.json, the verdict of record. Requires klt on PATH --
 # the pinned released version, installed by .github/workflows/ci.yml's
-# `signoff` job (keep that pin in sync with signoff/regenerate.sh).
+# `signoff` job (the pin lives in
+# check_signoff_freshness.py's KLT_VERSION; the job reads it from there).
 set -euo pipefail
 
 if ! command -v klt >/dev/null 2>&1; then
     echo "FATAL: klt (klayout-tools) is required on PATH." >&2
-    echo "       pip install klayout-tools==0.6.0   # pinned released version" >&2
+    echo "       pip install klayout-tools==\$(python3 scripts/ci/check_signoff_freshness.py --print-version)   # pinned released version" >&2
     exit 1
 fi
 

@@ -89,12 +89,12 @@ jobs:
         with:
           python-version: "3.x"
 
-      # Keep this pin in sync with signoff/regenerate.sh's KLT_VERSION and
-      # scripts/ci/check_signoff_freshness.py's KLT_VERSION. The released
-      # registry wheel carries the git tag identity the freshness check
+      # The pin is read from its single source of truth,
+      # scripts/ci/check_signoff_freshness.py's KLT_VERSION (shared with
+      # signoff/regenerate.sh). The released registry wheel carries the git tag identity the freshness check
       # asserts; same-version snapshots can grade this checklist differently.
       - name: Install the pinned grading klt (klayout-tools)
-        run: pip install klayout-tools==0.6.0
+        run: pip install "klayout-tools==$(python3 scripts/ci/check_signoff_freshness.py --print-version)"
 
       - name: Re-grade the block manifest; require the committed report to match
         run: ./scripts/ci/check-signoff-freshness.sh

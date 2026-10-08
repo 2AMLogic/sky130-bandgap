@@ -17,13 +17,13 @@
 # bundled checklist predates item 11 entirely, klayout-tools#2216).
 set -euo pipefail
 
-# Keep in sync with the `signoff` job's pip install in
-# .github/workflows/ci.yml and scripts/ci/check_signoff_freshness.py's
-# KLT_VERSION.
-KLT_VERSION="0.6.0"
-
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
+
+# The pinned grader version and the released-wheel identity assertion have a
+# single source of truth, shared with the CI `signoff` job:
+# scripts/ci/check_signoff_freshness.py.
+KLT_VERSION="$(python3 scripts/ci/check_signoff_freshness.py --print-version)"
 
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
@@ -59,24 +59,7 @@ python3 -m venv "$WORK/venv"
 # The *identity* of the grading build matters as much as its version string
 # -- see the module docstring above. The released registry wheel reports the
 # git tag it was built from; assert it before trusting anything it grades.
-python3 - "$WORK" "$KLT_VERSION" <<'EOF'
-import json
-import subprocess
-import sys
-
-work_dir, version = sys.argv[1], sys.argv[2]
-info = json.loads(subprocess.run(
-    [f"{work_dir}/venv/bin/klt", "version", "--format", "json"],
-    capture_output=True, text=True, check=True).stdout)
-if info.get("package_version") != version or info.get("git_tag") != f"v{version}" \
-        or info.get("is_release") is not True:
-    print(f"FATAL: grading klt is not the released {version} registry wheel -- "
-          f"got package_version={info.get('package_version')} "
-          f"git_tag={info.get('git_tag')} is_release={info.get('is_release')}. "
-          "A same-version snapshot/full-checkout install grades differently; "
-          "refusing to grade with it.", file=sys.stderr)
-    sys.exit(1)
-EOF
+python3 scripts/ci/check_signoff_freshness.py --assert-grader "$WORK/venv/bin/klt"
 
 set +e
 "$WORK/venv/bin/klt" signoff \

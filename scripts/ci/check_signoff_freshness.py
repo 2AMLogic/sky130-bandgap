@@ -40,8 +40,10 @@ MANIFEST = REPO_ROOT / "signoff" / "block-manifest.json"
 TIERS_DOC = REPO_ROOT / "signoff" / "design-evidence-tiers.md"
 COMMITTED_REPORT = REPO_ROOT / "signoff" / "signoff-report.json"
 
-# Keep in sync with signoff/regenerate.sh's KLT_VERSION and the `signoff`
-# CI job's pip install line in .github/workflows/ci.yml.
+# SINGLE SOURCE OF TRUTH for the pinned grader version. The `signoff` CI job
+# and signoff/regenerate.sh read it via `--print-version`, and both assert the
+# released-wheel identity via `--assert-grader`; nothing else carries the
+# literal. Bump it here only.
 KLT_VERSION = "0.6.0"
 
 RENDRABLE_EXIT_CODES = {0, 3}  # 0 = tier T1; 3 = rendered, >=1 unmet item
@@ -55,24 +57,31 @@ def fail(message: str) -> None:
     sys.exit(1)
 
 
-def assert_grading_build() -> None:
+def assert_grading_build(klt: str = "klt") -> None:
     """The grading klt must be the pinned *released* registry wheel.
 
     Same version string, different code, is a real hazard here: git-snapshot
     and full-checkout installs under the same version name can grade this
     checklist differently (observed live across the fleet for 0.5.0 -- see
     signoff/regenerate.sh). The released wheel reports the git tag it was
-    built from; assert it.
+    built from; assert it. `klt` is the executable to interrogate (default:
+    the one on PATH; regenerate.sh passes its throwaway venv's klt).
     """
-    run = subprocess.run(
-        ["klt", "version", "--format", "json"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    try:
+        run = subprocess.run(
+            [klt, "version", "--format", "json"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError as exc:
+        fail(f"cannot run {klt}: {exc}")
     if run.returncode != 0:
-        fail(f"klt version exited {run.returncode}: {run.stderr.strip()}")
-    info = json.loads(run.stdout)
+        fail(f"{klt} version exited {run.returncode}: {run.stderr.strip()}")
+    try:
+        info = json.loads(run.stdout)
+    except json.JSONDecodeError:
+        fail(f"{klt} version did not emit JSON: {run.stdout.strip()[:200]}")
     expected_tag = f"v{KLT_VERSION}"
     if (
         info.get("package_version") != KLT_VERSION
@@ -80,7 +89,7 @@ def assert_grading_build() -> None:
         or info.get("is_release") is not True
     ):
         fail(
-            "the klt on PATH is not the pinned released grader "
+            "the grading klt is not the pinned released grader "
             f"(expected package_version={KLT_VERSION}, git_tag={expected_tag}, "
             "is_release=true; got "
             f"package_version={info.get('package_version')}, "
@@ -166,7 +175,21 @@ def summarize_item_differences(committed_text: str, fresh_text: str) -> str:
     return "\n".join(f"  - {line}" for line in lines) or "  - byte drift only"
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
+    args = list(sys.argv[1:] if argv is None else argv)
+    if args == ["--print-version"]:
+        print(KLT_VERSION)
+        return
+    if args and args[0] == "--assert-grader" and len(args) <= 2:
+        assert_grading_build(args[1] if len(args) == 2 else "klt")
+        return
+    if args:
+        print(
+            "usage: check_signoff_freshness.py "
+            "[--print-version | --assert-grader [KLT_EXECUTABLE]]",
+            file=sys.stderr,
+        )
+        sys.exit(2)
     for path in (MANIFEST, TIERS_DOC, COMMITTED_REPORT):
         if not path.is_file():
             fail(f"missing {path.relative_to(REPO_ROOT)}")
