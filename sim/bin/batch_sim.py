@@ -334,6 +334,21 @@ def run_klt(group: Group, klt: str = "klt") -> GroupOutcome:
                         (proc.stderr or "")[-2000:], report_path)
 
 
+def job_died_before_simulating(report: dict) -> bool:
+    """True when every corner carries a `batch_job_failed` diagnostic and not
+    one corner produced a measurement value -- the fleet job died without
+    simulating (distinct from a corner that simulated and failed/timed out)."""
+    corners = report.get("corners") or []
+    if not corners:
+        return False
+    for c in corners:
+        if any(m.get("value") is not None for m in c.get("measurements") or []):
+            return False
+        if not any(d.get("code") == "batch_job_failed" for d in c.get("diagnostics") or []):
+            return False
+    return True
+
+
 def collect(groups: list[Group], runner: Callable[[Group], GroupOutcome] = run_klt) -> list[GroupOutcome]:
     """Submit every group concurrently (they are independent fleet jobs) and
     return the outcomes in group order. Any group without a report aborts the
@@ -341,6 +356,25 @@ def collect(groups: list[Group], runner: Callable[[Group], GroupOutcome] = run_k
     with ThreadPoolExecutor(max_workers=len(groups)) as pool:
         outcomes = list(pool.map(runner, groups))
     failed = [o for o in outcomes if o.report is None]
+    died = [o for o in outcomes if o.report is not None and job_died_before_simulating(o.report)]
+    if died and not failed:
+        # The fleet job ran but never simulated anything (runner-image skew,
+        # unusable image, upload error, ...): that is an infrastructure fault,
+        # not a verdict on the design, so it is reported as an error with the
+        # job ids and no record is minted -- 45 "FAIL" corners with no
+        # measurements would look like evidence about the circuit.
+        lines = []
+        for o in died:
+            remote = (o.report.get("environment") or {}).get("remote") or {}
+            diag = next(iter((o.report["corners"][0].get("diagnostics")) or [{}]), {})
+            lines.append(
+                f"  supply {o.group.supply_v:.2f} V: job {remote.get('job_id')} "
+                f"[{diag.get('runner_code') or diag.get('code')}]: {diag.get('message')}"
+            )
+        raise BatchError(
+            "the batch job(s) failed before simulating any corner; no record was written and "
+            "nothing was run locally:\n" + "\n".join(lines)
+        )
     if failed:
         lines = [f"  supply {o.group.supply_v:.2f} V: {o.error}" for o in failed]
         done = [o for o in outcomes if o.report is not None]

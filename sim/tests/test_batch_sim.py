@@ -452,6 +452,22 @@ class NoSilentLocalFallback(unittest.TestCase):
         self.assertIn("3.30 V", str(ctx.exception))
         self.assertEqual(local_calls, [])
 
+    def test_job_that_died_before_simulating_is_an_error_not_a_record(self):
+        """E.g. the runner-image klt is older than the client: every corner
+        comes back `batch_job_failed` with no measurements. That is an
+        infrastructure fault; it must not become 45 FAIL rows about the design."""
+        sha = batch_sim.sha256_file(self.env.tmp / "sky130.lib.spice")
+
+        def mut(cs, g):
+            return [klt_corner(c, values={}, status="error", diags=[{
+                "severity": "error", "code": "batch_job_failed", "runner_code": "batch_runner_version_mismatch",
+                "message": "the fleet runner runs klt 0.5.0 but the submitting client is 0.6.0"}])
+                for c in g.corners]
+        with self.assertRaises(batch_sim.BatchError) as ctx:
+            self.env.execute(runner=fake_runner(lib_sha=sha, mutate=mut))
+        self.assertIn("batch_runner_version_mismatch", str(ctx.exception))
+        self.assertIn("before simulating", str(ctx.exception))
+
     def test_unusable_klt_binary_is_an_error(self):
         group = SimpleNamespace(dir=self.env.tmp, request_path=self.env.tmp / "r.json", supply_v=3.3)
         out = batch_sim.run_klt(group, klt="/nonexistent/klt")

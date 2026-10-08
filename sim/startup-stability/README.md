@@ -32,6 +32,17 @@ pre-#193) — see `sim/startup-stability-post-layout/README.md`'s dated update
 for why this now leaves comparatively thin headroom against the ±20 mV bound
 on the post-layout extracted netlist.
 
+## Update (2026-10-08, issue #320): batch execution path
+
+The 45-corner matrix can be run on the Spot batch fleet with
+`sim/bin/corner-run.py sim/startup-stability --backend batch` (details and
+current status in `sim/README.md`, "Batch backend"). The scientific content --
+251-point sweep, measurements, limits, spread checks -- is unchanged, and the
+manifest was not edited. **No batch-produced record exists yet**: the first
+attempt was stopped by the fleet image's older `klt` pin (2am#2193), before any
+simulation, so the newest record is still `20260909-232410-e8e2e46`. Index the
+first batch-run record here when it lands.
+
 ## What changed between the last two vintages
 
 The two `-1445xx` records are not a harness problem and were not caused by the
