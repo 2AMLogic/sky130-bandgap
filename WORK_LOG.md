@@ -5,6 +5,12 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-10-08
 
+- **Issue #334** (closed): Qualify untrimmed 3-sigma accuracy separately from the Monte Carlo sanity floor
+- **PR #340**: sim: derived DR-005 3-sigma qualification of untrimmed MC, separate from sanity floor (#334)
+- **Issue #333** (closed): Grade the literal DR-005 trim range separately from DR-002 engineering checks
+- **PR #336**: Grade literal DR-005 trim range separately from DR-002 engineering checks (#333)
+- **Issue #327** (closed): Refresh trim-network evidence (trim-lsb-chained bench) against the current n_r2=51 design
+- **PR #331**: Refresh trim-lsb-chained evidence at n_r2=51 (all DR-002 criteria PASS)
 - **PR #329**: docs: compact README status scoreboard (8 spec rows)
 - **Issue #328** (closed): README status narrative is a hand-maintained changelog that contradicts itself (seven vs eight spec rows)
 - **PR #326**: sim: route startup-stability matrix through klt sim batch backend (#320; live run blocked by fleet klt pin)
