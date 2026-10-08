@@ -17,13 +17,13 @@ _None._
 
 Human-approved issues ready for implementation (`loom:issue`).
 
-_None._
+- **#320**: Route startup-stability’s full 45-corner regression through the Spot batch backend
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
-- **#320**: Route startup-stability’s full 45-corner regression through the Spot batch backend
+- **#327**: Refresh trim-network evidence (trim-lsb-chained bench) against the current n_r2=51 design
 
 ## PRs Awaiting Review
 
@@ -44,6 +44,7 @@ Issues carrying `loom:curated`.
 - **#306**: Reduce the startup injector's supply-dependent GDRV load so PSRR clears DR-006's 60 dB floor (design cause confirmed by #300) *(curated)*
 - **#315**: Complete #306's circuit fix (startup injector PSRR) and the post-fix layout cycle *(curated)*
 - **#320**: Route startup-stability’s full 45-corner regression through the Spot batch backend *(curated)*
+- **#327**: Refresh trim-network evidence (trim-lsb-chained bench) against the current n_r2=51 design *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -59,11 +60,11 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Operator priority | 0 |
-| Ready (`loom:issue`) | 0 |
+| Ready (`loom:issue`) | 1 |
 | In Progress (`loom:building`) | 1 |
 | PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 3 |
+| Curated | 4 |
 | Architect / Hermit proposals | 0 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->

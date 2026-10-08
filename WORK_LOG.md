@@ -3,6 +3,12 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-10-08
+
+- **PR #329**: docs: compact README status scoreboard (8 spec rows)
+- **Issue #328** (closed): README status narrative is a hand-maintained changelog that contradicts itself (seven vs eight spec rows)
+- **PR #326**: sim: route startup-stability matrix through klt sim batch backend (#320; live run blocked by fleet klt pin)
+
 ### 2026-10-03
 
 - **PR #322**: sim(psrr-injector-candidates): m_ref/m_pnp knobs closed for the hot corner; DR-013 (#315 partial)
