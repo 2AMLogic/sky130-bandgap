@@ -1,105 +1,87 @@
 #!/usr/bin/env python3
 """Re-derive DR-002's three trim criteria (monotonic-in-code, downward span,
-LSB) against the routed layout's REAL chained fine-trim topology, at the
-ADOPTED `n_r1=7`/`n_r2=50` sizing (issue #99 / PR #105) -- issue #106.
+LSB) against the routed layout's REAL chained fine-trim topology at the
+CURRENT design sizing -- issue #327 (refresh of issue #106's original run).
 
-Why this is needed (and why it is a fresh derivation, not a re-citation):
-issue #99's own AC3 re-check of DR-002's downward trim range
-(`sim/res-array-resize/records/20260805-204809-2c83c7a.md`) spot-checked only
-codes 0/-8/-16 and reported the SPAN and MONOTONICITY criteria explicitly,
-but never computed the third DR-002 criterion -- the per-code LSB, gated at
-`<= 3.000 mV/code` (25% of the +/-1% window's 12 mV half-width, the exact
-bound `sim/trim-range-monotonicity/run_trim_sweep.py`'s own
-`lsb_comfortable[*]` check uses) -- against the CHAINED topology. A prior
-issue (#106's own now-corrected original text) computed a 3.655-3.682 mV/code
-LSB and flagged a DR-002 violation, but did so against an ABANDONED
-`n_r1=6`/`n_r2=42` sizing that never merged (losing side of a concurrent-
-Builder race on #99; see #106's Curator correction). This script re-derives
-the same three criteria against the topology that DOES matter -- the
-ADOPTED `n_r1=7`/`n_r2=50` sizing PR #105 shipped -- using the identical
-per-code LSB formula `run_trim_sweep.py` established:
-`lsb = (vref_27(code=0) - vref_27(code=-16)) / 16`.
+History. Issue #106 first re-derived the criteria at the then-adopted
+`n_r1=7`/`n_r2=50` sizing (record `20260806-052035-dea0ca5`, schematic-level,
+Darwin host, dirty tree, a stale pre-#178 core body). Since then the design
+moved: `n_r2` was re-centred 50 -> 51 and the chained array was modelled in
+`design/bandgap_core.sch` (issue #193), `r_lseg_trim` became 0.5 um (issue
+#106/#111), and the error-amp input pair was resized. That record is
+therefore STALE against the current design (the report's row 2). This
+script produces the replacement record; the old record is untouched
+(`sim/` is append-only).
 
-Why a bespoke script (same reasoning as `sim/res-array-resize/
-run_res_array_resize.py`, whose chained-array substitution this script
-reuses conceptually): the claim needs the SAME netlisted core body -- amp,
-PNPs, PMOS mirrors, startup node -- re-run with a structural edit to the
-R2A/R2B fine-trim ladder, namely chaining separately-contacted unit
-instances (the routed layout's own `bus_res_series` decomposition) rather
-than one lumped `res_high_po` device. That is a body substitution, not a
-`deck.params` override, so the generic corner-runner manifest path cannot
-express it (the same finding `sim/trim-range-monotonicity/
-run_trim_sweep.py`'s own module docstring documents for the single-device
-case).
+What changed in this script versus the #106 version:
 
-THIS SCRIPT ADDS ONE AXIS `sim/res-array-resize/run_res_array_resize.py`
-did not have: the fine-trim UNIT LENGTH (`r_lseg_trim`, drawn today as
-`R_LSEG_TRIM_UM=1.0` um in `layout/bin/gen_bandgap_routed.py` and
-`design/bandgap_core.sch`'s `.param r_lseg_trim=1`). It runs TWO configs at
-the same adopted sizing and corner/code matrix:
+  * Sizing is READ from `design/bandgap_core.sch` (`n_r1`, `n_r2`,
+    `r_lseg`, `r_w`, `r_lseg_trim`, `n_r2_fine`), not hard-coded. `--n-r2`
+    exists only for what-if sweeps and is stamped into the record.
+  * The core body is a FRESH xschem netlist of
+    `sim/output-voltage-tc/testbench/tb_vref_tc.sch` (xschem is available
+    now), snapshotted next to the record, not the 2026-08-03 snapshot the
+    old run reused.
+  * Two bodies are run from that one netlist:
+      - `chained` -- the graded config: the schematic's lumped
+        "replica + VCVS" head-resistance model and single-device legs are
+        replaced by explicit separately-contacted unit-instance chains
+        (the routed layout's own `bus_res_series` decomposition), exactly
+        the substitution #106 used. Trim codes 0..-16, EVERY code.
+      - `lumped` -- the design's own netlist, trim applied by overriding
+        `.param n_r2_trim`. A cross-check that the schematic's chained-array
+        model agrees with the explicit chain; codes 0, -8, -16.
+  * The (process x supply x code) grid is a set of `klt sim --backend batch`
+    requests (Spot batch fleet), never a local ngspice loop. One request per
+    (config, supply, code): `klt sim` cannot alter a `.param` (the supply
+    here is `.param vsup`, and the trim code changes the netlist), so those
+    two axes are pinned in each request's netlist and the five process
+    corners go on klt's process axis. The in-deck `dc temp -40 125 11`
+    box-method sweep (16 points) is the request's analysis, unchanged.
+  * Matrix widened to the full 5 process x 3 supply (2.97/3.30/3.63 V)
+    corner matrix the other refreshed benches use (the old run had only
+    five hand-picked (process, supply) pairs).
 
-  * `shipped`  -- `r_lseg_trim=1.0` um, the topology drawn today. Expected
-    (per the prior issue's now-corrected-baseline prior, and per DR-003's
-    finding that the fine chain's per-instance head-resistance term is
-    unchanged between the two competing #99 resizes) to still show a real,
-    if smaller, LSB violation.
-  * `revised`  -- `r_lseg_trim=0.5` um, the fix this record proposes (a DR-002
-    revision, see the module-level `FIX_RATIONALE` below): halving the fine
-    unit's drawn length halves its `rbody` fringe contribution while the
-    per-instance `rhead` term (the dominant piece, ~379.7 of the ~704.5
-    ohm/code total -- see DR-003 / `sim/res-array-head-resistance/`) is
-    UNCHANGED, since `rhead`'s length is a hardcoded PDK-model constant
-    independent of the caller's drawn body length. The fine ladder's unit
-    COUNT (`N_R2_FINE_UNITS=20`, and therefore DR-002's certified 0..-16 code
-    range) is left unchanged -- only the per-unit length shrinks, so the
-    fine ladder's own drawn extent halves (20 um -> 10 um) and the coarse
-    portion lengthens by the same amount to hold the untrimmed leg length
-    (`5*n_r2` um) fixed. This is a pure re-partition of the SAME total R2A/R2B
-    length between coarse and fine segments, not a resize of `n_r1`/`n_r2`
-    (issue #99's lever) or of the certified code range (DR-002's other
-    lever) -- see `sim_common.r2_segments_um()` for the exact closed form
-    (moved there from this file, issue #198).
+DR-002's criteria, graded exactly as `sim/trim-range-monotonicity/
+run_trim_sweep.py` does, per (process, supply) corner on the chained body:
 
-Chained-array electrical model (same klt/PDK-model-card constants
-`sim/res-array-resize/run_res_array_resize.py`'s `analytic_resistances()`
-reproduces to 0.0000% against real ngspice and against `klt`'s own LVS
-extraction -- see `sim/res-array-head-resistance/`): each unit instance
-contributes `HEAD_OHM` (fixed, per-instance, independent of drawn length)
-plus `BODY_OHM_PER_UM * length_um` (the `rbody` fringe/sheet term).
+  * monotonic-in-code: VREF(27 C) strictly increases from code -16 to 0
+    (graded at every one of the 17 codes);
+  * downward span (code 0 -> -16) >= 1.5 x the worst-case 3-sigma untrimmed
+    MC spread. DR-002 ratified 15.620 mV (record 20260803-142259-544cc5e,
+    125 C). That MC record is itself stale (pre-#193); the current-design MC
+    record `20260817-121131-d7d85b6` gives 3 x 7.3466 mV = 22.040 mV at
+    125 C. Both are graded; the first is DR-002's own number, the second
+    is the freshness check;
+  * LSB = (VREF27(0) - VREF27(-16)) / 16 <= 3.0 mV/code (25 % of the
+    +/-1 % window's 12 mV half-width).
 
-Note on tool availability: like the two records this one extends, this run
-environment has `ngspice` but not `xschem`, so the core body is read from
-the already-checked-in netlist snapshot `sim/trim-range-monotonicity/
-netlist-snapshots/20260803-170704-b976d0f.spice` (verified byte-identical on
-the `.param` lines that matter) rather than re-netlisted from
-`tb_vref_tc.sch`. The chained resistor topology is injected by this script
-directly, so the snapshot's own `.param n_r1`/`n_r2`/`n_r2_trim`/
-`r_lseg_trim` values never enter the resistor legs -- only the surrounding
-core body (PNPs/amp/mirrors) is reused from it.
+Spec discipline: no threshold here is relaxed to make a result pass. If a
+criterion fails the record says so and the disposition is a design issue /
+operator question, not an edit of DR-002/DR-005.
 
-Layout-propagation scope note: this record verifies the FIX at the sim
-(chained-topology) level only, per this issue's acceptance criteria and the
-one-lever-per-increment discipline DR-003/#99 already established (schematic
-+ sim first, `layout/bin/gen_bandgap_routed.py` re-transcription + klayout
-DRC/LVS re-verification as a separate follow-up issue -- the same split #99
-used for #107/#108). `klayout`'s python extraction/DRC backend is not
-importable in this run environment (`python3 -c "import klayout"` fails),
-so this record does not attempt to regenerate or re-verify the drawn GDS.
+The `.save i(v1)` line the testbench carries restricts ngspice to the saved
+vectors; a local deck adds `save all` itself, but the batch runner image's
+klt (0.5.0) does not, so this script appends `v(vref)` to that `.save` line
+in the request netlist (otherwise `v(vref)` is not found and every
+measurement is empty).
 
 Usage
 -----
-    sim/trim-lsb-chained/run_trim_lsb_chained.py                 # full run
-    sim/trim-lsb-chained/run_trim_lsb_chained.py --dry-run        # print plan
+    sim/trim-lsb-chained/run_trim_lsb_chained.py             # full batch run
+    sim/trim-lsb-chained/run_trim_lsb_chained.py --dry-run   # write requests under sim/build, submit nothing
 
 Exit status: 0 if every check passed, 2 if a record was written but a check
-failed, 1 on a harness/setup error (no record written) -- same convention as
-`corner-run.py` and the two records this one extends.
+failed, 1 on a harness/setup/batch error (no record written; nothing is ever
+run locally).
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import re
+import shutil
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -109,385 +91,466 @@ HERE = Path(__file__).resolve().parent
 SIM_DIR = HERE.parent
 REPO_ROOT = SIM_DIR.parent
 BUILD_DIR = SIM_DIR / "build" / "trim-lsb-chained"
+DESIGN_SCH = REPO_ROOT / "design" / "bandgap_core.sch"
+TB_SCH = SIM_DIR / "output-voltage-tc" / "testbench" / "tb_vref_tc.sch"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
+import batch_sim  # noqa: E402
 from sim_common import (  # noqa: E402
     add_common_args,
-    build_deck,
+    chain_lines,
     check_pdk_and_ngspice,
-    load_base_body,
     load_corner_run,
-    parse_measurements,
+    r1_segments_um,
+    r2_segments_um,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
-    run_ngspice,
     setup_record_paths,
-    substitute_arrays,
-    write_log,
 )
-
-# Reuse the same already-checked-in core-body snapshot the head-resistance
-# and res-array-resize records reuse (xschem unavailable in this run
-# environment). Reference-only -- never written by this script.
-BASE_SNAPSHOT = (
-    SIM_DIR / "trim-range-monotonicity" / "netlist-snapshots" / "20260803-170704-b976d0f.spice"
-)
-WRAPPED_SCHEMATIC = "sim/output-voltage-tc/testbench/tb_vref_tc.sch"
-
 
 cr = load_corner_run()
 
 SLUG = "trim-lsb-chained"
 TITLE = (
     "Re-derive DR-002's monotonic/span/LSB trim criteria against the chained "
-    "fine-trim topology at the adopted n_r1=7/n_r2=50 sizing, and verify a "
-    "fine-unit-length fix if the LSB comfort bound fails (issue #106)"
+    "fine-trim topology at the current design sizing (issue #327, refreshing issue #106)"
 )
 
 # --------------------------------------------------------------------------
-# Layout decomposition constants -- transcribed from
-# layout/bin/gen_bandgap_routed.py (N_R1 / N_R2_COARSE / N_R2_TRIM_UNITS /
-# R_LSEG_UM / R_LSEG_TRIM_UM) and design/bandgap_core.sch's CORE_PARAMS, same
-# source `sim/res-array-resize/run_res_array_resize.py` transcribes from.
+# Corner / code matrix
 # --------------------------------------------------------------------------
-R_W_UM = 1.0
-R_LSEG_UM = 5.0  # coarse unit length (unchanged by this issue)
-N_R2_FINE_UNITS = 20  # fixed fine-ladder unit COUNT (unchanged by this issue;
-# drawn 0..-20, DR-002 certifies 0..-16)
-
-# klt / PDK-model-card chained-array constants (reproduced to 0.0000% against
-# real ngspice and klt's own LVS extraction -- sim/res-array-head-resistance/,
-# sim/res-array-resize/run_res_array_resize.py's analytic_resistances()).
-HEAD_OHM = 379.705147  # rhead: fixed per-instance term, independent of drawn L
-BODY_OHM_PER_UM = 324.827244  # rbody: sheet + fringe term, scales with drawn L
-
-# --------------------------------------------------------------------------
-# THE ADOPTED SIZING (issue #99 / PR #105 / DR-003 closure) -- NOT the
-# abandoned n_r1=6/n_r2=42 alternative the original #106 text cited (see
-# #106's Curator correction). This is fixed for both configs below; this
-# issue's lever is the fine unit LENGTH, not n_r1/n_r2.
-# --------------------------------------------------------------------------
-N_R1 = 7
-N_R2 = 50
-
-# --------------------------------------------------------------------------
-# Configs: the fine-trim unit length (r_lseg_trim) axis this script adds.
-# Both keep N_R2_FINE_UNITS=20 fine units and the SAME untrimmed leg length
-# (5*n_r2 um) -- only the coarse/fine split of that fixed length moves, via
-# sim_common.r2_segments_um()'s closed form.
-# --------------------------------------------------------------------------
-CONFIGS = (
-    ("shipped", 1.0),  # design/bandgap_core.sch's r_lseg_trim=1 as of PR #110
-    ("revised", 0.5),  # this record's proposed DR-002 revision
-)
-
-FIX_RATIONALE = (
-    "Halving the fine unit's drawn length from 1.0 to 0.5 um roughly halves "
-    "its `rbody` (sheet+fringe) contribution per code while leaving the "
-    "per-instance `rhead` term -- the DOMINANT piece of the per-code step, "
-    "379.705147 of the shipped config's 704.532391 ohm/code total -- "
-    "UNCHANGED (the PDK model card's own rhead length is a hardcoded "
-    "constant, independent of the caller's drawn body length; see DR-003 / "
-    "sim/res-array-head-resistance/). The fine ladder's unit COUNT (20) and "
-    "therefore DR-002's certified 0..-16 code range are unchanged -- only "
-    "the coarse/fine split of the fixed 5*n_r2 um leg length moves."
-)
-
-# --------------------------------------------------------------------------
-# Corner matrix -- identical (process, supply) set and codes to
-# sim/trim-range-monotonicity's NEGATIVE_CORNERS / NEGATIVE_CODES and issue
-# #99's AC3 re-check.
-# --------------------------------------------------------------------------
-CORNERS = (
-    ("tt", 3.30),
-    ("ss", 3.30),
-    ("ff", 2.97),
-    ("sf", 2.97),
-    ("fs", 2.97),
-)
-CODES = (0, -8, -16)
+PROCESSES = ("tt", "ss", "ff", "sf", "fs")
+SUPPLIES = (2.97, 3.30, 3.63)
+TEMP_SWEEP_ARGS = "temp -40 125 11"  # 16-point box-method sweep, unchanged from #106
+VSPAN_C = 165.0  # -40..125 C, the TC denominator
+CHAINED_CODES = tuple(range(0, -17, -1))  # every downward code DR-002 certifies
+LUMPED_CODES = (0, -8, -16)
+CONFIGS = ("chained", "lumped")
+GRADED_CONFIG = "chained"
 
 VREF_SANITY_V = (1.10, 1.30)  # regulation-loss guard (collapse jumps VOUT ~2.85 V)
-SPEC_WINDOW_HALF_V = 0.012  # +/-1% of 1.20 V -- same bound DR-002/run_trim_sweep.py use
-LSB_COMFORTABLE_FRACTION = 0.25  # DR-002: LSB must be <= 25% of the window half-width
-WORST_CASE_3SIGMA_V = 0.015620  # sim/monte-carlo-untrimmed 20260803-142259-544cc5e, 125 degC
-SPAN_MARGIN_TARGET = 1.5  # DR-002 / run_trim_sweep.py's own downward-span margin
+SPEC_WINDOW_HALF_V = 0.012  # +/-1 % of 1.20 V
+LSB_COMFORTABLE_FRACTION = 0.25  # DR-002: LSB <= 25 % of the window half-width
+SPAN_MARGIN_TARGET = 1.5
+WORST_CASE_3SIGMA_DR002_V = 0.015620  # DR-002's ratified figure (20260803-142259-544cc5e, 125 C)
+WORST_CASE_3SIGMA_CURRENT_V = 3 * 0.0073466  # sim/monte-carlo-untrimmed 20260817-121131-d7d85b6, 125 C, 'all'
+MC_CURRENT_RECORD = "sim/monte-carlo-untrimmed/records/20260817-121131-d7d85b6.md"
+
+MEASUREMENTS = (
+    ("vref_27", ".meas dc vref_27 FIND v(vref) AT=27"),
+    ("vref_min", ".meas dc vref_min MIN v(vref)"),
+    ("vref_max", ".meas dc vref_max MAX v(vref)"),
+)
+
+CLIENT_CONCURRENCY = 6  # klt client jobs in flight at once (fleet-side work, not local sims)
 
 
 # --------------------------------------------------------------------------
-# chained-array geometry
-#
-# r2_segments_um()/TARGET_LINES/substitute_arrays() moved to sim_common.py
-# (issue #198) -- byte-for-byte identical (module constants aside) to
-# sim/res-array-resize/run_res_array_resize.py's own copies, which #143 left
-# behind when it consolidated the rest of this array-substitution machinery.
+# design sizing (read from the schematic, not hard-coded)
 # --------------------------------------------------------------------------
-
-# Core-body .param lines that MUST still match (independent of this issue's
-# fine-unit-length axis).
-EXPECTED_PARAMS = {
-    ".param n_pnp_ctat=8",
-    ".param n_pnp_ptat=8",
-    ".param r_w=1",
-    ".param r_lseg=5",
-    ".param m_out=2",
-    ".param m_ampbias=2",
-}
+_PARAM_RE = re.compile(r"^\.param\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(\S+)\s*$")
+_WANTED = ("n_r1", "n_r2", "r_lseg", "r_w", "r_lseg_trim", "n_r2_fine")
 
 
+def read_design_sizing(sch: Path = DESIGN_SCH) -> dict[str, float]:
+    """The numeric `.param` sizing lines of `design/bandgap_core.sch` (comment
+    lines start with `*`, so only the live definitions match)."""
+    found: dict[str, float] = {}
+    for line in sch.read_text().splitlines():
+        m = _PARAM_RE.match(line.strip())
+        if m and m.group(1) in _WANTED:
+            try:
+                found[m.group(1)] = float(m.group(2))
+            except ValueError:
+                continue
+    missing = [k for k in _WANTED if k not in found]
+    if missing:
+        raise cr.HarnessError(f"{sch}: could not read numeric .param {missing}")
+    return found
+
+
+# --------------------------------------------------------------------------
+# body construction
+# --------------------------------------------------------------------------
+_HD_PREFIXES = ("XR2A_HD", "ER2A_HD", "XR2B_HD", "ER2B_HD", "XR1_HD", "ER1_HD")
+_LEG_PREFIXES = ("XR2A", "XR2B", "XR1")
+
+
+def _first_token(line: str) -> str:
+    parts = line.split(None, 1)
+    return parts[0] if parts else ""
+
+
+def chained_body(body: list[str], sizing: dict, n_r2: int, code: int) -> list[str]:
+    """Replace the schematic's lumped head-resistance model + single-device
+    legs with explicit unit-instance chains at `code`."""
+    n_r1 = int(sizing["n_r1"])
+    r_lseg = sizing["r_lseg"]
+    r_w = sizing["r_w"]
+    trim_um = sizing["r_lseg_trim"]
+    fine = int(sizing["n_r2_fine"])
+    r2_seg = r2_segments_um(n_r2, code, trim_um, r_lseg, fine)
+    r1_seg = r1_segments_um(n_r1, r_lseg)
+    seen: dict[str, int] = {}
+    out: list[str] = []
+    for line in body:
+        tok = _first_token(line)
+        if tok in _HD_PREFIXES:
+            seen[tok] = seen.get(tok, 0) + 1
+            continue
+        if tok in _LEG_PREFIXES:
+            seen[tok] = seen.get(tok, 0) + 1
+            if tok == "XR2A":
+                out.extend(chain_lines("R2A", "VA", "VOUT", r2_seg, "VSS", r_w))
+            elif tok == "XR2B":
+                out.extend(chain_lines("R2B", "VB", "VOUT", r2_seg, "VSS", r_w))
+            else:
+                out.extend(chain_lines("R1", "VBQ", "VB", r1_seg, "VSS", r_w))
+            continue
+        out.append(line)
+    expected = set(_HD_PREFIXES) | set(_LEG_PREFIXES)
+    bad = {k: seen.get(k, 0) for k in expected if seen.get(k, 0) != 1}
+    if bad:
+        raise cr.HarnessError(
+            f"fresh netlist does not carry each of {sorted(expected)} exactly once: {bad} -- "
+            "design/bandgap_core.sch's resistor model changed; update chained_body()"
+        )
+    return out
+
+
+def lumped_body(body: list[str], code: int) -> list[str]:
+    """The design's own netlist with `.param n_r2_trim` set to `code`."""
+    out, hits = [], 0
+    for line in body:
+        if line.strip() == ".param n_r2_trim=0":
+            hits += 1
+            out.append(f".param n_r2_trim={code}")
+        else:
+            out.append(line)
+    if hits != 1:
+        raise cr.HarnessError(f"expected exactly one '.param n_r2_trim=0' in the fresh netlist, found {hits}")
+    return out
+
+
+def with_vref_saved(body: list[str]) -> list[str]:
+    out, hits = [], 0
+    for line in body:
+        if line.strip() == ".save i(v1)":
+            hits += 1
+            out.append(".save i(v1) v(vref)")
+        else:
+            out.append(line)
+    if hits != 1:
+        raise cr.HarnessError(f"expected exactly one '.save i(v1)' line in the testbench netlist, found {hits}")
+    return out
+
+
+# --------------------------------------------------------------------------
+# requests
+# --------------------------------------------------------------------------
 @dataclass(frozen=True)
-class Point:
+class Job:
     config: str
-    trim_unit_um: float
-    process: str
     supply_v: float
-    trim_code: int
+    code: int
 
     @property
     def name(self) -> str:
-        sign = "p" if self.trim_code >= 0 else "n"
-        return f"{self.config}_{self.process}_trim{sign}{abs(self.trim_code)}_{self.supply_v:.2f}v"
+        sign = "p" if self.code >= 0 else "n"
+        return f"{self.config}_v{self.supply_v:.2f}_trim{sign}{abs(self.code)}"
 
 
-def build_points() -> list[Point]:
-    points = []
-    for config, trim_unit_um in CONFIGS:
-        for process, supply in CORNERS:
-            for code in CODES:
-                points.append(Point(config, trim_unit_um, process, supply, code))
-    return points
+def build_jobs() -> list[Job]:
+    jobs = []
+    for config in CONFIGS:
+        codes = CHAINED_CODES if config == "chained" else LUMPED_CODES
+        for supply in SUPPLIES:
+            for code in codes:
+                jobs.append(Job(config, supply, code))
+    return jobs
 
 
-def run_all(base_body, pdk, run_dir, corners_dir, record_id, timeout) -> dict[Point, dict]:
-    results: dict[Point, dict] = {}
-    points = build_points()
-    for i, point in enumerate(points, start=1):
-        body = substitute_arrays(
-            base_body, N_R1, N_R2, point.trim_code, point.trim_unit_um, base_snapshot=BASE_SNAPSHOT
+def build_request(job: Job, pin: dict, timeout_s: int) -> dict:
+    return {
+        "netlist": "netlist.cir",
+        "engine": "ngspice",
+        "backend": "batch",
+        "models": {"pdk": pin["variant"], "lib": pin["ngspice_lib"]},
+        "corners": {"process": list(PROCESSES), "temperature_c": [27]},
+        "analysis": {"kind": "dc", "args": TEMP_SWEEP_ARGS},
+        "measurements": [{"name": n, "spice": s, "unit": "V"} for n, s in MEASUREMENTS],
+        "options": {"timeout_s": timeout_s, "keep_artifacts": True},
+        "batch": {
+            "poll_interval_s": 10,
+            "capacity_wait_s": 3600,
+            "runner_version_check": "enforce",
+        },
+    }
+
+
+def write_groups(jobs, base_body, sizing, n_r2, pin, out_dir: Path, timeout_s: int):
+    groups, by_dir = [], {}
+    saved = with_vref_saved(base_body)
+    for job in jobs:
+        body = chained_body(saved, sizing, n_r2, job.code) if job.config == "chained" else lumped_body(saved, job.code)
+        gdir = out_dir / job.name
+        gdir.mkdir(parents=True, exist_ok=True)
+        netlist = gdir / "netlist.cir"
+        netlist.write_text(
+            "\n".join([f"* {SLUG} {job.name} -- generated by sim/{SLUG}/run_trim_lsb_chained.py, do not edit",
+                       f".param vsup={job.supply_v}"] + body + [""])
         )
-        deck = build_deck(SLUG, "run_trim_lsb_chained.py", pdk, point.process, point.supply_v, body)
-        stamp = datetime.now(timezone.utc)
-        raw, rc, timed_out = run_ngspice(run_dir, point.name, deck, timeout)
-        if corners_dir is not None:
-            write_log(corners_dir, point.name, record_id, pdk, stamp, deck, raw, rc, timed_out)
-        meas = parse_measurements(raw)
-        print(
-            f"[{i:>2}/{len(points)}] {point.name:<32} rc={rc}{' TIMEOUT' if timed_out else ''} "
-            f"vref_27={meas.get('vref_27')} tc_ppm={meas.get('tc_ppm')}"
+        request = build_request(job, pin, timeout_s)
+        request_path = gdir / "request.json"
+        request_path.write_text(json.dumps(request, indent=2, sort_keys=True) + "\n")
+        g = batch_sim.Group(job.supply_v, gdir, netlist, request_path, [], request)
+        groups.append(g)
+        by_dir[gdir] = job
+    return groups, by_dir
+
+
+def run_batch(groups):
+    outcomes = []
+    for i in range(0, len(groups), CLIENT_CONCURRENCY):
+        chunk = groups[i : i + CLIENT_CONCURRENCY]
+        done = batch_sim.collect(chunk)
+        outcomes.extend(done)
+        for o in done:
+            remote = (o.report.get("environment") or {}).get("remote") or {}
+            print(f"  [{len(outcomes):>2}/{len(groups)}] {o.group.dir.name:<28} job={remote.get('job_id')} "
+                  f"status={o.report.get('status')} wall={o.wall_s:.0f}s")
+    return outcomes
+
+
+def fold_results(outcomes, by_dir) -> tuple[dict, list[dict]]:
+    """-> ({(config, process, supply, code): {vref_27, vref_min, vref_max, tc_ppm}}, execution list)."""
+    results: dict = {}
+    execution: list[dict] = []
+    for o in outcomes:
+        job = by_dir[o.group.dir]
+        env = o.report.get("environment") or {}
+        remote = env.get("remote") or {}
+        execution.append(
+            {
+                "request": job.name,
+                "job_id": remote.get("job_id"),
+                "instance_type": remote.get("instance_type"),
+                "lifecycle": remote.get("lifecycle"),
+                "ami_id": remote.get("ami_id"),
+                "engine_version": env.get("engine_version"),
+                "models_lib_sha256": env.get("models_lib_sha256"),
+                "fleet_elapsed_s": remote.get("elapsed_seconds"),
+                "wall_s": round(o.wall_s, 1),
+                "klt_status": o.report.get("status"),
+            }
         )
-        if timed_out or rc != 0 or "vref_27" not in meas:
-            raise cr.HarnessError(
-                f"point {point.name} did not produce usable measurements "
-                f"(rc={rc}, timed_out={timed_out}); no record written"
-            )
-        results[point] = meas
-    return results
+        seen = set()
+        for c in o.report["corners"]:
+            proc = c["process"]
+            vals = {m["name"]: m.get("value") for m in c.get("measurements") or []}
+            if any(vals.get(n) is None for n, _ in MEASUREMENTS) or c.get("status") == "error":
+                raise cr.HarnessError(
+                    f"{job.name}/{proc}: no usable measurements ({c.get('status')}, "
+                    f"{[d.get('message') for d in c.get('diagnostics') or []]}); no record written"
+                )
+            key = (job.config, proc, job.supply_v, job.code)
+            if key in results:
+                raise cr.HarnessError(f"duplicate corner result for {key}")
+            v27, vmin, vmax = vals["vref_27"], vals["vref_min"], vals["vref_max"]
+            results[key] = {
+                "vref_27": v27,
+                "vref_min": vmin,
+                "vref_max": vmax,
+                "tc_ppm": (vmax - vmin) / (v27 * VSPAN_C) * 1e6,
+            }
+            seen.add(proc)
+        if seen != set(PROCESSES):
+            raise cr.HarnessError(f"{job.name}: processes returned {sorted(seen)} != requested {sorted(PROCESSES)}")
+    return results, execution
 
 
 # --------------------------------------------------------------------------
-# checks (DR-002's three criteria, exact formulas from
-# sim/trim-range-monotonicity/run_trim_sweep.py's evaluate())
+# checks
 # --------------------------------------------------------------------------
-
-
-def evaluate(results: dict[Point, dict]) -> list[dict]:
+def evaluate(results: dict) -> list[dict]:
     checks: list[dict] = []
 
     def add(name, ok, detail):
         checks.append({"name": name, "pass": bool(ok), "detail": detail})
 
-    def get(config, process, supply, code):
-        return results[Point(config, dict(CONFIGS)[config], process, supply, code)]
-
-    for config, trim_unit_um in CONFIGS:
-        for process, supply in CORNERS:
-            cid = f"{config}_{process}_{supply:.2f}v"
-
-            # sanity / collapse-free at every sampled code
-            all_reg = all(
-                VREF_SANITY_V[0] <= get(config, process, supply, t)["vref_max"] <= VREF_SANITY_V[1]
-                for t in CODES
-            )
-            add(
-                f"collapse_free[{cid}]",
-                all_reg,
-                f"every downward code {CODES} stays on the operating branch (vref_max in "
-                f"{VREF_SANITY_V}) at r_lseg_trim={trim_unit_um} um",
-            )
-
-            # monotonic in code (0, -8, -16 strictly increasing toward 0)
-            ordered = sorted(CODES)
-            series = [get(config, process, supply, t)["vref_27"] for t in ordered]
-            strictly_increasing = all(b > a for a, b in zip(series, series[1:]))
-            add(
-                f"monotonic[{cid}]",
-                strictly_increasing,
-                f"vref_27 vs trim_code {list(zip(ordered, (round(v, 6) for v in series)))} "
-                "(must strictly increase from -16 toward 0)",
-            )
-
-            # downward span >= 1.5x worst-case 3sigma MC spread
-            v_hi = get(config, process, supply, 0)["vref_27"]
-            v_lo = get(config, process, supply, -16)["vref_27"]
-            span_v = v_hi - v_lo
-            span_ok = span_v >= SPAN_MARGIN_TARGET * WORST_CASE_3SIGMA_V
-            add(
-                f"range_covers_mc_spread[{cid}]",
-                span_ok,
-                f"downward trim span (code 0..-16) = {span_v * 1000:.3f} mV, required >= "
-                f"{SPAN_MARGIN_TARGET} x {WORST_CASE_3SIGMA_V * 1000:.3f} mV = "
-                f"{SPAN_MARGIN_TARGET * WORST_CASE_3SIGMA_V * 1000:.3f} mV",
-            )
-
-            # LSB (average per-code step over 0..-16) <= 25% of window half-width
-            lsb_v = span_v / 16.0
-            lsb_ok = lsb_v <= LSB_COMFORTABLE_FRACTION * SPEC_WINDOW_HALF_V
-            add(
-                f"lsb_comfortable[{cid}]",
-                lsb_ok,
-                f"LSB={lsb_v * 1000:.4f} mV/code, required <= "
-                f"{LSB_COMFORTABLE_FRACTION:.0%} of window half-width "
-                f"({LSB_COMFORTABLE_FRACTION * SPEC_WINDOW_HALF_V * 1000:.3f} mV) "
-                f"at r_lseg_trim={trim_unit_um} um",
-            )
-
+    for supply in SUPPLIES:
+        for proc in PROCESSES:
+            cid = f"{GRADED_CONFIG}_{proc}_{supply:.2f}v"
+            r = {c: results[(GRADED_CONFIG, proc, supply, c)] for c in CHAINED_CODES}
+            reg = all(VREF_SANITY_V[0] <= r[c]["vref_max"] <= VREF_SANITY_V[1] for c in CHAINED_CODES)
+            add(f"collapse_free[{cid}]", reg,
+                f"all {len(CHAINED_CODES)} downward codes stay on the operating branch (vref_max in {VREF_SANITY_V})")
+            series = [r[c]["vref_27"] for c in sorted(CHAINED_CODES)]
+            steps = [b - a for a, b in zip(series, series[1:])]
+            add(f"monotonic[{cid}]", all(s > 0 for s in steps),
+                f"vref_27 strictly increasing from code -16 to 0 over all {len(series)} codes; "
+                f"smallest single-code step {min(steps) * 1000:.4f} mV, largest {max(steps) * 1000:.4f} mV")
+            span = r[0]["vref_27"] - r[-16]["vref_27"]
+            for tag, sigma3 in (("range_covers_mc_spread", WORST_CASE_3SIGMA_DR002_V),
+                                ("range_covers_current_mc_spread", WORST_CASE_3SIGMA_CURRENT_V)):
+                need = SPAN_MARGIN_TARGET * sigma3
+                add(f"{tag}[{cid}]", span >= need,
+                    f"downward trim span (code 0..-16) = {span * 1000:.3f} mV, required >= "
+                    f"{SPAN_MARGIN_TARGET} x {sigma3 * 1000:.3f} mV = {need * 1000:.3f} mV")
+            lsb = span / 16.0
+            bound = LSB_COMFORTABLE_FRACTION * SPEC_WINDOW_HALF_V
+            add(f"lsb_comfortable[{cid}]", lsb <= bound,
+                f"LSB={lsb * 1000:.4f} mV/code, required <= {LSB_COMFORTABLE_FRACTION:.0%} of window "
+                f"half-width ({bound * 1000:.3f} mV)")
     return checks
 
 
-# --------------------------------------------------------------------------
-# record rendering
-# --------------------------------------------------------------------------
+def corner_summary(results: dict, config: str, proc: str, supply: float) -> dict:
+    codes = CHAINED_CODES if config == "chained" else LUMPED_CODES
+    r = {c: results[(config, proc, supply, c)] for c in codes}
+    span = r[0]["vref_27"] - r[-16]["vref_27"]
+    out = {"span_mv": span * 1000, "lsb_mv": span / 16 * 1000, "v0": r[0]["vref_27"], "v16": r[-16]["vref_27"]}
+    if config == "chained":
+        series = [r[c]["vref_27"] for c in sorted(codes)]
+        steps = [b - a for a, b in zip(series, series[1:])]
+        out["step_min_mv"] = min(steps) * 1000
+        out["step_max_mv"] = max(steps) * 1000
+    return out
 
 
+# --------------------------------------------------------------------------
+# record
+# --------------------------------------------------------------------------
 def render_record(r: dict) -> str:
     L: list[str] = []
-
-    def add(line: str = ""):
-        L.append(line)
+    add = L.append
+    results = {(k.split("|")[0], k.split("|")[1], float(k.split("|")[2]), int(k.split("|")[3])): v
+               for k, v in r["results"].items()}
+    s = r["sizing"]
 
     add(f"# Record {r['record_id']}")
     add("")
     L.extend(render_record_id_experiment(r["record_id"], SLUG, TITLE))
     add(
-        "- **Claim**: issue #106 -- re-derive (not re-cite) DR-002's three trim "
-        "criteria (monotonic-in-code, downward span, LSB) against the routed "
-        "layout's real chained fine-trim topology, at the ADOPTED "
-        f"`n_r1={N_R1}`/`n_r2={N_R2}` sizing (issue #99 / PR #105 -- NOT the "
-        "abandoned `n_r1=6`/`n_r2=42` alternative the original issue text cited, "
-        "see #106's Curator correction). Runs two `r_lseg_trim` (fine-unit-length) "
-        "configs at the same sizing/corner/code matrix: `shipped` (1.0 um, the "
-        "topology `design/bandgap_core.sch` and the routed layout drew before "
-        "this record) and `revised` (0.5 um, this record's proposed DR-002 fix)."
+        "- **Claim**: issue #327 -- re-derive (not re-cite) DR-002's three trim criteria (monotonic-in-code, "
+        "downward span, LSB) against the routed layout's chained fine-trim topology at the CURRENT design "
+        f"sizing (`n_r1={s['n_r1']:g}`, `n_r2={s['n_r2']:g}`, `r_lseg_trim={s['r_lseg_trim']:g}` um, "
+        f"`n_r2_fine={s['n_r2_fine']:g}`, read from `design/bandgap_core.sch`), over the full 5-process x "
+        "3-supply corner matrix and the -40..125 C range. Replaces the STALE `n_r1=7`/`n_r2=50` record "
+        "`20260806-052035-dea0ca5` (not edited)."
     )
     add(
-        "- **Netlist provenance**: the core body (amp/PNPs/PMOS mirrors) is reused "
-        f"from `{BASE_SNAPSHOT.relative_to(REPO_ROOT)}` (the same already-checked-in "
-        "snapshot the head-resistance and res-array-resize records reuse; xschem is "
-        "unavailable in this run environment). The R2A/R2B fine-trim ladder is "
-        "replaced with chained `sky130_fd_pr__res_high_po` unit-instance arrays at "
-        "the routed layout's own decomposition (`layout/bin/gen_bandgap_routed.py`), "
-        "parameterized on the candidate fine-unit length -- so the snapshot's own "
-        "`.param n_r1`/`n_r2`/`n_r2_trim`/`r_lseg_trim` values do not enter the "
-        "resistor legs."
+        "- **Netlist provenance**: a fresh xschem netlist of `sim/output-voltage-tc/testbench/tb_vref_tc.sch` "
+        f"(snapshot `{r['links']['snapshot']}`). Config `chained` replaces the schematic's lumped head-resistance "
+        "model and single-device legs with explicit separately-contacted `sky130_fd_pr__res_high_po` unit "
+        "chains at the routed layout's decomposition; config `lumped` is the design's own netlist with "
+        "`.param n_r2_trim` overridden. `.save i(v1)` gains `v(vref)` (the batch image's klt does not add "
+        "`save all`)."
     )
-    L.extend(render_pdk_tools_repo_state(r))
+    L.extend(render_pdk_tools_repo_state({**r, "jobs": None}))
+    add(f"- **Execution**: Spot batch fleet via `klt sim --backend batch` ({len(r['execution'])} requests; "
+        f"klt client `{r['klt_version']}`; remote ngspice `{r['execution'][0]['engine_version']}`; "
+        f"instance `{r['execution'][0]['instance_type']}`; models resolved on the fleet image "
+        f"(sha256 `{r['execution'][0]['models_lib_sha256']}` vs pinned local `{r['local_models_sha256']}` -- "
+        f"{'match' if r['models_sha_match'] else '**MISMATCH**'})). Job ids are in the table below.")
     add(
-        "- **Corner matrix**: the 5 (process, supply) corners "
-        + ", ".join(f"{p}/{s:.2f} V" for p, s in CORNERS)
-        + f" x trim codes {CODES} x 2 fine-unit-length configs, each with a continuous "
-        "in-deck `dc temp -40 125 11` box-method sweep (16 points) -- identical corner "
-        "set and code sampling to `sim/trim-range-monotonicity/` and issue #99's AC3."
+        "- **Corner matrix**: process tt/ss/ff/sf/fs x supply 2.97/3.30/3.63 V (15 corners); config `chained` at "
+        "all 17 downward codes 0..-16, config `lumped` at codes 0/-8/-16; each with the in-deck "
+        f"`dc {TEMP_SWEEP_ARGS}` box-method sweep (16 points). One request per (config, supply, code) with the "
+        "five processes on klt's process axis (`klt sim` cannot alter `.param vsup` or the netlist's trim code)."
     )
     add("- **Statistical convention**: N/A (deterministic sizing/topology sweep, not a distribution claim).")
     add("")
 
     add("## Per-code resistance step (analytic cross-reference)")
     add("")
-    add("| config | r_lseg_trim (um) | rhead (ohm, fixed) | rbody (ohm) | step (ohm/code) |")
+    add("| r_lseg_trim (um) | rhead (ohm, fixed) | rbody (ohm) | step (ohm/code) |")
+    add("|---|---|---|---|")
+    head, per_um = 379.705147, 324.827244
+    add(f"| {s['r_lseg_trim']:g} | {head:.3f} | {per_um * s['r_lseg_trim']:.3f} | {head + per_um * s['r_lseg_trim']:.3f} |")
+    add("")
+    add("(PDK model-card constants, DR-003; analytic only -- the ngspice sweep is what the checks are gated on.)")
+    add("")
+
+    for config in CONFIGS:
+        codes = CHAINED_CODES if config == "chained" else LUMPED_CODES
+        add(f"## Config `{config}`" + (" (graded)" if config == GRADED_CONFIG else " (cross-check, graded for the same criteria as an agreement witness)"))
+        add("")
+        hdr = "| process | supply (V) | VREF27 @0 (V) | VREF27 @-16 (V) | span (mV) | LSB (mV/code) |"
+        sep = "|---|---|---|---|---|---|"
+        if config == "chained":
+            hdr += " min step (mV) | max step (mV) | monotonic? | span >= 1.5x3s (DR-002) | span >= 1.5x3s (current MC) | LSB <= 3.000? |"
+            sep += "---|---|---|---|---|---|"
+        add(hdr)
+        add(sep)
+        for supply in SUPPLIES:
+            for proc in PROCESSES:
+                c = corner_summary(results, config, proc, supply)
+                row = f"| {proc} | {supply:.2f} | {c['v0']:.6f} | {c['v16']:.6f} | {c['span_mv']:.3f} | {c['lsb_mv']:.4f} |"
+                if config == "chained":
+                    cid = f"{config}_{proc}_{supply:.2f}v"
+                    ck = {x["name"]: x["pass"] for x in r["checks"]}
+                    yn = lambda n: "yes" if ck[f"{n}[{cid}]"] else "**NO**"  # noqa: E731
+                    row += (f" {c['step_min_mv']:.4f} | {c['step_max_mv']:.4f} | {yn('monotonic')} | "
+                            f"{yn('range_covers_mc_spread')} | {yn('range_covers_current_mc_spread')} | {yn('lsb_comfortable')} |")
+                add(row)
+        add("")
+        if config == "chained":
+            add("### Config `chained` -- VREF(27 C) (V) by code, tt")
+            add("")
+            add("| code | " + " | ".join(f"{v:.2f} V" for v in SUPPLIES) + " | TC(0..125C box) @3.30 V (ppm/C) |")
+            add("|---|" + "---|" * (len(SUPPLIES) + 1))
+            for code in codes:
+                add(f"| {code:+d} | " + " | ".join(f"{results[(config, 'tt', v, code)]['vref_27']:.6f}" for v in SUPPLIES)
+                    + f" | {results[(config, 'tt', 3.30, code)]['tc_ppm']:.2f} |")
+            add("")
+            add("Every other corner's per-code data is in the record JSON.")
+            add("")
+
+    add("## Cross-check: `lumped` (schematic model) vs `chained` (explicit chain)")
+    add("")
+    add("| process | supply (V) | max |dVREF27| over codes 0/-8/-16 (mV) | LSB lumped (mV) | LSB chained (mV) |")
     add("|---|---|---|---|---|")
-    for config, trim_unit_um in CONFIGS:
-        body_ohm = BODY_OHM_PER_UM * trim_unit_um
-        add(
-            f"| {config} | {trim_unit_um:.2f} | {HEAD_OHM:.3f} | {body_ohm:.3f} | "
-            f"{HEAD_OHM + body_ohm:.3f} |"
-        )
+    worst = 0.0
+    for supply in SUPPLIES:
+        for proc in PROCESSES:
+            d = max(abs(results[("lumped", proc, supply, c)]["vref_27"] - results[("chained", proc, supply, c)]["vref_27"])
+                    for c in LUMPED_CODES) * 1000
+            worst = max(worst, d)
+            add(f"| {proc} | {supply:.2f} | {d:.4f} | {corner_summary(results, 'lumped', proc, supply)['lsb_mv']:.4f} | "
+                f"{corner_summary(results, 'chained', proc, supply)['lsb_mv']:.4f} |")
     add("")
-    add(
-        "The `rhead` term is fixed per removed unit instance regardless of `r_lseg_trim` "
-        "(PDK model card, DR-003); only `rbody` scales with the drawn fine-unit length. "
-        "This is the analytic model only -- the ngspice sweep below is the ground truth "
-        "the checks are gated on."
-    )
+    add(f"Worst lumped-vs-chained VREF(27 C) difference at the sampled codes: {worst:.4f} mV.")
     add("")
 
-    for config, trim_unit_um in CONFIGS:
-        add(f"## Config `{config}` (r_lseg_trim={trim_unit_um} um) -- per-corner, per-code VREF")
-        add("")
-        add("| process | supply (V) | trim code | VREF(27 °C) (V) | VREF max (V) | TC (ppm/°C) | regulating? |")
-        add("|---|---|---|---|---|---|---|")
-        for process, supply in CORNERS:
-            for t in CODES:
-                m = r["results"][f"{config}:{process}:{supply}:{t}"]
-                reg = "yes" if VREF_SANITY_V[0] <= m["vref_max"] <= VREF_SANITY_V[1] else "**NO — collapsed**"
-                add(
-                    f"| {process} | {supply:.2f} | {t:+d} | {m['vref_27']:.6f} | {m['vref_max']:.6f} | "
-                    f"{m['tc_ppm']:.3f} | {reg} |"
-                )
-        add("")
-        add(f"### Config `{config}` -- DR-002 criteria per corner")
-        add("")
-        add("| process | supply (V) | span 0..-16 (mV) | monotonic? | span >= 1.5x3sigma? | LSB (mV/code) | LSB <= 3.000? |")
-        add("|---|---|---|---|---|---|---|")
-        for process, supply in CORNERS:
-            v_hi = r["results"][f"{config}:{process}:{supply}:0"]["vref_27"]
-            v_lo = r["results"][f"{config}:{process}:{supply}:-16"]["vref_27"]
-            span_mv = (v_hi - v_lo) * 1000
-            lsb_mv = span_mv / 16.0
-            cid = f"{config}_{process}_{supply:.2f}v"
-            mono = "yes" if next(c for c in r["checks"] if c["name"] == f"monotonic[{cid}]")["pass"] else "**NO**"
-            span_ok = "yes" if next(c for c in r["checks"] if c["name"] == f"range_covers_mc_spread[{cid}]")["pass"] else "**NO**"
-            lsb_ok = "yes" if next(c for c in r["checks"] if c["name"] == f"lsb_comfortable[{cid}]")["pass"] else "**NO**"
-            add(
-                f"| {process} | {supply:.2f} | {span_mv:.3f} | {mono} | {span_ok} | {lsb_mv:.4f} | {lsb_ok} |"
-            )
-        add("")
-
-    add("## Checks")
+    add("## Checks (graded config `chained`)")
     add("")
     n_fail = sum(1 for c in r["checks"] if not c["pass"])
     for c in r["checks"]:
         add(f"- {'PASS' if c['pass'] else 'FAIL'} `{c['name']}` — {c['detail']}")
     add("")
-    add(f"- **Overall: {'PASS' if r['overall_pass'] else 'FAIL'}** ({n_fail} check(s) failed)")
+    add(f"- **Overall: {'PASS' if r['overall_pass'] else 'FAIL'}** ({n_fail} check(s) failed of {len(r['checks'])})")
     add("")
-
-    add("## Fix rationale")
-    add("")
-    add(FIX_RATIONALE)
-    add("")
-
     add("## Determination")
     add("")
     add(r["determination"])
     add("")
-
+    add("## Batch execution")
+    add("")
+    add("| request | fleet job id | status | instance | lifecycle | fleet elapsed (s) | submit-to-collect wall (s) |")
+    add("|---|---|---|---|---|---|---|")
+    for e in r["execution"]:
+        add(f"| {e['request']} | `{e['job_id']}` | {e['klt_status']} | {e['instance_type']} | {e['lifecycle']} | "
+            f"{e['fleet_elapsed_s']} | {e['wall_s']} |")
+    add("")
     add("- **Links**:")
-    add(f"  - wrapped schematic: `{WRAPPED_SCHEMATIC}`")
-    add(f"  - reused core body snapshot: `{BASE_SNAPSHOT.relative_to(REPO_ROOT)}`")
-    add(
-        "  - predecessor (chained-array materiality): "
-        "`sim/res-array-head-resistance/records/20260805-113409-6caa9f8.md`"
-    )
-    add(
-        "  - predecessor (adopted sizing / AC3 span+monotonic spot-check): "
-        "`sim/res-array-resize/records/20260805-204809-2c83c7a.md`"
-    )
-    add(
-        "  - predecessor (DR-002's own LSB formula / criteria): "
-        "`sim/trim-range-monotonicity/records/20260803-170704-b976d0f.md`"
-    )
+    add(f"  - wrapped schematic: `{TB_SCH.relative_to(REPO_ROOT)}`")
+    add(f"  - netlist snapshot: `{r['links']['snapshot']}`")
+    add("  - superseded (stale) record: `sim/trim-lsb-chained/records/20260806-052035-dea0ca5.md` (untouched)")
+    add(f"  - current-design MC (3-sigma freshness check): `{MC_CURRENT_RECORD}`")
+    add("  - DR-002's own LSB formula / criteria: `sim/trim-range-monotonicity/records/20260803-170704-b976d0f.md`")
     add(f"  - runner: `sim/{SLUG}/run_trim_lsb_chained.py`")
-    add(f"  - logs: `{r['links']['corners_dir']}`")
+    add(f"  - logs and exact requests/netlists: `{r['links']['corners_dir']}`")
     add(f"  - record_json: `{r['links']['json']}`")
     add("  - decision record: `spec/decision-records/DR-002-trim-network-scoping.md`")
     add(f"- **Timestamp / author**: {r['timestamp']}, {r['author']}")
@@ -501,159 +564,141 @@ def render_record(r: dict) -> str:
     return "\n".join(L)
 
 
-def build_determination(results: dict[Point, dict], checks: list[dict]) -> str:
-    def fails_for(config: str) -> list[str]:
-        return [
-            c["name"]
-            for c in checks
-            if not c["pass"] and c["name"].split("[", 1)[1].startswith(f"{config}_")
-        ]
+def build_determination(results: dict, checks: list[dict], sizing: dict) -> str:
+    def fails(prefix):
+        return [c["name"] for c in checks if not c["pass"] and c["name"].startswith(prefix + "[")]
 
-    seg = []
+    seg = [
+        f"**Re-derived (not re-cited) at the current design** (`n_r1={sizing['n_r1']:g}`, `n_r2={sizing['n_r2']:g}`, "
+        f"`r_lseg_trim={sizing['r_lseg_trim']:g}` um), explicit chained fine-trim topology, "
+        f"{len(PROCESSES) * len(SUPPLIES)} corners x 17 codes."
+    ]
+    summaries = [corner_summary(results, GRADED_CONFIG, p, v) for v in SUPPLIES for p in PROCESSES]
+    lsbs = [c["lsb_mv"] for c in summaries]
+    spans = [c["span_mv"] for c in summaries]
     seg.append(
-        f"**Re-derived (not re-cited) against the ADOPTED sizing.** All three DR-002 "
-        f"criteria are re-measured against the routed layout's real chained fine-trim "
-        f"topology at `n_r1={N_R1}`, `n_r2={N_R2}` (issue #99 / PR #105) -- the sizing "
-        "that actually merged, not the abandoned `n_r1=6`/`n_r2=42` alternative the "
-        "original issue text (before Curator correction) cited."
+        f"Measured LSB {min(lsbs):.4f}-{max(lsbs):.4f} mV/code (bound 3.000); downward span "
+        f"{min(spans):.3f}-{max(spans):.3f} mV (needs >= {SPAN_MARGIN_TARGET * WORST_CASE_3SIGMA_DR002_V * 1000:.3f} mV "
+        f"on DR-002's ratified 3-sigma, >= {SPAN_MARGIN_TARGET * WORST_CASE_3SIGMA_CURRENT_V * 1000:.3f} mV on the "
+        "current-design MC's)."
     )
-
-    shipped_fails = fails_for("shipped")
-    revised_fails = fails_for("revised")
-
-    if shipped_fails:
-        lsb_fails = [n for n in shipped_fails if n.startswith("lsb_comfortable")]
-        other_fails = [n for n in shipped_fails if not n.startswith("lsb_comfortable")]
-        seg.append(
-            "**`shipped` config (r_lseg_trim=1.0 um, what is drawn today): DR-002's "
-            f"LSB comfort bound FAILS at {len(lsb_fails)}/{len(CORNERS)} corners"
-            + (f" ({', '.join(n.split('[')[1].rstrip(']') for n in lsb_fails)})" if lsb_fails else "")
-            + ". Monotonic-in-code and downward-span PASS at every corner (matching "
-            "issue #99's own AC3 spot-check), confirming the third DR-002 criterion -- "
-            "not previously derived against this adopted sizing -- is the one that does "
-            "not hold. This is a smaller violation than the abandoned baseline's "
-            "3.655-3.682 mV/code (the resized sizing's own trim span is smaller because "
-            "the untrimmed operating point sits closer to spec center), but it is a real, "
-            "measured violation of the same <=3.000 mV/code comfort bound, not merely a "
-            "prior's untested assumption."
-            + (f" Unexpected additional failures: {other_fails}." if other_fails else "")
-        )
+    for label, prefix in (("Monotonic-in-code", "monotonic"), ("Span (DR-002 ratified 3-sigma)", "range_covers_mc_spread"),
+                          ("Span (current-design MC 3-sigma)", "range_covers_current_mc_spread"),
+                          ("LSB <= 3.000 mV/code", "lsb_comfortable"), ("Collapse-free", "collapse_free")):
+        f = fails(prefix)
+        total = len(PROCESSES) * len(SUPPLIES)
+        seg.append(f"- {label}: **{'PASS' if not f else 'FAIL'} {total - len(f)}/{total}**"
+                   + (f" (failing: {', '.join(n.split('[')[1].rstrip(']') for n in f)})" if f else ""))
+    if all(c["pass"] for c in checks):
+        seg.append("All DR-002 criteria hold at every corner; spec row 2 (Trim) has a current-design verdict. "
+                   "Schematic-level only: a post-layout (extracted routed chain) trim check remains a possible follow-up.")
     else:
-        seg.append(
-            "**`shipped` config (r_lseg_trim=1.0 um, what is drawn today): all three "
-            "DR-002 criteria PASS at every corner** -- contrary to the prior (abandoned-"
-            "baseline-derived) expectation of an LSB violation."
-        )
-
-    if revised_fails:
-        seg.append(
-            f"**`revised` config (r_lseg_trim=0.5 um) does NOT resolve every check: "
-            f"{revised_fails}.** This candidate fix needs another iteration before it "
-            "can be adopted."
-        )
-    else:
-        seg.append(
-            "**`revised` config (r_lseg_trim=0.5 um, this record's proposed fix): all "
-            "three DR-002 criteria PASS at every corner**, including the LSB comfort "
-            "bound the shipped config fails. Halving the fine unit's drawn length shifts "
-            "the per-code step from the shipped config's fixed-`rhead`-plus-1.0um-`rbody` "
-            "total down to fixed-`rhead`-plus-0.5um-`rbody` (see the analytic "
-            "cross-reference table), which is enough margin at every corner (worst "
-            "corner's LSB stays comfortably under the 3.000 mV/code bound -- see the "
-            "per-corner checks)."
-        )
-
-    if not shipped_fails and not revised_fails:
-        seg.append(
-            "**No DR-002 revision is needed.** The adopted `n_r1=7`/`n_r2=50` sizing's "
-            "trim network already meets all three criteria against the real chained "
-            "topology; this record's `revised` config is reported for completeness "
-            "(a candidate the project can adopt for additional margin) but is not "
-            "required by this issue's acceptance criteria."
-        )
-    elif shipped_fails and not revised_fails:
-        seg.append(
-            "**Recommendation: adopt r_lseg_trim=0.5 um as a DR-002 revision.** "
-            "`design/bandgap_core.sch`'s `.param r_lseg_trim=1` should move to `0.5`, "
-            "and DR-002's own 'Range and resolution' section should be revised to record "
-            "the new per-code LSB against the chained topology. This changes the fine "
-            "unit's DRAWN length, so `layout/bin/gen_bandgap_routed.py`'s "
-            "`R_LSEG_TRIM_UM`/`SCH_R_LSEG_TRIM_UM` (and the coarse-count constant that "
-            "holds the leg length fixed) need re-transcribing and the routed cell needs "
-            "re-verification through klayout DRC/LVS before the fabricated part matches "
-            "this decision -- klayout's extraction backend is not importable in this run "
-            "environment (`python3 -c \"import klayout\"` fails), so that step is a "
-            "follow-up issue, per the same one-lever-per-increment split issue #99 used "
-            "for #107/#108 (schematic+sim first, layout regen+DRC/LVS as the next "
-            "increment)."
-        )
-
-    return "\n\n".join(seg)
+        seg.append("At least one criterion fails. DR-002/DR-005 are NOT relaxed by this record; the disposition is a "
+                   "design issue plus an operator question under `spec/`.")
+    return "\n".join(seg)
 
 
 # --------------------------------------------------------------------------
 # main
 # --------------------------------------------------------------------------
+def local_ngspice_free_netlist(pdk, out_dir: Path) -> list[str]:
+    """xschem netlist of the testbench (no simulation involved)."""
+    netlist = cr.netlist_with_xschem(TB_SCH, out_dir, pdk)
+    return cr.netlist_body(netlist)
 
 
-def verify(timeout: int, author: str, supersedes: str, allow_pdk_mismatch: bool, dry_run: bool) -> int:
+def verify(args) -> int:
     pin = cr.load_pin()
-    pdk = check_pdk_and_ngspice(pin, allow_pdk_mismatch, verbose=False)
-
-    base_body = load_base_body(BASE_SNAPSHOT, EXPECTED_PARAMS)
+    pdk = check_pdk_and_ngspice(pin, args.allow_pdk_mismatch, verbose=False)
+    sizing = read_design_sizing()
+    n_r2 = int(args.n_r2) if args.n_r2 is not None else int(sizing["n_r2"])
+    sizing = {**sizing, "n_r2": float(n_r2)}
     git_info = cr.git_state()
     now = datetime.now(timezone.utc)
     record_id = f"{now:%Y%m%d}-{now:%H%M%S}-{git_info['sha']}"
 
-    records_dir, _, corners_dir, record_md, record_json, _ = setup_record_paths(
-        HERE, record_id, with_snapshot=False
-    )
-
     print(f"experiment : {SLUG}")
     print(f"record id  : {record_id}")
-    print(f"sizing     : n_r1={N_R1} n_r2={N_R2} (adopted, issue #99 / PR #105)")
-    print(f"configs    : {CONFIGS}")
-
-    if dry_run:
-        print("(dry run: nothing written under sim/)")
-        sample = substitute_arrays(base_body, N_R1, N_R2, 0, CONFIGS[0][1], base_snapshot=BASE_SNAPSHOT)
-        print(build_deck(SLUG, "run_trim_lsb_chained.py", pdk, *CORNERS[0], sample))
-        return 0
+    print(f"sizing     : {sizing} (read from {DESIGN_SCH.relative_to(REPO_ROOT)})")
 
     run_dir = BUILD_DIR / record_id
-    results = run_all(base_body, pdk, run_dir, corners_dir, record_id, timeout)
+    body = local_ngspice_free_netlist(pdk, run_dir)
+    # the netlist's own params must agree with the schematic sizing we read
+    text = "\n".join(body)
+    for k in ("n_r1", "n_r2", "r_lseg_trim"):
+        want = sizing[k]
+        m = re.search(rf"^\.param {k}=(\S+)$", text, re.M)
+        if not m or float(m.group(1)) != want:
+            raise cr.HarnessError(f"fresh netlist .param {k}={m.group(1) if m else None} != sizing {want}")
+
+    jobs = build_jobs()
+    timeout_s = args.timeout
+    groups, by_dir = write_groups(jobs, body, sizing, n_r2, pin, run_dir / "requests", timeout_s)
+    print(f"requests   : {len(groups)} under {(run_dir / 'requests').relative_to(REPO_ROOT)}")
+    if args.dry_run:
+        print("(dry run: nothing submitted, nothing written under sim/ records)")
+        return 0
+
+    records_dir, snapshots_dir, corners_dir, record_md, record_json, snapshot = setup_record_paths(
+        HERE, record_id, with_snapshot=True
+    )
+    try:
+        outcomes = run_batch(groups)
+    except batch_sim.BatchError as err:
+        print(f"run_trim_lsb_chained: batch error: {err}", file=sys.stderr)
+        return 1
+    results, execution = fold_results(outcomes, by_dir)
+
+    local_sha = batch_sim.sha256_file(pdk.lib_file)
+    sha_match = all(e["models_lib_sha256"] == local_sha for e in execution)
     checks = evaluate(results)
+    if not sha_match:
+        checks.append({"name": "models_lib_sha256", "pass": False,
+                       "detail": "remote model library sha256 differs from the pinned local one"})
     overall = all(c["pass"] for c in checks)
-    determination = build_determination(results, checks)
+
+    # evidence trail: snapshot + per-request inputs and per-corner logs
+    snapshots_dir.mkdir(parents=True, exist_ok=True)
+    snapshot.write_text("\n".join(body) + "\n.end\n")
+    for o in outcomes:
+        job = by_dir[o.group.dir]
+        dst = corners_dir / job.name
+        dst.mkdir(parents=True, exist_ok=True)
+        for fname in ("request.json", "netlist.cir", "klt-report.json"):
+            src = o.group.dir / fname
+            if src.is_file():
+                shutil.copyfile(src, dst / fname)
+        for sub in sorted((o.group.dir / "klt-out").glob("*_novdd_27C")):
+            proc = sub.name.split("_")[0]
+            for fname, new in (("ngspice.log", f"{proc}.log"), ("corner.cir", f"{proc}.cir")):
+                if (sub / fname).is_file():
+                    shutil.copyfile(sub / fname, dst / new)
 
     record = {
         "record_id": record_id,
         "timestamp": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "author": author or cr.default_author(),
-        "supersedes": supersedes,
-        "sizing": {"n_r1": N_R1, "n_r2": N_R2},
-        "configs": {c: u for c, u in CONFIGS},
-        "pdk": {
-            "variant": pdk.variant,
-            "installed_commit": pdk.installed_commit,
-            "matches_pin": pdk.matches_pin,
-            "lib_file": str(pdk.lib_file),
-        },
+        "author": args.author or cr.default_author(),
+        "supersedes": args.supersedes,
+        "sizing": sizing,
+        "pdk": {"variant": pdk.variant, "installed_commit": pdk.installed_commit,
+                "matches_pin": pdk.matches_pin, "lib_file": str(pdk.lib_file)},
         "tools": cr.tool_versions(),
+        "klt_version": cr.first_line(["klt", "--version"]) if hasattr(cr, "first_line") else "klt",
+        "local_models_sha256": local_sha,
+        "models_sha_match": sha_match,
         "git": git_info,
-        "results": {
-            f"{p.config}:{p.process}:{p.supply_v}:{p.trim_code}": m for p, m in results.items()
-        },
+        "execution": execution,
+        "results": {f"{c}|{p}|{v}|{k}": m for (c, p, v, k), m in results.items()},
         "checks": checks,
         "overall_pass": overall,
-        "determination": determination,
+        "determination": build_determination(results, checks, sizing),
         "links": {
             "corners_dir": str(corners_dir.relative_to(REPO_ROOT)) + "/",
             "json": str(record_json.relative_to(REPO_ROOT)),
             "record": str(record_md.relative_to(REPO_ROOT)),
+            "snapshot": str(snapshot.relative_to(REPO_ROOT)),
         },
     }
-
     records_dir.mkdir(parents=True, exist_ok=True)
     record_json.write_text(json.dumps(record, indent=2, sort_keys=True, default=str) + "\n")
     record_md.write_text(render_record(record))
@@ -667,13 +712,14 @@ def verify(timeout: int, author: str, supersedes: str, allow_pdk_mismatch: bool,
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    p.add_argument("--n-r2", type=int, default=None,
+                   help="override n_r2 (default: read from design/bandgap_core.sch); what-if use only")
     add_common_args(p, timeout_default=1800)
     return p.parse_args(argv)
 
 
 def main(argv: list[str]) -> int:
-    args = parse_args(argv)
-    return verify(args.timeout, args.author, args.supersedes, args.allow_pdk_mismatch, args.dry_run)
+    return verify(parse_args(argv))
 
 
 if __name__ == "__main__":
