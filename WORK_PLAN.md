@@ -17,13 +17,13 @@ _None._
 
 Human-approved issues ready for implementation (`loom:issue`).
 
-- **#320**: Route startup-stability’s full 45-corner regression through the Spot batch backend
+_None._
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
-- **#327**: Refresh trim-network evidence (trim-lsb-chained bench) against the current n_r2=51 design
+_None._
 
 ## PRs Awaiting Review
 
@@ -44,11 +44,13 @@ Issues carrying `loom:curated`.
 - **#306**: Reduce the startup injector's supply-dependent GDRV load so PSRR clears DR-006's 60 dB floor (design cause confirmed by #300) *(curated)*
 - **#315**: Complete #306's circuit fix (startup injector PSRR) and the post-fix layout cycle *(curated)*
 - **#320**: Route startup-stability’s full 45-corner regression through the Spot batch backend *(curated)*
-- **#327**: Refresh trim-network evidence (trim-lsb-chained bench) against the current n_r2=51 design *(curated)*
 
 ## Proposed (Architect / Hermit)
 
-_None._
+- **#335**: Produce native klt pex comparison evidence for T1 item 7 *(architect)*
+- **#337**: Resolve reuse.lock.json error_amp 'evaluate' entry now that sky130-opamp has answered *(architect)*
+- **#339**: sim/README.md experiments table embeds per-bench current-record verdicts that go stale *(architect)*
+- **#338**: Consolidate duplicated klt grader pin and identity assertion into one source of truth *(hermit)*
 
 ## Epics
 
@@ -60,11 +62,11 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Operator priority | 0 |
-| Ready (`loom:issue`) | 1 |
-| In Progress (`loom:building`) | 1 |
+| Ready (`loom:issue`) | 0 |
+| In Progress (`loom:building`) | 0 |
 | PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 4 |
-| Architect / Hermit proposals | 0 |
+| Curated | 3 |
+| Architect / Hermit proposals | 4 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
