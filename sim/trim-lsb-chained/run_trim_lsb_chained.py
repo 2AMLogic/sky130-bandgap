@@ -79,6 +79,7 @@ run locally).
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import shutil
@@ -167,6 +168,96 @@ def read_design_sizing(sch: Path = DESIGN_SCH) -> dict[str, float]:
     if missing:
         raise cr.HarnessError(f"{sch}: could not read numeric .param {missing}")
     return found
+
+
+# --------------------------------------------------------------------------
+# provenance / core-body verification
+# --------------------------------------------------------------------------
+ERROR_AMP_SCH = REPO_ROOT / "design" / "error_amp.sch"
+STARTUP_INJECTOR_SCH = REPO_ROOT / "design" / "startup_injector.sch"
+_NON_DEVICE_NAMES = {"CORE_PARAMS", "RES_HEAD_MODEL", "AMP_PARAMS"}
+_SCH_NAME_RE = re.compile(r"\{[^}]*?\bname=([A-Z][A-Z0-9_]*)\b")
+
+
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def schematic_instances(sch: Path) -> set[str]:
+    """Upper-case instance refdes of an xschem schematic (pins/labels are lower-case)."""
+    return {n for n in _SCH_NAME_RE.findall(Path(sch).read_text()) if n not in _NON_DEVICE_NAMES}
+
+
+def expected_netlist_devices(core_sch: Path = DESIGN_SCH, amp_sch: Path = ERROR_AMP_SCH) -> dict[str, set[str]]:
+    """netlist instance names the current schematics must produce, per subckt.
+    Device refdes `M1` is netlisted as `XM1` (sky130 symbols are subckt instances);
+    the sub-block instance `XAMP` keeps its name."""
+    def netname(n: str) -> str:
+        return n if n.startswith("X") else "X" + n
+
+    return {
+        "bandgap_core": {netname(n) for n in schematic_instances(core_sch)},
+        "error_amp": {netname(n) for n in schematic_instances(amp_sch)},
+    }
+
+
+def subckt_instances(body: list[str]) -> dict[str, set[str]]:
+    """{subckt name: instance tokens beginning with X} of a netlist body."""
+    out: dict[str, set[str]] = {}
+    cur = None
+    for line in body:
+        t = line.split()
+        if not t:
+            continue
+        if t[0].lower() == ".subckt":
+            cur = t[1]
+            out[cur] = set()
+        elif t[0].lower() == ".ends":
+            cur = None
+        elif cur and t[0].upper().startswith("X"):
+            out[cur].add(t[0].upper())
+    return out
+
+
+def verify_core_body(body: list[str], core_sch: Path = DESIGN_SCH, amp_sch: Path = ERROR_AMP_SCH) -> dict:
+    """Fail unless the netlist body used as the bench input carries exactly the
+    devices of the CURRENT schematics (core: output/bias mirrors, amp, PNPs,
+    resistor legs; error amp: input pair, mirrors, cascode/CC). The bench's
+    netlist is generated fresh from them each run; this guards a stale or
+    hand-edited body and a schematic that grew a device the chained
+    substitution does not know about."""
+    have = subckt_instances(body)
+    want = expected_netlist_devices(core_sch, amp_sch)
+    problems = []
+    for sub, names in want.items():
+        got = have.get(sub)
+        if got is None:
+            problems.append(f".subckt {sub} absent from the netlist")
+            continue
+        if not names:
+            problems.append(f"no devices parsed from the {sub} schematic")
+        if names - got:
+            problems.append(f"{sub}: schematic devices missing from netlist: {sorted(names - got)}")
+        got = {n for n in got if not n.endswith("_HD")}  # RES_HEAD_MODEL code-block replicas
+        if got - names:
+            problems.append(f"{sub}: netlist devices not in schematic: {sorted(got - names)}")
+    if problems:
+        raise cr.HarnessError("core body does not match the current schematic -- " + "; ".join(problems))
+    return {sub: sorted(names) for sub, names in want.items()}
+
+
+def input_provenance(body: list[str]) -> dict:
+    files = {
+        "design/bandgap_core.sch": DESIGN_SCH,
+        "design/error_amp.sch": ERROR_AMP_SCH,
+        "design/startup_injector.sch": STARTUP_INJECTOR_SCH,
+        str(TB_SCH.relative_to(REPO_ROOT)): TB_SCH,
+    }
+    return {
+        "schematic_sha256": {k: sha256_file(v) for k, v in files.items()},
+        "netlist_body_sha256": hashlib.sha256("\n".join(body).encode()).hexdigest(),
+        "startup_injector_in_bench": False,
+    }
 
 
 # --------------------------------------------------------------------------
@@ -322,9 +413,11 @@ def run_batch(groups):
     return outcomes
 
 
-def fold_results(outcomes, by_dir) -> tuple[dict, list[dict]]:
-    """-> ({(config, process, supply, code): {vref_27, vref_min, vref_max, tc_ppm}}, execution list)."""
+def fold_results(outcomes, by_dir) -> tuple[dict, dict, list[dict]]:
+    """-> (results {(config, process, supply, code): {vref_27, vref_min, vref_max, tc_ppm}},
+    missing {key: reason}, execution list)."""
     results: dict = {}
+    missing: dict = {}
     execution: list[dict] = []
     for o in outcomes:
         job = by_dir[o.group.dir]
@@ -347,15 +440,16 @@ def fold_results(outcomes, by_dir) -> tuple[dict, list[dict]]:
         seen = set()
         for c in o.report["corners"]:
             proc = c["process"]
+            seen.add(proc)
             vals = {m["name"]: m.get("value") for m in c.get("measurements") or []}
-            if any(vals.get(n) is None for n, _ in MEASUREMENTS) or c.get("status") == "error":
-                raise cr.HarnessError(
-                    f"{job.name}/{proc}: no usable measurements ({c.get('status')}, "
-                    f"{[d.get('message') for d in c.get('diagnostics') or []]}); no record written"
-                )
             key = (job.config, proc, job.supply_v, job.code)
-            if key in results:
+            if key in results or key in missing:
                 raise cr.HarnessError(f"duplicate corner result for {key}")
+            if any(vals.get(n) is None for n, _ in MEASUREMENTS) or c.get("status") == "error":
+                # nonconvergent / errored point: reported explicitly, never dropped
+                missing[key] = (f"{c.get('status')}: "
+                                f"{[d.get('message') for d in c.get('diagnostics') or []]}")
+                continue
             v27, vmin, vmax = vals["vref_27"], vals["vref_min"], vals["vref_max"]
             results[key] = {
                 "vref_27": v27,
@@ -363,16 +457,16 @@ def fold_results(outcomes, by_dir) -> tuple[dict, list[dict]]:
                 "vref_max": vmax,
                 "tc_ppm": (vmax - vmin) / (v27 * VSPAN_C) * 1e6,
             }
-            seen.add(proc)
         if seen != set(PROCESSES):
             raise cr.HarnessError(f"{job.name}: processes returned {sorted(seen)} != requested {sorted(PROCESSES)}")
-    return results, execution
+    return results, missing, execution
 
 
 # --------------------------------------------------------------------------
 # checks
 # --------------------------------------------------------------------------
-def evaluate(results: dict) -> list[dict]:
+def evaluate(results: dict, missing: dict | None = None) -> list[dict]:
+    missing = missing or {}
     checks: list[dict] = []
 
     def add(name, ok, detail):
@@ -381,6 +475,15 @@ def evaluate(results: dict) -> list[dict]:
     for supply in SUPPLIES:
         for proc in PROCESSES:
             cid = f"{GRADED_CONFIG}_{proc}_{supply:.2f}v"
+            gaps = [c for c in CHAINED_CODES if (GRADED_CONFIG, proc, supply, c) not in results]
+            if gaps:
+                why = "; ".join(f"code {c}: {missing.get((GRADED_CONFIG, proc, supply, c), 'no result returned')}"
+                                for c in gaps)
+                for name in ("collapse_free", "monotonic", "range_covers_mc_spread",
+                             "range_covers_current_mc_spread", "lsb_comfortable"):
+                    add(f"{name}[{cid}]", False,
+                        f"UNGRADED: {len(gaps)} of {len(CHAINED_CODES)} codes missing/nonconvergent ({why})")
+                continue
             r = {c: results[(GRADED_CONFIG, proc, supply, c)] for c in CHAINED_CODES}
             reg = all(VREF_SANITY_V[0] <= r[c]["vref_max"] <= VREF_SANITY_V[1] for c in CHAINED_CODES)
             add(f"collapse_free[{cid}]", reg,
@@ -402,11 +505,21 @@ def evaluate(results: dict) -> list[dict]:
             add(f"lsb_comfortable[{cid}]", lsb <= bound,
                 f"LSB={lsb * 1000:.4f} mV/code, required <= {LSB_COMFORTABLE_FRACTION:.0%} of window "
                 f"half-width ({bound * 1000:.3f} mV)")
+    lump_gaps = [k for k in (("lumped", p, v, c) for v in SUPPLIES for p in PROCESSES for c in LUMPED_CODES)
+                 if k not in results]
+    add("lumped_crosscheck_complete", not lump_gaps,
+        f"all {len(SUPPLIES) * len(PROCESSES) * len(LUMPED_CODES)} lumped cross-check points returned"
+        if not lump_gaps else
+        "missing lumped points: " + "; ".join(f"{k[1]}/{k[2]:.2f}V/code {k[3]}: {missing.get(k, 'no result')}"
+                                             for k in lump_gaps))
     return checks
 
 
-def corner_summary(results: dict, config: str, proc: str, supply: float) -> dict:
+def corner_summary(results: dict, config: str, proc: str, supply: float) -> dict | None:
+    """Per-corner metrics; None if any code of the config is missing at this corner."""
     codes = CHAINED_CODES if config == "chained" else LUMPED_CODES
+    if any((config, proc, supply, c) not in results for c in codes):
+        return None
     r = {c: results[(config, proc, supply, c)] for c in codes}
     span = r[0]["vref_27"] - r[-16]["vref_27"]
     out = {"span_mv": span * 1000, "lsb_mv": span / 16 * 1000, "v0": r[0]["vref_27"], "v16": r[-16]["vref_27"]}
@@ -459,6 +572,21 @@ def render_record(r: dict) -> str:
         f"`dc {TEMP_SWEEP_ARGS}` box-method sweep (16 points). One request per (config, supply, code) with the "
         "five processes on klt's process axis (`klt sim` cannot alter `.param vsup` or the netlist's trim code)."
     )
+    add("- **Metric scope**: monotonicity, downward span, DR-002 endpoint-average LSB `(V(0)-V(-16))/16`, "
+        "adjacent-code steps and the 1.5x3-sigma comparison all use VREF at **27 C** (the trim temperature, "
+        "`.meas ... AT=27` on the in-deck sweep). Only `collapse_free` (vref_max within sanity band) and the "
+        "`tc_ppm` column cover the full -40..125 C sweep (16 points, box method). Temperature sampling: "
+        "-40 to 125 C in 11 C steps. Code range: every integer 0..-16 (`chained`).")
+    prov = r["provenance"]
+    add("- **Input provenance**: schematic sha256 " + ", ".join(f"`{k}`={v[:16]}" for k, v in prov["schematic_sha256"].items())
+        + f"; generated netlist body sha256 `{prov['netlist_body_sha256'][:16]}`; core body verified device-for-device "
+        "against `design/bandgap_core.sch` and `design/error_amp.sch` (amplifier, output/bias mirrors, both PNPs, "
+        "resistor legs). The startup injector (`design/startup_injector.sch`) is a separate cell attached at GDRV and is "
+        "**not** in this bench; the DC solver is seeded by the testbench `.nodeset` instead (disclosed scope: trim "
+        "resistor evidence is independent of the injector, which loads GDRV not the R legs).")
+    if r.get("missing_points"):
+        add(f"- **MISSING/NONCONVERGENT POINTS ({len(r['missing_points'])})**: "
+            + "; ".join(f"`{k}`: {v}" for k, v in r["missing_points"].items()))
     add("- **Statistical convention**: N/A (deterministic sizing/topology sweep, not a distribution claim).")
     add("")
 
@@ -486,6 +614,9 @@ def render_record(r: dict) -> str:
         for supply in SUPPLIES:
             for proc in PROCESSES:
                 c = corner_summary(results, config, proc, supply)
+                if c is None:
+                    add(f"| {proc} | {supply:.2f} | **INCOMPLETE -- code(s) missing/nonconvergent; see Checks** |" + " |" * 4)
+                    continue
                 row = f"| {proc} | {supply:.2f} | {c['v0']:.6f} | {c['v16']:.6f} | {c['span_mv']:.3f} | {c['lsb_mv']:.4f} |"
                 if config == "chained":
                     cid = f"{config}_{proc}_{supply:.2f}v"
@@ -500,9 +631,12 @@ def render_record(r: dict) -> str:
             add("")
             add("| code | " + " | ".join(f"{v:.2f} V" for v in SUPPLIES) + " | TC(0..125C box) @3.30 V (ppm/C) |")
             add("|---|" + "---|" * (len(SUPPLIES) + 1))
+            def cell(v, code, field="vref_27", fmt=".6f"):
+                m = results.get((config, "tt", v, code))
+                return "MISSING" if m is None else format(m[field], fmt)
             for code in codes:
-                add(f"| {code:+d} | " + " | ".join(f"{results[(config, 'tt', v, code)]['vref_27']:.6f}" for v in SUPPLIES)
-                    + f" | {results[(config, 'tt', 3.30, code)]['tc_ppm']:.2f} |")
+                add(f"| {code:+d} | " + " | ".join(cell(v, code) for v in SUPPLIES)
+                    + f" | {cell(3.30, code, 'tc_ppm', '.2f')} |")
             add("")
             add("Every other corner's per-code data is in the record JSON.")
             add("")
@@ -514,11 +648,16 @@ def render_record(r: dict) -> str:
     worst = 0.0
     for supply in SUPPLIES:
         for proc in PROCESSES:
+            keys = [(cfg, proc, supply, c) for cfg in ("lumped", "chained") for c in LUMPED_CODES]
+            if any(k not in results for k in keys):
+                add(f"| {proc} | {supply:.2f} | INCOMPLETE | n/a | n/a |")
+                continue
             d = max(abs(results[("lumped", proc, supply, c)]["vref_27"] - results[("chained", proc, supply, c)]["vref_27"])
                     for c in LUMPED_CODES) * 1000
             worst = max(worst, d)
-            add(f"| {proc} | {supply:.2f} | {d:.4f} | {corner_summary(results, 'lumped', proc, supply)['lsb_mv']:.4f} | "
-                f"{corner_summary(results, 'chained', proc, supply)['lsb_mv']:.4f} |")
+            lsb_l = (results[("lumped", proc, supply, 0)]["vref_27"] - results[("lumped", proc, supply, -16)]["vref_27"]) / 16 * 1000
+            lsb_c = (results[("chained", proc, supply, 0)]["vref_27"] - results[("chained", proc, supply, -16)]["vref_27"]) / 16 * 1000
+            add(f"| {proc} | {supply:.2f} | {d:.4f} | {lsb_l:.4f} | {lsb_c:.4f} |")
     add("")
     add(f"Worst lumped-vs-chained VREF(27 C) difference at the sampled codes: {worst:.4f} mV.")
     add("")
@@ -573,7 +712,12 @@ def build_determination(results: dict, checks: list[dict], sizing: dict) -> str:
         f"`r_lseg_trim={sizing['r_lseg_trim']:g}` um), explicit chained fine-trim topology, "
         f"{len(PROCESSES) * len(SUPPLIES)} corners x 17 codes."
     ]
-    summaries = [corner_summary(results, GRADED_CONFIG, p, v) for v in SUPPLIES for p in PROCESSES]
+    summaries = [c for c in (corner_summary(results, GRADED_CONFIG, p, v) for v in SUPPLIES for p in PROCESSES) if c]
+    n_inc = len(SUPPLIES) * len(PROCESSES) - len(summaries)
+    if n_inc:
+        seg.append(f"**{n_inc} corner(s) INCOMPLETE** (missing/nonconvergent codes); metrics below cover the rest only.")
+    if not summaries:
+        return "\n".join(seg + ["No corner returned a complete code set; nothing can be certified."])
     lsbs = [c["lsb_mv"] for c in summaries]
     spans = [c["span_mv"] for c in summaries]
     seg.append(
@@ -631,6 +775,10 @@ def verify(args) -> int:
         if not m or float(m.group(1)) != want:
             raise cr.HarnessError(f"fresh netlist .param {k}={m.group(1) if m else None} != sizing {want}")
 
+    verified_devices = verify_core_body(body)
+    provenance = input_provenance(body)
+    print(f"core body  : verified against current schematics ({sum(len(v) for v in verified_devices.values())} devices)")
+
     jobs = build_jobs()
     timeout_s = args.timeout
     groups, by_dir = write_groups(jobs, body, sizing, n_r2, pin, run_dir / "requests", timeout_s)
@@ -647,11 +795,11 @@ def verify(args) -> int:
     except batch_sim.BatchError as err:
         print(f"run_trim_lsb_chained: batch error: {err}", file=sys.stderr)
         return 1
-    results, execution = fold_results(outcomes, by_dir)
+    results, missing, execution = fold_results(outcomes, by_dir)
 
     local_sha = batch_sim.sha256_file(pdk.lib_file)
     sha_match = all(e["models_lib_sha256"] == local_sha for e in execution)
-    checks = evaluate(results)
+    checks = evaluate(results, missing)
     if not sha_match:
         checks.append({"name": "models_lib_sha256", "pass": False,
                        "detail": "remote model library sha256 differs from the pinned local one"})
@@ -689,6 +837,14 @@ def verify(args) -> int:
         "git": git_info,
         "execution": execution,
         "results": {f"{c}|{p}|{v}|{k}": m for (c, p, v, k), m in results.items()},
+        "missing_points": {f"{c}|{p}|{v}|{k}": why for (c, p, v, k), why in missing.items()},
+        "grid": {"processes": list(PROCESSES), "supplies_v": list(SUPPLIES), "temp_sweep": TEMP_SWEEP_ARGS,
+                 "temp_points": 16, "temp_range_c": [-40, 125], "chained_codes": list(CHAINED_CODES),
+                 "lumped_codes": list(LUMPED_CODES), "requests": len(jobs)},
+        "provenance": provenance,
+        "verified_core_devices": verified_devices,
+        "request_netlist_sha256": {j.name: sha256_file(g.dir / "netlist.cir") for g, j in
+                                   ((g, by_dir[g.dir]) for g in groups)},
         "checks": checks,
         "overall_pass": overall,
         "determination": build_determination(results, checks, sizing),
