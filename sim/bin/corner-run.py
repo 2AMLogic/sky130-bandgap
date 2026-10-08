@@ -39,6 +39,7 @@ from pathlib import Path
 # importlib shim (whose only caller already put sim/bin on sys.path before
 # importing sim_common in the first place) -- issue #191.
 import sim_common
+import batch_sim
 
 SIM_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = SIM_DIR.parent
@@ -433,6 +434,40 @@ def exit_note(rc: int, timed_out: bool, killed_by_signal: int | None) -> str:
     return ""
 
 
+def evaluate_measurements(exp: Experiment, values: dict[str, float]) -> tuple[list[dict], bool]:
+    """Grade measured `values` (name -> float) against the manifest's limits.
+
+    Shared by the local runner and the batch backend (`batch_sim.py`), so a
+    corner's verdict never depends on where ngspice ran. Returns the
+    per-measurement check dicts and whether every measurement was present and
+    within its limits.
+    """
+    checks = []
+    all_ok = True
+    for m in exp.measurements:
+        value = values.get(m.name)
+        passed = value is not None
+        reason = "" if passed else "measurement not found in ngspice output"
+        if passed and m.min is not None and value < m.min:
+            passed, reason = False, f"below min {m.min:g}"
+        if passed and m.max is not None and value > m.max:
+            passed, reason = False, f"above max {m.max:g}"
+        checks.append(
+            {
+                "name": m.name,
+                "expr": m.expr,
+                "unit": m.unit,
+                "value": value,
+                "min": m.min,
+                "max": m.max,
+                "pass": passed,
+                "reason": reason,
+            }
+        )
+        all_ok = all_ok and passed
+    return checks, all_ok
+
+
 def run_corner(
     exp: Experiment,
     pdk: Pdk,
@@ -458,29 +493,8 @@ def run_corner(
     killed_by_signal = None if timed_out else (-rc if rc < 0 else None)
 
     values = parse_measurements(stdout + "\n" + stderr)
-    checks = []
-    ok = rc == 0 and not timed_out
-    for m in exp.measurements:
-        value = values.get(m.name)
-        passed = value is not None
-        reason = "" if passed else "measurement not found in ngspice output"
-        if passed and m.min is not None and value < m.min:
-            passed, reason = False, f"below min {m.min:g}"
-        if passed and m.max is not None and value > m.max:
-            passed, reason = False, f"above max {m.max:g}"
-        checks.append(
-            {
-                "name": m.name,
-                "expr": m.expr,
-                "unit": m.unit,
-                "value": value,
-                "min": m.min,
-                "max": m.max,
-                "pass": passed,
-                "reason": reason,
-            }
-        )
-        ok = ok and passed
+    checks, checks_ok = evaluate_measurements(exp, values)
+    ok = rc == 0 and not timed_out and checks_ok
 
     log_path.parent.mkdir(parents=True, exist_ok=True)
     log_path.write_text(
@@ -617,7 +631,12 @@ def render_record(record: dict) -> str:
         detail = "; ".join(parts)
         why = ""
         fails = [c["reason"] for c in res["measurements"] if not c["pass"] and c["reason"]]
-        if res["timed_out"]:
+        if res.get("batch"):
+            # Batch-executed corner: klt sim does not expose the simulator's
+            # exit code or a killing signal, so report what it does expose.
+            if res["batch"].get("failure"):
+                fails.append(res["batch"]["failure"])
+        elif res["timed_out"]:
             fails.append(
                 "ngspice TIMED OUT — the harness killed it after "
                 f"--timeout {res.get('timeout_s', '?')}s"
@@ -644,6 +663,9 @@ def render_record(record: dict) -> str:
         )
     lines.append(f"  - **Overall: {'PASS' if r['overall_pass'] else 'FAIL'}**")
 
+    ex = r.get("execution")
+    if ex:
+        lines += render_execution(ex, r.get("overall_blockers") or [])
     lines.append("- **Links**:")
     lines.append(f"  - Testbench: `{r['links']['testbench']}`")
     lines.append(f"  - Netlist snapshot: `{r['links']['netlist_snapshot']}`")
@@ -661,6 +683,35 @@ def render_record(record: dict) -> str:
     )
     lines.append("")
     return "\n".join(lines)
+
+
+def render_execution(ex: dict, blockers: list[str]) -> list[str]:
+    """`Execution` block of a batch-backend record (issue #320)."""
+    lines = [
+        f"- **Execution**: {ex['mechanism']}; submitted {ex['submitted_at']}, collected "
+        f"{ex['collected_at']}; submit-to-collect wall **{ex['submit_to_collect_wall_s']} s**",
+        f"  - Remote engine: ngspice {', '.join(ex['remote_engine_versions'])} on "
+        f"{', '.join(ex['remote_instance_types'])} (AMI {', '.join(ex['remote_ami_ids'])}); "
+        f"remote model library matches the pinned local library: "
+        f"**{'yes' if ex['remote_pdk_matches_pin'] else 'NO'}** "
+        f"(sha256 `{ex['local_pinned_lib_sha256'][:16]}...`)",
+        f"  - Per-corner remote engine time: min {ex['corner_runtime_min_s']} s, median "
+        f"{ex['corner_runtime_median_s']} s, max {ex['corner_runtime_max_s']} s, sum "
+        f"{ex['corner_runtime_sum_s']} s (compute cost, not wall time)",
+    ]
+    for j in ex["jobs"]:
+        rem = j.get("remote") or {}
+        lines.append(
+            f"  - Job `{j['job_id']}` (supply {j['supply_v']:.2f} V): klt status {j['klt_status']}, "
+            f"{rem.get('instance_type')} {rem.get('lifecycle')} {rem.get('availability_zone')}, "
+            f"wall {j['submit_to_collect_wall_s']} s = job {j['job_elapsed_s']} s + "
+            f"queue/provision/transfer {j['queue_provision_and_transfer_s']} s"
+        )
+    lines.append(f"  - {ex['timing_note']}")
+    if blockers:
+        lines.append("  - **Overall-verdict blockers (the matrix is not trustworthy):**")
+        lines += [f"    - {b}" for b in blockers]
+    return lines
 
 
 # --------------------------------------------------------------------------
@@ -691,7 +742,38 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     p.add_argument("--supersedes", default="", help="record id this run supersedes")
     p.add_argument("--author", default="", help="record author (default: git user.email)")
-    p.add_argument("--timeout", type=int, default=300, help="per-corner ngspice timeout (s)")
+    p.add_argument(
+        "--timeout",
+        type=int,
+        default=None,
+        help=(
+            "per-corner ngspice timeout (s); default 300 locally, "
+            f"{batch_sim.DEFAULT_BATCH_TIMEOUT_S} with --backend batch"
+        ),
+    )
+    p.add_argument(
+        "--backend",
+        choices=("local", "batch"),
+        default="local",
+        help=(
+            "where corners run: 'local' (default, one ngspice per corner on this host) or "
+            "'batch' (klt sim --backend batch on the Spot batch fleet; startup-stability "
+            "only, see sim/README.md). A failed batch submission is an error -- it never "
+            "falls back to running the matrix locally"
+        ),
+    )
+    p.add_argument(
+        "--batch-capacity-wait-s",
+        type=float,
+        default=3600.0,
+        help="wait this long for Spot capacity per batch submission (default 3600)",
+    )
+    p.add_argument(
+        "--batch-runner-version-check",
+        choices=("enforce", "warn"),
+        default="enforce",
+        help="klt runner/client version-skew policy for batch jobs (default enforce)",
+    )
     p.add_argument(
         "-j",
         "--jobs",
@@ -718,6 +800,10 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 def main(argv: list[str]) -> int:
     args = parse_args(argv)
+    if args.timeout is None:
+        args.timeout = batch_sim.DEFAULT_BATCH_TIMEOUT_S if args.backend == "batch" else 300
+    if args.backend == "batch" and args.jobs > 1:
+        raise HarnessError("--jobs is a local-concurrency flag; --backend batch ignores it, drop it")
     pin = load_pin()
     pdk = resolve_pdk(pin)
 
@@ -778,6 +864,21 @@ def main(argv: list[str]) -> int:
     print(f"corner points   : {len(matrix)}" + (" (SUBSET)" if is_subset else " (full matrix)"))
     print(f"scratch run dir : {run_dir}")
 
+    if args.dry_run and args.backend == "batch":
+        groups = batch_sim.build_groups(
+            exp, pin, matrix, body, SPICEINIT_FILE.read_text(), run_dir / "batch", args.timeout,
+            capacity_wait_s=args.batch_capacity_wait_s,
+            runner_version_check=args.batch_runner_version_check,
+            poll_interval_s=30.0,
+        )
+        print("\n-- batch requests (one klt sim job per supply voltage) --")
+        for g in groups:
+            print(f"  {g.request_path}  ({len(g.corners)} corners at {g.supply_v:.2f} V)")
+        print(f"\n-- request for {groups[0].supply_v:.2f} V --")
+        print(groups[0].request_path.read_text())
+        print("(dry run: nothing submitted, nothing written under sim/<experiment>/)")
+        return 0
+
     if args.dry_run:
         print("\n-- corner list --")
         for corner in matrix:
@@ -797,6 +898,23 @@ def main(argv: list[str]) -> int:
         ),
         "statistical_convention": exp.raw.get("statistical_convention", "N/A"),
     }
+    execute_matrix = None
+    if args.backend == "batch":
+        local_tools = tool_versions()
+        local_tools["klt"] = first_line(["klt", "--version"])
+
+        def execute_matrix(matrix_, corners_dir_):
+            try:
+                return batch_sim.execute(
+                    exp, pin, pdk, matrix_, body, SPICEINIT_FILE.read_text(),
+                    run_dir / "batch", corners_dir_, REPO_ROOT, args.timeout,
+                    evaluate_measurements, local_tools,
+                    capacity_wait_s=args.batch_capacity_wait_s,
+                    runner_version_check=args.batch_runner_version_check,
+                )
+            except batch_sim.BatchError as err:
+                raise HarnessError(str(err)) from err
+
     _record, overall = sim_common.run_matrix_and_write_record(
         sys.modules[__name__],
         exp=exp,
@@ -821,6 +939,7 @@ def main(argv: list[str]) -> int:
             "testbench": str(exp.schematic.relative_to(REPO_ROOT)),
             "manifest": str((exp.dir / "experiment.json").relative_to(REPO_ROOT)),
         },
+        execute_matrix=execute_matrix,
     )
     return 0 if overall else 2
 

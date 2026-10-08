@@ -436,13 +436,94 @@ Such a script still has to behave like the harness:
 | `--quick` | run the manifest's `quick_subset` only |
 | `--subset-reason "…"` | **required** for any subset; recorded verbatim |
 | `--supersedes <record-id>` | record which prior record this replaces |
-| `--author`, `--timeout` | record author (default `git config user.email`), per-corner ngspice timeout |
+| `--author`, `--timeout` | record author (default `git config user.email`), per-corner ngspice timeout (default 300 s locally, 10800 s with `--backend batch`) |
+| `--backend local\|batch` | where corners run (default `local`). `batch` sends the matrix to the Spot batch fleet through `klt sim --backend batch`; enabled for `startup-stability` only. See "Batch backend" below. A failed submission is an error, never a local fallback |
+| `--batch-capacity-wait-s N`, `--batch-runner-version-check enforce\|warn` | batch only: how long to wait out a Spot capacity refusal per submission (default 3600), and klt's runner/client version-skew policy (default `enforce`; leave it) |
 | `-j N`, `--jobs N` | run up to `N` corners concurrently (default: `1`, serial -- today's unchanged behavior). Each corner is an independent `ngspice` process with its own scratch deck and its own `--timeout`, enforced per-process regardless of `N`; corner results are always written into the record in matrix order, never completion order. Recorded in the written record's `jobs` field |
 | `--allow-pdk-mismatch` | run against a non-pinned PDK; the record flags it |
 | `--dry-run` | netlist, print the corner list and one deck, write nothing under `sim/<slug>/` |
 
 Exit status: `0` all checks passed, `2` a record was written but something
 failed, `1` harness/setup error (no record written).
+
+### Batch backend (`--backend batch`, issue #320)
+
+`startup-stability`'s 45-corner matrix is dominated by a 251-point `.dc valpha`
+sweep with `gmin` homotopy stepping: measured at roughly 114 s fixed + 25 s per
+sweep point on the AWS sweep hosts, i.e. ~1.8 h for one corner and a 17-33 h
+serial matrix (issue #320). That must not run on a shared dispatch host, so
+the runner can hand the matrix to the Spot batch fleet:
+
+```bash
+# on a dispatch host: only the klt client runs locally (xschem netlisting + S3 put/get + polling)
+sim/bin/corner-run.py sim/startup-stability --backend batch --supersedes <newest-stock-record-id>
+sim/bin/corner-run.py sim/startup-stability --backend batch --dry-run   # print the requests, submit nothing
+```
+
+What it does, and what it deliberately does not change:
+
+- **Unchanged**: the xschem netlist, the pinned model library (`sim/pdk.json`),
+  the `.param vsup` / `.option wnflag=1` preamble, `sim/spiceinit` (sent as
+  `options.ngspice_init`), the exact `dc valpha 0 1 0.004` sweep (251 points,
+  never partitioned or shortened), every measurement expression and limit, and
+  the spread checks. Verdicts are graded by the same `evaluate_measurements()`
+  the local runner uses, not by klt's own pass/fail.
+- **Request shape**: one `klt sim` request per supply voltage (3 jobs x 15
+  process/temperature corners, submitted concurrently). `klt sim` applies
+  `corners.supply_v` with ngspice `alter`, which cannot change the `.param vsup`
+  this bench's B-sources multiply into the swept forcing voltage (klayout-tools#2725), so
+  `vsup` is pinned in each request's netlist instead. The `let ifsu = ...` /
+  `let ssu = ...` intermediates of the local deck are inlined into each
+  measurement (klt accepts one analysis plus scalar `expr` measurements); a unit
+  test runs both forms through ngspice and requires identical output, and
+  another compares klt's own generated deck against `build_deck()` (allowed
+  differences: `.lib` quoting, `.temp -40` vs `-40.0`, measurement `let`
+  naming/inlining).
+- **Records** (`records/`, `corners/`, `netlist-snapshots/`, append-only as
+  always) additionally carry an `Execution` block: fleet job ids, klt client
+  version, remote ngspice version, instance type/AMI, per-corner remote engine
+  time, per-job fleet time, submit-to-collect wall time, and the queue/
+  provisioning/transfer overhead (submit-to-collect wall minus the fleet's own
+  job time). `corners/<record-id>/` holds each corner's retained deck+log and,
+  per supply, the exact `request.json`, `netlist.cir` and `klt-report.json`.
+  Per-corner `elapsed_s` is the remote engine wall clock; it is never a
+  dispatch-call duration.
+- **Failure semantics**: a corner is PASS only if klt reports no error
+  diagnostic, no timeout, and every measurement is present and in limits.
+  The `timeout` diagnostic (per-corner budget) and the fleet job's own
+  timeout are recorded as TIMEOUT; other simulator errors keep their klt
+  diagnostic text. **`klt sim` does not return the engine's exit code or a
+  killing signal** (klayout-tools#2848), so those fields are `null` for batch
+  corners and an external kill reads as a missing measurement, not as
+  "SIGKILL". Missing, duplicate or unexpected corners, a remote model library
+  whose sha256 differs from the pinned local one, and runner/client klt skew
+  all land in the record's `overall_blockers` and force `Overall: FAIL`.
+- **No local fallback**: if submission or collection fails, or a fleet job dies
+  before simulating anything (e.g. the runner-image klt is older than the
+  client), the runner exits 1 with the job ids and writes no record. It never
+  runs a corner locally.
+- **Prerequisites**: klt with the `batch` backend; the `batch-runner-submit`
+  AWS profile; `KLT_BATCH_PROVISION_SCRIPT` pointing at 2am's
+  `infra/aws/batch-fleet-provision.sh` (the bucket comes from the fleet config
+  beside it). The model library is resolved **on the fleet image**
+  (`models.pdk: sky130A`), not shipped with the job, so the runner compares klt's
+  reported `models_lib_sha256` against the sha256 of the pinned local
+  `libs.tech/combined/sky130.lib.spice` and blocks PASS on any difference.
+  The image's klt must be at least the client's (klt enforces exact equality) and
+  must support `measurements[].expr`, `options.ngspice_init` and the generated `save all`
+  (klayout-tools#2533, #2520, #2521).
+
+**Status (2026-10-08): the live 45-corner run has NOT been completed.** The
+current fleet image pins klt `0.5.0` (2am `batch-image-pins.env`), which is
+older than every batch-capable client and lacks `expr` measurements,
+`ngspice_init` and `save all`. Three jobs (`klt-sim-0f561d9a9bf6`,
+`klt-sim-7c9d083c37df`, `klt-sim-da5df48657e7`) were submitted and exited 87 in
+under 10 s with `batch_runner_version_mismatch` before any simulation; the
+runner reported the infrastructure fault and wrote no record. Waiving the check
+(`--batch-runner-version-check warn`) would not help: `klt 0.5.0` rejects
+this request outright. Unblocked by 2am#2193 (image klt pin bump). Until then
+no batch timings or numerical comparison against
+`20260909-232410-e8e2e46` exist; do not infer a speed-up from the fleet.
 
 ---
 
