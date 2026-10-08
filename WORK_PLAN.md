@@ -17,13 +17,13 @@ _None._
 
 Human-approved issues ready for implementation (`loom:issue`).
 
-- **#320**: Route startup-stability’s full 45-corner regression through the Spot batch backend
+_None._
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
-_None._
+- **#320**: Route startup-stability’s full 45-corner regression through the Spot batch backend
 
 ## PRs Awaiting Review
 
@@ -59,8 +59,8 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Operator priority | 0 |
-| Ready (`loom:issue`) | 1 |
-| In Progress (`loom:building`) | 0 |
+| Ready (`loom:issue`) | 0 |
+| In Progress (`loom:building`) | 1 |
 | PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 0 |
 | Curated | 3 |
