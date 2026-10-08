@@ -8,8 +8,8 @@
     "check:all": "npm run check:ci",
     "check:signoff-pins": "python3 scripts/ci/check_signoff_pins.py",
     "test": "npm run test:compile && npm run test:unit",
-    "test:compile": "find sim layout -name '*.py' -not -path 'layout/.venv/*' -not -path 'layout/.venv-erc/*' -print0 | xargs -0 -n1 python3 -m py_compile",
+    "test:compile": "find sim layout scripts -name '*.py' -not -path 'layout/.venv/*' -not -path 'layout/.venv-erc/*' -print0 | xargs -0 -n1 python3 -m py_compile",
     "test:unit": "python3 -m unittest discover --start-directory layout/tests --pattern 'test_*.py' && python3 -m unittest discover --start-directory sim/tests --pattern 'test_*.py' && python3 -m unittest discover --start-directory scripts/ci/tests --pattern 'test_*.py'",
-    "lint": "find sim layout -name '*.json' -not -path 'layout/.venv/*' -not -path 'layout/.venv-erc/*' -print0 | xargs -0 -n1 python3 -m json.tool > /dev/null && bash -n sim/bin/pdk-env.sh && bash -n layout/bin/setup-venv.sh && bash -n layout/bin/run-trivial-cell-flow.sh && bash -n layout/bin/run-bandgap-routed-flow.sh && bash -n layout/bin/run-erc-supply-flow.sh && bash -n loom.sh && ./.loom/scripts/check-dr-duplicate-numbers.sh"
+    "lint": "find sim layout scripts signoff design spec -name '*.json' -not -path 'layout/.venv/*' -not -path 'layout/.venv-erc/*' -print0 | xargs -0 -n1 python3 -m json.tool > /dev/null && python3 -m json.tool reuse.lock.json > /dev/null && find sim layout scripts signoff -name '*.sh' -not -path 'layout/.venv/*' -not -path 'layout/.venv-erc/*' -print0 | xargs -0 -n1 bash -n && bash -n loom.sh && ./.loom/scripts/check-dr-duplicate-numbers.sh"
   }
 }

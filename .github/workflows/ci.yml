@@ -3,8 +3,11 @@ name: CI
 # Self-check inventory for this repo (see sim/README.md, CLAUDE.md) and where
 # each one runs:
 #
-#   - `package.json` `check:ci` (JSON syntax of every sim/**/experiment.json
-#     and sim/**/records/*.json, shell/python syntax of the harness scripts,
+#   - `package.json` `check:ci` (JSON syntax of every *.json under sim, layout,
+#     scripts, signoff, design and spec plus reuse.lock.json; `bash -n` of every
+#     *.sh under sim, layout, scripts and signoff plus loom.sh; py_compile of
+#     every *.py under sim, layout and scripts -- directory-walking, so new
+#     files are covered automatically; layout/.venv* excluded,
 #     plus `layout/tests/`'s unit coverage for the routed-layout flow's own
 #     pass/fail gates — drawn-short, label-collision, coverage scoring, and
 #     (via the `pip install klayout` step below) the met2 escape plane's own
