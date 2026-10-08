@@ -30,6 +30,13 @@ check_signoff_pins = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(check_signoff_pins)
 
 
+FRESH_PATH = Path(__file__).resolve().parents[1] / "check_signoff_freshness.py"
+_fspec = importlib.util.spec_from_file_location("check_signoff_freshness", FRESH_PATH)
+assert _fspec and _fspec.loader
+check_signoff_freshness = importlib.util.module_from_spec(_fspec)
+_fspec.loader.exec_module(check_signoff_freshness)
+
+
 def sha256_of(text: str) -> str:
     return f"sha256:{hashlib.sha256(text.encode()).hexdigest()}"
 
@@ -173,6 +180,66 @@ class PinCheckTestCase(unittest.TestCase):
         code, output = self.run_check()
         self.assertEqual(code, 1)
         self.assertIn("needs both", output)
+
+
+class GraderIdentityTestCase(unittest.TestCase):
+    """The single-source pin and released-wheel assertion (issue #338)."""
+
+    def fake_klt(self, payload: dict) -> str:
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        path = Path(tmp.name) / "klt"
+        path.write_text(
+            "#!/bin/sh\ncat <<'EOF'\n" + json.dumps(payload) + "\nEOF\n"
+        )
+        path.chmod(0o755)
+        return str(path)
+
+    def run_main(self, args: list[str]) -> tuple[int, str, str]:
+        out, err = io.StringIO(), io.StringIO()
+        code = 0
+        with redirect_stdout(out), redirect_stderr(err):
+            try:
+                check_signoff_freshness.main(args)
+            except SystemExit as exc:
+                code = exc.code if isinstance(exc.code, int) else 1
+        return code, out.getvalue(), err.getvalue()
+
+    def release_payload(self) -> dict:
+        v = check_signoff_freshness.KLT_VERSION
+        return {"package_version": v, "git_tag": f"v{v}", "is_release": True}
+
+    def test_print_version_emits_the_pin(self) -> None:
+        code, out, _ = self.run_main(["--print-version"])
+        self.assertEqual(code, 0)
+        self.assertEqual(out.strip(), check_signoff_freshness.KLT_VERSION)
+
+    def test_assert_grader_passes_for_the_released_wheel(self) -> None:
+        klt = self.fake_klt(self.release_payload())
+        code, _, err = self.run_main(["--assert-grader", klt])
+        self.assertEqual((code, err), (0, ""))
+
+    def test_assert_grader_fails_for_a_wrong_version(self) -> None:
+        payload = self.release_payload() | {"package_version": "0.0.1"}
+        code, _, err = self.run_main(["--assert-grader", self.fake_klt(payload)])
+        self.assertEqual(code, 1)
+        self.assertIn("FATAL", err)
+
+    def test_assert_grader_fails_for_a_non_release_build(self) -> None:
+        payload = self.release_payload() | {"is_release": False}
+        code, _, err = self.run_main(["--assert-grader", self.fake_klt(payload)])
+        self.assertEqual(code, 1)
+        self.assertIn("is_release=False", err)
+
+    def test_assert_grader_fails_for_a_wrong_git_tag(self) -> None:
+        payload = self.release_payload() | {"git_tag": "v0.0.0-3-gabc"}
+        code, _, _ = self.run_main(["--assert-grader", self.fake_klt(payload)])
+        self.assertEqual(code, 1)
+
+    def test_assert_grader_fails_for_a_missing_executable(self) -> None:
+        code, _, err = self.run_main(["--assert-grader", "/nonexistent/klt"])
+        self.assertEqual(code, 1)
+        self.assertIn("FATAL", err)
 
 
 if __name__ == "__main__":

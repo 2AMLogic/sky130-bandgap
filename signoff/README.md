@@ -102,7 +102,8 @@ check reports it as skipped rather than silently ignoring it.
 ## Grader distribution discipline
 
 Regeneration and CI grade with the **released PyPI registry wheel** of
-`klayout-tools==0.6.0` (the current release; it is the first to natively
+the pinned `klayout-tools` release (`KLT_VERSION` in
+`scripts/ci/check_signoff_freshness.py`; it is the first to natively
 grade item 11 — `build_t1_item_count: 11` in the committed report — so
 `--tiers-doc` here pins the *checklist doc*, not a stand-in for missing
 grading rules the way it did for repos still pinned to 0.5.0), never
@@ -112,10 +113,13 @@ differently (observed live across the fleet for 0.5.0: an 11-item-era
 full-repo install under the name "0.5.0" next to the v0.5.0 tag snapshot
 whose bundled checklist predates item 11 entirely,
 klayout-tools#2216). The released wheel reports the git tag it was built
-from (`klt version --format json` → `git_tag: v0.6.0`, `is_release: true`);
-`regenerate.sh` and `scripts/ci/check_signoff_freshness.py` both assert that
-identity before grading. Keep the version pin in `regenerate.sh`, the CI
-job, and `check_signoff_freshness.py` in sync (all three say `0.6.0` today).
+from (`klt version --format json` → `git_tag: v<pin>`, `is_release: true`);
+`regenerate.sh` and the freshness check both assert that identity before
+grading, through one shared implementation (`check_signoff_freshness.py
+--assert-grader [KLT]`). The version pin lives in exactly one place,
+`KLT_VERSION` in `scripts/ci/check_signoff_freshness.py`; the CI `signoff`
+job and `regenerate.sh` read it via `--print-version`. To bump the grader,
+edit that one constant.
 
 ## Block kind: `analog`
 
