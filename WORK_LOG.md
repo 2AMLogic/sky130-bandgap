@@ -5,6 +5,8 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-10-08
 
+- **PR #348**: README: complete Layout tree (#344)
+- **Issue #344** (closed): README Layout section omits signoff, CI scripts, docs, ratification and reuse lock
 - **PR #347**: sim/README: move per-bench record history out of runner-bypass table (#339)
 - **Issue #339** (closed): sim/README.md experiments table embeds per-bench current-record verdicts that go stale
 - **PR #346**: ci: widen syntax and JSON lint coverage (#343)
