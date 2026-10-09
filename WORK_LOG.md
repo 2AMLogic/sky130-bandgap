@@ -5,6 +5,14 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-10-08
 
+- **PR #347**: sim/README: move per-bench record history out of runner-bypass table (#339)
+- **Issue #339** (closed): sim/README.md experiments table embeds per-bench current-record verdicts that go stale
+- **PR #346**: ci: widen syntax and JSON lint coverage (#343)
+- **Issue #343** (closed): Widen CI syntax and JSON lint coverage beyond hand-listed files
+- **PR #345**: reuse: record error_amp as kept in-tree via DR-014
+- **Issue #337** (closed): Resolve reuse.lock.json error_amp 'evaluate' entry now that sky130-opamp has answered
+- **PR #342**: signoff: single source of truth for klt grader pin (#338)
+- **Issue #338** (closed): Consolidate duplicated klt grader pin and identity assertion into one source of truth
 - **Issue #334** (closed): Qualify untrimmed 3-sigma accuracy separately from the Monte Carlo sanity floor
 - **PR #340**: sim: derived DR-005 3-sigma qualification of untrimmed MC, separate from sanity floor (#334)
 - **Issue #333** (closed): Grade the literal DR-005 trim range separately from DR-002 engineering checks

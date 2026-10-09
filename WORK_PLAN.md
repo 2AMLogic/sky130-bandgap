@@ -23,7 +23,7 @@ _None._
 
 Issues currently being built (`loom:building`).
 
-_None._
+- **#344**: README Layout section omits signoff, CI scripts, docs, ratification and reuse lock
 
 ## PRs Awaiting Review
 
@@ -35,7 +35,7 @@ _None._
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
-_None._
+- **#348**: README: complete Layout tree (#344)
 
 ## Proposed
 
@@ -48,9 +48,6 @@ Issues carrying `loom:curated`.
 ## Proposed (Architect / Hermit)
 
 - **#335**: Produce native klt pex comparison evidence for T1 item 7 *(architect)*
-- **#337**: Resolve reuse.lock.json error_amp 'evaluate' entry now that sky130-opamp has answered *(architect)*
-- **#339**: sim/README.md experiments table embeds per-bench current-record verdicts that go stale *(architect)*
-- **#338**: Consolidate duplicated klt grader pin and identity assertion into one source of truth *(hermit)*
 
 ## Epics
 
@@ -63,10 +60,10 @@ _None._
 | Operator merge-risk holds | 0 |
 | Operator priority | 0 |
 | Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 0 |
+| In Progress (`loom:building`) | 1 |
 | PRs awaiting review | 0 |
-| Approved PRs awaiting merge | 0 |
+| Approved PRs awaiting merge | 1 |
 | Curated | 3 |
-| Architect / Hermit proposals | 4 |
+| Architect / Hermit proposals | 1 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
