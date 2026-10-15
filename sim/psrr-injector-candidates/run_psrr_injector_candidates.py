@@ -234,6 +234,15 @@ REF3_EDITS = (
     Edit("XMPC2 ", clone="XMPC3", nodes=("NG", "NG", "NC2", "VDD")),
 )
 NGCLAMP_EDITS = (Edit("XMNS ", insert=MNG_CARD),)
+#: DR-017's VBE-raised clamp: same `MNG` but its source sits a diode-connected unit PNP
+#: (`XQG`, VBE) above `VSS`, so it needs `VSENSE > Vth + VBE` before it conducts and leaves
+#: `NG` alone at the startup window edge.
+MNGQ_CARD = (
+    "XMNGQ NG VSENSE NQ VSS sky130_fd_pr__nfet_g5v0d10v5 L=20 W=1 nf=1 "
+    "ad=0.29 as=0.29 pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0 m=1\n"
+    "XQG VSS VSS NQ sky130_fd_pr__pnp_05v5_W0p68L0p68 m=1"
+)
+NGCLAMP_Q_EDITS = (Edit("XMNS ", insert=MNGQ_CARD),)
 
 VARIANTS = (
     Variant(
@@ -274,6 +283,18 @@ EXTRA_VARIANTS = (
     _knob("ng_mref0p25", ".param m_ref=", "0.25"),
     _knob("ng_mpnp4", ".param m_pnp=", "4"),
     _knob("ng_mpnp16", ".param m_pnp=", "16"),
+    Variant(
+        "mngq", NGCLAMP_Q_EDITS,
+        what="`MNGQ` (the `MNG` clamp with its source a diode-connected PNP VBE above `VSS`) "
+             "added to the shipped two-high stack (DR-017)",
+        costs="two added devices (clamp NMOS + unit PNP), no resize",
+    ),
+    Variant(
+        "ref3_mngq", REF3_EDITS + NGCLAMP_Q_EDITS,
+        what="three-high reference stack AND the VBE-raised `MNGQ` clamp",
+        costs="three added devices, no resize; the three-high stack alone fails "
+              "`startup-stability` at 125 C (DR-018)",
+    ),
 )
 VARIANTS_BY_NAME = {v.name: v for v in VARIANTS + EXTRA_VARIANTS}
 
