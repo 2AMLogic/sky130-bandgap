@@ -13,8 +13,9 @@ run (batch path, #320).
 usage: probe_itrav.py VARIANT PROCESS TEMP_C SUPPLY_V [nodes]
   nodes   : instead of the minimum, print forced current, v(NG), v(NE), v(VREFD), v(GD)
             at 6 alpha points (0.75..1, step 0.05) -- the per-node look DR-016 uses
-  VARIANT = stock | mng[_mref<x>][_h3]   (p = decimal point, e.g. mref0p42)
+  VARIANT = stock | mng[_mref<x>][_h3] | mngq   (p = decimal point, e.g. mref0p42)
             mng  : add the DR-012 NG clamp (W=1 L=20 NMOS, NG -> VSS, gate VSENSE)
+            mngq : same clamp with its source a PNP VBE above VSS (DR-017)
             mref : .param m_ref value;  h3 : three-high reference stack
 """
 import re
@@ -30,6 +31,13 @@ MNG = ("XMNG NG VSENSE VSS VSS sky130_fd_pr__nfet_g5v0d10v5 L=20 W=1 nf=1 ad=0.2
        "pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0 m=1")
 
 
+# DR-016 follow-up: same clamp, but its source sits a diode-connected PNP (VBE) above VSS, so it
+# needs VSENSE > Vth + VBE before it conducts and leaves NG alone at the window edge.
+MNGQ = ("XMNGQ NG VSENSE NQ VSS sky130_fd_pr__nfet_g5v0d10v5 L=20 W=1 nf=1 ad=0.29 as=0.29 "
+        "pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0 m=1\n"
+        "XQG VSS VSS NQ sky130_fd_pr__pnp_05v5_W0p68L0p68 m=1")
+
+
 def subckts() -> str:
     lines = SNAP.read_text().splitlines()
     first = next(i for i, ln in enumerate(lines) if ln.startswith(".subckt bandgap_core"))
@@ -39,7 +47,9 @@ def subckts() -> str:
 
 def variant(name: str) -> str:
     s = subckts()
-    if "mng" in name:
+    if "mngq" in name:
+        s = s.replace("XMNS NG", MNGQ + "\nXMNS NG", 1)
+    elif "mng" in name:
         s = s.replace("XMNS NG", MNG + "\nXMNS NG", 1)
     if (m := re.search(r"mref([0-9p]+)", name)):
         s = s.replace(".param m_ref=1", ".param m_ref=" + m.group(1).replace("p", "."))
