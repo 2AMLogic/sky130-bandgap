@@ -168,6 +168,17 @@ class CandidatesBatchRequests(unittest.TestCase):
             self.assertIn(".param vsup=3.63", text)
             self.assertNotIn(".lib", text)  # klt adds it per process corner
 
+    def test_mpc2_vs_gates_mpc2_on_vsense_and_adds_no_device(self):
+        base = H.batch_netlist(H.VARIANTS_BY_NAME["base"], 3.63, self.base)
+        vs = H.batch_netlist(H.VARIANTS_BY_NAME["mpc2_vs"], 3.63, self.base)
+        mng = H.batch_netlist(H.VARIANTS_BY_NAME["mpc2_vs_mng"], 3.63, self.base)
+        card = lambda text: next(ln for ln in text.splitlines() if ln.startswith("XMPC2 "))
+        self.assertTrue(card(base).startswith("XMPC2 NG NG NC1 VDD "))
+        self.assertTrue(card(vs).startswith("XMPC2 NG VSENSE NC1 VDD "))
+        self.assertEqual(base.count("\nX"), vs.count("\nX"))
+        self.assertIn("XMNG ", mng)
+        self.assertNotIn("XMNG ", vs)
+
     def test_every_point_becomes_one_ac_and_one_op_request_per_variant_and_supply(self):
         points = H.matrix()
         seen = []

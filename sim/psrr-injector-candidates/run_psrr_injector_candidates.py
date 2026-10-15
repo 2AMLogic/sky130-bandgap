@@ -298,6 +298,37 @@ EXTRA_VARIANTS = (
 )
 VARIANTS_BY_NAME = {v.name: v for v in VARIANTS + EXTRA_VARIANTS}
 
+#: Issue #368: `MPC2` (the lower reference-stack device) with its gate on `VSENSE` instead of its
+#: own drain. At the startup window edge `NC1` sits ~1.3-2 V above `VSENSE` (~0.2-0.5 V), so it
+#: still conducts the few-nA the stack has to deliver; once the core runs `VSENSE` = VREF sits
+#: within ~0.3 V of `NC1`, its |Vgs| collapses, and the stack current (hence its conductance on `GDRV`)
+#: falls exponentially -- the state-dependent element, with no added device.
+EXTRA_VARIANTS += (
+    Variant(
+        "mpc2_vs", (Edit("XMPC2 ", retarget=("NG", "VSENSE", "NC1", "VDD")),),
+        what="`MPC2`'s gate moved from `NG` (diode) to `VSENSE`; same device and size (issue #368)",
+        costs="no added device; `NG` loses `MPC2`'s diode clamp, so `NG` is no longer bounded "
+              "from above by the stack at the window edge",
+    ),
+    Variant(
+        "mpc12_vs", (Edit("XMPC1 ", retarget=("NC1", "VSENSE", "GDRV", "VDD")),
+                     Edit("XMPC2 ", retarget=("NG", "VSENSE", "NC1", "VDD"))),
+        what="both `MPC1` and `MPC2` gated by `VSENSE` instead of diode-connected (issue #368)",
+        costs="no added device",
+    ),
+    Variant(
+        "mpc2_vs_mngq", (Edit("XMPC2 ", retarget=("NG", "VSENSE", "NC1", "VDD")),) + NGCLAMP_Q_EDITS,
+        what="`mpc2_vs` plus the DR-017 VBE-raised `MNGQ` clamp",
+        costs="two added devices (clamp NMOS + unit PNP)",
+    ),
+    Variant(
+        "mpc2_vs_mng", (Edit("XMPC2 ", retarget=("NG", "VSENSE", "NC1", "VDD")),) + NGCLAMP_EDITS,
+        what="`mpc2_vs` plus the `MNG` clamp",
+        costs="one added device",
+    ),
+)
+VARIANTS_BY_NAME = {v.name: v for v in VARIANTS + EXTRA_VARIANTS}
+
 #: The candidate this record is primarily about, and the one whose per-corner
 #: DR-006 verdict is a check rather than a reported number.
 CANDIDATE = "ref3_ngclamp"
