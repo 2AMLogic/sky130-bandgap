@@ -25,7 +25,9 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SNAP = sorted((ROOT / "sim/startup-stability/netlist-snapshots").glob("*.spice"))[-1]
+# Skip three-high bodies (`XMPC3`, DR-018): since then the newest snapshot is not the shipped stack.
+SNAP = sorted(p for p in (ROOT / "sim/startup-stability/netlist-snapshots").glob("*.spice")
+              if "XMPC3" not in p.read_text())[-1]
 LIB = Path.home() / ".volare/sky130A/libs.tech/combined/sky130.lib.spice"
 MNG = ("XMNG NG VSENSE VSS VSS sky130_fd_pr__nfet_g5v0d10v5 L=20 W=1 nf=1 ad=0.29 as=0.29 "
        "pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0 m=1")
@@ -36,6 +38,14 @@ MNG = ("XMNG NG VSENSE VSS VSS sky130_fd_pr__nfet_g5v0d10v5 L=20 W=1 nf=1 ad=0.2
 MNGQ = ("XMNGQ NG VSENSE NQ VSS sky130_fd_pr__nfet_g5v0d10v5 L=20 W=1 nf=1 ad=0.29 as=0.29 "
         "pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0 m=1\n"
         "XQG VSS VSS NQ sky130_fd_pr__pnp_05v5_W0p68L0p68 m=1")
+
+
+def flag_cards(*args: str) -> str:
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("rpic", ROOT / "sim/psrr-injector-candidates/run_psrr_injector_candidates.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod._flag_cards(*args)
 
 
 def subckts() -> str:
@@ -51,9 +61,12 @@ def variant(name: str) -> str:
         s = s.replace("XMNS NG", MNGQ + "\nXMNS NG", 1)
     elif "mng" in name:
         s = s.replace("XMNS NG", MNG + "\nXMNS NG", 1)
+    if "flag" in name:
+        m = re.search(r"flag(?:L([0-9p]+))?(?:C([0-9p]+))?", name)
+        s = s.replace("XMNS NG", flag_cards(*(g.replace("p", ".") for g in m.groups() if g)) + "\nXMNS NG", 1)
     if (m := re.search(r"mref([0-9p]+)", name)):
         s = s.replace(".param m_ref=1", ".param m_ref=" + m.group(1).replace("p", "."))
-    if "mpc2vs" in name:
+    if "mpc2vs" in name or "flagvs" in name:
         s = s.replace("XMPC2 NG NG NC1 VDD", "XMPC2 NG VSENSE NC1 VDD")
     if "h3" in name:
         s = s.replace("XMPC2 NG NG NC1 VDD", "XMPC2 NC2 NC2 NC1 VDD")
