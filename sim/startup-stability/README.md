@@ -68,3 +68,9 @@ between those two numbers is exactly what `MNC` in
 `-114658` are a concurrent pair that correct nothing, and `-124600`'s
 `Supersedes` field names only one of the two. `sim/startup-stability/experiment.json`
 carries the full record-chain note; this table is the short form.
+
+## Update (2026-10-15, issue #315): three-high stack candidate
+
+| Record | Result |
+|---|---|
+| `20261015-133821-9f956c4` | **Design measured: shipped injector + `MPC3` (three-high reference stack), not landed in `design/`.** `Overall: FAIL`, 35/45; `ncross_su=1` everywhere, the 10 failures are 125 °C eviction-margin misses (see DR-018). Kept as evidence; **not** the design in `design/`. The newest record for the shipped design remains `20261015-022916-ff69193`. |
