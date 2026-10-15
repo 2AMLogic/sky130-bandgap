@@ -17,25 +17,26 @@ _None._
 
 `loom:important`; taken before unlabelled work.
 
-_None._
+- **#315**: Complete #306's circuit fix (startup injector PSRR) and the post-fix layout cycle
+- **#364**: sim: shard PSRR injector screen batch requests across remote hosts (15-unit requests exceed the 3600 s fleet job ceiling)
 
 ## Ready
 
 Human-approved issues ready for implementation (`loom:issue`).
 
-_None._
+- **#364**: sim: shard PSRR injector screen batch requests across remote hosts (15-unit requests exceed the 3600 s fleet job ceiling)
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
-- **#315**: Complete #306's circuit fix (startup injector PSRR) and the post-fix layout cycle
+_None._
 
 ## PRs Awaiting Review
 
 PRs waiting on Judge (`loom:review-requested`).
 
-_None._
+- **#366**: PR for #364 (feature/issue-364)
 
 ## Approved (Awaiting Merge)
 
@@ -49,6 +50,7 @@ Issues carrying `loom:curated`.
 
 - **#306**: Reduce the startup injector's supply-dependent GDRV load so PSRR clears DR-006's 60 dB floor (design cause confirmed by #300) *(curated)*
 - **#315**: Complete #306's circuit fix (startup injector PSRR) and the post-fix layout cycle *(curated)*
+- **#364**: sim: shard PSRR injector screen batch requests across remote hosts (15-unit requests exceed the 3600 s fleet job ceiling) *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -64,12 +66,12 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Very important | 0 |
-| Important | 0 |
-| Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 1 |
-| PRs awaiting review | 0 |
+| Important | 2 |
+| Ready (`loom:issue`) | 1 |
+| In Progress (`loom:building`) | 0 |
+| PRs awaiting review | 1 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 2 |
+| Curated | 3 |
 | Architect / Hermit proposals | 1 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->

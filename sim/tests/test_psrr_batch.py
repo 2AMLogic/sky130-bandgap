@@ -212,10 +212,29 @@ class CandidatesBatchRequests(unittest.TestCase):
             self.run_batch(["base"], points, spy)
             return [g.request for g in seen]
 
-        self.assertTrue(all("remote" not in r for r in requests(1)))
+        default = {r["remote"]["hosts"] for r in requests(1)}
+        self.assertNotIn(3, default)  # the budget-derived default, not the override
         sharded = requests(3)
         self.assertEqual(len(sharded), 3 * 2)
         self.assertTrue(all(r["remote"] == {"hosts": 3} for r in sharded))
+
+    def test_request_concurrency_is_the_job_budget_divided_by_shards(self):
+        from unittest import mock
+        real_collect = batch_sim.collect
+        for timeout, max_jobs, expect in ((60, 4, 4), (1800, 8, 1), (1800, 40, 2)):
+            self.args.batch_max_jobs = max_jobs
+            seen = {}
+
+            def spy(groups, runner, max_workers):
+                seen["workers"] = max_workers
+                return real_collect(groups, runner, max_workers=max_workers)
+
+            runner = fake_runner(good_values, lib_sha=self.sha)
+            with mock.patch.object(batch_sim, "collect", spy):
+                H.run_all_batch(
+                    self.pdk, PIN, self.base, [H.VARIANTS_BY_NAME["base"]], H.matrix(), timeout,
+                    None, "rid", self.args, runner=runner)
+            self.assertEqual(seen["workers"], expect)
 
     def test_remote_library_that_is_not_the_pin_is_a_blocker(self):
         _r, blockers, execution = self.run_batch(
