@@ -3,6 +3,14 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-10-15
+
+- **PR #354**: sim: route startup-stability 45-corner matrix through Spot batch; live run 45/45 PASS (#320)
+- **Issue #320** (closed): Route startup-stability’s full 45-corner regression through the Spot batch backend
+- **PR #353**: Bump Repo Skills 0.19.5 -> 0.24.1
+- **PR #352**: loom: unpin verdict-staleness-guard.sh and forge-helpers test (2am#4345 Q7)
+- **PR #351**: ci(pdk-smoke): build xschem 3.4.7 from source -- apt's 3.4.4 leaves sky130 expr() attrs unevaluated (nightly red 74/74)
+
 ### 2026-10-08
 
 - **PR #348**: README: complete Layout tree (#344)
