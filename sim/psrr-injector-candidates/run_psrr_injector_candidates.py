@@ -488,7 +488,7 @@ def run_all_batch(pdk, pin, base_body, variants, points, timeout, corners_dir, r
                         [{"name": n, "expr": e} for n, e in meas], spiceinit, timeout,
                         capacity_wait_s=args.batch_capacity_wait_s,
                         runner_version_check=args.batch_runner_version_check,
-                        poll_interval_s=30.0,
+                        poll_interval_s=30.0, hosts=args.batch_hosts,
                     ))
         print(f"batch         : {len(groups)} klt sim requests "
               f"({len(variants)} variants x {len(supplies)} supplies x {len(BATCH_REQUESTS)} analyses), "
@@ -1045,6 +1045,9 @@ def parse_args(argv):
                    help="batch only: wait this long for Spot capacity per submission (default 3600)")
     p.add_argument("--batch-runner-version-check", choices=("enforce", "warn"), default="enforce",
                    help="batch only: klt runner/client version-skew policy (default enforce)")
+    p.add_argument("--batch-hosts", type=int, default=1,
+                   help="batch only: shard each request across this many fleet hosts "
+                        "(request remote.hosts; default 1 = unsharded)")
     p.add_argument("--batch-max-jobs", type=int, default=8,
                    help="batch only: klt requests in flight at once (default 8)")
     p.add_argument("--timeout", type=int, default=1800, help="per-point ngspice timeout (s)")
