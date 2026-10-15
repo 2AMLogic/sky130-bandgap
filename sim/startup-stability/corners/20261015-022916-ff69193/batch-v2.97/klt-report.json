@@ -1,0 +1,2591 @@
+{
+  "corner_count": 15,
+  "corners": [
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/tt_novdd_n40C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/tt_novdd_n40C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "tt/novdd/-40C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": 0.5,
+          "name": "ncross_su",
+          "status": "pass",
+          "unit": null,
+          "value": 1.0
+        },
+        {
+          "margin": 0.18223109999999998,
+          "name": "alpha_eq",
+          "status": "pass",
+          "unit": null,
+          "value": 0.5577689
+        },
+        {
+          "margin": 0.00030613499999999997,
+          "name": "itrav_min",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.000306136
+        },
+        {
+          "margin": 0.0006796902999999999,
+          "name": "imin_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0006797003
+        },
+        {
+          "margin": 9.91260213e-10,
+          "name": "imin_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 8.739787e-12
+        },
+        {
+          "margin": 0.0006922213,
+          "name": "i_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0006932213
+        },
+        {
+          "margin": 9.5618805e-10,
+          "name": "i_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.381195e-11
+        },
+        {
+          "margin": 0.000823255,
+          "name": "i_on_su",
+          "status": "pass",
+          "unit": "A",
+          "value": -0.000824255
+        },
+        {
+          "margin": 6.644392e-10,
+          "name": "i_su_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 6.634392e-10
+        },
+        {
+          "margin": 9.935941499999999e-07,
+          "name": "i_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 6.40585e-09
+        },
+        {
+          "margin": 0.0198842888,
+          "name": "dvref",
+          "status": "pass",
+          "unit": "V",
+          "value": 0.0001157112
+        },
+        {
+          "margin": 0.08341799999999999,
+          "name": "vref_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.216582
+        },
+        {
+          "margin": 0.6597200000000001,
+          "name": "vgdrv_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.65972
+        },
+        {
+          "margin": 1.563615e-05,
+          "name": "isup_dut",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.063615e-05
+        },
+        {
+          "margin": null,
+          "name": "ncross_bare",
+          "status": "pass",
+          "unit": null,
+          "value": 1.000024
+        }
+      ],
+      "monte_carlo": null,
+      "process": "tt",
+      "runtime_s": 2705.442,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": -40
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/tt_novdd_27C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/tt_novdd_27C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "tt/novdd/27C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": 0.5,
+          "name": "ncross_su",
+          "status": "pass",
+          "unit": null,
+          "value": 1.0
+        },
+        {
+          "margin": 0.15832670000000004,
+          "name": "alpha_eq",
+          "status": "pass",
+          "unit": null,
+          "value": 0.5816733
+        },
+        {
+          "margin": 1.004075e-08,
+          "name": "itrav_min",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.104075e-08
+        },
+        {
+          "margin": 0.0003514354,
+          "name": "imin_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0003514454
+        },
+        {
+          "margin": 9.94537148e-10,
+          "name": "imin_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 5.462852e-12
+        },
+        {
+          "margin": 0.0008039124,
+          "name": "i_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0008049124
+        },
+        {
+          "margin": 9.5225852e-10,
+          "name": "i_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.774148e-11
+        },
+        {
+          "margin": 0.000680324,
+          "name": "i_on_su",
+          "status": "pass",
+          "unit": "A",
+          "value": -0.000681324
+        },
+        {
+          "margin": 1.7799180000000002e-09,
+          "name": "i_su_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.778918e-09
+        },
+        {
+          "margin": 9.8329048e-07,
+          "name": "i_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.670952e-08
+        },
+        {
+          "margin": 0.0196942773,
+          "name": "dvref",
+          "status": "pass",
+          "unit": "V",
+          "value": 0.0003057227
+        },
+        {
+          "margin": 0.08936500000000014,
+          "name": "vref_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.210635
+        },
+        {
+          "margin": 0.729106,
+          "name": "vgdrv_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.729106
+        },
+        {
+          "margin": 2.097059e-05,
+          "name": "isup_dut",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.597059e-05
+        },
+        {
+          "margin": null,
+          "name": "ncross_bare",
+          "status": "pass",
+          "unit": null,
+          "value": 1.000022
+        }
+      ],
+      "monte_carlo": null,
+      "process": "tt",
+      "runtime_s": 2028.984,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": 27
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/tt_novdd_125C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/tt_novdd_125C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "tt/novdd/125C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": 0.5,
+          "name": "ncross_su",
+          "status": "pass",
+          "unit": null,
+          "value": 1.0
+        },
+        {
+          "margin": 0.12247010000000003,
+          "name": "alpha_eq",
+          "status": "pass",
+          "unit": null,
+          "value": 0.6175299
+        },
+        {
+          "margin": 2.3270300000000002e-08,
+          "name": "itrav_min",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.42703e-08
+        },
+        {
+          "margin": 9.283503e-05,
+          "name": "imin_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 9.284503e-05
+        },
+        {
+          "margin": 9.96453171e-10,
+          "name": "imin_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 3.546829e-12
+        },
+        {
+          "margin": 0.0005352487999999999,
+          "name": "i_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0005362488
+        },
+        {
+          "margin": 8.053105e-10,
+          "name": "i_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.946895e-10
+        },
+        {
+          "margin": 0.0005264989999999999,
+          "name": "i_on_su",
+          "status": "pass",
+          "unit": "A",
+          "value": -0.000527499
+        },
+        {
+          "margin": 1.0693230000000001e-09,
+          "name": "i_su_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.068323e-09
+        },
+        {
+          "margin": 9.9054794e-07,
+          "name": "i_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 9.45206e-09
+        },
+        {
+          "margin": 0.0198210801,
+          "name": "dvref",
+          "status": "pass",
+          "unit": "V",
+          "value": 0.0001789199
+        },
+        {
+          "margin": 0.08654399999999995,
+          "name": "vref_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.186544
+        },
+        {
+          "margin": 0.8318319999999999,
+          "name": "vgdrv_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.831832
+        },
+        {
+          "margin": 1.7327770000000005e-05,
+          "name": "isup_dut",
+          "status": "pass",
+          "unit": "A",
+          "value": 3.267223e-05
+        },
+        {
+          "margin": null,
+          "name": "ncross_bare",
+          "status": "pass",
+          "unit": null,
+          "value": 1.000009
+        }
+      ],
+      "monte_carlo": null,
+      "process": "tt",
+      "runtime_s": 1235.565,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": 125
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/ss_novdd_n40C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/ss_novdd_n40C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "ss/novdd/-40C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": 0.5,
+          "name": "ncross_su",
+          "status": "pass",
+          "unit": null,
+          "value": 1.0
+        },
+        {
+          "margin": 0.19418329999999995,
+          "name": "alpha_eq",
+          "status": "pass",
+          "unit": null,
+          "value": 0.5458167
+        },
+        {
+          "margin": 0.0004196597,
+          "name": "itrav_min",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0004196607
+        },
+        {
+          "margin": 0.0006567096,
+          "name": "imin_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0006567196
+        },
+        {
+          "margin": 9.9069844e-10,
+          "name": "imin_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 9.30156e-12
+        },
+        {
+          "margin": 0.0006669641,
+          "name": "i_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0006679641
+        },
+        {
+          "margin": 9.5672817e-10,
+          "name": "i_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.327183e-11
+        },
+        {
+          "margin": 0.000784784,
+          "name": "i_on_su",
+          "status": "pass",
+          "unit": "A",
+          "value": -0.000785784
+        },
+        {
+          "margin": 1.903482e-10,
+          "name": "i_su_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.893482e-10
+        },
+        {
+          "margin": 9.98191483e-07,
+          "name": "i_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.808517e-09
+        },
+        {
+          "margin": 0.01996764649,
+          "name": "dvref",
+          "status": "pass",
+          "unit": "V",
+          "value": 3.235351e-05
+        },
+        {
+          "margin": 0.08289100000000005,
+          "name": "vref_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.217109
+        },
+        {
+          "margin": 0.617,
+          "name": "vgdrv_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.617
+        },
+        {
+          "margin": 1.54962e-05,
+          "name": "isup_dut",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.04962e-05
+        },
+        {
+          "margin": null,
+          "name": "ncross_bare",
+          "status": "pass",
+          "unit": null,
+          "value": 1.000025
+        }
+      ],
+      "monte_carlo": null,
+      "process": "ss",
+      "runtime_s": 2744.526,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": -40
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/ss_novdd_27C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/ss_novdd_27C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "ss/novdd/27C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": 0.5,
+          "name": "ncross_su",
+          "status": "pass",
+          "unit": null,
+          "value": 1.0
+        },
+        {
+          "margin": 0.1742629,
+          "name": "alpha_eq",
+          "status": "pass",
+          "unit": null,
+          "value": 0.5657371
+        },
+        {
+          "margin": 1.136694e-06,
+          "name": "itrav_min",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.137694e-06
+        },
+        {
+          "margin": 0.0003490685,
+          "name": "imin_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0003490785
+        },
+        {
+          "margin": 9.93939181e-10,
+          "name": "imin_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 6.060819e-12
+        },
+        {
+          "margin": 0.0006415167,
+          "name": "i_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0006425167
+        },
+        {
+          "margin": 9.528118600000002e-10,
+          "name": "i_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.718814e-11
+        },
+        {
+          "margin": 0.000647108,
+          "name": "i_on_su",
+          "status": "pass",
+          "unit": "A",
+          "value": -0.000648108
+        },
+        {
+          "margin": 6.691407e-10,
+          "name": "i_su_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 6.681407e-10
+        },
+        {
+          "margin": 9.93620494e-07,
+          "name": "i_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 6.379506e-09
+        },
+        {
+          "margin": 0.019884588800000002,
+          "name": "dvref",
+          "status": "pass",
+          "unit": "V",
+          "value": 0.0001154112
+        },
+        {
+          "margin": 0.08917700000000006,
+          "name": "vref_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.210823
+        },
+        {
+          "margin": 0.6858820000000001,
+          "name": "vgdrv_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.685882
+        },
+        {
+          "margin": 2.0820650000000002e-05,
+          "name": "isup_dut",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.582065e-05
+        },
+        {
+          "margin": null,
+          "name": "ncross_bare",
+          "status": "pass",
+          "unit": null,
+          "value": 1.000024
+        }
+      ],
+      "monte_carlo": null,
+      "process": "ss",
+      "runtime_s": 1780.445,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": 27
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/ss_novdd_125C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/ss_novdd_125C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "ss/novdd/125C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": 0.5,
+          "name": "ncross_su",
+          "status": "pass",
+          "unit": null,
+          "value": 1.0
+        },
+        {
+          "margin": 0.13840640000000004,
+          "name": "alpha_eq",
+          "status": "pass",
+          "unit": null,
+          "value": 0.6015936
+        },
+        {
+          "margin": 5.773545e-09,
+          "name": "itrav_min",
+          "status": "pass",
+          "unit": "A",
+          "value": 6.773545e-09
+        },
+        {
+          "margin": 3.3675339999999995e-05,
+          "name": "imin_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 3.368534e-05
+        },
+        {
+          "margin": 9.95408118e-10,
+          "name": "imin_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.591882e-12
+        },
+        {
+          "margin": 0.0003871806,
+          "name": "i_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0003881806
+        },
+        {
+          "margin": 8.061559000000001e-10,
+          "name": "i_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.938441e-10
+        },
+        {
+          "margin": 0.0004998369999999999,
+          "name": "i_on_su",
+          "status": "pass",
+          "unit": "A",
+          "value": -0.000500837
+        },
+        {
+          "margin": 5.594326e-10,
+          "name": "i_su_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 5.584326e-10
+        },
+        {
+          "margin": 9.95063029e-07,
+          "name": "i_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.936971e-09
+        },
+        {
+          "margin": 0.01990831774,
+          "name": "dvref",
+          "status": "pass",
+          "unit": "V",
+          "value": 9.168226e-05
+        },
+        {
+          "margin": 0.08675499999999992,
+          "name": "vref_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.186755
+        },
+        {
+          "margin": 0.7877799999999999,
+          "name": "vgdrv_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.78778
+        },
+        {
+          "margin": 1.744063e-05,
+          "name": "isup_dut",
+          "status": "pass",
+          "unit": "A",
+          "value": 3.255937e-05
+        },
+        {
+          "margin": null,
+          "name": "ncross_bare",
+          "status": "pass",
+          "unit": null,
+          "value": 1.00001
+        }
+      ],
+      "monte_carlo": null,
+      "process": "ss",
+      "runtime_s": 1278.51,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": 125
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/ff_novdd_n40C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/ff_novdd_n40C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "ff/novdd/-40C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": 0.5,
+          "name": "ncross_su",
+          "status": "pass",
+          "unit": null,
+          "value": 1.0
+        },
+        {
+          "margin": 0.16629479999999996,
+          "name": "alpha_eq",
+          "status": "pass",
+          "unit": null,
+          "value": 0.5737052
+        },
+        {
+          "margin": 0.0002159072,
+          "name": "itrav_min",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0002159082
+        },
+        {
+          "margin": 0.0006990839,
+          "name": "imin_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0006990939
+        },
+        {
+          "margin": 9.91833977e-10,
+          "name": "imin_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 8.166023e-12
+        },
+        {
+          "margin": 0.000732949,
+          "name": "i_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.000733949
+        },
+        {
+          "margin": 9.5564626e-10,
+          "name": "i_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.435374e-11
+        },
+        {
+          "margin": 0.000862665,
+          "name": "i_on_su",
+          "status": "pass",
+          "unit": "A",
+          "value": -0.000863665
+        },
+        {
+          "margin": 2.432498e-09,
+          "name": "i_su_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.431498e-09
+        },
+        {
+          "margin": 9.764851099999999e-07,
+          "name": "i_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.351489e-08
+        },
+        {
+          "margin": 0.019571085000000002,
+          "name": "dvref",
+          "status": "pass",
+          "unit": "V",
+          "value": 0.000428915
+        },
+        {
+          "margin": 0.08355800000000002,
+          "name": "vref_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.216442
+        },
+        {
+          "margin": 0.704831,
+          "name": "vgdrv_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.704831
+        },
+        {
+          "margin": 1.546061e-05,
+          "name": "isup_dut",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.046061e-05
+        },
+        {
+          "margin": null,
+          "name": "ncross_bare",
+          "status": "pass",
+          "unit": null,
+          "value": 1.000022
+        }
+      ],
+      "monte_carlo": null,
+      "process": "ff",
+      "runtime_s": 2907.508,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": -40
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/ff_novdd_27C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/ff_novdd_27C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "ff/novdd/27C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": 0.5,
+          "name": "ncross_su",
+          "status": "pass",
+          "unit": null,
+          "value": 1.0
+        },
+        {
+          "margin": 0.14239040000000003,
+          "name": "alpha_eq",
+          "status": "pass",
+          "unit": null,
+          "value": 0.5976096
+        },
+        {
+          "margin": 1.239965e-08,
+          "name": "itrav_min",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.339965e-08
+        },
+        {
+          "margin": 0.0004060319,
+          "name": "imin_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0004060419
+        },
+        {
+          "margin": 9.951449950000002e-10,
+          "name": "imin_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.855005e-12
+        },
+        {
+          "margin": 0.0009844230000000001,
+          "name": "i_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.000985423
+        },
+        {
+          "margin": 9.5170086e-10,
+          "name": "i_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.829914e-11
+        },
+        {
+          "margin": 0.000714392,
+          "name": "i_on_su",
+          "status": "pass",
+          "unit": "A",
+          "value": -0.000715392
+        },
+        {
+          "margin": 4.826861e-09,
+          "name": "i_su_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.825861e-09
+        },
+        {
+          "margin": 9.5489894e-07,
+          "name": "i_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.510106e-08
+        },
+        {
+          "margin": 0.0191673583,
+          "name": "dvref",
+          "status": "pass",
+          "unit": "V",
+          "value": 0.0008326417
+        },
+        {
+          "margin": 0.08908700000000014,
+          "name": "vref_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.210913
+        },
+        {
+          "margin": 0.7751269999999999,
+          "name": "vgdrv_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.775127
+        },
+        {
+          "margin": 2.076138e-05,
+          "name": "isup_dut",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.576138e-05
+        },
+        {
+          "margin": null,
+          "name": "ncross_bare",
+          "status": "pass",
+          "unit": null,
+          "value": 1.000021
+        }
+      ],
+      "monte_carlo": null,
+      "process": "ff",
+      "runtime_s": 1992.325,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": 27
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/ff_novdd_125C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/ff_novdd_125C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "ff/novdd/125C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": 0.5,
+          "name": "ncross_su",
+          "status": "pass",
+          "unit": null,
+          "value": 1.0
+        },
+        {
+          "margin": 0.10653389999999996,
+          "name": "alpha_eq",
+          "status": "pass",
+          "unit": null,
+          "value": 0.6334661
+        },
+        {
+          "margin": 7.863704e-08,
+          "name": "itrav_min",
+          "status": "pass",
+          "unit": "A",
+          "value": 7.963704e-08
+        },
+        {
+          "margin": 0.0001762422,
+          "name": "imin_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0001762522
+        },
+        {
+          "margin": 9.973664400000001e-10,
+          "name": "imin_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.63356e-12
+        },
+        {
+          "margin": 0.0006972915999999999,
+          "name": "i_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0006982916
+        },
+        {
+          "margin": 8.03975e-10,
+          "name": "i_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.96025e-10
+        },
+        {
+          "margin": 0.000554048,
+          "name": "i_on_su",
+          "status": "pass",
+          "unit": "A",
+          "value": -0.000555048
+        },
+        {
+          "margin": 2.27949e-09,
+          "name": "i_su_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.27849e-09
+        },
+        {
+          "margin": 9.796750599999999e-07,
+          "name": "i_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.032494e-08
+        },
+        {
+          "margin": 0.0196111179,
+          "name": "dvref",
+          "status": "pass",
+          "unit": "V",
+          "value": 0.0003888821
+        },
+        {
+          "margin": 0.08656299999999995,
+          "name": "vref_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.186563
+        },
+        {
+          "margin": 0.879243,
+          "name": "vgdrv_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.879243
+        },
+        {
+          "margin": 1.7619690000000003e-05,
+          "name": "isup_dut",
+          "status": "pass",
+          "unit": "A",
+          "value": 3.238031e-05
+        },
+        {
+          "margin": null,
+          "name": "ncross_bare",
+          "status": "pass",
+          "unit": null,
+          "value": 1.000008
+        }
+      ],
+      "monte_carlo": null,
+      "process": "ff",
+      "runtime_s": 1276.566,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": 125
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/sf_novdd_n40C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/sf_novdd_n40C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "sf/novdd/-40C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": 0.5,
+          "name": "ncross_su",
+          "status": "pass",
+          "unit": null,
+          "value": 1.0
+        },
+        {
+          "margin": 0.21011950000000001,
+          "name": "alpha_eq",
+          "status": "pass",
+          "unit": null,
+          "value": 0.5298805
+        },
+        {
+          "margin": 0.00045653109999999996,
+          "name": "itrav_min",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0004565321
+        },
+        {
+          "margin": 0.0005577001999999999,
+          "name": "imin_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0005577102
+        },
+        {
+          "margin": 9.900470730000001e-10,
+          "name": "imin_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 9.952927e-12
+        },
+        {
+          "margin": 0.0005702614,
+          "name": "i_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0005712614
+        },
+        {
+          "margin": 9.5622613e-10,
+          "name": "i_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.377387e-11
+        },
+        {
+          "margin": 0.000856717,
+          "name": "i_on_su",
+          "status": "pass",
+          "unit": "A",
+          "value": -0.000857717
+        },
+        {
+          "margin": 7.422042e-09,
+          "name": "i_su_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 7.421042e-09
+        },
+        {
+          "margin": 9.2700508e-07,
+          "name": "i_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 7.299492e-08
+        },
+        {
+          "margin": 0.018678607,
+          "name": "dvref",
+          "status": "pass",
+          "unit": "V",
+          "value": 0.001321393
+        },
+        {
+          "margin": 0.08188600000000013,
+          "name": "vref_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.218114
+        },
+        {
+          "margin": 0.5726519999999999,
+          "name": "vgdrv_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.572652
+        },
+        {
+          "margin": 1.576954e-05,
+          "name": "isup_dut",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.076954e-05
+        },
+        {
+          "margin": null,
+          "name": "ncross_bare",
+          "status": "pass",
+          "unit": null,
+          "value": 1.000027
+        }
+      ],
+      "monte_carlo": null,
+      "process": "sf",
+      "runtime_s": 375.485,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": -40
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/sf_novdd_27C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/sf_novdd_27C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "sf/novdd/27C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": 0.5,
+          "name": "ncross_su",
+          "status": "pass",
+          "unit": null,
+          "value": 1.0
+        },
+        {
+          "margin": 0.18621509999999997,
+          "name": "alpha_eq",
+          "status": "pass",
+          "unit": null,
+          "value": 0.5537849
+        },
+        {
+          "margin": 1.9788240000000002e-08,
+          "name": "itrav_min",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.078824e-08
+        },
+        {
+          "margin": 0.00017988460000000002,
+          "name": "imin_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0001798946
+        },
+        {
+          "margin": 9.93285371e-10,
+          "name": "imin_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 6.714629e-12
+        },
+        {
+          "margin": 0.0006756142999999999,
+          "name": "i_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0006766143
+        },
+        {
+          "margin": 9.5225763e-10,
+          "name": "i_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.774237e-11
+        },
+        {
+          "margin": 0.0007102969999999999,
+          "name": "i_on_su",
+          "status": "pass",
+          "unit": "A",
+          "value": -0.000711297
+        },
+        {
+          "margin": 1.225526e-08,
+          "name": "i_su_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.225426e-08
+        },
+        {
+          "margin": 8.844935e-07,
+          "name": "i_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.155065e-07
+        },
+        {
+          "margin": 0.017882658,
+          "name": "dvref",
+          "status": "pass",
+          "unit": "V",
+          "value": 0.002117342
+        },
+        {
+          "margin": 0.08579599999999998,
+          "name": "vref_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.214204
+        },
+        {
+          "margin": 0.6410260000000001,
+          "name": "vgdrv_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.641026
+        },
+        {
+          "margin": 2.118363e-05,
+          "name": "isup_dut",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.618363e-05
+        },
+        {
+          "margin": null,
+          "name": "ncross_bare",
+          "status": "pass",
+          "unit": null,
+          "value": 1.000025
+        }
+      ],
+      "monte_carlo": null,
+      "process": "sf",
+      "runtime_s": 1327.17,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": 27
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/sf_novdd_125C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/sf_novdd_125C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "sf/novdd/125C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": 0.5,
+          "name": "ncross_su",
+          "status": "pass",
+          "unit": null,
+          "value": 1.0
+        },
+        {
+          "margin": 0.1543426,
+          "name": "alpha_eq",
+          "status": "pass",
+          "unit": null,
+          "value": 0.5856574
+        },
+        {
+          "margin": 1.3594179999999999e-08,
+          "name": "itrav_min",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.459418e-08
+        },
+        {
+          "margin": 5.303358e-05,
+          "name": "imin_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 5.304358e-05
+        },
+        {
+          "margin": 9.942137400000001e-10,
+          "name": "imin_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 5.78626e-12
+        },
+        {
+          "margin": 0.0004474844,
+          "name": "i_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0004484844
+        },
+        {
+          "margin": 8.014275e-10,
+          "name": "i_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.985725e-10
+        },
+        {
+          "margin": 0.0005517629999999999,
+          "name": "i_on_su",
+          "status": "pass",
+          "unit": "A",
+          "value": -0.000552763
+        },
+        {
+          "margin": 4.214852e-09,
+          "name": "i_su_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.213852e-09
+        },
+        {
+          "margin": 9.618457199999999e-07,
+          "name": "i_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 3.815428e-08
+        },
+        {
+          "margin": 0.0192747208,
+          "name": "dvref",
+          "status": "pass",
+          "unit": "V",
+          "value": 0.0007252792
+        },
+        {
+          "margin": 0.08980100000000002,
+          "name": "vref_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.189801
+        },
+        {
+          "margin": 0.7432129999999999,
+          "name": "vgdrv_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.743213
+        },
+        {
+          "margin": 1.716728e-05,
+          "name": "isup_dut",
+          "status": "pass",
+          "unit": "A",
+          "value": 3.283272e-05
+        },
+        {
+          "margin": null,
+          "name": "ncross_bare",
+          "status": "pass",
+          "unit": null,
+          "value": 1.00001
+        }
+      ],
+      "monte_carlo": null,
+      "process": "sf",
+      "runtime_s": 1152.401,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": 125
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/fs_novdd_n40C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/fs_novdd_n40C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "fs/novdd/-40C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": 0.5,
+          "name": "ncross_su",
+          "status": "pass",
+          "unit": null,
+          "value": 1.0
+        },
+        {
+          "margin": 0.1543426,
+          "name": "alpha_eq",
+          "status": "pass",
+          "unit": null,
+          "value": 0.5856574
+        },
+        {
+          "margin": 0.0002656054,
+          "name": "itrav_min",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0002656064
+        },
+        {
+          "margin": 0.0007799396,
+          "name": "imin_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0007799496
+        },
+        {
+          "margin": 9.925003320000002e-10,
+          "name": "imin_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 7.499668e-12
+        },
+        {
+          "margin": 0.0007927814,
+          "name": "i_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0007937814
+        },
+        {
+          "margin": 9.5614453e-10,
+          "name": "i_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.385547e-11
+        },
+        {
+          "margin": 0.000790672,
+          "name": "i_on_su",
+          "status": "pass",
+          "unit": "A",
+          "value": -0.000791672
+        },
+        {
+          "margin": 6.941618e-11,
+          "name": "i_su_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 6.841618e-11
+        },
+        {
+          "margin": 9.994178039e-07,
+          "name": "i_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 5.821961e-10
+        },
+        {
+          "margin": 0.01998967094,
+          "name": "dvref",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.032906e-05
+        },
+        {
+          "margin": 0.08248100000000003,
+          "name": "vref_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.217519
+        },
+        {
+          "margin": 0.7458990000000001,
+          "name": "vgdrv_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.745899
+        },
+        {
+          "margin": 1.569051e-05,
+          "name": "isup_dut",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.069051e-05
+        },
+        {
+          "margin": null,
+          "name": "ncross_bare",
+          "status": "pass",
+          "unit": null,
+          "value": 1.000021
+        }
+      ],
+      "monte_carlo": null,
+      "process": "fs",
+      "runtime_s": 991.344,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": -40
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/fs_novdd_27C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/fs_novdd_27C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "fs/novdd/27C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": 0.5,
+          "name": "ncross_su",
+          "status": "pass",
+          "unit": null,
+          "value": 1.0
+        },
+        {
+          "margin": 0.13043819999999995,
+          "name": "alpha_eq",
+          "status": "pass",
+          "unit": null,
+          "value": 0.6095618
+        },
+        {
+          "margin": 1.504027e-07,
+          "name": "itrav_min",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.514027e-07
+        },
+        {
+          "margin": 0.0004665538,
+          "name": "imin_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0004665638
+        },
+        {
+          "margin": 9.95807354e-10,
+          "name": "imin_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.192646e-12
+        },
+        {
+          "margin": 0.0009000334,
+          "name": "i_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0009010334
+        },
+        {
+          "margin": 9.522399800000001e-10,
+          "name": "i_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 4.776002e-11
+        },
+        {
+          "margin": 0.000650138,
+          "name": "i_on_su",
+          "status": "pass",
+          "unit": "A",
+          "value": -0.000651138
+        },
+        {
+          "margin": 2.652436e-10,
+          "name": "i_su_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.642436e-10
+        },
+        {
+          "margin": 9.976024159999999e-07,
+          "name": "i_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.397584e-09
+        },
+        {
+          "margin": 0.01995639941,
+          "name": "dvref",
+          "status": "pass",
+          "unit": "V",
+          "value": 4.360059e-05
+        },
+        {
+          "margin": 0.08939399999999997,
+          "name": "vref_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.210606
+        },
+        {
+          "margin": 0.816098,
+          "name": "vgdrv_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.816098
+        },
+        {
+          "margin": 2.098782e-05,
+          "name": "isup_dut",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.598782e-05
+        },
+        {
+          "margin": null,
+          "name": "ncross_bare",
+          "status": "pass",
+          "unit": null,
+          "value": 1.00002
+        }
+      ],
+      "monte_carlo": null,
+      "process": "fs",
+      "runtime_s": 952.742,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": 27
+    },
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/fs_novdd_125C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-320/sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/klt-out/fs_novdd_125C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "fs/novdd/125C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": 0.5,
+          "name": "ncross_su",
+          "status": "pass",
+          "unit": null,
+          "value": 1.0
+        },
+        {
+          "margin": 0.09458169999999999,
+          "name": "alpha_eq",
+          "status": "pass",
+          "unit": null,
+          "value": 0.6454183
+        },
+        {
+          "margin": 7.252375e-08,
+          "name": "itrav_min",
+          "status": "pass",
+          "unit": "A",
+          "value": 7.352375e-08
+        },
+        {
+          "margin": 0.00013427410000000002,
+          "name": "imin_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0001342841
+        },
+        {
+          "margin": 9.97631117e-10,
+          "name": "imin_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 2.368883e-12
+        },
+        {
+          "margin": 0.0006091353,
+          "name": "i_off_su",
+          "status": "pass",
+          "unit": "A",
+          "value": 0.0006101353
+        },
+        {
+          "margin": 8.06752e-10,
+          "name": "i_off_bare",
+          "status": "pass",
+          "unit": "A",
+          "value": 1.93248e-10
+        },
+        {
+          "margin": 0.000501879,
+          "name": "i_on_su",
+          "status": "pass",
+          "unit": "A",
+          "value": -0.000502879
+        },
+        {
+          "margin": 5.957908e-10,
+          "name": "i_su_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": 5.947908e-10
+        },
+        {
+          "margin": 9.878306999999999e-07,
+          "name": "i_standing",
+          "status": "pass",
+          "unit": "A",
+          "value": -1.21693e-08
+        },
+        {
+          "margin": 0.019721968,
+          "name": "dvref",
+          "status": "pass",
+          "unit": "V",
+          "value": -0.000278032
+        },
+        {
+          "margin": 0.08612599999999992,
+          "name": "vref_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.186126
+        },
+        {
+          "margin": 0.919659,
+          "name": "vgdrv_dut",
+          "status": "pass",
+          "unit": "V",
+          "value": 1.919659
+        },
+        {
+          "margin": 1.7316150000000005e-05,
+          "name": "isup_dut",
+          "status": "pass",
+          "unit": "A",
+          "value": 3.268385e-05
+        },
+        {
+          "margin": null,
+          "name": "ncross_bare",
+          "status": "pass",
+          "unit": null,
+          "value": 1.000007
+        }
+      ],
+      "monte_carlo": null,
+      "process": "fs",
+      "runtime_s": 186.646,
+      "status": "pass",
+      "supply_v": {},
+      "temperature_c": 125
+    }
+  ],
+  "coverage": {
+    "checked": [
+      "limit:[0,\"tt/novdd/-40C\",\"alpha_eq\",\"max\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"alpha_eq\",\"min\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"dvref\",\"max\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"dvref\",\"min\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"i_off_bare\",\"max\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"i_off_su\",\"min\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"i_on_su\",\"max\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"i_standing\",\"max\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"i_standing\",\"min\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"i_su_standing\",\"max\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"i_su_standing\",\"min\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"imin_off_bare\",\"max\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"imin_off_su\",\"min\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"isup_dut\",\"max\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"isup_dut\",\"min\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"itrav_min\",\"min\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"ncross_su\",\"max\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"ncross_su\",\"min\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"vgdrv_dut\",\"max\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"vgdrv_dut\",\"min\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"vref_dut\",\"max\"]",
+      "limit:[0,\"tt/novdd/-40C\",\"vref_dut\",\"min\"]",
+      "limit:[1,\"tt/novdd/27C\",\"alpha_eq\",\"max\"]",
+      "limit:[1,\"tt/novdd/27C\",\"alpha_eq\",\"min\"]",
+      "limit:[1,\"tt/novdd/27C\",\"dvref\",\"max\"]",
+      "limit:[1,\"tt/novdd/27C\",\"dvref\",\"min\"]",
+      "limit:[1,\"tt/novdd/27C\",\"i_off_bare\",\"max\"]",
+      "limit:[1,\"tt/novdd/27C\",\"i_off_su\",\"min\"]",
+      "limit:[1,\"tt/novdd/27C\",\"i_on_su\",\"max\"]",
+      "limit:[1,\"tt/novdd/27C\",\"i_standing\",\"max\"]",
+      "limit:[1,\"tt/novdd/27C\",\"i_standing\",\"min\"]",
+      "limit:[1,\"tt/novdd/27C\",\"i_su_standing\",\"max\"]",
+      "limit:[1,\"tt/novdd/27C\",\"i_su_standing\",\"min\"]",
+      "limit:[1,\"tt/novdd/27C\",\"imin_off_bare\",\"max\"]",
+      "limit:[1,\"tt/novdd/27C\",\"imin_off_su\",\"min\"]",
+      "limit:[1,\"tt/novdd/27C\",\"isup_dut\",\"max\"]",
+      "limit:[1,\"tt/novdd/27C\",\"isup_dut\",\"min\"]",
+      "limit:[1,\"tt/novdd/27C\",\"itrav_min\",\"min\"]",
+      "limit:[1,\"tt/novdd/27C\",\"ncross_su\",\"max\"]",
+      "limit:[1,\"tt/novdd/27C\",\"ncross_su\",\"min\"]",
+      "limit:[1,\"tt/novdd/27C\",\"vgdrv_dut\",\"max\"]",
+      "limit:[1,\"tt/novdd/27C\",\"vgdrv_dut\",\"min\"]",
+      "limit:[1,\"tt/novdd/27C\",\"vref_dut\",\"max\"]",
+      "limit:[1,\"tt/novdd/27C\",\"vref_dut\",\"min\"]",
+      "limit:[10,\"sf/novdd/27C\",\"alpha_eq\",\"max\"]",
+      "limit:[10,\"sf/novdd/27C\",\"alpha_eq\",\"min\"]",
+      "limit:[10,\"sf/novdd/27C\",\"dvref\",\"max\"]",
+      "limit:[10,\"sf/novdd/27C\",\"dvref\",\"min\"]",
+      "limit:[10,\"sf/novdd/27C\",\"i_off_bare\",\"max\"]",
+      "limit:[10,\"sf/novdd/27C\",\"i_off_su\",\"min\"]",
+      "limit:[10,\"sf/novdd/27C\",\"i_on_su\",\"max\"]",
+      "limit:[10,\"sf/novdd/27C\",\"i_standing\",\"max\"]",
+      "limit:[10,\"sf/novdd/27C\",\"i_standing\",\"min\"]",
+      "limit:[10,\"sf/novdd/27C\",\"i_su_standing\",\"max\"]",
+      "limit:[10,\"sf/novdd/27C\",\"i_su_standing\",\"min\"]",
+      "limit:[10,\"sf/novdd/27C\",\"imin_off_bare\",\"max\"]",
+      "limit:[10,\"sf/novdd/27C\",\"imin_off_su\",\"min\"]",
+      "limit:[10,\"sf/novdd/27C\",\"isup_dut\",\"max\"]",
+      "limit:[10,\"sf/novdd/27C\",\"isup_dut\",\"min\"]",
+      "limit:[10,\"sf/novdd/27C\",\"itrav_min\",\"min\"]",
+      "limit:[10,\"sf/novdd/27C\",\"ncross_su\",\"max\"]",
+      "limit:[10,\"sf/novdd/27C\",\"ncross_su\",\"min\"]",
+      "limit:[10,\"sf/novdd/27C\",\"vgdrv_dut\",\"max\"]",
+      "limit:[10,\"sf/novdd/27C\",\"vgdrv_dut\",\"min\"]",
+      "limit:[10,\"sf/novdd/27C\",\"vref_dut\",\"max\"]",
+      "limit:[10,\"sf/novdd/27C\",\"vref_dut\",\"min\"]",
+      "limit:[11,\"sf/novdd/125C\",\"alpha_eq\",\"max\"]",
+      "limit:[11,\"sf/novdd/125C\",\"alpha_eq\",\"min\"]",
+      "limit:[11,\"sf/novdd/125C\",\"dvref\",\"max\"]",
+      "limit:[11,\"sf/novdd/125C\",\"dvref\",\"min\"]",
+      "limit:[11,\"sf/novdd/125C\",\"i_off_bare\",\"max\"]",
+      "limit:[11,\"sf/novdd/125C\",\"i_off_su\",\"min\"]",
+      "limit:[11,\"sf/novdd/125C\",\"i_on_su\",\"max\"]",
+      "limit:[11,\"sf/novdd/125C\",\"i_standing\",\"max\"]",
+      "limit:[11,\"sf/novdd/125C\",\"i_standing\",\"min\"]",
+      "limit:[11,\"sf/novdd/125C\",\"i_su_standing\",\"max\"]",
+      "limit:[11,\"sf/novdd/125C\",\"i_su_standing\",\"min\"]",
+      "limit:[11,\"sf/novdd/125C\",\"imin_off_bare\",\"max\"]",
+      "limit:[11,\"sf/novdd/125C\",\"imin_off_su\",\"min\"]",
+      "limit:[11,\"sf/novdd/125C\",\"isup_dut\",\"max\"]",
+      "limit:[11,\"sf/novdd/125C\",\"isup_dut\",\"min\"]",
+      "limit:[11,\"sf/novdd/125C\",\"itrav_min\",\"min\"]",
+      "limit:[11,\"sf/novdd/125C\",\"ncross_su\",\"max\"]",
+      "limit:[11,\"sf/novdd/125C\",\"ncross_su\",\"min\"]",
+      "limit:[11,\"sf/novdd/125C\",\"vgdrv_dut\",\"max\"]",
+      "limit:[11,\"sf/novdd/125C\",\"vgdrv_dut\",\"min\"]",
+      "limit:[11,\"sf/novdd/125C\",\"vref_dut\",\"max\"]",
+      "limit:[11,\"sf/novdd/125C\",\"vref_dut\",\"min\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"alpha_eq\",\"max\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"alpha_eq\",\"min\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"dvref\",\"max\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"dvref\",\"min\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"i_off_bare\",\"max\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"i_off_su\",\"min\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"i_on_su\",\"max\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"i_standing\",\"max\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"i_standing\",\"min\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"i_su_standing\",\"max\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"i_su_standing\",\"min\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"imin_off_bare\",\"max\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"imin_off_su\",\"min\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"isup_dut\",\"max\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"isup_dut\",\"min\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"itrav_min\",\"min\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"ncross_su\",\"max\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"ncross_su\",\"min\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"vgdrv_dut\",\"max\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"vgdrv_dut\",\"min\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"vref_dut\",\"max\"]",
+      "limit:[12,\"fs/novdd/-40C\",\"vref_dut\",\"min\"]",
+      "limit:[13,\"fs/novdd/27C\",\"alpha_eq\",\"max\"]",
+      "limit:[13,\"fs/novdd/27C\",\"alpha_eq\",\"min\"]",
+      "limit:[13,\"fs/novdd/27C\",\"dvref\",\"max\"]",
+      "limit:[13,\"fs/novdd/27C\",\"dvref\",\"min\"]",
+      "limit:[13,\"fs/novdd/27C\",\"i_off_bare\",\"max\"]",
+      "limit:[13,\"fs/novdd/27C\",\"i_off_su\",\"min\"]",
+      "limit:[13,\"fs/novdd/27C\",\"i_on_su\",\"max\"]",
+      "limit:[13,\"fs/novdd/27C\",\"i_standing\",\"max\"]",
+      "limit:[13,\"fs/novdd/27C\",\"i_standing\",\"min\"]",
+      "limit:[13,\"fs/novdd/27C\",\"i_su_standing\",\"max\"]",
+      "limit:[13,\"fs/novdd/27C\",\"i_su_standing\",\"min\"]",
+      "limit:[13,\"fs/novdd/27C\",\"imin_off_bare\",\"max\"]",
+      "limit:[13,\"fs/novdd/27C\",\"imin_off_su\",\"min\"]",
+      "limit:[13,\"fs/novdd/27C\",\"isup_dut\",\"max\"]",
+      "limit:[13,\"fs/novdd/27C\",\"isup_dut\",\"min\"]",
+      "limit:[13,\"fs/novdd/27C\",\"itrav_min\",\"min\"]",
+      "limit:[13,\"fs/novdd/27C\",\"ncross_su\",\"max\"]",
+      "limit:[13,\"fs/novdd/27C\",\"ncross_su\",\"min\"]",
+      "limit:[13,\"fs/novdd/27C\",\"vgdrv_dut\",\"max\"]",
+      "limit:[13,\"fs/novdd/27C\",\"vgdrv_dut\",\"min\"]",
+      "limit:[13,\"fs/novdd/27C\",\"vref_dut\",\"max\"]",
+      "limit:[13,\"fs/novdd/27C\",\"vref_dut\",\"min\"]",
+      "limit:[14,\"fs/novdd/125C\",\"alpha_eq\",\"max\"]",
+      "limit:[14,\"fs/novdd/125C\",\"alpha_eq\",\"min\"]",
+      "limit:[14,\"fs/novdd/125C\",\"dvref\",\"max\"]",
+      "limit:[14,\"fs/novdd/125C\",\"dvref\",\"min\"]",
+      "limit:[14,\"fs/novdd/125C\",\"i_off_bare\",\"max\"]",
+      "limit:[14,\"fs/novdd/125C\",\"i_off_su\",\"min\"]",
+      "limit:[14,\"fs/novdd/125C\",\"i_on_su\",\"max\"]",
+      "limit:[14,\"fs/novdd/125C\",\"i_standing\",\"max\"]",
+      "limit:[14,\"fs/novdd/125C\",\"i_standing\",\"min\"]",
+      "limit:[14,\"fs/novdd/125C\",\"i_su_standing\",\"max\"]",
+      "limit:[14,\"fs/novdd/125C\",\"i_su_standing\",\"min\"]",
+      "limit:[14,\"fs/novdd/125C\",\"imin_off_bare\",\"max\"]",
+      "limit:[14,\"fs/novdd/125C\",\"imin_off_su\",\"min\"]",
+      "limit:[14,\"fs/novdd/125C\",\"isup_dut\",\"max\"]",
+      "limit:[14,\"fs/novdd/125C\",\"isup_dut\",\"min\"]",
+      "limit:[14,\"fs/novdd/125C\",\"itrav_min\",\"min\"]",
+      "limit:[14,\"fs/novdd/125C\",\"ncross_su\",\"max\"]",
+      "limit:[14,\"fs/novdd/125C\",\"ncross_su\",\"min\"]",
+      "limit:[14,\"fs/novdd/125C\",\"vgdrv_dut\",\"max\"]",
+      "limit:[14,\"fs/novdd/125C\",\"vgdrv_dut\",\"min\"]",
+      "limit:[14,\"fs/novdd/125C\",\"vref_dut\",\"max\"]",
+      "limit:[14,\"fs/novdd/125C\",\"vref_dut\",\"min\"]",
+      "limit:[2,\"tt/novdd/125C\",\"alpha_eq\",\"max\"]",
+      "limit:[2,\"tt/novdd/125C\",\"alpha_eq\",\"min\"]",
+      "limit:[2,\"tt/novdd/125C\",\"dvref\",\"max\"]",
+      "limit:[2,\"tt/novdd/125C\",\"dvref\",\"min\"]",
+      "limit:[2,\"tt/novdd/125C\",\"i_off_bare\",\"max\"]",
+      "limit:[2,\"tt/novdd/125C\",\"i_off_su\",\"min\"]",
+      "limit:[2,\"tt/novdd/125C\",\"i_on_su\",\"max\"]",
+      "limit:[2,\"tt/novdd/125C\",\"i_standing\",\"max\"]",
+      "limit:[2,\"tt/novdd/125C\",\"i_standing\",\"min\"]",
+      "limit:[2,\"tt/novdd/125C\",\"i_su_standing\",\"max\"]",
+      "limit:[2,\"tt/novdd/125C\",\"i_su_standing\",\"min\"]",
+      "limit:[2,\"tt/novdd/125C\",\"imin_off_bare\",\"max\"]",
+      "limit:[2,\"tt/novdd/125C\",\"imin_off_su\",\"min\"]",
+      "limit:[2,\"tt/novdd/125C\",\"isup_dut\",\"max\"]",
+      "limit:[2,\"tt/novdd/125C\",\"isup_dut\",\"min\"]",
+      "limit:[2,\"tt/novdd/125C\",\"itrav_min\",\"min\"]",
+      "limit:[2,\"tt/novdd/125C\",\"ncross_su\",\"max\"]",
+      "limit:[2,\"tt/novdd/125C\",\"ncross_su\",\"min\"]",
+      "limit:[2,\"tt/novdd/125C\",\"vgdrv_dut\",\"max\"]",
+      "limit:[2,\"tt/novdd/125C\",\"vgdrv_dut\",\"min\"]",
+      "limit:[2,\"tt/novdd/125C\",\"vref_dut\",\"max\"]",
+      "limit:[2,\"tt/novdd/125C\",\"vref_dut\",\"min\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"alpha_eq\",\"max\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"alpha_eq\",\"min\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"dvref\",\"max\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"dvref\",\"min\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"i_off_bare\",\"max\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"i_off_su\",\"min\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"i_on_su\",\"max\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"i_standing\",\"max\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"i_standing\",\"min\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"i_su_standing\",\"max\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"i_su_standing\",\"min\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"imin_off_bare\",\"max\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"imin_off_su\",\"min\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"isup_dut\",\"max\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"isup_dut\",\"min\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"itrav_min\",\"min\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"ncross_su\",\"max\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"ncross_su\",\"min\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"vgdrv_dut\",\"max\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"vgdrv_dut\",\"min\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"vref_dut\",\"max\"]",
+      "limit:[3,\"ss/novdd/-40C\",\"vref_dut\",\"min\"]",
+      "limit:[4,\"ss/novdd/27C\",\"alpha_eq\",\"max\"]",
+      "limit:[4,\"ss/novdd/27C\",\"alpha_eq\",\"min\"]",
+      "limit:[4,\"ss/novdd/27C\",\"dvref\",\"max\"]",
+      "limit:[4,\"ss/novdd/27C\",\"dvref\",\"min\"]",
+      "limit:[4,\"ss/novdd/27C\",\"i_off_bare\",\"max\"]",
+      "limit:[4,\"ss/novdd/27C\",\"i_off_su\",\"min\"]",
+      "limit:[4,\"ss/novdd/27C\",\"i_on_su\",\"max\"]",
+      "limit:[4,\"ss/novdd/27C\",\"i_standing\",\"max\"]",
+      "limit:[4,\"ss/novdd/27C\",\"i_standing\",\"min\"]",
+      "limit:[4,\"ss/novdd/27C\",\"i_su_standing\",\"max\"]",
+      "limit:[4,\"ss/novdd/27C\",\"i_su_standing\",\"min\"]",
+      "limit:[4,\"ss/novdd/27C\",\"imin_off_bare\",\"max\"]",
+      "limit:[4,\"ss/novdd/27C\",\"imin_off_su\",\"min\"]",
+      "limit:[4,\"ss/novdd/27C\",\"isup_dut\",\"max\"]",
+      "limit:[4,\"ss/novdd/27C\",\"isup_dut\",\"min\"]",
+      "limit:[4,\"ss/novdd/27C\",\"itrav_min\",\"min\"]",
+      "limit:[4,\"ss/novdd/27C\",\"ncross_su\",\"max\"]",
+      "limit:[4,\"ss/novdd/27C\",\"ncross_su\",\"min\"]",
+      "limit:[4,\"ss/novdd/27C\",\"vgdrv_dut\",\"max\"]",
+      "limit:[4,\"ss/novdd/27C\",\"vgdrv_dut\",\"min\"]",
+      "limit:[4,\"ss/novdd/27C\",\"vref_dut\",\"max\"]",
+      "limit:[4,\"ss/novdd/27C\",\"vref_dut\",\"min\"]",
+      "limit:[5,\"ss/novdd/125C\",\"alpha_eq\",\"max\"]",
+      "limit:[5,\"ss/novdd/125C\",\"alpha_eq\",\"min\"]",
+      "limit:[5,\"ss/novdd/125C\",\"dvref\",\"max\"]",
+      "limit:[5,\"ss/novdd/125C\",\"dvref\",\"min\"]",
+      "limit:[5,\"ss/novdd/125C\",\"i_off_bare\",\"max\"]",
+      "limit:[5,\"ss/novdd/125C\",\"i_off_su\",\"min\"]",
+      "limit:[5,\"ss/novdd/125C\",\"i_on_su\",\"max\"]",
+      "limit:[5,\"ss/novdd/125C\",\"i_standing\",\"max\"]",
+      "limit:[5,\"ss/novdd/125C\",\"i_standing\",\"min\"]",
+      "limit:[5,\"ss/novdd/125C\",\"i_su_standing\",\"max\"]",
+      "limit:[5,\"ss/novdd/125C\",\"i_su_standing\",\"min\"]",
+      "limit:[5,\"ss/novdd/125C\",\"imin_off_bare\",\"max\"]",
+      "limit:[5,\"ss/novdd/125C\",\"imin_off_su\",\"min\"]",
+      "limit:[5,\"ss/novdd/125C\",\"isup_dut\",\"max\"]",
+      "limit:[5,\"ss/novdd/125C\",\"isup_dut\",\"min\"]",
+      "limit:[5,\"ss/novdd/125C\",\"itrav_min\",\"min\"]",
+      "limit:[5,\"ss/novdd/125C\",\"ncross_su\",\"max\"]",
+      "limit:[5,\"ss/novdd/125C\",\"ncross_su\",\"min\"]",
+      "limit:[5,\"ss/novdd/125C\",\"vgdrv_dut\",\"max\"]",
+      "limit:[5,\"ss/novdd/125C\",\"vgdrv_dut\",\"min\"]",
+      "limit:[5,\"ss/novdd/125C\",\"vref_dut\",\"max\"]",
+      "limit:[5,\"ss/novdd/125C\",\"vref_dut\",\"min\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"alpha_eq\",\"max\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"alpha_eq\",\"min\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"dvref\",\"max\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"dvref\",\"min\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"i_off_bare\",\"max\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"i_off_su\",\"min\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"i_on_su\",\"max\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"i_standing\",\"max\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"i_standing\",\"min\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"i_su_standing\",\"max\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"i_su_standing\",\"min\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"imin_off_bare\",\"max\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"imin_off_su\",\"min\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"isup_dut\",\"max\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"isup_dut\",\"min\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"itrav_min\",\"min\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"ncross_su\",\"max\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"ncross_su\",\"min\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"vgdrv_dut\",\"max\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"vgdrv_dut\",\"min\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"vref_dut\",\"max\"]",
+      "limit:[6,\"ff/novdd/-40C\",\"vref_dut\",\"min\"]",
+      "limit:[7,\"ff/novdd/27C\",\"alpha_eq\",\"max\"]",
+      "limit:[7,\"ff/novdd/27C\",\"alpha_eq\",\"min\"]",
+      "limit:[7,\"ff/novdd/27C\",\"dvref\",\"max\"]",
+      "limit:[7,\"ff/novdd/27C\",\"dvref\",\"min\"]",
+      "limit:[7,\"ff/novdd/27C\",\"i_off_bare\",\"max\"]",
+      "limit:[7,\"ff/novdd/27C\",\"i_off_su\",\"min\"]",
+      "limit:[7,\"ff/novdd/27C\",\"i_on_su\",\"max\"]",
+      "limit:[7,\"ff/novdd/27C\",\"i_standing\",\"max\"]",
+      "limit:[7,\"ff/novdd/27C\",\"i_standing\",\"min\"]",
+      "limit:[7,\"ff/novdd/27C\",\"i_su_standing\",\"max\"]",
+      "limit:[7,\"ff/novdd/27C\",\"i_su_standing\",\"min\"]",
+      "limit:[7,\"ff/novdd/27C\",\"imin_off_bare\",\"max\"]",
+      "limit:[7,\"ff/novdd/27C\",\"imin_off_su\",\"min\"]",
+      "limit:[7,\"ff/novdd/27C\",\"isup_dut\",\"max\"]",
+      "limit:[7,\"ff/novdd/27C\",\"isup_dut\",\"min\"]",
+      "limit:[7,\"ff/novdd/27C\",\"itrav_min\",\"min\"]",
+      "limit:[7,\"ff/novdd/27C\",\"ncross_su\",\"max\"]",
+      "limit:[7,\"ff/novdd/27C\",\"ncross_su\",\"min\"]",
+      "limit:[7,\"ff/novdd/27C\",\"vgdrv_dut\",\"max\"]",
+      "limit:[7,\"ff/novdd/27C\",\"vgdrv_dut\",\"min\"]",
+      "limit:[7,\"ff/novdd/27C\",\"vref_dut\",\"max\"]",
+      "limit:[7,\"ff/novdd/27C\",\"vref_dut\",\"min\"]",
+      "limit:[8,\"ff/novdd/125C\",\"alpha_eq\",\"max\"]",
+      "limit:[8,\"ff/novdd/125C\",\"alpha_eq\",\"min\"]",
+      "limit:[8,\"ff/novdd/125C\",\"dvref\",\"max\"]",
+      "limit:[8,\"ff/novdd/125C\",\"dvref\",\"min\"]",
+      "limit:[8,\"ff/novdd/125C\",\"i_off_bare\",\"max\"]",
+      "limit:[8,\"ff/novdd/125C\",\"i_off_su\",\"min\"]",
+      "limit:[8,\"ff/novdd/125C\",\"i_on_su\",\"max\"]",
+      "limit:[8,\"ff/novdd/125C\",\"i_standing\",\"max\"]",
+      "limit:[8,\"ff/novdd/125C\",\"i_standing\",\"min\"]",
+      "limit:[8,\"ff/novdd/125C\",\"i_su_standing\",\"max\"]",
+      "limit:[8,\"ff/novdd/125C\",\"i_su_standing\",\"min\"]",
+      "limit:[8,\"ff/novdd/125C\",\"imin_off_bare\",\"max\"]",
+      "limit:[8,\"ff/novdd/125C\",\"imin_off_su\",\"min\"]",
+      "limit:[8,\"ff/novdd/125C\",\"isup_dut\",\"max\"]",
+      "limit:[8,\"ff/novdd/125C\",\"isup_dut\",\"min\"]",
+      "limit:[8,\"ff/novdd/125C\",\"itrav_min\",\"min\"]",
+      "limit:[8,\"ff/novdd/125C\",\"ncross_su\",\"max\"]",
+      "limit:[8,\"ff/novdd/125C\",\"ncross_su\",\"min\"]",
+      "limit:[8,\"ff/novdd/125C\",\"vgdrv_dut\",\"max\"]",
+      "limit:[8,\"ff/novdd/125C\",\"vgdrv_dut\",\"min\"]",
+      "limit:[8,\"ff/novdd/125C\",\"vref_dut\",\"max\"]",
+      "limit:[8,\"ff/novdd/125C\",\"vref_dut\",\"min\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"alpha_eq\",\"max\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"alpha_eq\",\"min\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"dvref\",\"max\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"dvref\",\"min\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"i_off_bare\",\"max\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"i_off_su\",\"min\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"i_on_su\",\"max\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"i_standing\",\"max\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"i_standing\",\"min\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"i_su_standing\",\"max\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"i_su_standing\",\"min\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"imin_off_bare\",\"max\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"imin_off_su\",\"min\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"isup_dut\",\"max\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"isup_dut\",\"min\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"itrav_min\",\"min\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"ncross_su\",\"max\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"ncross_su\",\"min\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"vgdrv_dut\",\"max\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"vgdrv_dut\",\"min\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"vref_dut\",\"max\"]",
+      "limit:[9,\"sf/novdd/-40C\",\"vref_dut\",\"min\"]",
+      "measurement:[0,\"tt/novdd/-40C\",\"ncross_bare\"]/observation",
+      "measurement:[1,\"tt/novdd/27C\",\"ncross_bare\"]/observation",
+      "measurement:[10,\"sf/novdd/27C\",\"ncross_bare\"]/observation",
+      "measurement:[11,\"sf/novdd/125C\",\"ncross_bare\"]/observation",
+      "measurement:[12,\"fs/novdd/-40C\",\"ncross_bare\"]/observation",
+      "measurement:[13,\"fs/novdd/27C\",\"ncross_bare\"]/observation",
+      "measurement:[14,\"fs/novdd/125C\",\"ncross_bare\"]/observation",
+      "measurement:[2,\"tt/novdd/125C\",\"ncross_bare\"]/observation",
+      "measurement:[3,\"ss/novdd/-40C\",\"ncross_bare\"]/observation",
+      "measurement:[4,\"ss/novdd/27C\",\"ncross_bare\"]/observation",
+      "measurement:[5,\"ss/novdd/125C\",\"ncross_bare\"]/observation",
+      "measurement:[6,\"ff/novdd/-40C\",\"ncross_bare\"]/observation",
+      "measurement:[7,\"ff/novdd/27C\",\"ncross_bare\"]/observation",
+      "measurement:[8,\"ff/novdd/125C\",\"ncross_bare\"]/observation",
+      "measurement:[9,\"sf/novdd/-40C\",\"ncross_bare\"]/observation"
+    ],
+    "corners_simulated": 15,
+    "inapplicable": [
+      {
+        "id": "measurement:[0,\"tt/novdd/-40C\",\"ncross_bare\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"tt/novdd/27C\",\"ncross_bare\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[10,\"sf/novdd/27C\",\"ncross_bare\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[11,\"sf/novdd/125C\",\"ncross_bare\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[12,\"fs/novdd/-40C\",\"ncross_bare\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[13,\"fs/novdd/27C\",\"ncross_bare\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[14,\"fs/novdd/125C\",\"ncross_bare\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[2,\"tt/novdd/125C\",\"ncross_bare\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[3,\"ss/novdd/-40C\",\"ncross_bare\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[4,\"ss/novdd/27C\",\"ncross_bare\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[5,\"ss/novdd/125C\",\"ncross_bare\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[6,\"ff/novdd/-40C\",\"ncross_bare\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[7,\"ff/novdd/27C\",\"ncross_bare\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[8,\"ff/novdd/125C\",\"ncross_bare\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[9,\"sf/novdd/-40C\",\"ncross_bare\"]/limits",
+        "reason": "characterization_without_limits"
+      }
+    ],
+    "known": true,
+    "measurements_declared": 15,
+    "measurements_with_limits": 14,
+    "nothing_checked": false,
+    "nothing_checked_reasons": [],
+    "schema_version": 1,
+    "skipped": [],
+    "unknown": [],
+    "unrecognized_limit_keys": []
+  },
+  "diagnostic_counts": {
+    "by_code": {},
+    "by_severity": {},
+    "corners_with_diagnostics": 0
+  },
+  "environment": {
+    "engine": "ngspice",
+    "engine_version": "46",
+    "models_lib": {
+      "path": null,
+      "scope": "external"
+    },
+    "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+    "netlist_closure": [
+      {
+        "path": "sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/netlist.cir",
+        "scope": "repo",
+        "sha256": "ef5ec7311e18feefebb40e502bb436edf68bf00f8390557f9356aa70788f6370"
+      }
+    ],
+    "netlist_sha256": "ef5ec7311e18feefebb40e502bb436edf68bf00f8390557f9356aa70788f6370",
+    "ngspice_binary": "/usr/bin/ngspice",
+    "remote": {
+      "ami_id": "ami-0e0bec04ad8e81877",
+      "availability_zone": "us-east-1b",
+      "bucket": "2am-batch-jobs-221082181346",
+      "client_klt_version": "0.7.1.dev456+gfb7d47b1db69",
+      "concurrency": "1",
+      "elapsed_seconds": 2994,
+      "exit_code": "0",
+      "instance_id": "i-039ccd3cbce471da7",
+      "instance_type": "m7i.4xlarge",
+      "job_ceiling": {
+        "basis": "conservative_serial_bound",
+        "check": "warn",
+        "exceeds_ceiling": true,
+        "job_bound_s": 162120.0,
+        "max_job_seconds": 3600.0,
+        "max_job_seconds_source": "fleet_config",
+        "max_units_per_job": 0,
+        "overhead_s": 120.0,
+        "per_unit_timeout_s": 10800,
+        "recommended_hosts": null,
+        "unit_count": 15,
+        "warning": "batch job bound 162120s (options.timeout_s 10800s x 15 units + 120s; a conservative fully-serial upper bound, not a runtime estimate) exceeds the fleet's whole-job ceiling of 3600s (max_job_seconds from fleet_config); a job still running at the ceiling is killed and every unit is reported batch_job_timeout. No remote.hosts value fits: a single unit's bound exceeds the ceiling -- lower options.timeout_s to at most 3480s"
+      },
+      "job_id": "klt-sim-e7b8053c59ba",
+      "lifecycle": "spot",
+      "physical_cores": "8",
+      "provider": "aws-batch-fleet",
+      "region": "us-east-1",
+      "runner_compatibility": "match",
+      "runner_klt_version": "0.7.0",
+      "spot": true,
+      "state": "done",
+      "worker_environment": {
+        "capture": "ok",
+        "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+        "diagnostics": [],
+        "image_manifest": null,
+        "omp_num_threads": null,
+        "pdk": {
+          "models_staged": false,
+          "root": "/opt/pdk",
+          "stamp_scheme": "sources-sha256",
+          "stamp_sha256": "d5ac52956829da3fee35d0b307d4e6cb83ae0e6535b56dba2eefed61cdffaf9b",
+          "stamp_text": "open_pdks c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+          "variant": "sky130A"
+        },
+        "pdk_stamp_comparison": {
+          "status": "not_comparable"
+        },
+        "simulator": {
+          "binary_source": "PATH",
+          "requested_binary": "ngspice",
+          "selected_path": "/usr/local/bin/ngspice",
+          "version_banner": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Oct  1 23:51:59 UTC 2026\n******\n",
+          "version_probe": "ok"
+        }
+      }
+    }
+  },
+  "errored": 0,
+  "failed": 0,
+  "inconclusive": 0,
+  "measurements": [
+    {
+      "limits": {
+        "max": 1.5,
+        "min": 0.5
+      },
+      "name": "ncross_su",
+      "status": "pass",
+      "unit": null,
+      "worst_case": {
+        "corner_id": "tt/novdd/-40C",
+        "margin": 0.5,
+        "value": 1.0
+      }
+    },
+    {
+      "limits": {
+        "max": 0.74,
+        "min": 0.2
+      },
+      "name": "alpha_eq",
+      "status": "pass",
+      "unit": null,
+      "worst_case": {
+        "corner_id": "fs/novdd/125C",
+        "margin": 0.09458169999999999,
+        "value": 0.6454183
+      }
+    },
+    {
+      "limits": {
+        "min": 1e-09
+      },
+      "name": "itrav_min",
+      "status": "pass",
+      "unit": "A",
+      "worst_case": {
+        "corner_id": "ss/novdd/125C",
+        "margin": 5.773545e-09,
+        "value": 6.773545e-09
+      }
+    },
+    {
+      "limits": {
+        "min": 1e-08
+      },
+      "name": "imin_off_su",
+      "status": "pass",
+      "unit": "A",
+      "worst_case": {
+        "corner_id": "ss/novdd/125C",
+        "margin": 3.3675339999999995e-05,
+        "value": 3.368534e-05
+      }
+    },
+    {
+      "limits": {
+        "max": 1e-09
+      },
+      "name": "imin_off_bare",
+      "status": "pass",
+      "unit": "A",
+      "worst_case": {
+        "corner_id": "sf/novdd/-40C",
+        "margin": 9.900470730000001e-10,
+        "value": 9.952927e-12
+      }
+    },
+    {
+      "limits": {
+        "min": 1e-06
+      },
+      "name": "i_off_su",
+      "status": "pass",
+      "unit": "A",
+      "worst_case": {
+        "corner_id": "ss/novdd/125C",
+        "margin": 0.0003871806,
+        "value": 0.0003881806
+      }
+    },
+    {
+      "limits": {
+        "max": 1e-09
+      },
+      "name": "i_off_bare",
+      "status": "pass",
+      "unit": "A",
+      "worst_case": {
+        "corner_id": "sf/novdd/125C",
+        "margin": 8.014275e-10,
+        "value": 1.985725e-10
+      }
+    },
+    {
+      "limits": {
+        "max": -1e-06
+      },
+      "name": "i_on_su",
+      "status": "pass",
+      "unit": "A",
+      "worst_case": {
+        "corner_id": "ss/novdd/125C",
+        "margin": 0.0004998369999999999,
+        "value": -0.000500837
+      }
+    },
+    {
+      "limits": {
+        "max": 2e-07,
+        "min": -1e-12
+      },
+      "name": "i_su_standing",
+      "status": "pass",
+      "unit": "A",
+      "worst_case": {
+        "corner_id": "fs/novdd/-40C",
+        "margin": 6.941618e-11,
+        "value": 6.841618e-11
+      }
+    },
+    {
+      "limits": {
+        "max": 1e-06,
+        "min": -1e-06
+      },
+      "name": "i_standing",
+      "status": "pass",
+      "unit": "A",
+      "worst_case": {
+        "corner_id": "sf/novdd/27C",
+        "margin": 8.844935e-07,
+        "value": 1.155065e-07
+      }
+    },
+    {
+      "limits": {
+        "max": 0.02,
+        "min": -0.02
+      },
+      "name": "dvref",
+      "status": "pass",
+      "unit": "V",
+      "worst_case": {
+        "corner_id": "sf/novdd/27C",
+        "margin": 0.017882658,
+        "value": 0.002117342
+      }
+    },
+    {
+      "limits": {
+        "max": 1.3,
+        "min": 1.1
+      },
+      "name": "vref_dut",
+      "status": "pass",
+      "unit": "V",
+      "worst_case": {
+        "corner_id": "sf/novdd/-40C",
+        "margin": 0.08188600000000013,
+        "value": 1.218114
+      }
+    },
+    {
+      "limits": {
+        "max": 3.2,
+        "min": 1.0
+      },
+      "name": "vgdrv_dut",
+      "status": "pass",
+      "unit": "V",
+      "worst_case": {
+        "corner_id": "sf/novdd/-40C",
+        "margin": 0.5726519999999999,
+        "value": 1.572652
+      }
+    },
+    {
+      "limits": {
+        "max": 5e-05,
+        "min": 5e-06
+      },
+      "name": "isup_dut",
+      "status": "pass",
+      "unit": "A",
+      "worst_case": {
+        "corner_id": "ff/novdd/-40C",
+        "margin": 1.546061e-05,
+        "value": 2.046061e-05
+      }
+    },
+    {
+      "limits": null,
+      "name": "ncross_bare",
+      "status": "pass",
+      "unit": null,
+      "worst_case": {
+        "corner_id": "tt/novdd/-40C",
+        "margin": null,
+        "value": 1.000024
+      }
+    }
+  ],
+  "metrics": {
+    "sim__corner__count": 15,
+    "sim__corner__errored_count": 0,
+    "sim__corner__failed_count": 0,
+    "sim__corner__inconclusive_count": 0,
+    "sim__corner__passed_count": 15
+  },
+  "netlist": {
+    "path": "sim/build/startup-stability/20261015-022916-ff69193/batch/v2.97/netlist.cir",
+    "scope": "repo"
+  },
+  "passed": 15,
+  "provenance": {
+    "deck": {
+      "content_hash": "sha256:48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+      "name": "sky130.lib.spice",
+      "released": false
+    },
+    "input": {
+      "content_hash": "sha256:ef5ec7311e18feefebb40e502bb436edf68bf00f8390557f9356aa70788f6370",
+      "role": "netlist"
+    },
+    "klayout_version": "0.30.12",
+    "klt_version": "0.7.1.dev456+gfb7d47b1db69",
+    "pdk": {
+      "name": "sky130A",
+      "source": "search root: ~/.volare",
+      "version": "open_pdks c6d73a35f524070e85faff4a6a9eef49553ebc2b"
+    }
+  },
+  "schema_version": 3,
+  "status": "pass"
+}

@@ -38,10 +38,12 @@ The 45-corner matrix can be run on the Spot batch fleet with
 `sim/bin/corner-run.py sim/startup-stability --backend batch` (details and
 current status in `sim/README.md`, "Batch backend"). The scientific content --
 251-point sweep, measurements, limits, spread checks -- is unchanged, and the
-manifest was not edited. **No batch-produced record exists yet**: the first
-attempt was stopped by the fleet image's older `klt` pin (2am#2193), before any
-simulation, so the newest record is still `20260909-232410-e8e2e46`. Index the
-first batch-run record here when it lands.
+manifest was not edited. Batch-produced records (both `Supersedes: 20260909-232410-e8e2e46`):
+
+| Record | Result |
+|---|---|
+| `20261015-021355-ff69193` | **Failed run, kept as evidence.** All 45 corners FAIL in ~14 s each: the dispatch host's xschem 3.4.4 leaves the sky130 symbols' `expr('...')` instance parameters unevaluated and the fleet's ngspice rejected them (`Undefined parameter [expr]`). Fixed by `resolve_xschem_expr()` in `corner-run.py`, which reproduces the historical (xschem 3.4.7) netlist byte-for-byte. Not a design result. |
+| `20261015-022916-ff69193` | **`Overall: PASS`, 45/45**, `ncross_su=1` at every corner, spread checks pass, remote model library sha256 matches the pin. `dvref` worst case, per-corner cost and wall time are in the record's `Execution` block; see `sim/README.md`, "Batch backend", for the comparison with `20260909-232410-e8e2e46`. |
 
 ## What changed between the last two vintages
 

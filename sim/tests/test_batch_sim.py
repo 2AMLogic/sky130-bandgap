@@ -547,5 +547,42 @@ class RecordIntegration(unittest.TestCase):
         self.assertFalse(record["overall_pass"])
 
 
+class ResolveXschemExprTests(unittest.TestCase):
+    """xschem < 3.4.5 leaves `expr('...')` instance params unevaluated; the
+    runner must produce the same netlist xschem 3.4.7 does (issue #320: the
+    first live batch run failed every corner with `Undefined parameter [expr]`
+    because the dispatch host has xschem 3.4.4)."""
+
+    SNAP = EXP_DIR / "netlist-snapshots"
+
+    def test_unevaluated_lines_match_the_3_4_7_netlist(self):
+        raw = [
+            "XM1 D G S B sky130_fd_pr__nfet_g5v0d10v5 L=2 W=8 nf=1 ad=expr('int((@nf + 1)/2) * @W / @nf",
+            "+ * 0.29') as=expr('int((@nf + 2)/2) * @W / @nf * 0.29') pd=expr('2*int((@nf + 1)/2) * (@W / @nf + 0.29)') ps=expr('2*int((@nf",
+            "+ + 2)/2) * (@W / @nf + 0.29)') nrd=expr('0.29 / @W ') nrs=expr('0.29 / @W ') sa=0 sb=0 sd=0 mult='m' m='m'",
+            "R1 A B 1k",
+        ]
+        want = [
+            "XM1 D G S B sky130_fd_pr__nfet_g5v0d10v5 L=2 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 "
+            "nrd=0.03625 nrs=0.03625 sa=0 sb=0 sd=0 mult='m' m='m'",
+            "R1 A B 1k",
+        ]
+        self.assertEqual(cr.resolve_xschem_expr(raw), want)
+
+    def test_fifteen_digit_formatting(self):
+        raw = ["XM1 D G S B m L=0.5 W=48 nf=1 nrd=expr('0.29 / @W ') sa=0"]
+        self.assertIn("nrd=0.00604166666666667", cr.resolve_xschem_expr(raw)[0])
+
+    def test_evaluated_netlist_is_a_noop(self):
+        lines = (self.SNAP / "20260909-232410-e8e2e46.spice").read_text().splitlines()
+        self.assertEqual(cr.resolve_xschem_expr(lines), lines)
+
+    def test_unsupported_expression_is_loud(self):
+        with self.assertRaises(cr.HarnessError):
+            cr.resolve_xschem_expr(["X1 a b m W=1 p=expr('__import__(1)') q=0"])
+        with self.assertRaises(cr.HarnessError):
+            cr.resolve_xschem_expr(["X1 a b m W=1 p=expr('@missing * 2') q=0"])
+
+
 if __name__ == "__main__":
     unittest.main()

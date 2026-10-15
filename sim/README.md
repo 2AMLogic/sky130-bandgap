@@ -494,17 +494,40 @@ What it does, and what it deliberately does not change:
   must support `measurements[].expr`, `options.ngspice_init` and the generated `save all`
   (klayout-tools#2533, #2520, #2521).
 
-**Status (2026-10-08): the live 45-corner run has NOT been completed.** The
-current fleet image pins klt `0.5.0` (2am `batch-image-pins.env`), which is
-older than every batch-capable client and lacks `expr` measurements,
-`ngspice_init` and `save all`. Three jobs (`klt-sim-0f561d9a9bf6`,
-`klt-sim-7c9d083c37df`, `klt-sim-da5df48657e7`) were submitted and exited 87 in
-under 10 s with `batch_runner_version_mismatch` before any simulation; the
-runner reported the infrastructure fault and wrote no record. Waiving the check
-(`--batch-runner-version-check warn`) would not help: `klt 0.5.0` rejects
-this request outright. Unblocked by 2am#2193 (image klt pin bump). Until then
-no batch timings or numerical comparison against
-`20260909-232410-e8e2e46` exist; do not infer a speed-up from the fleet.
+**Netlist note.** The dispatch hosts' xschem is 3.4.4, which (unlike the
+fleet's pinned 3.4.7) leaves the sky130 symbols' `ad=expr('...@W...')` instance
+parameters unevaluated; ngspice then fails every corner with `Undefined
+parameter [expr]` (record `20261015-021355-ff69193`, kept as the evidence of
+that failed first live run). `corner-run.py` therefore evaluates those
+expressions while reading the netlist (`resolve_xschem_expr()`); applied to the
+3.4.4 netlist of the current design it reproduces the xschem 3.4.7 netlist of
+record `20260909-232410-e8e2e46` exactly (unit-tested), and it is a no-op on a
+netlist that is already evaluated.
+
+**Status (2026-10-15): the live 45-corner run is complete.** Record
+`20261015-022916-ff69193` (`--backend batch`, ngspice 46 on c7i/m7i.4xlarge
+Spot, three jobs `klt-sim-e7b8053c59ba` / `-48ff020e9587` / `-69de630cdc7b`):
+
+- `Overall: PASS`, 45/45, no missing/duplicate/timed-out corners, remote model
+  library sha256 equal to the pinned one, both spread checks pass.
+- **Cost**: per-corner remote engine time min 126.9 s, median 375.5 s, max
+  2907.5 s (the 2.97 V jobs at -40 and 27 degC dominate); sum 34 992 s of
+  compute (9.7 core-hours of one worker, versus the projected 17-33 h on a
+  shared dispatch host). **End-to-end wall 3032 s (50.5 min)**, set by the
+  slowest of the three concurrent jobs (2.97 V: 2994 s job time); queue/
+  provisioning/transfer overhead was 38-60 s per job. The dispatch host only ran
+  the klt client (xschem netlisting, S3 put/get, polling).
+- **Versus `20260909-232410-e8e2e46`** (Darwin arm64, ngspice 46, 5409 s serial,
+  median 96 s/corner): same 45/45 PASS. Measurements agree to better than
+  1e-3 relative for ten of the twelve measurements (e.g. `vref_dut` 8e-7,
+  `isup_dut` 1e-6, `i_off_su` 9e-5). The two exceptions are small absolute
+  differences of near-cancelling quantities at one corner, `sf/-40 degC/2.97 V`:
+  `dvref` 1.321 mV vs 1.101 mV (limit +/-20 mV) and `i_standing` 73.0 nA vs
+  62.6 nA (limit +/-1 uA), i.e. solver-tolerance-level differences between
+  platforms (`i_standing` is documented as resolution-limited), far inside the
+  limits. Not a transport effect: the deck, netlist and model library are
+  identical. Per-corner cost on the fleet is on average ~6x the Darwin host's,
+  so this path buys off-loading the shared host, not a simulator speed-up.
 
 ---
 
