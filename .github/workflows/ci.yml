@@ -117,10 +117,35 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install ngspice + xschem
+      # xschem is built from a pinned source release, not apt: Ubuntu 24.04
+      # ships xschem 3.4.4, which leaves the sky130 symbols' `expr(...)`
+      # instance attributes (ad/as/pd/ps/nrd/nrs) unevaluated in the netlist,
+      # so ngspice dies on every corner with "Undefined parameter [expr]".
+      # 3.4.7 is the version the committed pdk-smoke records were made with
+      # and evaluates them to numbers. ngspice stays on apt (42), which
+      # reproduces those records exactly once the netlist is right.
+      - name: Install ngspice + xschem build deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y ngspice xschem
+          sudo apt-get install -y ngspice flex bison gawk tcl-dev tk-dev \
+            libx11-dev libxrender-dev libxpm-dev libcairo2-dev libjpeg-dev
+
+      - name: Build xschem from source (pinned)
+        env:
+          XSCHEM_VERSION: "3.4.7"
+          XSCHEM_SHA256: "8f6c7165c38f528b6cbae8f9fae72cde3b765652df90597011a5f7b5e7fdb273"
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+          curl -fsSL -o xschem.tar.gz \
+            "https://github.com/StefanSchippers/xschem/archive/refs/tags/${XSCHEM_VERSION}.tar.gz"
+          echo "${XSCHEM_SHA256}  xschem.tar.gz" | sha256sum -c -
+          tar xzf xschem.tar.gz
+          cd "xschem-${XSCHEM_VERSION}"
+          ./configure --prefix=/usr/local
+          make -j"$(nproc)"
+          sudo make install
+          xschem --version
 
       - name: Install volare
         run: pip install --user volare
