@@ -9,7 +9,7 @@
 #   layout/bin/run-trivial-cell-flow.sh
 #
 # Requires: layout/.venv (see setup-venv.sh) and a resolvable sky130A PDK
-# install (same pin as sim/pdk.json; `volare enable --pdk sky130 <sha>`).
+# install (same pin as sim/pdk.json; `ciel enable --pdk-family sky130 <sha>`).
 set -euo pipefail
 
 LAYOUT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
