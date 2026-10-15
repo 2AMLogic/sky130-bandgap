@@ -246,11 +246,14 @@ def build_request(
     capacity_wait_s: float,
     runner_version_check: str,
     poll_interval_s: float,
+    hosts: int | None = None,
 ) -> dict:
     """One `klt sim --backend batch` request document (shared by the corner-run
     adapter and by benches that drive their own variant set, e.g.
-    `sim/psrr-injector-candidates/`)."""
-    return {
+    `sim/psrr-injector-candidates/`). `hosts > 1` adds `remote.hosts` so klt
+    shards the unit list across that many fleet jobs (its timeout-budget
+    preflight asks for this when the serial bound exceeds the fleet ceiling)."""
+    request = {
         "netlist": netlist_name,
         "engine": "ngspice",
         "backend": "batch",
@@ -270,6 +273,9 @@ def build_request(
         },
         "remote": {"hosts": shard_hosts(len(processes) * len(temps), timeout_s)},
     }
+    if hosts and hosts > 1:
+        request["remote"] = {"hosts": hosts}
+    return request
 
 
 def build_groups(
@@ -340,6 +346,7 @@ def build_adhoc_group(
     capacity_wait_s: float,
     runner_version_check: str,
     poll_interval_s: float,
+    hosts: int | None = None,
 ) -> Group:
     """One request for a bench that composes its own netlists (a variant of a
     body, not the manifest's body) -- `corners` must be the full
@@ -360,7 +367,7 @@ def build_adhoc_group(
     request = build_request(
         netlist_path.name, pin, processes, temps, analysis, measurements, spiceinit_text,
         timeout_s, capacity_wait_s=capacity_wait_s, runner_version_check=runner_version_check,
-        poll_interval_s=poll_interval_s,
+        poll_interval_s=poll_interval_s, hosts=hosts,
     )
     request_path = gdir / "request.json"
     request_path.write_text(json.dumps(request, indent=2, sort_keys=True) + "\n")
