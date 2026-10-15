@@ -5,6 +5,7 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-10-15
 
+- **PR #371**: docs(spec): DR-020 MPC2-on-VSENSE injector screen and mpc2_vs bench variants
 - **PR #365**: docs(sim): shard batch PSRR screen requests and record mngq failing the 60 dB floor
 - **PR #366**: feat(sim): shard batch requests over remote.hosts to fit the fleet job ceiling
 - **Issue #364** (closed): sim: shard PSRR injector screen batch requests across remote hosts (15-unit requests exceed the 3600 s fleet job ceiling)
