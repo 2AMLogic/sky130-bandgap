@@ -1,0 +1,1329 @@
+# corner: ff_125c_2.97v
+# process=ff temp=125C supply=2.97V
+# executed on the batch fleet; job klt-sim-9065d092d39c; klt corner status: error
+# ngspice exit code / signal: not exposed by klt sim (see sim/README.md)
+# engine wall clock: 11.238s (--timeout was 10800s)
+# result: FAIL -- klt corner status 'error': measurement[error]: measurement 'ncross_su' produced no value: its 'expr' ('(250 - mean(((-i(vpsw)) / (abs((-i(vpsw))) + 1e-18))[0,249]*((-i(vpsw)) / (abs((-i(vpsw))) + 1e-18))[1,250])*250) / 2') printed no 'ncross_su = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0]); measurement[error]: measurement 'alpha_eq' produced no value: its 'expr' ('1 - mean((((-i(vpsw)) / (abs((-i(vpsw))) + 1e-18))+1)/2)') printed no 'alpha_eq = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0]); measurement[error]: measurement 'itrav_min' produced no value: its 'expr' ('vecmin((-i(vpsw))[188,250])') printed no 'itrav_min = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0]); measurement[error]: measurement 'imin_off_su' produced no value: its 'expr' ('vecmin(abs((-i(vpsw))[225,250]))') printed no 'imin_off_su = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0]); measurement[error]: measurement 'imin_off_bare' produced no value: its 'expr' ('vecmin(abs((-i(vpsn))[225,250]))') printed no 'imin_off_bare = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0]); measurement[error]: measurement 'i_off_su' produced no value: its 'expr' ('(-i(vpsw))[250]') printed no 'i_off_su = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0]); measurement[error]: measurement 'i_off_bare' produced no value: its 'expr' ('(-i(vpsn))[250]') printed no 'i_off_bare = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0]); measurement[error]: measurement 'i_on_su' produced no value: its 'expr' ('(-i(vpsw))[0]') printed no 'i_on_su = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0]); measurement[error]: measurement 'i_su_standing' produced no value: its 'expr' ('i(vpsu)[0]') printed no 'i_su_standing = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0]); measurement[error]: measurement 'i_standing' produced no value: its 'expr' ('i(v2)[0] - i(v1)[0]') printed no 'i_standing = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0]); measurement[error]: measurement 'dvref' produced no value: its 'expr' ('v(vrefd)[0] - v(vrefr)[0]') printed no 'dvref = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0]); measurement[error]: measurement 'vref_dut' produced no value: its 'expr' ('v(vrefd)[0]') printed no 'vref_dut = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0]); measurement[error]: measurement 'vgdrv_dut' produced no value: its 'expr' ('v(gd)[0]') printed no 'vgdrv_dut = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0]); measurement[error]: measurement 'isup_dut' produced no value: its 'expr' ('-i(v1)[0]') printed no 'isup_dut = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0]); measurement[error]: measurement 'ncross_bare' produced no value: its 'expr' ('(250 - mean(((-i(vpsn)) / (abs((-i(vpsn))) + 1e-18))[0,249]*((-i(vpsn)) / (abs((-i(vpsn))) + 1e-18))[1,250])*250) / 2') printed no 'ncross_bare = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0])
+
+# ==== deck (exact input given to ngspice, as retained by klt) ====
+| * klt sim -- generated corner deck, do not edit
+| .lib /opt/pdk/sky130A/libs.tech/combined/sky130.lib.spice ff
+| .include /var/tmp/eda-job-klt-sim-9065d092d39c/inputs/netlist.cir
+| .temp 125
+| .control
+| save all
+| dc valpha 0 1 0.004
+| let ncross_su = (250 - mean(((-i(vpsw)) / (abs((-i(vpsw))) + 1e-18))[0,249]*((-i(vpsw)) / (abs((-i(vpsw))) + 1e-18))[1,250])*250) / 2
+| print ncross_su
+| let alpha_eq = 1 - mean((((-i(vpsw)) / (abs((-i(vpsw))) + 1e-18))+1)/2)
+| print alpha_eq
+| let itrav_min = vecmin((-i(vpsw))[188,250])
+| print itrav_min
+| let imin_off_su = vecmin(abs((-i(vpsw))[225,250]))
+| print imin_off_su
+| let imin_off_bare = vecmin(abs((-i(vpsn))[225,250]))
+| print imin_off_bare
+| let i_off_su = (-i(vpsw))[250]
+| print i_off_su
+| let i_off_bare = (-i(vpsn))[250]
+| print i_off_bare
+| let i_on_su = (-i(vpsw))[0]
+| print i_on_su
+| let i_su_standing = i(vpsu)[0]
+| print i_su_standing
+| let i_standing = i(v2)[0] - i(v1)[0]
+| print i_standing
+| let dvref = v(vrefd)[0] - v(vrefr)[0]
+| print dvref
+| let vref_dut = v(vrefd)[0]
+| print vref_dut
+| let vgdrv_dut = v(gd)[0]
+| print vgdrv_dut
+| let isup_dut = -i(v1)[0]
+| print isup_dut
+| let ncross_bare = (250 - mean(((-i(vpsn)) / (abs((-i(vpsn))) + 1e-18))[0,249]*((-i(vpsn)) / (abs((-i(vpsn))) + 1e-18))[1,250])*250) / 2
+| print ncross_bare
+| quit
+| .endc
+| .end
+
+# ==== ngspice log (as retained by klt) ====
+
+Note: Compatibility modes selected: hs a
+
+
+Circuit: * klt sim -- generated corner deck, do not edit
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Error in netlist line no. 7788, new internal line no. 249:
+
+Undefined parameter [expr]
+Error in netlist line no. 7788, new internal line no. 249:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7788, new internal line no. 249:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=2; mult=m_out; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=m_out;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3024, new internal line no. 12822:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3024, new internal line no. 12822:
+
+Cannot compute substitute
+Error in netlist line no. 7789, new internal line no. 252:
+
+Undefined parameter [expr]
+Error in netlist line no. 7789, new internal line no. 252:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7789, new internal line no. 252:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=2; mult=m_ampbias; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=m_ampbias;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3024, new internal line no. 12822:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3024, new internal line no. 12822:
+
+Cannot compute substitute
+Error in netlist line no. 7858, new internal line no. 345:
+
+Undefined parameter [expr]
+Error in netlist line no. 7858, new internal line no. 345:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7858, new internal line no. 345:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=20; l=10; mult=amp_m_in; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_in;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Cannot compute substitute
+Error in netlist line no. 7859, new internal line no. 348:
+
+Undefined parameter [expr]
+Error in netlist line no. 7859, new internal line no. 348:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7859, new internal line no. 348:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=20; l=10; mult=amp_m_in; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_in;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Cannot compute substitute
+Error in netlist line no. 7860, new internal line no. 351:
+
+Undefined parameter [expr]
+Error in netlist line no. 7860, new internal line no. 351:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7860, new internal line no. 351:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=20; mult=amp_m_nmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=amp_m_nmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Cannot compute substitute
+Error in netlist line no. 7861, new internal line no. 354:
+
+Undefined parameter [expr]
+Error in netlist line no. 7861, new internal line no. 354:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7861, new internal line no. 354:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=20; mult=amp_m_nmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=amp_m_nmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Cannot compute substitute
+Error in netlist line no. 7862, new internal line no. 357:
+
+Undefined parameter [expr]
+Error in netlist line no. 7862, new internal line no. 357:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7862, new internal line no. 357:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=20; mult=amp_m_nmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=amp_m_nmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Cannot compute substitute
+Error in netlist line no. 7863, new internal line no. 360:
+
+Undefined parameter [expr]
+Error in netlist line no. 7863, new internal line no. 360:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7863, new internal line no. 360:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=20; mult=amp_m_nmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=amp_m_nmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Cannot compute substitute
+Error in netlist line no. 7864, new internal line no. 363:
+
+Undefined parameter [expr]
+Error in netlist line no. 7864, new internal line no. 363:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7864, new internal line no. 363:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=6; l=20; mult=amp_m_pmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_pmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3044, new internal line no. 12827:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3044, new internal line no. 12827:
+
+Cannot compute substitute
+Error in netlist line no. 7865, new internal line no. 366:
+
+Undefined parameter [expr]
+Error in netlist line no. 7865, new internal line no. 366:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7865, new internal line no. 366:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=6; l=20; mult=amp_m_pmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_pmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3044, new internal line no. 12827:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3044, new internal line no. 12827:
+
+Cannot compute substitute
+Error in netlist line no. 7866, new internal line no. 369:
+
+Undefined parameter [expr]
+Error in netlist line no. 7866, new internal line no. 369:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7866, new internal line no. 369:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=30; l=20; mult=amp_m_cc; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_cc;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Cannot compute substitute
+Error in netlist line no. 7826, new internal line no. 297:
+
+Undefined parameter [expr]
+Error in netlist line no. 7826, new internal line no. 297:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7826, new internal line no. 297:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=1; l=20; mult=m_ref; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=m_ref;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3072, new internal line no. 12834:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3072, new internal line no. 12834:
+
+Cannot compute substitute
+Error in netlist line no. 7827, new internal line no. 300:
+
+Undefined parameter [expr]
+Error in netlist line no. 7827, new internal line no. 300:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7827, new internal line no. 300:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=1; l=20; mult=m_ref; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=m_ref;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3072, new internal line no. 12834:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3072, new internal line no. 12834:
+
+Cannot compute substitute
+Error in netlist line no. 7828, new internal line no. 303:
+
+Undefined parameter [expr]
+Error in netlist line no. 7828, new internal line no. 303:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7828, new internal line no. 303:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=48; l=0.5; mult=m_sense; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=m_sense;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2483, new internal line no. 12444:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2483, new internal line no. 12444:
+
+Cannot compute substitute
+Error in netlist line no. 7830, new internal line no. 307:
+
+Undefined parameter [expr]
+Error in netlist line no. 7830, new internal line no. 307:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7830, new internal line no. 307:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=10; l=0.5; mult=m_inj; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=m_inj;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2525, new internal line no. 12458:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2525, new internal line no. 12458:
+
+Cannot compute substitute
+Error in netlist line no. 7831, new internal line no. 310:
+
+Undefined parameter [expr]
+Error in netlist line no. 7831, new internal line no. 310:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7831, new internal line no. 310:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=4; l=1; mult=m_clamp; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=m_clamp;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2558, new internal line no. 12469:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2558, new internal line no. 12469:
+
+Cannot compute substitute
+Error in netlist line no. 7788, new internal line no. 249:
+
+Undefined parameter [expr]
+Error in netlist line no. 7788, new internal line no. 249:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7788, new internal line no. 249:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=2; mult=m_out; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=m_out;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3024, new internal line no. 12822:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3024, new internal line no. 12822:
+
+Cannot compute substitute
+Error in netlist line no. 7789, new internal line no. 252:
+
+Undefined parameter [expr]
+Error in netlist line no. 7789, new internal line no. 252:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7789, new internal line no. 252:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=2; mult=m_ampbias; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=m_ampbias;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3024, new internal line no. 12822:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3024, new internal line no. 12822:
+
+Cannot compute substitute
+Error in netlist line no. 7858, new internal line no. 345:
+
+Undefined parameter [expr]
+Error in netlist line no. 7858, new internal line no. 345:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7858, new internal line no. 345:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=20; l=10; mult=amp_m_in; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_in;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Cannot compute substitute
+Error in netlist line no. 7859, new internal line no. 348:
+
+Undefined parameter [expr]
+Error in netlist line no. 7859, new internal line no. 348:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7859, new internal line no. 348:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=20; l=10; mult=amp_m_in; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_in;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Cannot compute substitute
+Error in netlist line no. 7860, new internal line no. 351:
+
+Undefined parameter [expr]
+Error in netlist line no. 7860, new internal line no. 351:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7860, new internal line no. 351:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=20; mult=amp_m_nmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=amp_m_nmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Cannot compute substitute
+Error in netlist line no. 7861, new internal line no. 354:
+
+Undefined parameter [expr]
+Error in netlist line no. 7861, new internal line no. 354:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7861, new internal line no. 354:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=20; mult=amp_m_nmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=amp_m_nmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Cannot compute substitute
+Error in netlist line no. 7862, new internal line no. 357:
+
+Undefined parameter [expr]
+Error in netlist line no. 7862, new internal line no. 357:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7862, new internal line no. 357:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=20; mult=amp_m_nmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=amp_m_nmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Cannot compute substitute
+Error in netlist line no. 7863, new internal line no. 360:
+
+Undefined parameter [expr]
+Error in netlist line no. 7863, new internal line no. 360:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7863, new internal line no. 360:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=20; mult=amp_m_nmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=amp_m_nmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Cannot compute substitute
+Error in netlist line no. 7864, new internal line no. 363:
+
+Undefined parameter [expr]
+Error in netlist line no. 7864, new internal line no. 363:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7864, new internal line no. 363:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=6; l=20; mult=amp_m_pmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_pmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3044, new internal line no. 12827:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3044, new internal line no. 12827:
+
+Cannot compute substitute
+Error in netlist line no. 7865, new internal line no. 366:
+
+Undefined parameter [expr]
+Error in netlist line no. 7865, new internal line no. 366:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7865, new internal line no. 366:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=6; l=20; mult=amp_m_pmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_pmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3044, new internal line no. 12827:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3044, new internal line no. 12827:
+
+Cannot compute substitute
+Error in netlist line no. 7866, new internal line no. 369:
+
+Undefined parameter [expr]
+Error in netlist line no. 7866, new internal line no. 369:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7866, new internal line no. 369:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=30; l=20; mult=amp_m_cc; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_cc;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Cannot compute substitute
+Error in netlist line no. 7788, new internal line no. 249:
+
+Undefined parameter [expr]
+Error in netlist line no. 7788, new internal line no. 249:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7788, new internal line no. 249:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=2; mult=m_out; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=m_out;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3024, new internal line no. 12822:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3024, new internal line no. 12822:
+
+Cannot compute substitute
+Error in netlist line no. 7789, new internal line no. 252:
+
+Undefined parameter [expr]
+Error in netlist line no. 7789, new internal line no. 252:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7789, new internal line no. 252:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=2; mult=m_ampbias; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=m_ampbias;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3024, new internal line no. 12822:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3024, new internal line no. 12822:
+
+Cannot compute substitute
+Error in netlist line no. 7858, new internal line no. 345:
+
+Undefined parameter [expr]
+Error in netlist line no. 7858, new internal line no. 345:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7858, new internal line no. 345:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=20; l=10; mult=amp_m_in; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_in;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Cannot compute substitute
+Error in netlist line no. 7859, new internal line no. 348:
+
+Undefined parameter [expr]
+Error in netlist line no. 7859, new internal line no. 348:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7859, new internal line no. 348:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=20; l=10; mult=amp_m_in; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_in;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Cannot compute substitute
+Error in netlist line no. 7860, new internal line no. 351:
+
+Undefined parameter [expr]
+Error in netlist line no. 7860, new internal line no. 351:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7860, new internal line no. 351:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=20; mult=amp_m_nmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=amp_m_nmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Cannot compute substitute
+Error in netlist line no. 7861, new internal line no. 354:
+
+Undefined parameter [expr]
+Error in netlist line no. 7861, new internal line no. 354:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7861, new internal line no. 354:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=20; mult=amp_m_nmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=amp_m_nmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Cannot compute substitute
+Error in netlist line no. 7862, new internal line no. 357:
+
+Undefined parameter [expr]
+Error in netlist line no. 7862, new internal line no. 357:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7862, new internal line no. 357:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=20; mult=amp_m_nmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=amp_m_nmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Cannot compute substitute
+Error in netlist line no. 7863, new internal line no. 360:
+
+Undefined parameter [expr]
+Error in netlist line no. 7863, new internal line no. 360:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7863, new internal line no. 360:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=20; mult=amp_m_nmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=amp_m_nmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Cannot compute substitute
+Error in netlist line no. 7864, new internal line no. 363:
+
+Undefined parameter [expr]
+Error in netlist line no. 7864, new internal line no. 363:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7864, new internal line no. 363:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=6; l=20; mult=amp_m_pmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_pmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3044, new internal line no. 12827:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3044, new internal line no. 12827:
+
+Cannot compute substitute
+Error in netlist line no. 7865, new internal line no. 366:
+
+Undefined parameter [expr]
+Error in netlist line no. 7865, new internal line no. 366:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7865, new internal line no. 366:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=6; l=20; mult=amp_m_pmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_pmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3044, new internal line no. 12827:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3044, new internal line no. 12827:
+
+Cannot compute substitute
+Error in netlist line no. 7866, new internal line no. 369:
+
+Undefined parameter [expr]
+Error in netlist line no. 7866, new internal line no. 369:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7866, new internal line no. 369:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=30; l=20; mult=amp_m_cc; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_cc;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Cannot compute substitute
+Error in netlist line no. 7826, new internal line no. 297:
+
+Undefined parameter [expr]
+Error in netlist line no. 7826, new internal line no. 297:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7826, new internal line no. 297:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=1; l=20; mult=m_ref; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=m_ref;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3072, new internal line no. 12834:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3072, new internal line no. 12834:
+
+Cannot compute substitute
+Error in netlist line no. 7827, new internal line no. 300:
+
+Undefined parameter [expr]
+Error in netlist line no. 7827, new internal line no. 300:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7827, new internal line no. 300:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=1; l=20; mult=m_ref; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=m_ref;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3072, new internal line no. 12834:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3072, new internal line no. 12834:
+
+Cannot compute substitute
+Error in netlist line no. 7828, new internal line no. 303:
+
+Undefined parameter [expr]
+Error in netlist line no. 7828, new internal line no. 303:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7828, new internal line no. 303:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=48; l=0.5; mult=m_sense; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=m_sense;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2483, new internal line no. 12444:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2483, new internal line no. 12444:
+
+Cannot compute substitute
+Error in netlist line no. 7830, new internal line no. 307:
+
+Undefined parameter [expr]
+Error in netlist line no. 7830, new internal line no. 307:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7830, new internal line no. 307:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=10; l=0.5; mult=m_inj; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=m_inj;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2525, new internal line no. 12458:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2525, new internal line no. 12458:
+
+Cannot compute substitute
+Error in netlist line no. 7831, new internal line no. 310:
+
+Undefined parameter [expr]
+Error in netlist line no. 7831, new internal line no. 310:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7831, new internal line no. 310:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=4; l=1; mult=m_clamp; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=m_clamp;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2558, new internal line no. 12469:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2558, new internal line no. 12469:
+
+Cannot compute substitute
+Error in netlist line no. 7788, new internal line no. 249:
+
+Undefined parameter [expr]
+Error in netlist line no. 7788, new internal line no. 249:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7788, new internal line no. 249:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=2; mult=m_out; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=m_out;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3024, new internal line no. 12822:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3024, new internal line no. 12822:
+
+Cannot compute substitute
+Error in netlist line no. 7789, new internal line no. 252:
+
+Undefined parameter [expr]
+Error in netlist line no. 7789, new internal line no. 252:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7789, new internal line no. 252:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=2; mult=m_ampbias; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=m_ampbias;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3024, new internal line no. 12822:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3024, new internal line no. 12822:
+
+Cannot compute substitute
+Error in netlist line no. 7858, new internal line no. 345:
+
+Undefined parameter [expr]
+Error in netlist line no. 7858, new internal line no. 345:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7858, new internal line no. 345:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=20; l=10; mult=amp_m_in; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_in;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Cannot compute substitute
+Error in netlist line no. 7859, new internal line no. 348:
+
+Undefined parameter [expr]
+Error in netlist line no. 7859, new internal line no. 348:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7859, new internal line no. 348:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=20; l=10; mult=amp_m_in; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_in;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Cannot compute substitute
+Error in netlist line no. 7860, new internal line no. 351:
+
+Undefined parameter [expr]
+Error in netlist line no. 7860, new internal line no. 351:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7860, new internal line no. 351:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=20; mult=amp_m_nmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=amp_m_nmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Cannot compute substitute
+Error in netlist line no. 7861, new internal line no. 354:
+
+Undefined parameter [expr]
+Error in netlist line no. 7861, new internal line no. 354:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7861, new internal line no. 354:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=20; mult=amp_m_nmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=amp_m_nmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Cannot compute substitute
+Error in netlist line no. 7862, new internal line no. 357:
+
+Undefined parameter [expr]
+Error in netlist line no. 7862, new internal line no. 357:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7862, new internal line no. 357:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=20; mult=amp_m_nmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=amp_m_nmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Cannot compute substitute
+Error in netlist line no. 7863, new internal line no. 360:
+
+Undefined parameter [expr]
+Error in netlist line no. 7863, new internal line no. 360:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7863, new internal line no. 360:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=8; l=20; mult=amp_m_nmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); swx_vth=sw_vth0_sky130_fd_pr__nfet_g5v0d10v5+sw_vth0_sky130_fd_pr__nfet_g5v0d10v5_mc; nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=89.1*nf/w+443.5; m=amp_m_nmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Undefined parameter [ad]
+Error in netlist line no. 2461, new internal line no. 12436:
+
+Cannot compute substitute
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2507, new internal line no. 12452:
+
+Cannot compute substitute
+Error in netlist line no. 7864, new internal line no. 363:
+
+Undefined parameter [expr]
+Error in netlist line no. 7864, new internal line no. 363:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7864, new internal line no. 363:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=6; l=20; mult=amp_m_pmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_pmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3044, new internal line no. 12827:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3044, new internal line no. 12827:
+
+Cannot compute substitute
+Error in netlist line no. 7865, new internal line no. 366:
+
+Undefined parameter [expr]
+Error in netlist line no. 7865, new internal line no. 366:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7865, new internal line no. 366:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=6; l=20; mult=amp_m_pmirr; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_pmirr;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 3044, new internal line no. 12827:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 3044, new internal line no. 12827:
+
+Cannot compute substitute
+Error in netlist line no. 7866, new internal line no. 369:
+
+Undefined parameter [expr]
+Error in netlist line no. 7866, new internal line no. 369:
+
+ Expression err: expr((int((@nf+1)/2)*@w/@nf*0.29))
+Error in netlist line no. 7866, new internal line no. 369:
+
+ Formula() error.
+      |sd=0; sb=0; sa=0; nf=1; w=30; l=20; mult=amp_m_cc; ad=expr((int((@nf+1)/2)*@w/@nf*0.29)); as=expr((int((@nf+2)/2)*@w/@nf*0.29)); pd=expr((2*int((@nf+1)/2)*(@w/@nf+0.29))); ps=expr((2*int((@nf+2)/2)*(@w/@nf+0.29))); nrd=expr((0.29/@w )); nrs=expr((0.29/@w )); swx_nrds=361*nf/w+1489; m=amp_m_cc;| : |ad|=|expr((int((@nf+1)/2)*@w/@nf*0.29))|
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Undefined parameter [ad]
+Error in netlist line no. 2955, new internal line no. 12804:
+
+Cannot compute substitute
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Undefined parameter [swx_nrds]
+Error in netlist line no. 2960, new internal line no. 12806:
+
+Cannot compute substitute
+
+ERROR: fatal error in ngspice, exit(1)
+
+# ==== klt diagnostics ====
+[
+  {
+    "severity": "error",
+    "code": "measurement",
+    "message": "measurement 'ncross_su' produced no value: its 'expr' ('(250 - mean(((-i(vpsw)) / (abs((-i(vpsw))) + 1e-18))[0,249]*((-i(vpsw)) / (abs((-i(vpsw))) + 1e-18))[1,250])*250) / 2') printed no 'ncross_su = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0])"
+  },
+  {
+    "severity": "error",
+    "code": "measurement",
+    "message": "measurement 'alpha_eq' produced no value: its 'expr' ('1 - mean((((-i(vpsw)) / (abs((-i(vpsw))) + 1e-18))+1)/2)') printed no 'alpha_eq = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0])"
+  },
+  {
+    "severity": "error",
+    "code": "measurement",
+    "message": "measurement 'itrav_min' produced no value: its 'expr' ('vecmin((-i(vpsw))[188,250])') printed no 'itrav_min = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0])"
+  },
+  {
+    "severity": "error",
+    "code": "measurement",
+    "message": "measurement 'imin_off_su' produced no value: its 'expr' ('vecmin(abs((-i(vpsw))[225,250]))') printed no 'imin_off_su = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0])"
+  },
+  {
+    "severity": "error",
+    "code": "measurement",
+    "message": "measurement 'imin_off_bare' produced no value: its 'expr' ('vecmin(abs((-i(vpsn))[225,250]))') printed no 'imin_off_bare = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0])"
+  },
+  {
+    "severity": "error",
+    "code": "measurement",
+    "message": "measurement 'i_off_su' produced no value: its 'expr' ('(-i(vpsw))[250]') printed no 'i_off_su = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0])"
+  },
+  {
+    "severity": "error",
+    "code": "measurement",
+    "message": "measurement 'i_off_bare' produced no value: its 'expr' ('(-i(vpsn))[250]') printed no 'i_off_bare = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0])"
+  },
+  {
+    "severity": "error",
+    "code": "measurement",
+    "message": "measurement 'i_on_su' produced no value: its 'expr' ('(-i(vpsw))[0]') printed no 'i_on_su = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0])"
+  },
+  {
+    "severity": "error",
+    "code": "measurement",
+    "message": "measurement 'i_su_standing' produced no value: its 'expr' ('i(vpsu)[0]') printed no 'i_su_standing = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0])"
+  },
+  {
+    "severity": "error",
+    "code": "measurement",
+    "message": "measurement 'i_standing' produced no value: its 'expr' ('i(v2)[0] - i(v1)[0]') printed no 'i_standing = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0])"
+  },
+  {
+    "severity": "error",
+    "code": "measurement",
+    "message": "measurement 'dvref' produced no value: its 'expr' ('v(vrefd)[0] - v(vrefr)[0]') printed no 'dvref = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0])"
+  },
+  {
+    "severity": "error",
+    "code": "measurement",
+    "message": "measurement 'vref_dut' produced no value: its 'expr' ('v(vrefd)[0]') printed no 'vref_dut = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0])"
+  },
+  {
+    "severity": "error",
+    "code": "measurement",
+    "message": "measurement 'vgdrv_dut' produced no value: its 'expr' ('v(gd)[0]') printed no 'vgdrv_dut = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0])"
+  },
+  {
+    "severity": "error",
+    "code": "measurement",
+    "message": "measurement 'isup_dut' produced no value: its 'expr' ('-i(v1)[0]') printed no 'isup_dut = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0])"
+  },
+  {
+    "severity": "error",
+    "code": "measurement",
+    "message": "measurement 'ncross_bare' produced no value: its 'expr' ('(250 - mean(((-i(vpsn)) / (abs((-i(vpsn))) + 1e-18))[0,249]*((-i(vpsn)) / (abs((-i(vpsn))) + 1e-18))[1,250])*250) / 2') printed no 'ncross_bare = <value>' line -- check that the expression resolves against this analysis's saved vectors and reduces to a single scalar (a multi-point or complex result prints as a table instead; reduce it with e.g. vecmax()/mean()/db()/<expr>[0])"
+  }
+]

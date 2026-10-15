@@ -363,7 +363,93 @@ def netlist_body(netlist: Path) -> list[str]:
     across machines and checkouts.
     """
     text = netlist.read_text().replace(str(REPO_ROOT) + os.sep, "")
-    return [ln for ln in text.splitlines() if ln.strip().lower() != ".end"]
+    lines = [ln for ln in text.splitlines() if ln.strip().lower() != ".end"]
+    return resolve_xschem_expr(lines)
+
+
+# xschem < 3.4.5 (e.g. the 3.4.4 on the AWS dispatch hosts) leaves the sky130
+# symbols' `ad=expr('...@W...')` instance parameters unevaluated, which ngspice
+# rejects ("Undefined parameter [expr]"); xschem 3.4.7 (the batch fleet's
+# pinned version, and the one that minted the historical records) evaluates
+# them while netlisting. `resolve_xschem_expr()` performs that same evaluation
+# so the netlist is identical whichever xschem produced it (issue #320).
+_EXPR_RE = re.compile(r"expr\('([^']*)'\)")
+_EXPR_ATOM_RE = re.compile(r"(\w+)=([-+0-9.eE]+)(?=\s)")
+
+
+def _eval_xschem_expr(expr: str, params: dict[str, str]) -> str:
+    import ast
+
+    def sub(m: re.Match) -> str:
+        key = m.group(1)
+        if key not in params:
+            raise HarnessError(f"xschem expr() references @{key}, absent from the instance line")
+        return params[key]
+
+    src = re.sub(r"@(\w+)", sub, expr).strip()
+
+    def ev(node):
+        if isinstance(node, ast.Expression):
+            return ev(node.body)
+        if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+            return node.value
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.USub, ast.UAdd)):
+            v = ev(node.operand)
+            return -v if isinstance(node.op, ast.USub) else v
+        if isinstance(node, ast.BinOp):
+            a, b = ev(node.left), ev(node.right)
+            if isinstance(node.op, ast.Add):
+                return a + b
+            if isinstance(node.op, ast.Sub):
+                return a - b
+            if isinstance(node.op, ast.Mult):
+                return a * b
+            if isinstance(node.op, ast.Div):  # Tcl: int/int truncates
+                if isinstance(a, int) and isinstance(b, int):
+                    return int(a / b) if a % b else a // b
+                return a / b
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "int"
+            and len(node.args) == 1
+        ):
+            return int(ev(node.args[0]))
+        raise HarnessError(f"unsupported construct in xschem expr(): {expr!r}")
+
+    try:
+        val = ev(ast.parse(src, mode="eval"))
+    except SyntaxError as err:
+        raise HarnessError(f"cannot parse xschem expr() {expr!r}: {err}") from err
+    return str(val) if isinstance(val, int) else "%.15g" % val
+
+
+def resolve_xschem_expr(lines: list[str]) -> list[str]:
+    """Evaluate unevaluated `name=expr('...')` instance parameters in place.
+
+    Continuation lines (`+ ...`) of any logical line containing `expr(` are
+    folded back to one line first (xschem breaks them at spaces), matching
+    the single-line form xschem 3.4.7 writes. Lines without `expr(` are
+    returned untouched, so a netlist from a new-enough xschem is a no-op."""
+    out: list[str] = []
+    i = 0
+    while i < len(lines):
+        j = i + 1
+        while j < len(lines) and lines[j].startswith("+"):
+            j += 1
+        block = lines[i:j]
+        if any("expr('" in ln for ln in block):
+            logical = block[0]
+            for cont in block[1:]:
+                logical += " " + cont[1:].lstrip(" ")
+            plain = _EXPR_RE.sub("", logical)
+            params = {m.group(1): m.group(2) for m in _EXPR_ATOM_RE.finditer(plain)}
+            logical = _EXPR_RE.sub(lambda m: _eval_xschem_expr(m.group(1), params), logical)
+            out.append(logical)
+        else:
+            out.extend(block)
+        i = j
+    return out
 
 
 # --------------------------------------------------------------------------
