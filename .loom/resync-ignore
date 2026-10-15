@@ -1,19 +1,19 @@
 # .loom/resync-ignore — paths Loom must not overwrite or delete
 #
-# scripts/tests/test-forge-helpers-rate-limit-fallback.sh: locally patched
-# (#205) so its FORGE_CMD_SRC assertion SKIPs on a consumer-repo checkout
-# (no loom-daemon/src/) instead of FAILing forever. This is a stopgap
-# pending an upstream fix in defaults/scripts/tests/ at rjwalters/loom --
-# this repo has no defaults/ tree to fix directly, so pin the local patch
-# so a Loom resync does not silently revert it.
-scripts/tests/test-forge-helpers-rate-limit-fallback.sh
-
-# scripts/verdict-staleness-guard.sh: locally patched (#236) so `gh pr view`
-# no longer requests the unsupported `merged` JSON field (installed `gh`
-# 2.98.0 rejects `--json ...,merged` with "Unknown JSON field"), and so
-# PR_MERGED is derived from `state` instead. This is a stopgap pending the
-# same fix landing upstream in defaults/scripts/verdict-staleness-guard.sh at
-# rjwalters/loom -- this repo has no defaults/ tree to fix directly, so pin
-# the local patch so a Loom resync does not silently revert it (as it
-# already has, repeatedly, per the resync history on this file).
-scripts/verdict-staleness-guard.sh
+# NO PINS AS OF 2026-10-14 (2AMLogic/2am#4345, Q7 ruling 2026-10-15).
+#
+# Both former pins were stopgaps "pending the same fix landing upstream" in
+# rjwalters/loom. Both fixes have landed, so the pins were removed and the
+# files replaced with upstream `defaults/` content:
+#
+# - scripts/verdict-staleness-guard.sh (#236/#237: no `merged` field in
+#   `gh pr view --json`, PR_MERGED derived from `state`). Upstream has asked
+#   for `headRefOid,labels,state` only since rjwalters/loom#6799. The pinned
+#   copy also lacked later upstream hardening (#9258 unmarked-approval STALE,
+#   #9548 trusted markers, #9576 tree-equality FRESH), and failed this repo's
+#   own test-verdict-staleness-guard.sh and -tree.sh. The upstream file
+#   passes both (319/319, 36/36).
+# - scripts/tests/test-forge-helpers-rate-limit-fallback.sh (#205/#208: SKIP
+#   the FORGE_CMD_SRC assertion on a consumer checkout). Upstream SKIPs it
+#   since rjwalters/loom#6736. The pinned copy failed; the upstream file
+#   passes (85/85, SKIP on consumer).
