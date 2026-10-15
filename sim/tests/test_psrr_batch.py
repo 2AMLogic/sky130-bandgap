@@ -197,6 +197,24 @@ class CandidatesBatchRequests(unittest.TestCase):
         checks = H.evaluate(results, points, [H.VARIANTS_BY_NAME["base"], H.VARIANTS_BY_NAME["ref3"]])
         self.assertTrue(all(c["pass"] for c in checks if c["name"].startswith("sweep_guards")))
 
+    def test_request_concurrency_is_the_job_budget_divided_by_shards(self):
+        from unittest import mock
+        real_collect = batch_sim.collect
+        for timeout, max_jobs, expect in ((60, 4, 4), (1800, 8, 1), (1800, 40, 2)):
+            self.args.batch_max_jobs = max_jobs
+            seen = {}
+
+            def spy(groups, runner, max_workers):
+                seen["workers"] = max_workers
+                return real_collect(groups, runner, max_workers=max_workers)
+
+            runner = fake_runner(good_values, lib_sha=self.sha)
+            with mock.patch.object(batch_sim, "collect", spy):
+                H.run_all_batch(
+                    self.pdk, PIN, self.base, [H.VARIANTS_BY_NAME["base"]], H.matrix(), timeout,
+                    None, "rid", self.args, runner=runner)
+            self.assertEqual(seen["workers"], expect)
+
     def test_remote_library_that_is_not_the_pin_is_a_blocker(self):
         _r, blockers, execution = self.run_batch(
             ["base"], [("ff", 125.0, 3.63)], fake_runner(good_values, lib_sha="b" * 64))

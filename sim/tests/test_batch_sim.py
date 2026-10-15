@@ -308,6 +308,36 @@ sim._write_corner_deck(deck_path={str(self.tmp / 'klt.deck')!r}, netlist_path={s
                                    capacity_wait_s=0, runner_version_check="enforce", poll_interval_s=30)
 
 
+class ShardCount(unittest.TestCase):
+    """`remote.hosts` keeps every shard's bound under the fleet job ceiling."""
+
+    def test_fifteen_units_at_1800s_is_fifteen_hosts(self):
+        self.assertEqual(batch_sim.shard_hosts(15, 1800), 15)
+
+    def test_short_timeout_is_one_host(self):
+        self.assertEqual(batch_sim.shard_hosts(15, 100), 1)
+
+    def test_default_timeout_is_one_unit_per_shard(self):
+        # 10800 s alone exceeds the ceiling; sharding cannot fix it, so the
+        # finest split (one unit per shard, never more hosts than units).
+        self.assertEqual(batch_sim.shard_hosts(15, batch_sim.DEFAULT_BATCH_TIMEOUT_S), 15)
+
+    def test_partial_shards_round_up(self):
+        # (3600 - 120) // 1000 = 3 units per job -> ceil(7 / 3)
+        self.assertEqual(batch_sim.shard_hosts(7, 1000), 3)
+
+    def test_request_carries_the_shard_count(self):
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, True)
+        for timeout, hosts in ((1800, 15), (100, 1), (batch_sim.DEFAULT_BATCH_TIMEOUT_S, 15)):
+            groups = batch_sim.build_groups(
+                EXP, PIN, full_matrix(), BODY, (SIM_DIR / "spiceinit").read_text(), tmp, timeout,
+                capacity_wait_s=60, runner_version_check="enforce", poll_interval_s=30,
+            )
+            for g in groups:
+                self.assertEqual(g.request["remote"], {"hosts": hosts})
+
+
 class Aggregation(unittest.TestCase):
     def setUp(self):
         self.env = _Env()
