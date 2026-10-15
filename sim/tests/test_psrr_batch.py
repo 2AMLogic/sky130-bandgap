@@ -149,7 +149,8 @@ class CandidatesBatchRequests(unittest.TestCase):
         self.pdk.lib_file.write_text("lib")
         self.sha = batch_sim.sha256_file(self.pdk.lib_file)
         self.args = SimpleNamespace(
-            batch_capacity_wait_s=60, batch_runner_version_check="enforce", batch_max_jobs=4)
+            batch_capacity_wait_s=60, batch_runner_version_check="enforce", batch_max_jobs=4,
+            batch_hosts=1)
         H.BUILD_DIR = self.tmp / "build"
 
     def run_batch(self, variants, points, runner, corners_dir=None):
@@ -196,6 +197,25 @@ class CandidatesBatchRequests(unittest.TestCase):
         # ... and satisfy the harness's own sweep guards
         checks = H.evaluate(results, points, [H.VARIANTS_BY_NAME["base"], H.VARIANTS_BY_NAME["ref3"]])
         self.assertTrue(all(c["pass"] for c in checks if c["name"].startswith("sweep_guards")))
+
+    def test_batch_hosts_shards_every_request_over_remote_hosts(self):
+        points = H.matrix()
+
+        def requests(hosts):
+            seen = []
+
+            def spy(group):
+                seen.append(group)
+                return fake_runner(good_values, lib_sha=self.sha)(group)
+
+            self.args.batch_hosts = hosts
+            self.run_batch(["base"], points, spy)
+            return [g.request for g in seen]
+
+        self.assertTrue(all("remote" not in r for r in requests(1)))
+        sharded = requests(3)
+        self.assertEqual(len(sharded), 3 * 2)
+        self.assertTrue(all(r["remote"] == {"hosts": 3} for r in sharded))
 
     def test_remote_library_that_is_not_the_pin_is_a_blocker(self):
         _r, blockers, execution = self.run_batch(
