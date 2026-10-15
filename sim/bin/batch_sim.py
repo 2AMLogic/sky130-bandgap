@@ -55,6 +55,25 @@ BATCH_ENABLED_SLUGS = frozenset({"startup-stability", "psrr-dc-with-injector"})
 #: sweep (issue #320 measured ~6.4 ks per corner on an AWS sweep host).
 DEFAULT_BATCH_TIMEOUT_S = 10800
 
+#: The fleet's whole-job ceiling and the fixed per-job overhead klt adds to its
+#: fully-serial bound (`timeout_s x units + overhead`); a job still running at
+#: the ceiling is killed and every unit reports `batch_job_timeout`.
+FLEET_JOB_CEILING_S = 3600
+FLEET_JOB_OVERHEAD_S = 120
+
+
+def shard_hosts(units: int, timeout_s: float) -> int:
+    """Smallest `remote.hosts` for which every shard's bound fits the ceiling.
+
+    klt balances shards to at most `ceil(units / hosts)` units, so the answer
+    is `ceil(units / per_job)` with `per_job` the units one job may carry. A
+    `timeout_s` so large that even one unit exceeds the ceiling cannot be
+    fixed by sharding; it still gets one unit per shard (the finest split,
+    never more hosts than units, which klt rejects).
+    """
+    per_job = max(1, int((FLEET_JOB_CEILING_S - FLEET_JOB_OVERHEAD_S) // max(1, timeout_s)))
+    return max(1, -(-max(1, units) // per_job))
+
 #: klt exit codes that still carry a full report on stdout (`docs/cli/sim.md`
 #: "Exit codes": 0 pass, 3 limit failure, 4 error/inconclusive/not_checked).
 REPORT_EXIT_CODES = (0, 3, 4)
@@ -249,6 +268,7 @@ def build_request(
             "capacity_wait_s": capacity_wait_s,
             "runner_version_check": runner_version_check,
         },
+        "remote": {"hosts": shard_hosts(len(processes) * len(temps), timeout_s)},
     }
 
 

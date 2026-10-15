@@ -469,10 +469,14 @@ def run_all_batch(pdk, pin, base_body, variants, points, timeout, corners_dir, r
                         runner_version_check=args.batch_runner_version_check,
                         poll_interval_s=30.0,
                     ))
+        # Each request is sharded over `remote.hosts` fleet jobs; divide the
+        # job budget so shard jobs in flight stay within --batch-max-jobs.
+        hosts = max((g.request["remote"]["hosts"] for g in groups), default=1)
+        request_workers = max(1, args.batch_max_jobs // hosts)
         print(f"batch         : {len(groups)} klt sim requests "
               f"({len(variants)} variants x {len(supplies)} supplies x {len(BATCH_REQUESTS)} analyses), "
-              f"{args.batch_max_jobs} at a time")
-        outcomes = batch_sim.collect(groups, runner, max_workers=args.batch_max_jobs)
+              f"{request_workers} at a time x {hosts} shard job(s) each")
+        outcomes = batch_sim.collect(groups, runner, max_workers=request_workers)
     except batch_sim.BatchError as err:
         raise cr.HarnessError(str(err)) from err
     lib_sha = batch_sim.sha256_file(pdk.lib_file)
@@ -519,7 +523,7 @@ def run_all_batch(pdk, pin, base_body, variants, points, timeout, corners_dir, r
         "backend": "batch",
         "mechanism": "klt sim --backend batch (2am EDA batch fleet, Spot)",
         "requests": len(groups),
-        "max_concurrent_requests": args.batch_max_jobs,
+        "max_concurrent_requests": request_workers,
         "jobs": jobs,
         "remote_engine_versions": versions,
         "remote_instance_types": sorted({str(j["remote"].get("instance_type")) for j in jobs}),
