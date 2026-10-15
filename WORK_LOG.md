@@ -5,6 +5,8 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-10-15
 
+- **PR #357**: docs(sim): record MNG clamp eviction-loss mechanism and add per-node injector probe mode
+- **PR #356**: docs(sim): MNG clamp and weak reference stack fail injector eviction floor at 27C corners (DR-015)
 - **PR #354**: sim: route startup-stability 45-corner matrix through Spot batch; live run 45/45 PASS (#320)
 - **Issue #320** (closed): Route startup-stability’s full 45-corner regression through the Spot batch backend
 - **PR #353**: Bump Repo Skills 0.19.5 -> 0.24.1
