@@ -13,7 +13,7 @@ run (batch path, #320).
 usage: probe_itrav.py VARIANT PROCESS TEMP_C SUPPLY_V [nodes]
   nodes   : instead of the minimum, print forced current, v(NG), v(NE), v(VREFD), v(GD)
             at 6 alpha points (0.75..1, step 0.05) -- the per-node look DR-016 uses
-  VARIANT = stock | mng[_mref<x>][_h3] | mngq   (p = decimal point, e.g. mref0p42)
+  VARIANT = stock | mng[_mref<x>][_h3] | mngq | mpc2vs[_mng] (issue #368: MPC2 gate on VSENSE)   (p = decimal point, e.g. mref0p42)
             mng  : add the DR-012 NG clamp (W=1 L=20 NMOS, NG -> VSS, gate VSENSE)
             mngq : same clamp with its source a PNP VBE above VSS (DR-017)
             mref : .param m_ref value;  h3 : three-high reference stack
@@ -53,6 +53,8 @@ def variant(name: str) -> str:
         s = s.replace("XMNS NG", MNG + "\nXMNS NG", 1)
     if (m := re.search(r"mref([0-9p]+)", name)):
         s = s.replace(".param m_ref=1", ".param m_ref=" + m.group(1).replace("p", "."))
+    if "mpc2vs" in name:
+        s = s.replace("XMPC2 NG NG NC1 VDD", "XMPC2 NG VSENSE NC1 VDD")
     if "h3" in name:
         s = s.replace("XMPC2 NG NG NC1 VDD", "XMPC2 NC2 NC2 NC1 VDD")
         mp = next(ln for ln in s.split("\n") if ln.startswith("XMPC2"))
