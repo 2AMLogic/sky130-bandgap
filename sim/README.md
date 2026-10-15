@@ -418,7 +418,7 @@ Such a script still has to behave like the harness:
 | `--subset-reason "…"` | **required** for any subset; recorded verbatim |
 | `--supersedes <record-id>` | record which prior record this replaces |
 | `--author`, `--timeout` | record author (default `git config user.email`), per-corner ngspice timeout (default 300 s locally, 10800 s with `--backend batch`) |
-| `--backend local\|batch` | where corners run (default `local`). `batch` sends the matrix to the Spot batch fleet through `klt sim --backend batch`; enabled for `startup-stability` only. See "Batch backend" below. A failed submission is an error, never a local fallback |
+| `--backend local\|batch` | where corners run (default `local`). `batch` sends the matrix to the Spot batch fleet through `klt sim --backend batch`; enabled for `startup-stability` and `psrr-dc-with-injector` only. See "Batch backend" below. A failed submission is an error, never a local fallback |
 | `--batch-capacity-wait-s N`, `--batch-runner-version-check enforce\|warn` | batch only: how long to wait out a Spot capacity refusal per submission (default 3600), and klt's runner/client version-skew policy (default `enforce`; leave it) |
 | `-j N`, `--jobs N` | run up to `N` corners concurrently (default: `1`, serial -- today's unchanged behavior). Each corner is an independent `ngspice` process with its own scratch deck and its own `--timeout`, enforced per-process regardless of `N`; corner results are always written into the record in matrix order, never completion order. Recorded in the written record's `jobs` field |
 | `--allow-pdk-mismatch` | run against a non-pinned PDK; the record flags it |
@@ -493,6 +493,22 @@ What it does, and what it deliberately does not change:
   The image's klt must be at least the client's (klt enforces exact equality) and
   must support `measurements[].expr`, `options.ngspice_init` and the generated `save all`
   (klayout-tools#2533, #2520, #2521).
+
+**PSRR injector screen (issue #361).** `psrr-dc-with-injector` is enabled for the
+same path: its `ac dec 10 0.1 1meg` analysis and AC vector-slice measurements
+(`-db(v(vref)[0])`, `minimum(-db(v(vref)[0,40]))`, `real(frequency[40])`,
+`length(v(vref))`) are klt `expr` measurements as they stand (no `let` chain to
+inline), and `sim/tests/test_psrr_batch.py` compares klt's deck and results to
+the local runner on `tt / 27 degC / 3.3 V`. The candidates harness has its own
+batch mode, `sim/psrr-injector-candidates/run_psrr_injector_candidates.py
+--backend batch` (use it, not the local `--jobs` grid, on a dispatch host):
+per variant and supply voltage one `ac` request and one `op` request (klt runs
+one analysis per request; the `op` carries the `v_ng`/`i_vdd` readouts the
+local deck takes after its AC sweep). The same trust rules apply: a remote
+model library that is not the pinned one, runner skew, or a missing/duplicate
+corner becomes a failing `batch_integrity[...]` check in the record, and nothing
+falls back to a local ngspice. `--jobs` stays the local-mode (single-corner
+probe) knob; `--batch-max-jobs` bounds in-flight requests.
 
 **Netlist note.** The dispatch hosts' xschem is 3.4.4, which (unlike the
 fleet's pinned 3.4.7) leaves the sky130 symbols' `ad=expr('...@W...')` instance

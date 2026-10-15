@@ -260,7 +260,9 @@ def load_corner_run() -> ModuleType:
     return module
 
 
-def check_pdk_and_ngspice(pin: dict, allow_pdk_mismatch: bool, *, verbose: bool = True):
+def check_pdk_and_ngspice(
+    pin: dict, allow_pdk_mismatch: bool, *, verbose: bool = True, require_ngspice: bool = True
+):
     """Resolve the installed PDK against `pin` (`sim/pdk.json`'s parsed
     content) and enforce the two preconditions every bespoke `sim/*/run_*.py`
     harness script's `main()`/`verify()` checks before doing any work: the
@@ -270,6 +272,9 @@ def check_pdk_and_ngspice(pin: dict, allow_pdk_mismatch: bool, *, verbose: bool 
     `cr.HarnessError` otherwise. Consolidates a block that used to be
     inlined, byte-for-byte identical (module aside), in seven `run_*.py`
     scripts plus `corner-run.py` and `post_layout_common.py` (issue #247).
+
+    `require_ngspice=False` is for the batch backend, where the simulator runs
+    on the fleet and only the pinned PDK's model library is needed locally.
 
     `verbose=True` (the default -- what five of the seven original callers
     used) includes the "install the pin"/"--allow-pdk-mismatch" hint lines;
@@ -291,7 +296,7 @@ def check_pdk_and_ngspice(pin: dict, allow_pdk_mismatch: bool, *, verbose: bool 
             f"installed PDK {pdk.variant} is open_pdks {pdk.installed_commit}, but "
             f"sim/pdk.json pins {pin['open_pdks_commit']} (use --allow-pdk-mismatch to override)"
         )
-    if not shutil.which("ngspice"):
+    if require_ngspice and not shutil.which("ngspice"):
         raise cr.HarnessError("ngspice not found on PATH")
     return pdk
 

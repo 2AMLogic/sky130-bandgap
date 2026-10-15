@@ -48,7 +48,7 @@ from typing import Callable
 #: Experiments whose deck shape this adapter has been validated against.
 #: Everything else keeps the local runner; extending the list is a deliberate
 #: change (issue #320 limits the scope to the startup-stability path).
-BATCH_ENABLED_SLUGS = frozenset({"startup-stability"})
+BATCH_ENABLED_SLUGS = frozenset({"startup-stability", "psrr-dc-with-injector"})
 
 #: Per-corner ngspice budget on the fleet when `--timeout` is not given.
 #: The local 300 s default is meaningless for a 251-point homotopy-stepped DC
@@ -83,6 +83,10 @@ class Group:
     request_path: Path
     corners: list  # corner-run `Corner`s, in matrix order
     request: dict = field(default_factory=dict)
+    label: str = ""  # names the group in messages; default "supply <v> V"
+
+    def describe(self) -> str:
+        return self.label or f"supply {self.supply_v:.2f} V"
 
 
 @dataclass
@@ -210,6 +214,44 @@ def netlist_text(exp, corner, body: list[str]) -> str:
     return "\n".join(head + body + [""])
 
 
+def build_request(
+    netlist_name: str,
+    pin: dict,
+    processes: list,
+    temps: list,
+    analysis: dict,
+    measurements: list[dict],
+    spiceinit_text: str,
+    timeout_s: int,
+    *,
+    capacity_wait_s: float,
+    runner_version_check: str,
+    poll_interval_s: float,
+) -> dict:
+    """One `klt sim --backend batch` request document (shared by the corner-run
+    adapter and by benches that drive their own variant set, e.g.
+    `sim/psrr-injector-candidates/`)."""
+    return {
+        "netlist": netlist_name,
+        "engine": "ngspice",
+        "backend": "batch",
+        "models": {"pdk": pin["variant"], "lib": pin["ngspice_lib"]},
+        "corners": {"process": processes, "temperature_c": temps},
+        "analysis": analysis,
+        "measurements": measurements,
+        "options": {
+            "timeout_s": timeout_s,
+            "keep_artifacts": True,
+            "ngspice_init": spiceinit_lines(spiceinit_text),
+        },
+        "batch": {
+            "poll_interval_s": poll_interval_s,
+            "capacity_wait_s": capacity_wait_s,
+            "runner_version_check": runner_version_check,
+        },
+    }
+
+
 def build_groups(
     exp,
     pin: dict,
@@ -253,29 +295,56 @@ def build_groups(
         gdir.mkdir(parents=True, exist_ok=True)
         netlist_path = gdir / "netlist.cir"
         netlist_path.write_text(netlist_text(exp, members[0], body))
-        request = {
-            "netlist": netlist_path.name,
-            "engine": "ngspice",
-            "backend": "batch",
-            "models": {"pdk": pin["variant"], "lib": pin["ngspice_lib"]},
-            "corners": {"process": processes, "temperature_c": temps},
-            "analysis": analysis,
-            "measurements": measurements,
-            "options": {
-                "timeout_s": timeout_s,
-                "keep_artifacts": True,
-                "ngspice_init": spiceinit_lines(spiceinit_text),
-            },
-            "batch": {
-                "poll_interval_s": poll_interval_s,
-                "capacity_wait_s": capacity_wait_s,
-                "runner_version_check": runner_version_check,
-            },
-        }
+        request = build_request(
+            netlist_path.name, pin, processes, temps, analysis, measurements, spiceinit_text,
+            timeout_s, capacity_wait_s=capacity_wait_s,
+            runner_version_check=runner_version_check, poll_interval_s=poll_interval_s,
+        )
         request_path = gdir / "request.json"
         request_path.write_text(json.dumps(request, indent=2, sort_keys=True) + "\n")
         groups.append(Group(supply, gdir, netlist_path, request_path, members, request))
     return groups
+
+
+def build_adhoc_group(
+    label: str,
+    out_dir: Path,
+    netlist: str,
+    pin: dict,
+    corners: list,
+    analysis: dict,
+    measurements: list[dict],
+    spiceinit_text: str,
+    timeout_s: int,
+    *,
+    capacity_wait_s: float,
+    runner_version_check: str,
+    poll_interval_s: float,
+) -> Group:
+    """One request for a bench that composes its own netlists (a variant of a
+    body, not the manifest's body) -- `corners` must be the full
+    process x temperature cross product at one supply, and `netlist` is the
+    complete pre-`.lib` text (`.param vsup`, `.option`s, the body). Written to
+    `out_dir/<label>/`."""
+    supplies = {c.supply_v for c in corners}
+    if len(supplies) != 1:
+        raise BatchError(f"{label}: an ad-hoc group is one supply voltage, got {sorted(supplies)}")
+    processes = _unique(c.process for c in corners)
+    temps = [int(t) if float(t).is_integer() else t for t in _unique(c.temp_c for c in corners)]
+    if {(c.process, c.temp_c) for c in corners} != {(p, t) for p in processes for t in temps}:
+        raise BatchError(f"{label}: corners are not a process x temperature cross product")
+    gdir = out_dir / label
+    gdir.mkdir(parents=True, exist_ok=True)
+    netlist_path = gdir / "netlist.cir"
+    netlist_path.write_text(netlist)
+    request = build_request(
+        netlist_path.name, pin, processes, temps, analysis, measurements, spiceinit_text,
+        timeout_s, capacity_wait_s=capacity_wait_s, runner_version_check=runner_version_check,
+        poll_interval_s=poll_interval_s,
+    )
+    request_path = gdir / "request.json"
+    request_path.write_text(json.dumps(request, indent=2, sort_keys=True) + "\n")
+    return Group(supplies.pop(), gdir, netlist_path, request_path, list(corners), request, label)
 
 
 def _unique(values) -> list:
@@ -349,11 +418,16 @@ def job_died_before_simulating(report: dict) -> bool:
     return True
 
 
-def collect(groups: list[Group], runner: Callable[[Group], GroupOutcome] = run_klt) -> list[GroupOutcome]:
-    """Submit every group concurrently (they are independent fleet jobs) and
-    return the outcomes in group order. Any group without a report aborts the
-    run: a partial batch must never be presented as a matrix result."""
-    with ThreadPoolExecutor(max_workers=len(groups)) as pool:
+def collect(
+    groups: list[Group],
+    runner: Callable[[Group], GroupOutcome] = run_klt,
+    max_workers: int | None = None,
+) -> list[GroupOutcome]:
+    """Submit every group concurrently (they are independent fleet jobs; at
+    most `max_workers` at a time, default all) and return the outcomes in group
+    order. Any group without a report aborts the run: a partial batch must
+    never be presented as a matrix result."""
+    with ThreadPoolExecutor(max_workers=max(1, min(max_workers or len(groups), len(groups)))) as pool:
         outcomes = list(pool.map(runner, groups))
     failed = [o for o in outcomes if o.report is None]
     died = [o for o in outcomes if o.report is not None and job_died_before_simulating(o.report)]
@@ -368,7 +442,7 @@ def collect(groups: list[Group], runner: Callable[[Group], GroupOutcome] = run_k
             remote = (o.report.get("environment") or {}).get("remote") or {}
             diag = next(iter((o.report["corners"][0].get("diagnostics")) or [{}]), {})
             lines.append(
-                f"  supply {o.group.supply_v:.2f} V: job {remote.get('job_id')} "
+                f"  {o.group.describe()}: job {remote.get('job_id')} "
                 f"[{diag.get('runner_code') or diag.get('code')}]: {diag.get('message')}"
             )
         raise BatchError(
@@ -376,7 +450,7 @@ def collect(groups: list[Group], runner: Callable[[Group], GroupOutcome] = run_k
             "nothing was run locally:\n" + "\n".join(lines)
         )
     if failed:
-        lines = [f"  supply {o.group.supply_v:.2f} V: {o.error}" for o in failed]
+        lines = [f"  {o.group.describe()}: {o.error}" for o in failed]
         done = [o for o in outcomes if o.report is not None]
         raise BatchError(
             "batch submission/collection failed; no results were recorded and nothing was "
@@ -479,6 +553,60 @@ def synthetic_failure(exp, corner, timeout_s: int, reason: str, evaluate: Callab
     }
 
 
+def job_meta(o: GroupOutcome, local_lib_sha256: str, blockers: list[str]) -> dict:
+    """Execution provenance of one collected job. Appends to `blockers` when
+    the fleet ran a different model library than the pinned local one or a
+    skewed klt runner, either of which makes the results untrustworthy."""
+    rep = o.report
+    env = rep.get("environment") or {}
+    remote = env.get("remote") or {}
+    prov = rep.get("provenance") or {}
+    corner_rt = [c.get("runtime_s") for c in rep["corners"] if c.get("runtime_s") is not None]
+    job_elapsed = remote.get("elapsed_seconds")
+    meta = {
+        "supply_v": o.group.supply_v,
+        "job_id": remote.get("job_id"),
+        "submitted_at": o.submitted_at,
+        "collected_at": o.collected_at,
+        "submit_to_collect_wall_s": round(o.wall_s, 1),
+        "job_elapsed_s": job_elapsed,
+        "queue_provision_and_transfer_s": (
+            round(o.wall_s - float(job_elapsed), 1) if _isnum(job_elapsed) else None
+        ),
+        "corner_runtime_sum_s": round(sum(corner_rt), 1),
+        "corner_runtime_max_s": round(max(corner_rt), 1) if corner_rt else None,
+        "corner_runtime_min_s": round(min(corner_rt), 1) if corner_rt else None,
+        "corner_count": rep.get("corner_count"),
+        "klt_status": rep.get("status"),
+        "klt_exit_code": o.rc,
+        "engine": env.get("engine"),
+        "engine_version": env.get("engine_version"),
+        "ngspice_binary": env.get("ngspice_binary"),
+        "models_lib_sha256": env.get("models_lib_sha256"),
+        "netlist_sha256": env.get("netlist_sha256"),
+        "pdk_provenance": prov.get("pdk"),
+        "klt_client_version": prov.get("klt_version"),
+        "remote": remote,
+        "report": str(o.report_path) if o.report_path else None,
+    }
+    if o.group.label:
+        meta["label"] = o.group.label
+    remote_sha = env.get("models_lib_sha256")
+    if remote_sha != local_lib_sha256:
+        blockers.append(
+            f"{o.group.describe()}: remote model library sha256 {remote_sha!r} "
+            f"does not match the pinned local library {local_lib_sha256!r}; results from a "
+            "different PDK build cannot be trusted"
+        )
+    if remote.get("runner_compatibility") not in (None, "match"):
+        blockers.append(
+            f"{o.group.describe()}: runner klt "
+            f"{remote.get('runner_klt_version')!r} vs client "
+            f"{remote.get('client_klt_version')!r} ({remote.get('runner_compatibility')})"
+        )
+    return meta
+
+
 def assemble(
     exp,
     matrix: list,
@@ -496,51 +624,8 @@ def assemble(
     jobs_meta = []
     for o in outcomes:
         rep = o.report
-        env = rep.get("environment") or {}
-        remote = env.get("remote") or {}
-        prov = rep.get("provenance") or {}
-        corner_rt = [c.get("runtime_s") for c in rep["corners"] if c.get("runtime_s") is not None]
-        job_elapsed = remote.get("elapsed_seconds")
-        meta = {
-            "supply_v": o.group.supply_v,
-            "job_id": remote.get("job_id"),
-            "submitted_at": o.submitted_at,
-            "collected_at": o.collected_at,
-            "submit_to_collect_wall_s": round(o.wall_s, 1),
-            "job_elapsed_s": job_elapsed,
-            "queue_provision_and_transfer_s": (
-                round(o.wall_s - float(job_elapsed), 1) if _isnum(job_elapsed) else None
-            ),
-            "corner_runtime_sum_s": round(sum(corner_rt), 1),
-            "corner_runtime_max_s": round(max(corner_rt), 1) if corner_rt else None,
-            "corner_runtime_min_s": round(min(corner_rt), 1) if corner_rt else None,
-            "corner_count": rep.get("corner_count"),
-            "klt_status": rep.get("status"),
-            "klt_exit_code": o.rc,
-            "engine": env.get("engine"),
-            "engine_version": env.get("engine_version"),
-            "ngspice_binary": env.get("ngspice_binary"),
-            "models_lib_sha256": env.get("models_lib_sha256"),
-            "netlist_sha256": env.get("netlist_sha256"),
-            "pdk_provenance": prov.get("pdk"),
-            "klt_client_version": prov.get("klt_version"),
-            "remote": remote,
-            "report": str(o.report_path) if o.report_path else None,
-        }
+        meta = job_meta(o, local_lib_sha256, blockers)
         jobs_meta.append(meta)
-        remote_sha = env.get("models_lib_sha256")
-        if remote_sha != local_lib_sha256:
-            blockers.append(
-                f"supply {o.group.supply_v:.2f} V: remote model library sha256 {remote_sha!r} "
-                f"does not match the pinned local library {local_lib_sha256!r}; results from a "
-                "different PDK build cannot be trusted"
-            )
-        if remote.get("runner_compatibility") not in (None, "match"):
-            blockers.append(
-                f"supply {o.group.supply_v:.2f} V: runner klt "
-                f"{remote.get('runner_klt_version')!r} vs client "
-                f"{remote.get('client_klt_version')!r} ({remote.get('runner_compatibility')})"
-            )
         for kc in rep["corners"]:
             by_key.setdefault(_key(kc.get("process"), kc.get("temperature_c"), o.group.supply_v), []).append(
                 (kc, o.group, meta)
@@ -570,10 +655,42 @@ def assemble(
         rep = o.report
         if rep.get("corner_count") != len(o.group.corners) or len(rep["corners"]) != len(o.group.corners):
             blockers.append(
-                f"supply {o.group.supply_v:.2f} V: expected {len(o.group.corners)} corners, "
+                f"{o.group.describe()}: expected {len(o.group.corners)} corners, "
                 f"report says corner_count={rep.get('corner_count')} with {len(rep['corners'])} entries"
             )
     return results, blockers, {"jobs": jobs_meta}
+
+
+def collect_values(
+    outcomes: list[GroupOutcome], local_lib_sha256: str
+) -> tuple[dict[tuple, dict], dict[tuple, dict], list[str], list[dict]]:
+    """Fold collected reports into `{(process, temp, supply, group label):
+    {measurement name: value}}` without a corner-run `Experiment`, for benches
+    that grade the values themselves. Returns `(values, klt_corners, blockers,
+    jobs_meta)` where `klt_corners` holds the raw klt corner entries under the
+    same keys; a measurement klt could not evaluate is simply absent from its
+    dict, and a duplicate or wrong-count corner is a blocker."""
+    blockers: list[str] = []
+    values: dict[tuple, dict] = {}
+    klt_corners: dict[tuple, dict] = {}
+    jobs = []
+    for o in outcomes:
+        rep = o.report
+        jobs.append(job_meta(o, local_lib_sha256, blockers))
+        if rep.get("corner_count") != len(o.group.corners) or len(rep["corners"]) != len(o.group.corners):
+            blockers.append(
+                f"{o.group.describe()}: expected {len(o.group.corners)} corners, report says "
+                f"corner_count={rep.get('corner_count')} with {len(rep['corners'])} entries"
+            )
+        for kc in rep["corners"]:
+            key = _key(kc.get("process"), kc.get("temperature_c"), o.group.supply_v) + (o.group.label,)
+            if key in values:
+                blockers.append(f"{o.group.describe()}: duplicate result for {key[:3]}")
+            values[key] = {
+                m["name"]: m["value"] for m in kc.get("measurements") or [] if m.get("value") is not None
+            }
+            klt_corners[key] = kc
+    return values, klt_corners, blockers, jobs
 
 
 def _isnum(v) -> bool:
