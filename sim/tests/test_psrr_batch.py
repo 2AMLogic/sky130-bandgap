@@ -346,7 +346,10 @@ sim._write_corner_deck(deck_path={str(deck_path)!r}, netlist_path={str(self.grou
             self.assertIn(f"let meas_{m.name} = {m.expr}", local)
 
     def test_klt_values_equal_the_local_runner_on_every_measurement(self):
-        pdk = cr.resolve_pdk(PIN)
+        try:
+            pdk = cr.resolve_pdk(PIN)
+        except cr.HarnessError as exc:
+            self.skipTest(f"no pinned PDK on this host: {exc}")
         if not shutil.which("ngspice"):
             self.skipTest("ngspice not installed")
         local_dir = self.tmp / "local"
