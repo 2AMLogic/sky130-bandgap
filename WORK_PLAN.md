@@ -29,7 +29,7 @@ _None._
 
 Issues currently being built (`loom:building`).
 
-- **#315**: Complete #306's circuit fix (startup injector PSRR) and the post-fix layout cycle
+_None._
 
 ## PRs Awaiting Review
 
@@ -66,7 +66,7 @@ _None._
 | Very important | 0 |
 | Important | 0 |
 | Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 1 |
+| In Progress (`loom:building`) | 0 |
 | PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 0 |
 | Curated | 2 |
