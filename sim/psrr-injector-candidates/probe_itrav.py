@@ -10,7 +10,9 @@ value below the 1e-9 A floor is conclusive in the failing direction; a value
 above it is not a pass. Certification is the full 45-corner `sim/startup-stability`
 run (batch path, #320).
 
-usage: probe_itrav.py VARIANT PROCESS TEMP_C SUPPLY_V
+usage: probe_itrav.py VARIANT PROCESS TEMP_C SUPPLY_V [nodes]
+  nodes   : instead of the minimum, print forced current, v(NG), v(NE), v(VREFD), v(GD)
+            at 6 alpha points (0.75..1, step 0.05) -- the per-node look DR-016 uses
   VARIANT = stock | mng[_mref<x>][_h3]   (p = decimal point, e.g. mref0p42)
             mng  : add the DR-012 NG clamp (W=1 L=20 NMOS, NG -> VSS, gate VSENSE)
             mref : .param m_ref value;  h3 : three-high reference stack
@@ -48,7 +50,8 @@ def variant(name: str) -> str:
     return s
 
 
-def main(name: str, proc: str, temp: str, vdd: str, pts: int = 11) -> int:
+def main(name: str, proc: str, temp: str, vdd: str, mode: str = "min", pts: int = 11) -> int:
+    nodes = mode == "nodes"
     deck = f"""* itrav probe {name} {proc} {temp}C {vdd}V
 .param vsup={vdd}
 .option wnflag=1
@@ -62,10 +65,10 @@ BSW NSW 0 V='vsup*v(ALPHA)'
 VPSW GD NSW 0
 {variant(name)}
 .control
-dc valpha 0.75 1 {0.25 / (pts - 1)}
+dc valpha 0.75 1 {0.05 if nodes else 0.25 / (pts - 1)}
 let ifsu = -i(vpsw)
 let m = vecmin(ifsu)
-print m
+{'print ifsu v(xsu.ng) v(xsu.ne) v(vrefd) v(gd)' if nodes else 'print m'}
 .endc
 .end
 """
@@ -74,10 +77,13 @@ print m
         cir.write_text(deck)
         out = subprocess.run(["ngspice", "-b", str(cir)], capture_output=True, text=True,
                              timeout=1800)
+    if nodes:
+        print(out.stdout + out.stderr)
+        return 0
     hit = re.findall(r"^m\s*=\s*(\S+)", out.stdout + out.stderr, re.M)
     print(f"{name:18s} {proc} {temp:>4s}C {vdd}V  itrav_probe = {hit[0] if hit else 'NO RESULT'} A")
     return 0 if hit else 1
 
 
 if __name__ == "__main__":
-    sys.exit(main(*sys.argv[1:5]))
+    sys.exit(main(*sys.argv[1:6]))
