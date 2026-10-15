@@ -5,6 +5,9 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-10-15
 
+- **PR #365**: docs(sim): shard batch PSRR screen requests and record mngq failing the 60 dB floor
+- **PR #366**: feat(sim): shard batch requests over remote.hosts to fit the fleet job ceiling
+- **Issue #364** (closed): sim: shard PSRR injector screen batch requests across remote hosts (15-unit requests exceed the 3600 s fleet job ceiling)
 - **PR #362**: feat(sim): run the PSRR injector screen on the batch fleet
 - **Issue #361** (closed): Make the PSRR injector candidate screen submittable via the klt sim batch path
 - **PR #360**: docs(sim): record three-high injector stack failing startup-stability at 125C (DR-018)
