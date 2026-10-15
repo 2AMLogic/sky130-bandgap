@@ -1,0 +1,84 @@
+# corner: tt_27c_3.30v
+# process=tt temp=27C supply=3.30V
+# executed on the batch fleet; job klt-sim-7d083020bac0; klt corner status: pass
+# ngspice exit code / signal: not exposed by klt sim (see sim/README.md)
+# engine wall clock: 130.949s (--timeout was 10800s)
+# result: PASS
+
+# ==== deck (exact input given to ngspice, as retained by klt) ====
+| * klt sim -- generated corner deck, do not edit
+| .lib /opt/pdk/sky130A/libs.tech/combined/sky130.lib.spice tt
+| .include /var/tmp/eda-job-klt-sim-7d083020bac0/inputs/netlist.cir
+| .temp 27
+| .control
+| save all
+| dc valpha 0 1 0.004
+| let ncross_su = (250 - mean(((-i(vpsw)) / (abs((-i(vpsw))) + 1e-18))[0,249]*((-i(vpsw)) / (abs((-i(vpsw))) + 1e-18))[1,250])*250) / 2
+| print ncross_su
+| let alpha_eq = 1 - mean((((-i(vpsw)) / (abs((-i(vpsw))) + 1e-18))+1)/2)
+| print alpha_eq
+| let itrav_min = vecmin((-i(vpsw))[188,250])
+| print itrav_min
+| let imin_off_su = vecmin(abs((-i(vpsw))[225,250]))
+| print imin_off_su
+| let imin_off_bare = vecmin(abs((-i(vpsn))[225,250]))
+| print imin_off_bare
+| let i_off_su = (-i(vpsw))[250]
+| print i_off_su
+| let i_off_bare = (-i(vpsn))[250]
+| print i_off_bare
+| let i_on_su = (-i(vpsw))[0]
+| print i_on_su
+| let i_su_standing = i(vpsu)[0]
+| print i_su_standing
+| let i_standing = i(v2)[0] - i(v1)[0]
+| print i_standing
+| let dvref = v(vrefd)[0] - v(vrefr)[0]
+| print dvref
+| let vref_dut = v(vrefd)[0]
+| print vref_dut
+| let vgdrv_dut = v(gd)[0]
+| print vgdrv_dut
+| let isup_dut = -i(v1)[0]
+| print isup_dut
+| let ncross_bare = (250 - mean(((-i(vpsn)) / (abs((-i(vpsn))) + 1e-18))[0,249]*((-i(vpsn)) / (abs((-i(vpsn))) + 1e-18))[1,250])*250) / 2
+| print ncross_bare
+| quit
+| .endc
+| .end
+
+# ==== ngspice log (as retained by klt) ====
+
+Note: Compatibility modes selected: hs a
+
+
+Circuit: * klt sim -- generated corner deck, do not edit
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+
+No. of Data Rows : 251
+ncross_su = 1.000000e+00
+alpha_eq = 6.254980e-01
+itrav_min = 1.013101e-08
+imin_off_su = 7.425402e-04
+imin_off_bare = 5.249023e-12
+i_off_su = 7.596256e-04
+i_off_bare = 5.425238e-11
+i_on_su = -8.57067e-04
+i_su_standing = 3.023209e-09
+i_standing = 2.668203e-08
+dvref = 4.834873e-04
+vref_dut = 1.210855e+00
+vgdrv_dut = 2.060679e+00
+isup_dut = 2.599952e-05
+ncross_bare = 1.000018e+00
+ngspice-46 done
+
+# ==== klt diagnostics ====
+[]
