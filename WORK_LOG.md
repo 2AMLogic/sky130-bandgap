@@ -3,6 +3,10 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-10-16
+
+- **PR #375**: Bump Repo Skills 0.24.1 -> 0.24.3
+
 ### 2026-10-15
 
 - **PR #371**: docs(spec): DR-020 MPC2-on-VSENSE injector screen and mpc2_vs bench variants
