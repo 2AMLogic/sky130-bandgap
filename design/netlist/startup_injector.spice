@@ -1,0 +1,44 @@
+** sch_path: design/startup_injector.sch
+**.subckt startup_injector GDRV VSENSE VDD VSS
+*.iopin GDRV
+*.ipin VSENSE
+*.iopin VDD
+*.iopin VSS
+XMPC1 NC1 NC1 GDRV VDD sky130_fd_pr__pfet_g5v0d10v5 L=20 W=1 nf=1 ad=0.29 as=0.29 pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0
++ mult='m_ref' m='m_ref'
+XMPC2 NG NG NC1 VDD sky130_fd_pr__pfet_g5v0d10v5 L=20 W=1 nf=1 ad=0.29 as=0.29 pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0 mult='m_ref'
++ m='m_ref'
+XMNS NG VSENSE NE VSS sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=48 nf=1 ad=13.92 as=13.92 pd=96.58 ps=96.58 nrd=0.00604166666666667 nrs=0.00604166666666667
++ sa=0 sb=0 sd=0 mult='m_sense' m='m_sense'
+XQS VSS VSS NE sky130_fd_pr__pnp_05v5_W0p68L0p68 m='m_pnp' mult='m_pnp'
+XMNI GDRV NG VSS VSS sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=10 nf=1 ad=2.9 as=2.9 pd=20.58 ps=20.58 nrd=0.029 nrs=0.029 sa=0 sb=0 sd=0
++ mult='m_inj' m='m_inj'
+XMNC VDD VSENSE GDRV VSS sky130_fd_pr__nfet_g5v0d10v5 L=1 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0 sb=0
++ sd=0 mult='m_clamp' m='m_clamp'
+**** begin user architecture code
+
+
+* ---- startup injector parameters (issue #10) ----
+* m_ref  : units of the (W=1 L=20) diode-connected reference PMOS. Raising it
+*          raises BOTH the release threshold and the residual current the cell
+*          draws from GDRV once disengaged -- the two are the same current.
+* m_sense: units of the (W=48 L=0.5) sense NMOS. Raising it lowers the release
+*          threshold (better disengage, less traverse margin).
+* m_pnp  : unit PNPs in the threshold reference. Raising it lowers VBE at the
+*          sense current, i.e. lowers the release threshold.
+* m_inj  : units of the (W=10 L=0.5) injector NMOS. Scales the eviction
+*          current and the disengaged residual in the same proportion.
+* m_clamp: units of the (W=4 L=1) railed-branch clamp NMOS MNC. Scales only
+*          how hard the railed branch is evicted; MNC is off by more than a
+*          threshold at every legitimate operating point, so this knob does
+*          NOT trade against the disengaged residual the way m_ref does.
+.param m_ref=1
+.param m_sense=1
+.param m_pnp=8
+.param m_inj=1
+.param m_clamp=1
+
+
+**** end user architecture code
+**.ends
+.end

@@ -157,6 +157,17 @@ jobs:
           volare fetch --pdk sky130 "$commit"
           volare enable --pdk sky130 "$commit"
 
+      # T1 item 1's derived netlists (design/netlist/) must match a fresh
+      # `klt netlist` of design/*.sch. The PDK-free half (schematic hash vs the
+      # netlist lock) runs in the `checks` job; this is the regeneration half,
+      # which needs the xschem 3.4.7 and pinned PDK built above.
+      - name: Design netlists match their schematics (klt netlist)
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          pip install "klayout-tools==$(python3 scripts/ci/check_signoff_freshness.py --print-version)"
+          eval "$(python3 sim/bin/corner-run.py --print-env)"
+          python3 scripts/ci/design_netlists.py --check-regen
+
       - name: Run sim/pdk-smoke (quick PVT subset)
         run: |
           export PATH="$HOME/.local/bin:$PATH"

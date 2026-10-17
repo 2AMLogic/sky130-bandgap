@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "t1_item": 1,
+  "description": "Design sources: the xschem schematics/symbols of the three cells and the netlists derived from them. netlist.lock.json records, per netlist, the schematic hash it was derived from, so a schematic edit without regenerating its netlist fails the freshness check.",
+  "files": [
+    {
+      "path": "design/bandgap_core.sch",
+      "role": "schematic",
+      "content_hash": "sha256:301b3dce52303359c755353582d2d00f27da071b61ee681a644ad9259a4b8891"
+    },
+    {
+      "path": "design/bandgap_core.sym",
+      "role": "symbol",
+      "content_hash": "sha256:4ddf1eaf2d256860bb87207b823ba772ce0e045e1267aeed86870a1779b5c174"
+    },
+    {
+      "path": "design/error_amp.sch",
+      "role": "schematic",
+      "content_hash": "sha256:e9bf4afb7f55b69e8b776c6013bdcb58767f14f6ba45c4464cf1e5f6107e1da1"
+    },
+    {
+      "path": "design/error_amp.sym",
+      "role": "symbol",
+      "content_hash": "sha256:ecc7326854f3134f7f53098678bb05b674984fe28f0e262136103fe51d3d2e7c"
+    },
+    {
+      "path": "design/startup_injector.sch",
+      "role": "schematic",
+      "content_hash": "sha256:d1b0dbfe3ea878c941346da132e06aa027f19c402726488545f2f3adf919d196"
+    },
+    {
+      "path": "design/startup_injector.sym",
+      "role": "symbol",
+      "content_hash": "sha256:c7a3bc54d2b04546d4bd0f4410960055fa6804330684bc0fd8318f72af44f70c"
+    },
+    {
+      "path": "design/netlist/bandgap_core.spice",
+      "role": "derived-netlist",
+      "content_hash": "sha256:f95027d282d4cca9b3bb603421f469992bdccad0298fe1aa05cc7cd9d7af63da"
+    },
+    {
+      "path": "design/netlist/error_amp.spice",
+      "role": "derived-netlist",
+      "content_hash": "sha256:518961d21f661229a39b622d0654a18ec77aac42ff34e734b005f3bf05b595fa"
+    },
+    {
+      "path": "design/netlist/startup_injector.spice",
+      "role": "derived-netlist",
+      "content_hash": "sha256:42abc946511045825e9a8a07b4a777368f14f83fe229bfd9e57e98592105b092"
+    },
+    {
+      "path": "design/netlist/netlist.lock.json",
+      "role": "netlist-freshness-lock",
+      "content_hash": "sha256:448bdebdb381198f20e11d5edd7b61d0c08ef6c70bad6990d7a95683a83cd137"
+    },
+    {
+      "path": "scripts/ci/design_netlists.py",
+      "role": "netlist-generator-and-checker",
+      "content_hash": "sha256:f289a844f0b239b8a6d31ce4c90759def22b886a4ad5ea32c348fa49eb1ada92"
+    }
+  ],
+  "checks": [
+    {
+      "id": "netlist-freshness-lock",
+      "command": "python3 scripts/ci/design_netlists.py --check-lock",
+      "needs": "python3 only",
+      "ci_job": "checks"
+    },
+    {
+      "id": "netlist-regeneration",
+      "command": "python3 scripts/ci/design_netlists.py --check-regen",
+      "needs": "xschem 3.4.7, the pinned sky130 PDK, klt netlist",
+      "ci_job": "pdk-smoke"
+    }
+  ]
+}

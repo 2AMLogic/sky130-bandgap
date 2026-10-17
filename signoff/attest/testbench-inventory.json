@@ -1,0 +1,501 @@
+{
+  "schema_version": 1,
+  "t1_item": 9,
+  "description": "Testbenches shipped: every sim/ directory that carries a runnable testbench (an experiment.json for sim/bin/corner-run.py, or a run_*.py entry point), with its cold-start command, and the PDK revision and tool versions the results were produced under. Directories that only hold derived records (no bench of their own) are listed in `record_only_directories` rather than silently omitted.",
+  "pdk": {
+    "pin_file": "sim/pdk.json",
+    "family": "sky130",
+    "variant": "sky130A",
+    "open_pdks_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "install_command": "volare enable --pdk sky130 c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "note": "Records the revision in force when this inventory was written. A PDK re-pin (#369) or requalification (#370) changes sim/pdk.json; this inventory then goes stale and must be regenerated."
+  },
+  "tools": {
+    "xschem": "3.4.7 (built from source by .github/workflows/ci.yml)",
+    "ngspice": "see the `tools` block of each sim/*/records/*.json",
+    "klayout-tools": "0.7.0",
+    "python": "3.9+, standard library only (sim/README.md)"
+  },
+  "harness": [
+    {
+      "path": "sim/pdk.json",
+      "role": "pdk-pin",
+      "content_hash": "sha256:5d8d902e86ae216eefe8782b82f58bf3416fc7e42dc7b8785650bd62f893c431"
+    },
+    {
+      "path": "sim/bin/corner-run.py",
+      "role": "harness",
+      "content_hash": "sha256:118e09e05c2e2791b37304ebf2d8c765dde12f1eaeb450758f123499d70b1f5a"
+    },
+    {
+      "path": "sim/bin/sim_common.py",
+      "role": "harness",
+      "content_hash": "sha256:052dc9f6b01752ad9c337af31c9945d98c45e27a57ef974813f9c6bdd7c305f7"
+    },
+    {
+      "path": "sim/spiceinit",
+      "role": "harness",
+      "content_hash": "sha256:7b5350d05d41130e5473ca284e89fbb2cac330e7ac023ab0226190acd961d917"
+    }
+  ],
+  "testbenches": [
+    {
+      "directory": "sim/bandgap-smoke",
+      "cold_start": "python3 sim/bin/corner-run.py sim/bandgap-smoke",
+      "files": [
+        {
+          "path": "sim/bandgap-smoke/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:2dd945700e4eed0b8f68f88d862ddb3eb31b72383f2b543196a71d077572097e"
+        },
+        {
+          "path": "sim/bandgap-smoke/testbench/tb_bandgap_smoke.sch",
+          "role": "testbench",
+          "content_hash": "sha256:790a81879f280dae3166f0a3f90449542730ddcb1eea5fd42b1e52248ee55437"
+        }
+      ]
+    },
+    {
+      "directory": "sim/error-amp-loop",
+      "cold_start": "python3 sim/bin/corner-run.py sim/error-amp-loop",
+      "files": [
+        {
+          "path": "sim/error-amp-loop/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:be42c977ca55463ef822a17e1b3d606eeee4b156e22d60b1bf0cf192bd67aeba"
+        },
+        {
+          "path": "sim/error-amp-loop/testbench/tb_error_amp_loop.sch",
+          "role": "testbench",
+          "content_hash": "sha256:c135a15a891fcdb9a6204172ee889db0b78143f26f485fda7afe6604a62d40a9"
+        }
+      ]
+    },
+    {
+      "directory": "sim/error-amp-offset-mc",
+      "cold_start": "python3 sim/error-amp-offset-mc/run_amp_offset_mc.py",
+      "files": [
+        {
+          "path": "sim/error-amp-offset-mc/testbench/tb_amp_offset_mc.sch",
+          "role": "testbench",
+          "content_hash": "sha256:9cdb6026f68a77b2d0f4ef84a0b89fa511b3b1500f5774c4ebbf337baba34b78"
+        },
+        {
+          "path": "sim/error-amp-offset-mc/run_amp_offset_mc.py",
+          "role": "runner",
+          "content_hash": "sha256:69b92cbe4860e6c501ebfda6b5c086ebc00b422b3b01533a86758d1c47a1cc91"
+        }
+      ]
+    },
+    {
+      "directory": "sim/line-regulation",
+      "cold_start": "python3 sim/bin/corner-run.py sim/line-regulation",
+      "files": [
+        {
+          "path": "sim/line-regulation/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:e3dc5a06135fd5478c6258ed5100dcdca3fdadcaef407f7d8d13fb6f0cdf1a31"
+        },
+        {
+          "path": "sim/line-regulation/testbench/tb_vref_linereg.sch",
+          "role": "testbench",
+          "content_hash": "sha256:d2135c028092aaf586272474cdc1b5a4a2d12ff71d52cffef314e22a6209e3c6"
+        }
+      ]
+    },
+    {
+      "directory": "sim/line-regulation-post-layout",
+      "cold_start": "python3 sim/line-regulation-post-layout/run_post_layout_linereg.py",
+      "files": [
+        {
+          "path": "sim/line-regulation-post-layout/run_post_layout_linereg.py",
+          "role": "runner",
+          "content_hash": "sha256:43a633900dbf61bdfac9700342d21d5c8e011570e5e652df68621fe6cedd8afc"
+        }
+      ]
+    },
+    {
+      "directory": "sim/monte-carlo-untrimmed",
+      "cold_start": "python3 sim/monte-carlo-untrimmed/run_mc_untrimmed.py",
+      "files": [
+        {
+          "path": "sim/monte-carlo-untrimmed/run_mc_untrimmed.py",
+          "role": "runner",
+          "content_hash": "sha256:8511a92b58d867abe3aa3052cd4022addf4c5959b4b02aa9738f440408e00ab2"
+        }
+      ]
+    },
+    {
+      "directory": "sim/mos-matching-characterization",
+      "cold_start": "python3 sim/bin/corner-run.py sim/mos-matching-characterization",
+      "files": [
+        {
+          "path": "sim/mos-matching-characterization/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:04f11708bd3c53bf9f48771c3af5f7b7549cdc4f299b789b471868647cd205a2"
+        },
+        {
+          "path": "sim/mos-matching-characterization/testbench/tb_mos_matching.sch",
+          "role": "testbench",
+          "content_hash": "sha256:2aa4de95fc8303f043df4c2b222bc931c7f2b4a488dc9e9535edd10ecc064b7e"
+        }
+      ]
+    },
+    {
+      "directory": "sim/mos-mirror-sizing-extended",
+      "cold_start": "python3 sim/bin/corner-run.py sim/mos-mirror-sizing-extended",
+      "files": [
+        {
+          "path": "sim/mos-mirror-sizing-extended/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:85537fbfe70db07cfd22efea70c97598580832748b7a8ff0a03d74ddda8cb669"
+        },
+        {
+          "path": "sim/mos-mirror-sizing-extended/testbench/tb_mos_mirror_sizing.sch",
+          "role": "testbench",
+          "content_hash": "sha256:1dbb57289bbe11bdd3ffaadadf4eed4b5830f0de7265013ea9dfb4a0ca7aee47"
+        }
+      ]
+    },
+    {
+      "directory": "sim/output-voltage-tc",
+      "cold_start": "python3 sim/bin/corner-run.py sim/output-voltage-tc",
+      "files": [
+        {
+          "path": "sim/output-voltage-tc/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:6957bea5f2ba1279c2880ae78761baf3b07c30867cc27ad0cdd29ad3a5f3dd93"
+        },
+        {
+          "path": "sim/output-voltage-tc/testbench/tb_vref_tc.sch",
+          "role": "testbench",
+          "content_hash": "sha256:fc68a898a329c654bb2ed60ac72d5d8fa167cfe5f76b21775e2f922191c8f1b0"
+        }
+      ]
+    },
+    {
+      "directory": "sim/output-voltage-tc-post-layout",
+      "cold_start": "python3 sim/output-voltage-tc-post-layout/run_post_layout_vref_tc.py",
+      "files": [
+        {
+          "path": "sim/output-voltage-tc-post-layout/run_post_layout_vref_tc.py",
+          "role": "runner",
+          "content_hash": "sha256:ddc34da37f485d021c80ef5147e38c62dd1e8e259c8e6fdf283aff80f87107e7"
+        }
+      ]
+    },
+    {
+      "directory": "sim/pdk-smoke",
+      "cold_start": "python3 sim/bin/corner-run.py sim/pdk-smoke",
+      "files": [
+        {
+          "path": "sim/pdk-smoke/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:ace3a4a7de1cf25fc8d1b17d2a039e60fea1f038896fa91be9e9b3c0c7cec0d7"
+        },
+        {
+          "path": "sim/pdk-smoke/testbench/tb_pdk_smoke.sch",
+          "role": "testbench",
+          "content_hash": "sha256:1007785981f893ae406d4b20b81245d4e01591277644ec7136f54b8117c40a58"
+        }
+      ]
+    },
+    {
+      "directory": "sim/pnp-characterization",
+      "cold_start": "python3 sim/bin/corner-run.py sim/pnp-characterization",
+      "files": [
+        {
+          "path": "sim/pnp-characterization/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:90c2eae27c0731259261f16265dc168665c6dcbc7a1bd5781cb70a6529326aee"
+        },
+        {
+          "path": "sim/pnp-characterization/testbench/tb_pnp_vbe.sch",
+          "role": "testbench",
+          "content_hash": "sha256:f1940270473749252c192926432f339466de294d230eeebb897d066ff42e7dad"
+        }
+      ]
+    },
+    {
+      "directory": "sim/pnp-mismatch",
+      "cold_start": "python3 sim/pnp-mismatch/run_pnp_mismatch.py",
+      "files": [
+        {
+          "path": "sim/pnp-mismatch/run_pnp_mismatch.py",
+          "role": "runner",
+          "content_hash": "sha256:178580a2d2b2810ffb523909df9e4192571ace00f9a2f2fb614b57e1503423a3"
+        }
+      ]
+    },
+    {
+      "directory": "sim/psrr-dc",
+      "cold_start": "python3 sim/bin/corner-run.py sim/psrr-dc",
+      "files": [
+        {
+          "path": "sim/psrr-dc/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:3bcdcc474a4c25c3d3642f9914309e33308bd441dbcc09ca7ed2d00a16332e3d"
+        },
+        {
+          "path": "sim/psrr-dc/testbench/tb_vref_psrr.sch",
+          "role": "testbench",
+          "content_hash": "sha256:3440e09d070b35a0c4adf9801f8134980965fe242db615ca23aea20c617620e7"
+        }
+      ]
+    },
+    {
+      "directory": "sim/psrr-dc-post-layout",
+      "cold_start": "python3 sim/psrr-dc-post-layout/run_post_layout_psrr.py",
+      "files": [
+        {
+          "path": "sim/psrr-dc-post-layout/run_post_layout_psrr.py",
+          "role": "runner",
+          "content_hash": "sha256:a13e2c8fe4348360d4a834fb897a714acdf2a94f58966fe933e904222ce05af8"
+        }
+      ]
+    },
+    {
+      "directory": "sim/psrr-dc-with-injector",
+      "cold_start": "python3 sim/bin/corner-run.py sim/psrr-dc-with-injector",
+      "files": [
+        {
+          "path": "sim/psrr-dc-with-injector/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:0d41dd8ca4b40c7b8c6b78ac139d7baaad64aa30327abe11e442f2b8acd32376"
+        },
+        {
+          "path": "sim/psrr-dc-with-injector/testbench/tb_vref_psrr_injector.sch",
+          "role": "testbench",
+          "content_hash": "sha256:8cb4d19ec9545e572f000dbc2fdb291929b057eca9d5c15d7cba06bb0fc9d5b1"
+        }
+      ]
+    },
+    {
+      "directory": "sim/psrr-injector-attribution",
+      "cold_start": "python3 sim/psrr-injector-attribution/run_psrr_injector_attribution.py",
+      "files": [
+        {
+          "path": "sim/psrr-injector-attribution/run_psrr_injector_attribution.py",
+          "role": "runner",
+          "content_hash": "sha256:2628388b43c20026897b8253808e10df79c3ad934dbbb72434d2f7919f486268"
+        }
+      ]
+    },
+    {
+      "directory": "sim/psrr-injector-candidates",
+      "cold_start": "python3 sim/psrr-injector-candidates/run_psrr_injector_candidates.py",
+      "files": [
+        {
+          "path": "sim/psrr-injector-candidates/run_psrr_injector_candidates.py",
+          "role": "runner",
+          "content_hash": "sha256:cf0084a2af789967a529dd61565fc82f462201002f5b229925e72c3bf40b7394"
+        }
+      ]
+    },
+    {
+      "directory": "sim/quiescent-current",
+      "cold_start": "python3 sim/bin/corner-run.py sim/quiescent-current",
+      "files": [
+        {
+          "path": "sim/quiescent-current/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:28d36b678ace9cc9950840685e9999901519a0df28773ea99a3bf8f15d2d129b"
+        },
+        {
+          "path": "sim/quiescent-current/testbench/tb_vref_iq.sch",
+          "role": "testbench",
+          "content_hash": "sha256:4ab61be884441204660a80923b34aebf076e99ecdae6d375f2ae60dfd7ee61c7"
+        }
+      ]
+    },
+    {
+      "directory": "sim/quiescent-current-post-layout",
+      "cold_start": "python3 sim/quiescent-current-post-layout/run_post_layout_iq.py",
+      "files": [
+        {
+          "path": "sim/quiescent-current-post-layout/run_post_layout_iq.py",
+          "role": "runner",
+          "content_hash": "sha256:d1c359ff34be509bf87f69a8ed76c1f8b4cefbe0726a9f51faddc8520587f291"
+        }
+      ]
+    },
+    {
+      "directory": "sim/res-array-head-resistance",
+      "cold_start": "python3 sim/res-array-head-resistance/run_res_array_head_resistance.py",
+      "files": [
+        {
+          "path": "sim/res-array-head-resistance/run_res_array_head_resistance.py",
+          "role": "runner",
+          "content_hash": "sha256:24c19a20b1f780ec8cabd58d1f68aa6d06858adf1fe49251c2eb6bb5a8500679"
+        }
+      ]
+    },
+    {
+      "directory": "sim/res-array-resize",
+      "cold_start": "python3 sim/res-array-resize/run_res_array_resize.py",
+      "files": [
+        {
+          "path": "sim/res-array-resize/run_res_array_resize.py",
+          "role": "runner",
+          "content_hash": "sha256:154cae948ece3cc9ff30f105d8cce8e5303cf65c5c8f96ad377e276067020f0e"
+        }
+      ]
+    },
+    {
+      "directory": "sim/resistor-flavor-characterization",
+      "cold_start": "python3 sim/bin/corner-run.py sim/resistor-flavor-characterization",
+      "files": [
+        {
+          "path": "sim/resistor-flavor-characterization/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:72ce5d9fd2d7e4c3db8678b256954cbbd72e545611171174a8bf81600adcf485"
+        },
+        {
+          "path": "sim/resistor-flavor-characterization/testbench/tb_res_flavors.sch",
+          "role": "testbench",
+          "content_hash": "sha256:1bd6e0e37c9dc591258c9d0e5e0dff290e8a2c7e94b83760d1df9623d73b7cab"
+        }
+      ]
+    },
+    {
+      "directory": "sim/resistor-tc-single-length",
+      "cold_start": "python3 sim/bin/corner-run.py sim/resistor-tc-single-length",
+      "files": [
+        {
+          "path": "sim/resistor-tc-single-length/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:4150b741425fa4bef706d15dfcf8d722fbf7bf3e1ce598292c34f4402da6e527"
+        },
+        {
+          "path": "sim/resistor-tc-single-length/testbench/tb_res_tc_single_length.sch",
+          "role": "testbench",
+          "content_hash": "sha256:8edd95726281fe970fdbd35e21ae0840d30f5ddf92eb643009ffd25e82edb7d9"
+        }
+      ]
+    },
+    {
+      "directory": "sim/startup-ramp",
+      "cold_start": "python3 sim/bin/corner-run.py sim/startup-ramp",
+      "files": [
+        {
+          "path": "sim/startup-ramp/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:c127b93537b3a1044d49932011e6f74b7f7c69d0cd6076696d0383992aa90be4"
+        },
+        {
+          "path": "sim/startup-ramp/testbench/tb_startup_ramp.sch",
+          "role": "testbench",
+          "content_hash": "sha256:010eac6c17affedd44e567b1ef66761c5a62aac99d2f4feda09fa40638a4cd52"
+        }
+      ]
+    },
+    {
+      "directory": "sim/startup-ramp-post-layout",
+      "cold_start": "python3 sim/bin/corner-run.py sim/startup-ramp-post-layout",
+      "files": [
+        {
+          "path": "sim/startup-ramp-post-layout/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:50add4e713cb9942c3e46706722af711ca4f15fc24647a37f4984cb5981c345c"
+        },
+        {
+          "path": "sim/startup-ramp-post-layout/testbench/tb_startup_ramp_pl.sch",
+          "role": "testbench",
+          "content_hash": "sha256:ec0d5f4940161530dd9c21183e713eeda5099bef5754a24e0261fec1a14d8421"
+        },
+        {
+          "path": "sim/startup-ramp-post-layout/run_post_layout_startup_ramp.py",
+          "role": "runner",
+          "content_hash": "sha256:0866074444fc3617fa5013583d1fd50da06f2195f831565db79c78dea6387f93"
+        }
+      ]
+    },
+    {
+      "directory": "sim/startup-stability",
+      "cold_start": "python3 sim/bin/corner-run.py sim/startup-stability",
+      "files": [
+        {
+          "path": "sim/startup-stability/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:613d842fabafdff89b3ae74dde36e614a8867ba92c658b175c4b422976e3be95"
+        },
+        {
+          "path": "sim/startup-stability/testbench/tb_startup_stability.sch",
+          "role": "testbench",
+          "content_hash": "sha256:000d4ac580691bf4e1e6c7a5ba33b2f511fdcbf122105a5aa4f4eb151a8b88a9"
+        }
+      ]
+    },
+    {
+      "directory": "sim/startup-stability-post-layout",
+      "cold_start": "python3 sim/bin/corner-run.py sim/startup-stability-post-layout",
+      "files": [
+        {
+          "path": "sim/startup-stability-post-layout/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:7c700f4a57cd77d9b2dfd7f6b3d5bda631756ef60ca5663b4e24237d1fe277f1"
+        },
+        {
+          "path": "sim/startup-stability-post-layout/testbench/tb_startup_stability_pl.sch",
+          "role": "testbench",
+          "content_hash": "sha256:da4ede1a787c9545f6f30c10fe6254b3078cd2270721ce5233adc599455b2b6c"
+        },
+        {
+          "path": "sim/startup-stability-post-layout/run_post_layout_startup_stability.py",
+          "role": "runner",
+          "content_hash": "sha256:42b034a6b562c7449641d004bdba550e44e7ec3d3fb4e150286b2846512d91c7"
+        }
+      ]
+    },
+    {
+      "directory": "sim/startup-time",
+      "cold_start": "python3 sim/bin/corner-run.py sim/startup-time",
+      "files": [
+        {
+          "path": "sim/startup-time/experiment.json",
+          "role": "experiment",
+          "content_hash": "sha256:5f9131ade36fc071818a99b1e34b1de141f78a7ea79282ab295ce5324e1fbe11"
+        },
+        {
+          "path": "sim/startup-time/testbench/tb_vref_startup.sch",
+          "role": "testbench",
+          "content_hash": "sha256:c7d39b898d6572a76d05e800c9a5ceed8c0c08cff51141ff825c52f6fedb6324"
+        }
+      ]
+    },
+    {
+      "directory": "sim/startup-time-post-layout",
+      "cold_start": "python3 sim/startup-time-post-layout/run_post_layout_startup_time.py",
+      "files": [
+        {
+          "path": "sim/startup-time-post-layout/run_post_layout_startup_time.py",
+          "role": "runner",
+          "content_hash": "sha256:d20736862eb0e63c2a9c16aebd8965ceb77ed949aa19cd96adc842863dd489ad"
+        }
+      ]
+    },
+    {
+      "directory": "sim/trim-lsb-chained",
+      "cold_start": "python3 sim/trim-lsb-chained/run_trim_lsb_chained.py",
+      "files": [
+        {
+          "path": "sim/trim-lsb-chained/run_trim_lsb_chained.py",
+          "role": "runner",
+          "content_hash": "sha256:78febf155d7419ade30762a03425f135bff0821c04f840d468d921036d8b9f94"
+        }
+      ]
+    },
+    {
+      "directory": "sim/trim-range-monotonicity",
+      "cold_start": "python3 sim/trim-range-monotonicity/run_trim_sweep.py",
+      "files": [
+        {
+          "path": "sim/trim-range-monotonicity/run_trim_sweep.py",
+          "role": "runner",
+          "content_hash": "sha256:b4d783d97dc4c21592ca9d223b3b7ad49e7b09ba9d2ca382eb5bbbf3d936039a"
+        }
+      ]
+    }
+  ],
+  "record_only_directories": []
+}
