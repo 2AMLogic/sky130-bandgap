@@ -34,6 +34,7 @@ import argparse
 import hashlib
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -127,22 +128,53 @@ def design_sources() -> dict:
     }
 
 
+def tracked_under(subdir: str) -> set[Path] | None:
+    """Absolute paths git tracks under `subdir`, or None outside a git checkout.
+
+    The inventory must not depend on untracked or ignored local state (e.g. a
+    sim/build/ scratch directory left by a harness run), so the sim/ walk is
+    restricted to tracked files whenever git can answer. The negative-control
+    tests run on a plain copied tree with no .git; they have no untracked
+    state, so the filesystem walk is the correct fallback there.
+    """
+    if not (REPO_ROOT / ".git").exists():
+        return None
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(REPO_ROOT), "ls-files", "-z", "--", subdir],
+            check=True, capture_output=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return {REPO_ROOT / name for name in out.decode().split("\0") if name}
+
+
 def testbench_dirs() -> tuple[list[dict], list[str]]:
     """Per-harness-directory rows, plus record-only directories (no bench)."""
     rows, record_only = [], []
+    git_files = tracked_under("sim")
+
+    def is_tracked(path: Path) -> bool:
+        return git_files is None or path in git_files
+
     for directory in sorted(p for p in (REPO_ROOT / "sim").iterdir() if p.is_dir()):
         name = directory.name
         if name in ("bin", "tests"):
             continue
+        if git_files is not None and not any(
+            f.is_relative_to(directory) for f in git_files
+        ):
+            continue  # untracked/ignored scratch directory, not part of the tree
         experiment = directory / "experiment.json"
-        runners = sorted(directory.glob("run_*.py"))
-        benches = sorted(directory.glob("testbench/*.sch"))
-        if not (experiment.is_file() or runners):
+        runners = sorted(p for p in directory.glob("run_*.py") if is_tracked(p))
+        benches = sorted(p for p in directory.glob("testbench/*.sch") if is_tracked(p))
+        has_experiment = experiment.is_file() and is_tracked(experiment)
+        if not (has_experiment or runners):
             record_only.append(f"sim/{name}")
             continue
         files = [(p.relative_to(REPO_ROOT).as_posix(), "testbench") for p in benches]
         files += [(p.relative_to(REPO_ROOT).as_posix(), "runner") for p in runners]
-        if experiment.is_file():
+        if has_experiment:
             files.insert(0, (f"sim/{name}/experiment.json", "experiment"))
             command = f"python3 sim/bin/corner-run.py sim/{name}"
         else:

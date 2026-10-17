@@ -15,6 +15,7 @@ from __future__ import annotations
 import importlib.util
 import io
 import shutil
+import subprocess
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
@@ -46,7 +47,7 @@ def copy_inputs(dest: Path) -> None:
     shutil.copytree(REAL_ROOT / "signoff", dest / "signoff")
     shutil.copytree(
         REAL_ROOT / "sim", dest / "sim",
-        ignore=shutil.ignore_patterns("records", "netlist-snapshots", "corners", "parasitics-snapshot"),
+        ignore=shutil.ignore_patterns("records", "netlist-snapshots", "corners", "parasitics-snapshot", "build"),
     )
     (dest / "scripts" / "ci").mkdir(parents=True)
     for name in ("check_signoff_freshness.py", "design_netlists.py"):
@@ -122,6 +123,34 @@ class CommittedStateTest(AttestTestCase):
         _, err = self.run_pins()
         for item in ("1", "2", "9", "10"):
             self.assertNotIn(f"item {item}:", err)
+
+
+class UntrackedStateTest(AttestTestCase):
+    """The inventory is a function of tracked files, not of local scratch dirs."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        git = ["git", "-C", str(self.root)]
+        subprocess.run([*git, "init", "-q"], check=True)
+        subprocess.run([*git, "add", "-A"], check=True)
+
+    def test_untracked_sim_directory_does_not_change_the_inventory(self) -> None:
+        self.assertEqual(self.run_attest()[0], 0)
+        (self.root / "sim" / "build").mkdir()
+        (self.root / "sim" / "build" / "scratch.spice").write_text("* scratch\n")
+        (self.root / "sim" / "untracked-bench").mkdir()
+        (self.root / "sim" / "untracked-bench" / "experiment.json").write_text("{}\n")
+        code, err = self.run_attest()
+        self.assertEqual(code, 0, err)
+
+    def test_tracking_a_new_testbench_directory_still_fails(self) -> None:
+        new = self.root / "sim" / "brand-new-bench"
+        new.mkdir()
+        (new / "experiment.json").write_text("{}\n")
+        subprocess.run(["git", "-C", str(self.root), "add", "-A"], check=True)
+        code, err = self.run_attest()
+        self.assertEqual(code, 1)
+        self.assertIn("testbench-inventory.json: stale", err)
 
 
 class NegativeControlTest(AttestTestCase):

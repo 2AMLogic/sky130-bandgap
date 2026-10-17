@@ -497,7 +497,5 @@
       ]
     }
   ],
-  "record_only_directories": [
-    "sim/build"
-  ]
+  "record_only_directories": []
 }
