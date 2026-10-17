@@ -5,6 +5,8 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-10-17
 
+- **PR #385**: refactor(layout): move shared constants to layout_common to break bus_routing import cycle
+- **Issue #384** (closed): Break gen_bandgap_routed <-> bus_routing import cycle: drop sys.modules alias and deferred imports
 - **PR #380**: refactor(sim): share corner_id/matrix/band-min loader/run_all across psrr-injector scripts
 - **Issue #379** (closed): Dedup corner_id/matrix/band-min loader/run_all between the two psrr-injector sim scripts
 
