@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "comment": "Written by scripts/ci/design_netlists.py --write; do not edit by hand.",
+  "xschem_version": "3.4.7",
+  "netlists": {
+    "bandgap_core": {
+      "schematic": "design/bandgap_core.sch",
+      "schematic_hash": "sha256:301b3dce52303359c755353582d2d00f27da071b61ee681a644ad9259a4b8891",
+      "netlist": "design/netlist/bandgap_core.spice",
+      "netlist_hash": "sha256:f95027d282d4cca9b3bb603421f469992bdccad0298fe1aa05cc7cd9d7af63da"
+    },
+    "error_amp": {
+      "schematic": "design/error_amp.sch",
+      "schematic_hash": "sha256:e9bf4afb7f55b69e8b776c6013bdcb58767f14f6ba45c4464cf1e5f6107e1da1",
+      "netlist": "design/netlist/error_amp.spice",
+      "netlist_hash": "sha256:518961d21f661229a39b622d0654a18ec77aac42ff34e734b005f3bf05b595fa"
+    },
+    "startup_injector": {
+      "schematic": "design/startup_injector.sch",
+      "schematic_hash": "sha256:d1b0dbfe3ea878c941346da132e06aa027f19c402726488545f2f3adf919d196",
+      "netlist": "design/netlist/startup_injector.spice",
+      "netlist_hash": "sha256:42abc946511045825e9a8a07b4a777368f14f83fe229bfd9e57e98592105b092"
+    }
+  }
+}

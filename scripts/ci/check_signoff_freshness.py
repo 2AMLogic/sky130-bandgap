@@ -3,8 +3,8 @@
 
 This is the *grading* half of issue #282's acceptance criteria.
 signoff/signoff-report.json is the verdict of record; this check re-runs
-`klt signoff --manifest signoff/block-manifest.json --tiers-doc
-signoff/design-evidence-tiers.md --format json` with the same pinned
+`klt signoff --manifest signoff/block-manifest.json --format json`
+(graded against the checklist bundled with the pinned grader) with the same pinned
 released klt (see signoff/regenerate.sh for why the distribution identity
 matters) and requires byte-identical output. Any drift fails loudly:
 
@@ -37,14 +37,13 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = REPO_ROOT / "signoff" / "block-manifest.json"
-TIERS_DOC = REPO_ROOT / "signoff" / "design-evidence-tiers.md"
 COMMITTED_REPORT = REPO_ROOT / "signoff" / "signoff-report.json"
 
 # SINGLE SOURCE OF TRUTH for the pinned grader version. The `signoff` CI job
 # and signoff/regenerate.sh read it via `--print-version`, and both assert the
 # released-wheel identity via `--assert-grader`; nothing else carries the
 # literal. Bump it here only.
-KLT_VERSION = "0.6.0"
+KLT_VERSION = "0.7.0"
 
 RENDRABLE_EXIT_CODES = {0, 3}  # 0 = tier T1; 3 = rendered, >=1 unmet item
 
@@ -101,18 +100,14 @@ def assert_grading_build(klt: str = "klt") -> None:
 
 
 def render_fresh_report() -> str:
-    # Repo-relative path strings, exactly as signoff/regenerate.sh passes
-    # them: the report echoes the --tiers-doc path into `source_doc`, so an
-    # absolute path here would make the fresh output differ from the
-    # committed report on every machine.
+    # Repo-relative manifest path, exactly as signoff/regenerate.sh passes
+    # it, so the fresh output does not depend on where the repo is checked out.
     run = subprocess.run(
         [
             "klt",
             "signoff",
             "--manifest",
             MANIFEST.relative_to(REPO_ROOT).as_posix(),
-            "--tiers-doc",
-            TIERS_DOC.relative_to(REPO_ROOT).as_posix(),
             "--format",
             "json",
         ],
@@ -190,7 +185,7 @@ def main(argv: list[str] | None = None) -> None:
             file=sys.stderr,
         )
         sys.exit(2)
-    for path in (MANIFEST, TIERS_DOC, COMMITTED_REPORT):
+    for path in (MANIFEST, COMMITTED_REPORT):
         if not path.is_file():
             fail(f"missing {path.relative_to(REPO_ROOT)}")
     assert_grading_build()

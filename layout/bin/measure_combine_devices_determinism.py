@@ -118,7 +118,7 @@ def _klt_identity(repo_root: Path, declared_ref: str | None) -> dict[str, Any]:
     installed CLI), and a CLI-sourced identity would then name the wrong
     build.
 
-    **Identity, not location** (`signoff/design-evidence-tiers.md`, "Provenance
+    **Identity, not location** (klayout-tools' `docs/design-evidence-tiers.md`, "Provenance
     hygiene in evidence records"): an import path outside this repo is a
     machine-local fact that reproduces nothing, so it is recorded only as
     being outside, never absolutely. What pins the build behaviourally is the

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "kind": "generic",
+  "t1_item": 10,
+  "status": "pass",
+  "summary": "Repo hygiene: README, LICENSE, CI workflow and the commands it runs.",
+  "source": "signoff/attest/repo-hygiene.inventory.json",
+  "provenance": {
+    "input": {
+      "path": {
+        "path": "signoff/attest/repo-hygiene.inventory.json",
+        "scope": "repo"
+      },
+      "content_hash": "sha256:584ddee3ed80ad1d602e599ee771dbefef55831ecc97e5e6377de3b6d29a2f1f"
+    }
+  },
+  "note": "Produced by scripts/ci/attest_inventories.py in the artifact-anchored generic form klt 0.7.0 grades; replace with `klt signoff --attest` once a klayout-tools release carries it (klayout-tools#2844)."
+}

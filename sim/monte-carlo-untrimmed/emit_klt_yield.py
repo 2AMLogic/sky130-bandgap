@@ -40,7 +40,7 @@ Repo-relative provenance (issue #288)
 `klt yield` echoes the sample-set path it was *invoked with* straight back
 into its own report's top-level `samples` field, so invoking it with an
 absolute path bakes a machine-local path into committed evidence -- exactly
-the hazard `signoff/design-evidence-tiers.md`'s "Provenance hygiene in
+the hazard klayout-tools' `docs/design-evidence-tiers.md`'s "Provenance hygiene in
 evidence records" section warns about, and enough on its own to make the
 envelope uncitable from `signoff/block-manifest.json` (`klt signoff` cannot
 resolve that path on any other machine). This script therefore runs `klt

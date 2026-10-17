@@ -2,6 +2,14 @@
   "block": "sky130-bandgap",
   "kind": "analog",
   "evidence": {
+    "1": {
+      "file": "signoff/attest/item-1.evidence.json",
+      "content_hash": "sha256:28777e1563458c4ee06d069a33a036ccb1e5fd14cc6d2113367e231c4b692933"
+    },
+    "2": {
+      "file": "signoff/attest/item-2.evidence.json",
+      "content_hash": "sha256:311c0f14cdd85aa5255018c590cbe755e31fd1ac81e04895d6302fea2146aae9"
+    },
     "3": {
       "file": "layout/bandgap-core/reports/20260923-070209-dbd57a9/drc.json",
       "content_hash": "sha256:311c0f14cdd85aa5255018c590cbe755e31fd1ac81e04895d6302fea2146aae9"
@@ -13,6 +21,14 @@
     "8": {
       "file": "signoff/evidence/characterization.generic.json",
       "content_hash": "sha256:c00c1e43428c64101e09abad2d6ec1246bf6a5638093029ba20bfe31ef389706"
+    },
+    "9": {
+      "file": "signoff/attest/item-9.evidence.json",
+      "content_hash": "sha256:19f4f8ff4f17044cbb47f4e0ffa7f2730118effcac4154546245bc56a158be43"
+    },
+    "10": {
+      "file": "signoff/attest/item-10.evidence.json",
+      "content_hash": "sha256:584ddee3ed80ad1d602e599ee771dbefef55831ecc97e5e6377de3b6d29a2f1f"
     },
     "11": [
       {

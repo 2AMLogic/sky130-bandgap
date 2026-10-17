@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "kind": "generic",
+  "t1_item": 9,
+  "status": "pass",
+  "summary": "Testbenches shipped: every runnable testbench with its cold-start command and the PDK/tool pins.",
+  "source": "signoff/attest/testbench-inventory.json",
+  "provenance": {
+    "input": {
+      "path": {
+        "path": "signoff/attest/testbench-inventory.json",
+        "scope": "repo"
+      },
+      "content_hash": "sha256:19f4f8ff4f17044cbb47f4e0ffa7f2730118effcac4154546245bc56a158be43"
+    }
+  },
+  "note": "Produced by scripts/ci/attest_inventories.py in the artifact-anchored generic form klt 0.7.0 grades; replace with `klt signoff --attest` once a klayout-tools release carries it (klayout-tools#2844)."
+}
