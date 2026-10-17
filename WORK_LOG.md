@@ -3,6 +3,11 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-10-17
+
+- **PR #380**: refactor(sim): share corner_id/matrix/band-min loader/run_all across psrr-injector scripts
+- **Issue #379** (closed): Dedup corner_id/matrix/band-min loader/run_all between the two psrr-injector sim scripts
+
 ### 2026-10-16
 
 - **PR #375**: Bump Repo Skills 0.24.1 -> 0.24.3
