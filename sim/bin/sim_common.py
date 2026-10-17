@@ -563,6 +563,61 @@ def _cr() -> ModuleType:
     return _cr_module
 
 
+def corner_id(process: str, temp_c: float, supply_v: float) -> str:
+    """`<process>_<temp>c_<supply>v`, e.g. `tt_27c_1.80v` (issue #379)."""
+    return f"{process}_{_cr().fmt_temp(temp_c)}c_{supply_v:.2f}v"
+
+
+def matrix(
+    processes: Sequence[str], temps_c: Sequence[float], supplies_v: Sequence[float]
+) -> list[tuple[str, float, float]]:
+    """Full process x temperature x supply cross-product (issue #379)."""
+    return [(p, t, s) for p in processes for t in temps_c for s in supplies_v]
+
+
+def band_min_by_corner(path: Path, label: str) -> dict[str, float]:
+    """Per-corner `psrr_band_min` values from an existing record json (issue #379)."""
+    cr = _cr()
+    if not path.is_file():
+        raise cr.HarnessError(f"missing {label}: {path}")
+    rec = json.loads(path.read_text())
+    out = {}
+    for c in rec["corners"]:
+        for m in c["measurements"]:
+            if m["name"] == "psrr_band_min" and m.get("value") is not None:
+                out[c["corner_id"]] = float(m["value"])
+    if not out:
+        raise cr.HarnessError(f"{path} carries no psrr_band_min values")
+    return out
+
+
+def run_all_variants(
+    run_point, variants, points, jobs: int, label_width: int
+) -> dict[tuple[str, str], dict]:
+    """Run `run_point(variant, process, temp_c, supply_v)` over variants x points.
+
+    Prints a `[done/total]` progress line per result, with the variant name
+    padded to `label_width`, and returns `{(variant, corner_id): result}`
+    (issue #379).
+    """
+    work = [(v, p, t, s) for v in variants for (p, t, s) in points]
+    total = len(work)
+    results: dict[tuple[str, str], dict] = {}
+    done = 0
+
+    with ThreadPoolExecutor(max_workers=jobs) as pool:
+        for res in pool.map(lambda item: run_point(*item), work):
+            done += 1
+            band = res["measurements"].get("psrr_band_min")
+            print(f"[{done:3d}/{total}] {res['variant']:{label_width}s} {res['corner_id']:16s} "
+                  + (f"psrr_band_min={band:8.3f} dB" if band is not None
+                     else f"NO MEASUREMENT (rc={res['ngspice_exit']}, "
+                          f"timeout={res['timed_out']})"),
+                  flush=True)
+            results[(res["variant"], res["corner_id"])] = res
+    return results
+
+
 def load_base_body(base_snapshot: Path, expected_params: set[str]) -> list[str]:
     """Read + validate a shared core-body netlist snapshot.
 

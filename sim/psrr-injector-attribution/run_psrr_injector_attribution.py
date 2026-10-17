@@ -69,7 +69,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -80,12 +79,16 @@ BUILD_DIR = SIM_DIR / "build" / "psrr-injector-attribution"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
 from sim_common import (  # noqa: E402
+    band_min_by_corner,
     check_pdk_and_ngspice,
+    corner_id,
     load_base_body as _load_base_body,
     load_corner_run,
     parse_measurements,
     render_pdk_tools_repo_state,
+    matrix as _matrix,
     render_record_id_experiment,
+    run_all_variants,
     run_ngspice,
     setup_record_paths,
     write_log,
@@ -281,12 +284,8 @@ def build_deck(pdk, variant: Variant, process: str, temp_c: float, supply_v: flo
     return "\n".join(head + body + ctrl)
 
 
-def corner_id(process: str, temp_c: float, supply_v: float) -> str:
-    return f"{process}_{cr.fmt_temp(temp_c)}c_{supply_v:.2f}v"
-
-
 def matrix() -> list[tuple[str, float, float]]:
-    return [(p, t, s) for p in PROCESSES for t in TEMPS_C for s in SUPPLIES_V]
+    return _matrix(PROCESSES, TEMPS_C, SUPPLIES_V)
 
 
 # --------------------------------------------------------------------------
@@ -316,26 +315,10 @@ def run_point(pdk, base_body, variant: Variant, process, temp_c, supply_v, timeo
 
 
 def run_all(pdk, base_body, variants, points, timeout, jobs, corners_dir, record_id) -> dict:
-    work = [(v, p, t, s) for v in variants for (p, t, s) in points]
-    total = len(work)
-    results: dict[tuple[str, str], dict] = {}
-    done = 0
-
-    def task(item):
-        v, p, t, s = item
+    def task(v, p, t, s):
         return run_point(pdk, base_body, v, p, t, s, timeout, corners_dir, record_id)
 
-    with ThreadPoolExecutor(max_workers=jobs) as pool:
-        for res in pool.map(task, work):
-            done += 1
-            m = res["measurements"]
-            band = m.get("psrr_band_min")
-            print(f"[{done:3d}/{total}] {res['variant']:11s} {res['corner_id']:16s} "
-                  + (f"psrr_band_min={band:8.3f} dB" if band is not None
-                     else f"NO MEASUREMENT (rc={res['ngspice_exit']}, timeout={res['timed_out']})"),
-                  flush=True)
-            results[(res["variant"], res["corner_id"])] = res
-    return results
+    return run_all_variants(task, variants, points, jobs, 11)
 
 
 # --------------------------------------------------------------------------
@@ -355,17 +338,7 @@ CEILING_TOL_DB = 2.0
 
 
 def cited_band_min() -> dict[str, float]:
-    if not CITED_RECORD_JSON.is_file():
-        raise cr.HarnessError(f"missing cited record json: {CITED_RECORD_JSON}")
-    rec = json.loads(CITED_RECORD_JSON.read_text())
-    out = {}
-    for c in rec["corners"]:
-        for m in c["measurements"]:
-            if m["name"] == "psrr_band_min" and m.get("value") is not None:
-                out[c["corner_id"]] = float(m["value"])
-    if not out:
-        raise cr.HarnessError(f"{CITED_RECORD_JSON} carries no psrr_band_min values")
-    return out
+    return band_min_by_corner(CITED_RECORD_JSON, "cited record json")
 
 
 def evaluate(results, points) -> list[dict]:
