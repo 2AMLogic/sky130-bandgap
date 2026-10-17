@@ -27,19 +27,12 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-# gen_bandgap_routed.py's own use of this module's symbols is imported
-# locally, inside main() (see that file's own note next to where this
-# section used to live) -- so this is the only direction with a genuine
-# top-level dependency between the two modules, the same shape bus_routing.py
-# already uses for its own back-import from gen_bandgap_routed.py.
 from gen_bandgap_routed import (  # noqa: E402
     BLOCKS,
     DUMMY_DEVICE_NOTE,
     INTERNAL_NODE_LABEL_NOTE,
     MCC_AREA_UM2_NOTE,
-    N_R2_COARSE,
     N_R2_TRIM_CODES,
-    N_R2_TRIM_UNITS,
     PNP_EMITTER_GEOMETRY_NOTE,
     RES_BULK_ARITY_NOTE,
     RES_CLASS,
@@ -50,11 +43,16 @@ from gen_bandgap_routed import (  # noqa: E402
     SUBSTRATE_NET_NOTE,
     met2_drc_coverage_note,
     r2_leg_length,
-    schematic_net_coverage,
     trim_tap_ladder,
 )
 from bus_routing import MOS_HALVES  # noqa: E402
-from layout_common import git_repo_state, klt_version  # noqa: E402
+from layout_common import (  # noqa: E402
+    N_R2_COARSE,
+    N_R2_TRIM_UNITS,
+    git_repo_state,
+    klt_version,
+    schematic_net_coverage,
+)
 
 
 @dataclass(frozen=True)
