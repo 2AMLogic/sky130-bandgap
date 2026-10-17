@@ -79,7 +79,7 @@ port-parity gap DR-005 flagged.
 ## Environment setup
 
 Bootstrapping the open-source flow (xschem + ngspice + sky130 PDK via
-volare) on a dev machine, plus a smoke test proving the toolchain works
+ciel) on a dev machine, plus a smoke test proving the toolchain works
 end-to-end: see [`docs/environment-setup.md`](docs/environment-setup.md).
 
 Operating the AI agent fleet against this repo — in particular keeping a

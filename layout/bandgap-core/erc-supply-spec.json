@@ -17,7 +17,7 @@
     "=== Layer provenance (every number below resolved twice) ===",
     "",
     "Source A -- the PDK's own KLayout layer properties file:",
-    "  ~/.volare/volare/sky130/versions/c6d73a35f524070e85faff4a6a9eef49553ebc2b/",
+    "  ~/.ciel/ciel/sky130/versions/f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7/",
     "  sky130A/libs.tech/klayout/tech/sky130A.lyp  (the same sky130A install",
     "  sim/pdk.json pins). Each <properties><source> entry names the pair",
     "  directly, e.g. 'poly.drawing - 66/20'.",

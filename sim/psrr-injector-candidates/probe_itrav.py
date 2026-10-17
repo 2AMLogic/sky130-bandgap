@@ -26,7 +26,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SNAP = sorted((ROOT / "sim/startup-stability/netlist-snapshots").glob("*.spice"))[-1]
-LIB = Path.home() / ".volare/sky130A/libs.tech/combined/sky130.lib.spice"
+LIB = Path.home() / ".ciel/sky130A/libs.tech/combined/sky130.lib.spice"
 MNG = ("XMNG NG VSENSE VSS VSS sky130_fd_pr__nfet_g5v0d10v5 L=20 W=1 nf=1 ad=0.29 as=0.29 "
        "pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0 m=1")
 

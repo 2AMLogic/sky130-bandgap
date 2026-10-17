@@ -5,7 +5,7 @@
 #   ngspice ...            # remember to copy sim/spiceinit to ./.spiceinit
 #
 # Resolution order (single source of truth is sim/bin/corner-run.py --print-env):
-#   PDK_ROOT env -> `volare path` -> default_pdk_root from sim/pdk.json
+#   PDK_ROOT env -> default_pdk_root (~/.ciel) from sim/pdk.json
 #   PDK env      -> variant from sim/pdk.json
 #
 # Not needed to run the corner runner itself: corner-run.py resolves the PDK on

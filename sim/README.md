@@ -83,7 +83,8 @@ verdict.
 
 ```bash
 # 1. install the pinned PDK (~1 min; see sim/pdk.json for the pin)
-volare enable --pdk sky130 c6d73a35f524070e85faff4a6a9eef49553ebc2b
+pip install ciel==2.6.1
+ciel enable --pdk-family sky130 -l sky130_fd_pr f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7
 
 # 2. sanity-check the toolchain and PDK resolution
 python3 sim/bin/corner-run.py --print-env
@@ -93,7 +94,7 @@ python3 sim/bin/corner-run.py sim/pdk-smoke
 ```
 
 Prerequisites, all machine-level (not vendored here): `ngspice`, `xschem`,
-`volare`, `python3` (3.9+, standard library only). Provisioning them on a dev
+`ciel` (2.6.1), `python3` (3.9+, standard library only). Provisioning them on a dev
 box is issue #17's scope; this harness only *verifies* they are present and
 records the versions it used.
 
@@ -121,9 +122,10 @@ interactive sessions and the runner resolve the PDK identically.
 | env helper | `sim/bin/pdk-env.sh` | `source` it for interactive xschem/ngspice work |
 | experiment | `sim/<slug>/experiment.json` | what is being claimed, which corners, which measurements and their limits |
 
-**PDK resolution order**: `$PDK_ROOT` → `volare path` → `default_pdk_root` from
+**PDK resolution order**: `$PDK_ROOT` → `default_pdk_root` (`~/.ciel`) from
 `sim/pdk.json`; variant from `$PDK` → `variant` in `sim/pdk.json`. The runner
-resolves the PDK directory symlink back to its volare version hash and
+reads the open_pdks revision from the resolved tree's `SOURCES` file (never
+from the path, so a stray `~/.volare` tree cannot pass as the pin) and
 **refuses to run against a version other than the pin** unless
 `--allow-pdk-mismatch` is passed — in which case the record says so. That is
 what makes a record re-runnable months later.

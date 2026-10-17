@@ -78,25 +78,12 @@ def load_pin() -> dict:
     return json.loads(PDK_PIN_FILE.read_text())
 
 
-def volare_path() -> Path | None:
-    exe = shutil.which("volare")
-    if not exe:
-        return None
-    try:
-        out = subprocess.run(
-            [exe, "path"], capture_output=True, text=True, timeout=60, check=True
-        ).stdout.strip()
-    except (subprocess.SubprocessError, OSError):
-        return None
-    return Path(out) if out else None
-
-
 def resolve_pdk(pin: dict) -> Pdk:
     root_env = os.environ.get("PDK_ROOT", "").strip()
     if root_env:
         root = Path(root_env).expanduser()
     else:
-        root = volare_path() or Path(pin["default_pdk_root"]).expanduser()
+        root = Path(pin["default_pdk_root"]).expanduser()
     variant = os.environ.get("PDK", "").strip() or pin["variant"]
     pdk_dir = root / variant
     if not pdk_dir.is_dir():
@@ -119,12 +106,20 @@ def resolve_pdk(pin: dict) -> Pdk:
 
 
 def installed_commit(pdk_dir: Path) -> str:
-    """Recover the volare version hash by resolving the PDK symlink."""
-    parts = pdk_dir.resolve().parts
-    if "versions" in parts:
-        idx = parts.index("versions")
-        if idx + 1 < len(parts):
-            return parts[idx + 1]
+    """Read the open_pdks revision from the PDK tree's own SOURCES file.
+
+    The path is deliberately not consulted: a tree reached through a stray
+    symlink (e.g. a leftover ~/.volare) reports whatever it really contains.
+    Missing/unreadable/unparseable SOURCES -> "unknown" (never matches the pin).
+    """
+    try:
+        lines = (pdk_dir / "SOURCES").read_text().splitlines()
+    except OSError:
+        return "unknown"
+    for line in lines:
+        fields = line.split()
+        if len(fields) >= 2 and fields[0] == "open_pdks":
+            return fields[1]
     return "unknown"
 
 
