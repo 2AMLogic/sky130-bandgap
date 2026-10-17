@@ -16,7 +16,7 @@ that no external tool performs for it:
    silently emits the result as a single `A|B` net
    (2AMLogic/klayout-tools#470, open). Invisible to DRC and to check 1 --
    the shapes are legal and well separated, it is the labels that collide.
-3. **The coverage-scoring check** -- `gen_bandgap_routed.schematic_net_coverage()`.
+3. **The coverage-scoring check** -- `layout_common.schematic_net_coverage()`.
    Scores acceptance criterion 1 against `design/bandgap_core.sch`'s own
    inter-block node list rather than against the flow's own `connectivity[]`
    declaration, so a net the flow simply forgot to declare still shows up as
@@ -55,6 +55,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "layout" / "bin"))
 
 import gen_bandgap_routed  # noqa: E402  -- resolved from layout/bin, above
+import layout_common  # noqa: E402
 import met1_bus  # noqa: E402
 import bus_routing  # noqa: E402  -- issue #221: split out of gen_bandgap_routed.py
 
@@ -741,10 +742,10 @@ class TestCoverageScoringGate(unittest.TestCase):
     """
 
     def _row(self, routes: list[dict], net: str) -> dict:
-        rows = gen_bandgap_routed.schematic_net_coverage(routes)
+        rows = layout_common.schematic_net_coverage(routes)
         self.assertEqual(
             len(rows),
-            len(gen_bandgap_routed.SCHEMATIC_INTER_BLOCK_NETS),
+            len(layout_common.SCHEMATIC_INTER_BLOCK_NETS),
             "every schematic inter-block node must be scored, drawn or not",
         )
         return next(row for row in rows if row["net"] == net)
@@ -752,7 +753,7 @@ class TestCoverageScoringGate(unittest.TestCase):
     def test_no_routes_means_no_credit_anywhere(self) -> None:
         """The floorplan-skeleton baseline: a layout with zero drawn metal
         must score zero, with every block listed as missing."""
-        rows = gen_bandgap_routed.schematic_net_coverage([])
+        rows = layout_common.schematic_net_coverage([])
         self.assertTrue(all(row["status"] == "labelled only" for row in rows))
         for row in rows:
             self.assertEqual(row["joined"], [])
@@ -858,7 +859,7 @@ class TestCoverageScoringGate(unittest.TestCase):
         declared = len(
             next(
                 spec["blocks"]
-                for spec in gen_bandgap_routed.SCHEMATIC_INTER_BLOCK_NETS
+                for spec in layout_common.SCHEMATIC_INTER_BLOCK_NETS
                 if spec["net"] == "VSS"
             )
         )
@@ -933,7 +934,7 @@ class TestCoverageScoringGate(unittest.TestCase):
         block would otherwise turn into a permanently-unreachable row that
         quietly caps criterion 1 below 100%."""
         known = {block["id"] for block in gen_bandgap_routed.BLOCKS}
-        for spec in gen_bandgap_routed.SCHEMATIC_INTER_BLOCK_NETS:
+        for spec in layout_common.SCHEMATIC_INTER_BLOCK_NETS:
             for block in spec["blocks"]:
                 self.assertIn(block, known, f"{spec['net']} names unknown block {block}")
 

@@ -28,23 +28,15 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import met1_bus  # noqa: E402  -- local module, resolved from this script's dir
 
-# gen_bandgap_routed.py's own use of this module's symbols is imported
-# locally, inside each function that needs one (see that file's own note
-# next to where this section used to live) -- so this is the only direction
-# with a genuine top-level dependency between the two modules: this file's
-# own module-level tables (MOS_HALVES, INTER_BLOCK_MET1) are built directly
-# from these five names at *this* module's load time, not deferred to a
-# function call, so they cannot be imported lazily the way
-# `schematic_net_coverage` is below. Because gen_bandgap_routed.py carries no
-# top-level reference back to this module, this import always resolves
-# cleanly regardless of which of the two modules a caller happens to import
-# first.
-from gen_bandgap_routed import (  # noqa: E402
+from layout_common import (  # noqa: E402
     DIRECTION_EAST,
     DIRECTION_WEST,
+    MET1_BUS_NOTE,
     N_R1,
     N_R2_COARSE,
     N_R2_TRIM_UNITS,
+    RING_MARGIN_UM,
+    schematic_net_coverage,
 )
 
 
@@ -1165,13 +1157,6 @@ def free_channels(
     passes over, fewest first, so a hop tries the genuinely free lanes before
     the ones that only look free.
     """
-    # Deferred import: RING_MARGIN_UM is not needed until this function is
-    # actually called, unlike DIRECTION_EAST/DIRECTION_WEST/N_R1/
-    # N_R2_COARSE/N_R2_TRIM_UNITS, which this module's own top-level tables
-    # (MOS_HALVES, INTER_BLOCK_MET1) need immediately -- see this file's
-    # top-of-file import comment.
-    from gen_bandgap_routed import RING_MARGIN_UM
-
     spans: dict[str, list[tuple[float, float]]] = {"x": [], "y": []}
     for bid, report in reports.items():
         bbox = report["bbox_um"]
@@ -2231,14 +2216,6 @@ def build_bus_overlay(
 
     Returns `(generator_report, summary)`.
     """
-    # Deferred import: MET1_BUS_NOTE is not needed until this function is
-    # actually called (see this file's top-of-file import comment for why
-    # DIRECTION_EAST/DIRECTION_WEST/N_R1/N_R2_COARSE/N_R2_TRIM_UNITS cannot
-    # be deferred the same way). schematic_net_coverage is defined in
-    # gen_bandgap_routed.py itself, so this stays a plain call-time import
-    # either way.
-    from gen_bandgap_routed import MET1_BUS_NOTE, schematic_net_coverage
-
     base = [spec["net"] for spec in INTER_BLOCK_MET1]
     # Seed the search with every rotation of the declared order, so no single
     # net is permanently first (or permanently last) just because of where it
