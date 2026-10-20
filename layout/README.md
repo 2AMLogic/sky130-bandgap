@@ -35,11 +35,18 @@ layout/bin/run-trivial-cell-flow.sh
 
 The last command writes a fresh, timestamped record under
 `trivial-cell/reports/<record-id>/` and updates
-`trivial-cell/reports/LATEST` to point at it. The currently-checked-in
-record is
-[`trivial-cell/reports/20260803-133256-69a6ac2/record.md`](trivial-cell/reports/20260803-133256-69a6ac2/record.md)
+`trivial-cell/reports/LATEST` to point at it. The current record is
+whichever directory `trivial-cell/reports/LATEST` names (today
+[`trivial-cell/reports/20260806-055840-3a4293a/record.md`](trivial-cell/reports/20260806-055840-3a4293a/record.md))
 — **read that file first**; it is the actual pass/fail evidence this issue
 delivers, not this README.
+
+The oldest record, `20260803-133256-69a6ac2` (the original issue #14 proof
+under `klt 0.1.0`, a different cell geometry and different LVS counts), is
+retained as a historical citation, along with the other pre-`20260804-162626`
+runs. Eight later runs that reproduced the current record's outcome were
+pruned; see [`trivial-cell/PRUNED-RUNS.md`](trivial-cell/PRUNED-RUNS.md) for
+the list and the recovery command.
 
 ## Why `klt`, and why a git-commit pin (not a PyPI version)
 
