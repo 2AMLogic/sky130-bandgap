@@ -111,7 +111,7 @@ class PostLayoutBatchRequests(unittest.TestCase):
             batch_sim.require_batch_enabled("nope-post-layout", batch_sim.POST_LAYOUT_BATCH_ENABLED_SLUGS)
 
     def test_gate_slug_none_keeps_the_pre_layout_gate(self):
-        exp = cr.load_experiment(SIM_DIR / "quiescent-current")
+        exp = cr.load_experiment(SIM_DIR / "line-regulation")
         with self.assertRaises(batch_sim.BatchError):
             batch_sim.build_groups(
                 exp, PIN, matrix(exp), BODY, SPICEINIT, self.tmp / "x", 60,

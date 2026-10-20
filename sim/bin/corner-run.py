@@ -838,8 +838,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         default="local",
         help=(
             "where corners run: 'local' (default, one ngspice per corner on this host) or "
-            "'batch' (klt sim --backend batch on the Spot batch fleet; startup-stability and "
-            "psrr-dc-with-injector only, see sim/README.md). A failed batch submission is an error -- it never "
+            "'batch' (klt sim --backend batch on the Spot batch fleet; enabled for "
+            + ", ".join(sorted(batch_sim.BATCH_ENABLED_SLUGS))
+            + " only, see sim/README.md). A failed batch submission is an error -- it never "
             "falls back to running the matrix locally"
         ),
     )
