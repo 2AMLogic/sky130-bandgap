@@ -12,10 +12,10 @@
 #### (which sets XSCHEM_LIBRARY_PATH so `sky130_fd_pr/*.sym` resolves, and
 #### SKYWATER_MODELS for the corner.sym netlist command).
 
-#### PDK_ROOT / PDK: honour the environment, else fall back to the volare
+#### PDK_ROOT / PDK: honour the environment, else fall back to the ciel
 #### default root. Keep the fallback in sync with sim/pdk.json.
 if {![info exists env(PDK_ROOT)] || $env(PDK_ROOT) eq {}} {
-  set env(PDK_ROOT) [file normalize ~/.volare]
+  set env(PDK_ROOT) [file normalize ~/.ciel]
 }
 if {![info exists env(PDK)] || $env(PDK) eq {}} {
   set env(PDK) sky130A
