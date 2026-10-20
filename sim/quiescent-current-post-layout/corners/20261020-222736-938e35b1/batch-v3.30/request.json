@@ -1,0 +1,69 @@
+{
+  "analysis": {
+    "args": "",
+    "kind": "op"
+  },
+  "backend": "batch",
+  "batch": {
+    "capacity_wait_s": 300.0,
+    "poll_interval_s": 30.0,
+    "runner_version_check": "enforce"
+  },
+  "corners": {
+    "process": [
+      "tt"
+    ],
+    "temperature_c": [
+      27
+    ]
+  },
+  "engine": "ngspice",
+  "measurements": [
+    {
+      "expr": "-i(v1)",
+      "limits": {
+        "max": 5e-05,
+        "min": 1e-06
+      },
+      "name": "iq",
+      "unit": "A"
+    },
+    {
+      "expr": "v(vref)",
+      "limits": {
+        "max": 1.4,
+        "min": 1.0
+      },
+      "name": "vref",
+      "unit": "V"
+    },
+    {
+      "expr": "v(gdrv)",
+      "limits": {
+        "max": 2.9,
+        "min": 1.0
+      },
+      "name": "vgdrv",
+      "unit": "V"
+    }
+  ],
+  "models": {
+    "lib": "libs.tech/combined/sky130.lib.spice",
+    "pdk": "sky130A"
+  },
+  "netlist": "netlist.cir",
+  "options": {
+    "keep_artifacts": true,
+    "ngspice_init": [
+      "set ngbehavior=hsa",
+      "set skywaterpdk",
+      "set ng_nomodcheck",
+      "option noinit",
+      "option klu"
+    ],
+    "timeout_s": 10800
+  },
+  "remote": {
+    "hosts": 1
+  }
+}

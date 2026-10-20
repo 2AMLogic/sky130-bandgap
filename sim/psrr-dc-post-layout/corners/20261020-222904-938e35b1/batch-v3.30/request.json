@@ -1,0 +1,106 @@
+{
+  "analysis": {
+    "args": "dec 10 0.1 1meg",
+    "kind": "ac"
+  },
+  "backend": "batch",
+  "batch": {
+    "capacity_wait_s": 300.0,
+    "poll_interval_s": 30.0,
+    "runner_version_check": "enforce"
+  },
+  "corners": {
+    "process": [
+      "tt"
+    ],
+    "temperature_c": [
+      27
+    ]
+  },
+  "engine": "ngspice",
+  "measurements": [
+    {
+      "expr": "-db(v(vref)[0])",
+      "limits": {
+        "min": 60.0
+      },
+      "name": "psrr_dc",
+      "unit": "dB"
+    },
+    {
+      "expr": "real(frequency[0])",
+      "limits": {
+        "max": 0.11,
+        "min": 0.09
+      },
+      "name": "f_dc",
+      "unit": "Hz"
+    },
+    {
+      "expr": "-db(v(vref)[40])",
+      "limits": {
+        "min": 60.0
+      },
+      "name": "psrr_1k",
+      "unit": "dB"
+    },
+    {
+      "expr": "real(frequency[40])",
+      "limits": {
+        "max": 1100.0,
+        "min": 900.0
+      },
+      "name": "f_1k",
+      "unit": "Hz"
+    },
+    {
+      "expr": "minimum(-db(v(vref)[0,40]))",
+      "limits": {
+        "min": 60.0
+      },
+      "name": "psrr_band_min",
+      "unit": "dB"
+    },
+    {
+      "expr": "-db(v(vref)[70])",
+      "name": "psrr_1m",
+      "unit": "dB"
+    },
+    {
+      "expr": "real(frequency[70])",
+      "limits": {
+        "max": 1100000.0,
+        "min": 900000.0
+      },
+      "name": "f_1m",
+      "unit": "Hz"
+    },
+    {
+      "expr": "length(v(vref))",
+      "limits": {
+        "max": 71,
+        "min": 71
+      },
+      "name": "n_ac_points"
+    }
+  ],
+  "models": {
+    "lib": "libs.tech/combined/sky130.lib.spice",
+    "pdk": "sky130A"
+  },
+  "netlist": "netlist.cir",
+  "options": {
+    "keep_artifacts": true,
+    "ngspice_init": [
+      "set ngbehavior=hsa",
+      "set skywaterpdk",
+      "set ng_nomodcheck",
+      "option noinit",
+      "option klu"
+    ],
+    "timeout_s": 10800
+  },
+  "remote": {
+    "hosts": 1
+  }
+}

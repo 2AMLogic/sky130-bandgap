@@ -1,0 +1,372 @@
+{
+  "corner_count": 1,
+  "corners": [
+    {
+      "artifacts": {
+        "deck": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-396/sim/build/psrr-dc-post-layout/20261020-222904-938e35b1/batch/v3.30/klt-out/tt_novdd_27C/corner.cir",
+        "log": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-396/sim/build/psrr-dc-post-layout/20261020-222904-938e35b1/batch/v3.30/klt-out/tt_novdd_27C/ngspice.log",
+        "raw": null,
+        "waveform": null
+      },
+      "corner_id": "tt/novdd/27C",
+      "diagnostics": [],
+      "measurements": [
+        {
+          "margin": 6.8166300000000035,
+          "name": "psrr_dc",
+          "status": "pass",
+          "unit": "dB",
+          "value": 66.81663
+        },
+        {
+          "margin": 0.009999999999999995,
+          "name": "f_dc",
+          "status": "pass",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "margin": -1.25291,
+          "name": "psrr_1k",
+          "status": "fail",
+          "unit": "dB",
+          "value": 58.74709
+        },
+        {
+          "margin": 100.0,
+          "name": "f_1k",
+          "status": "pass",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "margin": -1.25291,
+          "name": "psrr_band_min",
+          "status": "fail",
+          "unit": "dB",
+          "value": 58.74709
+        },
+        {
+          "margin": null,
+          "name": "psrr_1m",
+          "status": "pass",
+          "unit": "dB",
+          "value": 14.0922
+        },
+        {
+          "margin": 100000.0,
+          "name": "f_1m",
+          "status": "pass",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "margin": 0.0,
+          "name": "n_ac_points",
+          "status": "pass",
+          "unit": null,
+          "value": 71.0
+        }
+      ],
+      "monte_carlo": null,
+      "process": "tt",
+      "runtime_s": 12.137,
+      "status": "fail",
+      "supply_v": {},
+      "temperature_c": 27
+    }
+  ],
+  "coverage": {
+    "checked": [
+      "limit:[0,\"tt/novdd/27C\",\"f_1k\",\"max\"]",
+      "limit:[0,\"tt/novdd/27C\",\"f_1k\",\"min\"]",
+      "limit:[0,\"tt/novdd/27C\",\"f_1m\",\"max\"]",
+      "limit:[0,\"tt/novdd/27C\",\"f_1m\",\"min\"]",
+      "limit:[0,\"tt/novdd/27C\",\"f_dc\",\"max\"]",
+      "limit:[0,\"tt/novdd/27C\",\"f_dc\",\"min\"]",
+      "limit:[0,\"tt/novdd/27C\",\"n_ac_points\",\"max\"]",
+      "limit:[0,\"tt/novdd/27C\",\"n_ac_points\",\"min\"]",
+      "limit:[0,\"tt/novdd/27C\",\"psrr_1k\",\"min\"]",
+      "limit:[0,\"tt/novdd/27C\",\"psrr_band_min\",\"min\"]",
+      "limit:[0,\"tt/novdd/27C\",\"psrr_dc\",\"min\"]",
+      "measurement:[0,\"tt/novdd/27C\",\"psrr_1m\"]/observation"
+    ],
+    "corners_simulated": 1,
+    "inapplicable": [
+      {
+        "id": "measurement:[0,\"tt/novdd/27C\",\"psrr_1m\"]/limits",
+        "reason": "characterization_without_limits"
+      }
+    ],
+    "known": true,
+    "measurements_declared": 8,
+    "measurements_with_limits": 7,
+    "nothing_checked": false,
+    "nothing_checked_reasons": [],
+    "schema_version": 1,
+    "skipped": [],
+    "unknown": [],
+    "unrecognized_limit_keys": []
+  },
+  "diagnostic_counts": {
+    "by_code": {},
+    "by_severity": {},
+    "corners_with_diagnostics": 0
+  },
+  "environment": {
+    "backend": {
+      "requested": "batch",
+      "resolved": "batch",
+      "source": "flag"
+    },
+    "client_ngspice_binary": "/home/ubuntu/.local/bin/ngspice",
+    "engine": "ngspice",
+    "engine_build": {
+      "binary_sha256": "c874869b16dc8a31cfa9d37d2b90a2a9e0e5b996f8e2535db89eb82855072931",
+      "probe": "ok",
+      "reason": null,
+      "version_banner": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Wed Aug  5 10:12:28 UTC 2026\n******"
+    },
+    "engine_host": "worker",
+    "engine_version": "46",
+    "models_lib": {
+      "path": null,
+      "scope": "external"
+    },
+    "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+    "models_lib_sha256_scope": "client",
+    "netlist_closure": [
+      {
+        "path": "sim/build/psrr-dc-post-layout/20261020-222904-938e35b1/batch/v3.30/netlist.cir",
+        "scope": "repo",
+        "sha256": "1155cb69b9378cc61ddaa463531bbda87f05284533e6748834501b28824065d9"
+      }
+    ],
+    "netlist_identity": "sha256:d55204ddc0979bab6f1c73a0a424a0016f5bc55004736577f019b819c5a3b105",
+    "netlist_sha256": "1155cb69b9378cc61ddaa463531bbda87f05284533e6748834501b28824065d9",
+    "ngspice_binary": "/usr/local/bin/ngspice",
+    "remote": {
+      "ami_id": "ami-0e0bec04ad8e81877",
+      "availability_zone": "us-east-1d",
+      "client_collected_at": "2026-10-20T22:30:25.274614Z",
+      "client_klt_version": "0.7.1.dev2364+g47962f131e29",
+      "client_launched_at": "2026-10-20T22:29:22.514402Z",
+      "client_status_terminal_at": "2026-10-20T22:30:24.513122Z",
+      "client_submitted_at": "2026-10-20T22:29:05.598993Z",
+      "concurrency": "2",
+      "elapsed_seconds": 18,
+      "exit_code": "3",
+      "instance_id": "i-0ca55c41713807948",
+      "instance_type": "c7i.8xlarge",
+      "job_ceiling": {
+        "basis": "conservative_serial_bound",
+        "check": "warn",
+        "exceeds_ceiling": true,
+        "job_bound_s": 10920.0,
+        "max_job_seconds": 3600.0,
+        "max_job_seconds_source": "fleet_config",
+        "max_units_per_job": 0,
+        "overhead_s": 120.0,
+        "per_unit_timeout_s": 10800,
+        "recommended_hosts": null,
+        "unit_count": 1,
+        "warning": "batch job bound 10920s (options.timeout_s 10800s x 1 units + 120s; a conservative fully-serial upper bound, not a runtime estimate) exceeds the fleet's whole-job ceiling of 3600s (max_job_seconds from fleet_config); a job still running at the ceiling is killed and every unit is reported batch_job_timeout. No remote.hosts value fits: a single unit's bound exceeds the ceiling -- lower options.timeout_s to at most 3480s"
+      },
+      "job_id": "klt-sim-6867a4cdfff1",
+      "lifecycle": "spot",
+      "physical_cores": "16",
+      "provider": "aws-batch-fleet",
+      "region": "us-east-1",
+      "runner_compatibility": "match",
+      "runner_klt_version": "0.7.0",
+      "runner_model_inputs": null,
+      "runner_request_features": {
+        "missing": [],
+        "required": [
+          "measurements[].expr",
+          "options.ngspice_init"
+        ],
+        "status": "supported"
+      },
+      "spot": true,
+      "state": "failed",
+      "worker_environment": {
+        "capture": "ok",
+        "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+        "diagnostics": [],
+        "engine_build_comparison": {
+          "status": "mismatch",
+          "warning": "the worker's ngspice --version banner differs from the local binary's; build options (e.g. FFT linkage) may differ, so results derived from them can differ from a local run"
+        },
+        "image_manifest": null,
+        "model_inputs": null,
+        "omp_num_threads": null,
+        "pdk": {
+          "models_staged": false,
+          "root": "/opt/pdk",
+          "stamp_scheme": "sources-sha256",
+          "stamp_sha256": "d5ac52956829da3fee35d0b307d4e6cb83ae0e6535b56dba2eefed61cdffaf9b",
+          "stamp_text": "open_pdks c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+          "variant": "sky130A"
+        },
+        "pdk_stamp_comparison": {
+          "reason": "client_stamp_unavailable",
+          "status": "not_comparable"
+        },
+        "simulator": {
+          "binary_source": "PATH",
+          "requested_binary": "ngspice",
+          "selected_path": "/usr/local/bin/ngspice",
+          "version_banner": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Oct  1 23:51:59 UTC 2026\n******\n",
+          "version_probe": "ok"
+        }
+      }
+    }
+  },
+  "errored": 0,
+  "failed": 1,
+  "inconclusive": 0,
+  "measurements": [
+    {
+      "limits": {
+        "min": 60.0
+      },
+      "name": "psrr_dc",
+      "status": "pass",
+      "unit": "dB",
+      "worst_case": {
+        "corner_id": "tt/novdd/27C",
+        "margin": 6.8166300000000035,
+        "value": 66.81663
+      }
+    },
+    {
+      "limits": {
+        "max": 0.11,
+        "min": 0.09
+      },
+      "name": "f_dc",
+      "status": "pass",
+      "unit": "Hz",
+      "worst_case": {
+        "corner_id": "tt/novdd/27C",
+        "margin": 0.009999999999999995,
+        "value": 0.1
+      }
+    },
+    {
+      "limits": {
+        "min": 60.0
+      },
+      "name": "psrr_1k",
+      "status": "fail",
+      "unit": "dB",
+      "worst_case": {
+        "corner_id": "tt/novdd/27C",
+        "margin": -1.25291,
+        "value": 58.74709
+      }
+    },
+    {
+      "limits": {
+        "max": 1100.0,
+        "min": 900.0
+      },
+      "name": "f_1k",
+      "status": "pass",
+      "unit": "Hz",
+      "worst_case": {
+        "corner_id": "tt/novdd/27C",
+        "margin": 100.0,
+        "value": 1000.0
+      }
+    },
+    {
+      "limits": {
+        "min": 60.0
+      },
+      "name": "psrr_band_min",
+      "status": "fail",
+      "unit": "dB",
+      "worst_case": {
+        "corner_id": "tt/novdd/27C",
+        "margin": -1.25291,
+        "value": 58.74709
+      }
+    },
+    {
+      "limits": null,
+      "name": "psrr_1m",
+      "status": "pass",
+      "unit": "dB",
+      "worst_case": {
+        "corner_id": "tt/novdd/27C",
+        "margin": null,
+        "value": 14.0922
+      }
+    },
+    {
+      "limits": {
+        "max": 1100000.0,
+        "min": 900000.0
+      },
+      "name": "f_1m",
+      "status": "pass",
+      "unit": "Hz",
+      "worst_case": {
+        "corner_id": "tt/novdd/27C",
+        "margin": 100000.0,
+        "value": 1000000.0
+      }
+    },
+    {
+      "limits": {
+        "max": 71,
+        "min": 71
+      },
+      "name": "n_ac_points",
+      "status": "pass",
+      "unit": null,
+      "worst_case": {
+        "corner_id": "tt/novdd/27C",
+        "margin": 0.0,
+        "value": 71.0
+      }
+    }
+  ],
+  "metrics": {
+    "sim__corner__count": 1,
+    "sim__corner__errored_count": 0,
+    "sim__corner__failed_count": 1,
+    "sim__corner__inconclusive_count": 0,
+    "sim__corner__passed_count": 0
+  },
+  "netlist": {
+    "path": "sim/build/psrr-dc-post-layout/20261020-222904-938e35b1/batch/v3.30/netlist.cir",
+    "scope": "repo"
+  },
+  "passed": 0,
+  "provenance": {
+    "deck": {
+      "content_hash": "sha256:48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+      "name": "sky130.lib.spice",
+      "released": false
+    },
+    "input": {
+      "content_hash": "sha256:1155cb69b9378cc61ddaa463531bbda87f05284533e6748834501b28824065d9",
+      "role": "netlist"
+    },
+    "klayout_version": "0.30.12",
+    "klt_version": "0.7.1.dev2364+g47962f131e29",
+    "pdk": {
+      "ambiguous_sources": [
+        "search root: ~/.volare"
+      ],
+      "name": "sky130A",
+      "source": "search root: ~/.ciel",
+      "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+    }
+  },
+  "schema_version": 3,
+  "status": "fail"
+}
