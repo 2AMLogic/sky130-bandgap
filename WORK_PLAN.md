@@ -32,6 +32,7 @@ _None._
 Issues currently being built (`loom:building`).
 
 - **#369**: Re-pin open_pdks to f6eeac7 (ciel) — fleet retires volare c6d73a3
+- **#381**: Prune 12 unreferenced trivial-cell report runs; fix stale README pointer
 - **#387**: T1 items 1, 2, 9, 10: move the grader to klt 0.7.0 and cite artifact-anchored inventory envelopes
 
 ## PRs Awaiting Review
@@ -46,6 +47,7 @@ PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
 - **#373**: build(sim): re-pin PDK to open_pdks f6eeac7 via ciel with SOURCES revision check
 - **#390**: feat(signoff): attest T1 items 1, 2, 9, 10 on klt 0.7.0
+- **#392**: chore(layout): prune 8 redundant trivial-cell report runs, fix README current-record pointer
 
 ## Proposed
 
@@ -61,7 +63,6 @@ Issues carrying `loom:curated`.
 ## Proposed (Architect / Hermit)
 
 - **#335**: Produce native klt pex comparison evidence for T1 item 7 *(architect)*
-- **#381**: Prune 12 unreferenced trivial-cell report runs; fix stale README pointer *(hermit)*
 
 ## Epics
 
@@ -75,10 +76,10 @@ _None._
 | Very important | 0 |
 | Important | 2 |
 | Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 2 |
+| In Progress (`loom:building`) | 3 |
 | PRs awaiting review | 0 |
-| Approved PRs awaiting merge | 2 |
+| Approved PRs awaiting merge | 3 |
 | Curated | 6 |
-| Architect / Hermit proposals | 2 |
+| Architect / Hermit proposals | 1 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
