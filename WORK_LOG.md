@@ -3,6 +3,11 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-10-20
+
+- **PR #373**: build(sim): re-pin PDK to open_pdks f6eeac7 via ciel with SOURCES revision check
+- **Issue #369** (closed): Re-pin open_pdks to f6eeac7 (ciel) — fleet retires volare c6d73a3
+
 ### 2026-10-17
 
 - **PR #385**: refactor(layout): move shared constants to layout_common to break bus_routing import cycle
