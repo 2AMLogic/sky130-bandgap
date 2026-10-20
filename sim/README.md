@@ -420,7 +420,7 @@ Such a script still has to behave like the harness:
 | `--subset-reason "…"` | **required** for any subset; recorded verbatim |
 | `--supersedes <record-id>` | record which prior record this replaces |
 | `--author`, `--timeout` | record author (default `git config user.email`), per-corner ngspice timeout (default 300 s locally, 10800 s with `--backend batch`) |
-| `--backend local\|batch` | where corners run (default `local`). `batch` sends the matrix to the Spot batch fleet through `klt sim --backend batch`; enabled for `startup-stability` and `psrr-dc-with-injector` only. See "Batch backend" below. A failed submission is an error, never a local fallback |
+| `--backend local\|batch` | where corners run (default `local`). `batch` sends the matrix to the Spot batch fleet through `klt sim --backend batch`; enabled for `startup-stability`, `psrr-dc-with-injector`, `psrr-dc` and `quiescent-current` only (`batch_sim.BATCH_ENABLED_SLUGS`). See "Batch backend" below. A failed submission is an error, never a local fallback |
 | `--batch-capacity-wait-s N`, `--batch-runner-version-check enforce\|warn` | batch only: how long to wait out a Spot capacity refusal per submission (default 3600), and klt's runner/client version-skew policy (default `enforce`; leave it) |
 | `-j N`, `--jobs N` | run up to `N` corners concurrently (default: `1`, serial -- today's unchanged behavior). Each corner is an independent `ngspice` process with its own scratch deck and its own `--timeout`, enforced per-process regardless of `N`; corner results are always written into the record in matrix order, never completion order. Recorded in the written record's `jobs` field |
 | `--allow-pdk-mismatch` | run against a non-pinned PDK; the record flags it |
@@ -511,6 +511,47 @@ model library that is not the pinned one, runner skew, or a missing/duplicate
 corner becomes a failing `batch_integrity[...]` check in the record, and nothing
 falls back to a local ngspice. `--jobs` stays the local-mode (single-corner
 probe) knob; `--batch-max-jobs` bounds in-flight requests.
+
+**Pre-layout benches (issue #395).** Six more `corner-run.py` benches were
+translated; two are enabled, four are held back on the fleet runner.
+
+- **Enabled: `psrr-dc` (`ac dec ...`) and `quiescent-current` (`op`).** Scalar-
+  analysis requests exactly like `psrr-dc-with-injector`: one request per supply
+  voltage (3 jobs x 15 corners), manifest expressions and limits unchanged. One
+  corner (`tt / 27 degC / 3.3 V`) of each was run on the fleet (ngspice 46,
+  jobs `klt-sim-df4730742934` and `klt-sim-b49f7ccbde60`, 2026-10-20) and every
+  measurement equals the newest local record's value for that corner
+  (`20260909-232410-e8e2e46`) exactly.
+- **Held back: `line-regulation`, `output-voltage-tc`, `startup-ramp`,
+  `startup-time` (`batch_sim.STEP_REQUEST_SLUGS`).** Their decks carry
+  `meas dc|tran <name> ...` commands that later measurement expressions read by
+  name (`vrefnom`, `vref27`, `t_ref_s`, ...). `klt sim` keeps a file-scope
+  `.meas` result out of the `expr` namespace of a scalar-`analysis` request
+  (`vector vrefnom is not available`), so the adapter sends them as **one
+  `analysis_steps[]` step** (`main`): the `meas` commands become limitless `spice`
+  cards, the manifest's measurements stay `expr`s (with `let` chains inlined,
+  `vsup` pinned in the netlist), and inside a step an `expr` reads the card's
+  result by name, as the control-mode `meas` does locally. klt reports those
+  entries as `main.<name>`; `batch_sim.plain_name()` strips the qualifier, and
+  the deck's own `meas` results are kept in `klt-report.json` only. Locally
+  (`klt sim --backend local`) this reproduces the local deck's values exactly,
+  but **the fleet runner's klt (0.7.0, 2026-10-20) rejects `analysis_steps`**
+  (`batch_runner_feature_unsupported`, job exit 87, jobs `klt-sim-3a683692ffa5`,
+  `-7be1d1404c97`, `-a789ec6f4560`, `-f80a88ffcea6`), so no fleet comparison
+  exists and `--backend batch` refuses them with that reason. To enable one:
+  update the runner image's klt, run its `tt / 27 degC / 3.3 V` corner on the
+  fleet, compare with the newest record, then move the slug from
+  `STEP_REQUEST_SLUGS` to `BATCH_ENABLED_SLUGS`. A local 45-corner grid is not an
+  alternative on a dispatch host.
+- **Not enabled: `error-amp-loop`.** It chains `op`, `ac` and `ac` with `alter`
+  commands between them (`BATCH_UNSUPPORTED_REASONS`); no reference record cites
+  it, so no multi-step translation was written.
+
+Equivalence is pinned by `sim/tests/test_batch_benches.py`: its `KltVsLocal`
+case runs `tt / 27 degC / 3.3 V` of all six benches through
+`klt sim --backend local` (the deck writer and measurement harvesting the fleet
+runs) and through the local runner's deck, and requires every measurement to be
+identical.
 
 **Netlist note.** The dispatch hosts' xschem is 3.4.4, which (unlike the
 fleet's pinned 3.4.7) leaves the sky130 symbols' `ad=expr('...@W...')` instance
