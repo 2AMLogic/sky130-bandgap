@@ -449,7 +449,8 @@ submission is an error, never a local run.
 | `startup-time-post-layout` | `--dry-run` only (runner klt) | translated; `tran` deck measured with `meas tran FIND ... AT` cards |
 | `line-regulation-post-layout` | `--dry-run` only (runner klt) | translated; in-deck `dc v1` sweep plus a `meas dc FIND ... AT` card |
 | `output-voltage-tc-post-layout` | `--dry-run` only (runner klt) | translated; in-deck `dc temp` sweep plus a `meas dc FIND ... AT` card |
-| `monte-carlo-untrimmed`, `error-amp-offset-mc`, `psrr-injector-attribution` | not yet, no `--backend` option | bespoke `.control` loops (`setseed`/`reset`/`repeat`) and variant sets, not traced against klt's `monte_carlo` request; follow-up |
+| `error-amp-offset-mc` | `--dry-run` only (record collection) | one `klt sim` `monte_carlo` request per point (`{n, seed, vary: mismatch}`, `.op`, section as the process); see below |
+| `monte-carlo-untrimmed`, `psrr-injector-attribution` | not yet, no `--backend` option | bespoke `.control` loops (`setseed`/`reset`/`repeat`) and variant sets, not traced against klt's `monte_carlo` request; follow-up |
 
 The four `meas` benches (issue #398) are **translated but refused for real runs**:
 `batch_sim.split_analyses()` turns each `meas` card into a `klt sim` `spice`
@@ -467,7 +468,25 @@ the `startup-time-post-layout` request run through `klt sim --backend local`
 (tt / 27 C / 3.30 V) gives `vref_final=1.193888`, `gdrv_final=2.08979`,
 `t_start_ms=0.08886417`, `vdd_final=3.3`, identical to the matching row of
 record `20260923-070906-dbd57a9`. The three bespoke Monte Carlo / attribution
-runners remain without a `--backend` option (issue #398, follow-up PR).
+runners remain without a `--backend` option (issue #398, follow-up PRs).
+
+`error-amp-offset-mc --backend batch --dry-run` (issue #398) prints one request
+per `MismatchPoint` (3 temperatures, the MC-off control, the second-seed point;
+`batch_sim.build_mc_group()`): the point's `.lib` section is the request's
+process (`tt_mm` mismatch on, plain `tt` the sigma = 0 control), `monte_carlo`
+carries `n` and `seed`, and the runner's `let` vectors are the request's
+`measurements[]` (one table, `VECTOR_EXPRS`, feeds both paths). klt runs one
+ngspice per sample with an `.options seed=` derived from `monte_carlo.seed`,
+which is **not** the stream `setseed N` + `reset` produces, so a batch run
+matches the local record in distribution, not sample for sample. A real
+`--backend batch` run is refused: turning klt's per-sample reports back into a
+record is not implemented. Checked on the fleet instead (2026-10-21, runner
+klt accepts the shape; `tt_mm` / 27 C, N = 60 of the 300, `klt sim --backend
+batch`, 3 shard jobs, 60/60 corners passed, none outside the operating window):
+sigma(vos) / sigma(vout) / sigma(dvbe8) / sigma(dvbe1) are 1.03 / 0.99 / 0.92 /
+0.91 of record `20260817-130441-aa5324e`, inside the +-9 % standard error of a
+60-sample sigma; means agree to within 1-2 standard errors (vout 1.2122 vs
+1.2107 V). The MC-off control and second-seed points were not run on the fleet.
 
 Single-corner batch results (tt / 27 C / 3.30 V) match
 the newest local records exactly: quiescent-current `iq=1.963682e-05`,

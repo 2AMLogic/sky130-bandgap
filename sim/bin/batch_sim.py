@@ -363,6 +363,7 @@ def build_request(
     poll_interval_s: float,
     hosts: int | None = None,
     single_step: bool = False,
+    monte_carlo: dict | None = None,
 ) -> dict:
     """One `klt sim --backend batch` request document (shared by the corner-run
     adapter and by benches that drive their own variant set, e.g.
@@ -371,7 +372,10 @@ def build_request(
     preflight asks for this when the serial bound exceeds the fleet ceiling).
     `single_step` sends the analysis and measurements as one `analysis_steps[]`
     step (`STEP_NAME`) instead of the scalar `analysis`: klt only lets a
-    measurement read a `meas` result inside a step's own plot."""
+    measurement read a `meas` result inside a step's own plot. `monte_carlo`
+    (`{n, seed, vary}`) asks klt to re-run every corner point `n` times with a
+    derived per-sample seed; the shard count is then sized by the sample count."""
+    units = len(processes) * len(temps) * (monte_carlo["n"] if monte_carlo else 1)
     request = {
         "netlist": netlist_name,
         "engine": "ngspice",
@@ -388,8 +392,10 @@ def build_request(
             "capacity_wait_s": capacity_wait_s,
             "runner_version_check": runner_version_check,
         },
-        "remote": {"hosts": shard_hosts(len(processes) * len(temps), timeout_s)},
+        "remote": {"hosts": shard_hosts(units, timeout_s)},
     }
+    if monte_carlo:
+        request["monte_carlo"] = dict(monte_carlo)
     if single_step:
         request["analysis_steps"] = [
             {"name": STEP_NAME, "analysis": analysis, "measurements": measurements}
@@ -530,6 +536,50 @@ def build_adhoc_group(
     request_path = gdir / "request.json"
     request_path.write_text(json.dumps(request, indent=2, sort_keys=True) + "\n")
     return Group(supplies.pop(), gdir, netlist_path, request_path, list(corners), request, label)
+
+
+def build_mc_group(
+    label: str,
+    out_dir: Path,
+    netlist: str,
+    pin: dict,
+    process: str,
+    temp_c: float,
+    supply_v: float,
+    samples: int,
+    seed: int,
+    measurements: list[dict],
+    spiceinit_text: str,
+    timeout_s: int,
+    *,
+    capacity_wait_s: float,
+    runner_version_check: str,
+    poll_interval_s: float,
+    analysis: dict | None = None,
+    hosts: int | None = None,
+) -> Group:
+    """One request for a Monte Carlo point: `samples` draws of one (process
+    section, temperature), the sampling done by klt's `monte_carlo` seed contract
+    (one ngspice run per sample, `.options seed=` derived from `seed`) instead of
+    a bespoke `.control` `setseed`/`reset` loop. `process` is a `.lib` section, so a
+    `*_mm` name turns the PDK's local-mismatch switch on and a plain one is the
+    sigma == 0 control. `netlist` is the complete pre-`.lib` text. `analysis`
+    defaults to `.op`. Written to `out_dir/<label>/`; the corner list is empty
+    because the point is not a PVT cross product."""
+    gdir = out_dir / label
+    gdir.mkdir(parents=True, exist_ok=True)
+    netlist_path = gdir / "netlist.cir"
+    netlist_path.write_text(netlist)
+    temp = int(temp_c) if float(temp_c).is_integer() else temp_c
+    request = build_request(
+        netlist_path.name, pin, [process], [temp], analysis or {"kind": "op", "args": ""},
+        measurements, spiceinit_text, timeout_s, capacity_wait_s=capacity_wait_s,
+        runner_version_check=runner_version_check, poll_interval_s=poll_interval_s,
+        hosts=hosts, monte_carlo={"n": samples, "seed": seed, "vary": "mismatch"},
+    )
+    request_path = gdir / "request.json"
+    request_path.write_text(json.dumps(request, indent=2, sort_keys=True) + "\n")
+    return Group(supply_v, gdir, netlist_path, request_path, [], request, label)
 
 
 def _unique(values) -> list:
