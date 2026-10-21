@@ -45,10 +45,106 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
-#: Experiments whose deck shape this adapter has been validated against.
-#: Everything else keeps the local runner; extending the list is a deliberate
-#: change (issue #320 limits the scope to the startup-stability path).
-BATCH_ENABLED_SLUGS = frozenset({"startup-stability", "psrr-dc-with-injector"})
+#: Experiments whose deck shape this adapter has been validated against,
+#: including a live single-corner comparison on the fleet. Everything else
+#: keeps the local runner; extending the list is a deliberate change (issue
+#: #320 started with startup-stability; issue #395 added the benches below it).
+BATCH_ENABLED_SLUGS = frozenset({
+    "startup-stability",
+    "psrr-dc-with-injector",
+    "psrr-dc",
+    "quiescent-current",
+})
+
+#: Benches whose `meas` commands need the single-step request form (see
+#: `build_request()`). Translated and checked against the local deck with
+#: `klt sim --backend local`, but NOT enabled: the fleet runner image's klt
+#: (0.7.0 on 2026-10-20) rejects `analysis_steps` with
+#: `batch_runner_feature_unsupported`, so every job fails before simulating.
+#: Move a slug into `BATCH_ENABLED_SLUGS` once a live single-corner run passes.
+STEP_REQUEST_SLUGS = frozenset({
+    "line-regulation",
+    "output-voltage-tc",
+    "startup-ramp",
+    "startup-time",
+})
+
+#: Name of the single `analysis_steps[]` step a deck with `meas` commands is
+#: sent as (see `build_request()`); klt qualifies that step's report entries as
+#: `<step>.<measurement>`, which `plain_name()` strips again.
+STEP_NAME = "main"
+
+#: Benches whose deck cannot be expressed as one `klt sim` request, with the
+#: reason. They stay on the local runner (issue #395); `--backend batch` names
+#: the reason instead of the generic "not enabled".
+BATCH_UNSUPPORTED_REASONS = {
+    **{
+        slug: (
+            "its `meas` commands are sent as an `analysis_steps[]` request, which the batch "
+            "fleet's runner klt (0.7.0 on 2026-10-20) does not support yet "
+            "(`batch_runner_feature_unsupported`); enable it once the runner image is updated"
+        )
+        for slug in STEP_REQUEST_SLUGS
+    },
+    "error-amp-loop": (
+        "its deck chains three analyses (op, ac, ac) with `alter` commands between "
+        "them; that needs a multi-step `analysis_steps[]` translation, which is not "
+        "implemented because no reference record cites this bench (issue #395)"
+    ),
+}
+
+#: Post-layout benches (`sim/*-post-layout/`, issue #396) whose manifest is a
+#: single analysis card plus `let` lines -- the only shape `split_analyses()`
+#: can express as a `klt sim` request. The deck body is the extracted-netlist
+#: body, shipped to the fleet inside the request's netlist file like any other.
+POST_LAYOUT_BATCH_ENABLED_SLUGS = frozenset(
+    {"psrr-dc-post-layout", "quiescent-current-post-layout", "startup-stability-post-layout"}
+)
+
+#: Post-layout benches (issue #398) whose manifests carry `meas` cards. They
+#: are translated: `split_analyses()` turns the cards into `spice`
+#: measurements and `build_request()` sends one `analysis_steps[]` step, the
+#: same shape as `STEP_REQUEST_SLUGS`. They are NOT enabled for the same
+#: reason those are not: the fleet runner's klt (0.7.0 on 2026-10-21) rejects
+#: `analysis_steps` with `batch_runner_feature_unsupported` before simulating
+#: (live single-corner submission of `startup-time-post-layout`, 2026-10-21),
+#: so `--dry-run` prints the requests and a real `--backend batch` run is
+#: refused with this reason. Move a slug into
+#: `POST_LAYOUT_BATCH_ENABLED_SLUGS` once the runner image accepts the shape
+#: and a live single-corner run matches the bench's newest local record.
+POST_LAYOUT_STEP_REQUEST_SLUGS = frozenset({
+    "startup-ramp-post-layout",
+    "startup-time-post-layout",
+    "line-regulation-post-layout",
+    "output-voltage-tc-post-layout",
+})
+
+POST_LAYOUT_BATCH_REFUSALS = {
+    slug: (
+        "its `meas` cards are sent as an `analysis_steps[]` request, which the batch fleet's "
+        "runner klt (0.7.0 on 2026-10-21) does not support yet "
+        "(`batch_runner_feature_unsupported`); enable it once the runner image is updated"
+    )
+    for slug in sorted(POST_LAYOUT_STEP_REQUEST_SLUGS)
+}
+
+
+def require_batch_enabled(
+    slug: str, enabled: frozenset = BATCH_ENABLED_SLUGS, *, dry_run: bool = False
+) -> None:
+    """Raise `BatchError` unless `slug` may run with `--backend batch`.
+    `dry_run` admits the translated-but-refused post-layout benches, so
+    `--dry-run` can print their requests."""
+    if slug in POST_LAYOUT_BATCH_REFUSALS and not dry_run:
+        raise BatchError(
+            f"--backend batch is not available for {slug!r}: "
+            f"{POST_LAYOUT_BATCH_REFUSALS[slug]} (left on the local runner; `--dry-run` prints "
+            "the request; see sim/README.md 'Post-layout benches on the batch backend')"
+        )
+    if slug not in enabled and slug not in POST_LAYOUT_BATCH_REFUSALS:
+        raise BatchError(
+            f"--backend batch is only enabled for {sorted(enabled)}; {slug!r} keeps the local runner"
+        )
 
 #: Per-corner ngspice budget on the fleet when `--timeout` is not given.
 #: The local 300 s default is meaningless for a 251-point homotopy-stepped DC
@@ -151,35 +247,51 @@ def spiceinit_lines(spiceinit_text: str) -> list[str]:
 
 
 _LET_RE = re.compile(r"^let\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$", re.IGNORECASE)
+_MEAS_RE = re.compile(r"^meas(?:ure)?\s+(dc|ac|tran)\s+([A-Za-z_][A-Za-z0-9_]*)\s+(\S.*)$", re.IGNORECASE)
 
 
-def split_analyses(analyses: list[str]) -> tuple[dict, dict[str, str]]:
-    """Split a manifest `deck.analyses` list into klt's `analysis` object and
-    the `let` definitions that follow it.
+def split_analyses(analyses: list[str]) -> tuple[dict, dict[str, str], list[dict]]:
+    """Split a manifest `deck.analyses` list into klt's `analysis` object, the
+    `let` definitions that follow it, and the `meas` cards that follow it.
 
     The first entry must be the analysis card (`dc ...`, `op`, `tran ...`);
-    every later entry must be a `let name = expr` line. `klt sim` owns a
-    single `.control` block and accepts exactly one analysis plus scalar
-    `expr` measurements, so intermediate vectors are inlined into the
-    measurement expressions by `inline_lets()` rather than emitted as
-    separate (non-scalar, unprintable) measurements.
+    every later entry must be a `let name = expr` line or a
+    `meas <dc|ac|tran> name ...` command. `klt sim` owns a single `.control`
+    block and accepts exactly one analysis plus scalar measurements, so
+    intermediate `let` vectors are inlined into the measurement expressions by
+    `inline_lets()` rather than emitted as separate (non-scalar, unprintable)
+    measurements, and each `meas` command becomes a `spice` measurement (a
+    verbatim `.meas` card) that the manifest's expressions read by name, as
+    they read the control-mode result locally. Anything else (a second
+    analysis, `alter`) cannot be expressed and is refused.
     """
     if not analyses:
-        return {"kind": "op", "args": ""}, {}
+        return {"kind": "op", "args": ""}, {}, []
     head = analyses[0].strip()
     kind, _, args = head.partition(" ")
     if kind.lower() not in {"op", "dc", "tran", "ac"}:
         raise BatchError(f"first deck.analyses entry is not an analysis card: {head!r}")
     lets: dict[str, str] = {}
+    meas_cards: list[dict] = []
     for entry in analyses[1:]:
-        m = _LET_RE.match(entry.strip())
-        if not m:
-            raise BatchError(
-                f"deck.analyses entry {entry!r} is neither the leading analysis "
-                "nor a `let name = expr` line; cannot express it as a klt sim request"
-            )
-        lets[m.group(1)] = m.group(2).strip()
-    return {"kind": kind.lower(), "args": args.strip()}, lets
+        text = entry.strip()
+        m = _LET_RE.match(text)
+        if m:
+            lets[m.group(1)] = m.group(2).strip()
+            continue
+        m = _MEAS_RE.match(text)
+        if m:
+            meas_cards.append({
+                "name": m.group(2),
+                "spice": f".meas {m.group(1).lower()} {m.group(2)} {m.group(3).strip()}",
+            })
+            continue
+        raise BatchError(
+            f"deck.analyses entry {entry!r} is neither the leading analysis, a "
+            "`let name = expr` line nor a `meas <dc|ac|tran> name ...` command; "
+            "cannot express it as a klt sim request"
+        )
+    return {"kind": kind.lower(), "args": args.strip()}, lets, meas_cards
 
 
 def inline_lets(expr: str, lets: dict[str, str]) -> str:
@@ -203,8 +315,11 @@ def _substitute(text: str, table: dict[str, str]) -> str:
     return text
 
 
-def request_measurements(exp, lets: dict[str, str]) -> list[dict]:
-    out = []
+def request_measurements(exp, lets: dict[str, str], meas_cards: list[dict] | None = None) -> list[dict]:
+    """The request's `measurements[]`: the deck's `meas` cards first (they carry
+    no limits; the manifest's own expressions read them by name), then the
+    manifest's measurements with `let` vectors inlined."""
+    out = [dict(card) for card in meas_cards or []]
     for m in exp.measurements:
         entry: dict = {"name": m.name, "expr": inline_lets(m.expr, lets)}
         if m.unit:
@@ -247,20 +362,26 @@ def build_request(
     runner_version_check: str,
     poll_interval_s: float,
     hosts: int | None = None,
+    single_step: bool = False,
+    monte_carlo: dict | None = None,
 ) -> dict:
     """One `klt sim --backend batch` request document (shared by the corner-run
     adapter and by benches that drive their own variant set, e.g.
     `sim/psrr-injector-candidates/`). `hosts > 1` adds `remote.hosts` so klt
     shards the unit list across that many fleet jobs (its timeout-budget
-    preflight asks for this when the serial bound exceeds the fleet ceiling)."""
+    preflight asks for this when the serial bound exceeds the fleet ceiling).
+    `single_step` sends the analysis and measurements as one `analysis_steps[]`
+    step (`STEP_NAME`) instead of the scalar `analysis`: klt only lets a
+    measurement read a `meas` result inside a step's own plot. `monte_carlo`
+    (`{n, seed, vary}`) asks klt to re-run every corner point `n` times with a
+    derived per-sample seed; the shard count is then sized by the sample count."""
+    units = len(processes) * len(temps) * (monte_carlo["n"] if monte_carlo else 1)
     request = {
         "netlist": netlist_name,
         "engine": "ngspice",
         "backend": "batch",
         "models": {"pdk": pin["variant"], "lib": pin["ngspice_lib"]},
         "corners": {"process": processes, "temperature_c": temps},
-        "analysis": analysis,
-        "measurements": measurements,
         "options": {
             "timeout_s": timeout_s,
             "keep_artifacts": True,
@@ -271,11 +392,29 @@ def build_request(
             "capacity_wait_s": capacity_wait_s,
             "runner_version_check": runner_version_check,
         },
-        "remote": {"hosts": shard_hosts(len(processes) * len(temps), timeout_s)},
+        "remote": {"hosts": shard_hosts(units, timeout_s)},
     }
+    if monte_carlo:
+        request["monte_carlo"] = dict(monte_carlo)
+    if single_step:
+        request["analysis_steps"] = [
+            {"name": STEP_NAME, "analysis": analysis, "measurements": measurements}
+        ]
+    else:
+        request["analysis"] = analysis
+        request["measurements"] = measurements
     if hosts and hosts > 1:
         request["remote"] = {"hosts": hosts}
     return request
+
+
+def plain_name(name: str, request: dict) -> str:
+    """A report measurement name -> the manifest's name (strips klt's
+    `<step>.` qualifier when the request was sent as a single step)."""
+    prefix = f"{STEP_NAME}."
+    if request.get("analysis_steps") and name.startswith(prefix):
+        return name[len(prefix):]
+    return name
 
 
 def build_groups(
@@ -290,15 +429,39 @@ def build_groups(
     capacity_wait_s: float,
     runner_version_check: str,
     poll_interval_s: float,
+    gate_slug: str | None = None,
+    allow_step_requests: bool = False,
 ) -> list[Group]:
-    """Write one netlist + request per supply voltage into `out_dir`."""
-    if exp.slug not in BATCH_ENABLED_SLUGS:
-        raise BatchError(
-            f"--backend batch is only enabled for {sorted(BATCH_ENABLED_SLUGS)} "
-            f"(issue #320); {exp.slug!r} keeps the local runner"
+    """Write one netlist + request per supply voltage into `out_dir`.
+
+    `gate_slug` names the bench for the enablement check when it differs from
+    `exp.slug` (a post-layout bench wrapping another bench's manifest); it is
+    checked against `POST_LAYOUT_BATCH_ENABLED_SLUGS`.
+    `allow_step_requests` admits `STEP_REQUEST_SLUGS` and
+    `POST_LAYOUT_STEP_REQUEST_SLUGS` (tests, local klt checks, `--dry-run`);
+    a real run never sets it."""
+    if gate_slug is None:
+        if exp.slug not in BATCH_ENABLED_SLUGS and not (
+            allow_step_requests and exp.slug in STEP_REQUEST_SLUGS
+        ):
+            why = BATCH_UNSUPPORTED_REASONS.get(exp.slug)
+            raise BatchError(
+                f"--backend batch is only enabled for {sorted(BATCH_ENABLED_SLUGS)} "
+                f"(issues #320, #395); {exp.slug!r} keeps the local runner"
+                + (f": {why}" if why else "")
+            )
+    else:
+        require_batch_enabled(
+            gate_slug, POST_LAYOUT_BATCH_ENABLED_SLUGS, dry_run=allow_step_requests
         )
-    analysis, lets = split_analyses(list((exp.raw.get("deck") or {}).get("analyses") or []))
-    measurements = request_measurements(exp, lets)
+    analysis, lets, meas_cards = split_analyses(list((exp.raw.get("deck") or {}).get("analyses") or []))
+    clash = {c["name"].lower() for c in meas_cards} & {m.name.lower() for m in exp.measurements}
+    if clash:
+        raise BatchError(
+            f"{exp.slug}: deck `meas` name(s) {sorted(clash)} are also manifest measurement "
+            "names; the request could not tell the two apart"
+        )
+    measurements = request_measurements(exp, lets, meas_cards)
 
     supplies: list[float] = []
     for c in matrix:
@@ -325,6 +488,7 @@ def build_groups(
             netlist_path.name, pin, processes, temps, analysis, measurements, spiceinit_text,
             timeout_s, capacity_wait_s=capacity_wait_s,
             runner_version_check=runner_version_check, poll_interval_s=poll_interval_s,
+            single_step=bool(meas_cards),
         )
         request_path = gdir / "request.json"
         request_path.write_text(json.dumps(request, indent=2, sort_keys=True) + "\n")
@@ -372,6 +536,50 @@ def build_adhoc_group(
     request_path = gdir / "request.json"
     request_path.write_text(json.dumps(request, indent=2, sort_keys=True) + "\n")
     return Group(supplies.pop(), gdir, netlist_path, request_path, list(corners), request, label)
+
+
+def build_mc_group(
+    label: str,
+    out_dir: Path,
+    netlist: str,
+    pin: dict,
+    process: str,
+    temp_c: float,
+    supply_v: float,
+    samples: int,
+    seed: int,
+    measurements: list[dict],
+    spiceinit_text: str,
+    timeout_s: int,
+    *,
+    capacity_wait_s: float,
+    runner_version_check: str,
+    poll_interval_s: float,
+    analysis: dict | None = None,
+    hosts: int | None = None,
+) -> Group:
+    """One request for a Monte Carlo point: `samples` draws of one (process
+    section, temperature), the sampling done by klt's `monte_carlo` seed contract
+    (one ngspice run per sample, `.options seed=` derived from `seed`) instead of
+    a bespoke `.control` `setseed`/`reset` loop. `process` is a `.lib` section, so a
+    `*_mm` name turns the PDK's local-mismatch switch on and a plain one is the
+    sigma == 0 control. `netlist` is the complete pre-`.lib` text. `analysis`
+    defaults to `.op`. Written to `out_dir/<label>/`; the corner list is empty
+    because the point is not a PVT cross product."""
+    gdir = out_dir / label
+    gdir.mkdir(parents=True, exist_ok=True)
+    netlist_path = gdir / "netlist.cir"
+    netlist_path.write_text(netlist)
+    temp = int(temp_c) if float(temp_c).is_integer() else temp_c
+    request = build_request(
+        netlist_path.name, pin, [process], [temp], analysis or {"kind": "op", "args": ""},
+        measurements, spiceinit_text, timeout_s, capacity_wait_s=capacity_wait_s,
+        runner_version_check=runner_version_check, poll_interval_s=poll_interval_s,
+        hosts=hosts, monte_carlo={"n": samples, "seed": seed, "vary": "mismatch"},
+    )
+    request_path = gdir / "request.json"
+    request_path.write_text(json.dumps(request, indent=2, sort_keys=True) + "\n")
+    return Group(supply_v, gdir, netlist_path, request_path, [], request, label)
 
 
 def _unique(values) -> list:
@@ -502,15 +710,19 @@ def _diag_summary(diags: list[dict]) -> str:
     return "; ".join(f"{d.get('code')}[{d.get('severity')}]: {d.get('message', '')}".strip() for d in diags)
 
 
-def corner_result(exp, corner, kc: dict, timeout_s: int, evaluate: Callable, job: dict, log_rel: str) -> dict:
-    """One klt corner entry -> the dict `corner-run.py::run_corner()` returns."""
+def corner_result(
+    exp, corner, kc: dict, timeout_s: int, evaluate: Callable, job: dict, log_rel: str,
+    request: dict | None = None,
+) -> dict:
+    """One klt corner entry -> the dict `corner-run.py::run_corner()` returns.
+    `request` is the group's request, needed to unqualify single-step names."""
     diags = kc.get("diagnostics") or []
     err_diags = [d for d in diags if d.get("severity") == "error"]
     codes = {d.get("code") for d in diags}
     timed_out = bool(codes & TIMEOUT_CODES)
     incomplete = bool(codes & INCOMPLETE_CODES)
     values = {
-        m["name"]: m["value"]
+        plain_name(m["name"], request or {}): m["value"]
         for m in kc.get("measurements") or []
         if m.get("value") is not None
     }
@@ -677,7 +889,7 @@ def assemble(
                 evaluate, job_id))
         else:
             kc, group, meta = hits[0]
-            results.append(corner_result(exp, corner, kc, timeout_s, evaluate, meta, ""))
+            results.append(corner_result(exp, corner, kc, timeout_s, evaluate, meta, "", group.request))
     for o in outcomes:
         rep = o.report
         if rep.get("corner_count") != len(o.group.corners) or len(rep["corners"]) != len(o.group.corners):
@@ -714,7 +926,9 @@ def collect_values(
             if key in values:
                 blockers.append(f"{o.group.describe()}: duplicate result for {key[:3]}")
             values[key] = {
-                m["name"]: m["value"] for m in kc.get("measurements") or [] if m.get("value") is not None
+                plain_name(m["name"], o.group.request): m["value"]
+                for m in kc.get("measurements") or []
+                if m.get("value") is not None
             }
             klt_corners[key] = kc
     return values, klt_corners, blockers, jobs
@@ -811,6 +1025,7 @@ def execute(
     runner_version_check: str = "enforce",
     poll_interval_s: float = 30.0,
     runner: Callable[[Group], GroupOutcome] = run_klt,
+    gate_slug: str | None = None,
 ) -> tuple[list[dict], list[str], dict]:
     """Build, submit, collect and fold a batch run. Returns
     `(results, overall_blockers, record_extra)`; raises `BatchError` when no
@@ -818,7 +1033,7 @@ def execute(
     groups = build_groups(
         exp, pin, matrix, body, spiceinit_text, work_dir, timeout_s,
         capacity_wait_s=capacity_wait_s, runner_version_check=runner_version_check,
-        poll_interval_s=poll_interval_s,
+        poll_interval_s=poll_interval_s, gate_slug=gate_slug,
     )
     started, t0 = _now(), time.monotonic()
     outcomes = collect(groups, runner)

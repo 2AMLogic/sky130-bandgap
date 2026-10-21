@@ -210,7 +210,7 @@ class RequestFidelity(unittest.TestCase):
         if not ngspice:
             self.skipTest("ngspice not installed")
         analyses = EXP.raw["deck"]["analyses"]
-        analysis, lets = batch_sim.split_analyses(analyses)
+        analysis, lets, _cards = batch_sim.split_analyses(analyses)
         # Stand-in circuit with the same probe sources and the same 251-point
         # sweep; only the circuit differs, the expressions are the manifest's.
         lines = [
@@ -290,16 +290,17 @@ sim._write_corner_deck(deck_path={str(self.tmp / 'klt.deck')!r}, netlist_path={s
         self.assertEqual(structural(local), structural(klt_deck))
         self.assertIn("save all", klt_deck)
         self.assertIn("save all", local)
-        _, lets = batch_sim.split_analyses(EXP.raw["deck"]["analyses"])
+        _, lets, _cards = batch_sim.split_analyses(EXP.raw["deck"]["analyses"])
         for m in EXP.measurements:
             self.assertIn(f"let {m.name} = {batch_sim.inline_lets(m.expr, lets)}", klt_deck.splitlines())
             self.assertIn(f"let meas_{m.name} = {m.expr}", local.splitlines())
 
     def test_not_enabled_for_other_experiments(self):
-        other = SimpleNamespace(slug="line-regulation", raw={}, measurements=[])
-        with self.assertRaises(batch_sim.BatchError):
+        other = SimpleNamespace(slug="error-amp-loop", raw={}, measurements=[])
+        with self.assertRaises(batch_sim.BatchError) as ctx:
             batch_sim.build_groups(other, PIN, full_matrix(), BODY, "", self.tmp / "o", 1,
                                    capacity_wait_s=0, runner_version_check="enforce", poll_interval_s=30)
+        self.assertIn("analysis_steps", str(ctx.exception))  # the stated reason, not just "not enabled"
 
     def test_non_cross_product_subset_is_refused_not_widened(self):
         m = [cr.Corner("tt", 27.0, 3.3), cr.Corner("ss", -40.0, 3.3), cr.Corner("tt", -40.0, 3.3)]

@@ -420,7 +420,7 @@ Such a script still has to behave like the harness:
 | `--subset-reason "…"` | **required** for any subset; recorded verbatim |
 | `--supersedes <record-id>` | record which prior record this replaces |
 | `--author`, `--timeout` | record author (default `git config user.email`), per-corner ngspice timeout (default 300 s locally, 10800 s with `--backend batch`) |
-| `--backend local\|batch` | where corners run (default `local`). `batch` sends the matrix to the Spot batch fleet through `klt sim --backend batch`; enabled for `startup-stability` and `psrr-dc-with-injector` only. See "Batch backend" below. A failed submission is an error, never a local fallback |
+| `--backend local\|batch` | where corners run (default `local`). `batch` sends the matrix to the Spot batch fleet through `klt sim --backend batch`; enabled for `startup-stability`, `psrr-dc-with-injector`, `psrr-dc` and `quiescent-current` only (`batch_sim.BATCH_ENABLED_SLUGS`; post-layout runners: see "Post-layout benches on the batch backend"). See "Batch backend" below. A failed submission is an error, never a local fallback |
 | `--batch-capacity-wait-s N`, `--batch-runner-version-check enforce\|warn` | batch only: how long to wait out a Spot capacity refusal per submission (default 3600), and klt's runner/client version-skew policy (default `enforce`; leave it) |
 | `-j N`, `--jobs N` | run up to `N` corners concurrently (default: `1`, serial -- today's unchanged behavior). Each corner is an independent `ngspice` process with its own scratch deck and its own `--timeout`, enforced per-process regardless of `N`; corner results are always written into the record in matrix order, never completion order. Recorded in the written record's `jobs` field |
 | `--allow-pdk-mismatch` | run against a non-pinned PDK; the record flags it |
@@ -428,6 +428,107 @@ Such a script still has to behave like the harness:
 
 Exit status: `0` all checks passed, `2` a record was written but something
 failed, `1` harness/setup error (no record written).
+
+### Post-layout benches on the batch backend (issue #396)
+
+The `sim/*-post-layout/run_post_layout_*.py` runners share
+`sim/bin/post_layout_common.py`, which now accepts `--backend local|batch`
+(default `local`), `--batch-capacity-wait-s` and `--batch-runner-version-check`
+with the same meaning as `corner-run.py`'s, and `--timeout` defaults to 10800 s
+with `--backend batch`. The extracted-netlist body is written into each
+request's netlist file, so nothing but the klt client runs on the dispatch host;
+`--dry-run` prints the per-supply requests and submits nothing; a failed
+submission is an error, never a local run.
+
+| Runner | `--backend batch` | Why |
+|---|---|---|
+| `psrr-dc-post-layout` | yes | `ac` analysis, scalar expressions |
+| `quiescent-current-post-layout` | yes | `op` analysis, scalar expressions |
+| `startup-stability-post-layout` | yes | `dc` + `let` intermediates (inlined, as for `startup-stability`) |
+| `startup-ramp-post-layout` | `--dry-run` only (runner klt) | translated; `tran` deck measured with `meas tran ... WHEN/FIND AT` cards |
+| `startup-time-post-layout` | `--dry-run` only (runner klt) | translated; `tran` deck measured with `meas tran FIND ... AT` cards |
+| `line-regulation-post-layout` | `--dry-run` only (runner klt) | translated; in-deck `dc v1` sweep plus a `meas dc FIND ... AT` card |
+| `output-voltage-tc-post-layout` | `--dry-run` only (runner klt) | translated; in-deck `dc temp` sweep plus a `meas dc FIND ... AT` card |
+| `error-amp-offset-mc` | `--dry-run` only (record collection) | one `klt sim` `monte_carlo` request per point (`{n, seed, vary: mismatch}`, `.op`, section as the process); see below |
+| `monte-carlo-untrimmed` | `--dry-run` only (record collection) | one `klt sim` `monte_carlo` request per point (14: 3 temperatures x 4 `config`s, the MC-off control, the second-seed point); the `config` axis rides in the netlist as `.param <coeff>=0` |
+| `psrr-injector-attribution` | yes (`--dry-run` prints the requests) | variant set, not Monte Carlo: per variant x supply, one `ac` and one `op` request over the 5 x 3 process x temperature cross product, each variant's netlist from `variant_body()` (30 requests for the full run); same shape as `psrr-injector-candidates` |
+
+The four `meas` benches (issue #398) are **translated but refused for real runs**:
+`batch_sim.split_analyses()` turns each `meas` card into a `klt sim` `spice`
+measurement, the manifest's expressions read them by name, and the deck is sent
+as one `analysis_steps[]` step (klt only lets an expression read a `meas`
+result inside a step's own plot). The fleet runner's klt is 0.7.0, which rejects
+`analysis_steps` before simulating (`batch_runner_feature_unsupported`; live
+single-corner submission of `startup-time-post-layout`, 2026-10-21, tracked at
+klayout-tools#3516), so `--dry-run` prints their requests and a real
+`--backend batch` run is refused with that reason
+(`batch_sim.POST_LAYOUT_BATCH_REFUSALS`). Move a slug into
+`POST_LAYOUT_BATCH_ENABLED_SLUGS` once the runner image accepts the shape and
+a live single-corner run matches the local record. Checked locally instead:
+the `startup-time-post-layout` request run through `klt sim --backend local`
+(tt / 27 C / 3.30 V) gives `vref_final=1.193888`, `gdrv_final=2.08979`,
+`t_start_ms=0.08886417`, `vdd_final=3.3`, identical to the matching row of
+record `20260923-070906-dbd57a9`.
+
+`error-amp-offset-mc --backend batch --dry-run` (issue #398) prints one request
+per `MismatchPoint` (3 temperatures, the MC-off control, the second-seed point;
+`batch_sim.build_mc_group()`): the point's `.lib` section is the request's
+process (`tt_mm` mismatch on, plain `tt` the sigma = 0 control), `monte_carlo`
+carries `n` and `seed`, and the runner's `let` vectors are the request's
+`measurements[]` (one table, `VECTOR_EXPRS`, feeds both paths). klt runs one
+ngspice per sample with an `.options seed=` derived from `monte_carlo.seed`,
+which is **not** the stream `setseed N` + `reset` produces, so a batch run
+matches the local record in distribution, not sample for sample. A real
+`--backend batch` run is refused: turning klt's per-sample reports back into a
+record is not implemented. Checked on the fleet instead (2026-10-21, runner
+klt accepts the shape; `tt_mm` / 27 C, N = 60 of the 300, `klt sim --backend
+batch`, 3 shard jobs, 60/60 corners passed, none outside the operating window):
+sigma(vos) / sigma(vout) / sigma(dvbe8) / sigma(dvbe1) are 1.03 / 0.99 / 0.92 /
+0.91 of record `20260817-130441-aa5324e`, inside the +-9 % standard error of a
+60-sample sigma; means agree to within 1-2 standard errors (vout 1.2122 vs
+1.2107 V). The MC-off control and second-seed points were not run on the fleet.
+
+`monte-carlo-untrimmed --backend batch --dry-run` (issue #398) is built the same
+way (`batch_sim.build_mc_group()`, one table `VECTOR_EXPRS` feeding the local
+`let` lines and the request's `measurements[]`). Differences from the offset
+runner: the `config` axis (which device family's `sw_mm_*` coefficients are
+zeroed) is written into each request's netlist after the circuit body, which is
+where it lands in the local deck too because klt emits `.lib <section>` before
+`.include <netlist>`; and the testbench's `.save i(v1)` is dropped from the
+netlist (the local loop re-issues `save all` after every `reset` for the same
+reason). A real `--backend batch` run is refused, as for the offset runner.
+Checked with `klt sim --backend local` on the generated `tt_mm_all_27c_3.30v`
+request cut to N = 20 (2026-10-21, 20/20 passed, none outside the operating
+window): mean(vout) 1.2123 V, sigma(vout) 8.28 mV against record
+`20260817-121131-d7d85b6`'s 1.2112 V and 7.14 mV (N = 300), i.e. a sigma ratio of
+1.16 against a +-16 % standard error at N = 20. klt's per-sample seeds depend
+only on `(monte_carlo.seed, sample index)`: the first 20 of a 300-sample
+`--dry-run` equal the 20-sample run's, so the runner's first-K-of-N convergence
+series still holds. A fleet run was not performed.
+
+`psrr-injector-attribution --backend batch` (issue #398) is a variant set, not a
+Monte Carlo point, so it takes the `psrr-injector-candidates` route
+(`batch_sim.build_adhoc_group()`): for each of the 5 variants (`base`,
+`core_only`, `ref_open`, `inj_open`, `clamp_open`) and each supply, one `ac`
+request (`AC_MEAS`, `dec 10 0.1 1meg`) and one `op` request (the variant's
+`OP_ALWAYS` + `op_extra` readouts) over the 5-process x 3-temperature cross
+product, with the variant's body from `variant_body()` as the request netlist.
+`--dry-run` prints the 30 requests; a real `--backend batch` run is wired to
+the same collection and record path as the candidates screen but was **not**
+performed on the fleet. Checked with `klt sim --backend local` on the generated
+`ff / 125 C / 3.63 V` requests of `base` and `ref_open` (2026-10-21): every one
+of the 14 and 13 values matches record `20261002-070506-29da08e` exactly
+(`base` `psrr_band_min=24.77854` dB, `v_ng=0.2560454` V; `ref_open`
+`psrr_band_min=67.0678` dB, `v_ng=0`).
+
+Single-corner batch results (tt / 27 C / 3.30 V) match
+the newest local records exactly: quiescent-current `iq=1.963682e-05`,
+`vref=1.193748`, `vgdrv=2.089822`; psrr-dc `psrr_dc=66.81663`,
+`psrr_1k=58.74709` (the same below-min FAIL the local record shows),
+`psrr_1m=14.0922` (records `20261020-222736-938e35b1` and `20261020-222904-938e35b1`;
+both are `FAIL` overall only because a one-point subset cannot satisfy the
+corner-sensitivity check). The `startup-stability-post-layout` batch path was
+dry-run only: one corner is ~1.8 h of fleet time.
 
 ### Batch backend (`--backend batch`, issue #320)
 
@@ -511,6 +612,47 @@ model library that is not the pinned one, runner skew, or a missing/duplicate
 corner becomes a failing `batch_integrity[...]` check in the record, and nothing
 falls back to a local ngspice. `--jobs` stays the local-mode (single-corner
 probe) knob; `--batch-max-jobs` bounds in-flight requests.
+
+**Pre-layout benches (issue #395).** Six more `corner-run.py` benches were
+translated; two are enabled, four are held back on the fleet runner.
+
+- **Enabled: `psrr-dc` (`ac dec ...`) and `quiescent-current` (`op`).** Scalar-
+  analysis requests exactly like `psrr-dc-with-injector`: one request per supply
+  voltage (3 jobs x 15 corners), manifest expressions and limits unchanged. One
+  corner (`tt / 27 degC / 3.3 V`) of each was run on the fleet (ngspice 46,
+  jobs `klt-sim-df4730742934` and `klt-sim-b49f7ccbde60`, 2026-10-20) and every
+  measurement equals the newest local record's value for that corner
+  (`20260909-232410-e8e2e46`) exactly.
+- **Held back: `line-regulation`, `output-voltage-tc`, `startup-ramp`,
+  `startup-time` (`batch_sim.STEP_REQUEST_SLUGS`).** Their decks carry
+  `meas dc|tran <name> ...` commands that later measurement expressions read by
+  name (`vrefnom`, `vref27`, `t_ref_s`, ...). `klt sim` keeps a file-scope
+  `.meas` result out of the `expr` namespace of a scalar-`analysis` request
+  (`vector vrefnom is not available`), so the adapter sends them as **one
+  `analysis_steps[]` step** (`main`): the `meas` commands become limitless `spice`
+  cards, the manifest's measurements stay `expr`s (with `let` chains inlined,
+  `vsup` pinned in the netlist), and inside a step an `expr` reads the card's
+  result by name, as the control-mode `meas` does locally. klt reports those
+  entries as `main.<name>`; `batch_sim.plain_name()` strips the qualifier, and
+  the deck's own `meas` results are kept in `klt-report.json` only. Locally
+  (`klt sim --backend local`) this reproduces the local deck's values exactly,
+  but **the fleet runner's klt (0.7.0, 2026-10-20) rejects `analysis_steps`**
+  (`batch_runner_feature_unsupported`, job exit 87, jobs `klt-sim-3a683692ffa5`,
+  `-7be1d1404c97`, `-a789ec6f4560`, `-f80a88ffcea6`), so no fleet comparison
+  exists and `--backend batch` refuses them with that reason. To enable one:
+  update the runner image's klt, run its `tt / 27 degC / 3.3 V` corner on the
+  fleet, compare with the newest record, then move the slug from
+  `STEP_REQUEST_SLUGS` to `BATCH_ENABLED_SLUGS`. A local 45-corner grid is not an
+  alternative on a dispatch host.
+- **Not enabled: `error-amp-loop`.** It chains `op`, `ac` and `ac` with `alter`
+  commands between them (`BATCH_UNSUPPORTED_REASONS`); no reference record cites
+  it, so no multi-step translation was written.
+
+Equivalence is pinned by `sim/tests/test_batch_benches.py`: its `KltVsLocal`
+case runs `tt / 27 degC / 3.3 V` of all six benches through
+`klt sim --backend local` (the deck writer and measurement harvesting the fleet
+runs) and through the local runner's deck, and requires every measurement to be
+identical.
 
 **Netlist note.** The dispatch hosts' xschem is 3.4.4, which (unlike the
 fleet's pinned 3.4.7) leaves the sky130 symbols' `ad=expr('...@W...')` instance

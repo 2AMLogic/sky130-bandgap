@@ -1,0 +1,304 @@
+{
+  "author": "ci@loom.test",
+  "corners": [
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-82a843c532cd",
+        "klt_corner_id": "tt/novdd/27C",
+        "klt_status": "pass"
+      },
+      "corner_id": "tt_27c_3.30v",
+      "elapsed_s": 12.928,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/quiescent-current-post-layout/corners/20261020-222736-938e35b1/tt_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-i(v1)",
+          "max": 5e-05,
+          "min": 1e-06,
+          "name": "iq",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.963682e-05
+        },
+        {
+          "expr": "v(vref)",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193748
+        },
+        {
+          "expr": "v(gdrv)",
+          "max": 2.9,
+          "min": 1.0,
+          "name": "vgdrv",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.089822
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 10800
+    }
+  ],
+  "execution": {
+    "backend": "batch",
+    "blockers": [],
+    "collected_at": "2026-10-20T22:28:56Z",
+    "corner_runtime_max_s": 12.9,
+    "corner_runtime_median_s": 12.9,
+    "corner_runtime_min_s": 12.9,
+    "corner_runtime_sum_s": 12.9,
+    "jobs": [
+      {
+        "collected_at": "2026-10-20T22:28:56Z",
+        "corner_count": 1,
+        "corner_runtime_max_s": 12.9,
+        "corner_runtime_min_s": 12.9,
+        "corner_runtime_sum_s": 12.9,
+        "engine": "ngspice",
+        "engine_version": "46",
+        "job_elapsed_s": 19,
+        "job_id": "klt-sim-82a843c532cd",
+        "klt_client_version": "0.7.1.dev2364+g47962f131e29",
+        "klt_exit_code": 0,
+        "klt_status": "pass",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "d6c3800f74be691c5ac83cae214d3eafbf451973c10213897f41b6e3a4b68b1c",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "pdk_provenance": {
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ],
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+        },
+        "queue_provision_and_transfer_s": 60.6,
+        "remote": {
+          "ami_id": "ami-0e0bec04ad8e81877",
+          "availability_zone": "us-east-1a",
+          "client_collected_at": "2026-10-20T22:28:56.717714Z",
+          "client_klt_version": "0.7.1.dev2364+g47962f131e29",
+          "client_launched_at": "2026-10-20T22:27:53.895977Z",
+          "client_status_terminal_at": "2026-10-20T22:28:55.900617Z",
+          "client_submitted_at": "2026-10-20T22:27:37.460970Z",
+          "concurrency": "2",
+          "elapsed_seconds": 19,
+          "exit_code": "0",
+          "instance_id": "i-01a8bc13c58bfc47c",
+          "instance_type": "c7i.8xlarge",
+          "job_ceiling": {
+            "basis": "conservative_serial_bound",
+            "check": "warn",
+            "exceeds_ceiling": true,
+            "job_bound_s": 10920.0,
+            "max_job_seconds": 3600.0,
+            "max_job_seconds_source": "fleet_config",
+            "max_units_per_job": 0,
+            "overhead_s": 120.0,
+            "per_unit_timeout_s": 10800,
+            "recommended_hosts": null,
+            "unit_count": 1,
+            "warning": "batch job bound 10920s (options.timeout_s 10800s x 1 units + 120s; a conservative fully-serial upper bound, not a runtime estimate) exceeds the fleet's whole-job ceiling of 3600s (max_job_seconds from fleet_config); a job still running at the ceiling is killed and every unit is reported batch_job_timeout. No remote.hosts value fits: a single unit's bound exceeds the ceiling -- lower options.timeout_s to at most 3480s"
+          },
+          "job_id": "klt-sim-82a843c532cd",
+          "lifecycle": "spot",
+          "physical_cores": "16",
+          "provider": "aws-batch-fleet",
+          "region": "us-east-1",
+          "runner_compatibility": "match",
+          "runner_klt_version": "0.7.0",
+          "runner_model_inputs": null,
+          "runner_request_features": {
+            "missing": [],
+            "required": [
+              "measurements[].expr",
+              "options.ngspice_init"
+            ],
+            "status": "supported"
+          },
+          "spot": true,
+          "state": "done",
+          "worker_environment": {
+            "capture": "ok",
+            "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+            "diagnostics": [],
+            "engine_build_comparison": {
+              "status": "mismatch",
+              "warning": "the worker's ngspice --version banner differs from the local binary's; build options (e.g. FFT linkage) may differ, so results derived from them can differ from a local run"
+            },
+            "image_manifest": null,
+            "model_inputs": null,
+            "omp_num_threads": null,
+            "pdk": {
+              "models_staged": false,
+              "root": "/opt/pdk",
+              "stamp_scheme": "sources-sha256",
+              "stamp_sha256": "d5ac52956829da3fee35d0b307d4e6cb83ae0e6535b56dba2eefed61cdffaf9b",
+              "stamp_text": "open_pdks c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+              "variant": "sky130A"
+            },
+            "pdk_stamp_comparison": {
+              "reason": "client_stamp_unavailable",
+              "status": "not_comparable"
+            },
+            "simulator": {
+              "binary_source": "PATH",
+              "requested_binary": "ngspice",
+              "selected_path": "/usr/local/bin/ngspice",
+              "version_banner": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Oct  1 23:51:59 UTC 2026\n******\n",
+              "version_probe": "ok"
+            }
+          }
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-396/sim/build/quiescent-current-post-layout/20261020-222736-938e35b1/batch/v3.30/klt-report.json",
+        "submit_to_collect_wall_s": 79.6,
+        "submitted_at": "2026-10-20T22:27:37Z",
+        "supply_v": 3.3
+      }
+    ],
+    "klt_client": "klt 0.7.1.dev2364+g47962f131e29",
+    "local_pinned_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+    "mechanism": "klt sim --backend batch (2am EDA batch fleet, Spot)",
+    "remote_ami_ids": [
+      "ami-0e0bec04ad8e81877"
+    ],
+    "remote_engine_versions": [
+      "46"
+    ],
+    "remote_instance_types": [
+      "c7i.8xlarge"
+    ],
+    "remote_pdk_matches_pin": true,
+    "submit_to_collect_wall_s": 79.6,
+    "submitted_at": "2026-10-20T22:27:37Z",
+    "timing_note": "elapsed_s per corner is the remote engine wall clock reported by klt (runtime_s). job_elapsed_s is the fleet harness's own job time. queue_provision_and_transfer_s = submit-to-collect wall minus job_elapsed_s (S3 upload, Spot acquisition/boot, polling granularity, download)."
+  },
+  "experiment": {
+    "claim": "README.md 'Target specification (ratified -- see DR-005, issue #1)' row 'Iq' (< 50 uA), for the 3.3 V primary flavor (DR-001). Measures the total current out of the single supply source feeding the ROUTED, LVS-clean bandgap-core layout (issue #62) -- both core branches, the R2A/R2B legs and the error amplifier's mirrored tail, now including the drawn VDD/VSS routing's own series resistance -- open-circuit at VREF, over the full 45-point PVT matrix, via klt extract --parasitics translated to a simulatable netlist (sim/bin/post_layout_common.py) -- NOT design/bandgap_core.sch directly; see 'Netlist provenance' below.",
+    "provenance": "extracted",
+    "provenance_source": "layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_routed.gds via `klt extract --parasitics` (layout record 20260923-070209-dbd57a9), translated by sim/bin/post_layout_common.py, wrapped over the unmodified sim/quiescent-current/testbench/tb_vref_iq.sch",
+    "slug": "quiescent-current-post-layout",
+    "statistical_convention": "N/A (corner-matrix claim)",
+    "title": "Total quiescent supply current of the untrimmed core over the full PVT matrix -- POST-LAYOUT (extracted netlist)"
+  },
+  "git": {
+    "branch": "feature/issue-396",
+    "dirty": true,
+    "sha": "938e35b1"
+  },
+  "jobs": null,
+  "layout_provenance": {
+    "core_port_order": [
+      "D1",
+      "D2",
+      "GDRV",
+      "NE",
+      "NG",
+      "PN",
+      "TAIL",
+      "VA",
+      "VB",
+      "VBQ",
+      "VDD",
+      "VOUT",
+      "VSS"
+    ],
+    "device_translation_counts": {
+      "mos": 73,
+      "pnp": 24,
+      "res": 145
+    },
+    "layout_gds": "layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_routed.gds",
+    "layout_record": "layout/bandgap-core/reports/20260923-070209-dbd57a9/record.md",
+    "layout_record_id": "20260923-070209-dbd57a9",
+    "lvs_mismatch_count_at_extraction": null,
+    "parasitics_snapshot": {
+      "c_count": 156,
+      "json": "sim/startup-time-post-layout/parasitics-snapshot/20260923-070209-dbd57a9/bandgap_core_routed.pex.json",
+      "r_count": 799,
+      "source": "reused:sim/startup-time-post-layout/parasitics-snapshot/20260923-070209-dbd57a9",
+      "spice": "sim/startup-time-post-layout/parasitics-snapshot/20260923-070209-dbd57a9/bandgap_core_routed.pex.spice",
+      "total_capacitance_ff": 1487.344084,
+      "total_resistance_ohm": 234007.2692
+    }
+  },
+  "links": {
+    "corners_dir": "sim/quiescent-current-post-layout/corners/20261020-222736-938e35b1/",
+    "json": "sim/quiescent-current-post-layout/records/20261020-222736-938e35b1.json",
+    "manifest": "sim/quiescent-current/experiment.json",
+    "netlist_snapshot": "sim/quiescent-current-post-layout/netlist-snapshots/20261020-222736-938e35b1.spice",
+    "record": "sim/quiescent-current-post-layout/records/20261020-222736-938e35b1.md",
+    "testbench": "sim/quiescent-current/testbench/tb_vref_iq.sch"
+  },
+  "matrix": {
+    "is_subset": true,
+    "n_points": 1,
+    "point_ids": [
+      "tt_27c_3.30v"
+    ],
+    "points": [
+      [
+        "tt",
+        27.0,
+        3.3
+      ]
+    ],
+    "process": [
+      "tt"
+    ],
+    "subset_reason": "single-corner batch-vs-local equivalence check for issue 396",
+    "supply_v": [
+      3.3
+    ],
+    "temperature_c": [
+      27.0
+    ]
+  },
+  "overall_blockers": [],
+  "overall_pass": false,
+  "pdk": {
+    "installed_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "lib_file": "/home/ubuntu/.ciel/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "root": "/home/ubuntu/.ciel",
+    "variant": "sky130A"
+  },
+  "record_id": "20261020-222736-938e35b1",
+  "spread_checks": [
+    {
+      "measurement": "iq",
+      "min_spread": 1e-06,
+      "n": 1,
+      "note": "Iq must move by at least 1 uA across the 45-point matrix. A dead-flat current would mean the corner/temperature/supply knobs are not reaching the simulator -- the same liveness argument sim/pdk-smoke/ makes for the harness itself.",
+      "observed_spread": 0.0,
+      "pass": false,
+      "reason": "fewer than two corner points"
+    }
+  ],
+  "supersedes": "",
+  "timestamp": "2026-10-20T22:27:36Z",
+  "tools": {
+    "klt": "klt 0.7.1.dev2364+g47962f131e29",
+    "ngspice": "ngspice-46 (remote, batch fleet c7i.8xlarge; not the dispatch host's ngspice)",
+    "platform": "Linux 7.0.0-1014-aws x86_64",
+    "python": "3.12.3",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}

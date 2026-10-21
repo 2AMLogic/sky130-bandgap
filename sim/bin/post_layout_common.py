@@ -137,6 +137,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+import batch_sim
 import sim_common
 
 
@@ -661,7 +662,38 @@ def parse_post_layout_args(argv: list[str], doc: str = "") -> argparse.Namespace
     p = argparse.ArgumentParser(description=doc)
     p.add_argument("--supersedes", default="")
     p.add_argument("--author", default="")
-    p.add_argument("--timeout", type=int, default=300)
+    p.add_argument(
+        "--timeout",
+        type=int,
+        default=None,
+        help=(
+            "per-corner ngspice timeout in seconds (default: 300 locally, "
+            f"{batch_sim.DEFAULT_BATCH_TIMEOUT_S} with --backend batch)"
+        ),
+    )
+    p.add_argument(
+        "--backend",
+        choices=("local", "batch"),
+        default="local",
+        help=(
+            "where corners run (default: local). 'batch' sends the matrix to the Spot batch "
+            "fleet through `klt sim --backend batch`; available for "
+            f"{sorted(batch_sim.POST_LAYOUT_BATCH_ENABLED_SLUGS)} only (see sim/README.md). "
+            "A failed batch submission is an error -- it never falls back to a local run"
+        ),
+    )
+    p.add_argument(
+        "--batch-capacity-wait-s",
+        type=float,
+        default=3600.0,
+        help="wait this long for Spot capacity per batch submission (default 3600)",
+    )
+    p.add_argument(
+        "--batch-runner-version-check",
+        choices=("enforce", "warn"),
+        default="enforce",
+        help="klt runner/client version-skew policy for batch jobs (default enforce)",
+    )
     p.add_argument(
         "-j",
         "--jobs",
@@ -698,7 +730,10 @@ def parse_post_layout_args(argv: list[str], doc: str = "") -> argparse.Namespace
         default="",
         help="why a subset of the full PVT matrix is acceptable (required for subsets)",
     )
-    return p.parse_args(argv)
+    args = p.parse_args(argv)
+    if args.timeout is None:
+        args.timeout = batch_sim.DEFAULT_BATCH_TIMEOUT_S if args.backend == "batch" else 300
+    return args
 
 
 def resolve_record_claim_and_title(
@@ -863,6 +898,16 @@ def run_post_layout_experiment(
     HarnessError/PostLayoutError to 1).
     """
     args = parse_post_layout_args(argv)
+    batch = args.backend == "batch"
+    if batch and args.jobs > 1:
+        raise cr.HarnessError("--jobs is a local-concurrency flag; --backend batch ignores it, drop it")
+    if batch:
+        try:
+            batch_sim.require_batch_enabled(
+                slug, batch_sim.POST_LAYOUT_BATCH_ENABLED_SLUGS, dry_run=args.dry_run
+            )
+        except batch_sim.BatchError as err:
+            raise cr.HarnessError(str(err)) from err
 
     # CLI axis overrides (issue #284) may only fill in an axis this bench's own
     # runner script leaves open. An axis the script pins deliberately -- because
@@ -899,7 +944,7 @@ def run_post_layout_experiment(
             f"installed PDK {pdk.variant} is open_pdks {pdk.installed_commit}, but "
             f"sim/pdk.json pins {pin['open_pdks_commit']} (use --allow-pdk-mismatch to override)"
         )
-    if not shutil.which("ngspice"):
+    if not batch and not shutil.which("ngspice"):
         raise cr.HarnessError("ngspice not found on PATH")
     if not shutil.which("klt"):
         raise cr.HarnessError("klt (klayout-tools) not found on PATH")
@@ -958,6 +1003,26 @@ def run_post_layout_experiment(
     print(f"parasitics      : {layout_provenance['parasitics_snapshot']['source']}")
     print(f"corner points   : {len(matrix)}" + (" (SUBSET)" if is_subset else " (full matrix)"))
 
+    spiceinit_text = (SIM_DIR / "spiceinit").read_text()
+
+    if args.dry_run and batch:
+        try:
+            groups = batch_sim.build_groups(
+                exp, pin, matrix, body, spiceinit_text, run_dir / "batch", args.timeout,
+                capacity_wait_s=args.batch_capacity_wait_s,
+                runner_version_check=args.batch_runner_version_check,
+                poll_interval_s=30.0, gate_slug=slug, allow_step_requests=True,
+            )
+        except batch_sim.BatchError as err:
+            raise cr.HarnessError(str(err)) from err
+        print("\n-- batch requests (one klt sim job per supply voltage) --")
+        for g in groups:
+            print(f"  {g.request_path}  ({len(g.corners)} corners at {g.supply_v:.2f} V)")
+        print(f"\n-- request for {groups[0].supply_v:.2f} V --")
+        print(groups[0].request_path.read_text())
+        print("(dry run: nothing submitted, nothing written under sim/<experiment>/)")
+        return 0
+
     if args.dry_run:
         print("\n-- corner list --")
         for corner in matrix:
@@ -981,6 +1046,24 @@ def run_post_layout_experiment(
         ),
         "statistical_convention": exp.raw.get("statistical_convention", "N/A"),
     }
+    execute_matrix = None
+    if batch:
+        local_tools = cr.tool_versions()
+        local_tools["klt"] = cr.first_line(["klt", "--version"])
+
+        def execute_matrix(matrix_, corners_dir_):
+            try:
+                return batch_sim.execute(
+                    exp, pin, pdk, matrix_, body, spiceinit_text,
+                    run_dir / "batch", corners_dir_, REPO_ROOT, args.timeout,
+                    cr.evaluate_measurements, local_tools,
+                    capacity_wait_s=args.batch_capacity_wait_s,
+                    runner_version_check=args.batch_runner_version_check,
+                    gate_slug=slug,
+                )
+            except batch_sim.BatchError as err:
+                raise cr.HarnessError(str(err)) from err
+
     _record, overall = sim_common.run_matrix_and_write_record(
         cr,
         exp=exp,
@@ -1006,6 +1089,7 @@ def run_post_layout_experiment(
             "manifest": str((SIM_DIR / wrapped_experiment / "experiment.json").relative_to(REPO_ROOT)),
         },
         record_extra={"layout_provenance": layout_provenance},
+        execute_matrix=execute_matrix,
     )
     return 0 if overall else 2
 
