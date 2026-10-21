@@ -3,8 +3,27 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-10-21
+
+- **PR #409**: feat(sim): add --backend batch and --dry-run to psrr-injector-attribution
+- **PR #408**: feat(sim): build klt Monte Carlo batch requests for monte-carlo-untrimmed
+- **PR #407**: refactor(sim): reuse batch_sim.sha256_file in run_trim_lsb_chained
+- **PR #406**: feat(sim): build klt Monte Carlo batch requests for error-amp-offset-mc
+- **PR #405**: feat(sim): dry-run batch requests for meas post-layout benches, refuse real runs until the runner supports analysis_steps
+- **PR #399**: feat(sim): batch backend for the translatable post-layout runners
+- **PR #392**: chore(layout): prune 8 redundant trivial-cell report runs, fix README current-record pointer
+- **Issue #404** (closed): Dedup sha256_file(): run_trim_lsb_chained.py reimplements batch_sim's canonical helper
+- **Issue #398** (closed): Batch backend for the remaining post-layout and MC/offset/attribution runners
+- **Issue #396** (closed): Add --backend batch to post-layout, MC and attribution runners (prereq of #370)
+- **Issue #381** (closed): Prune 12 unreferenced trivial-cell report runs; fix stale README pointer
+
 ### 2026-10-20
 
+- **PR #403**: chore: remove stale tracked manifest.json.tmp and gitignore it
+- **PR #402**: ci: pin signoff job Python to 3.11
+- **PR #397**: feat(sim): batch backend for psrr-dc and quiescent-current; hold meas benches on runner klt
+- **Issue #401** (closed): CI: signoff job red on main — klayout sdist build on unpinned python 3.x
+- **Issue #400** (closed): Remove stale tracked .loom/manifest.json.tmp (interrupted-install leftover)
 - **PR #373**: build(sim): re-pin PDK to open_pdks f6eeac7 via ciel with SOURCES revision check
 - **Issue #369** (closed): Re-pin open_pdks to f6eeac7 (ciel) — fleet retires volare c6d73a3
 
