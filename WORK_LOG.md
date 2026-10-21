@@ -5,6 +5,9 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-10-21
 
+- **PR #413**: Bump Repo Skills 0.24.3 -> 0.24.7
+- **PR #412**: refactor(sim): share psrr-injector batch helpers in sim_common
+- **Issue #410** (closed): Dedup batch-backend helpers between the two psrr-injector sim scripts
 - **PR #409**: feat(sim): add --backend batch and --dry-run to psrr-injector-attribution
 - **PR #408**: feat(sim): build klt Monte Carlo batch requests for monte-carlo-untrimmed
 - **PR #407**: refactor(sim): reuse batch_sim.sha256_file in run_trim_lsb_chained
