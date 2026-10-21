@@ -48,6 +48,19 @@ class SharedHelpersTest(unittest.TestCase):
         self.assertIn("[  1/2] x     tt_27c_1.80v", out)
         self.assertIn("NO MEASUREMENT (rc=0, timeout=False)", out)
 
+    def test_write_batch_log_and_artifact_text(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            deck = tmp / "deck.cir"
+            deck.write_text("R1 a b 1k\n")
+            kcs = {"ac": {"artifacts": {"deck": str(deck)}, "diagnostics": []}}
+            self.assertIsNone(sim_common.artifact_text(None, "deck"))
+            self.assertEqual(sim_common.artifact_text(kcs["ac"], "deck"), "R1 a b 1k\n")
+            sim_common.write_batch_log(tmp / "logs", "v__c", "rid", kcs)
+            text = (tmp / "logs" / "v__c.log").read_text()
+            self.assertIn("| R1 a b 1k", text)
+            self.assertIn("(not retrieved)", text)  # no ngspice log artifact
+
 
 if __name__ == "__main__":
     unittest.main()
