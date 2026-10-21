@@ -450,7 +450,8 @@ submission is an error, never a local run.
 | `line-regulation-post-layout` | `--dry-run` only (runner klt) | translated; in-deck `dc v1` sweep plus a `meas dc FIND ... AT` card |
 | `output-voltage-tc-post-layout` | `--dry-run` only (runner klt) | translated; in-deck `dc temp` sweep plus a `meas dc FIND ... AT` card |
 | `error-amp-offset-mc` | `--dry-run` only (record collection) | one `klt sim` `monte_carlo` request per point (`{n, seed, vary: mismatch}`, `.op`, section as the process); see below |
-| `monte-carlo-untrimmed`, `psrr-injector-attribution` | not yet, no `--backend` option | bespoke `.control` loops (`setseed`/`reset`/`repeat`) and variant sets, not traced against klt's `monte_carlo` request; follow-up |
+| `monte-carlo-untrimmed` | `--dry-run` only (record collection) | one `klt sim` `monte_carlo` request per point (14: 3 temperatures x 4 `config`s, the MC-off control, the second-seed point); the `config` axis rides in the netlist as `.param <coeff>=0` |
+| `psrr-injector-attribution` | not yet, no `--backend` option | bespoke `.control` loops (`setseed`/`reset`/`repeat`) and variant sets, not traced against klt's `monte_carlo` request; follow-up |
 
 The four `meas` benches (issue #398) are **translated but refused for real runs**:
 `batch_sim.split_analyses()` turns each `meas` card into a `klt sim` `spice`
@@ -487,6 +488,24 @@ sigma(vos) / sigma(vout) / sigma(dvbe8) / sigma(dvbe1) are 1.03 / 0.99 / 0.92 /
 0.91 of record `20260817-130441-aa5324e`, inside the +-9 % standard error of a
 60-sample sigma; means agree to within 1-2 standard errors (vout 1.2122 vs
 1.2107 V). The MC-off control and second-seed points were not run on the fleet.
+
+`monte-carlo-untrimmed --backend batch --dry-run` (issue #398) is built the same
+way (`batch_sim.build_mc_group()`, one table `VECTOR_EXPRS` feeding the local
+`let` lines and the request's `measurements[]`). Differences from the offset
+runner: the `config` axis (which device family's `sw_mm_*` coefficients are
+zeroed) is written into each request's netlist after the circuit body, which is
+where it lands in the local deck too because klt emits `.lib <section>` before
+`.include <netlist>`; and the testbench's `.save i(v1)` is dropped from the
+netlist (the local loop re-issues `save all` after every `reset` for the same
+reason). A real `--backend batch` run is refused, as for the offset runner.
+Checked with `klt sim --backend local` on the generated `tt_mm_all_27c_3.30v`
+request cut to N = 20 (2026-10-21, 20/20 passed, none outside the operating
+window): mean(vout) 1.2123 V, sigma(vout) 8.28 mV against record
+`20260817-121131-d7d85b6`'s 1.2112 V and 7.14 mV (N = 300), i.e. a sigma ratio of
+1.16 against a +-16 % standard error at N = 20. klt's per-sample seeds depend
+only on `(monte_carlo.seed, sample index)`: the first 20 of a 300-sample
+`--dry-run` equal the 20-sample run's, so the runner's first-K-of-N convergence
+series still holds. A fleet run was not performed.
 
 Single-corner batch results (tt / 27 C / 3.30 V) match
 the newest local records exactly: quiescent-current `iq=1.963682e-05`,
