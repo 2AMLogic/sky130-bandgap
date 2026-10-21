@@ -67,7 +67,6 @@ layout/.venv-erc/
 .loom/guide-docs-state.json
 .loom/metrics_state.json
 .loom/manifest.json
-.loom/manifest.json.tmp
 .loom/stuck-config.json
 .loom/metrics/
 .loom/usage-cache.json
