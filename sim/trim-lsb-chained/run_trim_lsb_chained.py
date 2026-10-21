@@ -186,10 +186,6 @@ _NON_DEVICE_NAMES = {"CORE_PARAMS", "RES_HEAD_MODEL", "AMP_PARAMS"}
 _SCH_NAME_RE = re.compile(r"\{[^}]*?\bname=([A-Z][A-Z0-9_]*)\b")
 
 
-def sha256_file(path: Path) -> str:
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
-
-
 def schematic_instances(sch: Path) -> set[str]:
     """Upper-case instance refdes of an xschem schematic (pins/labels are lower-case)."""
     return {n for n in _SCH_NAME_RE.findall(Path(sch).read_text()) if n not in _NON_DEVICE_NAMES}
@@ -261,7 +257,7 @@ def input_provenance(body: list[str]) -> dict:
         str(TB_SCH.relative_to(REPO_ROOT)): TB_SCH,
     }
     return {
-        "schematic_sha256": {k: sha256_file(v) for k, v in files.items()},
+        "schematic_sha256": {k: batch_sim.sha256_file(v) for k, v in files.items()},
         "netlist_body_sha256": hashlib.sha256("\n".join(body).encode()).hexdigest(),
         "startup_injector_in_bench": False,
     }
@@ -764,8 +760,8 @@ def mint_dr005_record(source_json: Path, author: str = "") -> tuple[Path, Path]:
         "supersedes": None,
         "source_record": {
             "record_id": src["record_id"],
-            "json": rel(source_json), "json_sha256": sha256_file(source_json),
-            "md": rel(source_md), "md_sha256": sha256_file(source_md),
+            "json": rel(source_json), "json_sha256": batch_sim.sha256_file(source_json),
+            "md": rel(source_md), "md_sha256": batch_sim.sha256_file(source_md),
             "issue": 327,
         },
         "input_hashes": src["provenance"],
@@ -1131,7 +1127,7 @@ def verify(args) -> int:
                  "lumped_codes": list(LUMPED_CODES), "requests": len(jobs)},
         "provenance": provenance,
         "verified_core_devices": verified_devices,
-        "request_netlist_sha256": {j.name: sha256_file(g.dir / "netlist.cir") for g, j in
+        "request_netlist_sha256": {j.name: batch_sim.sha256_file(g.dir / "netlist.cir") for g, j in
                                    ((g, by_dir[g.dir]) for g in groups)},
         "checks": checks,
         "overall_pass": overall,
