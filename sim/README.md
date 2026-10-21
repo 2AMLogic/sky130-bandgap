@@ -445,19 +445,31 @@ submission is an error, never a local run.
 | `psrr-dc-post-layout` | yes | `ac` analysis, scalar expressions |
 | `quiescent-current-post-layout` | yes | `op` analysis, scalar expressions |
 | `startup-stability-post-layout` | yes | `dc` + `let` intermediates (inlined, as for `startup-stability`) |
-| `startup-ramp-post-layout` | not yet, stays local | `tran` deck measured with `meas tran ... WHEN/FIND AT` cards |
-| `startup-time-post-layout` | not yet, stays local | `tran` deck measured with `meas tran FIND ... AT` cards |
-| `line-regulation-post-layout` | not yet, stays local | in-deck `dc v1` sweep plus a `meas dc FIND ... AT` card |
-| `output-voltage-tc-post-layout` | not yet, stays local | in-deck `dc temp` sweep plus a `meas dc FIND ... AT` card |
+| `startup-ramp-post-layout` | `--dry-run` only (runner klt) | translated; `tran` deck measured with `meas tran ... WHEN/FIND AT` cards |
+| `startup-time-post-layout` | `--dry-run` only (runner klt) | translated; `tran` deck measured with `meas tran FIND ... AT` cards |
+| `line-regulation-post-layout` | `--dry-run` only (runner klt) | translated; in-deck `dc v1` sweep plus a `meas dc FIND ... AT` card |
+| `output-voltage-tc-post-layout` | `--dry-run` only (runner klt) | translated; in-deck `dc temp` sweep plus a `meas dc FIND ... AT` card |
 | `monte-carlo-untrimmed`, `error-amp-offset-mc`, `psrr-injector-attribution` | not yet, no `--backend` option | bespoke `.control` loops (`setseed`/`reset`/`repeat`) and variant sets, not traced against klt's `monte_carlo` request; follow-up |
 
-The refused benches are **not yet translated**, not shown to be untranslatable:
-`batch_sim.split_analyses()` accepts one analysis card plus `let` lines, and
-their `meas` cards would have to become `klt sim` `spice` measurements with the
-manifest's expressions referencing them, checked per bench against a local
-record. The runners refuse with the reason
-(`batch_sim.POST_LAYOUT_BATCH_REFUSALS`) instead of failing in the middle of
-request construction; the follow-up is tracked in the issue linked from the PR. Single-corner batch results (tt / 27 C / 3.30 V) match
+The four `meas` benches (issue #398) are **translated but refused for real runs**:
+`batch_sim.split_analyses()` turns each `meas` card into a `klt sim` `spice`
+measurement, the manifest's expressions read them by name, and the deck is sent
+as one `analysis_steps[]` step (klt only lets an expression read a `meas`
+result inside a step's own plot). The fleet runner's klt is 0.7.0, which rejects
+`analysis_steps` before simulating (`batch_runner_feature_unsupported`; live
+single-corner submission of `startup-time-post-layout`, 2026-10-21, tracked at
+klayout-tools#3516), so `--dry-run` prints their requests and a real
+`--backend batch` run is refused with that reason
+(`batch_sim.POST_LAYOUT_BATCH_REFUSALS`). Move a slug into
+`POST_LAYOUT_BATCH_ENABLED_SLUGS` once the runner image accepts the shape and
+a live single-corner run matches the local record. Checked locally instead:
+the `startup-time-post-layout` request run through `klt sim --backend local`
+(tt / 27 C / 3.30 V) gives `vref_final=1.193888`, `gdrv_final=2.08979`,
+`t_start_ms=0.08886417`, `vdd_final=3.3`, identical to the matching row of
+record `20260923-070906-dbd57a9`. The three bespoke Monte Carlo / attribution
+runners remain without a `--backend` option (issue #398, follow-up PR).
+
+Single-corner batch results (tt / 27 C / 3.30 V) match
 the newest local records exactly: quiescent-current `iq=1.963682e-05`,
 `vref=1.193748`, `vgdrv=2.089822`; psrr-dc `psrr_dc=66.81663`,
 `psrr_1k=58.74709` (the same below-min FAIL the local record shows),

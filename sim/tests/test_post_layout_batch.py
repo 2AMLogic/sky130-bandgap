@@ -92,18 +92,47 @@ class PostLayoutBatchRequests(unittest.TestCase):
                 _exp, groups = self.groups(slug)
                 self.assertEqual(groups[0].request["analysis"]["kind"], kind)
 
-    def test_untranslatable_benches_are_refused_with_a_reason(self):
+    def test_meas_benches_are_refused_for_real_runs_with_a_reason(self):
         for slug in sorted(batch_sim.POST_LAYOUT_BATCH_REFUSALS):
             with self.subTest(slug=slug):
                 with self.assertRaises(batch_sim.BatchError) as cm:
                     self.groups(slug)
-                self.assertIn(batch_sim.POST_LAYOUT_BATCH_REFUSALS[slug], str(cm.exception))
-                self.assertIn("not yet mapped", str(cm.exception))
+                self.assertIn("batch_runner_feature_unsupported", str(cm.exception))
+                with self.assertRaises(batch_sim.BatchError):
+                    batch_sim.require_batch_enabled(slug, batch_sim.POST_LAYOUT_BATCH_ENABLED_SLUGS)
+
+    def test_meas_benches_dry_run_as_one_analysis_step(self):
+        for slug in sorted(batch_sim.POST_LAYOUT_STEP_REQUEST_SLUGS):
+            with self.subTest(slug=slug):
+                exp = cr.load_experiment(SIM_DIR / MANIFEST[slug])
+                groups = batch_sim.build_groups(
+                    exp, PIN, matrix(exp), BODY, SPICEINIT, self.tmp / slug, 60,
+                    capacity_wait_s=60, runner_version_check="enforce", poll_interval_s=30,
+                    gate_slug=slug, allow_step_requests=True,
+                )
+                self.assertEqual(
+                    sorted(g.supply_v for g in groups), sorted({c.supply_v for c in matrix(exp)})
+                )
+                for g in groups:
+                    self.assertNotIn("analysis", g.request)
+                    (step,) = g.request["analysis_steps"]
+                    spice = [m["name"] for m in step["measurements"] if "spice" in m]
+                    self.assertEqual(
+                        spice,
+                        [e.split()[2] for e in exp.raw["deck"]["analyses"] if e.startswith("meas ")],
+                    )
+                    self.assertTrue(
+                        {m.name for m in exp.measurements}
+                        <= {m["name"] for m in step["measurements"]}
+                    )
 
     def test_every_post_layout_bench_is_enabled_or_refused(self):
         self.assertEqual(
             set(MANIFEST),
             batch_sim.POST_LAYOUT_BATCH_ENABLED_SLUGS | set(batch_sim.POST_LAYOUT_BATCH_REFUSALS),
+        )
+        self.assertEqual(
+            set(batch_sim.POST_LAYOUT_BATCH_REFUSALS), batch_sim.POST_LAYOUT_STEP_REQUEST_SLUGS
         )
 
     def test_unknown_post_layout_slug_is_refused(self):

@@ -903,7 +903,9 @@ def run_post_layout_experiment(
         raise cr.HarnessError("--jobs is a local-concurrency flag; --backend batch ignores it, drop it")
     if batch:
         try:
-            batch_sim.require_batch_enabled(slug, batch_sim.POST_LAYOUT_BATCH_ENABLED_SLUGS)
+            batch_sim.require_batch_enabled(
+                slug, batch_sim.POST_LAYOUT_BATCH_ENABLED_SLUGS, dry_run=args.dry_run
+            )
         except batch_sim.BatchError as err:
             raise cr.HarnessError(str(err)) from err
 
@@ -1009,7 +1011,7 @@ def run_post_layout_experiment(
                 exp, pin, matrix, body, spiceinit_text, run_dir / "batch", args.timeout,
                 capacity_wait_s=args.batch_capacity_wait_s,
                 runner_version_check=args.batch_runner_version_check,
-                poll_interval_s=30.0, gate_slug=slug,
+                poll_interval_s=30.0, gate_slug=slug, allow_step_requests=True,
             )
         except batch_sim.BatchError as err:
             raise cr.HarnessError(str(err)) from err
