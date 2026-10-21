@@ -451,7 +451,7 @@ submission is an error, never a local run.
 | `output-voltage-tc-post-layout` | `--dry-run` only (runner klt) | translated; in-deck `dc temp` sweep plus a `meas dc FIND ... AT` card |
 | `error-amp-offset-mc` | `--dry-run` only (record collection) | one `klt sim` `monte_carlo` request per point (`{n, seed, vary: mismatch}`, `.op`, section as the process); see below |
 | `monte-carlo-untrimmed` | `--dry-run` only (record collection) | one `klt sim` `monte_carlo` request per point (14: 3 temperatures x 4 `config`s, the MC-off control, the second-seed point); the `config` axis rides in the netlist as `.param <coeff>=0` |
-| `psrr-injector-attribution` | not yet, no `--backend` option | bespoke `.control` loops (`setseed`/`reset`/`repeat`) and variant sets, not traced against klt's `monte_carlo` request; follow-up |
+| `psrr-injector-attribution` | yes (`--dry-run` prints the requests) | variant set, not Monte Carlo: per variant x supply, one `ac` and one `op` request over the 5 x 3 process x temperature cross product, each variant's netlist from `variant_body()` (30 requests for the full run); same shape as `psrr-injector-candidates` |
 
 The four `meas` benches (issue #398) are **translated but refused for real runs**:
 `batch_sim.split_analyses()` turns each `meas` card into a `klt sim` `spice`
@@ -468,8 +468,7 @@ a live single-corner run matches the local record. Checked locally instead:
 the `startup-time-post-layout` request run through `klt sim --backend local`
 (tt / 27 C / 3.30 V) gives `vref_final=1.193888`, `gdrv_final=2.08979`,
 `t_start_ms=0.08886417`, `vdd_final=3.3`, identical to the matching row of
-record `20260923-070906-dbd57a9`. The three bespoke Monte Carlo / attribution
-runners remain without a `--backend` option (issue #398, follow-up PRs).
+record `20260923-070906-dbd57a9`.
 
 `error-amp-offset-mc --backend batch --dry-run` (issue #398) prints one request
 per `MismatchPoint` (3 temperatures, the MC-off control, the second-seed point;
@@ -506,6 +505,21 @@ window): mean(vout) 1.2123 V, sigma(vout) 8.28 mV against record
 only on `(monte_carlo.seed, sample index)`: the first 20 of a 300-sample
 `--dry-run` equal the 20-sample run's, so the runner's first-K-of-N convergence
 series still holds. A fleet run was not performed.
+
+`psrr-injector-attribution --backend batch` (issue #398) is a variant set, not a
+Monte Carlo point, so it takes the `psrr-injector-candidates` route
+(`batch_sim.build_adhoc_group()`): for each of the 5 variants (`base`,
+`core_only`, `ref_open`, `inj_open`, `clamp_open`) and each supply, one `ac`
+request (`AC_MEAS`, `dec 10 0.1 1meg`) and one `op` request (the variant's
+`OP_ALWAYS` + `op_extra` readouts) over the 5-process x 3-temperature cross
+product, with the variant's body from `variant_body()` as the request netlist.
+`--dry-run` prints the 30 requests; a real `--backend batch` run is wired to
+the same collection and record path as the candidates screen but was **not**
+performed on the fleet. Checked with `klt sim --backend local` on the generated
+`ff / 125 C / 3.63 V` requests of `base` and `ref_open` (2026-10-21): every one
+of the 14 and 13 values matches record `20261002-070506-29da08e` exactly
+(`base` `psrr_band_min=24.77854` dB, `v_ng=0.2560454` V; `ref_open`
+`psrr_band_min=67.0678` dB, `v_ng=0`).
 
 Single-corner batch results (tt / 27 C / 3.30 V) match
 the newest local records exactly: quiescent-current `iq=1.963682e-05`,
