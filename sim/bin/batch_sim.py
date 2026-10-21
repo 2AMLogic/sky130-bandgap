@@ -101,32 +101,47 @@ POST_LAYOUT_BATCH_ENABLED_SLUGS = frozenset(
     {"psrr-dc-post-layout", "quiescent-current-post-layout", "startup-stability-post-layout"}
 )
 
-#: Post-layout benches not yet translated, with the reason. Their manifests
-#: use ngspice `meas` cards (`meas tran ... WHEN/FIND AT`, `meas dc ... FIND
-#: AT`) that `split_analyses()` rejects: they would have to become `klt sim`
-#: `spice` measurements with the manifest's `expr` measurements referencing
-#: them, which is per-bench work that needs its own single-corner check against
-#: a local record. Not a klt gap (klt accepts `spice` measurement cards); a
-#: follow-up of issue #396. Listed so the refusal names the cause instead of
-#: failing deep inside `split_analyses()`.
+#: Post-layout benches (issue #398) whose manifests carry `meas` cards. They
+#: are translated: `split_analyses()` turns the cards into `spice`
+#: measurements and `build_request()` sends one `analysis_steps[]` step, the
+#: same shape as `STEP_REQUEST_SLUGS`. They are NOT enabled for the same
+#: reason those are not: the fleet runner's klt (0.7.0 on 2026-10-21) rejects
+#: `analysis_steps` with `batch_runner_feature_unsupported` before simulating
+#: (live single-corner submission of `startup-time-post-layout`, 2026-10-21),
+#: so `--dry-run` prints the requests and a real `--backend batch` run is
+#: refused with this reason. Move a slug into
+#: `POST_LAYOUT_BATCH_ENABLED_SLUGS` once the runner image accepts the shape
+#: and a live single-corner run matches the bench's newest local record.
+POST_LAYOUT_STEP_REQUEST_SLUGS = frozenset({
+    "startup-ramp-post-layout",
+    "startup-time-post-layout",
+    "line-regulation-post-layout",
+    "output-voltage-tc-post-layout",
+})
+
 POST_LAYOUT_BATCH_REFUSALS = {
-    "startup-ramp-post-layout": "tran deck with `meas tran ... WHEN/FIND AT` cards",
-    "startup-time-post-layout": "tran deck with `meas tran FIND ... AT` cards",
-    "line-regulation-post-layout": "in-deck `dc v1` sweep with a `meas dc FIND ... AT` card",
-    "output-voltage-tc-post-layout": "in-deck `dc temp` sweep with a `meas dc FIND ... AT` card",
+    slug: (
+        "its `meas` cards are sent as an `analysis_steps[]` request, which the batch fleet's "
+        "runner klt (0.7.0 on 2026-10-21) does not support yet "
+        "(`batch_runner_feature_unsupported`); enable it once the runner image is updated"
+    )
+    for slug in sorted(POST_LAYOUT_STEP_REQUEST_SLUGS)
 }
 
 
-def require_batch_enabled(slug: str, enabled: frozenset = BATCH_ENABLED_SLUGS) -> None:
-    """Raise `BatchError` unless `slug` may run with `--backend batch`."""
-    if slug in POST_LAYOUT_BATCH_REFUSALS:
+def require_batch_enabled(
+    slug: str, enabled: frozenset = BATCH_ENABLED_SLUGS, *, dry_run: bool = False
+) -> None:
+    """Raise `BatchError` unless `slug` may run with `--backend batch`.
+    `dry_run` admits the translated-but-refused post-layout benches, so
+    `--dry-run` can print their requests."""
+    if slug in POST_LAYOUT_BATCH_REFUSALS and not dry_run:
         raise BatchError(
             f"--backend batch is not available for {slug!r}: "
-            f"{POST_LAYOUT_BATCH_REFUSALS[slug]}, whose `meas` cards are not yet mapped to "
-            "`klt sim` measurements (left on the local runner; see sim/README.md "
-            "'Post-layout benches on the batch backend')"
+            f"{POST_LAYOUT_BATCH_REFUSALS[slug]} (left on the local runner; `--dry-run` prints "
+            "the request; see sim/README.md 'Post-layout benches on the batch backend')"
         )
-    if slug not in enabled:
+    if slug not in enabled and slug not in POST_LAYOUT_BATCH_REFUSALS:
         raise BatchError(
             f"--backend batch is only enabled for {sorted(enabled)}; {slug!r} keeps the local runner"
         )
@@ -416,8 +431,9 @@ def build_groups(
     `gate_slug` names the bench for the enablement check when it differs from
     `exp.slug` (a post-layout bench wrapping another bench's manifest); it is
     checked against `POST_LAYOUT_BATCH_ENABLED_SLUGS`.
-    `allow_step_requests` admits `STEP_REQUEST_SLUGS` (tests, local klt checks);
-    `corner-run.py` never sets it."""
+    `allow_step_requests` admits `STEP_REQUEST_SLUGS` and
+    `POST_LAYOUT_STEP_REQUEST_SLUGS` (tests, local klt checks, `--dry-run`);
+    a real run never sets it."""
     if gate_slug is None:
         if exp.slug not in BATCH_ENABLED_SLUGS and not (
             allow_step_requests and exp.slug in STEP_REQUEST_SLUGS
@@ -429,7 +445,9 @@ def build_groups(
                 + (f": {why}" if why else "")
             )
     else:
-        require_batch_enabled(gate_slug, POST_LAYOUT_BATCH_ENABLED_SLUGS)
+        require_batch_enabled(
+            gate_slug, POST_LAYOUT_BATCH_ENABLED_SLUGS, dry_run=allow_step_requests
+        )
     analysis, lets, meas_cards = split_analyses(list((exp.raw.get("deck") or {}).get("analyses") or []))
     clash = {c["name"].lower() for c in meas_cards} & {m.name.lower() for m in exp.measurements}
     if clash:
