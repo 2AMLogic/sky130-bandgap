@@ -93,6 +93,44 @@ BATCH_UNSUPPORTED_REASONS = {
     ),
 }
 
+#: Post-layout benches (`sim/*-post-layout/`, issue #396) whose manifest is a
+#: single analysis card plus `let` lines -- the only shape `split_analyses()`
+#: can express as a `klt sim` request. The deck body is the extracted-netlist
+#: body, shipped to the fleet inside the request's netlist file like any other.
+POST_LAYOUT_BATCH_ENABLED_SLUGS = frozenset(
+    {"psrr-dc-post-layout", "quiescent-current-post-layout", "startup-stability-post-layout"}
+)
+
+#: Post-layout benches not yet translated, with the reason. Their manifests
+#: use ngspice `meas` cards (`meas tran ... WHEN/FIND AT`, `meas dc ... FIND
+#: AT`) that `split_analyses()` rejects: they would have to become `klt sim`
+#: `spice` measurements with the manifest's `expr` measurements referencing
+#: them, which is per-bench work that needs its own single-corner check against
+#: a local record. Not a klt gap (klt accepts `spice` measurement cards); a
+#: follow-up of issue #396. Listed so the refusal names the cause instead of
+#: failing deep inside `split_analyses()`.
+POST_LAYOUT_BATCH_REFUSALS = {
+    "startup-ramp-post-layout": "tran deck with `meas tran ... WHEN/FIND AT` cards",
+    "startup-time-post-layout": "tran deck with `meas tran FIND ... AT` cards",
+    "line-regulation-post-layout": "in-deck `dc v1` sweep with a `meas dc FIND ... AT` card",
+    "output-voltage-tc-post-layout": "in-deck `dc temp` sweep with a `meas dc FIND ... AT` card",
+}
+
+
+def require_batch_enabled(slug: str, enabled: frozenset = BATCH_ENABLED_SLUGS) -> None:
+    """Raise `BatchError` unless `slug` may run with `--backend batch`."""
+    if slug in POST_LAYOUT_BATCH_REFUSALS:
+        raise BatchError(
+            f"--backend batch is not available for {slug!r}: "
+            f"{POST_LAYOUT_BATCH_REFUSALS[slug]}, whose `meas` cards are not yet mapped to "
+            "`klt sim` measurements (left on the local runner; see sim/README.md "
+            "'Post-layout benches on the batch backend')"
+        )
+    if slug not in enabled:
+        raise BatchError(
+            f"--backend batch is only enabled for {sorted(enabled)}; {slug!r} keeps the local runner"
+        )
+
 #: Per-corner ngspice budget on the fleet when `--timeout` is not given.
 #: The local 300 s default is meaningless for a 251-point homotopy-stepped DC
 #: sweep (issue #320 measured ~6.4 ks per corner on an AWS sweep host).
@@ -370,20 +408,28 @@ def build_groups(
     capacity_wait_s: float,
     runner_version_check: str,
     poll_interval_s: float,
+    gate_slug: str | None = None,
     allow_step_requests: bool = False,
 ) -> list[Group]:
     """Write one netlist + request per supply voltage into `out_dir`.
+
+    `gate_slug` names the bench for the enablement check when it differs from
+    `exp.slug` (a post-layout bench wrapping another bench's manifest); it is
+    checked against `POST_LAYOUT_BATCH_ENABLED_SLUGS`.
     `allow_step_requests` admits `STEP_REQUEST_SLUGS` (tests, local klt checks);
     `corner-run.py` never sets it."""
-    if exp.slug not in BATCH_ENABLED_SLUGS and not (
-        allow_step_requests and exp.slug in STEP_REQUEST_SLUGS
-    ):
-        why = BATCH_UNSUPPORTED_REASONS.get(exp.slug)
-        raise BatchError(
-            f"--backend batch is only enabled for {sorted(BATCH_ENABLED_SLUGS)} "
-            f"(issues #320, #395); {exp.slug!r} keeps the local runner"
-            + (f": {why}" if why else "")
-        )
+    if gate_slug is None:
+        if exp.slug not in BATCH_ENABLED_SLUGS and not (
+            allow_step_requests and exp.slug in STEP_REQUEST_SLUGS
+        ):
+            why = BATCH_UNSUPPORTED_REASONS.get(exp.slug)
+            raise BatchError(
+                f"--backend batch is only enabled for {sorted(BATCH_ENABLED_SLUGS)} "
+                f"(issues #320, #395); {exp.slug!r} keeps the local runner"
+                + (f": {why}" if why else "")
+            )
+    else:
+        require_batch_enabled(gate_slug, POST_LAYOUT_BATCH_ENABLED_SLUGS)
     analysis, lets, meas_cards = split_analyses(list((exp.raw.get("deck") or {}).get("analyses") or []))
     clash = {c["name"].lower() for c in meas_cards} & {m.name.lower() for m in exp.measurements}
     if clash:
@@ -911,6 +957,7 @@ def execute(
     runner_version_check: str = "enforce",
     poll_interval_s: float = 30.0,
     runner: Callable[[Group], GroupOutcome] = run_klt,
+    gate_slug: str | None = None,
 ) -> tuple[list[dict], list[str], dict]:
     """Build, submit, collect and fold a batch run. Returns
     `(results, overall_blockers, record_extra)`; raises `BatchError` when no
@@ -918,7 +965,7 @@ def execute(
     groups = build_groups(
         exp, pin, matrix, body, spiceinit_text, work_dir, timeout_s,
         capacity_wait_s=capacity_wait_s, runner_version_check=runner_version_check,
-        poll_interval_s=poll_interval_s,
+        poll_interval_s=poll_interval_s, gate_slug=gate_slug,
     )
     started, t0 = _now(), time.monotonic()
     outcomes = collect(groups, runner)

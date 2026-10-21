@@ -420,7 +420,7 @@ Such a script still has to behave like the harness:
 | `--subset-reason "…"` | **required** for any subset; recorded verbatim |
 | `--supersedes <record-id>` | record which prior record this replaces |
 | `--author`, `--timeout` | record author (default `git config user.email`), per-corner ngspice timeout (default 300 s locally, 10800 s with `--backend batch`) |
-| `--backend local\|batch` | where corners run (default `local`). `batch` sends the matrix to the Spot batch fleet through `klt sim --backend batch`; enabled for `startup-stability`, `psrr-dc-with-injector`, `psrr-dc` and `quiescent-current` only (`batch_sim.BATCH_ENABLED_SLUGS`). See "Batch backend" below. A failed submission is an error, never a local fallback |
+| `--backend local\|batch` | where corners run (default `local`). `batch` sends the matrix to the Spot batch fleet through `klt sim --backend batch`; enabled for `startup-stability`, `psrr-dc-with-injector`, `psrr-dc` and `quiescent-current` only (`batch_sim.BATCH_ENABLED_SLUGS`; post-layout runners: see "Post-layout benches on the batch backend"). See "Batch backend" below. A failed submission is an error, never a local fallback |
 | `--batch-capacity-wait-s N`, `--batch-runner-version-check enforce\|warn` | batch only: how long to wait out a Spot capacity refusal per submission (default 3600), and klt's runner/client version-skew policy (default `enforce`; leave it) |
 | `-j N`, `--jobs N` | run up to `N` corners concurrently (default: `1`, serial -- today's unchanged behavior). Each corner is an independent `ngspice` process with its own scratch deck and its own `--timeout`, enforced per-process regardless of `N`; corner results are always written into the record in matrix order, never completion order. Recorded in the written record's `jobs` field |
 | `--allow-pdk-mismatch` | run against a non-pinned PDK; the record flags it |
@@ -428,6 +428,43 @@ Such a script still has to behave like the harness:
 
 Exit status: `0` all checks passed, `2` a record was written but something
 failed, `1` harness/setup error (no record written).
+
+### Post-layout benches on the batch backend (issue #396)
+
+The `sim/*-post-layout/run_post_layout_*.py` runners share
+`sim/bin/post_layout_common.py`, which now accepts `--backend local|batch`
+(default `local`), `--batch-capacity-wait-s` and `--batch-runner-version-check`
+with the same meaning as `corner-run.py`'s, and `--timeout` defaults to 10800 s
+with `--backend batch`. The extracted-netlist body is written into each
+request's netlist file, so nothing but the klt client runs on the dispatch host;
+`--dry-run` prints the per-supply requests and submits nothing; a failed
+submission is an error, never a local run.
+
+| Runner | `--backend batch` | Why |
+|---|---|---|
+| `psrr-dc-post-layout` | yes | `ac` analysis, scalar expressions |
+| `quiescent-current-post-layout` | yes | `op` analysis, scalar expressions |
+| `startup-stability-post-layout` | yes | `dc` + `let` intermediates (inlined, as for `startup-stability`) |
+| `startup-ramp-post-layout` | not yet, stays local | `tran` deck measured with `meas tran ... WHEN/FIND AT` cards |
+| `startup-time-post-layout` | not yet, stays local | `tran` deck measured with `meas tran FIND ... AT` cards |
+| `line-regulation-post-layout` | not yet, stays local | in-deck `dc v1` sweep plus a `meas dc FIND ... AT` card |
+| `output-voltage-tc-post-layout` | not yet, stays local | in-deck `dc temp` sweep plus a `meas dc FIND ... AT` card |
+| `monte-carlo-untrimmed`, `error-amp-offset-mc`, `psrr-injector-attribution` | not yet, no `--backend` option | bespoke `.control` loops (`setseed`/`reset`/`repeat`) and variant sets, not traced against klt's `monte_carlo` request; follow-up |
+
+The refused benches are **not yet translated**, not shown to be untranslatable:
+`batch_sim.split_analyses()` accepts one analysis card plus `let` lines, and
+their `meas` cards would have to become `klt sim` `spice` measurements with the
+manifest's expressions referencing them, checked per bench against a local
+record. The runners refuse with the reason
+(`batch_sim.POST_LAYOUT_BATCH_REFUSALS`) instead of failing in the middle of
+request construction; the follow-up is tracked in the issue linked from the PR. Single-corner batch results (tt / 27 C / 3.30 V) match
+the newest local records exactly: quiescent-current `iq=1.963682e-05`,
+`vref=1.193748`, `vgdrv=2.089822`; psrr-dc `psrr_dc=66.81663`,
+`psrr_1k=58.74709` (the same below-min FAIL the local record shows),
+`psrr_1m=14.0922` (records `20261020-222736-938e35b1` and `20261020-222904-938e35b1`;
+both are `FAIL` overall only because a one-point subset cannot satisfy the
+corner-sensitivity check). The `startup-stability-post-layout` batch path was
+dry-run only: one corner is ~1.8 h of fleet time.
 
 ### Batch backend (`--backend batch`, issue #320)
 
