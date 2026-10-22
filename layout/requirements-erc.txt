@@ -18,7 +18,7 @@
 #   virtualenv (layout/.venv-erc), and the DRC/LVS evidence trail stays
 #   exactly where it is.
 #
-# Current pin: released tag v0.6.0 (commit c622e8addb362491664d44ba4d717f354ca88bbd,
+# Current pin: released tag v0.6.0 (commit 0e2362bda7309829398a35d54efaa989d5806065,
 # 2026-09-22). A released tag, not a floating branch and not a bare commit,
 # for the same reproducibility discipline requirements.txt applies -- a
 # re-run months from now installs the identical build.
@@ -49,4 +49,4 @@
 # ties_disclosure in layout/bandgap-core/erc-supply-spec.json be replaced by a
 # real, checked ties[] declaration), and re-run
 # layout/bin/run-erc-supply-flow.sh to append a fresh record.
-klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@c622e8addb362491664d44ba4d717f354ca88bbd
+klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@0e2362bda7309829398a35d54efaa989d5806065

@@ -1,0 +1,47 @@
+{
+  "stackup": [
+    { "name": "poly", "layer": "66/20", "role": "gate", "active_layer": "65/20" },
+    { "name": "li1",  "layer": "67/20" },
+    { "name": "met1", "layer": "68/20", "label_layer": "68/5" },
+    { "name": "met2", "layer": "69/20" }
+  ],
+  "vias": [
+    { "name": "licon1", "layer": "66/44", "between": ["poly", "li1"] },
+    { "name": "mcon",   "layer": "67/44", "between": ["li1", "met1"] },
+    { "name": "via",    "layer": "68/44", "between": ["met1", "met2"] }
+  ],
+  "nets": [
+    { "name": "VDD", "kind": "supply" },
+    { "name": "VSS", "kind": "supply" }
+  ],
+  "ties": [
+    {
+      "name": "swapped_vdd_boxes_to_vss",
+      "well_layer": "64/20",
+      "well_requires_boxes": [
+        [36.91, 47.60, 45.13, 66.98],
+        [61.13, 35.60, 152.79, 78.98],
+        [9.02, 102.83, 180.68, 118.21],
+        [64.12, 171.06, 87.10, 176.44],
+        [120.44, 142.06, 292.10, 205.44]
+      ],
+      "tap_layer": "65/44",
+      "tap_is_dedicated": true,
+      "connect_to": "li1",
+      "net": "VSS"
+    },
+    {
+      "name": "swapped_vss_boxes_to_vdd",
+      "well_layer": "64/20",
+      "well_requires_boxes": [
+        [10.57, 0.82, 21.87, 2.88],
+        [253.91, 0.82, 281.53, 8.32],
+        [36.00, 142.88, 47.30, 144.94]
+      ],
+      "tap_layer": "65/44",
+      "tap_is_dedicated": true,
+      "connect_to": "li1",
+      "net": "VDD"
+    }
+  ]
+}

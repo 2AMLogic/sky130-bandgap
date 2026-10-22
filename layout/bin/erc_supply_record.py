@@ -15,8 +15,9 @@ report's overall ``status``:
 * the report's ``provenance.input.content_hash`` equals the sha256 of the GDS
   it names, so the report cannot drift from the layout it claims to describe.
 
-``erc.missing_tie`` is not computed by the supply run and is not gated here --
-see ``layout/bandgap-core/erc/README.md``.
+The supply spec's two n-well ``ties[]`` entries are gated too (``gate_tie_report``)
+and the swapped-net negative control is gated the other way round
+(``gate_negative_control``) -- see ``layout/bandgap-core/erc/README.md``.
 """
 
 from __future__ import annotations
@@ -28,6 +29,7 @@ import pathlib
 import sys
 
 SUPPLIES = ("VDD", "VSS")
+TIES = ("nwell_tie_vdd", "nwell_tie_vss")
 
 
 def sha256_file(path: pathlib.Path) -> str:
@@ -63,6 +65,39 @@ def gate_supply_report(report: dict, gds: pathlib.Path) -> tuple[bool, list[str]
         if named:
             reasons.append(f"{rule} names {sorted(named)}: {finding.get('description')}")
 
+    return (not reasons), reasons
+
+
+def gate_tie_report(report: dict) -> tuple[bool, list[str]]:
+    """Gate the supply spec's n-well ``ties[]``: computed, not skipped, zero findings.
+
+    ``erc.missing_tie`` reports zero both when every well is tied and when the
+    rule never ran (empty ``ties[]``) or a tie was skipped as a degenerate
+    selection, so the gate demands the evidence that it ran: each tie in
+    ``erc_coverage.checked``, nothing in ``skipped``, no ``ties_disclosure``.
+    """
+    reasons: list[str] = []
+    cov = report.get("erc_coverage") or {}
+    checked = set(cov.get("checked") or [])
+    for tie in TIES:
+        if f'erc.missing_tie:["{tie}"]' not in checked:
+            reasons.append(f"erc.missing_tie for {tie} is not in erc_coverage.checked")
+    if cov.get("skipped"):
+        reasons.append(f"erc_coverage.skipped is not empty: {cov['skipped']}")
+    if report.get("ties_disclosure"):
+        reasons.append("report still carries a ties_disclosure")
+    for finding in report.get("erc_findings") or []:
+        if finding.get("rule") == "erc.missing_tie":
+            reasons.append(f"erc.missing_tie: {finding.get('description')}")
+    return (not reasons), reasons
+
+
+def gate_negative_control(report: dict, well_shapes: int) -> tuple[bool, list[str]]:
+    """The swapped-net control must flag every n-well shape, or the clean result proves nothing."""
+    reasons: list[str] = []
+    n = sum(1 for f in report.get("erc_findings") or [] if f.get("rule") == "erc.missing_tie")
+    if n != well_shapes:
+        reasons.append(f"negative control reported {n} erc.missing_tie, expected {well_shapes}")
     return (not reasons), reasons
 
 
@@ -116,9 +151,10 @@ def main() -> int:
     lines.append("")
     lines.append(
         "| routed GDS | GDS sha256 | report `provenance.input.content_hash` | "
-        "supplies checked | `erc.unconnected_net` / `erc.supply_short` on a supply | gate |"
+        "supplies checked | `erc.unconnected_net` / `erc.supply_short` on a supply | "
+        "n-well ties checked / `erc.missing_tie` | gate |"
     )
-    lines.append("|---|---|---|---|---|---|")
+    lines.append("|---|---|---|---|---|---|---|")
 
     supply_reports: dict[str, dict] = {}
     for rec in args.gds_records:
@@ -127,6 +163,9 @@ def main() -> int:
         supply_reports[rec] = report
         gds = cell_dir / "reports" / rec / "bandgap_core_routed.gds"
         ok, reasons = gate_supply_report(report, gds)
+        tie_ok, tie_reasons = gate_tie_report(report)
+        ok = ok and tie_ok
+        reasons = reasons + tie_reasons
         overall_ok = overall_ok and ok
         checked = set((report.get("erc_coverage") or {}).get("checked") or [])
         n_checked = sum(
@@ -138,15 +177,22 @@ def main() -> int:
             if f.get("rule") in ("erc.unconnected_net", "erc.supply_short")
             and ({f.get("net"), f.get("other_net")} & set(SUPPLIES))
         ]
+        n_ties = sum(
+            1 for t in TIES if f'erc.missing_tie:["{t}"]' in checked
+        )
+        n_missing = sum(
+            1 for f in report.get("erc_findings") or [] if f.get("rule") == "erc.missing_tie"
+        )
         lines.append(
             f"| `{rec}` | `{sha256_file(gds)[:16]}…` | "
             f"`{((report.get('provenance') or {}).get('input') or {}).get('content_hash', '')[7:23]}…` | "
             f"{n_checked}/2 (VDD, VSS) | **{len(offending)}** | "
+            f"{n_ties}/2 / **{n_missing}** | "
             f"{'**PASS**' if ok else '**FAIL**'} |"
         )
         if not ok:
             for r in reasons:
-                lines.append(f"| | | | | | {r} |")
+                lines.append(f"| | | | | | | {r} |")
 
     lines.append("")
     newest_report = supply_reports[args.newest]
@@ -162,12 +208,12 @@ def main() -> int:
     )
     lines.append("")
     lines.append(
-        "**`erc.missing_tie` is NOT COMPUTED by these runs.** "
-        f"`erc_coverage.inapplicable` records it as "
-        f"`{inapplicable.get('erc.missing_tie:[]', '(absent)')}` — the spec declares "
-        "an empty `ties[]` with a `ties_disclosure` of kind `tool_limitation`. "
-        "Its zero count is an absence of evidence, not evidence of absence; the "
-        "standing-in well-tie evidence is named in [`../README.md`](../README.md)."
+        "**`erc.missing_tie` is computed.** The spec declares two n-well `ties[]` "
+        "entries (`nwell_tie_vdd`, `nwell_tie_vss`), each in `erc_coverage.checked` "
+        "(and in `checked_by_well_assertion`, because the well-class selection is "
+        "the caller's `well_requires_boxes`), with `erc_coverage.skipped` empty and "
+        "no `ties_disclosure`. Zero findings is therefore a result, not an absence; "
+        "the negative control below shows the declaration can fail."
     )
     lines.append("")
 
@@ -199,55 +245,45 @@ def main() -> int:
             )
         lines.append("")
 
-    # --- known-gap runs ----------------------------------------------------
-    lines.append("## Known-gap n-well tie reproductions (friction evidence)")
+    # --- negative control --------------------------------------------------
+    spec = json.loads((cell_dir / "erc-supply-spec.json").read_text())
+    well_shapes = sum(len(t.get("well_requires_boxes") or []) for t in spec.get("ties") or [])
+    lines.append("## Negative control (swapped tie nets)")
     lines.append("")
     lines.append(
-        "Not a verdict on this layout. These two runs reproduce "
-        "[klayout-tools#2339](https://github.com/2AMLogic/klayout-tools/issues/2339) "
-        f"against `{args.newest}`: `ties[].well_layer` checks **every** merged shape "
-        "on `nwell` 64/20 against one declared net, and this block's n-wells are not "
-        "uniformly biased. Their finding sets are disjoint complements, so between "
-        "them every n-well shape is shown tapped to its correct supply."
+        "`erc-nwell-tie-spec.negative-control.json` is the supply spec with each "
+        "tie's well boxes declared to the **opposite** net. Run against "
+        f"`{args.newest}`, a tie check that works must flag every n-well shape; "
+        "if this run came back clean, the clean tie result above would prove nothing."
     )
     lines.append("")
-    lines.append("| tie spec | declared net | `erc.missing_tie` | `erc.supply_short` | findings |")
-    lines.append("|---|---|---|---|---|")
-    kg_total = 0
-    for half, net in (("vdd", "VDD"), ("vss", "VSS")):
-        path = out_dir / f"erc.known-gap-nwell-{half}.{args.newest}.json"
-        rep = json.loads(path.read_text())
-        miss = [f for f in rep.get("erc_findings") or [] if f["rule"] == "erc.missing_tie"]
-        shorts = [f for f in rep.get("erc_findings") or [] if f["rule"] == "erc.supply_short"]
-        kg_total += len(miss)
-        if shorts:
-            overall_ok = False
-        lines.append(
-            f"| `erc-nwell-tie-spec.known-gap.{half}.json` | `{net}` | {len(miss)} | "
-            f"{len(shorts)} | {fmt_findings(rep)} |"
-        )
+    nc_path = out_dir / f"erc.negative-control-nwell-swapped.{args.newest}.json"
+    nc = json.loads(nc_path.read_text())
+    nc_ok, nc_reasons = gate_negative_control(nc, well_shapes)
+    overall_ok = overall_ok and nc_ok
+    miss = [f for f in nc.get("erc_findings") or [] if f["rule"] == "erc.missing_tie"]
+    shorts = [f for f in nc.get("erc_findings") or [] if f["rule"] == "erc.supply_short"]
+    lines.append("| declared net | `erc.missing_tie` |")
+    lines.append("|---|---|")
+    for net in SUPPLIES:
+        lines.append(f"| `{net}` | {sum(1 for f in miss if f.get('net') == net)} |")
     lines.append("")
     lines.append(
-        f"Combined `erc.missing_tie` count across both halves: **{kg_total}**, which is "
-        "the total n-well shape count on this layout — every well is reported by "
-        "exactly one of the two halves, i.e. every well is tied, to one supply or the "
-        "other. **Zero `erc.supply_short` in either half** re-confirms that "
-        "[klayout-tools#2169](https://github.com/2AMLogic/klayout-tools/issues/2169)'s "
-        "well-conductor collapse does not reproduce on the pinned `klt` build."
+        f"Total `erc.missing_tie`: **{len(miss)}** of {well_shapes} n-well shapes "
+        f"(`erc.supply_short`: {len(shorts)}) -- "
+        f"{'**PASS**' if nc_ok else '**FAIL**: ' + '; '.join(nc_reasons)}."
     )
     lines.append("")
 
     lines.append("## Verdict")
     lines.append("")
-    lines.append(f"**{'PASS' if overall_ok else 'FAIL'}** — item 11's supply half.")
+    lines.append(f"**{'PASS' if overall_ok else 'FAIL'}** — item 11's structural gate.")
     lines.append("")
     lines.append(
-        "This gate covers the supply-island half of item 11 only. The item as a "
-        "whole stays **unmet** while `erc.missing_tie` is uncomputed — the "
-        "machine-graded verdict of record is `signoff/signoff-report.json` "
-        "(see `signoff/README.md`), which renders item 11 "
-        "`supply_spec_disclosed_tool_limitation`. See "
-        "[`../README.md`](../README.md) for why."
+        "Item 11's structural half: supply islands and n-well ties, both computed, "
+        "with a negative control. The machine-graded verdict of record is "
+        "`signoff/signoff-report.json` (see `signoff/README.md`), which also grades "
+        "the LVS half. See [`../README.md`](../README.md)."
     )
     lines.append("")
 

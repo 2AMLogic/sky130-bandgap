@@ -68,17 +68,14 @@ def clean_report(gds_sha: str) -> dict:
                 'erc.floating_gate:["gate0"]',
                 'erc.net_connectivity:["VDD"]',
                 'erc.net_connectivity:["VSS"]',
+                'erc.missing_tie:["nwell_tie_vdd"]',
+                'erc.missing_tie:["nwell_tie_vss"]',
             ],
             "skipped": [],
-            "inapplicable": [
-                {
-                    "id": "erc.missing_tie:[]",
-                    "reason": "ties_disclosed_tool_limitation",
-                }
-            ],
+            "inapplicable": [],
         },
         "provenance": {
-            "klt_version": "0.6.0",
+            "klt_version": "0.7.0",
             "input": {"content_hash": f"sha256:{gds_sha}", "role": "layout"},
         },
     }
@@ -238,6 +235,58 @@ class ErcSupplyGateTest(unittest.TestCase):
         self.assertEqual(report, before)
 
 
+class ErcTieGateTest(unittest.TestCase):
+    """The n-well tie gate: zero findings only counts when the rule actually ran."""
+
+    def report(self) -> dict:
+        return clean_report("0" * 64)
+
+    def test_computed_clean_ties_pass(self) -> None:
+        ok, reasons = erc_supply_record.gate_tie_report(self.report())
+        self.assertTrue(ok, reasons)
+
+    def test_uncomputed_ties_fail_even_with_zero_findings(self) -> None:
+        report = self.report()
+        report["erc_coverage"]["checked"] = [
+            x for x in report["erc_coverage"]["checked"] if "missing_tie" not in x
+        ]
+        report["erc_coverage"]["inapplicable"] = [
+            {"id": "erc.missing_tie:[]", "reason": "ties_disclosed_tool_limitation"}
+        ]
+        report["ties_disclosure"] = {"kind": "tool_limitation"}
+        ok, reasons = erc_supply_record.gate_tie_report(report)
+        self.assertFalse(ok)
+        self.assertEqual(report["erc_finding_count"], 0)
+        self.assertEqual(len(reasons), 3, reasons)
+
+    def test_skipped_degenerate_selection_fails(self) -> None:
+        report = self.report()
+        report["erc_coverage"]["skipped"] = [
+            {"id": 'erc.missing_tie:["nwell_tie_vss"]', "reason": "degenerate_well_selection"}
+        ]
+        ok, reasons = erc_supply_record.gate_tie_report(report)
+        self.assertFalse(ok)
+        self.assertTrue(any("skipped" in r for r in reasons), reasons)
+
+    def test_missing_tie_finding_fails(self) -> None:
+        report = self.report()
+        report["erc_findings"] = [
+            {"rule": "erc.missing_tie", "description": "tap not connected", "net": "VDD"}
+        ]
+        ok, reasons = erc_supply_record.gate_tie_report(report)
+        self.assertFalse(ok)
+        self.assertTrue(any("erc.missing_tie" in r for r in reasons), reasons)
+
+    def test_negative_control_must_flag_every_well(self) -> None:
+        finding = {"rule": "erc.missing_tie", "net": "VDD"}
+        ok, _ = erc_supply_record.gate_negative_control({"erc_findings": [finding] * 8}, 8)
+        self.assertTrue(ok)
+        ok, reasons = erc_supply_record.gate_negative_control({"erc_findings": [finding] * 7}, 8)
+        self.assertFalse(ok)
+        ok, _ = erc_supply_record.gate_negative_control({"erc_findings": []}, 8)
+        self.assertFalse(ok)
+
+
 class CommittedRecordTest(unittest.TestCase):
     """The committed evidence must pass the committed gate.
 
@@ -252,7 +301,16 @@ class CommittedRecordTest(unittest.TestCase):
         cell = pathlib.Path(__file__).resolve().parent.parent / "bandgap-core"
         erc_dir = cell / "erc"
         reports = sorted(erc_dir.glob("*/erc.*.json"))
-        reports = [p for p in reports if "known-gap" not in p.name]
+        # Newest record only: older records predate the n-well ties and carry
+        # the superseded known-gap reports (append-only evidence).
+        newest = sorted(p for p in erc_dir.iterdir() if p.is_dir())[-1]
+        reports = [
+            p
+            for p in reports
+            if p.parent == newest
+            and "known-gap" not in p.name
+            and "negative-control" not in p.name
+        ]
         self.assertTrue(reports, f"no committed supply reports under {erc_dir}")
         for path in reports:
             with self.subTest(report=path.name):
@@ -262,6 +320,8 @@ class CommittedRecordTest(unittest.TestCase):
                 gds = cell / "reports" / gds_record / "bandgap_core_routed.gds"
                 self.assertTrue(gds.is_file(), f"missing {gds}")
                 ok, reasons = erc_supply_record.gate_supply_report(report, gds)
+                self.assertTrue(ok, f"{path.name}: {reasons}")
+                ok, reasons = erc_supply_record.gate_tie_report(report)
                 self.assertTrue(ok, f"{path.name}: {reasons}")
 
 
