@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "kind": "generic",
+  "t1_item": 1,
+  "status": "pass",
+  "summary": "Design sources: schematics, symbols and derived netlists, each hash-pinned.",
+  "source": "signoff/attest/design-sources.inventory.json",
+  "provenance": {
+    "input": {
+      "path": {
+        "path": "signoff/attest/design-sources.inventory.json",
+        "scope": "repo"
+      },
+      "content_hash": "sha256:28777e1563458c4ee06d069a33a036ccb1e5fd14cc6d2113367e231c4b692933"
+    }
+  },
+  "note": "Produced by scripts/ci/attest_inventories.py in the artifact-anchored generic form klt 0.7.0 grades; replace with `klt signoff --attest` once a klayout-tools release carries it (klayout-tools#2844)."
+}

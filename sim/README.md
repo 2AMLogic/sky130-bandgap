@@ -230,7 +230,7 @@ envelope had leaked an absolute, machine-local `samples` path).
 **Provenance hygiene applies to what a harness writes, not only to what a
 human writes.** Repo-relative paths only; an external input is pinned by
 identity (name/version/`content_hash`), never by its location on one machine.
-The full rule is `signoff/design-evidence-tiers.md` → "Provenance hygiene in
+The full rule is klayout-tools' `docs/design-evidence-tiers.md` → "Provenance hygiene in
 evidence records"; `sim/tests/` holds the checks that keep committed records
 honest about it.
 

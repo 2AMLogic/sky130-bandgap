@@ -6,7 +6,7 @@
     "worktree:return": "./.loom/scripts/worktree-return.sh",
     "check:ci": "npm run lint && npm run test && npm run check:signoff-pins && ./.loom/scripts/check-xschem-embedded-quotes.sh",
     "check:all": "npm run check:ci",
-    "check:signoff-pins": "python3 scripts/ci/check_signoff_pins.py",
+    "check:signoff-pins": "python3 scripts/ci/check_signoff_pins.py && python3 scripts/ci/attest_inventories.py && python3 scripts/ci/design_netlists.py --check-lock",
     "test": "npm run test:compile && npm run test:unit",
     "test:compile": "find sim layout scripts -name '*.py' -not -path 'layout/.venv/*' -not -path 'layout/.venv-erc/*' -print0 | xargs -0 -n1 python3 -m py_compile",
     "test:unit": "python3 -m unittest discover --start-directory layout/tests --pattern 'test_*.py' && python3 -m unittest discover --start-directory sim/tests --pattern 'test_*.py' && python3 -m unittest discover --start-directory scripts/ci/tests --pattern 'test_*.py'",

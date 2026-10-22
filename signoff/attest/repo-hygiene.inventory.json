@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "t1_item": 10,
+  "description": "Repo hygiene: README, LICENSE, and the CI workflow that runs on every push/PR, with the commands it runs.",
+  "files": [
+    {
+      "path": "README.md",
+      "role": "readme",
+      "content_hash": "sha256:90b59e313ed1f79e1b0f29d33d098e46ed3a3ac855bc8e21bb21acad1d75f318"
+    },
+    {
+      "path": "LICENSE",
+      "role": "license",
+      "content_hash": "sha256:cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "role": "ci-workflow",
+      "content_hash": "sha256:b79f858ca9b1d99b17b3feab9ca638603c7cb0a85c5ef53a93c99b40a14ad1db"
+    },
+    {
+      "path": "package.json",
+      "role": "ci-entry-points",
+      "content_hash": "sha256:bc357b39a1ef992c14af65e14dc4e130ab0a080128d932383067afff6df2ea70"
+    }
+  ],
+  "ci": {
+    "workflow": ".github/workflows/ci.yml",
+    "runs_on": [
+      "push",
+      "pull_request"
+    ],
+    "single_line_commands": [
+      "pip install klayout",
+      "npm run check:ci",
+      "pip install \"klayout-tools==$(python3 scripts/ci/check_signoff_freshness.py --print-version)\"",
+      "./scripts/ci/check-signoff-freshness.sh",
+      "|",
+      "|",
+      "pip install --user volare",
+      "|",
+      "|",
+      "|"
+    ],
+    "entry_point": "npm run check:ci (package.json)"
+  }
+}

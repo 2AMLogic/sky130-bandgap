@@ -49,6 +49,16 @@ manifest["evidence"]["8"]["content_hash"] = f"sha256:{hash_hex}"
 manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
 EOF
 
+# 1b. Rebuild the artifact-anchored attestations for T1 items 1, 2, 9 and 10
+#     (signoff/attest/*, plus their manifest and pinned-inputs entries) from
+#     the tree: every inventory hash, the envelopes that pin the inventories,
+#     and the manifest pins are pure derivations of committed files. Item 1's
+#     derived netlists must already be fresh against their schematics --
+#     refresh them with scripts/ci/design_netlists.py --write (needs xschem
+#     3.4.7 and the pinned PDK) before running this.
+python3 scripts/ci/design_netlists.py --check-lock
+python3 scripts/ci/attest_inventories.py --write
+
 # 2. Grade the block manifest with the pinned registry wheel. Exit code 3 is
 #    `klt signoff`'s documented "ran successfully, but at least one T1 item
 #    is unmet" -- expected for this block today -- so only the other exit
@@ -64,7 +74,6 @@ python3 scripts/ci/check_signoff_freshness.py --assert-grader "$WORK/venv/bin/kl
 set +e
 "$WORK/venv/bin/klt" signoff \
     --manifest signoff/block-manifest.json \
-    --tiers-doc signoff/design-evidence-tiers.md \
     --format json > signoff/signoff-report.json
 SIGNOFF_RC=$?
 set -e

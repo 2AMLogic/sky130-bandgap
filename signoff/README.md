@@ -14,13 +14,14 @@ re-read cannot even enumerate today's row set.
 | File | What it is |
 |---|---|
 | `block-manifest.json` | The block manifest: this block's declared `kind` and, per T1 item, the evidence envelope cited behind it, each pinned to a `content_hash` of the committed artifact it grades. This is the file the fleet roll-up (2AMLogic/2am#956) consumes. |
-| `signoff-report.json` | The committed `klt signoff --manifest block-manifest.json --tiers-doc design-evidence-tiers.md --format json` output — the graded per-item `met`/`unmet` table with a `reason` on every `unmet` row. Regenerate with `./signoff/regenerate.sh`. |
-| `regenerate.sh` | Refreshes the item-8 evidence pin, re-grades the manifest with the pinned released klt (overwriting `signoff-report.json`), and re-verifies every pin against the artifact it describes. |
+| `signoff-report.json` | The committed `klt signoff --manifest block-manifest.json --format json` output — the graded per-item `met`/`unmet` table with a `reason` on every `unmet` row. Regenerate with `./signoff/regenerate.sh`. |
+| `regenerate.sh` | Refreshes the item-8 evidence pin, rebuilds the item 1/2/9/10 attestations, re-grades the manifest with the pinned released klt (overwriting `signoff-report.json`), and re-verifies every pin against the artifact it describes. |
 | `pinned-inputs.json` | Per pinned citation, **where in this repo the artifact that pin describes actually lives**. Neither the manifest nor the evidence envelopes hold that: a `content_hash` is the hash of the artifact the envelope *describes*, and the envelope's own path field may be absolute and machine-local (item 3's is). `scripts/ci/check_signoff_pins.py` needs it to re-hash the artifact — see "What `klt signoff` cannot check" below. |
 | (item 6's citation) | Lives outside this directory, under [`sim/monte-carlo-untrimmed/records/`](../sim/monte-carlo-untrimmed/records/), because it is produced by a simulation harness (`sim/monte-carlo-untrimmed/emit_klt_yield.py`) rather than hand-assembled here. Its pinned `content_hash` is the hash of the **sample-set document** the report names in its own `samples` field, not of the report file — that is the input hash `klt signoff` computes for a `klt yield` envelope, which carries no `provenance` block of its own, so `pinned-inputs.json` names that same sample-set document. |
 | (item 11's citation) | Lives outside this directory, under [`layout/bandgap-core/erc/`](../layout/bandgap-core/erc/README.md), because it is produced by a layout flow (`layout/bin/run-erc-supply-flow.sh`) rather than hand-assembled here. That flow re-points this manifest's item-11 entry at each new record it writes (`layout/bin/erc_signoff_citation.py`); re-grading is still `./signoff/regenerate.sh`'s job. Item 11 is the one T1 item whose `evidence` entry is a JSON **array** — the `klt erc` supply run plus item 4's own LVS report. |
 | `evidence/characterization.generic.json` | The hand-rolled `kind: generic` envelope (issue #1152's item-8-only wrapper) asserting the aggregated [`design/block-characterization-report.md`](../design/block-characterization-report.md), pinned to that report's own `content_hash`. |
-| `design-evidence-tiers.md` | Vendored copy of `klayout-tools`' checklist definition ([`docs/design-evidence-tiers.md`](https://github.com/2AMLogic/klayout-tools/blob/main/docs/design-evidence-tiers.md)), pinned at upstream commit `08825416` ("feat(signoff): carry a mixed-signal manifest's declared partition boundary", 2026-09-22; file `sha256:63eeec72e3d849761cf32dcf091af5728b069b1515e32bb3138e9454303671e5`). Passed to grading via `--tiers-doc` so the checklist doc and the grading `klt` build agree on the same 11-item skeleton even as upstream keeps moving; re-pin when a materially newer doc lands. |
+| `attest/` | The artifact-anchored attestations for T1 items **1, 2, 9 and 10** (issue #387): `design-sources.inventory.json`, `testbench-inventory.json` and `repo-hygiene.inventory.json` list the audited files with `content_hash`, and `item-{1,2,9,10}.evidence.json` are the `kind: generic` envelopes the manifest cites. Item 2 has no inventory: its envelope pins the routed GDS itself. All nine files are derived from the tree by `scripts/ci/attest_inventories.py`; never hand-edit them. See "Items 1, 2, 9 and 10" below. |
+| `../design/netlist/` | The SPICE netlists derived from `design/*.sch` (item 1), plus `netlist.lock.json` recording the schematic hash each was derived from. Written by `scripts/ci/design_netlists.py --write`. |
 
 CI checks this directory in **two** places, and they catch different things:
 
@@ -104,9 +105,7 @@ check reports it as skipped rather than silently ignoring it.
 Regeneration and CI grade with the **released PyPI registry wheel** of
 the pinned `klayout-tools` release (`KLT_VERSION` in
 `scripts/ci/check_signoff_freshness.py`; it is the first to natively
-grade item 11 — `build_t1_item_count: 11` in the committed report — so
-`--tiers-doc` here pins the *checklist doc*, not a stand-in for missing
-grading rules the way it did for repos still pinned to 0.5.0), never
+grade item 11 — `build_t1_item_count: 11` in the committed report), never
 whatever `klt` is already on the host. Under the same version string a
 `uv tool install git+...` snapshot or a full-checkout install can grade
 differently (observed live across the fleet for 0.5.0: an 11-item-era
@@ -121,6 +120,22 @@ grading, through one shared implementation (`check_signoff_freshness.py
 job and `regenerate.sh` read it via `--print-version`. To bump the grader,
 edit that one constant.
 
+**Checklist doc (`--tiers-doc`) decision, 0.6.0 → 0.7.0 (issue #387).** The
+grader is now graded against the checklist **bundled with the pinned wheel**
+(`source_doc: docs/design-evidence-tiers.md` in the report), not a vendored copy.
+The vendored `signoff/design-evidence-tiers.md` (upstream `08825416`) predated the
+0.7.0 text for items 1, 2, 9 and 10 (klayout-tools#2718 added the artifact-anchored
+generic form), so passing it with `--tiers-doc` would have graded those rows against
+the old "no verb, any passing envelope" wording. Grading without the flag renders the
+same 11-item T1 skeleton, so the flag and the vendored file were dropped.
+
+**Rows whose verdict moved with the 0.7.0 re-grade** (3/11 → 6/11 met):
+
+| Item | 0.6.0 | 0.7.0 | Cause |
+|---|---|---|---|
+| 1, 2, 9, 10 | unmet `no_evidence` | **met** | the attestations below |
+| 6 | met | unmet `undersized_sample` | not caused by this change to the evidence: 0.7.0 grades the `klt yield` report's own `sample_size.verdict` (klayout-tools#2467), and the committed report's verdict is `insufficient` on a measurement. `sim/` records are append-only, so the row is reported as graded; closing it needs a larger campaign, tracked separately. |
+
 ## Block kind: `analog`
 
 The manifest's `kind` is **`analog`** — this block is a single bandgap
@@ -132,11 +147,10 @@ this repo warrants `mixed-signal` today.
 
 `klt signoff` renders every T1 item either `met` (a cited, freshly-pinned,
 passing check backs it) or `unmet` with a `reason`. Today's committed
-verdict is **3/11 met** — an honest mechanical reading, not a hand-read: it
-is lower than the (stale, pre-item-11, pre-refresh) prose ever claimed,
-because several artifacts this repo already has on disk cannot be honestly
-cited yet (see below), and a manifest that renders fewer rows `met` than an
-old hand-read did is worth more than prose nobody re-verifies.
+verdict is **6/11 met** — an honest mechanical reading, not a hand-read: it
+is a mechanical reading, not a hand-read, and a manifest that renders a row
+`unmet` with a stated reason (items 4–7, 11) is worth more than prose nobody
+re-verifies.
 
 **A row can get better without getting to `met`, and that is visible here.**
 Item 11 moved from `no_evidence` (nothing existed) to
@@ -158,25 +172,44 @@ upstream tool gap is klayout-tools#2374; the full disposition is
 
 | Item | Verdict today | Why — and what would change it |
 |---|---|---|
-| 1 — Design sources | unmet `no_evidence` | No `klt` verb grades this item — a claim about what the repo *contains*, not a runnable check. Uncited by deliberate choice (citing an unrelated passing envelope to turn the row green is the documented anti-pattern — see `docs/cli/signoff.md`'s "Items 1, 2, 9, and 10" section). Human-audited evidence stands: [`design/bandgap_core.sch`](../design/bandgap_core.sch), `design/error_amp.sch`, `design/startup_injector.sch`, and the reference netlists they derive. |
-| 2 — Layout | unmet `no_evidence` | Same structural reason as item 1. Human-audited: [`layout/README.md`](../layout/README.md) and the committed, reproducibly-generated `layout/bandgap-core/reports/*/bandgap_core_routed*.gds`. |
+| 1 — Design sources | **met** | Cites `signoff/attest/item-1.evidence.json`, an artifact-anchored generic envelope pinning `signoff/attest/design-sources.inventory.json`: [`design/bandgap_core.sch`](../design/bandgap_core.sch), `error_amp.sch`, `startup_injector.sch` with their `.sym` symbols, and the three netlists derived from them in [`design/netlist/`](../design/netlist/). Each netlist is bound to the hash of the schematic it was derived from (`netlist.lock.json`), so a schematic edit without regenerating its netlist fails CI (`design_netlists.py --check-lock`, and `--check-regen` against a fresh `klt netlist` in the `pdk-smoke` job). Netlists are xschem 3.4.7 output (CI's pinned build; 3.4.4 leaves `expr()` unevaluated) with the machine-local `** sch_path:` line rewritten repo-relative, because `klt netlist --check` otherwise reports `drifted` on every other checkout (klayout-tools#3010, fix not yet released). |
+| 2 — Layout | **met** | Cites `signoff/attest/item-2.evidence.json`, which pins the committed routed GDS `layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_routed.gds` directly (the same stream items 3 and 11 pin), generated by `layout/bin/run-bandgap-routed-flow.sh`. `met` attests that this stream is the committed layout, not that it is LVS-clean (item 4) or free of rule gaps (see item 3). |
 | 3 — DRC clean | **met** | Cites `layout/bandgap-core/reports/20260817-020222-13476b7/drc.json` — `status: clean`, `violation_count: 0`, `provenance.input.content_hash` pinning the committed `bandgap_core_routed.gds` byte-for-byte (independently re-verified: `sha256sum` of that GDS matches the pinned hash). Coverage disclosure, read from the report rather than assumed (this envelope predates the `deck_scope` field, so only two of the three item-3 disclosure fields are available): `rules_skipped` is empty, but `coverage.layers_in_stream_without_rules` is **not** — 8 layers this stream draws (`64/20`, `65/44`, `66/13`, `68/5`, `82/44`, `83/20`, `86/20`, `94/20`) carry no rule in the curated sky130 deck this run used. A "clean" from a deck with disclosed holes is disclosed here, not hidden. |
 | 4 — LVS clean | unmet `no_evidence` | The freshest committed LVS report (`layout/bandgap-core/reports/20260817-020222-13476b7/lvs.combined.json`, `status: match`, `mismatch_count: 0` — the evidence the root README's "layout-complete" claim currently cites) was produced under `klt` 0.2.0, which predates klayout-tools#1969 (the release that adds `provenance.input.content_hash` to `klt lvs` output): its `provenance.input` is `null`, so **no content_hash pin can be verified against it**, and this manifest's own discipline (every citation pins a hash that matches the committed artifact) refuses to cite it uncredentialed. **The `mismatch_count: 12` diagnostic this row used to carry is now investigated and dispositioned (#288), and it did *not* invalidate the committed `0`.** Re-running the same committed `lvs.combined.request.json` under the currently-installed `klt` (same request, same committed netlists) reports `mismatch_count: 12` on only **238 of 1000** repetitions and `0` on the other **762** — the *same build, same inputs, same process*. Under the build `layout/requirements.txt` pins it is `0` on **1000 of 1000**, and under the newer build with `options.combine_devices_max_attempts: 1` it is `0` on **1000 of 1000** again. So this is a nondeterministic false `mismatch` introduced by klayout-tools#1185/#1186's `Netlist.dup()`-based combine retry (bisected to `66f73d0c`), not a real defect and not an accounting re-baseline: filed upstream as [klayout-tools#2374](https://github.com/2AMLogic/klayout-tools/issues/2374), measured by `layout/bin/measure_combine_devices_determinism.py` into `layout/bandgap-core/combine-determinism/20260923-062919-1e38c62/`, dispositioned in `layout/matching-plan.md` Section 7ff. **This makes the row harder to close, not easier**: the only `klt` builds that populate `provenance.input.content_hash` (klayout-tools#1969, what this row needs) are exactly the builds whose combine step is intermittently wrong, so minting a fresh hash-pinnable LVS report today would pin a verdict that does not reproduce. Item 4 closes on klayout-tools#2374, not on a re-run. |
 | 5 — Full corner verification vs a ratified spec | unmet `no_evidence` | This repo's `sim/*/records/*.json` are custom append-year harness records (see [`sim/README.md`](../sim/README.md)), not `klt sim`-shaped envelopes — no native evidence exists for `klt signoff` to grade yet. The human-audited evidence is real and extensive (`design/block-characterization-report.md` rolls up all seven ratified spec rows across PVT corners), but citing it here without a `klt sim`/`klt yield`/`klt pex` envelope would be the documented anti-pattern. Would need a minted `klt sim`-shaped envelope (see e.g. `2AMLogic/gf180-sram`'s `sim/signoff-sim-envelope.json` for the pattern) or a first-party `klt sim` run. |
-| 6 — Statistical claims carry Monte Carlo evidence | **met** | Cites `sim/monte-carlo-untrimmed/records/20260923-062524-1e38c62-klt-yield.json` — `status: reported` (no measurement declares a `target_yield`, so nothing could fail), three `vout` measurements over 838 converged mismatch samples at −40/27/125 °C, each with its Clopper-Pearson interval, Cp/Cpk, sigma-to-spec and sample-size verdict against DR-005's own ±2 % window. The pinned `content_hash` is the hash of the sample-set document the envelope names in its `samples` field (`klt yield` carries no `provenance` block of its own, so `klt signoff` hashes that input directly). **This is a re-mint, and the envelope it supersedes is still committed beside it.** The earlier `20260817-121131-d7d85b6-klt-yield.json` recorded an **absolute, machine-local** `samples` path (`/Users/…/.claude/worktrees/agent-…`), because `klt yield` echoes back the path it is invoked with and `emit_klt_yield.py` invoked it with an absolute one — the exact provenance-hygiene hazard `design-evidence-tiers.md`'s "Provenance hygiene in evidence records" section warns about, and unresolvable (so uncitable) on any other machine. Issue #288 fixed the harness to run `klt yield` from the repo root with a repo-relative path; `records/*` being append-only, the old envelope was **not** rewritten — a new one was minted from the *same* committed corner logs, with a `…-klt-yield.md` note recording what it supersedes and why. The statistics are byte-identical to the superseded envelope's: only the path changed. |
+| 6 — Statistical claims carry Monte Carlo evidence | unmet `undersized_sample` | Moved from `met` on the 0.6.0 → 0.7.0 re-grade; see "Rows whose verdict moved" above. The cited evidence is unchanged: `sim/monte-carlo-untrimmed/records/20260923-062524-1e38c62-klt-yield.json` (pinned to the sample-set document named in its `samples` field, 838 converged mismatch samples at −40/27/125 °C). 0.7.0 treats a `sample_size.verdict` of `insufficient` as a failed campaign even when no `target_yield` is declared. The citation stays in the manifest so the row re-grades when a larger campaign is minted. The earlier prose about this row (re-mint of the #288 envelope, evidence-existence reading) is retained in git history and in the "What item 6 means" paragraph above. |
 | 7 — Post-layout verification | unmet `no_evidence` | `sim/output-voltage-tc-post-layout/parasitics-snapshot/*/bandgap_core_routed.pex.json` exists but is a `klt extract --parasitics` output (`status: "extracted"`, no `delta[]`/`reference_netlist`/`corner_count`), not the `klt pex` schematic-vs-extracted-delta shape item 7 requires — the *only* evidence kind this item accepts. Citing it would render `wrong_kind` at best; left uncited rather than borrowing a near-miss. A first-party `klt pex` run is the way to close this row. |
 | 8 — Characterization report | **met** | Cites `signoff/evidence/characterization.generic.json` — a hand-rolled `kind: generic` envelope (the one item this wrapper is allowed to satisfy) asserting [`design/block-characterization-report.md`](../design/block-characterization-report.md): the aggregated, current, per-ratified-spec-row roll-up across corners, with disclosed FAILs (box-method TC, post-layout output accuracy, startup-time/-ramp, Trim) stated plainly rather than summarized away. The envelope's `provenance.input.content_hash` pins that report; `regenerate.sh` step 1 refreshes it mechanically whenever the report changes. |
-| 9 — Testbenches shipped | unmet `no_evidence` | Same structural reason as item 1. Human-audited: [`sim/README.md`](../sim/README.md) inventories the committed testbenches with cold-start invocation and pinned PDK revision. |
-| 10 — Repo hygiene | unmet `no_evidence` | Same structural reason as item 1. Human-audited: the root [`README.md`](../README.md), `LICENSE`, and `.github/workflows/ci.yml` (runs on every push/PR). |
+| 9 — Testbenches shipped | **met** | Cites `signoff/attest/item-9.evidence.json`, pinning `testbench-inventory.json`: every `sim/` directory with an `experiment.json` or a `run_*.py` entry point, its testbench `.sch` and runner files each hash-pinned, the cold-start command (`python3 sim/bin/corner-run.py sim/<dir>` or the directory's runner), the PDK pin (`sim/pdk.json`, open_pdks `c6d73a35…`) and tool versions. Directories that only hold derived records are listed under `record_only_directories`, not omitted. **The PDK revision recorded here moves when #369/#370 land; whichever lands second regenerates this inventory** (`./signoff/regenerate.sh` — CI fails until it does). `met` attests the testbenches are shipped and pinned, not that every cold start was re-run for this change. |
+| 10 — Repo hygiene | **met** | Cites `signoff/attest/item-10.evidence.json`, pinning `repo-hygiene.inventory.json`: the root [`README.md`](../README.md), `LICENSE`, `.github/workflows/ci.yml` (triggers on push and pull_request) and `package.json`, with the commands the workflow runs. |
 | 11 — Power delivery (structural) | unmet `supply_spec_disclosed_tool_limitation` | **No longer `no_evidence`** — issue #281 landed the `klt erc` supply spec and reports, and this row now cites them: `layout/bandgap-core/erc/<record-id>/erc.20260817-020222-13476b7.json` (pinned to the routed GDS's own `content_hash`) **plus** item 4's `lvs.combined.json`, the two-part citation item 11's analog column requires (`docs/cli/signoff.md`, "Power delivery (structural)"). The **supply half is met and computed**: `VDD` and `VSS` each resolve to exactly one electrical island, zero `erc.unconnected_net`, zero `erc.supply_short`, both in `erc_coverage.checked`; and the cited LVS report's `net_correspondence` pairs both supplies to reference-side nets from a SPICE reference. What keeps the row `unmet` is the **missing-tie half**: the spec declares an empty `ties[]` with a `ties_disclosure` of kind `tool_limitation`, so `erc.missing_tie` is *not computed* — an absence of evidence, not evidence of absence. The blocker is [klayout-tools#2339](https://github.com/2AMLogic/klayout-tools/issues/2339) (filed from this repo): `ties[].well_layer` checks every merged shape on one layer against one declared net, and this block's single `nwell` layer holds two differently-biased well classes (4 PMOS body wells at `VDD`, 2 vertical-PNP base tubs at `VSS`), so either declaration reports the other class as a false `erc.missing_tie`. **This is not klayout-tools#2169**, which is fixed on the pinned 0.6.0 build and re-confirmed not to reproduce here. Both halves of the reproduction and the standing-in well-tie evidence are in [`layout/bandgap-core/erc/README.md`](../layout/bandgap-core/erc/README.md). Closed by a `klt` build with a well-side tie selector, not by redrawing the layout. |
 
-Items 1, 2, 9, and 10 are uncited by deliberate choice: the grader accepts
-any passing envelope for them without checking topical relevance (there is
-no verb to bind them to), and citing an envelope that does not actually
-support the claim — to make rows go green — is the failure mode this
-manifest exists to prevent (`docs/cli/signoff.md`, "Items 1, 2, 9, and 10:
-`klt signoff` cannot check topical relevance"). Their evidence remains the
-committed, human-auditable artifacts named above.
+## Items 1, 2, 9 and 10: artifact-anchored attestations
+
+These four items have no `klt` verb, and until klayout-tools#2718 the grader accepted
+any passing envelope for them with no topical check, so this manifest left them
+**uncited by deliberate choice** (citing an unrelated passing envelope to turn a row
+green is the anti-pattern the manifest exists to prevent). Two things changed upstream:
+
+- **klayout-tools#2718** (in 0.7.0): items 1, 2, 9 and 10 accept only a generic
+  envelope that declares `t1_item`, pins the audited artifact by `provenance.input`
+  path and `content_hash`, and is cited by a manifest entry pinning the same hash.
+  The row is `met` only while the artifact still re-hashes to that value, and the
+  citation carries an `artifact_binding` block saying what was bound.
+- **klayout-tools#2844** adds `klt signoff --attest {1,9,10} --inventory <file>` to
+  derive that envelope's status mechanically. **It is not in 0.7.0** (`klt signoff
+  --help` on the pinned wheel has no `--attest`). `scripts/ci/attest_inventories.py`
+  therefore writes the generic form itself; switch to the verb once a klayout-tools
+  release carries it.
+
+The chain for items 1, 9 and 10 is `manifest pin == envelope pin == sha256(inventory)`,
+and every inventory entry `== sha256(file)`. `check_signoff_pins.py` verifies the
+first link (offline, `checks` job) and `attest_inventories.py` (default mode, same
+job, via `npm run check:signoff-pins`) rebuilds the inventories from the tree and
+fails naming the stale one, so **editing any inventoried file, or adding a testbench
+directory, fails CI** until `./signoff/regenerate.sh` is run and the result committed.
+`scripts/ci/tests/test_attest_inventories.py` holds the negative controls. Item 2 skips
+the inventory: its envelope pins the routed GDS, which `check_signoff_pins.py` re-hashes.
 
 ## Regenerating the evidence record
 
@@ -193,8 +226,9 @@ Regenerate whenever:
 
 - a citation is added, removed, or its pinned artifact changes (the
   committed record and the manifest must tell the same story),
-- the klt pin is bumped, or
-- the vendored checklist doc is re-pinned to a newer upstream revision.
+- the klt pin is bumped,
+- an inventoried file changes (a schematic, testbench, `sim/pdk.json`, the README, the CI workflow), or
+- `design/netlist/` is refreshed after a schematic edit (`scripts/ci/design_netlists.py --write`, needs xschem 3.4.7 and the pinned PDK, then `./signoff/regenerate.sh`).
 
 ## Fleet context
 
