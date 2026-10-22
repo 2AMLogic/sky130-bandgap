@@ -5,6 +5,8 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-10-22
 
+- **PR #419**: signoff: cite a klt 0.7.0 LVS report for T1 item 4 and pin item 11's LVS half
+- **Issue #388** (closed): T1 item 4: mint a hash-pinned LVS report now that klayout-tools#2374 is fixed, with a determinism re-measure
 - **PR #417**: fix(signoff): regenerate stale attestation artifacts after PDK re-pin
 - **Issue #416** (closed): CI red on main at 87e95da: attest_inventories tests and signoff freshness (T1 item 11 citation drift)
 - **PR #390**: feat(signoff): attest T1 items 1, 2, 9, 10 on klt 0.7.0
