@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # layout/bin/run-erc-supply-flow.sh -- T1 item 11 (power delivery,
 # structural) evidence: run `klt erc` with this repo's supply spec against
-# every committed routed bandgap-core GDS, plus the two known-gap n-well tie
-# reproductions, and append one record under layout/bandgap-core/erc/.
+# every committed routed bandgap-core GDS, plus the n-well tie negative
+# control, and append one record under layout/bandgap-core/erc/.
 #
 # Usage (cold machine):
 #   layout/bin/run-erc-supply-flow.sh            # create .venv-erc if missing
@@ -18,14 +18,18 @@
 #   - zero erc.unconnected_net naming VDD or VSS
 #   - zero erc.supply_short naming VDD or VSS
 #   - both supplies present in erc_coverage.checked
+#   - zero erc.missing_tie, every declared tie in erc_coverage.checked, empty
+#     erc_coverage.skipped (a degenerate well selection is skipped work, not
+#     a pass), and no ties_disclosure
 #   - the report's provenance.input.content_hash equals the sha256 of the GDS
 #     it was run against
 # An antenna verdict or a floating-gate finding is a real defect but is not
 # this item's subject and does not fail this gate (klayout-tools#1994).
 #
-# erc.missing_tie is NOT computed by the supply run and is not gated here --
-# see layout/bandgap-core/erc/README.md and the ties_disclosure block in
-# layout/bandgap-core/erc-supply-spec.json for why, and for what stands in.
+# The negative control (erc-nwell-tie-spec.negative-control.json: the same
+# well boxes declared to the opposite net) must report erc.missing_tie for
+# every n-well shape; it is what makes the clean tie result falsifiable. It
+# is gated the other way round -- a control that finds nothing fails the flow.
 set -euo pipefail
 
 LAYOUT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -107,13 +111,11 @@ for rec in "${GDS_RECORDS[@]}"; do
   run_erc "$CELL_DIR/erc-supply-spec.json" "$rec" "erc.$rec"
 done
 
-# Known-gap reproductions run against the newest GDS only -- they are friction
-# evidence for 2AMLogic/klayout-tools#2339, not a per-layout verdict.
+# The negative control runs against the newest GDS only -- it is a check on
+# the tie declaration, not a per-layout verdict.
 NEWEST="${GDS_RECORDS[${#GDS_RECORDS[@]}-1]}"
-run_erc "$CELL_DIR/erc-nwell-tie-spec.known-gap.vdd.json" "$NEWEST" \
-  "erc.known-gap-nwell-vdd.$NEWEST"
-run_erc "$CELL_DIR/erc-nwell-tie-spec.known-gap.vss.json" "$NEWEST" \
-  "erc.known-gap-nwell-vss.$NEWEST"
+run_erc "$CELL_DIR/erc-nwell-tie-spec.negative-control.json" "$NEWEST" \
+  "erc.negative-control-nwell-swapped.$NEWEST"
 
 python3 "$LAYOUT_DIR/bin/erc_supply_record.py" \
   --out-dir "$OUT_DIR" --record-id "$RECORD_ID" --repo-root "$REPO_ROOT" \

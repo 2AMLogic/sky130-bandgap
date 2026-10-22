@@ -32,11 +32,11 @@
     },
     "10": {
       "file": "signoff/attest/item-10.evidence.json",
-      "content_hash": "sha256:24f116fabc878b073041d81dc9ed52cc8395ff50e948e12d10fcef01036be654"
+      "content_hash": "sha256:47d180a707e1e07b9b9a0ccbe3b381e2d09b6bf2f8e21de0689971fc24bbb94f"
     },
     "11": [
       {
-        "file": "layout/bandgap-core/erc/20260923-091422-f87c12b/erc.20260923-070209-dbd57a9.json",
+        "file": "layout/bandgap-core/erc/20261022-072429-9eb67913/erc.20260923-070209-dbd57a9.json",
         "content_hash": "sha256:311c0f14cdd85aa5255018c590cbe755e31fd1ac81e04895d6302fea2146aae9"
       },
       {

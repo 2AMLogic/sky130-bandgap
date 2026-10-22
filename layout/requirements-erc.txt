@@ -18,12 +18,12 @@
 #   virtualenv (layout/.venv-erc), and the DRC/LVS evidence trail stays
 #   exactly where it is.
 #
-# Current pin: released tag v0.6.0 (commit c622e8addb362491664d44ba4d717f354ca88bbd,
+# Current pin: released tag v0.6.0 (commit 0e2362bda7309829398a35d54efaa989d5806065,
 # 2026-09-22). A released tag, not a floating branch and not a bare commit,
 # for the same reproducibility discipline requirements.txt applies -- a
 # re-run months from now installs the identical build.
 #
-# What v0.6.0 specifically buys this flow, each verifiable in the committed
+# What v0.6.0 and later specifically buy this flow, each verifiable in the committed
 # report's own provenance block:
 #
 #   - 2AMLogic/klayout-tools#2186 -- ties[] well conduction is scoped to its
@@ -44,9 +44,12 @@
 #     which is how this spec states honestly that erc.missing_tie was not
 #     computed and why.
 #
-# Bump this pin when picking up new `klt erc` capability (in particular, a
-# well-side tie selector -- 2AMLogic/klayout-tools#2339 -- would let the
-# ties_disclosure in layout/bandgap-core/erc-supply-spec.json be replaced by a
-# real, checked ties[] declaration), and re-run
-# layout/bin/run-erc-supply-flow.sh to append a fresh record.
-klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@c622e8addb362491664d44ba4d717f354ca88bbd
+# v0.7.0 adds ties[].well_requires_boxes / well_excludes_boxes
+# (2AMLogic/klayout-tools#2339 / #2540), which replaced the ties_disclosure in
+# layout/bandgap-core/erc-supply-spec.json with two real, checked n-well ties.
+# It also rejects unknown spec keys, so the spec carries no comment key.
+#
+# Bump this pin when picking up new `klt erc` capability, and re-run
+# layout/bin/run-erc-supply-flow.sh to append a fresh record. Bumping it
+# re-runs only the ERC flow; requirements.txt (DRC/LVS) is untouched.
+klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@0e2362bda7309829398a35d54efaa989d5806065
