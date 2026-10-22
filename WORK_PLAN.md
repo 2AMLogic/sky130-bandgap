@@ -51,7 +51,6 @@ Issues carrying `loom:curated`.
 - **#306**: Reduce the startup injector's supply-dependent GDRV load so PSRR clears DR-006's 60 dB floor (design cause confirmed by #300) *(curated)*
 - **#315**: Complete #306's circuit fix (startup injector PSRR) and the post-fix layout cycle *(curated)*
 - **#368**: Design a state-dependent startup-injector reference-stack element that clears the 60 dB PSRR floor at ff/125/3.63 and sf/27/2.97 *(curated)*
-- **#388**: T1 item 4: mint a hash-pinned LVS report now that klayout-tools#2374 is fixed, with a determinism re-measure *(curated)*
 - **#395**: Enable --backend batch for remaining pre-layout corner-run benches (prereq of #370) *(curated)*
 
 ## Proposed (Architect / Hermit)
@@ -73,7 +72,7 @@ _None._
 | In Progress (`loom:building`) | 0 |
 | PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 5 |
+| Curated | 4 |
 | Architect / Hermit proposals | 1 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
