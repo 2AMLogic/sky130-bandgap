@@ -45,8 +45,17 @@ def main() -> int:
     args = ap.parse_args()
 
     erc = CELL / "erc" / args.record_id / f"erc.{args.newest}.json"
-    lvs = CELL / "reports" / args.newest / "lvs.combined.json"
-    for path in (erc, lvs, MANIFEST):
+    if not MANIFEST.is_file():
+        raise SystemExit(f"erc_signoff_citation.py: missing {MANIFEST}")
+    manifest = json.loads(MANIFEST.read_text())
+    # Item 11's LVS half is item 4's report, whichever record that is: the
+    # newest routed-GDS record's own lvs.combined.json can predate the
+    # provenance block (see below), and item 4 is where the pinnable one lives.
+    item4 = manifest.get("evidence", {}).get("4")
+    if not isinstance(item4, dict) or "file" not in item4:
+        raise SystemExit("erc_signoff_citation.py: manifest has no item 4 LVS citation")
+    lvs = pathlib.Path(item4["file"])
+    for path in (erc, lvs):
         if not path.is_file():
             raise SystemExit(f"erc_signoff_citation.py: missing {path}")
 
@@ -58,24 +67,20 @@ def main() -> int:
     # is what binds the committed report to the committed routed GDS.
     erc_entry: dict[str, str] = {"file": str(erc), "content_hash": erc_hash}
 
-    # The LVS part is deliberately left UNPINNED, and that is the documented
-    # remedy rather than an omission. This block's `lvs.combined.json` was
-    # produced by a 0.2.0-era `klt lvs`, which predates the shared
-    # `provenance.input` block entirely (`provenance.input: null`; the input
-    # hash lives in `environment.layout_sha256`). Pinning `content_hash`
-    # against an envelope that records no input hash at all renders
-    # `unverifiable_provenance` -- klayout-tools#2182's distinct reason for
-    # "nothing was ever recorded to compare against", whose remedy is
-    # "re-produce the evidence with a producer that records provenance, or
-    # unpin content_hash for this entry" (klayout_tools/signoff.py,
-    # _REASON_UNVERIFIABLE_PROVENANCE). Re-minting that LVS report means
-    # bumping layout/requirements.txt's DRC/LVS pin and regenerating the whole
-    # committed report directory -- squarely item 4's own work, tracked
-    # separately, not this flow's to do silently. Until then the entry is
-    # cited unpinned, which grades on the envelope's own content.
-    lvs_entry: dict[str, str] = {"file": str(lvs)}
+    # The LVS part is pinned the same way, to the `provenance.input.content_hash`
+    # a `klt lvs` >= 0.7.0 report records (the hash of the pre-extracted layout
+    # netlist it compared). Item 4 cites the same report, so the two stay in
+    # step. A report that records no input hash at all (a 0.2.0-era `klt lvs`
+    # writes `provenance.input: null`) cannot be pinned: pinning against it
+    # renders `unverifiable_provenance`, so refuse rather than cite it unpinned.
+    lvs_hash = input_hash(lvs)
+    if lvs_hash is None:
+        raise SystemExit(
+            f"erc_signoff_citation.py: {lvs} has no provenance.input hash "
+            "(re-produce it with a klt lvs that records provenance)"
+        )
+    lvs_entry: dict[str, str] = {"file": str(lvs), "content_hash": lvs_hash}
 
-    manifest = json.loads(MANIFEST.read_text())
     manifest.setdefault("evidence", {})["11"] = [erc_entry, lvs_entry]
     manifest["evidence"] = {
         k: manifest["evidence"][k] for k in sorted(manifest["evidence"], key=int)

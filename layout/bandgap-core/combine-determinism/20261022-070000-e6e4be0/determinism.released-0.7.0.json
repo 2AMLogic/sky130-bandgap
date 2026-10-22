@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "harness": "layout/bin/measure_combine_devices_determinism.py",
+  "record_id": "20261022-070000-e6e4be0",
+  "source_record": "layout/bandgap-core/reports/20261022-070000-e6e4be0",
+  "request": "layout/bandgap-core/reports/20261022-070000-e6e4be0/lvs.combined.request.json",
+  "repo_sha": "e6e4be0191e8270c60e219892b681928875cd4c2",
+  "klt_pin": "klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@acb0ae6c11e667eb93ee7de272d64298517f7fab",
+  "klt_version": {
+    "module_location": ".venv-klt/lib/python3.12/site-packages/klayout_tools",
+    "lvs_module_sha256": "sha256:8ae2cbed5e510eb879f452b4d43ed777c34098edecdcaa755a3a298818f26e9a",
+    "declared_ref": "klayout-tools 0.7.0 (PyPI wheel, git tag v0.7.0)",
+    "schema_version": 1,
+    "version": "0.7.0",
+    "package_version": "0.7.0",
+    "git_commit": "0e2362bda7309829398a35d54efaa989d5806065",
+    "git_tag": "v0.7.0",
+    "dirty": false,
+    "is_release": true,
+    "grading_ruleset_id": "sha256:eb8d2ba54d1700c78f1139ac111aee598fd7bc48688ab9654fca22995b6ac25e",
+    "klayout_version": "0.30.12",
+    "klayout_version_expected": "0.30.12"
+  },
+  "python_version": "3.12.3",
+  "tag": "released-0.7.0",
+  "trials": 1000,
+  "variants": [
+    {
+      "variant": "as_committed",
+      "supported": true,
+      "trials": 1000,
+      "deterministic": true,
+      "mismatch_counts": {
+        "1": 1000
+      },
+      "statuses": {
+        "match": 1000
+      },
+      "category_totals": {
+        "device.geometry_not_compared": 1000
+      },
+      "finding_totals": {
+        "device.geometry_not_compared/RES_HIGH_PO/-/-": 1000
+      },
+      "clean_fraction": 0.0
+    },
+    {
+      "variant": "max_attempts_1",
+      "supported": true,
+      "trials": 1000,
+      "deterministic": true,
+      "mismatch_counts": {
+        "1": 1000
+      },
+      "statuses": {
+        "match": 1000
+      },
+      "category_totals": {
+        "device.geometry_not_compared": 1000
+      },
+      "finding_totals": {
+        "device.geometry_not_compared/RES_HIGH_PO/-/-": 1000
+      },
+      "clean_fraction": 0.0
+    }
+  ]
+}
