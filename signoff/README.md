@@ -127,7 +127,7 @@ generic form), so passing it with `--tiers-doc` would have graded those rows aga
 the old "no verb, any passing envelope" wording. Grading without the flag renders the
 same 11-item T1 skeleton, so the flag and the vendored file were dropped.
 
-**Rows whose verdict moved with the 0.7.0 re-grade** (3/11 → 6/11 met; item 4 then moved to met, 7/11, with issue #388):
+**Rows whose verdict moved with the 0.7.0 re-grade** (3/11 → 6/11 met; item 4 then moved to met, 7/11, with issue #388; item 11 then moved to met, 8/11, with issue #389):
 
 | Item | 0.6.0 | 0.7.0 | Cause |
 |---|---|---|---|
@@ -145,18 +145,17 @@ this repo warrants `mixed-signal` today.
 
 `klt signoff` renders every T1 item either `met` (a cited, freshly-pinned,
 passing check backs it) or `unmet` with a `reason`. Today's committed
-verdict is **7/11 met** — an honest mechanical reading, not a hand-read: it
+verdict is **8/11 met** — an honest mechanical reading, not a hand-read: it
 is a mechanical reading, not a hand-read, and a manifest that renders a row
-`unmet` with a stated reason (items 5–7, 11) is worth more than prose nobody
+`unmet` with a stated reason (items 5–7) is worth more than prose nobody
 re-verifies.
 
 **A row can get better without getting to `met`, and that is visible here.**
 Item 11 moved from `no_evidence` (nothing existed) to
-`supply_spec_disclosed_tool_limitation` (the evidence exists, the supply half
-is computed and passes, and the one remaining half is blocked by a named,
-filed upstream tool gap) when issue #281 landed. That move did not change the
-count; the `reason` is what changed, and it is the `reason` that says what
-would close the row.
+`supply_spec_disclosed_tool_limitation` (the supply half computed and passing,
+the missing-tie half blocked by a named, filed upstream tool gap) when issue
+#281 landed, and to **`met`** when issue #389 declared real n-well `ties[]` on
+klt 0.7.0. The `reason` moves are what say what would close a row.
 
 **And a row can get *worse* without the artifact changing, which is why item
 4 stayed `unmet` for as long as it did.** Issue #288 investigated the
@@ -183,7 +182,7 @@ what let the row close.
 | 8 — Characterization report | **met** | Cites `signoff/evidence/characterization.generic.json` — a hand-rolled `kind: generic` envelope (the one item this wrapper is allowed to satisfy) asserting [`design/block-characterization-report.md`](../design/block-characterization-report.md): the aggregated, current, per-ratified-spec-row roll-up across corners, with disclosed FAILs (box-method TC, post-layout output accuracy, startup-time/-ramp, Trim) stated plainly rather than summarized away. The envelope's `provenance.input.content_hash` pins that report; `regenerate.sh` step 1 refreshes it mechanically whenever the report changes. |
 | 9 — Testbenches shipped | **met** | Cites `signoff/attest/item-9.evidence.json`, pinning `testbench-inventory.json`: every `sim/` directory with an `experiment.json` or a `run_*.py` entry point, its testbench `.sch` and runner files each hash-pinned, the cold-start command (`python3 sim/bin/corner-run.py sim/<dir>` or the directory's runner), the PDK pin (`sim/pdk.json`, open_pdks `c6d73a35…`) and tool versions. Directories that only hold derived records are listed under `record_only_directories`, not omitted. **The PDK revision recorded here moves when #369/#370 land; whichever lands second regenerates this inventory** (`./signoff/regenerate.sh` — CI fails until it does). `met` attests the testbenches are shipped and pinned, not that every cold start was re-run for this change. |
 | 10 — Repo hygiene | **met** | Cites `signoff/attest/item-10.evidence.json`, pinning `repo-hygiene.inventory.json`: the root [`README.md`](../README.md), `LICENSE`, `.github/workflows/ci.yml` (triggers on push and pull_request) and `package.json`, with the commands the workflow runs. |
-| 11 — Power delivery (structural) | unmet `supply_spec_disclosed_tool_limitation` | **No longer `no_evidence`** — issue #281 landed the `klt erc` supply spec and reports, and this row now cites them: `layout/bandgap-core/erc/<record-id>/erc.20260817-020222-13476b7.json` (pinned to the routed GDS's own `content_hash`) **plus** item 4's `lvs.combined.json` (now the pinned 0.7.0 report `20261022-070000-e6e4be0`, issue #388), the two-part citation item 11's analog column requires (`docs/cli/signoff.md`, "Power delivery (structural)"). The **supply half is met and computed**: `VDD` and `VSS` each resolve to exactly one electrical island, zero `erc.unconnected_net`, zero `erc.supply_short`, both in `erc_coverage.checked`; and the cited LVS report's `net_correspondence` pairs both supplies to reference-side nets from a SPICE reference. What keeps the row `unmet` is the **missing-tie half**: the spec declares an empty `ties[]` with a `ties_disclosure` of kind `tool_limitation`, so `erc.missing_tie` is *not computed* — an absence of evidence, not evidence of absence. The blocker is [klayout-tools#2339](https://github.com/2AMLogic/klayout-tools/issues/2339) (filed from this repo): `ties[].well_layer` checks every merged shape on one layer against one declared net, and this block's single `nwell` layer holds two differently-biased well classes (4 PMOS body wells at `VDD`, 2 vertical-PNP base tubs at `VSS`), so either declaration reports the other class as a false `erc.missing_tie`. **This is not klayout-tools#2169**, which is fixed on the pinned 0.6.0 build and re-confirmed not to reproduce here. Both halves of the reproduction and the standing-in well-tie evidence are in [`layout/bandgap-core/erc/README.md`](../layout/bandgap-core/erc/README.md). Closed by a `klt` build with a well-side tie selector, not by redrawing the layout. **Status note (issue #388):** the committed `signoff-report.json` renders this row `unmet` / `stale_evidence`, not the `supply_spec_disclosed_tool_limitation` named above, and it did so before issue #388: the ERC run's recorded `provenance.spec.content_hash` no longer verifies against the spec document it names. Pinning the LVS half does not change that (both halves resolve; the failure is in the ERC half's spec check), and refreshing the ERC run is outside issue #388's scope. |
+| 11 — Power delivery (structural) | **met** | Cites `layout/bandgap-core/erc/20261022-072429-9eb67913/erc.20260923-070209-dbd57a9.json` (pinned to the routed GDS's own `content_hash`, `input_verified: true`; produced by klt 0.7.0, pin in `layout/requirements-erc.txt`) **plus** item 4's `lvs.combined.json` (the pinned 0.7.0 report `20261022-070000-e6e4be0`, issue #388), the two-part citation item 11's analog column requires. The **supply half**: `VDD` and `VSS` each resolve to exactly one electrical island, zero `erc.unconnected_net`, zero `erc.supply_short`. The **tie half** (issue #389, clearing the old `supply_spec_disclosed_tool_limitation` / klayout-tools#2339 disclosure): two real `ties[]` entries, `nwell_tie_vdd` (5 wells) and `nwell_tie_vss` (3 wells), scoped per well class with `well_requires_boxes`, both in `erc_coverage.checked`, `skipped` empty, zero `erc.missing_tie`, no `ties_disclosure`. **Disclosed, as the report states it**: because the class of each well rests on the caller's boxes, both ties are listed in `power_delivery.ties_checked_by_well_assertion`; the grader does not verify the box assignment. The falsifiability evidence is the negative control committed in the same record (`erc.negative-control-nwell-swapped.20260923-070209-dbd57a9.json`: the same boxes declared to the opposite net, 8 of 8 wells flagged `erc.missing_tie`). The n-well count is 8 shapes (5 + 3), not the 4 + 2 earlier text under-counted. A ninth nwell shape added to the layout would match neither box list and would not be checked. Structural only: IR drop and EM are outside the item. The LVS half carries the same item-4 disclosures (`RES_HIGH_PO` geometry not compared; `body_verification` unchecked). The older records' reports (klt 0.6.0, `ties_disclosure`) are untouched append-only evidence. |
 
 ## Items 1, 2, 9 and 10: artifact-anchored attestations
 

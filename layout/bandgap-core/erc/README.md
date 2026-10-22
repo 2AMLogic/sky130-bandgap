@@ -12,14 +12,16 @@ evidence establishes and — just as importantly — what it does not.
 ## What is here
 
 ```
-erc-supply-spec.json                        # ../ -- the item-11 spec (inline rationale per field)
-erc-nwell-tie-spec.known-gap.vdd.json       # ../ -- friction reproduction, half 1
-erc-nwell-tie-spec.known-gap.vss.json       # ../ -- friction reproduction, half 2
+erc-supply-spec.json                        # ../ -- the item-11 spec (supplies + n-well ties)
+erc-supply-spec.rationale.md                # ../ -- per-field rationale (klt 0.7.0 rejects comment keys)
+erc-nwell-tie-spec.negative-control.json    # ../ -- same well boxes, nets swapped; must fail
+erc-nwell-tie-spec.known-gap.{vdd,vss}.json # ../ -- superseded pre-0.7.0 reproduction (evidence, no longer run)
 erc/
   README.md                                 # this file
   <record-id>/                              # <YYYYMMDD-HHMMSS>-<short-sha>, one per flow run
     erc.<gds-record-id>.json                # klt erc --format json, supply spec, one per routed GDS
-    erc.known-gap-nwell-{vdd,vss}.<id>.json # the two known-gap runs, newest GDS only
+    erc.negative-control-nwell-swapped.<id>.json  # swapped-net control, newest GDS only
+                                            # (older records carry erc.known-gap-nwell-{vdd,vss}.<id>.json)
     record.md                               # gated human-readable summary (read this first)
 ```
 
@@ -58,120 +60,72 @@ for why.
   place-and-route` response, so the digital column's `power.pdn` /
   `power.tapcell_master` / `power.straps[]` requirements do not apply to it.
 
-**Not met, and the reason it is not met:**
+- **`erc.missing_tie` is computed.** The spec declares two n-well `ties[]`
+  entries on nwell 64/20 with sky130's dedicated tap 65/44 connected through
+  `li1`: `nwell_tie_vdd` (five wells, the PMOS bodies) and `nwell_tie_vss`
+  (three wells, the vertical-PNP base tubs). Each is in
+  `erc_coverage.checked`, `erc_coverage.skipped` is empty (no
+  `degenerate_well_selection`), there is no `ties_disclosure`, and
+  `erc.missing_tie` is zero on all three committed routed GDSs.
+- **Falsifiable, not asserted.** The same well boxes declared to the *opposite*
+  net (`erc-nwell-tie-spec.negative-control.json`) make `klt erc` report
+  `erc.missing_tie` on all eight wells (3 declared `VDD`, 5 declared `VSS`).
+  The record gates that count, so a tie declaration that could not fail would
+  fail the flow.
 
-- **`erc.missing_tie` is NOT COMPUTED by the supply run.** The spec declares an
-  empty `ties[]`, which per `klt erc`'s own contract
-  (`docs/cli/erc.md`: *"Omitted entirely → `erc.missing_tie` is never
-  computed"*) means the rule never runs. **Its zero count in the committed
-  reports is an absence of evidence, not evidence of absence.** The reports say
-  so themselves: `erc_coverage.inapplicable` records
-  `erc.missing_tie:[]` with reason `ties_disclosed_tool_limitation`, and the
-  top-level `ties_disclosure` block carries the reason in full text.
+**What the tie evidence rests on, stated rather than hidden:**
 
-  Because of that, **item 11 as a whole is UNMET** for this block. It grades as
-  `supply_spec_disclosed_tool_limitation` — distinguishable from
-  `supply_spec_incomplete` ("nobody asked the question"), but still unmet,
-  because a disclosure is the caller's word about their toolchain and never a
-  computed result.
+- The n-well count is **eight merged shapes, five + three** (read from the
+  merged 64/20 region of the newest routed GDS). Earlier text here said six
+  (four + two); the old known-gap reports' bounds (3 + 5) were always the
+  authority and the six was a miscount.
+- Which wells belong to which class is the **caller's word**: the stream draws
+  one nwell layer and no marker separating the classes, so each tie selects its
+  wells with `well_requires_boxes` (literal micrometre boxes, one per well).
+  `klt` reports that as `erc_coverage.checked_by_well_assertion` (both ties),
+  and `klt signoff` echoes it in `power_delivery.ties_checked_by_well_assertion`.
+  The grader does not verify the assignment. The class assignment was derived
+  from the pre-0.7.0 known-gap runs, whose finding sets were exact
+  complements; the negative control re-tests it on every flow run (a
+  mis-assigned well would flip a tie to `erc.missing_tie`).
+- The boxes are the bounding boxes of today's wells. **A ninth nwell shape
+  matches neither list and is not checked**; extend the boxes if the well set
+  changes.
+- Structural only: no IR-drop/EM analysis (outside item 11).
 
-## Why `ties[]` is empty — the specific blocker
+## Standing-in evidence (supplementary)
 
-This is **not** klayout-tools#2169 (the `ties[]` well-conductor collapse that
-produced a false `erc.supply_short` on any routed design). That is **fixed** on
-the pinned `klt` build (0.6.0, via #2186), and this repo re-confirms the fix
-rather than asserting it: both known-gap runs in the newest record declare a real
-tie and report **zero** `erc.supply_short`.
+Now that the tie result is computed, this is corroboration, not a substitute:
 
-The actual blocker is a different, second gap, filed from this repo under the
-friction protocol as
-**[2AMLogic/klayout-tools#2339](https://github.com/2AMLogic/klayout-tools/issues/2339)**:
+1. **LVS `net_correspondence`, from a SPICE reference** — the item-4 report
+   (`layout/bandgap-core/reports/20261022-070000-e6e4be0/lvs.combined.json`,
+   `status: "match"`) pairs both supplies to reference-side nets. The curated
+   sky130 deck resolves a device body through its well/substrate tap, so a clean
+   match is also a body-connectivity statement; the report's own
+   `body_verification` is `unchecked`, so that is inference from the deck.
+2. **A drawn substrate guard ring** — `tap` 65/44 outside every `nwell` is 3
+   merged shapes (two interior straps plus a ring enclosing the block),
+   contacted up to the `VSS` island `erc.net_connectivity` confirms is one island.
+3. **Pin labels in the merged GDS** — both supplies carry `met1.label` (68/5)
+   text, which is what lets `nets[]` resolve them at all.
 
-> `ties[].well_layer` names one layer, and *every* merged shape on it is checked
-> against that entry's single `net`. There is no well-side selector —
-> `tap_requires`, `tap_is_dedicated` and `tap_boxes` all narrow the **tap**, and
-> `well_boxes` is rejected outright alongside a drawn `well_layer`.
+## History
 
-`bandgap-core`'s single `nwell` (64/20) layer holds **two differently-biased well
-classes**, which is ordinary for a bandgap:
-
-| n-well class | count | biased to | why |
-|---|---|---|---|
-| PMOS body wells | 4 | `VDD` | ordinary device-body tie |
-| vertical-PNP base tubs | 2 | `VSS` | the `sky130_fd_pr__pnp_05v5` devices are diode-connected, so their base sits at the negative rail with the substrate collector |
-
-Both classes are real, correct and fully tapped (sky130's dedicated `tap` 65/44,
-up through `licon1` → `li1`). Neither can be declared without the other class
-reporting a **false** `erc.missing_tie`. Rather than assert that, this repo
-commits the reproduction: the two known-gap specs' reports have **disjoint,
-complementary** finding sets — 2 findings and 4 findings, summing to exactly the
-6 n-well shapes on the layout — so between them every well is shown tapped to its
-correct supply, and neither run alone can say so.
-
-`ties_disclosure` only takes effect when `ties[]` is empty, so there is no
-configuration in which one tie is declared and the other disclosed. Declaring
-one anyway would put findings in the report of record that are artifacts of the
-declaration rather than defects in the layout — the exact thing the disclosure
-machinery exists to avoid.
-
-## Standing-in well-tie evidence (what *is* known about the ties)
-
-Since `erc.missing_tie` was not computed, this is the evidence that the wells and
-the substrate really are tied, named explicitly so the gap is bounded rather than
-open-ended. None of it is a substitute for a computed `erc.missing_tie`; all of
-it is independently checkable from committed artifacts.
-
-1. **The two known-gap `klt erc` runs themselves.** Each is a real, checked
-   `erc.missing_tie` computation (`erc_coverage.checked` carries
-   `erc.missing_tie:["nwell_tie_vdd"]` / `["nwell_tie_vss"]`, not
-   `inapplicable`), over a non-degenerate tie declaration — `tap_is_dedicated:
-   true` against sky130's own tap layer, which is precisely the narrowing
-   klayout-tools#2199 added so a tap declaration cannot silently pass on a
-   source/drain contact. Their union covers all 6 n-well shapes with a passing
-   tie. **This is the strongest single piece of standing-in evidence**: it is the
-   same computation item 11 asks for, just split across two reports because the
-   spec language cannot express it in one.
-2. **LVS `net_correspondence`, from a SPICE reference.**
-   `layout/bandgap-core/reports/20260817-020222-13476b7/lvs.combined.json` is
-   `status: "match"` with `mismatch_count: 0` across 11/11 nets and 16/16
-   devices, against `reference.spice`. The curated sky130 extraction deck resolves
-   a device body through its well/substrate tap (`klayout_tools/decks/sky130.py`
-   splits `tap` 65/44 by `nwell` containment — inside a well it is a PMOS well
-   tie, outside it is a genuine substrate tie). A device whose body resolved to
-   an unconnected or wrong net would not match its reference counterpart's body
-   terminal, so a clean `match` is a body-connectivity statement, not only a
-   signal-connectivity one. **Caveat, stated rather than hidden**: `klt lvs`'s
-   own `body_verification` block is not present in this 0.2.0-era report, so this
-   is an inference from the deck's behaviour, not a verdict the report states in
-   its own words.
-3. **A drawn substrate guard ring.** `tap` 65/44 outside every `nwell` is
-   3 merged shapes totalling 2236 µm² on the newest GDS — two interior straps
-   (87 µm² each) plus a continuous ring enclosing the whole block, spanning its
-   full (−10, −10)…(284.06, 215.44) µm extent (`guard_ring_outer.gds` in each
-   report directory is its generator output). It is contacted up through
-   `licon1` → `li1` → `met1` to the `VSS` island that `erc.net_connectivity`
-   above confirms is a single island.
-4. **Pin labels in the merged GDS.** Both supplies carry `met1.label` (68/5) text
-   in the committed stream — that is what lets `nets[]` resolve them at all, and
-   what `lvs.combined.json` matches its 11 pins against.
-
-## What would clear this
-
-A `klt` build with a well-side tie selector (klayout-tools#2339 proposes
-`well_requires`, symmetric with the existing `tap_requires`). At that point
-`erc-supply-spec.json`'s `ties_disclosure` is replaced by two real `ties[]`
-entries, `layout/requirements-erc.txt`'s pin is bumped, the flow is re-run, and
-item 11 can be claimed met on a single report. It is **not** cleared by redrawing
-the layout — the layout is already correct.
+Until issue #389 this directory's records (klt 0.6.0) declared an empty
+`ties[]` plus a `ties_disclosure` of kind `tool_limitation`, because
+[klayout-tools#2339](https://github.com/2AMLogic/klayout-tools/issues/2339)
+(no well-side selector) made either tie report the other well class as a false
+`erc.missing_tie`. klt 0.7.0 added `well_requires_boxes`/`well_excludes_boxes`
+(#2540). The older records and the two `known-gap` reproductions are kept as
+append-only evidence; they are no longer run by the flow. klt 0.7.0 also
+rejects unknown spec keys, so the spec's former `_comment` block moved to
+`erc-supply-spec.rationale.md`.
 
 ## Where the graded verdict lives
 
 `signoff/signoff-report.json` — the committed `klt signoff --manifest` report
 (issue #282) — is this block's verdict of record, and its item-11 row cites the
-newest record here plus item 4's own `lvs.combined.json`. It renders
-**`supply_spec_disclosed_tool_limitation`**: unmet, but mechanically
-distinguishable from `supply_spec_incomplete` ("nobody declared ties at all")
-and from `supply_spec_disclosed_unexpressible` ("there is no tap to name").
+newest record here plus item 4's own `lvs.combined.json`. It renders **`met`**.
 `layout/bin/run-erc-supply-flow.sh` re-points that citation at every new record
 it writes; `./signoff/regenerate.sh` re-grades, and CI fails on any drift.
 
@@ -181,4 +135,5 @@ declared supply resolved to one island" and "no supply was ever declared" are
 indistinguishable — both report zero findings). That is why the flow runs from
 the repo root with **repo-relative** paths, and why the spec must stay committed
 beside the evidence: an absolute path baked into a committed report resolves on
-exactly one machine.
+exactly one machine. Editing the spec invalidates every earlier record's
+`provenance.spec.content_hash`; only the newest record is cited.

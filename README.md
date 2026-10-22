@@ -43,7 +43,7 @@ lands), the injector PSRR fix, and the operator tier award.
 **The T1/bronze checklist state is graded, not hand-read**:
 [`signoff/README.md`](signoff/README.md) — this block's machine-graded
 gap-to-T1 tracker, an eleven-row `klt signoff --manifest` verdict — is the
-current verdict of record (today: **3/11 T1 items graded `met`**; see that
+current verdict of record (today: **8/11 T1 items graded `met`**; see that
 file's row-by-row table for why each remaining row is `unmet` and what would
 close it) — no bronze/T1 claim is made here.
 
