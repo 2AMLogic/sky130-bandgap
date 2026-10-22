@@ -14,6 +14,10 @@
       "file": "layout/bandgap-core/reports/20260923-070209-dbd57a9/drc.json",
       "content_hash": "sha256:311c0f14cdd85aa5255018c590cbe755e31fd1ac81e04895d6302fea2146aae9"
     },
+    "4": {
+      "file": "layout/bandgap-core/reports/20261022-070000-e6e4be0/lvs.combined.json",
+      "content_hash": "sha256:29937be4094b51b79d898ea0f4ed0aeb5c8ab4fbd97823f56a49789b229799a2"
+    },
     "6": {
       "file": "sim/monte-carlo-untrimmed/records/20260923-062524-1e38c62-klt-yield.json",
       "content_hash": "sha256:0b01d0dd123b8fae9bbb8044263f00c2f14fc8e1d9afea6e8856a712421b1694"
@@ -36,7 +40,8 @@
         "content_hash": "sha256:311c0f14cdd85aa5255018c590cbe755e31fd1ac81e04895d6302fea2146aae9"
       },
       {
-        "file": "layout/bandgap-core/reports/20260923-070209-dbd57a9/lvs.combined.json"
+        "file": "layout/bandgap-core/reports/20261022-070000-e6e4be0/lvs.combined.json",
+        "content_hash": "sha256:29937be4094b51b79d898ea0f4ed0aeb5c8ab4fbd97823f56a49789b229799a2"
       }
     ]
   }

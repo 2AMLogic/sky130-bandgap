@@ -18,6 +18,11 @@
       "note": "drc.json records its input as an absolute path into the worktree that produced it (/Users/.../.loom/worktrees/issue-178/...), which resolves on no other machine -- filed upstream as klayout-tools#2340. This is that same stream's committed, repo-relative location. Re-pinned to the injector-inclusive record (issue #302) -- item 3's pin moves together with item 11's below so the manifest does not end up citing DRC on one cell and ERC/LVS on another."
     },
     {
+      "item": "4",
+      "describes": "layout/bandgap-core/reports/20261022-070000-e6e4be0/bandgap_core_routed.extract.spice",
+      "note": "lvs.combined.json (klt 0.7.0, issue #388) records provenance.input.content_hash = sha256 of the pre-extracted layout netlist it compared (role `netlist`), which is this file, committed beside the report together with the request and reference.spice. Not the routed GDS: the extract netlist is what `klt lvs` was given."
+    },
+    {
       "item": "6",
       "describes": "sim/monte-carlo-untrimmed/records/20260923-062524-1e38c62-klt-yield-input.json",
       "note": "a `klt yield` report carries no `provenance` block at all, so `klt signoff` hashes the sample-set document the report names in its own top-level `samples` field and uses that as the citation's input hash -- this is that document. It is therefore also the one pin whose `describes` path must stay identical to the cited envelope's `samples` value: issue #288 made that value repo-relative (it used to be an absolute, machine-local path, which is why this item could not be cited at all), and sim/tests/test_emit_klt_yield.py guards it."
@@ -41,7 +46,13 @@
       "item": "11",
       "index": 0,
       "describes": "layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_routed.gds",
-      "note": "the `klt erc` supply run pins the same routed GDS item 3 grades (its envelope records the repo-relative path itself). Item 11's second citation (lvs.combined.json) is deliberately unpinned -- see layout/bin/erc_signoff_citation.py -- so it has no entry here. Re-pinned to the injector-inclusive record (issue #302), together with item 3, after re-running layout/bin/run-erc-supply-flow.sh against it."
+      "note": "the `klt erc` supply run pins the same routed GDS item 3 grades (its envelope records the repo-relative path itself). Item 11's second citation (lvs.combined.json) is pinned by the next entry. Re-pinned to the injector-inclusive record (issue #302), together with item 3, after re-running layout/bin/run-erc-supply-flow.sh against it."
+    },
+    {
+      "item": "11",
+      "index": 1,
+      "describes": "layout/bandgap-core/reports/20261022-070000-e6e4be0/bandgap_core_routed.extract.spice",
+      "note": "item 11's second citation is item 4's LVS report, now pinned (issue #388); same artifact and same hash as item 4."
     }
   ]
 }

@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "engine": "klayout",
+  "layout": "bandgap_core_routed.extract.spice",
+  "reference": "reference.spice",
+  "top": "BANDGAP_CORE_ROUTED",
+  "reference_top": "BANDGAP_CORE",
+  "parameter_tolerance": null,
+  "options": {
+    "combine_devices": true,
+    "combine_devices_per_circuit": null,
+    "combine_devices_max_attempts": 5,
+    "flatten_layout": false,
+    "flatten_reference": false,
+    "netgen_setup": null,
+    "parameter_tolerance": null,
+    "compare_parameters": null,
+    "power_connectivity": null,
+    "anchor_top_level_pins": null,
+    "supply_nets": [
+      "GND",
+      "VCC",
+      "VDD",
+      "VGND",
+      "VPWR",
+      "VSS"
+    ]
+  },
+  "hints_applied": null,
+  "status": "match",
+  "power_connectivity": {
+    "status": "unchecked",
+    "reason": "reference.form is 'plain-element', whose reference netlist carries its own power/ground pins and nets -- they take part in the ordinary compare, so this check (which exists to cover the signal-only 'gate-level-verilog' form) does not apply",
+    "power_pins": [],
+    "power_pins_derivation": null,
+    "instance_count": 0,
+    "expected_nets": null,
+    "unchecked_expected_pins": [],
+    "findings": [],
+    "finding_count": 0
+  },
+  "body_verification": {
+    "status": "unchecked",
+    "reason": "no request.layout.deck was given (the pre-extracted request.layout.netlist form), so nothing establishes this layout's substrate/well-tap convention and no synthesized body net can be told apart from a real one -- this run verified nothing about the device bodies either way",
+    "device_classes": [],
+    "device_count": 0,
+    "findings": [],
+    "finding_count": 0
+  },
+  "device_parameter_coverage": [
+    {
+      "class": "RES_HIGH_PO",
+      "device_kind": "resistor",
+      "layout_devices": 3,
+      "reference_devices": 3,
+      "compared": [
+        "R"
+      ],
+      "not_compared": [
+        {
+          "parameter": "L",
+          "reason": "secondary"
+        },
+        {
+          "parameter": "W",
+          "reason": "secondary"
+        },
+        {
+          "parameter": "A",
+          "reason": "secondary"
+        },
+        {
+          "parameter": "P",
+          "reason": "secondary"
+        }
+      ]
+    }
+  ],
+  "mismatch_count": 1,
+  "error_count": 0,
+  "category_counts": {
+    "device.geometry_not_compared": 1
+  },
+  "category_error_counts": {},
+  "counts": {
+    "nets": {
+      "layout": 14,
+      "reference": 14,
+      "matched": 14
+    },
+    "devices": {
+      "layout": 22,
+      "reference": 22,
+      "matched": 22
+    },
+    "pins": {
+      "layout": 13,
+      "reference": 4,
+      "matched": 13
+    }
+  },
+  "device_classes": null,
+  "environment": {
+    "engine": "klayout",
+    "engine_version": "0.30.12",
+    "netgen_binary": null,
+    "layout_sha256": "29937be4094b51b79d898ea0f4ed0aeb5c8ab4fbd97823f56a49789b229799a2",
+    "reference_sha256": "e722ce6553b3008772dcc3ae79fcaea76713311d068ffb95ca824f13e6e69c6e",
+    "extracted_netlist": null
+  },
+  "provenance": {
+    "klt_version": "0.7.0",
+    "klayout_version": "0.30.12",
+    "pdk": null,
+    "deck": null,
+    "input": {
+      "content_hash": "sha256:29937be4094b51b79d898ea0f4ed0aeb5c8ab4fbd97823f56a49789b229799a2",
+      "role": "netlist"
+    },
+    "klayout_version_mismatch": false
+  },
+  "mismatches": [
+    {
+      "category": "device.geometry_not_compared",
+      "severity": "warning",
+      "description": "device class 'RES_HIGH_PO' is a resistor class, whose ['A', 'L', 'P', 'W'] parameter(s) KLayout declares *secondary*: kdb.NetlistComparer compares primary parameters only, so none of them took part in this compare and each is NOT verified -- this resistor's geometry could differ between the two sides by any amount and this run would still report 'match'. The compared parameter(s) were ['R']. Name them in options.compare_parameters to compare them (see docs/cli/lvs.md, 'device.geometry_not_compared')",
+      "side": "both",
+      "net": null,
+      "device": {
+        "layout": null,
+        "reference": null,
+        "class": "RES_HIGH_PO"
+      },
+      "property": null,
+      "details": {
+        "device_kind": "resistor",
+        "compared_parameters": [
+          "R"
+        ],
+        "not_compared_parameters": [
+          "A",
+          "L",
+          "P",
+          "W"
+        ],
+        "layout_devices": 3,
+        "reference_devices": 3
+      },
+      "circuit": null,
+      "instance": null,
+      "subcircuit": null
+    }
+  ],
+  "net_correspondence": [
+    {
+      "layout": "D1",
+      "reference": "D1",
+      "pin": true
+    },
+    {
+      "layout": "D2",
+      "reference": "D2",
+      "pin": true
+    },
+    {
+      "layout": "GDRV",
+      "reference": "GDRV",
+      "pin": true
+    },
+    {
+      "layout": "\\$182",
+      "reference": "NC1",
+      "pin": false
+    },
+    {
+      "layout": "NE",
+      "reference": "NE",
+      "pin": true
+    },
+    {
+      "layout": "NG",
+      "reference": "NG",
+      "pin": true
+    },
+    {
+      "layout": "PN",
+      "reference": "PN",
+      "pin": true
+    },
+    {
+      "layout": "TAIL",
+      "reference": "TAIL",
+      "pin": true
+    },
+    {
+      "layout": "VA",
+      "reference": "VA",
+      "pin": true
+    },
+    {
+      "layout": "VB",
+      "reference": "VB",
+      "pin": true
+    },
+    {
+      "layout": "VBQ",
+      "reference": "VBQ",
+      "pin": true
+    },
+    {
+      "layout": "VDD",
+      "reference": "VDD",
+      "pin": true
+    },
+    {
+      "layout": "VOUT",
+      "reference": "VOUT",
+      "pin": true
+    },
+    {
+      "layout": "VSS",
+      "reference": "VSS",
+      "pin": true
+    }
+  ]
+}
