@@ -6,7 +6,7 @@
     {
       "path": "README.md",
       "role": "readme",
-      "content_hash": "sha256:90b59e313ed1f79e1b0f29d33d098e46ed3a3ac855bc8e21bb21acad1d75f318"
+      "content_hash": "sha256:4d2f842020f70d7f6ca8c4c35c0e1e1885f363b855c72a48991a0f704bae3ea5"
     },
     {
       "path": "LICENSE",
@@ -16,7 +16,7 @@
     {
       "path": ".github/workflows/ci.yml",
       "role": "ci-workflow",
-      "content_hash": "sha256:b79f858ca9b1d99b17b3feab9ca638603c7cb0a85c5ef53a93c99b40a14ad1db"
+      "content_hash": "sha256:ad0102a2bee50a25ffd2af4e31a9e852dd2c646c5c8537364beb368160a0d96e"
     },
     {
       "path": "package.json",
@@ -37,7 +37,7 @@
       "./scripts/ci/check-signoff-freshness.sh",
       "|",
       "|",
-      "pip install --user volare",
+      "pip install --user ciel==2.6.1",
       "|",
       "|",
       "|"
