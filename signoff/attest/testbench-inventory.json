@@ -6,8 +6,8 @@
     "pin_file": "sim/pdk.json",
     "family": "sky130",
     "variant": "sky130A",
-    "open_pdks_commit": "c6d73a35f524070e85faff4a6a9eef49553ebc2b",
-    "install_command": "volare enable --pdk sky130 c6d73a35f524070e85faff4a6a9eef49553ebc2b",
+    "open_pdks_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "install_command": "pip install ciel==2.6.1 && ciel enable --pdk-family sky130 -l sky130_fd_pr f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
     "note": "Records the revision in force when this inventory was written. A PDK re-pin (#369) or requalification (#370) changes sim/pdk.json; this inventory then goes stale and must be regenerated."
   },
   "tools": {
@@ -20,17 +20,17 @@
     {
       "path": "sim/pdk.json",
       "role": "pdk-pin",
-      "content_hash": "sha256:5d8d902e86ae216eefe8782b82f58bf3416fc7e42dc7b8785650bd62f893c431"
+      "content_hash": "sha256:720eb7f55cd9bb77a73d10fda45811a448c8deb3b5e8ea5ef8928348da3357a7"
     },
     {
       "path": "sim/bin/corner-run.py",
       "role": "harness",
-      "content_hash": "sha256:118e09e05c2e2791b37304ebf2d8c765dde12f1eaeb450758f123499d70b1f5a"
+      "content_hash": "sha256:db9d27a9625204166e3ea7ef0335230babd411396522d5de993fde7d964e7667"
     },
     {
       "path": "sim/bin/sim_common.py",
       "role": "harness",
-      "content_hash": "sha256:052dc9f6b01752ad9c337af31c9945d98c45e27a57ef974813f9c6bdd7c305f7"
+      "content_hash": "sha256:285b48da792362e82b3c8b692cd7a53534e6e3e28f6461e47c5aee24e94e4f66"
     },
     {
       "path": "sim/spiceinit",
@@ -83,7 +83,7 @@
         {
           "path": "sim/error-amp-offset-mc/run_amp_offset_mc.py",
           "role": "runner",
-          "content_hash": "sha256:69b92cbe4860e6c501ebfda6b5c086ebc00b422b3b01533a86758d1c47a1cc91"
+          "content_hash": "sha256:457ff5cfabcf86a9f764bc131102ec4fb6386099ac2ef8d0c24d726ecc935236"
         }
       ]
     },
@@ -121,7 +121,7 @@
         {
           "path": "sim/monte-carlo-untrimmed/run_mc_untrimmed.py",
           "role": "runner",
-          "content_hash": "sha256:8511a92b58d867abe3aa3052cd4022addf4c5959b4b02aa9738f440408e00ab2"
+          "content_hash": "sha256:177ce6f710be242b4331d180008440f8b44a59d85958dc12ed92860a03f24ca5"
         }
       ]
     },
@@ -277,7 +277,7 @@
         {
           "path": "sim/psrr-injector-attribution/run_psrr_injector_attribution.py",
           "role": "runner",
-          "content_hash": "sha256:2628388b43c20026897b8253808e10df79c3ad934dbbb72434d2f7919f486268"
+          "content_hash": "sha256:88ef8100bcf3c5017d4516adf24e19ec60b3a403795029c0c07ef313358e9a4a"
         }
       ]
     },
@@ -288,7 +288,7 @@
         {
           "path": "sim/psrr-injector-candidates/run_psrr_injector_candidates.py",
           "role": "runner",
-          "content_hash": "sha256:cf0084a2af789967a529dd61565fc82f462201002f5b229925e72c3bf40b7394"
+          "content_hash": "sha256:3a6093dc3bbfbc869cd817495b8101f8608ef49877a9cd48458ac5e29bbb4610"
         }
       ]
     },
@@ -481,7 +481,7 @@
         {
           "path": "sim/trim-lsb-chained/run_trim_lsb_chained.py",
           "role": "runner",
-          "content_hash": "sha256:78febf155d7419ade30762a03425f135bff0821c04f840d468d921036d8b9f94"
+          "content_hash": "sha256:b3fcab0413eb438bd749fd1ba5804a302da44bb54a4a4f9579843029a1c1163f"
         }
       ]
     },

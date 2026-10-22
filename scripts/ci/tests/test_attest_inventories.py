@@ -38,7 +38,7 @@ netlists = load("design_netlists")
 pins = load("check_signoff_pins")
 
 
-PDK_COMMIT = "c6d73a35f524070e85faff4a6a9eef49553ebc2b"
+PDK_COMMIT = "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
 
 
 def copy_inputs(dest: Path) -> None:
