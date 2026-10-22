@@ -5,6 +5,8 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-10-22
 
+- **PR #422**: feat: compute n-well ties in ERC supply spec on klt 0.7.0, item 11 met
+- **Issue #389** (closed): T1 item 11: declare both nwell tie classes with the new well-side box selectors (klayout-tools#2552) and re-mint ERC
 - **PR #419**: signoff: cite a klt 0.7.0 LVS report for T1 item 4 and pin item 11's LVS half
 - **Issue #388** (closed): T1 item 4: mint a hash-pinned LVS report now that klayout-tools#2374 is fixed, with a determinism re-measure
 - **PR #417**: fix(signoff): regenerate stale attestation artifacts after PDK re-pin
