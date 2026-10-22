@@ -3,6 +3,11 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-10-22
+
+- **PR #390**: feat(signoff): attest T1 items 1, 2, 9, 10 on klt 0.7.0
+- **Issue #387** (closed): T1 items 1, 2, 9, 10: move the grader to klt 0.7.0 and cite artifact-anchored inventory envelopes
+
 ### 2026-10-21
 
 - **PR #413**: Bump Repo Skills 0.24.3 -> 0.24.7
