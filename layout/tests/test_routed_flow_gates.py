@@ -46,6 +46,8 @@ Standard library only (`unittest`), matching every other script under
 from __future__ import annotations
 
 import contextlib
+import os
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -697,6 +699,24 @@ class TestLabelCollisionGate(unittest.TestCase):
         netlist = latest / "bandgap_core_routed.extract.spice"
         self.assertTrue(netlist.is_file(), f"no extracted netlist in {latest}")
         self.assertEqual(gen_bandgap_routed.assert_no_merged_pin_names(netlist), [])
+
+
+class TestFlowFailsClosedWithoutArtifactStore(unittest.TestCase):
+    """Issue #426: with no `$KLT_ARTIFACT_BROKER` the routed flow must exit
+    non-zero before creating `staging/` or `reports/<record-id>/`."""
+
+    def test_broker_unset_writes_nothing(self) -> None:
+        cell = REPO_ROOT / "layout/bandgap-core"
+        before = sorted(p.name for p in (cell / "reports").iterdir())
+        env = {k: v for k, v in os.environ.items() if k != "KLT_ARTIFACT_BROKER"}
+        proc = subprocess.run(
+            ["bash", str(REPO_ROOT / "layout/bin/run-bandgap-routed-flow.sh")],
+            capture_output=True, text=True, env=env,
+        )
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("KLT_ARTIFACT_BROKER", proc.stderr)
+        self.assertFalse((cell / "staging").exists())
+        self.assertEqual(sorted(p.name for p in (cell / "reports").iterdir()), before)
 
 
 class TestRoutedPortClaims(unittest.TestCase):

@@ -86,7 +86,10 @@ run_erc() {
   # run_erc <spec-path> <gds-record-id> <output-basename>
   local spec="$1" rec="$2" base="$3"
   local gds="$CELL_DIR/reports/$rec/bandgap_core_routed.gds"
-  [[ -f "$gds" ]] || { echo "run-erc-supply-flow.sh: missing $gds" >&2; exit 1; }
+  [[ -f "$gds" ]] || {
+    echo "run-erc-supply-flow.sh: missing $gds (records made after issue #426 keep their GDS in the artifact store, not in git; this flow supports only the tracked GDS_RECORDS -- fetch one with \`klt artifact get\` to check it by hand)" >&2
+    exit 1
+  }
   echo "  klt erc $rec <- $(basename "$spec")"
   # `klt erc` exits 3 on "antenna or connectivity violations" and 4 on "no
   # antenna checks". Its own docs say to gate on the payload's `status`, not

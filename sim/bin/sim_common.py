@@ -379,14 +379,21 @@ def _sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def publish_corner_evidence(corners_dir: Path, repo_root: Path | None = None) -> Path | None:
+def publish_corner_evidence(
+    corners_dir: Path,
+    repo_root: Path | None = None,
+    *,
+    bench: str | None = None,
+    run_id: str | None = None,
+) -> Path | None:
     """Store every file under `corners_dir` (the run's raw per-corner outputs,
     git-ignored) in the artifact store and commit-ready metadata beside it.
 
     Writes `manifests/artifacts/<bench>-<run-id>.manifest.json` (from
     `klt artifact put --manifest`) and a `.md` summary (name, size, sha256 per
     object); returns the manifest path, or `None` for an empty run. `<bench>`
-    and `<run-id>` come from `sim/<bench>/corners/<run-id>/`.
+    and `<run-id>` come from `sim/<bench>/corners/<run-id>/` unless passed
+    explicitly (the layout flow stages outside that tree, issue #426).
 
     Fail closed: any failure raises `EvidenceStoreError` before the manifest
     or summary is written. The raw files stay in the ignored directory.
@@ -396,7 +403,8 @@ def publish_corner_evidence(corners_dir: Path, repo_root: Path | None = None) ->
     files = sorted(p for p in corners_dir.rglob("*") if p.is_file())
     if not files:
         return None
-    bench, run_id = corners_dir.parent.parent.name, corners_dir.name
+    bench = bench or corners_dir.parent.parent.name
+    run_id = run_id or corners_dir.name
     out_dir = repo_root / ARTIFACT_MANIFEST_DIR
     manifest = out_dir / f"{bench}-{run_id}.manifest.json"
     summary = manifest.with_name(f"{bench}-{run_id}.md")
