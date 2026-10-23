@@ -3,6 +3,13 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-10-23
+
+- **PR #429**: refactor(layout): drop unused mos_pad and fmt_findings helpers
+- **Issue #428** (closed): Remove unused mos_pad() and fmt_findings() from layout/bin
+- **PR #427**: feat(sim): store new corner evidence in the artifact store, commit manifests only
+- **Issue #424** (closed): Adopt the common artifact store for sim evidence (manifests in git, bytes via klt artifact)
+
 ### 2026-10-22
 
 - **PR #422**: feat: compute n-well ties in ERC supply spec on klt 0.7.0, item 11 met
