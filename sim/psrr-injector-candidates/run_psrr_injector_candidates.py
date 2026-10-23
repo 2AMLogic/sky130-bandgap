@@ -112,6 +112,7 @@ from sim_common import (  # noqa: E402
     run_all_batch as _run_all_batch,
     run_all_variants,
     run_ngspice,
+    publish_run_evidence,
     setup_record_paths,
     write_log,
 )
@@ -901,6 +902,7 @@ def verify(args) -> int:
         "_points": points,
     }
 
+    publish_run_evidence(corners_dir)
     records_dir.mkdir(parents=True, exist_ok=True)
     record_md.write_text(render_record(record))
     record_json.write_text(json.dumps(

@@ -167,6 +167,8 @@ sim/
     corners/
       <record-id>/
         <corner-id>.log              # deck + raw ngspice output per PVT point
+                                     # (git-ignored; bytes live in the artifact
+                                     # store, manifest in manifests/artifacts/)
     records/
       <record-id>.md                 # append-only summary record (human)
       <record-id>.json               # same record, machine-readable
@@ -279,9 +281,12 @@ honest about it.
      `ff`, `sf`, `fs`; resistor/cap skew, `*_mm` mismatch and `mc` sections
      also exist in the library and can be added there once used).
 4. Run it: `python3 sim/bin/corner-run.py sim/<slug>`
-5. Commit the produced record, netlist snapshot and per-corner logs. (The
-   root `.gitignore` ignores `*.log` globally but un-ignores
-   `sim/*/corners/**/*.log`, which is committed evidence.)
+5. Commit the produced record, netlist snapshot, and
+   `manifests/artifacts/<slug>-<record-id>.{manifest.json,md}`. The per-corner
+   logs are stored in the fleet artifact store by the harness and are not
+   committed (`sim/*/corners/` is git-ignored; see
+   `manifests/artifacts/README.md`). The run needs `$KLT_ARTIFACT_BROKER` and
+   fails closed without it. Logs committed before this change stay tracked.
 
 ### Experiments that do not go through the corner runner
 

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "sha256": "3a42a1ca853f34a1201417cf8d519ffd0cb47ff17ff828983f417dc04b4b9f6e",
+      "size": 144,
+      "kind": "evidence",
+      "producer": {
+        "tool": "klt",
+        "version": "0.7.1.dev2517+g6bb7cf233677",
+        "loom.repo": "2AMLogic/sky130-bandgap",
+        "commit": "c81ceb37a2a86586a6d96e2f4fb2e2468fc5f68a"
+      },
+      "uri": "artifact:evidence/2AMLogic__sky130-bandgap/3a/3a42a1ca853f34a1201417cf8d519ffd0cb47ff17ff828983f417dc04b4b9f6e",
+      "name": "artifact-store-unit-tests.log"
+    }
+  ]
+}

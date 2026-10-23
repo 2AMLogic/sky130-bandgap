@@ -26,12 +26,15 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import hashlib
 import json
 import math
+import os
 import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
@@ -41,6 +44,8 @@ from types import ModuleType
 BIN_DIR = Path(__file__).resolve().parent
 SIM_DIR = BIN_DIR.parent
 SPICEINIT_FILE = SIM_DIR / "spiceinit"
+REPO_DIR = SIM_DIR.parent
+ARTIFACT_MANIFEST_DIR = Path("manifests") / "artifacts"
 
 
 @dataclass(frozen=True)
@@ -317,6 +322,10 @@ def setup_record_paths(
     silently overwrite prior evidence.
     """
     cr = _cr()
+    try:
+        require_artifact_store()
+    except EvidenceStoreError as err:
+        raise cr.HarnessError(str(err)) from err
     records_dir = here / "records"
     corners_dir = here / "corners" / record_id
     record_md = records_dir / f"{record_id}.md"
@@ -333,6 +342,105 @@ def setup_record_paths(
         if path.exists():
             raise cr.HarnessError(f"{path} already exists — sim/ is append-only, refusing to overwrite")
     return records_dir, snapshots_dir, corners_dir, record_md, record_json, snapshot
+
+
+class EvidenceStoreError(RuntimeError):
+    """The artifact store cannot take this run's raw outputs. Fail closed:
+    there is no fallback that commits the bytes to git."""
+
+
+def require_artifact_store() -> None:
+    """Raise `EvidenceStoreError` unless `klt artifact put` can run here.
+
+    Checked before a campaign starts (`setup_record_paths()`) so a missing
+    broker costs nothing, and again by `publish_corner_evidence()`.
+    """
+    if not os.environ.get("KLT_ARTIFACT_BROKER"):
+        raise EvidenceStoreError(
+            "$KLT_ARTIFACT_BROKER is unset: new sim evidence goes to the artifact "
+            "store and is never committed as bytes (see manifests/artifacts/README.md)"
+        )
+    if shutil.which("klt") is None:
+        raise EvidenceStoreError("klt is not on PATH; cannot store sim evidence")
+    probe = subprocess.run(
+        ["klt", "artifact", "put", "--help"], capture_output=True, text=True
+    )
+    if probe.returncode != 0:
+        raise EvidenceStoreError(
+            "this klt has no `artifact put` (need klayout-tools 7e3561f or later)"
+        )
+
+
+def _sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def publish_corner_evidence(corners_dir: Path, repo_root: Path | None = None) -> Path | None:
+    """Store every file under `corners_dir` (the run's raw per-corner outputs,
+    git-ignored) in the artifact store and commit-ready metadata beside it.
+
+    Writes `manifests/artifacts/<bench>-<run-id>.manifest.json` (from
+    `klt artifact put --manifest`) and a `.md` summary (name, size, sha256 per
+    object); returns the manifest path, or `None` for an empty run. `<bench>`
+    and `<run-id>` come from `sim/<bench>/corners/<run-id>/`.
+
+    Fail closed: any failure raises `EvidenceStoreError` before the manifest
+    or summary is written. The raw files stay in the ignored directory.
+    """
+    repo_root = repo_root or REPO_DIR
+    require_artifact_store()
+    files = sorted(p for p in corners_dir.rglob("*") if p.is_file())
+    if not files:
+        return None
+    bench, run_id = corners_dir.parent.parent.name, corners_dir.name
+    out_dir = repo_root / ARTIFACT_MANIFEST_DIR
+    manifest = out_dir / f"{bench}-{run_id}.manifest.json"
+    summary = manifest.with_name(f"{bench}-{run_id}.md")
+    if manifest.exists() or summary.exists():
+        raise EvidenceStoreError(f"{manifest} already exists: evidence is append-only")
+    with tempfile.TemporaryDirectory() as tmp:
+        staged = Path(tmp) / manifest.name
+        proc = subprocess.run(
+            ["klt", "artifact", "put", "--manifest", str(staged), "--format", "json",
+             *map(str, files)],
+            capture_output=True, text=True, cwd=repo_root,
+        )
+        if proc.returncode != 0 or not staged.is_file():
+            raise EvidenceStoreError(
+                f"klt artifact put failed (rc={proc.returncode}): "
+                f"{(proc.stderr or proc.stdout).strip()[:500]}"
+            )
+        text = staged.read_text()
+        entries = json.loads(text)["entries"]
+        if len(entries) != len(files) or any(
+            not str(e.get("uri", "")).startswith("artifact:") for e in entries
+        ):
+            raise EvidenceStoreError("klt artifact put returned an unexpected manifest")
+        out_dir.mkdir(parents=True, exist_ok=True)
+        manifest.write_text(text)
+    lines = [
+        f"# Evidence manifest: {bench} / {run_id}", "",
+        f"Raw outputs live in the fleet artifact store, not in git. Manifest: "
+        f"`{manifest.relative_to(repo_root)}`; check with "
+        f"`klt artifact verify {manifest.relative_to(repo_root)}`.", "",
+        "| name | size (bytes) | sha256 |", "|---|---:|---|",
+        *(f"| {e.get('name', '')} | {e['size']} | {e['sha256']} |" for e in entries), "",
+    ]
+    summary.write_text("\n".join(lines))
+    return manifest
+
+
+def publish_run_evidence(corners_dir: Path) -> Path | None:
+    """`publish_corner_evidence()` for the bespoke harness `main()`s: call it
+    just before writing the record, so a store failure leaves no record."""
+    try:
+        return publish_corner_evidence(corners_dir)
+    except EvidenceStoreError as err:
+        raise _cr().HarnessError(str(err)) from err
 
 
 def run_matrix_and_write_record(
@@ -500,6 +608,13 @@ def run_matrix_and_write_record(
         record["overall_blockers"] = blockers
     if record_extra:
         record.update(record_extra)
+
+    try:
+        manifest = publish_corner_evidence(corners_dir, cr.REPO_ROOT)
+    except EvidenceStoreError as err:
+        raise cr.HarnessError(str(err)) from err
+    if manifest is not None:
+        record["links"]["artifact_manifest"] = str(manifest.relative_to(cr.REPO_ROOT))
 
     records_dir.mkdir(parents=True, exist_ok=True)
     record_json.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")

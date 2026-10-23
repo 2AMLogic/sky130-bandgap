@@ -42,6 +42,7 @@ import sys
 import tempfile
 import threading
 import unittest
+from unittest import mock
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -51,6 +52,18 @@ SIM_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SIM_DIR / "bin"))
 
 import sim_common  # noqa: E402
+
+
+# These tests exercise the record, not the artifact store (see test_artifact_store.py).
+_publish_patch = mock.patch.object(sim_common, "publish_corner_evidence", return_value=None)
+
+
+def setUpModule():
+    _publish_patch.start()
+
+
+def tearDownModule():
+    _publish_patch.stop()
 
 
 @dataclass

@@ -3,9 +3,11 @@
 __pycache__/
 .DS_Store
 
-# sim/ harness: per-corner ngspice logs under corners/ are committed evidence
-# (append-only record trail, see sim/README.md), so they escape the *.log rule.
-!sim/*/corners/**/*.log
+# sim/ harness: per-corner ngspice logs are raw run output. New runs store them
+# in the fleet artifact store and commit only manifests/artifacts/*.manifest.json
+# (see manifests/artifacts/README.md), so the whole corners/ tree (logs, requests, reports) is ignored.
+# Logs committed before that change remain tracked (ignore rules do not untrack).
+sim/*/corners/
 # harness scratch: regenerated netlists and generated corner decks
 sim/build/
 # ngspice model-check scratch dumps (e.g. bsim4v5.out) from ad hoc ngspice

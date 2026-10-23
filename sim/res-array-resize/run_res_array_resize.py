@@ -99,6 +99,7 @@ from sim_common import (  # noqa: E402
     render_pdk_tools_repo_state,
     render_record_id_experiment,
     run_ngspice,
+    publish_run_evidence,
     setup_record_paths,
     substitute_arrays,
     write_log,
@@ -659,6 +660,7 @@ def verify(timeout: int, author: str, supersedes: str, allow_pdk_mismatch: bool,
         },
     }
 
+    publish_run_evidence(corners_dir)
     records_dir.mkdir(parents=True, exist_ok=True)
     record_json.write_text(json.dumps(record, indent=2, sort_keys=True, default=str) + "\n")
     record_md.write_text(render_record(record))

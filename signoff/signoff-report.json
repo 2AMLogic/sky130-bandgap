@@ -226,7 +226,7 @@
         "command": null,
         "kind": "generic",
         "check_status": "pass",
-        "content_hash": "sha256:0da4d1c7cfb55d12270cdbb5d3d162026daef1b201bf017d0086a8c25acbd4a3",
+        "content_hash": "sha256:4f681b1c4dcf207d939fadce02514087ce64f0b3ab45d98bdc22e98a2443c840",
         "input_verified": true,
         "exit_status": 0,
         "artifact_binding": {
@@ -235,7 +235,7 @@
             "path": "signoff/attest/testbench-inventory.json",
             "scope": "repo"
           },
-          "content_hash": "sha256:0da4d1c7cfb55d12270cdbb5d3d162026daef1b201bf017d0086a8c25acbd4a3",
+          "content_hash": "sha256:4f681b1c4dcf207d939fadce02514087ce64f0b3ab45d98bdc22e98a2443c840",
           "input_verified": true,
           "summary": "Testbenches shipped: every runnable testbench with its cold-start command and the PDK/tool pins.",
           "source": "signoff/attest/testbench-inventory.json"
@@ -257,7 +257,7 @@
         "command": null,
         "kind": "generic",
         "check_status": "pass",
-        "content_hash": "sha256:47d180a707e1e07b9b9a0ccbe3b381e2d09b6bf2f8e21de0689971fc24bbb94f",
+        "content_hash": "sha256:b79292b573026df49bd0e77653cb86e9974338ce5e81a351294dcb6900dd82ac",
         "input_verified": true,
         "exit_status": 0,
         "artifact_binding": {
@@ -266,7 +266,7 @@
             "path": "signoff/attest/repo-hygiene.inventory.json",
             "scope": "repo"
           },
-          "content_hash": "sha256:47d180a707e1e07b9b9a0ccbe3b381e2d09b6bf2f8e21de0689971fc24bbb94f",
+          "content_hash": "sha256:b79292b573026df49bd0e77653cb86e9974338ce5e81a351294dcb6900dd82ac",
           "input_verified": true,
           "summary": "Repo hygiene: README, LICENSE, CI workflow and the commands it runs.",
           "source": "signoff/attest/repo-hygiene.inventory.json"
