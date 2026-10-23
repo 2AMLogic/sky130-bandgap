@@ -25,6 +25,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
@@ -34,6 +35,18 @@ sys.path.insert(0, str(SIM_DIR / "bin"))
 
 import batch_sim  # noqa: E402
 import sim_common  # noqa: E402
+
+
+# These tests exercise the record, not the artifact store (see test_artifact_store.py).
+_publish_patch = mock.patch.object(sim_common, "publish_corner_evidence", return_value=None)
+
+
+def setUpModule():
+    _publish_patch.start()
+
+
+def tearDownModule():
+    _publish_patch.stop()
 
 cr = sim_common.load_corner_run()
 EXP_DIR = SIM_DIR / "startup-stability"

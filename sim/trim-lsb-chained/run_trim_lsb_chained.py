@@ -113,6 +113,7 @@ from sim_common import (  # noqa: E402
     r2_segments_um,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
+    publish_run_evidence,
     setup_record_paths,
 )
 
@@ -1140,6 +1141,7 @@ def verify(args) -> int:
             "snapshot": str(snapshot.relative_to(REPO_ROOT)),
         },
     }
+    publish_run_evidence(corners_dir)
     records_dir.mkdir(parents=True, exist_ok=True)
     record_json.write_text(json.dumps(record, indent=2, sort_keys=True, default=str) + "\n")
     record_md.write_text(render_record(record))

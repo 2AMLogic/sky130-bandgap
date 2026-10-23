@@ -69,6 +69,7 @@ from sim_common import (  # noqa: E402
     render_record_id_experiment,
     run_ngspice,
     seed_stability_checks,
+    publish_run_evidence,
     setup_record_paths,
     stdev,
     write_corner_log,
@@ -1167,6 +1168,7 @@ def main(argv: list[str]) -> int:
         },
     }
 
+    publish_run_evidence(corners_dir)
     records_dir.mkdir(parents=True, exist_ok=True)
     record_json.write_text(json.dumps(record, indent=2) + "\n")
     record_md.write_text(render_record(record))
