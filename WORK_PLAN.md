@@ -24,7 +24,7 @@ _None._
 
 Human-approved issues ready for implementation (`loom:issue`).
 
-_None._
+- **#426**: Adopt the artifact store for new layout/bandgap-core report runs
 
 ## In Progress
 
@@ -52,7 +52,7 @@ Issues carrying `loom:curated`.
 - **#315**: Complete #306's circuit fix (startup injector PSRR) and the post-fix layout cycle *(curated)*
 - **#368**: Design a state-dependent startup-injector reference-stack element that clears the 60 dB PSRR floor at ff/125/3.63 and sf/27/2.97 *(curated)*
 - **#395**: Enable --backend batch for remaining pre-layout corner-run benches (prereq of #370) *(curated)*
-- **#424**: Adopt the common artifact store for sim evidence (manifests in git, bytes via klt artifact) *(curated)*
+- **#426**: Adopt the artifact store for new layout/bandgap-core report runs *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -69,7 +69,7 @@ _None._
 | Operator merge-risk holds | 0 |
 | Very important | 0 |
 | Important | 2 |
-| Ready (`loom:issue`) | 0 |
+| Ready (`loom:issue`) | 1 |
 | In Progress (`loom:building`) | 0 |
 | PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 0 |
