@@ -16,6 +16,9 @@ sim/build/
 # clobber unrelated *.out files elsewhere in the tree.
 /*.out
 
+# layout/ routed flow: raw outputs are staged here, then stored in the artifact
+# store; only reports/<record-id>/ summaries are committed (issue #426).
+layout/bandgap-core/staging/
 # layout/ DRC/LVS flow: local klt install, created by layout/bin/setup-venv.sh
 layout/.venv/
 

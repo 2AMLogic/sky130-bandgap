@@ -292,9 +292,17 @@ layout/bin/setup-venv.sh                 # once, or after a requirements.txt bum
 layout/bin/run-bandgap-routed-flow.sh    # gen -> draw -> compose+route -> drc -> extract -> lvs
 ```
 
-Writes a fresh record under `bandgap-core/reports/<record-id>/` alongside
-(never replacing) the #15 skeleton's records, and updates
-`bandgap-core/reports/LATEST`. **Read that record's `record.md` first** — it
+Stages raw outputs in the git-ignored `bandgap-core/staging/<record-id>/`,
+stores them in the fleet artifact store
+(`manifests/artifacts/layout-bandgap-core-<record-id>.manifest.json`), and
+commits only `record.md` and the verdict JSONs under
+`bandgap-core/reports/<record-id>/` alongside (never replacing) earlier
+records (issue #426). It needs `$KLT_ARTIFACT_BROKER` and a `klt` with
+`artifact put` on PATH, and exits before writing anything otherwise. It no
+longer updates `bandgap-core/reports/LATEST`, which stays pinned to the last
+fully tracked record (the label-collision regression test reads it).
+`run-erc-supply-flow.sh` only checks the tracked GDS records; for a
+store-backed record, fetch the GDS with `klt artifact get` first. **Read that record's `record.md` first** — it
 carries a per-criterion scoreboard, the routed-net table, the promoted-pin
 table, and a quantitative LVS mismatch analysis. Summary of what it measures:
 

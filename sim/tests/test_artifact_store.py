@@ -77,6 +77,14 @@ class PublishCornerEvidence(unittest.TestCase):
         summary = manifest.with_suffix("").with_suffix(".md").read_text()
         self.assertIn(entries[0]["sha256"], summary)
 
+    def test_explicit_bench_and_run_id_name_the_manifest(self):
+        self.stub()
+        with self.env():
+            manifest = sim_common.publish_corner_evidence(
+                self.corners, self.repo, bench="layout-x", run_id="rec9"
+            )
+        self.assertEqual(manifest, self.repo / "manifests/artifacts/layout-x-rec9.manifest.json")
+
     def test_broker_unset_fails_closed(self):
         self.stub()
         with self.env(broker=None), self.assertRaisesRegex(
