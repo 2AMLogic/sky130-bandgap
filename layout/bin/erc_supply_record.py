@@ -101,23 +101,6 @@ def gate_negative_control(report: dict, well_shapes: int) -> tuple[bool, list[st
     return (not reasons), reasons
 
 
-def fmt_findings(report: dict) -> str:
-    findings = report.get("erc_findings") or []
-    if not findings:
-        return "none"
-    out = []
-    for f in findings:
-        bbox = f.get("bbox")
-        where = ""
-        if bbox:
-            where = (
-                f" bbox ({bbox['left'] / 1000:g}, {bbox['bottom'] / 1000:g})"
-                f"-({bbox['right'] / 1000:g}, {bbox['top'] / 1000:g}) um"
-            )
-        out.append(f"`{f['rule']}` net={f.get('net')} layer={f.get('layer')}{where}")
-    return "; ".join(out)
-
-
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", required=True)

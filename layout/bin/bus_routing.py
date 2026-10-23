@@ -674,26 +674,6 @@ def mos_comb(block: str, net: str) -> dict[str, Any]:
     return {"block": block, "comb": (block, net)}
 
 
-def mos_pad(
-    block: str, device: str, terminal: str, unit: int = 1, escape: bool = True
-) -> dict[str, Any]:
-    """One INTER_BLOCK_MET1 terminal naming a single *named* finger pad of a
-    `diff_pair` block, bound to a schematic device through MOS_HALVES.
-
-    The comb (:func:`mos_comb`) is the right shape whenever a node has
-    several fingers to gather; it is the wrong one when a node has exactly
-    one pad on the block, because each comb node still costs a full trunk
-    lane inside the device row. On a wide device that is free. On the
-    injector's W=1 MPC1/MPC2 reference the row is 1 um tall and a third lane
-    does not fit at all (MOS_LANE_PITCH_UM) -- so `GDRV`, whose only terminal
-    on that block is MPC1's source, is reached at its pad instead.
-    """
-    entry = MOS_HALVES[block]
-    half = entry["devices"][device]
-    suffix = "_G" if terminal == "gate" else entry[f"{terminal}_suffix"]
-    return {"block": block, "port": f"{half}_{unit}{suffix}", "escape": escape}
-
-
 def mos_unit(block: str, terminal: str, escape: bool = True) -> dict[str, Any]:
     """One INTER_BLOCK_MET1 terminal naming a single-unit `mos_array` block's
     own source/drain/gate pad -- the startup injector's MNS/MNI/MNC (issue
