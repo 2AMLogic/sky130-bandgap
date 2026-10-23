@@ -5,6 +5,8 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-10-23
 
+- **PR #431**: feat(layout): publish routed-flow outputs to the artifact store
+- **Issue #426** (closed): Adopt the artifact store for new layout/bandgap-core report runs
 - **PR #429**: refactor(layout): drop unused mos_pad and fmt_findings helpers
 - **Issue #428** (closed): Remove unused mos_pad() and fmt_findings() from layout/bin
 - **PR #427**: feat(sim): store new corner evidence in the artifact store, commit manifests only
