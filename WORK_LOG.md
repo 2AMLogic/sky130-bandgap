@@ -5,6 +5,8 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-10-27
 
+- **PR #438**: feat(sim): collect batch Monte Carlo reports into the untrimmed-Vref record
+- **Issue #437** (closed): monte-carlo-untrimmed: implement --backend batch record collection (blocks #435)
 - **PR #439**: feat(signoff): cite minted klt sim envelopes for T1 item 5
 - **Issue #434** (closed): T1 item 5 (Full corner verification): cite klt sim envelopes for every DR-005 ratified row
 
