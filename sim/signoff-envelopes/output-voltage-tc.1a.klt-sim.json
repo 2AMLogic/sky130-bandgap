@@ -1,0 +1,1531 @@
+{
+  "schema_version": 3,
+  "status": "pass",
+  "netlist": "sim/output-voltage-tc/netlist-snapshots/20260817-015751-13476b7.spice",
+  "corner_count": 45,
+  "passed": 45,
+  "failed": 0,
+  "errored": 0,
+  "metrics": {
+    "sim__corner__count": 45,
+    "sim__corner__passed_count": 45,
+    "sim__corner__failed_count": 0,
+    "sim__corner__errored_count": 0
+  },
+  "coverage": {
+    "measurements_declared": 3,
+    "measurements_with_limits": 3
+  },
+  "mint": {
+    "minted_by": "sim/signoff-envelopes/emit_klt_sim_envelopes.py",
+    "disclosure": "Minted from the committed append-only corner record below, NOT produced by a live `klt sim` run: this repo's corner benches run under sim/bin/corner-run.py. Values, limits and per-corner verdicts are transcribed verbatim; no bound is relaxed. The record is the newest multi-point record of the bench, so a newer failing record supersedes an older passing one. Re-mint against newer records (e.g. after the open_pdks re-pin, #370) by re-running the minter.",
+    "spec_rows": [
+      "1a"
+    ],
+    "recorded_from": [
+      {
+        "file": "sim/output-voltage-tc/records/20260817-015751-13476b7.json",
+        "sha256": "9c509b3873179888da50c90b000922ad3796f4e5d726731e4a7f7372f564f8ab"
+      }
+    ],
+    "excluded_measurements": {
+      "n_temp_points": "no ratified spec row binds this measurement"
+    }
+  },
+  "provenance": {
+    "input": {
+      "content_hash": "sha256:8a4b8241e4c399b278525660879c3b0659887f8b6a26fe521b929b860247e0ef",
+      "role": "netlist"
+    },
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/output-voltage-tc/netlist-snapshots/20260817-015751-13476b7.spice)"
+  },
+  "measurements": [
+    {
+      "name": "vref_27",
+      "unit": "V",
+      "spec_row": "1a",
+      "limits": {
+        "min": 1.176,
+        "max": 1.224
+      },
+      "worst_case": {
+        "corner_id": "sf_-40c_3.63v",
+        "value": 1.212093,
+        "margin": 0.01190699999999989
+      },
+      "status": "pass"
+    },
+    {
+      "name": "vref_min",
+      "unit": "V",
+      "spec_row": "1a",
+      "limits": {
+        "min": 1.176,
+        "max": 1.224
+      },
+      "worst_case": {
+        "corner_id": "fs_-40c_3.30v",
+        "value": 1.186028,
+        "margin": 0.010028000000000148
+      },
+      "status": "pass"
+    },
+    {
+      "name": "vref_max",
+      "unit": "V",
+      "spec_row": "1a",
+      "limits": {
+        "min": 1.176,
+        "max": 1.224
+      },
+      "worst_case": {
+        "corner_id": "fs_-40c_3.63v",
+        "value": 1.217801,
+        "margin": 0.006199000000000066
+      },
+      "status": "pass"
+    }
+  ],
+  "corners": [
+    {
+      "corner_id": "tt_-40c_2.97v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210317,
+          "status": "pass",
+          "margin": 0.01368299999999989
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186365,
+          "status": "pass",
+          "margin": 0.010364999999999958
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.21689,
+          "status": "pass",
+          "margin": 0.00710999999999995
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_-40c_3.30v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210323,
+          "status": "pass",
+          "margin": 0.01367699999999994
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186357,
+          "status": "pass",
+          "margin": 0.010357000000000172
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.216902,
+          "status": "pass",
+          "margin": 0.007098000000000049
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_-40c_3.63v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210342,
+          "status": "pass",
+          "margin": 0.013657999999999948
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186374,
+          "status": "pass",
+          "margin": 0.010374000000000105
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.216921,
+          "status": "pass",
+          "margin": 0.0070790000000000575
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_27c_2.97v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210317,
+          "status": "pass",
+          "margin": 0.01368299999999989
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186365,
+          "status": "pass",
+          "margin": 0.010364999999999958
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.21689,
+          "status": "pass",
+          "margin": 0.00710999999999995
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_27c_3.30v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210323,
+          "status": "pass",
+          "margin": 0.01367699999999994
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186357,
+          "status": "pass",
+          "margin": 0.010357000000000172
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.216902,
+          "status": "pass",
+          "margin": 0.007098000000000049
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_27c_3.63v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210342,
+          "status": "pass",
+          "margin": 0.013657999999999948
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186374,
+          "status": "pass",
+          "margin": 0.010374000000000105
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.216921,
+          "status": "pass",
+          "margin": 0.0070790000000000575
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_125c_2.97v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210317,
+          "status": "pass",
+          "margin": 0.01368299999999989
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186365,
+          "status": "pass",
+          "margin": 0.010364999999999958
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.21689,
+          "status": "pass",
+          "margin": 0.00710999999999995
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_125c_3.30v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210323,
+          "status": "pass",
+          "margin": 0.01367699999999994
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186357,
+          "status": "pass",
+          "margin": 0.010357000000000172
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.216902,
+          "status": "pass",
+          "margin": 0.007098000000000049
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_125c_3.63v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210342,
+          "status": "pass",
+          "margin": 0.013657999999999948
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186374,
+          "status": "pass",
+          "margin": 0.010374000000000105
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.216921,
+          "status": "pass",
+          "margin": 0.0070790000000000575
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_-40c_2.97v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210695,
+          "status": "pass",
+          "margin": 0.0133049999999999
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186664,
+          "status": "pass",
+          "margin": 0.010664000000000007
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217449,
+          "status": "pass",
+          "margin": 0.0065509999999999735
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_-40c_3.30v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210698,
+          "status": "pass",
+          "margin": 0.013301999999999925
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186655,
+          "status": "pass",
+          "margin": 0.010655000000000081
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217457,
+          "status": "pass",
+          "margin": 0.0065429999999999655
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_-40c_3.63v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210719,
+          "status": "pass",
+          "margin": 0.013280999999999876
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186679,
+          "status": "pass",
+          "margin": 0.010679000000000105
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217476,
+          "status": "pass",
+          "margin": 0.006523999999999974
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_27c_2.97v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210695,
+          "status": "pass",
+          "margin": 0.0133049999999999
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186664,
+          "status": "pass",
+          "margin": 0.010664000000000007
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217449,
+          "status": "pass",
+          "margin": 0.0065509999999999735
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_27c_3.30v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210698,
+          "status": "pass",
+          "margin": 0.013301999999999925
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186655,
+          "status": "pass",
+          "margin": 0.010655000000000081
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217457,
+          "status": "pass",
+          "margin": 0.0065429999999999655
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_27c_3.63v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210719,
+          "status": "pass",
+          "margin": 0.013280999999999876
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186679,
+          "status": "pass",
+          "margin": 0.010679000000000105
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217476,
+          "status": "pass",
+          "margin": 0.006523999999999974
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_125c_2.97v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210695,
+          "status": "pass",
+          "margin": 0.0133049999999999
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186664,
+          "status": "pass",
+          "margin": 0.010664000000000007
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217449,
+          "status": "pass",
+          "margin": 0.0065509999999999735
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_125c_3.30v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210698,
+          "status": "pass",
+          "margin": 0.013301999999999925
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186655,
+          "status": "pass",
+          "margin": 0.010655000000000081
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217457,
+          "status": "pass",
+          "margin": 0.0065429999999999655
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_125c_3.63v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210719,
+          "status": "pass",
+          "margin": 0.013280999999999876
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186679,
+          "status": "pass",
+          "margin": 0.010679000000000105
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217476,
+          "status": "pass",
+          "margin": 0.006523999999999974
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_-40c_2.97v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210068,
+          "status": "pass",
+          "margin": 0.013932000000000055
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186174,
+          "status": "pass",
+          "margin": 0.010174000000000127
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.216483,
+          "status": "pass",
+          "margin": 0.007516999999999996
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_-40c_3.30v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210076,
+          "status": "pass",
+          "margin": 0.013924000000000047
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186169,
+          "status": "pass",
+          "margin": 0.010169000000000095
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.216496,
+          "status": "pass",
+          "margin": 0.007503999999999955
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_-40c_3.63v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210097,
+          "status": "pass",
+          "margin": 0.013902999999999999
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186191,
+          "status": "pass",
+          "margin": 0.010191000000000061
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.216517,
+          "status": "pass",
+          "margin": 0.007482999999999906
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_27c_2.97v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210068,
+          "status": "pass",
+          "margin": 0.013932000000000055
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186174,
+          "status": "pass",
+          "margin": 0.010174000000000127
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.216483,
+          "status": "pass",
+          "margin": 0.007516999999999996
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_27c_3.30v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210076,
+          "status": "pass",
+          "margin": 0.013924000000000047
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186169,
+          "status": "pass",
+          "margin": 0.010169000000000095
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.216496,
+          "status": "pass",
+          "margin": 0.007503999999999955
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_27c_3.63v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210097,
+          "status": "pass",
+          "margin": 0.013902999999999999
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186191,
+          "status": "pass",
+          "margin": 0.010191000000000061
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.216517,
+          "status": "pass",
+          "margin": 0.007482999999999906
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_125c_2.97v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210068,
+          "status": "pass",
+          "margin": 0.013932000000000055
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186174,
+          "status": "pass",
+          "margin": 0.010174000000000127
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.216483,
+          "status": "pass",
+          "margin": 0.007516999999999996
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_125c_3.30v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210076,
+          "status": "pass",
+          "margin": 0.013924000000000047
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186169,
+          "status": "pass",
+          "margin": 0.010169000000000095
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.216496,
+          "status": "pass",
+          "margin": 0.007503999999999955
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_125c_3.63v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210097,
+          "status": "pass",
+          "margin": 0.013902999999999999
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186191,
+          "status": "pass",
+          "margin": 0.010191000000000061
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.216517,
+          "status": "pass",
+          "margin": 0.007482999999999906
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_-40c_2.97v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.212074,
+          "status": "pass",
+          "margin": 0.011925999999999881
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.189076,
+          "status": "pass",
+          "margin": 0.013076000000000088
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217562,
+          "status": "pass",
+          "margin": 0.006437999999999944
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_-40c_3.30v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.212077,
+          "status": "pass",
+          "margin": 0.011922999999999906
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.189062,
+          "status": "pass",
+          "margin": 0.013062000000000129
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217572,
+          "status": "pass",
+          "margin": 0.006427999999999878
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_-40c_3.63v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.212093,
+          "status": "pass",
+          "margin": 0.01190699999999989
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.189072,
+          "status": "pass",
+          "margin": 0.013071999999999973
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217589,
+          "status": "pass",
+          "margin": 0.0064109999999999445
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_27c_2.97v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.212074,
+          "status": "pass",
+          "margin": 0.011925999999999881
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.189076,
+          "status": "pass",
+          "margin": 0.013076000000000088
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217562,
+          "status": "pass",
+          "margin": 0.006437999999999944
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_27c_3.30v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.212077,
+          "status": "pass",
+          "margin": 0.011922999999999906
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.189062,
+          "status": "pass",
+          "margin": 0.013062000000000129
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217572,
+          "status": "pass",
+          "margin": 0.006427999999999878
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_27c_3.63v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.212093,
+          "status": "pass",
+          "margin": 0.01190699999999989
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.189072,
+          "status": "pass",
+          "margin": 0.013071999999999973
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217589,
+          "status": "pass",
+          "margin": 0.0064109999999999445
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_125c_2.97v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.212074,
+          "status": "pass",
+          "margin": 0.011925999999999881
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.189076,
+          "status": "pass",
+          "margin": 0.013076000000000088
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217562,
+          "status": "pass",
+          "margin": 0.006437999999999944
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_125c_3.30v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.212077,
+          "status": "pass",
+          "margin": 0.011922999999999906
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.189062,
+          "status": "pass",
+          "margin": 0.013062000000000129
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217572,
+          "status": "pass",
+          "margin": 0.006427999999999878
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_125c_3.63v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.212093,
+          "status": "pass",
+          "margin": 0.01190699999999989
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.189072,
+          "status": "pass",
+          "margin": 0.013071999999999973
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217589,
+          "status": "pass",
+          "margin": 0.0064109999999999445
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_-40c_2.97v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.21055,
+          "status": "pass",
+          "margin": 0.013449999999999962
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.18603,
+          "status": "pass",
+          "margin": 0.010029999999999983
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217767,
+          "status": "pass",
+          "margin": 0.006232999999999933
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_-40c_3.30v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210559,
+          "status": "pass",
+          "margin": 0.013441000000000036
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186028,
+          "status": "pass",
+          "margin": 0.010028000000000148
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.21778,
+          "status": "pass",
+          "margin": 0.006219999999999892
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_-40c_3.63v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210582,
+          "status": "pass",
+          "margin": 0.01341799999999993
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186053,
+          "status": "pass",
+          "margin": 0.01005300000000009
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217801,
+          "status": "pass",
+          "margin": 0.006199000000000066
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_27c_2.97v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.21055,
+          "status": "pass",
+          "margin": 0.013449999999999962
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.18603,
+          "status": "pass",
+          "margin": 0.010029999999999983
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217767,
+          "status": "pass",
+          "margin": 0.006232999999999933
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_27c_3.30v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210559,
+          "status": "pass",
+          "margin": 0.013441000000000036
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186028,
+          "status": "pass",
+          "margin": 0.010028000000000148
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.21778,
+          "status": "pass",
+          "margin": 0.006219999999999892
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_27c_3.63v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210582,
+          "status": "pass",
+          "margin": 0.01341799999999993
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186053,
+          "status": "pass",
+          "margin": 0.01005300000000009
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217801,
+          "status": "pass",
+          "margin": 0.006199000000000066
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_125c_2.97v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.21055,
+          "status": "pass",
+          "margin": 0.013449999999999962
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.18603,
+          "status": "pass",
+          "margin": 0.010029999999999983
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217767,
+          "status": "pass",
+          "margin": 0.006232999999999933
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_125c_3.30v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210559,
+          "status": "pass",
+          "margin": 0.013441000000000036
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186028,
+          "status": "pass",
+          "margin": 0.010028000000000148
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.21778,
+          "status": "pass",
+          "margin": 0.006219999999999892
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_125c_3.63v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "vref_27",
+          "unit": "V",
+          "value": 1.210582,
+          "status": "pass",
+          "margin": 0.01341799999999993
+        },
+        {
+          "name": "vref_min",
+          "unit": "V",
+          "value": 1.186053,
+          "status": "pass",
+          "margin": 0.01005300000000009
+        },
+        {
+          "name": "vref_max",
+          "unit": "V",
+          "value": 1.217801,
+          "status": "pass",
+          "margin": 0.006199000000000066
+        }
+      ]
+    }
+  ]
+}

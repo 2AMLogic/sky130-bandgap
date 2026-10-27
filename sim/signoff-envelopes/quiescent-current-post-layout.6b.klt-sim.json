@@ -1,0 +1,872 @@
+{
+  "schema_version": 3,
+  "status": "pass",
+  "netlist": "sim/quiescent-current-post-layout/netlist-snapshots/20260923-072514-dbd57a9.spice",
+  "corner_count": 45,
+  "passed": 45,
+  "failed": 0,
+  "errored": 0,
+  "metrics": {
+    "sim__corner__count": 45,
+    "sim__corner__passed_count": 45,
+    "sim__corner__failed_count": 0,
+    "sim__corner__errored_count": 0
+  },
+  "coverage": {
+    "measurements_declared": 1,
+    "measurements_with_limits": 1
+  },
+  "mint": {
+    "minted_by": "sim/signoff-envelopes/emit_klt_sim_envelopes.py",
+    "disclosure": "Minted from the committed append-only corner record below, NOT produced by a live `klt sim` run: this repo's corner benches run under sim/bin/corner-run.py. Values, limits and per-corner verdicts are transcribed verbatim; no bound is relaxed. The record is the newest multi-point record of the bench, so a newer failing record supersedes an older passing one. Re-mint against newer records (e.g. after the open_pdks re-pin, #370) by re-running the minter.",
+    "spec_rows": [
+      "6b"
+    ],
+    "recorded_from": [
+      {
+        "file": "sim/quiescent-current-post-layout/records/20260923-072514-dbd57a9.json",
+        "sha256": "1c756b4e0f2cf9f7c97d72adb35b4c0adcf34219d7257b9b3b9ed2a73c3353c0"
+      }
+    ],
+    "excluded_measurements": {
+      "vgdrv": "no ratified spec row binds this measurement",
+      "vref": "no ratified spec row binds this measurement"
+    }
+  },
+  "provenance": {
+    "input": {
+      "content_hash": "sha256:61accf1d1346f55dde075af9ae062fa167ccecb4fde285f8c3fed4018cd63f06",
+      "role": "netlist"
+    },
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/quiescent-current-post-layout/netlist-snapshots/20260923-072514-dbd57a9.spice)"
+  },
+  "measurements": [
+    {
+      "name": "iq",
+      "unit": "A",
+      "spec_row": "6b",
+      "limits": {
+        "min": 1e-06,
+        "max": 5e-05
+      },
+      "worst_case": {
+        "corner_id": "ss_-40c_3.63v",
+        "value": 1.461605e-05,
+        "margin": 1.361605e-05
+      },
+      "status": "pass"
+    }
+  ],
+  "corners": [
+    {
+      "corner_id": "tt_-40c_2.97v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.521383e-05,
+          "status": "pass",
+          "margin": 1.421383e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_-40c_3.30v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.523144e-05,
+          "status": "pass",
+          "margin": 1.423144e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_-40c_3.63v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.524232e-05,
+          "status": "pass",
+          "margin": 1.4242319999999999e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_27c_2.97v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.962265e-05,
+          "status": "pass",
+          "margin": 1.862265e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_27c_3.30v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.963682e-05,
+          "status": "pass",
+          "margin": 1.863682e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_27c_3.63v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.964569e-05,
+          "status": "pass",
+          "margin": 1.864569e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_125c_2.97v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 2.599644e-05,
+          "status": "pass",
+          "margin": 2.4003560000000002e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_125c_3.30v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 2.600829e-05,
+          "status": "pass",
+          "margin": 2.3991710000000003e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_125c_3.63v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 2.619902e-05,
+          "status": "pass",
+          "margin": 2.3800980000000003e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_-40c_2.97v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.492629e-05,
+          "status": "pass",
+          "margin": 1.392629e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_-40c_3.30v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.477579e-05,
+          "status": "pass",
+          "margin": 1.3775789999999999e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_-40c_3.63v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.461605e-05,
+          "status": "pass",
+          "margin": 1.361605e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_27c_2.97v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.926862e-05,
+          "status": "pass",
+          "margin": 1.8268619999999998e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_27c_3.30v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.908777e-05,
+          "status": "pass",
+          "margin": 1.8087769999999998e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_27c_3.63v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.890237e-05,
+          "status": "pass",
+          "margin": 1.7902369999999998e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_125c_2.97v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 2.559242e-05,
+          "status": "pass",
+          "margin": 2.4407580000000002e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_125c_3.30v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 2.538832e-05,
+          "status": "pass",
+          "margin": 2.438832e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_125c_3.63v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 2.521663e-05,
+          "status": "pass",
+          "margin": 2.421663e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_-40c_2.97v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.525691e-05,
+          "status": "pass",
+          "margin": 1.425691e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_-40c_3.30v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.528838e-05,
+          "status": "pass",
+          "margin": 1.4288379999999999e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_-40c_3.63v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.531771e-05,
+          "status": "pass",
+          "margin": 1.4317710000000001e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_27c_2.97v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.968814e-05,
+          "status": "pass",
+          "margin": 1.868814e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_27c_3.30v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.970931e-05,
+          "status": "pass",
+          "margin": 1.8709309999999998e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_27c_3.63v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.975015e-05,
+          "status": "pass",
+          "margin": 1.875015e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_125c_2.97v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 2.605525e-05,
+          "status": "pass",
+          "margin": 2.394475e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_125c_3.30v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 2.612384e-05,
+          "status": "pass",
+          "margin": 2.387616e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_125c_3.63v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 2.684816e-05,
+          "status": "pass",
+          "margin": 2.3151840000000004e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_-40c_2.97v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.532724e-05,
+          "status": "pass",
+          "margin": 1.432724e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_-40c_3.30v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.542112e-05,
+          "status": "pass",
+          "margin": 1.4421119999999998e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_-40c_3.63v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.552273e-05,
+          "status": "pass",
+          "margin": 1.4522729999999998e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_27c_2.97v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.98053e-05,
+          "status": "pass",
+          "margin": 1.88053e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_27c_3.30v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.985788e-05,
+          "status": "pass",
+          "margin": 1.885788e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_27c_3.63v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.990633e-05,
+          "status": "pass",
+          "margin": 1.890633e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_125c_2.97v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 2.613265e-05,
+          "status": "pass",
+          "margin": 2.386735e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_125c_3.30v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 2.614771e-05,
+          "status": "pass",
+          "margin": 2.385229e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_125c_3.63v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 2.619056e-05,
+          "status": "pass",
+          "margin": 2.3809440000000002e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_-40c_2.97v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.525272e-05,
+          "status": "pass",
+          "margin": 1.425272e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_-40c_3.30v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.526017e-05,
+          "status": "pass",
+          "margin": 1.426017e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_-40c_3.63v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.526142e-05,
+          "status": "pass",
+          "margin": 1.426142e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_27c_2.97v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.963209e-05,
+          "status": "pass",
+          "margin": 1.863209e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_27c_3.30v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.963726e-05,
+          "status": "pass",
+          "margin": 1.863726e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_27c_3.63v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 1.964253e-05,
+          "status": "pass",
+          "margin": 1.864253e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_125c_2.97v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 2.600373e-05,
+          "status": "pass",
+          "margin": 2.3996270000000004e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_125c_3.30v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 2.603834e-05,
+          "status": "pass",
+          "margin": 2.3961660000000002e-05
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_125c_3.63v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "iq",
+          "unit": "A",
+          "value": 2.617176e-05,
+          "status": "pass",
+          "margin": 2.3828240000000003e-05
+        }
+      ]
+    }
+  ]
+}
