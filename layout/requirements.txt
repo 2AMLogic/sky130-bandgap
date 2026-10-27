@@ -1,17 +1,12 @@
 # Pinned klayout-tools (`klt`) install for layout/'s DRC/LVS flow (issue #14).
 #
-# klt v0.1.0 on PyPI (https://pypi.org/project/klayout-tools) ships only
-# the `layers`/`stats`/`cells`/`drc`/`pdk` verbs -- `extract`, `lvs`, and
-# `gen` (all required by this flow) are documented but not yet released
-# there. The upstream README's own "Install" section names installing
-# from source as the sanctioned way to get the latest development verbs:
-#
-#   uv tool install git+https://github.com/2AMLogic/klayout-tools
-#
-# This pins an exact commit rather than floating `main`, for the same
-# reproducibility discipline sim/pdk.json applies to the PDK version: a
-# re-run months from now installs the identical `klt` build instead of
-# whatever `main` has drifted to. Bump this pin deliberately (and re-run
+# Pinned to the released PyPI build `klayout-tools==0.8.0` (issue #448), for
+# the same reproducibility discipline sim/pdk.json applies to the PDK version:
+# a re-run months from now installs the identical `klt` build instead of
+# whatever has drifted since. A PyPI release pin is preferred over a
+# `git+...@<sha>` pin because a git build reports a dev version
+# (`0.8.1.devN+g<sha>`) and no longer satisfies `==0.8.0`
+# (2AMLogic/klayout-tools#2823). Bump this pin deliberately (and re-run
 # layout/bin/run-trivial-cell-flow.sh to refresh the checked-in reports)
 # when picking up new `klt` capability.
 #
@@ -22,29 +17,9 @@
 # recorded there, sub-sectioned per bump (7a-7dd), in more depth than a
 # comment here could carry, rather than duplicated in this file.
 #
-# Current pin: bumped for issue #62's twenty-eighth increment (2026-08-06,
-# layout/matching-plan.md Section 7z). The prior pin
-# (39bdbc4c10f5005f0eb984a5ef89329159f9f7e2) predated the two upstream PRs
-# that between them close klayout-tools#559 -- 2AMLogic/klayout-tools#583
-# (once-per-combined-device resistor `fixed_offset_ohm` correction) and
-# #587 (case-insensitive device-class lookup that makes #583 reachable from
-# this flow's pre-extracted `{netlist, top}` LVS request shape). The
-# accounting change #583/#587 together enable is deliberately NOT adopted:
-# `layout/bin/measure_fixed_offset_variants.py` measured it as a regression
-# against this repo's shipped per-primitive accounting (`mismatch_count`
-# 1 -> 4), and DR-003 (issue #98) independently ratified the per-primitive
-# accounting as physically correct for this layout's decomposition. The
-# pin bump itself is additive and required either way -- it also carries an
-# 18-commit range past the prior pin, of which only #583/#587 touch
-# `extract.py`/`lvs.py`; the rest is gf180mcu deck work unrelated to this
-# flow's sky130 resistor path.
-#
-# Non-regression proof for this bump: layout/bin/run-trivial-cell-flow.sh
-# re-run unmodified still PASSes with the identical four-way verdict (match/8,
-# mismatch/34, mismatch/32 -- see trivial-cell/reports/ for the refreshed
-# record); layout/bin/run-bandgap-routed-flow.sh re-run reproduces the
-# pre-bump numbers exactly -- DRC 0, met2 DRC 0, bbox 45,968 um^2,
-# device_counts {"nfet": 16, "pfet": 52, "pnp": 16, "res_high_po": 139},
-# pin_count 11, mismatch_count=1 ({"device.unmatched": 1}, MMCC only),
-# devices.matched=15.
-klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@acb0ae6c11e667eb93ee7de272d64298517f7fab
+# History: issue #62's twenty-eighth increment (2026-08-06) pinned commit
+# acb0ae6c11e667eb93ee7de272d64298517f7fab; the shipped per-primitive
+# accounting verdict at that pin is DRC 0, mismatch_count=1
+# ({"device.unmatched": 1}, MMCC only), devices.matched=15. Committed
+# reports under layout/*/reports/ still cite that build and are append-only.
+klayout-tools==0.8.0
