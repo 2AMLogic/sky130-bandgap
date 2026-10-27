@@ -382,6 +382,95 @@ def write_log(corners_dir, point, pdk, record_id, stamp, deck, raw, rc, timed_ou
     )
 
 
+def samples_from_report(report: dict, request: dict) -> tuple[list[dict[str, float]], int]:
+    """One group's klt report -> `(parsed samples, dropped)`: the same
+    `list[{vector: value}]` `parse_samples()` returns from a local log.
+
+    klt reports each Monte Carlo draw as one `corners[]` entry carrying
+    `monte_carlo.sample_index`; ordering by it restores the draw order the
+    first-K-of-N convergence series depends on. A draw missing any vector
+    (the engine failed or timed out on it) is dropped, as `parse_samples()`
+    drops an incomplete block, and counted so the record can say so."""
+    drawn = []
+    for kc in report["corners"]:
+        values = {
+            batch_sim.plain_name(m["name"], request): m["value"]
+            for m in kc.get("measurements") or []
+            if m.get("value") is not None
+        }
+        idx = (kc.get("monte_carlo") or {}).get("sample_index")
+        drawn.append((idx if idx is not None else len(drawn), values))
+    drawn.sort(key=lambda t: t[0])
+    parsed = [{v: float(vals[v]) for v in VECTORS} for _, vals in drawn if set(VECTORS) <= set(vals)]
+    return parsed, len(drawn) - len(parsed)
+
+
+def record_tools(execution: dict | None) -> dict:
+    """`tool_versions()`, with the engine line naming the fleet's ngspice (not
+    the dispatch host's) for a batch run."""
+    tools = cr.tool_versions()
+    if execution:
+        versions = sorted({str(j["engine_version"]) for j in execution["jobs"]})
+        tools["ngspice"] = f"ngspice-{'/'.join(versions)} (remote, batch fleet; not this host's ngspice)"
+    return tools
+
+
+def samples_path(corners_dir: Path, corner_id: str) -> Path:
+    """Where a batch run keeps a point's parsed draws: the stand-in for the
+    local `<corner_id>.log` that `emit_klt_yield.py` re-parses."""
+    return corners_dir / f"{corner_id}.samples.json"
+
+
+def collect_batch(pin, pdk, body, points, args, corners_dir) -> tuple[dict[str, list], dict]:
+    """Submit one request per point, wait for every report and fold them into
+    `{corner_id: parsed samples}` plus the record's `execution` block. Any
+    submit/collect failure, wrong sample count, model-library mismatch or
+    runner skew is a `HarnessError`: no record, and never a local fallback."""
+    groups = build_batch_groups(
+        pin, body, points, (SIM_DIR / "spiceinit").read_text(), BUILD_DIR / "batch", args
+    )
+    try:
+        outcomes = batch_sim.collect(groups)
+    except batch_sim.BatchError as exc:
+        raise cr.HarnessError(str(exc)) from exc
+    lib_sha = batch_sim.sha256_file(pdk.lib_file)
+    blockers: list[str] = []
+    parsed_by_point: dict[str, list] = {}
+    jobs = []
+    corners_dir.mkdir(parents=True, exist_ok=True)
+    for point, o in zip(points, outcomes):
+        meta = batch_sim.job_meta(o, lib_sha, blockers)
+        got = len(o.report["corners"])
+        if got != point.samples:
+            blockers.append(f"{point.corner_id}: requested {point.samples} samples, report has {got}")
+        parsed, dropped = samples_from_report(o.report, o.group.request)
+        meta["samples_dropped"] = dropped
+        jobs.append(meta)
+        parsed_by_point[point.corner_id] = parsed
+        samples_path(corners_dir, point.corner_id).write_text(json.dumps({
+            "point": point.corner_id, "section": point.section, "config": point.config,
+            "temp_c": point.temp_c, "seed": point.seed, "requested": point.samples,
+            "dropped_without_values": dropped, "job_id": meta["job_id"],
+            "vectors": list(VECTORS), "samples": parsed,
+        }, indent=1) + "\n")
+        shutil.copyfile(o.group.request_path, corners_dir / f"{point.corner_id}.request.json")
+    if blockers:
+        raise cr.HarnessError(
+            "batch results are not trustworthy; no record was written and nothing was run "
+            "locally:\n  " + "\n  ".join(blockers)
+        )
+    return parsed_by_point, {
+        "backend": "batch",
+        "mechanism": "klt sim --backend batch (2am EDA batch fleet, Spot)",
+        "local_pinned_lib_sha256": lib_sha,
+        "jobs": jobs,
+        "note": (
+            "per-sample seeds come from klt's monte_carlo seed contract, not `setseed`: the "
+            "statistics, not the individual draws, match a local run of the same seed"
+        ),
+    }
+
+
 # --------------------------------------------------------------------------
 # per-point evaluation
 # --------------------------------------------------------------------------
@@ -991,9 +1080,10 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         default="local",
         help=(
             "where the points run (default: local ngspice `.control` loops). 'batch' builds "
-            "one `klt sim` Monte Carlo request per point for the Spot batch fleet; only "
-            "`--dry-run` is available so far (it prints the requests). A real batch run is "
-            "refused -- it never falls back to a local run"
+            "one `klt sim` Monte Carlo request per point for the Spot batch fleet, collects "
+            "the per-sample reports and writes the normal record; `--dry-run` prints the "
+            "requests instead. A submit/collect failure is an error -- it never falls back "
+            "to a local run"
         ),
     )
     p.add_argument("--batch-capacity-wait-s", type=float, default=3600.0,
@@ -1014,12 +1104,6 @@ def main(argv: list[str]) -> int:
         )
 
     batch = args.backend == "batch"
-    if batch and not args.dry_run:
-        raise cr.HarnessError(
-            "--backend batch is dry-run only for monte-carlo-untrimmed: the requests are built "
-            "and printed, but collecting klt's per-sample reports into a record is not "
-            "implemented yet (issue #398); run it locally, or add --dry-run"
-        )
 
     pin = cr.load_pin()
     pdk = check_pdk_and_ngspice(pin, args.allow_pdk_mismatch, require_ngspice=not batch)
@@ -1071,18 +1155,25 @@ def main(argv: list[str]) -> int:
 
     results: dict[str, dict] = {}
     ordered: list[dict] = []
+    execution: dict | None = None
+    batch_parsed: dict[str, list] = {}
+    if batch:
+        batch_parsed, execution = collect_batch(pin, pdk, body, points, args, corners_dir)
     for i, point in enumerate(points, start=1):
-        run_dir = BUILD_DIR / record_id / point.corner_id
-        deck = build_deck(pdk, point, body)
-        raw, rc, timed_out = run_ngspice(run_dir, point.corner_id, deck, args.timeout)
-        write_log(corners_dir, point, pdk, record_id, now, deck, raw, rc, timed_out)
-        if rc != 0 or timed_out:
-            raise cr.HarnessError(
-                f"ngspice exit {rc}{' (timeout)' if timed_out else ''} for "
-                f"{point.corner_id}; see "
-                f"{(corners_dir / (point.corner_id + '.log')).relative_to(REPO_ROOT)}"
-            )
-        parsed = parse_samples(raw, VECTORS)
+        if batch:
+            parsed = batch_parsed[point.corner_id]
+        else:
+            run_dir = BUILD_DIR / record_id / point.corner_id
+            deck = build_deck(pdk, point, body)
+            raw, rc, timed_out = run_ngspice(run_dir, point.corner_id, deck, args.timeout)
+            write_log(corners_dir, point, pdk, record_id, now, deck, raw, rc, timed_out)
+            if rc != 0 or timed_out:
+                raise cr.HarnessError(
+                    f"ngspice exit {rc}{' (timeout)' if timed_out else ''} for "
+                    f"{point.corner_id}; see "
+                    f"{(corners_dir / (point.corner_id + '.log')).relative_to(REPO_ROOT)}"
+                )
+            parsed = parse_samples(raw, VECTORS)
         if not parsed:
             raise cr.HarnessError(
                 f"no Monte Carlo samples parsed for {point.corner_id} — see the log"
@@ -1153,8 +1244,9 @@ def main(argv: list[str]) -> int:
             "matches_pin": pdk.matches_pin,
             "lib_file": str(pdk.lib_file),
         },
-        "tools": cr.tool_versions(),
+        "tools": record_tools(execution),
         "git": git_info,
+        "execution": execution or {"backend": "local"},
         "points": ordered,
         "cross_point_checks": cross,
         "overall_pass": overall,

@@ -20,7 +20,9 @@ from types import SimpleNamespace
 
 SIM_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SIM_DIR / "bin"))
+sys.path.insert(0, str(SIM_DIR / "monte-carlo-untrimmed"))
 
+import batch_sim  # noqa: E402
 import sim_common  # noqa: E402
 
 cr = sim_common.load_corner_run()
@@ -111,11 +113,86 @@ class BatchRequests(unittest.TestCase):
         self.assertEqual(self.groups[0].request["remote"]["hosts"], 300)
 
 
-class RealRunRefused(unittest.TestCase):
-    def test_batch_without_dry_run_is_refused_before_any_work(self):
+def _report(point, n=None, lib_sha="abc", drop=(), shuffle=False):
+    """A stubbed klt report: one `corners[]` entry per Monte Carlo draw."""
+    n = point.samples if n is None else n
+    corners = []
+    for k in range(n):
+        ms = [] if k in drop else [
+            {"name": "vout", "value": 1.2 + k * 1e-3}, {"name": "vgdrv", "value": 2.0 + k * 1e-3},
+        ]
+        corners.append({"process": point.section, "temperature_c": point.temp_c, "status": "pass",
+                        "monte_carlo": {"sample_index": k}, "measurements": ms, "diagnostics": []})
+    if shuffle:
+        corners.reverse()
+    return {"corner_count": n, "corners": corners, "status": "pass",
+            "environment": {"models_lib_sha256": lib_sha, "engine_version": "45",
+                            "remote": {"job_id": f"job-{point.corner_id}"}}}
+
+
+class BatchCollection(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        tmp = Path(self._tmp.name)
+        self.lib = tmp / "sky130.lib.spice"
+        self.lib.write_text("lib")
+        self.sha = __import__("hashlib").sha256(b"lib").hexdigest()
+        self.pdk = SimpleNamespace(lib_file=self.lib)
+        self.points = R.build_points(20)
+        self.corners_dir = tmp / "corners"
+        R.BUILD_DIR, self._old = tmp / "build", R.BUILD_DIR
+        self.addCleanup(setattr, R, "BUILD_DIR", self._old)
+
+    def _run(self, make_report):
+        def fake_collect(groups, runner=None, max_workers=None):
+            return [batch_sim.GroupOutcome(g, "t0", "t1", 1.0, 0, make_report(p), None, "", g.request_path)
+                    for g, p in zip(groups, self.points)]
+        orig = batch_sim.collect
+        batch_sim.collect = fake_collect
+        self.addCleanup(setattr, batch_sim, "collect", orig)
+        return R.collect_batch(PIN, self.pdk, BODY, self.points, ARGS, self.corners_dir)
+
+    def test_samples_ordered_and_same_shape_as_local_parse(self):
+        by_point, execution = self._run(lambda p: _report(p, lib_sha=self.sha, shuffle=True))
+        first = by_point[self.points[0].corner_id]
+        self.assertEqual(len(first), 20)
+        self.assertEqual(set(first[0]), set(R.VECTORS))
+        self.assertEqual([s["vout"] for s in first], sorted(s["vout"] for s in first))
+        self.assertEqual(execution["backend"], "batch")
+        self.assertEqual(execution["jobs"][0]["job_id"], f"job-{self.points[0].corner_id}")
+
+    def test_draws_without_values_are_dropped_and_counted(self):
+        by_point, execution = self._run(lambda p: _report(p, lib_sha=self.sha, drop={3, 4}))
+        self.assertEqual(len(by_point[self.points[0].corner_id]), 18)
+        self.assertEqual(execution["jobs"][0]["samples_dropped"], 2)
+
+    def test_wrong_sample_count_is_refused(self):
         with self.assertRaises(cr.HarnessError) as cm:
-            R.main(["--backend", "batch"])
-        self.assertIn("dry-run only", str(cm.exception))
+            self._run(lambda p: _report(p, n=p.samples - 1, lib_sha=self.sha))
+        self.assertIn("requested", str(cm.exception))
+
+    def test_model_library_mismatch_is_refused(self):
+        with self.assertRaises(cr.HarnessError) as cm:
+            self._run(lambda p: _report(p, lib_sha="deadbeef"))
+        self.assertIn("sha256", str(cm.exception))
+
+    def test_submit_failure_is_an_error_not_a_local_run(self):
+        def boom(groups, runner=None, max_workers=None):
+            raise batch_sim.BatchError("submit failed")
+        orig = batch_sim.collect
+        batch_sim.collect = boom
+        self.addCleanup(setattr, batch_sim, "collect", orig)
+        with self.assertRaises(cr.HarnessError) as cm:
+            R.collect_batch(PIN, self.pdk, BODY, self.points, ARGS, self.corners_dir)
+        self.assertIn("submit failed", str(cm.exception))
+
+    def test_emit_klt_yield_reads_batch_samples_when_no_log(self):
+        self._run(lambda p: _report(p, lib_sha=self.sha, drop={0}))
+        import emit_klt_yield as E
+        cid = E.corner_id_for(27.0)
+        vout = E.load_vout_samples(self.corners_dir / f"{cid}.log")
+        self.assertEqual(len(vout), 19)  # the dropped draw is absent, the rest converged
 
 
 if __name__ == "__main__":

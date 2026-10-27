@@ -103,12 +103,20 @@ def measurement_name(temp_c: float) -> str:
 
 
 def load_vout_samples(log_path: Path) -> list[float]:
-    if not log_path.is_file():
+    """Converged `vout` draws for one point: from its local `<corner_id>.log`,
+    or -- for a `--backend batch` record, which has no ngspice log -- from the
+    `<corner_id>.samples.json` that run wrote beside it."""
+    batch_path = log_path.with_suffix(".samples.json")
+    if not log_path.is_file() and batch_path.is_file():
+        parsed = json.loads(batch_path.read_text())["samples"]
+        source = batch_path
+    elif log_path.is_file():
+        parsed = parse_samples(log_path.read_text(), ("vout", "vgdrv"))
+        source = log_path
+    else:
         raise SystemExit(f"error: missing corner log: {log_path}")
-    text = log_path.read_text()
-    parsed = parse_samples(text, ("vout", "vgdrv"))
     if not parsed:
-        raise SystemExit(f"error: no Monte Carlo samples parsed from {log_path}")
+        raise SystemExit(f"error: no Monte Carlo samples parsed from {source}")
     converged, _excluded = partition_by_window(parsed, "vout", OPERATING_VOUT_V)
     return [s["vout"] for s in converged]
 
