@@ -48,16 +48,16 @@ runs. Eight later runs that reproduced the current record's outcome were
 pruned; see [`trivial-cell/PRUNED-RUNS.md`](trivial-cell/PRUNED-RUNS.md) for
 the list and the recovery command.
 
-## Why `klt`, and why a git-commit pin (not a PyPI version)
+## Why `klt`, and why a PyPI release pin
 
-`klayout-tools` v0.1.0 on PyPI ships only five verbs
-(`layers`/`stats`/`cells`/`drc`/`pdk`). This flow needs `gen` (to build the
-trivial cell), `extract`, and `lvs` — all implemented and documented on
-`main` but not yet in a PyPI release
-([2AMLogic/klayout-tools#342](https://github.com/2AMLogic/klayout-tools/issues/342)
-tracks cutting one). The project's own README names installing from a git
-ref as the sanctioned way to get the latest development verbs; `requirements.txt`
-pins an **exact commit**, not floating `main`, for the same reproducibility
+`klayout-tools` v0.8.0 on PyPI ships every verb this flow needs (`gen`,
+`extract`, `lvs`, `drc`, `erc`, `pdk`, ...). Earlier in this repo's history
+the PyPI release lagged `main` and the flow pinned an exact git commit
+([2AMLogic/klayout-tools#342](https://github.com/2AMLogic/klayout-tools/issues/342));
+issue #448 moved both requirements files to `klayout-tools==0.8.0`. A git
+build now reports a dev version that fails an `==0.8.0` pin
+(klayout-tools#2823), so the PyPI pin is preferred. `requirements.txt`
+pins an **exact version**, not floating `main`, for the same reproducibility
 discipline `sim/pdk.json` applies to the PDK version — a re-run months from
 now installs the identical `klt` build instead of whatever `main` has
 drifted to since. Bump the pin deliberately (and re-run
@@ -132,7 +132,7 @@ second run added no evidence).
 ```
 layout/
   README.md                  # this file
-  requirements.txt           # pinned `klt` install (git commit SHA) for the DRC/LVS flow
+  requirements.txt           # pinned `klt` install (PyPI `==0.8.0`) for the DRC/LVS flow
   requirements-erc.txt       # separately pinned `klt` install for the ERC supply flow
   bin/
     setup-venv.sh             # create/refresh layout/.venv from requirements.txt
@@ -203,8 +203,8 @@ the gap, not inflate the tracker):
    `sky130`, tracked upstream, not re-filed.
 2. **[PyPI's `klayout-tools` release lags `main` by 13 verbs](https://github.com/2AMLogic/klayout-tools/issues/342)**
    (open) — `gen`/`extract`/`lvs` (everything this flow needs beyond `drc`)
-   are `main`-only today, hence this directory's git-commit pin instead of
-   a normal version pin. Confirmed as a downstream-consumer data point.
+   were `main`-only when this was filed, hence this directory's then
+   git-commit pin (superseded by the PyPI `==0.8.0` pin, issue #448). Confirmed as a downstream-consumer data point.
 
 Both closed/already-fixed gaps hit along the way
 ([`__version__` drift from the released version](https://github.com/2AMLogic/klayout-tools/issues/69),
@@ -641,10 +641,11 @@ json` output for every committed routed GDS plus a gated `record.md`.
   n-well shape. An antenna verdict or a
   floating-gate finding is a real defect but is not this item's subject and
   does not fail the gate (klayout-tools#1994).
-- **A separate `klt` pin.** `requirements-erc.txt` pins `klt` v0.7.0 into
-  `layout/.venv-erc`, independently of `requirements.txt`'s 2026-08-05 DRC/LVS
-  pin, so picking up `klt erc`'s September capability does not drag the whole
-  committed DRC/LVS evidence trail along with it. That file documents exactly
+- **A separate `klt` pin.** `requirements-erc.txt` pins `klt` into
+  `layout/.venv-erc` (v0.7.0 when this record was produced; `==0.8.0` since
+  issue #448), independently of `requirements.txt`, so picking up
+  `klt erc`'s September capability did not drag the whole committed DRC/LVS
+  evidence trail along with it. That file documents exactly
   which upstream changes the newer pin buys.
 - **Result**: the supply half and the `erc.missing_tie` half are both
   computed. The eight n-well shapes (five PMOS-body wells at `VDD`, three
