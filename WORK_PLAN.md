@@ -24,19 +24,19 @@ _None._
 
 Human-approved issues ready for implementation (`loom:issue`).
 
-_None._
+- **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437)
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
-- **#437**: monte-carlo-untrimmed: implement --backend batch record collection (blocks #435)
+_None._
 
 ## PRs Awaiting Review
 
 PRs waiting on Judge (`loom:review-requested`).
 
-- **#438**: feat(sim): collect batch Monte Carlo reports into the untrimmed-Vref record
+_None._
 
 ## Approved (Awaiting Merge)
 
@@ -53,13 +53,12 @@ Issues carrying `loom:curated`.
 - **#368**: Design a state-dependent startup-injector reference-stack element that clears the 60 dB PSRR floor at ff/125/3.63 and sf/27/2.97 *(curated)*
 - **#395**: Enable --backend batch for remaining pre-layout corner-run benches (prereq of #370) *(curated)*
 - **#432**: Follow-on from PR #431: first live routed-flow run with artifact broker *(curated)*
-- **#437**: monte-carlo-untrimmed: implement --backend batch record collection (blocks #435) *(curated)*
+- **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(curated)*
 
 ## Proposed (Architect / Hermit)
 
 - **#335**: Produce native klt pex comparison evidence for T1 item 7 *(architect)*
 - **#440**: Prune GDS blobs from superseded bandgap-core report runs *(hermit)*
-- **#442**: Replace raw-xschem netlist_with_xschem in corner-run.py with klt netlist *(hermit)*
 
 ## Epics
 
@@ -72,11 +71,11 @@ _None._
 | Operator merge-risk holds | 0 |
 | Very important | 0 |
 | Important | 2 |
-| Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 1 |
-| PRs awaiting review | 1 |
+| Ready (`loom:issue`) | 1 |
+| In Progress (`loom:building`) | 0 |
+| PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 0 |
 | Curated | 6 |
-| Architect / Hermit proposals | 3 |
+| Architect / Hermit proposals | 2 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
