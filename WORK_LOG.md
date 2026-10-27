@@ -5,6 +5,7 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-10-27
 
+- **PR #449**: build: pin klayout-tools==0.8.0 in layout requirements
 - **PR #438**: feat(sim): collect batch Monte Carlo reports into the untrimmed-Vref record
 - **Issue #437** (closed): monte-carlo-untrimmed: implement --backend batch record collection (blocks #435)
 - **PR #439**: feat(signoff): cite minted klt sim envelopes for T1 item 5
