@@ -501,7 +501,18 @@ zeroed) is written into each request's netlist after the circuit body, which is
 where it lands in the local deck too because klt emits `.lib <section>` before
 `.include <netlist>`; and the testbench's `.save i(v1)` is dropped from the
 netlist (the local loop re-issues `save all` after every `reset` for the same
-reason). A real `--backend batch` run is refused, as for the offset runner.
+reason). A real `--backend batch` run (issue #437) submits the 14 requests
+concurrently (`batch_sim.collect()`), folds each report's `corners[]` (one per
+draw, ordered by `monte_carlo.sample_index`) into the same `{vout, vgdrv}` sample
+list `parse_samples()` returns locally, and then shares the local path's
+`mc_solve_yield` window and `evaluate()`. A draw klt returned without both
+values is dropped and counted (`execution.jobs[].samples_dropped`). Each point
+leaves `corners/<record_id>/<corner_id>.samples.json` and `.request.json` in
+place of the ngspice `.log`; `emit_klt_yield.py` reads the samples file when the
+log is absent. The record gains an `execution` block (job ids, fleet engine
+version). A submit/collect failure, a report whose draw count differs from the
+request, a model-library sha256 differing from the pinned one, or runner skew is
+an error with no record and no local fallback.
 Checked with `klt sim --backend local` on the generated `tt_mm_all_27c_3.30v`
 request cut to N = 20 (2026-10-21, 20/20 passed, none outside the operating
 window): mean(vout) 1.2123 V, sigma(vout) 8.28 mV against record
