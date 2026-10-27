@@ -23,6 +23,90 @@
       "note": "lvs.combined.json (klt 0.7.0, issue #388) records provenance.input.content_hash = sha256 of the pre-extracted layout netlist it compared (role `netlist`), which is this file, committed beside the report together with the request and reference.spice. Not the routed GDS: the extract netlist is what `klt lvs` was given."
     },
     {
+      "item": "5",
+      "index": 0,
+      "describes": "sim/output-voltage-tc/netlist-snapshots/20260817-015751-13476b7.spice",
+      "note": "netlist snapshot the output-voltage-tc record simulated (row 1a); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
+    },
+    {
+      "item": "5",
+      "index": 1,
+      "describes": "sim/output-voltage-tc/netlist-snapshots/20260817-015751-13476b7.spice",
+      "note": "netlist snapshot the output-voltage-tc record simulated (row 3a); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
+    },
+    {
+      "item": "5",
+      "index": 2,
+      "describes": "sim/output-voltage-tc-post-layout/netlist-snapshots/20260923-074724-dbd4dda.spice",
+      "note": "netlist snapshot the output-voltage-tc-post-layout record simulated (row 1b); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
+    },
+    {
+      "item": "5",
+      "index": 3,
+      "describes": "sim/output-voltage-tc-post-layout/netlist-snapshots/20260923-074724-dbd4dda.spice",
+      "note": "netlist snapshot the output-voltage-tc-post-layout record simulated (row 3b); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
+    },
+    {
+      "item": "5",
+      "index": 4,
+      "describes": "sim/psrr-dc/netlist-snapshots/20260909-232410-e8e2e46.spice",
+      "note": "netlist snapshot the psrr-dc record simulated (row 4a); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
+    },
+    {
+      "item": "5",
+      "index": 5,
+      "describes": "sim/psrr-dc-post-layout/netlist-snapshots/20260923-073641-dbd4dda.spice",
+      "note": "netlist snapshot the psrr-dc-post-layout record simulated (row 4b); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
+    },
+    {
+      "item": "5",
+      "index": 6,
+      "describes": "sim/line-regulation/netlist-snapshots/20260817-021208-13476b7.spice",
+      "note": "netlist snapshot the line-regulation record simulated (row 5a); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
+    },
+    {
+      "item": "5",
+      "index": 7,
+      "describes": "sim/line-regulation-post-layout/netlist-snapshots/20260923-075227-dbd4dda.spice",
+      "note": "netlist snapshot the line-regulation-post-layout record simulated (row 5c); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
+    },
+    {
+      "item": "5",
+      "index": 8,
+      "describes": "sim/quiescent-current/netlist-snapshots/20260909-232410-e8e2e46.spice",
+      "note": "netlist snapshot the quiescent-current record simulated (row 6a); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
+    },
+    {
+      "item": "5",
+      "index": 9,
+      "describes": "sim/quiescent-current-post-layout/netlist-snapshots/20260923-072514-dbd57a9.spice",
+      "note": "netlist snapshot the quiescent-current-post-layout record simulated (row 6b); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
+    },
+    {
+      "item": "5",
+      "index": 10,
+      "describes": "sim/startup-stability/netlist-snapshots/20261015-133821-9f956c4.spice",
+      "note": "netlist snapshot the startup-stability record simulated (row 8a); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
+    },
+    {
+      "item": "5",
+      "index": 11,
+      "describes": "sim/startup-stability-post-layout/netlist-snapshots/20260924-041313-999407b.spice",
+      "note": "netlist snapshot the startup-stability-post-layout record simulated (row 8b); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
+    },
+    {
+      "item": "5",
+      "index": 12,
+      "describes": "sim/startup-ramp/netlist-snapshots/20260923-202758-81803b1.spice",
+      "note": "netlist snapshot the startup-ramp record simulated (row 8c); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
+    },
+    {
+      "item": "5",
+      "index": 13,
+      "describes": "sim/startup-ramp-post-layout/netlist-snapshots/20260924-041313-999407b.spice",
+      "note": "netlist snapshot the startup-ramp-post-layout record simulated (row 8d); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
+    },
+    {
       "item": "6",
       "describes": "sim/monte-carlo-untrimmed/records/20260923-062524-1e38c62-klt-yield-input.json",
       "note": "a `klt yield` report carries no `provenance` block at all, so `klt signoff` hashes the sample-set document the report names in its own top-level `samples` field and uses that as the citation's input hash -- this is that document. It is therefore also the one pin whose `describes` path must stay identical to the cited envelope's `samples` value: issue #288 made that value repo-relative (it used to be an absolute, machine-local path, which is why this item could not be cited at all), and sim/tests/test_emit_klt_yield.py guards it."

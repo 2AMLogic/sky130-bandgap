@@ -13,7 +13,7 @@
   "tools": {
     "xschem": "3.4.7 (built from source by .github/workflows/ci.yml)",
     "ngspice": "see the `tools` block of each sim/*/records/*.json",
-    "klayout-tools": "0.7.0",
+    "klayout-tools": "0.8.0",
     "python": "3.9+, standard library only (sim/README.md)"
   },
   "harness": [
@@ -497,5 +497,7 @@
       ]
     }
   ],
-  "record_only_directories": []
+  "record_only_directories": [
+    "sim/signoff-envelopes"
+  ]
 }

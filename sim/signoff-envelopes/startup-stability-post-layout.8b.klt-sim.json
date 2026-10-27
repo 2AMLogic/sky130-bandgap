@@ -1,0 +1,488 @@
+{
+  "schema_version": 3,
+  "status": "pass",
+  "netlist": "sim/startup-stability-post-layout/netlist-snapshots/20260924-041313-999407b.spice",
+  "corner_count": 8,
+  "passed": 8,
+  "failed": 0,
+  "errored": 0,
+  "metrics": {
+    "sim__corner__count": 8,
+    "sim__corner__passed_count": 8,
+    "sim__corner__failed_count": 0,
+    "sim__corner__errored_count": 0
+  },
+  "coverage": {
+    "measurements_declared": 5,
+    "measurements_with_limits": 5
+  },
+  "mint": {
+    "minted_by": "sim/signoff-envelopes/emit_klt_sim_envelopes.py",
+    "disclosure": "Minted from the committed append-only corner record below, NOT produced by a live `klt sim` run: this repo's corner benches run under sim/bin/corner-run.py. Values, limits and per-corner verdicts are transcribed verbatim; no bound is relaxed. The record is the newest multi-point record of the bench, so a newer failing record supersedes an older passing one. Re-mint against newer records (e.g. after the open_pdks re-pin, #370) by re-running the minter.",
+    "spec_rows": [
+      "8b"
+    ],
+    "recorded_from": [
+      {
+        "file": "sim/startup-stability-post-layout/records/20260924-041313-999407b.json",
+        "sha256": "a733f5ac255c5776b8982c3eb0938c31629941df2a170a9f102744190dbc7f11"
+      }
+    ],
+    "excluded_measurements": {
+      "alpha_eq": "no ratified spec row binds this measurement",
+      "isup_dut": "no ratified spec row binds this measurement",
+      "vgdrv_dut": "no ratified spec row binds this measurement",
+      "vref_dut": "no ratified spec row binds this measurement"
+    }
+  },
+  "provenance": {
+    "input": {
+      "content_hash": "sha256:8fea97f11f6980f92cde5604b28078efc47072a27435aa506dbcb8ab0dd5e21b",
+      "role": "netlist"
+    },
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/startup-stability-post-layout/netlist-snapshots/20260924-041313-999407b.spice)"
+  },
+  "measurements": [
+    {
+      "name": "ncross_su",
+      "unit": "",
+      "spec_row": "8b",
+      "limits": {
+        "min": 0.5,
+        "max": 1.5
+      },
+      "worst_case": {
+        "corner_id": "ff_-40c_2.97v",
+        "value": 1.0,
+        "margin": 0.5
+      },
+      "status": "pass"
+    },
+    {
+      "name": "itrav_min",
+      "unit": "A",
+      "spec_row": "8b",
+      "limits": {
+        "min": 1e-09
+      },
+      "worst_case": {
+        "corner_id": "ss_125c_2.97v",
+        "value": 6.131502e-09,
+        "margin": 5.131502e-09
+      },
+      "status": "pass"
+    },
+    {
+      "name": "imin_off_su",
+      "unit": "A",
+      "spec_row": "8b",
+      "limits": {
+        "min": 1e-08
+      },
+      "worst_case": {
+        "corner_id": "ss_125c_2.97v",
+        "value": 2.345211e-05,
+        "margin": 2.3442109999999998e-05
+      },
+      "status": "pass"
+    },
+    {
+      "name": "i_off_su",
+      "unit": "A",
+      "spec_row": "8b",
+      "limits": {
+        "min": 1e-06
+      },
+      "worst_case": {
+        "corner_id": "ss_125c_2.97v",
+        "value": 0.0003057452,
+        "margin": 0.0003047452
+      },
+      "status": "pass"
+    },
+    {
+      "name": "i_on_su",
+      "unit": "A",
+      "spec_row": "8b",
+      "limits": {
+        "max": -1e-06
+      },
+      "worst_case": {
+        "corner_id": "ss_125c_2.97v",
+        "value": -0.000360996,
+        "margin": 0.00035999599999999996
+      },
+      "status": "pass"
+    }
+  ],
+  "corners": [
+    {
+      "corner_id": "ff_-40c_2.97v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0001777885,
+          "status": "pass",
+          "margin": 0.0001777875
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0005497783,
+          "status": "pass",
+          "margin": 0.0005497683
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0005769011,
+          "status": "pass",
+          "margin": 0.0005759011
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000529289,
+          "status": "pass",
+          "margin": 0.0005282889999999999
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_-40c_3.63v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0004503548,
+          "status": "pass",
+          "margin": 0.00045035379999999996
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.001004414,
+          "status": "pass",
+          "margin": 0.001004404
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.001250719,
+          "status": "pass",
+          "margin": 0.001249719
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000794774,
+          "status": "pass",
+          "margin": 0.000793774
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_125c_2.97v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 7.739832e-08,
+          "status": "pass",
+          "margin": 7.639832e-08
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0001395342,
+          "status": "pass",
+          "margin": 0.00013952420000000002
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0005526266,
+          "status": "pass",
+          "margin": 0.0005516265999999999
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000392866,
+          "status": "pass",
+          "margin": 0.000391866
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_125c_3.63v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 8.87969e-07,
+          "status": "pass",
+          "margin": 8.86969e-07
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0005739631,
+          "status": "pass",
+          "margin": 0.0005739530999999999
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.001202758,
+          "status": "pass",
+          "margin": 0.001201758
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000578723,
+          "status": "pass",
+          "margin": 0.0005777229999999999
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_-40c_2.97v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0003389631,
+          "status": "pass",
+          "margin": 0.0003389621
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.000522288,
+          "status": "pass",
+          "margin": 0.0005222779999999999
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0005313001,
+          "status": "pass",
+          "margin": 0.0005303001
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000488374,
+          "status": "pass",
+          "margin": 0.00048737399999999995
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_-40c_3.63v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0005591505,
+          "status": "pass",
+          "margin": 0.0005591495
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0009676331,
+          "status": "pass",
+          "margin": 0.0009676231
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.001000204,
+          "status": "pass",
+          "margin": 0.000999204
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000745922,
+          "status": "pass",
+          "margin": 0.000744922
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_125c_2.97v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 6.131502e-09,
+          "status": "pass",
+          "margin": 5.131502e-09
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 2.345211e-05,
+          "status": "pass",
+          "margin": 2.3442109999999998e-05
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0003057452,
+          "status": "pass",
+          "margin": 0.0003047452
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000360996,
+          "status": "pass",
+          "margin": 0.00035999599999999996
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_125c_3.63v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 2.806277e-07,
+          "status": "pass",
+          "margin": 2.796277e-07
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0003503734,
+          "status": "pass",
+          "margin": 0.0003503634
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0008911408,
+          "status": "pass",
+          "margin": 0.0008901407999999999
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000540083,
+          "status": "pass",
+          "margin": 0.000539083
+        }
+      ]
+    }
+  ]
+}

@@ -59,6 +59,12 @@ EOF
 python3 scripts/ci/design_netlists.py --check-lock
 python3 scripts/ci/attest_inventories.py --write
 
+# 1c. Re-mint the T1 item-5 `klt sim` envelopes (sim/signoff-envelopes/*) from
+#     the newest multi-point corner records, plus item 5's manifest citations,
+#     `spec_rows."5"` and pinned-inputs entries (issue #434). Pure derivation
+#     from committed records and netlist snapshots; no simulation.
+python3 sim/signoff-envelopes/emit_klt_sim_envelopes.py --write
+
 # 2. Grade the block manifest with the pinned registry wheel. Exit code 3 is
 #    `klt signoff`'s documented "ran successfully, but at least one T1 item
 #    is unmet" -- expected for this block today -- so only the other exit
