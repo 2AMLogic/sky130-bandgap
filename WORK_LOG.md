@@ -3,6 +3,11 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-10-27
+
+- **PR #439**: feat(signoff): cite minted klt sim envelopes for T1 item 5
+- **Issue #434** (closed): T1 item 5 (Full corner verification): cite klt sim envelopes for every DR-005 ratified row
+
 ### 2026-10-23
 
 - **PR #431**: feat(layout): publish routed-flow outputs to the artifact store
