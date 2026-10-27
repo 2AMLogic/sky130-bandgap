@@ -1,0 +1,330 @@
+{
+  "schema_version": 3,
+  "status": "fail",
+  "netlist": "sim/output-voltage-tc-post-layout/netlist-snapshots/20260923-074724-dbd4dda.spice",
+  "corner_count": 15,
+  "passed": 0,
+  "failed": 15,
+  "errored": 0,
+  "metrics": {
+    "sim__corner__count": 15,
+    "sim__corner__passed_count": 0,
+    "sim__corner__failed_count": 15,
+    "sim__corner__errored_count": 0
+  },
+  "coverage": {
+    "measurements_declared": 1,
+    "measurements_with_limits": 1
+  },
+  "mint": {
+    "minted_by": "sim/signoff-envelopes/emit_klt_sim_envelopes.py",
+    "disclosure": "Minted from the committed append-only corner record below, NOT produced by a live `klt sim` run: this repo's corner benches run under sim/bin/corner-run.py. Values, limits and per-corner verdicts are transcribed verbatim; no bound is relaxed. The record is the newest multi-point record of the bench, so a newer failing record supersedes an older passing one. Re-mint against newer records (e.g. after the open_pdks re-pin, #370) by re-running the minter.",
+    "spec_rows": [
+      "3b"
+    ],
+    "recorded_from": [
+      {
+        "file": "sim/output-voltage-tc-post-layout/records/20260923-074724-dbd4dda.json",
+        "sha256": "27809b1a7d321f7f00b05831afaf405b6b9ffd2252e040c07e70a595abc5b694"
+      }
+    ],
+    "excluded_measurements": {
+      "n_temp_points": "no ratified spec row binds this measurement"
+    }
+  },
+  "provenance": {
+    "input": {
+      "content_hash": "sha256:1ea43b17176f57bb6a1b67e15e0a208f7bac5b1613e7ee2f50b1bc668ac787bf",
+      "role": "netlist"
+    },
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/output-voltage-tc-post-layout/netlist-snapshots/20260923-074724-dbd4dda.spice)"
+  },
+  "measurements": [
+    {
+      "name": "tc_ppm",
+      "unit": "ppm/degC",
+      "spec_row": "3b",
+      "limits": {
+        "max": 50.0
+      },
+      "worst_case": {
+        "corner_id": "sf_27c_3.63v",
+        "value": 185.6099,
+        "margin": -135.6099
+      },
+      "status": "fail"
+    }
+  ],
+  "corners": [
+    {
+      "corner_id": "tt_27c_2.97v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "tc_ppm",
+          "unit": "ppm/degC",
+          "value": 178.7911,
+          "status": "fail",
+          "margin": -128.7911
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_27c_3.30v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "tc_ppm",
+          "unit": "ppm/degC",
+          "value": 178.6325,
+          "status": "fail",
+          "margin": -128.6325
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_27c_3.63v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "tc_ppm",
+          "unit": "ppm/degC",
+          "value": 156.8579,
+          "status": "fail",
+          "margin": -106.8579
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_27c_2.97v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "tc_ppm",
+          "unit": "ppm/degC",
+          "value": 181.9043,
+          "status": "fail",
+          "margin": -131.9043
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_27c_3.30v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "tc_ppm",
+          "unit": "ppm/degC",
+          "value": 181.9105,
+          "status": "fail",
+          "margin": -131.9105
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_27c_3.63v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "tc_ppm",
+          "unit": "ppm/degC",
+          "value": 177.9626,
+          "status": "fail",
+          "margin": -127.96260000000001
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_27c_2.97v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "tc_ppm",
+          "unit": "ppm/degC",
+          "value": 176.6383,
+          "status": "fail",
+          "margin": -126.63829999999999
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_27c_3.30v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "tc_ppm",
+          "unit": "ppm/degC",
+          "value": 171.2971,
+          "status": "fail",
+          "margin": -121.2971
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_27c_3.63v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "tc_ppm",
+          "unit": "ppm/degC",
+          "value": 89.81158,
+          "status": "fail",
+          "margin": -39.811580000000006
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_27c_2.97v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "tc_ppm",
+          "unit": "ppm/degC",
+          "value": 172.923,
+          "status": "fail",
+          "margin": -122.923
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_27c_3.30v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "tc_ppm",
+          "unit": "ppm/degC",
+          "value": 180.5763,
+          "status": "fail",
+          "margin": -130.5763
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_27c_3.63v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "tc_ppm",
+          "unit": "ppm/degC",
+          "value": 185.6099,
+          "status": "fail",
+          "margin": -135.6099
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_27c_2.97v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "tc_ppm",
+          "unit": "ppm/degC",
+          "value": 185.5784,
+          "status": "fail",
+          "margin": -135.5784
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_27c_3.30v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "tc_ppm",
+          "unit": "ppm/degC",
+          "value": 181.4913,
+          "status": "fail",
+          "margin": -131.4913
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_27c_3.63v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "tc_ppm",
+          "unit": "ppm/degC",
+          "value": 165.3051,
+          "status": "fail",
+          "margin": -115.30510000000001
+        }
+      ]
+    }
+  ]
+}

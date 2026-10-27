@@ -18,6 +18,106 @@
       "file": "layout/bandgap-core/reports/20261022-070000-e6e4be0/lvs.combined.json",
       "content_hash": "sha256:29937be4094b51b79d898ea0f4ed0aeb5c8ab4fbd97823f56a49789b229799a2"
     },
+    "5": [
+      {
+        "file": "sim/signoff-envelopes/output-voltage-tc.1a.klt-sim.json",
+        "content_hash": "sha256:8a4b8241e4c399b278525660879c3b0659887f8b6a26fe521b929b860247e0ef",
+        "rows": [
+          "1a"
+        ]
+      },
+      {
+        "file": "sim/signoff-envelopes/output-voltage-tc.3a.klt-sim.json",
+        "content_hash": "sha256:8a4b8241e4c399b278525660879c3b0659887f8b6a26fe521b929b860247e0ef",
+        "rows": [
+          "3a"
+        ]
+      },
+      {
+        "file": "sim/signoff-envelopes/output-voltage-tc-post-layout.1b.klt-sim.json",
+        "content_hash": "sha256:1ea43b17176f57bb6a1b67e15e0a208f7bac5b1613e7ee2f50b1bc668ac787bf",
+        "rows": [
+          "1b"
+        ]
+      },
+      {
+        "file": "sim/signoff-envelopes/output-voltage-tc-post-layout.3b.klt-sim.json",
+        "content_hash": "sha256:1ea43b17176f57bb6a1b67e15e0a208f7bac5b1613e7ee2f50b1bc668ac787bf",
+        "rows": [
+          "3b"
+        ]
+      },
+      {
+        "file": "sim/signoff-envelopes/psrr-dc.4a.klt-sim.json",
+        "content_hash": "sha256:14694ae20e1fcbe53d9b6a79e39b9195ba5425d9d128a18d632c4f99dbf24b9e",
+        "rows": [
+          "4a"
+        ]
+      },
+      {
+        "file": "sim/signoff-envelopes/psrr-dc-post-layout.4b.klt-sim.json",
+        "content_hash": "sha256:8fe21bb30541a1d3010cb05f42ba9b4c712e6fc72e83cb48696029cf08a8f105",
+        "rows": [
+          "4b"
+        ]
+      },
+      {
+        "file": "sim/signoff-envelopes/line-regulation.5a.klt-sim.json",
+        "content_hash": "sha256:06584ea22dace559fe8e83877476300c2df2bb05c4fc9b51e3d4b1896442acf8",
+        "rows": [
+          "5a"
+        ]
+      },
+      {
+        "file": "sim/signoff-envelopes/line-regulation-post-layout.5c.klt-sim.json",
+        "content_hash": "sha256:ab66ae17303cd0a1a9c13aa1251280b8d49db28fc98c1902f8238a98bcf56329",
+        "rows": [
+          "5c"
+        ]
+      },
+      {
+        "file": "sim/signoff-envelopes/quiescent-current.6a.klt-sim.json",
+        "content_hash": "sha256:b9ab067ecb7951d708c9e1a14393e9c9d93fb1dd19f2edd74bcfea395c6709d1",
+        "rows": [
+          "6a"
+        ]
+      },
+      {
+        "file": "sim/signoff-envelopes/quiescent-current-post-layout.6b.klt-sim.json",
+        "content_hash": "sha256:61accf1d1346f55dde075af9ae062fa167ccecb4fde285f8c3fed4018cd63f06",
+        "rows": [
+          "6b"
+        ]
+      },
+      {
+        "file": "sim/signoff-envelopes/startup-stability.8a.klt-sim.json",
+        "content_hash": "sha256:5e04e5c053989cb2537e2024b2d7d49a766df1db5019bd54d5f5f10f5583f521",
+        "rows": [
+          "8a"
+        ]
+      },
+      {
+        "file": "sim/signoff-envelopes/startup-stability-post-layout.8b.klt-sim.json",
+        "content_hash": "sha256:8fea97f11f6980f92cde5604b28078efc47072a27435aa506dbcb8ab0dd5e21b",
+        "rows": [
+          "8b"
+        ]
+      },
+      {
+        "file": "sim/signoff-envelopes/startup-ramp.8c.klt-sim.json",
+        "content_hash": "sha256:1421d39d39ac45f50f78c63295caab0c3630017c349d1781f05fa635792d4a7b",
+        "rows": [
+          "8c"
+        ]
+      },
+      {
+        "file": "sim/signoff-envelopes/startup-ramp-post-layout.8d.klt-sim.json",
+        "content_hash": "sha256:9865a7e7626c92b44e5029830f2c67221fd87e2a9fb072c012af93bab8bd2299",
+        "rows": [
+          "8d"
+        ]
+      }
+    ],
     "6": {
       "file": "sim/monte-carlo-untrimmed/records/20260923-062524-1e38c62-klt-yield.json",
       "content_hash": "sha256:0b01d0dd123b8fae9bbb8044263f00c2f14fc8e1d9afea6e8856a712421b1694"
@@ -28,7 +128,7 @@
     },
     "9": {
       "file": "signoff/attest/item-9.evidence.json",
-      "content_hash": "sha256:4447e79a193967b0b8f34599e70fed67f1cf1d261db34709e8ea8d216a4199ba"
+      "content_hash": "sha256:19d0d6c7487b6267b1db6e898c615f0067778b987f18db927016cc68c38be9d0"
     },
     "10": {
       "file": "signoff/attest/item-10.evidence.json",
@@ -42,6 +142,64 @@
       {
         "file": "layout/bandgap-core/reports/20261022-070000-e6e4be0/lvs.combined.json",
         "content_hash": "sha256:29937be4094b51b79d898ea0f4ed0aeb5c8ab4fbd97823f56a49789b229799a2"
+      }
+    ]
+  },
+  "spec_rows": {
+    "5": [
+      {
+        "id": "1a"
+      },
+      {
+        "id": "1b"
+      },
+      {
+        "id": "1c",
+        "gap": "output reference, untrimmed, 3-sigma mismatch Monte Carlo: a distribution claim, not a PVT corner row; graded by T1 item 6 (klt yield), not expressible as a klt sim corner envelope"
+      },
+      {
+        "id": "2",
+        "gap": "trim (range, step, bit-equivalence): sim/trim-range-monotonicity and sim/trim-lsb-chained record a trim-code sweep graded by checks, not a per-corner measurement table with a bound, so no corner envelope can be derived from them"
+      },
+      {
+        "id": "3a"
+      },
+      {
+        "id": "3b"
+      },
+      {
+        "id": "4a"
+      },
+      {
+        "id": "4b"
+      },
+      {
+        "id": "5a"
+      },
+      {
+        "id": "5c"
+      },
+      {
+        "id": "6a"
+      },
+      {
+        "id": "6b"
+      },
+      {
+        "id": "7",
+        "gap": "area (< 0.08 mm2, DR-007): a layout measurement from the composed-cell bbox (layout/bandgap-core/reports/*/record.md), not a SPICE corner row"
+      },
+      {
+        "id": "8a"
+      },
+      {
+        "id": "8b"
+      },
+      {
+        "id": "8c"
+      },
+      {
+        "id": "8d"
       }
     ]
   }

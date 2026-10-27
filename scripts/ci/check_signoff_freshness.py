@@ -43,7 +43,7 @@ COMMITTED_REPORT = REPO_ROOT / "signoff" / "signoff-report.json"
 # and signoff/regenerate.sh read it via `--print-version`, and both assert the
 # released-wheel identity via `--assert-grader`; nothing else carries the
 # literal. Bump it here only.
-KLT_VERSION = "0.7.0"
+KLT_VERSION = "0.8.0"
 
 RENDRABLE_EXIT_CODES = {0, 3}  # 0 = tier T1; 3 = rendered, >=1 unmet item
 

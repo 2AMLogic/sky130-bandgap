@@ -1,0 +1,2196 @@
+{
+  "schema_version": 3,
+  "status": "fail",
+  "netlist": "sim/startup-stability/netlist-snapshots/20261015-133821-9f956c4.spice",
+  "corner_count": 45,
+  "passed": 35,
+  "failed": 10,
+  "errored": 0,
+  "metrics": {
+    "sim__corner__count": 45,
+    "sim__corner__passed_count": 35,
+    "sim__corner__failed_count": 10,
+    "sim__corner__errored_count": 0
+  },
+  "coverage": {
+    "measurements_declared": 5,
+    "measurements_with_limits": 5
+  },
+  "mint": {
+    "minted_by": "sim/signoff-envelopes/emit_klt_sim_envelopes.py",
+    "disclosure": "Minted from the committed append-only corner record below, NOT produced by a live `klt sim` run: this repo's corner benches run under sim/bin/corner-run.py. Values, limits and per-corner verdicts are transcribed verbatim; no bound is relaxed. The record is the newest multi-point record of the bench, so a newer failing record supersedes an older passing one. Re-mint against newer records (e.g. after the open_pdks re-pin, #370) by re-running the minter.",
+    "spec_rows": [
+      "8a"
+    ],
+    "recorded_from": [
+      {
+        "file": "sim/startup-stability/records/20261015-133821-9f956c4.json",
+        "sha256": "4a5ee4df59a319c5833a6e088c3f223e957cec199f6ae114f758f1949cbdf743"
+      }
+    ],
+    "excluded_measurements": {
+      "alpha_eq": "no ratified spec row binds this measurement",
+      "dvref": "no ratified spec row binds this measurement",
+      "i_off_bare": "no ratified spec row binds this measurement",
+      "i_standing": "no ratified spec row binds this measurement",
+      "i_su_standing": "no ratified spec row binds this measurement",
+      "imin_off_bare": "no ratified spec row binds this measurement",
+      "isup_dut": "no ratified spec row binds this measurement",
+      "ncross_bare": "no ratified spec row binds this measurement",
+      "vgdrv_dut": "no ratified spec row binds this measurement",
+      "vref_dut": "no ratified spec row binds this measurement"
+    }
+  },
+  "provenance": {
+    "input": {
+      "content_hash": "sha256:5e04e5c053989cb2537e2024b2d7d49a766df1db5019bd54d5f5f10f5583f521",
+      "role": "netlist"
+    },
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/startup-stability/netlist-snapshots/20261015-133821-9f956c4.spice)"
+  },
+  "measurements": [
+    {
+      "name": "ncross_su",
+      "unit": "",
+      "spec_row": "8a",
+      "limits": {
+        "min": 0.5,
+        "max": 1.5
+      },
+      "worst_case": {
+        "corner_id": "ff_-40c_2.97v",
+        "value": 1.0,
+        "margin": 0.5
+      },
+      "status": "pass"
+    },
+    {
+      "name": "itrav_min",
+      "unit": "A",
+      "spec_row": "8a",
+      "limits": {
+        "min": 1e-09
+      },
+      "worst_case": {
+        "corner_id": "fs_125c_2.97v",
+        "value": 5.088383e-10,
+        "margin": -4.911617e-10
+      },
+      "status": "fail"
+    },
+    {
+      "name": "imin_off_su",
+      "unit": "A",
+      "spec_row": "8a",
+      "limits": {
+        "min": 1e-08
+      },
+      "worst_case": {
+        "corner_id": "ss_125c_2.97v",
+        "value": 8.032259e-10,
+        "margin": -9.1967741e-09
+      },
+      "status": "fail"
+    },
+    {
+      "name": "i_off_su",
+      "unit": "A",
+      "spec_row": "8a",
+      "limits": {
+        "min": 1e-06
+      },
+      "worst_case": {
+        "corner_id": "ss_125c_2.97v",
+        "value": 1.065861e-08,
+        "margin": -9.8934139e-07
+      },
+      "status": "fail"
+    },
+    {
+      "name": "i_on_su",
+      "unit": "A",
+      "spec_row": "8a",
+      "limits": {
+        "max": -1e-06
+      },
+      "worst_case": {
+        "corner_id": "ss_125c_2.97v",
+        "value": -0.000500837,
+        "margin": 0.0004998369999999999
+      },
+      "status": "pass"
+    }
+  ],
+  "corners": [
+    {
+      "corner_id": "tt_-40c_2.97v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0003354426,
+          "status": "pass",
+          "margin": 0.0003354416
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0006808648,
+          "status": "pass",
+          "margin": 0.0006808548
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0006930805,
+          "status": "pass",
+          "margin": 0.0006920804999999999
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000824255,
+          "status": "pass",
+          "margin": 0.000823255
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_-40c_3.30v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0005398237,
+          "status": "pass",
+          "margin": 0.0005398226999999999
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0009771769,
+          "status": "pass",
+          "margin": 0.0009771669
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0009912734,
+          "status": "pass",
+          "margin": 0.0009902734
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.00103668,
+          "status": "pass",
+          "margin": 0.00103568
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_-40c_3.63v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0007993539,
+          "status": "pass",
+          "margin": 0.0007993529
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.001312461,
+          "status": "pass",
+          "margin": 0.001312451
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.001328073,
+          "status": "pass",
+          "margin": 0.001327073
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.00125706,
+          "status": "pass",
+          "margin": 0.00125606
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_27c_2.97v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 7.668568e-08,
+          "status": "pass",
+          "margin": 7.568568000000001e-08
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0004473237,
+          "status": "pass",
+          "margin": 0.0004473137
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.000459479,
+          "status": "pass",
+          "margin": 0.00045847899999999997
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000681324,
+          "status": "pass",
+          "margin": 0.000680324
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_27c_3.30v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 1.013101e-08,
+          "status": "pass",
+          "margin": 9.131009999999999e-09
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0007425402,
+          "status": "pass",
+          "margin": 0.0007425302
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0007596256,
+          "status": "pass",
+          "margin": 0.0007586256
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000857067,
+          "status": "pass",
+          "margin": 0.000856067
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_27c_3.63v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 9.472078e-09,
+          "status": "pass",
+          "margin": 8.472078e-09
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.001061321,
+          "status": "pass",
+          "margin": 0.0010613110000000001
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.001085785,
+          "status": "pass",
+          "margin": 0.001084785
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.00104135,
+          "status": "pass",
+          "margin": 0.00104035
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_125c_2.97v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 1.281486e-09,
+          "status": "pass",
+          "margin": 2.81486e-10
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 1.670503e-09,
+          "status": "fail",
+          "margin": -8.329497000000001e-09
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 1.110673e-07,
+          "status": "fail",
+          "margin": -8.889326999999999e-07
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000527499,
+          "status": "pass",
+          "margin": 0.0005264989999999999
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_125c_3.30v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 125.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 1.532498e-09,
+          "status": "pass",
+          "margin": 5.32498e-10
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 3.161305e-09,
+          "status": "fail",
+          "margin": -6.838695e-09
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 9.156699e-06,
+          "status": "pass",
+          "margin": 8.156699e-06
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000662828,
+          "status": "pass",
+          "margin": 0.0006618279999999999
+        }
+      ]
+    },
+    {
+      "corner_id": "tt_125c_3.63v",
+      "process": "tt",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 2.176395e-09,
+          "status": "pass",
+          "margin": 1.176395e-09
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 3.429833e-08,
+          "status": "pass",
+          "margin": 2.429833e-08
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0001531622,
+          "status": "pass",
+          "margin": 0.0001521622
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.00080714,
+          "status": "pass",
+          "margin": 0.00080614
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_-40c_2.97v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0004212106,
+          "status": "pass",
+          "margin": 0.00042120959999999996
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0006567732,
+          "status": "pass",
+          "margin": 0.0006567632
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0006679682,
+          "status": "pass",
+          "margin": 0.0006669682
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000785784,
+          "status": "pass",
+          "margin": 0.000784784
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_-40c_3.30v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0005592432,
+          "status": "pass",
+          "margin": 0.0005592422
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0009375929,
+          "status": "pass",
+          "margin": 0.0009375828999999999
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0009506126,
+          "status": "pass",
+          "margin": 0.0009496126
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000993798,
+          "status": "pass",
+          "margin": 0.000992798
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_-40c_3.63v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0008001088,
+          "status": "pass",
+          "margin": 0.0008001077999999999
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.001249706,
+          "status": "pass",
+          "margin": 0.001249696
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.001264816,
+          "status": "pass",
+          "margin": 0.001263816
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.0012101,
+          "status": "pass",
+          "margin": 0.0012091
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_27c_2.97v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 1.482568e-05,
+          "status": "pass",
+          "margin": 1.4824679999999999e-05
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0004269475,
+          "status": "pass",
+          "margin": 0.0004269375
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0004374296,
+          "status": "pass",
+          "margin": 0.0004364296
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000648108,
+          "status": "pass",
+          "margin": 0.000647108
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_27c_3.30v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 3.09745e-06,
+          "status": "pass",
+          "margin": 3.09645e-06
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0007210971,
+          "status": "pass",
+          "margin": 0.0007210871
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0007347109,
+          "status": "pass",
+          "margin": 0.0007337109
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000819946,
+          "status": "pass",
+          "margin": 0.000818946
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_27c_3.63v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 9.43474e-08,
+          "status": "pass",
+          "margin": 9.33474e-08
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.001042836,
+          "status": "pass",
+          "margin": 0.001042826
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.001060566,
+          "status": "pass",
+          "margin": 0.001059566
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.00100032,
+          "status": "pass",
+          "margin": 0.0009993200000000002
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_125c_2.97v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 6.499211e-10,
+          "status": "fail",
+          "margin": -3.5007890000000006e-10
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 8.032259e-10,
+          "status": "fail",
+          "margin": -9.1967741e-09
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 1.065861e-08,
+          "status": "fail",
+          "margin": -9.8934139e-07
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000500837,
+          "status": "pass",
+          "margin": 0.0004998369999999999
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_125c_3.30v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 125.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 7.494241e-10,
+          "status": "fail",
+          "margin": -2.505759e-10
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 1.210027e-09,
+          "status": "fail",
+          "margin": -8.789973e-09
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 8.513553e-07,
+          "status": "fail",
+          "margin": -1.486447e-07
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000632525,
+          "status": "pass",
+          "margin": 0.000631525
+        }
+      ]
+    },
+    {
+      "corner_id": "ss_125c_3.63v",
+      "process": "ss",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 9.740958e-10,
+          "status": "fail",
+          "margin": -2.5904199999999978e-11
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 4.304923e-09,
+          "status": "fail",
+          "margin": -5.6950770000000004e-09
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 4.489576e-05,
+          "status": "pass",
+          "margin": 4.3895760000000005e-05
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000773256,
+          "status": "pass",
+          "margin": 0.000772256
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_-40c_2.97v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0002920458,
+          "status": "pass",
+          "margin": 0.0002920448
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0007117503,
+          "status": "pass",
+          "margin": 0.0007117403
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0007251133,
+          "status": "pass",
+          "margin": 0.0007241133
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000863665,
+          "status": "pass",
+          "margin": 0.000862665
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_-40c_3.30v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0005221284,
+          "status": "pass",
+          "margin": 0.0005221274
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.00103301,
+          "status": "pass",
+          "margin": 0.001033
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.001048259,
+          "status": "pass",
+          "margin": 0.001047259
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.00108048,
+          "status": "pass",
+          "margin": 0.00107948
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_-40c_3.63v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0007913741,
+          "status": "pass",
+          "margin": 0.0007913731
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.001383819,
+          "status": "pass",
+          "margin": 0.0013838090000000002
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.001401396,
+          "status": "pass",
+          "margin": 0.0014003960000000001
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.00130487,
+          "status": "pass",
+          "margin": 0.0013038700000000002
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_27c_2.97v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 1.043088e-08,
+          "status": "pass",
+          "margin": 9.43088e-09
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0004382928,
+          "status": "pass",
+          "margin": 0.0004382828
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0004560338,
+          "status": "pass",
+          "margin": 0.0004550338
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000715392,
+          "status": "pass",
+          "margin": 0.000714392
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_27c_3.30v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 1.219043e-08,
+          "status": "pass",
+          "margin": 1.119043e-08
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0007175571,
+          "status": "pass",
+          "margin": 0.0007175470999999999
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0007482528,
+          "status": "pass",
+          "margin": 0.0007472528
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000895081,
+          "status": "pass",
+          "margin": 0.000894081
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_27c_3.63v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 1.621437e-08,
+          "status": "pass",
+          "margin": 1.5214370000000002e-08
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.001010036,
+          "status": "pass",
+          "margin": 0.001010026
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.00106899,
+          "status": "pass",
+          "margin": 0.00106799
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.0010833,
+          "status": "pass",
+          "margin": 0.0010823
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_125c_2.97v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 2.665453e-09,
+          "status": "pass",
+          "margin": 1.6654529999999998e-09
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 3.908544e-09,
+          "status": "fail",
+          "margin": -6.091456e-09
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 1.299106e-06,
+          "status": "pass",
+          "margin": 2.99106e-07
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000555048,
+          "status": "pass",
+          "margin": 0.000554048
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_125c_3.30v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 3.384389e-09,
+          "status": "pass",
+          "margin": 2.384389e-09
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 1.513338e-08,
+          "status": "pass",
+          "margin": 5.133379999999999e-09
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 6.057844e-05,
+          "status": "pass",
+          "margin": 5.957844e-05
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000694048,
+          "status": "pass",
+          "margin": 0.0006930479999999999
+        }
+      ]
+    },
+    {
+      "corner_id": "ff_125c_3.63v",
+      "process": "ff",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 5.8528e-09,
+          "status": "pass",
+          "margin": 4.8528000000000004e-09
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 2.590845e-07,
+          "status": "pass",
+          "margin": 2.4908449999999997e-07
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.000314468,
+          "status": "pass",
+          "margin": 0.00031346799999999996
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000841967,
+          "status": "pass",
+          "margin": 0.000840967
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_-40c_2.97v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0004614596,
+          "status": "pass",
+          "margin": 0.0004614586
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0005595017,
+          "status": "pass",
+          "margin": 0.0005594917
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0005710681,
+          "status": "pass",
+          "margin": 0.0005700681
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000857717,
+          "status": "pass",
+          "margin": 0.000856717
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_-40c_3.30v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0005561845,
+          "status": "pass",
+          "margin": 0.0005561835
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0008481087,
+          "status": "pass",
+          "margin": 0.0008480987
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0008617176,
+          "status": "pass",
+          "margin": 0.0008607176
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.0010714,
+          "status": "pass",
+          "margin": 0.0010704
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_-40c_3.63v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0007819514,
+          "status": "pass",
+          "margin": 0.0007819504
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.001178113,
+          "status": "pass",
+          "margin": 0.001178103
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.001194529,
+          "status": "pass",
+          "margin": 0.001193529
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.00129317,
+          "status": "pass",
+          "margin": 0.00129217
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_27c_2.97v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 3.175008e-08,
+          "status": "pass",
+          "margin": 3.075008e-08
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0002069312,
+          "status": "pass",
+          "margin": 0.0002069212
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0002150528,
+          "status": "pass",
+          "margin": 0.0002140528
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000711297,
+          "status": "pass",
+          "margin": 0.0007102969999999999
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_27c_3.30v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 3.1027e-08,
+          "status": "pass",
+          "margin": 3.0026999999999995e-08
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0004177312,
+          "status": "pass",
+          "margin": 0.0004177212
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0004300434,
+          "status": "pass",
+          "margin": 0.00042904339999999997
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000889795,
+          "status": "pass",
+          "margin": 0.000888795
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_27c_3.63v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 3.458501e-08,
+          "status": "pass",
+          "margin": 3.3585009999999996e-08
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0006584425,
+          "status": "pass",
+          "margin": 0.0006584325
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0006765466,
+          "status": "pass",
+          "margin": 0.0006755466
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.00107626,
+          "status": "pass",
+          "margin": 0.0010752600000000002
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_125c_2.97v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 5.257769e-09,
+          "status": "pass",
+          "margin": 4.257769e-09
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 6.08196e-09,
+          "status": "fail",
+          "margin": -3.91804e-09
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 1.758376e-08,
+          "status": "fail",
+          "margin": -9.8241624e-07
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000552763,
+          "status": "pass",
+          "margin": 0.0005517629999999999
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_125c_3.30v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 125.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 5.884338e-09,
+          "status": "pass",
+          "margin": 4.884338e-09
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 7.449798e-09,
+          "status": "fail",
+          "margin": -2.5502020000000004e-09
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 6.520077e-07,
+          "status": "fail",
+          "margin": -3.479922999999999e-07
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.00069011,
+          "status": "pass",
+          "margin": 0.0006891099999999999
+        }
+      ]
+    },
+    {
+      "corner_id": "sf_125c_3.63v",
+      "process": "sf",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 6.66101e-09,
+          "status": "pass",
+          "margin": 5.66101e-09
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 1.318418e-08,
+          "status": "pass",
+          "margin": 3.18418e-09
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 3.559064e-05,
+          "status": "pass",
+          "margin": 3.459064e-05
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.00083621,
+          "status": "pass",
+          "margin": 0.00083521
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_-40c_2.97v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0003134822,
+          "status": "pass",
+          "margin": 0.00031348119999999996
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0007810801,
+          "status": "pass",
+          "margin": 0.0007810701
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0007936871,
+          "status": "pass",
+          "margin": 0.0007926871
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000791672,
+          "status": "pass",
+          "margin": 0.000790672
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_-40c_3.30v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0005532068,
+          "status": "pass",
+          "margin": 0.0005532058
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.001089158,
+          "status": "pass",
+          "margin": 0.001089148
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.001103641,
+          "status": "pass",
+          "margin": 0.0011026410000000001
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.0010022,
+          "status": "pass",
+          "margin": 0.0010012
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_-40c_3.63v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": -40.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 0.0008298501,
+          "status": "pass",
+          "margin": 0.0008298490999999999
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.00143101,
+          "status": "pass",
+          "margin": 0.001431
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.001447773,
+          "status": "pass",
+          "margin": 0.0014467730000000002
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.00122034,
+          "status": "pass",
+          "margin": 0.0012193400000000002
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_27c_2.97v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 4.156149e-06,
+          "status": "pass",
+          "margin": 4.155149e-06
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0005700031,
+          "status": "pass",
+          "margin": 0.0005699930999999999
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0005902667,
+          "status": "pass",
+          "margin": 0.0005892667
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000651138,
+          "status": "pass",
+          "margin": 0.000650138
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_27c_3.30v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 4.136584e-07,
+          "status": "pass",
+          "margin": 4.1265839999999996e-07
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.0008824061,
+          "status": "pass",
+          "margin": 0.0008823961
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0009142539,
+          "status": "pass",
+          "margin": 0.0009132539
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000824219,
+          "status": "pass",
+          "margin": 0.0008232189999999999
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_27c_3.63v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 27.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 6.317554e-08,
+          "status": "pass",
+          "margin": 6.217554e-08
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 0.001211068,
+          "status": "pass",
+          "margin": 0.001211058
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.001262002,
+          "status": "pass",
+          "margin": 0.001261002
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.0010066,
+          "status": "pass",
+          "margin": 0.0010056000000000002
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_125c_2.97v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 2.97
+      },
+      "temperature_c": 125.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 5.088383e-10,
+          "status": "fail",
+          "margin": -4.911617e-10
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 1.07584e-09,
+          "status": "fail",
+          "margin": -8.92416e-09
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 1.70678e-06,
+          "status": "pass",
+          "margin": 7.0678e-07
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000502879,
+          "status": "pass",
+          "margin": 0.000501879
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_125c_3.30v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.3
+      },
+      "temperature_c": 125.0,
+      "status": "fail",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 9.6607e-10,
+          "status": "fail",
+          "margin": -3.393000000000011e-11
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 1.078606e-08,
+          "status": "pass",
+          "margin": 7.860600000000005e-10
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 6.821466e-05,
+          "status": "pass",
+          "margin": 6.721466e-05
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000636114,
+          "status": "pass",
+          "margin": 0.000635114
+        }
+      ]
+    },
+    {
+      "corner_id": "fs_125c_3.63v",
+      "process": "fs",
+      "supply_v": {
+        "vdd": 3.63
+      },
+      "temperature_c": 125.0,
+      "status": "pass",
+      "measurements": [
+        {
+          "name": "ncross_su",
+          "unit": "",
+          "value": 1.0,
+          "status": "pass",
+          "margin": 0.5
+        },
+        {
+          "name": "itrav_min",
+          "unit": "A",
+          "value": 3.325169e-09,
+          "status": "pass",
+          "margin": 2.3251690000000002e-09
+        },
+        {
+          "name": "imin_off_su",
+          "unit": "A",
+          "value": 3.591902e-07,
+          "status": "pass",
+          "margin": 3.491902e-07
+        },
+        {
+          "name": "i_off_su",
+          "unit": "A",
+          "value": 0.0003180238,
+          "status": "pass",
+          "margin": 0.0003170238
+        },
+        {
+          "name": "i_on_su",
+          "unit": "A",
+          "value": -0.000778582,
+          "status": "pass",
+          "margin": 0.000777582
+        }
+      ]
+    }
+  ]
+}
