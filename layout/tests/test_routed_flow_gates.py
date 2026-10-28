@@ -701,6 +701,28 @@ class TestLabelCollisionGate(unittest.TestCase):
         self.assertEqual(gen_bandgap_routed.assert_no_merged_pin_names(netlist), [])
 
 
+class TestRectsSnapToMfgGrid(unittest.TestCase):
+    """Every drawn vertex lands on the 5 nm manufacturing grid (the sky130
+    `*.ongrid.1` rules), even for off-grid route coordinates."""
+
+    def test_off_grid_coordinates_are_snapped(self) -> None:
+        bus = met1_bus.Met1Bus()
+        bus.net("N")
+        bus.via(84.78666666, 65.78666667)
+        bus.vseg(68.325, 55.66666667, 69.6)
+        self.assertTrue(bus.shapes)
+        for shape in bus.shapes:
+            for value in shape["rect_um"]:
+                self.assertEqual(round(value * 1000) % 5, 0, shape)
+
+    def test_via_pad_width_is_preserved(self) -> None:
+        bus = met1_bus.Met1Bus()
+        bus.via(84.78666666, 65.78666667)
+        for shape in bus.shapes:
+            x0, y0, x1, y1 = shape["rect_um"]
+            self.assertEqual(round((x1 - x0) * 1000), round((y1 - y0) * 1000))
+
+
 class TestFlowFailsClosedWithoutArtifactStore(unittest.TestCase):
     """Issue #426: with no `$KLT_ARTIFACT_BROKER` the routed flow must exit
     non-zero before creating `staging/` or `reports/<record-id>/`."""

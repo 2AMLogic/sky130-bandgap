@@ -150,6 +150,14 @@ GATE_LI1_UM = 0.24
 #: typical wire touches only a few cells, small enough that a cell holds only
 #: a few wires.
 GRID_UM = 8.0
+#: sky130 manufacturing grid (um): every drawn vertex must land on it.
+MFG_GRID_UM = 0.005
+
+
+def snap_to_grid(value_um: float) -> float:
+    """Round `value_um` to the nearest manufacturing-grid multiple."""
+    return round(value_um / MFG_GRID_UM) * MFG_GRID_UM
+
 #: sky130 `li1.space.1` (um) -- the clearance :meth:`Met1Bus.conflicts` holds
 #: every pair of *different*-net li1 shapes this module draws to.
 LI1_SPACE_UM = 0.17
@@ -296,6 +304,11 @@ class Met1Bus:
 
     # -- primitives --------------------------------------------------------
     def _rect(self, layer: list[int], x0: float, y0: float, x1: float, y1: float) -> None:
+        # Snap to the 5 nm manufacturing grid before the rect reaches the
+        # shape list or any ledger: route coordinates derive from block
+        # origins and pitches that are not grid multiples (e.g. y = 55.6667),
+        # and the 0.8.0 sky130 deck's `*.ongrid.1` rules flag every such vertex.
+        x0, y0, x1, y1 = (snap_to_grid(v) for v in (x0, y0, x1, y1))
         self.shapes.append({"layer": layer, "rect_um": [x0, y0, x1, y1]})
         if layer == MET1_LAYER:
             self._met1_index.index(len(self.met1_rects), x0, y0, x1, y1)
