@@ -5,6 +5,8 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-10-28
 
+- **PR #457**: fix: select item-5 corner records by netlist match; re-mint 8a from main's injector
+- **Issue #456** (closed): T1 item 5 (Full corner verification): re-mint row 8a startup-stability from a record of main's injector, not the DR-018 three-high candidate
 - **PR #455**: chore: move superseded bandgap-core report GDS to artifact store
 - **Issue #440** (closed): Prune GDS blobs from superseded bandgap-core report runs
 - **PR #452**: fix(layout): snap drawn bus rects to the 5 nm grid for DRC-clean routed flow under klt 0.8.0
