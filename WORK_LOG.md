@@ -3,6 +3,11 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-10-28
+
+- **PR #452**: fix(layout): snap drawn bus rects to the 5 nm grid for DRC-clean routed flow under klt 0.8.0
+- **Issue #448** (closed): Bump klayout-tools pin 0e2362bda730, acb0ae6c11e6 → 0.8.0
+
 ### 2026-10-27
 
 - **PR #449**: build: pin klayout-tools==0.8.0 in layout requirements
