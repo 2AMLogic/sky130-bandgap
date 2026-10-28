@@ -1,15 +1,15 @@
 {
   "schema_version": 3,
-  "status": "fail",
-  "netlist": "sim/startup-stability/netlist-snapshots/20261015-133821-9f956c4.spice",
+  "status": "pass",
+  "netlist": "sim/startup-stability/netlist-snapshots/20261015-022916-ff69193.spice",
   "corner_count": 45,
-  "passed": 35,
-  "failed": 10,
+  "passed": 45,
+  "failed": 0,
   "errored": 0,
   "metrics": {
     "sim__corner__count": 45,
-    "sim__corner__passed_count": 35,
-    "sim__corner__failed_count": 10,
+    "sim__corner__passed_count": 45,
+    "sim__corner__failed_count": 0,
     "sim__corner__errored_count": 0
   },
   "coverage": {
@@ -18,14 +18,14 @@
   },
   "mint": {
     "minted_by": "sim/signoff-envelopes/emit_klt_sim_envelopes.py",
-    "disclosure": "Minted from the committed append-only corner record below, NOT produced by a live `klt sim` run: this repo's corner benches run under sim/bin/corner-run.py. Values, limits and per-corner verdicts are transcribed verbatim; no bound is relaxed. The record is the newest multi-point record of the bench, so a newer failing record supersedes an older passing one. Re-mint against newer records (e.g. after the open_pdks re-pin, #370) by re-running the minter.",
+    "disclosure": "Minted from the committed append-only corner record below, NOT produced by a live `klt sim` run: this repo's corner benches run under sim/bin/corner-run.py. Values, limits and per-corner verdicts are transcribed verbatim; no bound is relaxed. The record is the newest multi-point record of the bench whose netlist snapshot simulated the design/netlist sources now on main, so a newer failing record supersedes an older passing one of the same design. Re-mint against newer records (e.g. after the open_pdks re-pin, #370) by re-running the minter.",
     "spec_rows": [
       "8a"
     ],
     "recorded_from": [
       {
-        "file": "sim/startup-stability/records/20261015-133821-9f956c4.json",
-        "sha256": "4a5ee4df59a319c5833a6e088c3f223e957cec199f6ae114f758f1949cbdf743"
+        "file": "sim/startup-stability/records/20261015-022916-ff69193.json",
+        "sha256": "af1abcded1aaf633b674b72e3b5b9be013b88bc14e7a4889ce0e7cd7a693270e"
       }
     ],
     "excluded_measurements": {
@@ -43,10 +43,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:5e04e5c053989cb2537e2024b2d7d49a766df1db5019bd54d5f5f10f5583f521",
+      "content_hash": "sha256:7e748fddf2373db69d3e498626abb36b17b977867da5519a4b5b6238c8355eac",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/startup-stability/netlist-snapshots/20261015-133821-9f956c4.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/startup-stability/netlist-snapshots/20261015-022916-ff69193.spice)"
   },
   "measurements": [
     {
@@ -72,11 +72,11 @@
         "min": 1e-09
       },
       "worst_case": {
-        "corner_id": "fs_125c_2.97v",
-        "value": 5.088383e-10,
-        "margin": -4.911617e-10
+        "corner_id": "ss_125c_2.97v",
+        "value": 6.773545e-09,
+        "margin": 5.773545e-09
       },
-      "status": "fail"
+      "status": "pass"
     },
     {
       "name": "imin_off_su",
@@ -87,10 +87,10 @@
       },
       "worst_case": {
         "corner_id": "ss_125c_2.97v",
-        "value": 8.032259e-10,
-        "margin": -9.1967741e-09
+        "value": 3.368534e-05,
+        "margin": 3.3675339999999995e-05
       },
-      "status": "fail"
+      "status": "pass"
     },
     {
       "name": "i_off_su",
@@ -101,10 +101,10 @@
       },
       "worst_case": {
         "corner_id": "ss_125c_2.97v",
-        "value": 1.065861e-08,
-        "margin": -9.8934139e-07
+        "value": 0.0003881806,
+        "margin": 0.0003871806
       },
-      "status": "fail"
+      "status": "pass"
     },
     {
       "name": "i_on_su",
@@ -141,23 +141,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0003354426,
+          "value": 0.000306136,
           "status": "pass",
-          "margin": 0.0003354416
+          "margin": 0.00030613499999999997
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0006808648,
+          "value": 0.0006797003,
           "status": "pass",
-          "margin": 0.0006808548
+          "margin": 0.0006796902999999999
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0006930805,
+          "value": 0.0006932213,
           "status": "pass",
-          "margin": 0.0006920804999999999
+          "margin": 0.0006922213
         },
         {
           "name": "i_on_su",
@@ -187,23 +187,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0005398237,
+          "value": 0.000450598,
           "status": "pass",
-          "margin": 0.0005398226999999999
+          "margin": 0.000450597
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0009771769,
+          "value": 0.0009626694,
           "status": "pass",
-          "margin": 0.0009771669
+          "margin": 0.0009626594
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0009912734,
+          "value": 0.001002322,
           "status": "pass",
-          "margin": 0.0009902734
+          "margin": 0.001001322
         },
         {
           "name": "i_on_su",
@@ -233,23 +233,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0007993539,
+          "value": 0.0006436696,
           "status": "pass",
-          "margin": 0.0007993529
+          "margin": 0.0006436686
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.001312461,
+          "value": 0.00126516,
           "status": "pass",
-          "margin": 0.001312451
+          "margin": 0.00126515
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.001328073,
+          "value": 0.001413877,
           "status": "pass",
-          "margin": 0.001327073
+          "margin": 0.001412877
         },
         {
           "name": "i_on_su",
@@ -279,23 +279,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 7.668568e-08,
+          "value": 1.104075e-08,
           "status": "pass",
-          "margin": 7.568568000000001e-08
+          "margin": 1.004075e-08
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0004473237,
+          "value": 0.0003514454,
           "status": "pass",
-          "margin": 0.0004473137
+          "margin": 0.0003514354
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.000459479,
+          "value": 0.0008049124,
           "status": "pass",
-          "margin": 0.00045847899999999997
+          "margin": 0.0008039124
         },
         {
           "name": "i_on_su",
@@ -325,23 +325,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 1.013101e-08,
+          "value": 3.754714e-08,
           "status": "pass",
-          "margin": 9.131009999999999e-09
+          "margin": 3.6547139999999995e-08
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0007425402,
+          "value": 0.0006348358,
           "status": "pass",
-          "margin": 0.0007425302
+          "margin": 0.0006348257999999999
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0007596256,
+          "value": 0.001249379,
           "status": "pass",
-          "margin": 0.0007586256
+          "margin": 0.001248379
         },
         {
           "name": "i_on_su",
@@ -371,23 +371,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 9.472078e-09,
+          "value": 3.551238e-07,
           "status": "pass",
-          "margin": 8.472078e-09
+          "margin": 3.5412379999999996e-07
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.001061321,
+          "value": 0.0009645571,
           "status": "pass",
-          "margin": 0.0010613110000000001
+          "margin": 0.0009645471
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.001085785,
+          "value": 0.001718158,
           "status": "pass",
-          "margin": 0.001084785
+          "margin": 0.001717158
         },
         {
           "name": "i_on_su",
@@ -405,7 +405,7 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "fail",
+      "status": "pass",
       "measurements": [
         {
           "name": "ncross_su",
@@ -417,23 +417,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 1.281486e-09,
+          "value": 2.42703e-08,
           "status": "pass",
-          "margin": 2.81486e-10
+          "margin": 2.3270300000000002e-08
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 1.670503e-09,
-          "status": "fail",
-          "margin": -8.329497000000001e-09
+          "value": 9.284503e-05,
+          "status": "pass",
+          "margin": 9.283503e-05
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 1.110673e-07,
-          "status": "fail",
-          "margin": -8.889326999999999e-07
+          "value": 0.0005362488,
+          "status": "pass",
+          "margin": 0.0005352487999999999
         },
         {
           "name": "i_on_su",
@@ -451,7 +451,7 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "fail",
+      "status": "pass",
       "measurements": [
         {
           "name": "ncross_su",
@@ -463,23 +463,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 1.532498e-09,
+          "value": 1.283926e-07,
           "status": "pass",
-          "margin": 5.32498e-10
+          "margin": 1.273926e-07
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 3.161305e-09,
-          "status": "fail",
-          "margin": -6.838695e-09
+          "value": 0.0003054422,
+          "status": "pass",
+          "margin": 0.0003054322
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 9.156699e-06,
+          "value": 0.0009113533,
           "status": "pass",
-          "margin": 8.156699e-06
+          "margin": 0.0009103533
         },
         {
           "name": "i_on_su",
@@ -509,23 +509,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 2.176395e-09,
+          "value": 5.510765e-07,
           "status": "pass",
-          "margin": 1.176395e-09
+          "margin": 5.500765e-07
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 3.429833e-08,
+          "value": 0.0005786483,
           "status": "pass",
-          "margin": 2.429833e-08
+          "margin": 0.0005786382999999999
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0001531622,
+          "value": 0.001316556,
           "status": "pass",
-          "margin": 0.0001521622
+          "margin": 0.001315556
         },
         {
           "name": "i_on_su",
@@ -555,23 +555,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0004212106,
+          "value": 0.0004196607,
           "status": "pass",
-          "margin": 0.00042120959999999996
+          "margin": 0.0004196597
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0006567732,
+          "value": 0.0006567196,
           "status": "pass",
-          "margin": 0.0006567632
+          "margin": 0.0006567096
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0006679682,
+          "value": 0.0006679641,
           "status": "pass",
-          "margin": 0.0006669682
+          "margin": 0.0006669641
         },
         {
           "name": "i_on_su",
@@ -601,23 +601,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0005592432,
+          "value": 0.0005210238,
           "status": "pass",
-          "margin": 0.0005592422
+          "margin": 0.0005210228
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0009375929,
+          "value": 0.0009361208,
           "status": "pass",
-          "margin": 0.0009375828999999999
+          "margin": 0.0009361107999999999
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0009506126,
+          "value": 0.0009507695,
           "status": "pass",
-          "margin": 0.0009496126
+          "margin": 0.0009497695
         },
         {
           "name": "i_on_su",
@@ -647,23 +647,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0008001088,
+          "value": 0.0007046258,
           "status": "pass",
-          "margin": 0.0008001077999999999
+          "margin": 0.0007046248
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.001249706,
+          "value": 0.001234743,
           "status": "pass",
-          "margin": 0.001249696
+          "margin": 0.001234733
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.001264816,
+          "value": 0.001276647,
           "status": "pass",
-          "margin": 0.001263816
+          "margin": 0.001275647
         },
         {
           "name": "i_on_su",
@@ -693,23 +693,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 1.482568e-05,
+          "value": 1.137694e-06,
           "status": "pass",
-          "margin": 1.4824679999999999e-05
+          "margin": 1.136694e-06
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0004269475,
+          "value": 0.0003490785,
           "status": "pass",
-          "margin": 0.0004269375
+          "margin": 0.0003490685
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0004374296,
+          "value": 0.0006425167,
           "status": "pass",
-          "margin": 0.0004364296
+          "margin": 0.0006415167
         },
         {
           "name": "i_on_su",
@@ -739,23 +739,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 3.09745e-06,
+          "value": 1.160512e-07,
           "status": "pass",
-          "margin": 3.09645e-06
+          "margin": 1.150512e-07
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0007210971,
+          "value": 0.0006065903,
           "status": "pass",
-          "margin": 0.0007210871
+          "margin": 0.0006065803
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0007347109,
+          "value": 0.001058518,
           "status": "pass",
-          "margin": 0.0007337109
+          "margin": 0.0010575180000000001
         },
         {
           "name": "i_on_su",
@@ -785,23 +785,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 9.43474e-08,
+          "value": 2.049959e-07,
           "status": "pass",
-          "margin": 9.33474e-08
+          "margin": 2.039959e-07
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.001042836,
+          "value": 0.0008979792,
           "status": "pass",
-          "margin": 0.001042826
+          "margin": 0.0008979691999999999
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.001060566,
+          "value": 0.001506617,
           "status": "pass",
-          "margin": 0.001059566
+          "margin": 0.0015056170000000001
         },
         {
           "name": "i_on_su",
@@ -819,7 +819,7 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "fail",
+      "status": "pass",
       "measurements": [
         {
           "name": "ncross_su",
@@ -831,23 +831,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 6.499211e-10,
-          "status": "fail",
-          "margin": -3.5007890000000006e-10
+          "value": 6.773545e-09,
+          "status": "pass",
+          "margin": 5.773545e-09
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 8.032259e-10,
-          "status": "fail",
-          "margin": -9.1967741e-09
+          "value": 3.368534e-05,
+          "status": "pass",
+          "margin": 3.3675339999999995e-05
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 1.065861e-08,
-          "status": "fail",
-          "margin": -9.8934139e-07
+          "value": 0.0003881806,
+          "status": "pass",
+          "margin": 0.0003871806
         },
         {
           "name": "i_on_su",
@@ -865,7 +865,7 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "fail",
+      "status": "pass",
       "measurements": [
         {
           "name": "ncross_su",
@@ -877,23 +877,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 7.494241e-10,
-          "status": "fail",
-          "margin": -2.505759e-10
+          "value": 4.635684e-08,
+          "status": "pass",
+          "margin": 4.5356839999999996e-08
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 1.210027e-09,
-          "status": "fail",
-          "margin": -8.789973e-09
+          "value": 0.0001932126,
+          "status": "pass",
+          "margin": 0.0001932026
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 8.513553e-07,
-          "status": "fail",
-          "margin": -1.486447e-07
+          "value": 0.000734997,
+          "status": "pass",
+          "margin": 0.000733997
         },
         {
           "name": "i_on_su",
@@ -911,7 +911,7 @@
         "vdd": 3.63
       },
       "temperature_c": 125.0,
-      "status": "fail",
+      "status": "pass",
       "measurements": [
         {
           "name": "ncross_su",
@@ -923,23 +923,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 9.740958e-10,
-          "status": "fail",
-          "margin": -2.5904199999999978e-11
+          "value": 2.855386e-07,
+          "status": "pass",
+          "margin": 2.845386e-07
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 4.304923e-09,
-          "status": "fail",
-          "margin": -5.6950770000000004e-09
+          "value": 0.0004399125,
+          "status": "pass",
+          "margin": 0.0004399025
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 4.489576e-05,
+          "value": 0.001120728,
           "status": "pass",
-          "margin": 4.3895760000000005e-05
+          "margin": 0.0011197280000000002
         },
         {
           "name": "i_on_su",
@@ -969,23 +969,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0002920458,
+          "value": 0.0002159082,
           "status": "pass",
-          "margin": 0.0002920448
+          "margin": 0.0002159072
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0007117503,
+          "value": 0.0006990939,
           "status": "pass",
-          "margin": 0.0007117403
+          "margin": 0.0006990839
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0007251133,
+          "value": 0.000733949,
           "status": "pass",
-          "margin": 0.0007241133
+          "margin": 0.000732949
         },
         {
           "name": "i_on_su",
@@ -1015,23 +1015,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0005221284,
+          "value": 0.0003749844,
           "status": "pass",
-          "margin": 0.0005221274
+          "margin": 0.0003749834
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.00103301,
+          "value": 0.0009861062,
           "status": "pass",
-          "margin": 0.001033
+          "margin": 0.0009860962
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.001048259,
+          "value": 0.00113271,
           "status": "pass",
-          "margin": 0.001047259
+          "margin": 0.0011317100000000002
         },
         {
           "name": "i_on_su",
@@ -1061,23 +1061,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0007913741,
+          "value": 0.0005693911,
           "status": "pass",
-          "margin": 0.0007913731
+          "margin": 0.0005693901
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.001383819,
+          "value": 0.001293061,
           "status": "pass",
-          "margin": 0.0013838090000000002
+          "margin": 0.0012930510000000001
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.001401396,
+          "value": 0.0016141,
           "status": "pass",
-          "margin": 0.0014003960000000001
+          "margin": 0.0016131000000000001
         },
         {
           "name": "i_on_su",
@@ -1107,23 +1107,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 1.043088e-08,
+          "value": 1.339965e-08,
           "status": "pass",
-          "margin": 9.43088e-09
+          "margin": 1.239965e-08
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0004382928,
+          "value": 0.0004060419,
           "status": "pass",
-          "margin": 0.0004382828
+          "margin": 0.0004060319
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0004560338,
+          "value": 0.000985423,
           "status": "pass",
-          "margin": 0.0004550338
+          "margin": 0.0009844230000000001
         },
         {
           "name": "i_on_su",
@@ -1153,23 +1153,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 1.219043e-08,
+          "value": 7.601233e-08,
           "status": "pass",
-          "margin": 1.119043e-08
+          "margin": 7.501233e-08
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0007175571,
+          "value": 0.0007319677,
           "status": "pass",
-          "margin": 0.0007175470999999999
+          "margin": 0.0007319576999999999
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0007482528,
+          "value": 0.001452875,
           "status": "pass",
-          "margin": 0.0007472528
+          "margin": 0.001451875
         },
         {
           "name": "i_on_su",
@@ -1199,23 +1199,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 1.621437e-08,
+          "value": 7.900781e-07,
           "status": "pass",
-          "margin": 1.5214370000000002e-08
+          "margin": 7.890781000000001e-07
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.001010036,
+          "value": 0.001094284,
           "status": "pass",
-          "margin": 0.001010026
+          "margin": 0.0010942740000000001
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.00106899,
+          "value": 0.001938833,
           "status": "pass",
-          "margin": 0.00106799
+          "margin": 0.0019378330000000001
         },
         {
           "name": "i_on_su",
@@ -1233,7 +1233,7 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "fail",
+      "status": "pass",
       "measurements": [
         {
           "name": "ncross_su",
@@ -1245,23 +1245,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 2.665453e-09,
+          "value": 7.963704e-08,
           "status": "pass",
-          "margin": 1.6654529999999998e-09
+          "margin": 7.863704e-08
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 3.908544e-09,
-          "status": "fail",
-          "margin": -6.091456e-09
+          "value": 0.0001762522,
+          "status": "pass",
+          "margin": 0.0001762422
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 1.299106e-06,
+          "value": 0.0006982916,
           "status": "pass",
-          "margin": 2.99106e-07
+          "margin": 0.0006972915999999999
         },
         {
           "name": "i_on_su",
@@ -1291,23 +1291,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 3.384389e-09,
+          "value": 3.224356e-07,
           "status": "pass",
-          "margin": 2.384389e-09
+          "margin": 3.2143559999999997e-07
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 1.513338e-08,
+          "value": 0.0004220365,
           "status": "pass",
-          "margin": 5.133379999999999e-09
+          "margin": 0.0004220265
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 6.057844e-05,
+          "value": 0.001096249,
           "status": "pass",
-          "margin": 5.957844e-05
+          "margin": 0.0010952490000000002
         },
         {
           "name": "i_on_su",
@@ -1337,23 +1337,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 5.8528e-09,
+          "value": 9.466348e-07,
           "status": "pass",
-          "margin": 4.8528000000000004e-09
+          "margin": 9.456348e-07
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 2.590845e-07,
+          "value": 0.0007111587,
           "status": "pass",
-          "margin": 2.4908449999999997e-07
+          "margin": 0.0007111486999999999
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.000314468,
+          "value": 0.001517485,
           "status": "pass",
-          "margin": 0.00031346799999999996
+          "margin": 0.0015164850000000001
         },
         {
           "name": "i_on_su",
@@ -1383,23 +1383,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0004614596,
+          "value": 0.0004565321,
           "status": "pass",
-          "margin": 0.0004614586
+          "margin": 0.00045653109999999996
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0005595017,
+          "value": 0.0005577102,
           "status": "pass",
-          "margin": 0.0005594917
+          "margin": 0.0005577001999999999
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0005710681,
+          "value": 0.0005712614,
           "status": "pass",
-          "margin": 0.0005700681
+          "margin": 0.0005702614
         },
         {
           "name": "i_on_su",
@@ -1429,23 +1429,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0005561845,
+          "value": 0.0004895265,
           "status": "pass",
-          "margin": 0.0005561835
+          "margin": 0.0004895254999999999
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0008481087,
+          "value": 0.0008291611,
           "status": "pass",
-          "margin": 0.0008480987
+          "margin": 0.0008291510999999999
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0008617176,
+          "value": 0.0008803665,
           "status": "pass",
-          "margin": 0.0008607176
+          "margin": 0.0008793665
         },
         {
           "name": "i_on_su",
@@ -1475,23 +1475,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0007819514,
+          "value": 0.0006443204,
           "status": "pass",
-          "margin": 0.0007819504
+          "margin": 0.0006443194
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.001178113,
+          "value": 0.001123894,
           "status": "pass",
-          "margin": 0.001178103
+          "margin": 0.0011238840000000001
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.001194529,
+          "value": 0.001303541,
           "status": "pass",
-          "margin": 0.001193529
+          "margin": 0.0013025410000000002
         },
         {
           "name": "i_on_su",
@@ -1521,23 +1521,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 3.175008e-08,
+          "value": 2.078824e-08,
           "status": "pass",
-          "margin": 3.075008e-08
+          "margin": 1.9788240000000002e-08
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0002069312,
+          "value": 0.0001798946,
           "status": "pass",
-          "margin": 0.0002069212
+          "margin": 0.00017988460000000002
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0002150528,
+          "value": 0.0006766143,
           "status": "pass",
-          "margin": 0.0002140528
+          "margin": 0.0006756142999999999
         },
         {
           "name": "i_on_su",
@@ -1567,23 +1567,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 3.1027e-08,
+          "value": 3.046348e-08,
           "status": "pass",
-          "margin": 3.0026999999999995e-08
+          "margin": 2.946348e-08
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0004177312,
+          "value": 0.0004463894,
           "status": "pass",
-          "margin": 0.0004177212
+          "margin": 0.00044637940000000003
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0004300434,
+          "value": 0.001112254,
           "status": "pass",
-          "margin": 0.00042904339999999997
+          "margin": 0.001111254
         },
         {
           "name": "i_on_su",
@@ -1613,23 +1613,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 3.458501e-08,
+          "value": 9.77564e-08,
           "status": "pass",
-          "margin": 3.3585009999999996e-08
+          "margin": 9.67564e-08
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0006584425,
+          "value": 0.0007747146,
           "status": "pass",
-          "margin": 0.0006584325
+          "margin": 0.0007747046
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0006765466,
+          "value": 0.001576405,
           "status": "pass",
-          "margin": 0.0006755466
+          "margin": 0.001575405
         },
         {
           "name": "i_on_su",
@@ -1647,7 +1647,7 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "fail",
+      "status": "pass",
       "measurements": [
         {
           "name": "ncross_su",
@@ -1659,23 +1659,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 5.257769e-09,
+          "value": 1.459418e-08,
           "status": "pass",
-          "margin": 4.257769e-09
+          "margin": 1.3594179999999999e-08
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 6.08196e-09,
-          "status": "fail",
-          "margin": -3.91804e-09
+          "value": 5.304358e-05,
+          "status": "pass",
+          "margin": 5.303358e-05
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 1.758376e-08,
-          "status": "fail",
-          "margin": -9.8241624e-07
+          "value": 0.0004484844,
+          "status": "pass",
+          "margin": 0.0004474844
         },
         {
           "name": "i_on_su",
@@ -1693,7 +1693,7 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "fail",
+      "status": "pass",
       "measurements": [
         {
           "name": "ncross_su",
@@ -1705,23 +1705,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 5.884338e-09,
+          "value": 9.675674e-08,
           "status": "pass",
-          "margin": 4.884338e-09
+          "margin": 9.575674e-08
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 7.449798e-09,
-          "status": "fail",
-          "margin": -2.5502020000000004e-09
+          "value": 0.0002372314,
+          "status": "pass",
+          "margin": 0.0002372214
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 6.520077e-07,
-          "status": "fail",
-          "margin": -3.479922999999999e-07
+          "value": 0.0008111287,
+          "status": "pass",
+          "margin": 0.0008101286999999999
         },
         {
           "name": "i_on_su",
@@ -1751,23 +1751,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 6.66101e-09,
+          "value": 3.359798e-07,
           "status": "pass",
-          "margin": 5.66101e-09
+          "margin": 3.3497979999999996e-07
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 1.318418e-08,
+          "value": 0.0004967743,
           "status": "pass",
-          "margin": 3.18418e-09
+          "margin": 0.0004967642999999999
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 3.559064e-05,
+          "value": 0.00120837,
           "status": "pass",
-          "margin": 3.459064e-05
+          "margin": 0.0012073700000000001
         },
         {
           "name": "i_on_su",
@@ -1797,23 +1797,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0003134822,
+          "value": 0.0002656064,
           "status": "pass",
-          "margin": 0.00031348119999999996
+          "margin": 0.0002656054
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0007810801,
+          "value": 0.0007799496,
           "status": "pass",
-          "margin": 0.0007810701
+          "margin": 0.0007799396
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0007936871,
+          "value": 0.0007937814,
           "status": "pass",
-          "margin": 0.0007926871
+          "margin": 0.0007927814
         },
         {
           "name": "i_on_su",
@@ -1843,23 +1843,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0005532068,
+          "value": 0.0004469105,
           "status": "pass",
-          "margin": 0.0005532058
+          "margin": 0.0004469095
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.001089158,
+          "value": 0.001076515,
           "status": "pass",
-          "margin": 0.001089148
+          "margin": 0.001076505
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.001103641,
+          "value": 0.001111936,
           "status": "pass",
-          "margin": 0.0011026410000000001
+          "margin": 0.001110936
         },
         {
           "name": "i_on_su",
@@ -1889,23 +1889,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0008298501,
+          "value": 0.0006585665,
           "status": "pass",
-          "margin": 0.0008298490999999999
+          "margin": 0.0006585655
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.00143101,
+          "value": 0.001388549,
           "status": "pass",
-          "margin": 0.001431
+          "margin": 0.001388539
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.001447773,
+          "value": 0.001519133,
           "status": "pass",
-          "margin": 0.0014467730000000002
+          "margin": 0.001518133
         },
         {
           "name": "i_on_su",
@@ -1935,23 +1935,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 4.156149e-06,
+          "value": 1.514027e-07,
           "status": "pass",
-          "margin": 4.155149e-06
+          "margin": 1.504027e-07
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0005700031,
+          "value": 0.0004665638,
           "status": "pass",
-          "margin": 0.0005699930999999999
+          "margin": 0.0004665538
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0005902667,
+          "value": 0.0009010334,
           "status": "pass",
-          "margin": 0.0005892667
+          "margin": 0.0009000334
         },
         {
           "name": "i_on_su",
@@ -1981,23 +1981,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 4.136584e-07,
+          "value": 2.583266e-07,
           "status": "pass",
-          "margin": 4.1265839999999996e-07
+          "margin": 2.573266e-07
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0008824061,
+          "value": 0.0007563881,
           "status": "pass",
-          "margin": 0.0008823961
+          "margin": 0.0007563781
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0009142539,
+          "value": 0.001348358,
           "status": "pass",
-          "margin": 0.0009132539
+          "margin": 0.001347358
         },
         {
           "name": "i_on_su",
@@ -2027,23 +2027,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 6.317554e-08,
+          "value": 1.688615e-06,
           "status": "pass",
-          "margin": 6.217554e-08
+          "margin": 1.687615e-06
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.001211068,
+          "value": 0.0010815,
           "status": "pass",
-          "margin": 0.001211058
+          "margin": 0.00108149
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.001262002,
+          "value": 0.001817829,
           "status": "pass",
-          "margin": 0.001261002
+          "margin": 0.001816829
         },
         {
           "name": "i_on_su",
@@ -2061,7 +2061,7 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "fail",
+      "status": "pass",
       "measurements": [
         {
           "name": "ncross_su",
@@ -2073,23 +2073,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 5.088383e-10,
-          "status": "fail",
-          "margin": -4.911617e-10
+          "value": 7.352375e-08,
+          "status": "pass",
+          "margin": 7.252375e-08
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 1.07584e-09,
-          "status": "fail",
-          "margin": -8.92416e-09
+          "value": 0.0001342841,
+          "status": "pass",
+          "margin": 0.00013427410000000002
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 1.70678e-06,
+          "value": 0.0006101353,
           "status": "pass",
-          "margin": 7.0678e-07
+          "margin": 0.0006091353
         },
         {
           "name": "i_on_su",
@@ -2107,7 +2107,7 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "fail",
+      "status": "pass",
       "measurements": [
         {
           "name": "ncross_su",
@@ -2119,23 +2119,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 9.6607e-10,
-          "status": "fail",
-          "margin": -3.393000000000011e-11
+          "value": 4.399975e-07,
+          "status": "pass",
+          "margin": 4.389975e-07
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 1.078606e-08,
+          "value": 0.0003658358,
           "status": "pass",
-          "margin": 7.860600000000005e-10
+          "margin": 0.0003658258
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 6.821466e-05,
+          "value": 0.0009903602,
           "status": "pass",
-          "margin": 6.721466e-05
+          "margin": 0.0009893602000000002
         },
         {
           "name": "i_on_su",
@@ -2165,23 +2165,23 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 3.325169e-09,
+          "value": 1.076369e-06,
           "status": "pass",
-          "margin": 2.3251690000000002e-09
+          "margin": 1.0753689999999999e-06
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 3.591902e-07,
+          "value": 0.0006501008,
           "status": "pass",
-          "margin": 3.491902e-07
+          "margin": 0.0006500907999999999
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0003180238,
+          "value": 0.001397962,
           "status": "pass",
-          "margin": 0.0003170238
+          "margin": 0.001396962
         },
         {
           "name": "i_on_su",

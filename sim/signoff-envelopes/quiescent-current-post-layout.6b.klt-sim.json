@@ -18,7 +18,7 @@
   },
   "mint": {
     "minted_by": "sim/signoff-envelopes/emit_klt_sim_envelopes.py",
-    "disclosure": "Minted from the committed append-only corner record below, NOT produced by a live `klt sim` run: this repo's corner benches run under sim/bin/corner-run.py. Values, limits and per-corner verdicts are transcribed verbatim; no bound is relaxed. The record is the newest multi-point record of the bench, so a newer failing record supersedes an older passing one. Re-mint against newer records (e.g. after the open_pdks re-pin, #370) by re-running the minter.",
+    "disclosure": "Minted from the committed append-only corner record below, NOT produced by a live `klt sim` run: this repo's corner benches run under sim/bin/corner-run.py. Values, limits and per-corner verdicts are transcribed verbatim; no bound is relaxed. The record is the newest multi-point record of the bench whose netlist snapshot simulated the design/netlist sources now on main, so a newer failing record supersedes an older passing one of the same design. Re-mint against newer records (e.g. after the open_pdks re-pin, #370) by re-running the minter.",
     "spec_rows": [
       "6b"
     ],

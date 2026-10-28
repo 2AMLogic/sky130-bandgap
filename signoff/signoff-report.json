@@ -233,8 +233,8 @@
           "rows": [
             "8a"
           ],
-          "status": "unmet",
-          "reason": "check_failed"
+          "status": "met",
+          "reason": null
         },
         {
           "citation": "sim/signoff-envelopes/startup-stability-post-layout.8b.klt-sim.json",
@@ -273,15 +273,13 @@
           "sim/signoff-envelopes/output-voltage-tc.3a.klt-sim.json",
           "sim/signoff-envelopes/output-voltage-tc-post-layout.1b.klt-sim.json",
           "sim/signoff-envelopes/output-voltage-tc-post-layout.3b.klt-sim.json",
-          "sim/signoff-envelopes/psrr-dc-post-layout.4b.klt-sim.json",
-          "sim/signoff-envelopes/startup-stability.8a.klt-sim.json"
+          "sim/signoff-envelopes/psrr-dc-post-layout.4b.klt-sim.json"
         ],
         "failed_rows": [
           "1b",
           "3a",
           "3b",
-          "4b",
-          "8a"
+          "4b"
         ],
         "uncovered_rows": [],
         "declared_gaps": [
@@ -306,6 +304,7 @@
           "5c": "derived",
           "6a": "derived",
           "6b": "derived",
+          "8a": "derived",
           "8b": "derived",
           "8c": "derived",
           "8d": "derived"
