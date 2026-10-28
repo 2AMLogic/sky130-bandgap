@@ -297,7 +297,13 @@ stores them in the fleet artifact store
 (`manifests/artifacts/layout-bandgap-core-<record-id>.manifest.json`), and
 commits only `record.md` and the verdict JSONs under
 `bandgap-core/reports/<record-id>/` alongside (never replacing) earlier
-records (issue #426). It needs `$KLT_ARTIFACT_BROKER` and a `klt` with
+records (issue #426). The records are kept in git;
+the GDS blobs of the superseded 2026-08-03..05 runs now live in the artifact
+store too, with pointers (sha256 per file) in
+`manifests/artifacts/layout-bandgap-core-superseded-reports-440.manifest.json`
+and the list in
+[`bandgap-core/reports/ARTIFACT-STORE-RUNS.md`](bandgap-core/reports/ARTIFACT-STORE-RUNS.md)
+(issue #440). It needs `$KLT_ARTIFACT_BROKER` and a `klt` with
 `artifact put` on PATH, and exits before writing anything otherwise. It no
 longer updates `bandgap-core/reports/LATEST`, which stays pinned to the last
 fully tracked record (the label-collision regression test reads it).
