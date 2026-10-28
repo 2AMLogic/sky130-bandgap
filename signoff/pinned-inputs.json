@@ -85,7 +85,7 @@
     {
       "item": "5",
       "index": 10,
-      "describes": "sim/startup-stability/netlist-snapshots/20261015-133821-9f956c4.spice",
+      "describes": "sim/startup-stability/netlist-snapshots/20261015-022916-ff69193.spice",
       "note": "netlist snapshot the startup-stability record simulated (row 8a); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
     },
     {

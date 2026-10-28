@@ -27,8 +27,12 @@ one place:
 
 Record choice is mechanical, not hand-picked: the newest record of the bench
 whose matrix has more than one point (this drops the single-corner
-batch-vs-local equivalence checks of #396 and nothing else). A newer failing
-record therefore supersedes an older passing one.
+batch-vs-local equivalence checks of #396) **and** whose netlist snapshot
+simulated the design now on `main` (issue #456): every subcircuit that
+`design/netlist/*.spice` defines must have the same device lines in the
+snapshot. A candidate-branch record that simulated a different design is
+therefore never selected on recency alone; if no record of a bench matches,
+the minter exits naming the bench and the mismatch instead of picking one.
 
 Usage (from the repo root)
 --------------------------
@@ -41,6 +45,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -175,17 +180,102 @@ def dump(obj: Any) -> str:
     return json.dumps(obj, indent=2) + "\n"
 
 
-def newest_record(bench: str) -> Path:
-    """Newest `sim/<bench>/records/*.json` corner record with a multi-point matrix."""
+def subckt_bodies(text: str) -> dict[str, list[str]]:
+    """`{subckt name: sorted normalized body lines}` for every subcircuit in `text`.
+
+    Handles both the xschem export form (`**.subckt NAME` ... `**.ends`, used by
+    `design/netlist/*.spice`) and the plain `.subckt NAME` ... `.ends` form used
+    in the testbench snapshots. Continuation lines are joined, whitespace is
+    normalized, comments and blanks dropped; order is irrelevant to the circuit.
+    """
+    bodies: dict[str, list[str]] = {}
+    name: str | None = None
+    for raw in text.splitlines():
+        line = raw.strip()
+        m = re.match(r"^\**\.subckt\s+(\S+)", line, re.IGNORECASE)
+        if m:
+            name = m.group(1)
+            bodies[name] = []
+            continue
+        if re.match(r"^\**\.ends\b", line, re.IGNORECASE):
+            name = None
+            continue
+        if name is None or not line or line.startswith("*"):
+            continue
+        if line.startswith("+") and bodies[name]:
+            bodies[name][-1] += " " + line[1:].strip()
+        else:
+            bodies[name].append(line)
+    return {
+        n: sorted(re.sub(r"\s+", " ", ln).lower() for ln in lines) for n, lines in bodies.items()
+    }
+
+
+def current_design_subckts() -> dict[str, list[str]]:
+    out: dict[str, list[str]] = {}
+    for path in sorted((REPO_ROOT / "design" / "netlist").glob("*.spice")):
+        out.update(subckt_bodies(path.read_text()))
+    return out
+
+
+def snapshot_mismatch(
+    snapshot: str, design: dict[str, list[str]], skip: frozenset[str] = frozenset()
+) -> str | None:
+    """Why the snapshot differs from the current design sources, or None if it matches.
+
+    Only subcircuits the snapshot itself defines are compared (a bench that never
+    instantiates the startup injector does not carry it); `skip` names subcircuits
+    whose snapshot definition is not the schematic export (see `LAYOUT_DUT_SKIP`).
+    """
+    path = REPO_ROOT / snapshot
+    if not path.is_file():
+        return f"snapshot missing: {snapshot}"
+    simulated = subckt_bodies(path.read_text())
+    for name, body in design.items():
+        if name in skip or name not in simulated:
+            continue
+        if simulated[name] != body:
+            only_snap = sorted(set(simulated[name]) - set(body))
+            only_main = sorted(set(body) - set(simulated[name]))
+            return (
+                f"subckt {name} differs from design/netlist: "
+                f"{len(only_snap)} snapshot-only line(s), {len(only_main)} main-only line(s)"
+                f" (e.g. snapshot {only_snap[:1]}, main {only_main[:1]})"
+            )
+    return None
+
+
+# Post-layout benches simulate the layout-extracted core: their `bandgap_core` is a
+# wrapper around `bandgap_core_routed`, not the schematic export, so it cannot be
+# compared with design/netlist/bandgap_core.spice. Binding those records to the
+# current layout is a separate check (not done here); the table printed by
+# `--report` marks them "layout DUT". Their other subcircuits are still compared.
+LAYOUT_DUT_SKIP = frozenset({"bandgap_core"})
+
+
+def newest_record(bench: str, design: dict[str, list[str]] | None = None) -> Path:
+    """Newest multi-point `sim/<bench>/records/*.json` whose netlist snapshot matches `design/netlist`."""
+    design = current_design_subckts() if design is None else design
     candidates = []
+    rejected: list[str] = []
     for path in sorted((REPO_ROOT / "sim" / bench / "records").glob("*.json")):
         if path.name.endswith("-klt-yield.json"):
             continue
         record = json.loads(path.read_text())
-        if (record.get("matrix") or {}).get("n_points", 0) > 1:
+        if (record.get("matrix") or {}).get("n_points", 0) <= 1:
+            continue
+        skip = LAYOUT_DUT_SKIP if bench.endswith("-post-layout") else frozenset()
+        why = snapshot_mismatch(record["links"]["netlist_snapshot"], design, skip)
+        if why:
+            rejected.append(f"{path.name}: {why}")
+        else:
             candidates.append(path)
     if not candidates:
-        raise SystemExit(f"{bench}: no multi-point corner record under sim/{bench}/records/")
+        detail = "; ".join(rejected) or "no multi-point record"
+        raise SystemExit(
+            f"{bench}: no multi-point record under sim/{bench}/records/ simulated the current "
+            f"design/netlist sources ({detail})"
+        )
     return candidates[-1]
 
 
@@ -334,8 +424,9 @@ def mint(entry: dict[str, Any]) -> tuple[str, dict[str, Any]]:
                 "Minted from the committed append-only corner record below, NOT produced by a "
                 "live `klt sim` run: this repo's corner benches run under sim/bin/corner-run.py. "
                 "Values, limits and per-corner verdicts are transcribed verbatim; no bound is "
-                "relaxed. The record is the newest multi-point record of the bench, so a newer "
-                "failing record supersedes an older passing one. Re-mint against newer records "
+                "relaxed. The record is the newest multi-point record of the bench whose netlist "
+                "snapshot simulated the design/netlist sources now on main, so a newer failing "
+                "record supersedes an older passing one of the same design. Re-mint against newer records "
                 "(e.g. after the open_pdks re-pin, #370) by re-running the minter."
             ),
             "spec_rows": sorted({row for row, _ in wanted.values()}),
@@ -404,12 +495,39 @@ def row_order(row_id: str) -> tuple[int, str]:
     return int(digits), row_id
 
 
+def report() -> int:
+    """Markdown table: for each envelope, the record it cites and whether that record's
+    snapshot matches the current design sources (and what the newest record is, if not)."""
+    design = current_design_subckts()
+    print("| envelope | record | matches main's design |")
+    print("|---|---|---|")
+    for bench in BENCHES:
+        for entry in split_by_row(bench):
+            env = ENVELOPE_DIR / f"{bench['bench']}.{entry['row']}.klt-sim.json"
+            cited = json.loads(env.read_text())["mint"]["recorded_from"][0]["file"] if env.is_file() else None
+            skip = LAYOUT_DUT_SKIP if bench["bench"].endswith("-post-layout") else frozenset()
+            if cited is None:
+                verdict = "n/a (no envelope)"
+            else:
+                record = json.loads((REPO_ROOT / cited).read_text())
+                why = snapshot_mismatch(record["links"]["netlist_snapshot"], design, skip)
+                verdict = "yes" if why is None else f"NO: {why}"
+                if skip and why is None:
+                    verdict += " (schematic subckts only; layout DUT not bound)"
+            print(f"| {env.name} | {Path(cited).name if cited else '-'} | {verdict} |")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--write", action="store_true")
     mode.add_argument("--check", action="store_true")
+    mode.add_argument("--report", action="store_true", help="print which record matches main's design per envelope")
     args = parser.parse_args()
+
+    if args.report:
+        return report()
 
     expected = build()
     if args.write:
