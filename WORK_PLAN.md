@@ -30,19 +30,19 @@ _None._
 
 Issues currently being built (`loom:building`).
 
-- **#448**: Bump klayout-tools pin 0e2362bda730, acb0ae6c11e6 → 0.8.0
+- **#456**: T1 item 5 (Full corner verification): re-mint row 8a startup-stability from a record of main's injector, not the DR-018 three-high candidate
 
 ## PRs Awaiting Review
 
 PRs waiting on Judge (`loom:review-requested`).
 
-- **#449**: build: pin klayout-tools==0.8.0 in layout requirements
+_None._
 
 ## Approved (Awaiting Merge)
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
-_None._
+- **#457**: fix: select item-5 corner records by netlist match; re-mint 8a from main's injector
 
 ## Proposed
 
@@ -55,12 +55,11 @@ Issues carrying `loom:curated`.
 - **#432**: Follow-on from PR #431: first live routed-flow run with artifact broker *(curated)*
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(curated)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(curated)*
-- **#448**: Bump klayout-tools pin 0e2362bda730, acb0ae6c11e6 → 0.8.0 *(curated)*
+- **#456**: T1 item 5 (Full corner verification): re-mint row 8a startup-stability from a record of main's injector, not the DR-018 three-high candidate *(curated)*
 
 ## Proposed (Architect / Hermit)
 
 - **#335**: Produce native klt pex comparison evidence for T1 item 7 *(architect)*
-- **#440**: Prune GDS blobs from superseded bandgap-core report runs *(hermit)*
 
 ## Epics
 
@@ -75,9 +74,9 @@ _None._
 | Important | 2 |
 | Ready (`loom:issue`) | 0 |
 | In Progress (`loom:building`) | 1 |
-| PRs awaiting review | 1 |
-| Approved PRs awaiting merge | 0 |
+| PRs awaiting review | 0 |
+| Approved PRs awaiting merge | 1 |
 | Curated | 8 |
-| Architect / Hermit proposals | 2 |
+| Architect / Hermit proposals | 1 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->

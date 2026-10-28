@@ -5,6 +5,8 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-10-28
 
+- **PR #455**: chore: move superseded bandgap-core report GDS to artifact store
+- **Issue #440** (closed): Prune GDS blobs from superseded bandgap-core report runs
 - **PR #452**: fix(layout): snap drawn bus rects to the 5 nm grid for DRC-clean routed flow under klt 0.8.0
 - **Issue #448** (closed): Bump klayout-tools pin 0e2362bda730, acb0ae6c11e6 → 0.8.0
 
