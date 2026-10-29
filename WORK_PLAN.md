@@ -30,7 +30,7 @@ _None._
 
 Issues currently being built (`loom:building`).
 
-- **#456**: T1 item 5 (Full corner verification): re-mint row 8a startup-stability from a record of main's injector, not the DR-018 three-high candidate
+_None._
 
 ## PRs Awaiting Review
 
@@ -42,7 +42,7 @@ _None._
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
-- **#457**: fix: select item-5 corner records by netlist match; re-mint 8a from main's injector
+_None._
 
 ## Proposed
 
@@ -55,7 +55,6 @@ Issues carrying `loom:curated`.
 - **#432**: Follow-on from PR #431: first live routed-flow run with artifact broker *(curated)*
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(curated)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(curated)*
-- **#456**: T1 item 5 (Full corner verification): re-mint row 8a startup-stability from a record of main's injector, not the DR-018 three-high candidate *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -73,10 +72,10 @@ _None._
 | Very important | 0 |
 | Important | 2 |
 | Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 1 |
+| In Progress (`loom:building`) | 0 |
 | PRs awaiting review | 0 |
-| Approved PRs awaiting merge | 1 |
-| Curated | 8 |
+| Approved PRs awaiting merge | 0 |
+| Curated | 7 |
 | Architect / Hermit proposals | 1 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
