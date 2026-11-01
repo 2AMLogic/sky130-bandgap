@@ -3,6 +3,10 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-10-31
+
+- **PR #461**: Bump Repo Skills 0.24.7 -> 0.25.1
+
 ### 2026-10-28
 
 - **PR #457**: fix: select item-5 corner records by netlist match; re-mint 8a from main's injector
