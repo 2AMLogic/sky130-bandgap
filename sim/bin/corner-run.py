@@ -317,31 +317,40 @@ def build_matrix(exp: Experiment, args: argparse.Namespace, pin: dict) -> tuple[
 
 
 def netlist_with_xschem(schematic: Path, out_dir: Path, pdk: Pdk) -> Path:
-    if not shutil.which("xschem"):
-        raise HarnessError("xschem not found on PATH; cannot netlist the testbench")
+    """Netlist `schematic` into `out_dir/<stem>.spice` via `klt netlist`.
+
+    `klt netlist` owns the headless xschem flags and kills a hung run's whole
+    process group (host rule: never call raw `xschem`). `--allow-unevaluated-expr`
+    keeps the netlist on xschem < 3.4.5, where `expr()` params are left
+    unevaluated; `netlist_body()` -> `resolve_xschem_expr()` repairs them (#320).
+    """
+    if not shutil.which("klt"):
+        raise HarnessError("klt not found on PATH; cannot netlist the testbench")
     out_dir.mkdir(parents=True, exist_ok=True)
     env = dict(os.environ)
     env["PDK_ROOT"] = str(pdk.root)
     env["PDK"] = pdk.variant
+    produced = out_dir / (schematic.stem + ".spice")
     cmd = [
-        "xschem",
-        "-n",  # netlist
-        "-q",  # quit when done
-        "-x",  # no X11 / no GUI
-        "-s",  # spice netlist format
-        "-o",
-        str(out_dir),
+        "klt",
+        "netlist",
+        "--backend",
+        "local",
+        "--timeout-s",
+        "300",
+        "--allow-unevaluated-expr",
         "--rcfile",
         str(XSCHEMRC_FILE),
+        "-o",
+        str(produced),
         str(schematic),
     ]
     proc = subprocess.run(
-        cmd, capture_output=True, text=True, env=env, timeout=300, stdin=subprocess.DEVNULL
+        cmd, capture_output=True, text=True, env=env, timeout=330, stdin=subprocess.DEVNULL
     )
-    produced = out_dir / (schematic.stem + ".spice")
     if proc.returncode != 0 or not produced.is_file():
         raise HarnessError(
-            "xschem netlisting failed\n"
+            "klt netlist failed\n"
             f"  cmd: {' '.join(cmd)}\n"
             f"  rc: {proc.returncode}\n"
             f"  stdout: {proc.stdout.strip()}\n"
