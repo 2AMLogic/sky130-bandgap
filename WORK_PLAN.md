@@ -30,14 +30,13 @@ _None._
 
 Issues currently being built (`loom:building`).
 
-- **#442**: Replace raw-xschem netlist_with_xschem in corner-run.py with klt netlist
-- **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437)
+_None._
 
 ## PRs Awaiting Review
 
 PRs waiting on Judge (`loom:review-requested`).
 
-- **#463**: fix(sim): netlist testbenches via klt netlist instead of raw xschem
+_None._
 
 ## Approved (Awaiting Merge)
 
@@ -55,12 +54,12 @@ Issues carrying `loom:curated`.
 - **#395**: Enable --backend batch for remaining pre-layout corner-run benches (prereq of #370) *(curated)*
 - **#432**: Follow-on from PR #431: first live routed-flow run with artifact broker *(curated)*
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(curated)*
-- **#442**: Replace raw-xschem netlist_with_xschem in corner-run.py with klt netlist *(curated)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(curated)*
 
 ## Proposed (Architect / Hermit)
 
 - **#335**: Produce native klt pex comparison evidence for T1 item 7 *(architect)*
+- **#466**: Consolidate ERC klt pin into the main layout venv (both pins now ==0.8.0) *(hermit)*
 
 ## Epics
 
@@ -74,10 +73,10 @@ _None._
 | Very important | 0 |
 | Important | 2 |
 | Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 2 |
-| PRs awaiting review | 1 |
+| In Progress (`loom:building`) | 0 |
+| PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 8 |
-| Architect / Hermit proposals | 1 |
+| Curated | 7 |
+| Architect / Hermit proposals | 2 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
