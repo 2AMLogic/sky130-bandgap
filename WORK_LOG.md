@@ -5,6 +5,8 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-04
 
+- **PR #463**: fix(sim): netlist testbenches via klt netlist instead of raw xschem
+- **Issue #442** (closed): Replace raw-xschem netlist_with_xschem in corner-run.py with klt netlist
 - **PR #465**: sim: record failed N=20 batch smoke run (fleet capacity losses)
 
 ### 2026-10-31
