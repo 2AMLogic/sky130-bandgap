@@ -520,7 +520,11 @@ window): mean(vout) 1.2123 V, sigma(vout) 8.28 mV against record
 1.16 against a +-16 % standard error at N = 20. klt's per-sample seeds depend
 only on `(monte_carlo.seed, sample index)`: the first 20 of a 300-sample
 `--dry-run` equal the 20-sample run's, so the runner's first-K-of-N convergence
-series still holds. A fleet run was not performed.
+series still holds. A fleet run was attempted 2026-11-04 (N = 20 smoke, record
+`20261104-192509-4193f7c5`, NOT a pass and NOT a yield-campaign input): the
+runner version matched (klt 0.8.0), but 174 of 280 shards were lost to fleet
+capacity / vCPU-quota errors, so every point returned 4-10 of 20 draws and the
+AC (20 draws per point; mean/sigma comparison) is unverified. See issue #444.
 
 `psrr-injector-attribution --backend batch` (issue #398) is a variant set, not a
 Monte Carlo point, so it takes the `psrr-injector-candidates` route
