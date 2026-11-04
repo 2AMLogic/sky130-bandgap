@@ -3,6 +3,10 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-11-04
+
+- **PR #465**: sim: record failed N=20 batch smoke run (fleet capacity losses)
+
 ### 2026-10-31
 
 - **PR #461**: Bump Repo Skills 0.24.7 -> 0.25.1
