@@ -524,7 +524,13 @@ series still holds. A fleet run was attempted 2026-11-04 (N = 20 smoke, record
 `20261104-192509-4193f7c5`, NOT a pass and NOT a yield-campaign input): the
 runner version matched (klt 0.8.0), but 174 of 280 shards were lost to fleet
 capacity / vCPU-quota errors, so every point returned 4-10 of 20 draws and the
-AC (20 draws per point; mean/sigma comparison) is unverified. See issue #444.
+AC (20 draws per point; mean/sigma comparison) is unverified. A rerun on
+2026-11-05 (record `20261105-052441-84832cb5`, runner klt 0.9.0 / client `match`,
+again NOT a pass and NOT a yield-campaign input) launched 103 of 280 shards;
+177 were never launched (`unlaunched_shards`, `resumable: true`), so points
+returned fewer than 20 draws and the mean/sigma comparison is again unverified.
+The 103 launched jobs all finished `done` with `runner_compatibility: match`.
+See issue #444.
 
 `psrr-injector-attribution --backend batch` (issue #398) is a variant set, not a
 Monte Carlo point, so it takes the `psrr-injector-candidates` route
