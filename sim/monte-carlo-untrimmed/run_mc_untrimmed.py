@@ -364,9 +364,24 @@ def build_batch_groups(pin, body, points, spiceinit_text, out_dir, args) -> list
             p.samples, p.seed, batch_measurements(), spiceinit_text, args.timeout,
             capacity_wait_s=args.batch_capacity_wait_s,
             runner_version_check=args.batch_runner_version_check, poll_interval_s=30.0,
+            max_concurrent_jobs=getattr(args, "batch_max_concurrent_jobs", None),
         )
         for p in points
     ]
+
+
+def shard_loss(report: dict) -> str:
+    """`unlaunched_shards` / `lost_shard` counts of one klt report, as a suffix
+    for an incomplete-point error (empty when the report records neither)."""
+    remote = (report.get("environment") or {}).get("remote") or {}
+    unlaunched = remote.get("unlaunched_shards") or 0
+    lost = sum(
+        1 for c in report.get("corners") or [] for d in c.get("diagnostics") or []
+        if d.get("code") == "lost_shard"
+    ) + sum(1 for d in report.get("diagnostics") or [] if d.get("code") == "lost_shard")
+    if not (unlaunched or lost):
+        return ""
+    return f" ({unlaunched} unlaunched_shards, {lost} lost_shard diagnostics in the klt report)"
 
 
 def write_log(corners_dir, point, pdk, record_id, stamp, deck, raw, rc, timed_out) -> Path:
@@ -442,7 +457,8 @@ def collect_batch(pin, pdk, body, points, args, corners_dir) -> tuple[dict[str, 
         meta = batch_sim.job_meta(o, lib_sha, blockers)
         got = len(o.report["corners"])
         if got != point.samples:
-            blockers.append(f"{point.corner_id}: requested {point.samples} samples, report has {got}")
+            blockers.append(f"{point.corner_id}: requested {point.samples} samples, report has {got}"
+                            f"{shard_loss(o.report)}")
         parsed, dropped = samples_from_report(o.report, o.group.request)
         meta["samples_dropped"] = dropped
         jobs.append(meta)
@@ -1088,6 +1104,10 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     p.add_argument("--batch-capacity-wait-s", type=float, default=3600.0,
                    help="batch only: wait this long for Spot capacity per submission")
+    p.add_argument("--batch-max-concurrent-jobs", type=int, default=None, metavar="N",
+                   help="batch only: keep at most N shard jobs in flight (request field "
+                        "batch.max_concurrent_jobs) so a large split stays under the fleet's "
+                        "instance cap; unset leaves requests unchanged")
     p.add_argument("--batch-runner-version-check", choices=("enforce", "warn"), default="enforce",
                    help="batch only: klt runner/client version-skew policy")
     return p.parse_args(argv)

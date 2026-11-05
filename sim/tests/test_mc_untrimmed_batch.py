@@ -63,6 +63,26 @@ class BatchRequests(unittest.TestCase):
                 self.assertEqual(req["analysis"], {"kind": "op", "args": ""})
                 self.assertEqual(json.loads(g.request_path.read_text()), req)
 
+    def test_max_concurrent_jobs_is_off_by_default_and_passed_through(self):
+        for g in self.groups:
+            self.assertNotIn("max_concurrent_jobs", g.request["batch"])
+        args = SimpleNamespace(**vars(ARGS), batch_max_concurrent_jobs=20)
+        with tempfile.TemporaryDirectory() as tmp:
+            groups = R.build_batch_groups(PIN, BODY, self.points, SPICEINIT, Path(tmp), args)
+            for g in groups:
+                self.assertEqual(g.request["batch"]["max_concurrent_jobs"], 20)
+                self.assertEqual(json.loads(g.request_path.read_text()), g.request)
+
+    def test_shard_loss_names_unlaunched_and_lost_counts(self):
+        report = {
+            "environment": {"remote": {"unlaunched_shards": 11}},
+            "corners": [{"diagnostics": [{"code": "lost_shard"}]}, {"diagnostics": []}],
+        }
+        msg = R.shard_loss(report)
+        self.assertIn("11 unlaunched_shards", msg)
+        self.assertIn("1 lost_shard", msg)
+        self.assertEqual(R.shard_loss({"corners": []}), "")
+
     def test_roles_map_to_sections(self):
         by_role = {}
         for g, p in zip(self.groups, self.points):

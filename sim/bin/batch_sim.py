@@ -364,6 +364,7 @@ def build_request(
     hosts: int | None = None,
     single_step: bool = False,
     monte_carlo: dict | None = None,
+    max_concurrent_jobs: int | None = None,
 ) -> dict:
     """One `klt sim --backend batch` request document (shared by the corner-run
     adapter and by benches that drive their own variant set, e.g.
@@ -374,7 +375,10 @@ def build_request(
     step (`STEP_NAME`) instead of the scalar `analysis`: klt only lets a
     measurement read a `meas` result inside a step's own plot. `monte_carlo`
     (`{n, seed, vary}`) asks klt to re-run every corner point `n` times with a
-    derived per-sample seed; the shard count is then sized by the sample count."""
+    derived per-sample seed; the shard count is then sized by the sample count.
+    `max_concurrent_jobs` (unset by default, so the request is unchanged) is sent
+    as `batch.max_concurrent_jobs`: klt keeps at most that many shard jobs in
+    flight so a large split does not exceed the fleet's instance cap."""
     units = len(processes) * len(temps) * (monte_carlo["n"] if monte_carlo else 1)
     request = {
         "netlist": netlist_name,
@@ -396,6 +400,8 @@ def build_request(
     }
     if monte_carlo:
         request["monte_carlo"] = dict(monte_carlo)
+    if max_concurrent_jobs:
+        request["batch"]["max_concurrent_jobs"] = max_concurrent_jobs
     if single_step:
         request["analysis_steps"] = [
             {"name": STEP_NAME, "analysis": analysis, "measurements": measurements}
@@ -557,6 +563,7 @@ def build_mc_group(
     poll_interval_s: float,
     analysis: dict | None = None,
     hosts: int | None = None,
+    max_concurrent_jobs: int | None = None,
 ) -> Group:
     """One request for a Monte Carlo point: `samples` draws of one (process
     section, temperature), the sampling done by klt's `monte_carlo` seed contract
@@ -576,6 +583,7 @@ def build_mc_group(
         measurements, spiceinit_text, timeout_s, capacity_wait_s=capacity_wait_s,
         runner_version_check=runner_version_check, poll_interval_s=poll_interval_s,
         hosts=hosts, monte_carlo={"n": samples, "seed": seed, "vary": "mismatch"},
+        max_concurrent_jobs=max_concurrent_jobs,
     )
     request_path = gdir / "request.json"
     request_path.write_text(json.dumps(request, indent=2, sort_keys=True) + "\n")
