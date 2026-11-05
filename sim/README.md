@@ -530,6 +530,12 @@ again NOT a pass and NOT a yield-campaign input) launched 103 of 280 shards;
 177 were never launched (`unlaunched_shards`, `resumable: true`), so points
 returned fewer than 20 draws and the mean/sigma comparison is again unverified.
 The 103 launched jobs all finished `done` with `runner_compatibility: match`.
+A third run on 2026-11-05 added `--batch-max-concurrent-jobs 20` (request field
+`batch.max_concurrent_jobs`; record `20261105-061037-ef9df345`, again NOT a pass and NOT
+a yield-campaign input): 170 of 280 shards were still lost (`lost_shard`,
+`unlaunched_shards` 170, `resumable: true`), so points returned 6-10 of 20 draws and the
+mean/sigma comparison is still unverified. The throttle did not fix the loss; the
+cause is unconfirmed.
 See issue #444.
 
 `psrr-injector-attribution --backend batch` (issue #398) is a variant set, not a
