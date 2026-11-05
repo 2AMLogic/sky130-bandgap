@@ -121,7 +121,7 @@
         {
           "path": "sim/monte-carlo-untrimmed/run_mc_untrimmed.py",
           "role": "runner",
-          "content_hash": "sha256:0a51595f460feb96ccd42a0653a4115d254e2481d438a78d56e79b54235f3c18"
+          "content_hash": "sha256:217a23cb5ffa29a3798d34f004ee492cc1983ef9c17285bda2d56cf0c8cfa819"
         }
       ]
     },
