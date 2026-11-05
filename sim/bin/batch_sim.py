@@ -199,6 +199,7 @@ class Group:
     corners: list  # corner-run `Corner`s, in matrix order
     request: dict = field(default_factory=dict)
     label: str = ""  # names the group in messages; default "supply <v> V"
+    resume: bool = False  # pass `--resume`: reuse <dir>/klt-out/checkpoint.json
 
     def describe(self) -> str:
         return self.label or f"supply {self.supply_v:.2f} V"
@@ -564,6 +565,7 @@ def build_mc_group(
     analysis: dict | None = None,
     hosts: int | None = None,
     max_concurrent_jobs: int | None = None,
+    resume: bool = False,
 ) -> Group:
     """One request for a Monte Carlo point: `samples` draws of one (process
     section, temperature), the sampling done by klt's `monte_carlo` seed contract
@@ -571,7 +573,9 @@ def build_mc_group(
     a bespoke `.control` `setseed`/`reset` loop. `process` is a `.lib` section, so a
     `*_mm` name turns the PDK's local-mismatch switch on and a plain one is the
     sigma == 0 control. `netlist` is the complete pre-`.lib` text. `analysis`
-    defaults to `.op`. Written to `out_dir/<label>/`; the corner list is empty
+    defaults to `.op`. `resume` makes `run_klt` pass `--resume`, so klt reuses a
+    matching `<point dir>/klt-out/checkpoint.json` and runs only the shards the
+    earlier attempt did not finish. Written to `out_dir/<label>/`; the corner list is empty
     because the point is not a PVT cross product."""
     gdir = out_dir / label
     gdir.mkdir(parents=True, exist_ok=True)
@@ -587,7 +591,7 @@ def build_mc_group(
     )
     request_path = gdir / "request.json"
     request_path.write_text(json.dumps(request, indent=2, sort_keys=True) + "\n")
-    return Group(supply_v, gdir, netlist_path, request_path, [], request, label)
+    return Group(supply_v, gdir, netlist_path, request_path, [], request, label, resume)
 
 
 def _unique(values) -> list:
@@ -619,6 +623,8 @@ def run_klt(group: Group, klt: str = "klt") -> GroupOutcome:
         klt, "sim", str(group.request_path),
         "--backend", "batch", "--format", "json", "-o", str(outdir),
     ]
+    if getattr(group, "resume", False):
+        cmd.append("--resume")
     started, t0 = _now(), time.monotonic()
     try:
         proc = subprocess.run(cmd, capture_output=True, text=True, stdin=subprocess.DEVNULL)
