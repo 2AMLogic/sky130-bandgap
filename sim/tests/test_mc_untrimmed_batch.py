@@ -17,6 +17,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest import mock
 
 SIM_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SIM_DIR / "bin"))
@@ -72,6 +73,25 @@ class BatchRequests(unittest.TestCase):
             for g in groups:
                 self.assertEqual(g.request["batch"]["max_concurrent_jobs"], 20)
                 self.assertEqual(json.loads(g.request_path.read_text()), g.request)
+
+    def test_resume_is_off_by_default_and_reaches_the_klt_command_line(self):
+        self.assertFalse(any(g.resume for g in self.groups))
+        args = SimpleNamespace(**vars(ARGS), batch_resume=True)
+        with tempfile.TemporaryDirectory() as tmp:
+            groups = R.build_batch_groups(PIN, BODY, self.points[:1], SPICEINIT, Path(tmp), args)
+            self.assertTrue(groups[0].resume)
+            self.assertEqual(json.loads(groups[0].request_path.read_text()), groups[0].request)
+            for group, expect in ((groups[0], True), (self.groups[0], False)):
+                with mock.patch.object(batch_sim.subprocess, "run") as run:
+                    run.return_value = SimpleNamespace(returncode=2, stdout="", stderr="")
+                    batch_sim.run_klt(group, klt="klt")
+                self.assertEqual("--resume" in run.call_args.args[0], expect)
+
+    def test_resume_is_rejected_for_non_batch_backends(self):
+        with self.assertRaises(cr.HarnessError):
+            R.check_batch_only_flags(SimpleNamespace(backend="local", batch_resume=True))
+        R.check_batch_only_flags(SimpleNamespace(backend="batch", batch_resume=True))
+        R.check_batch_only_flags(SimpleNamespace(backend="local", batch_resume=False))
 
     def test_shard_loss_names_unlaunched_and_lost_counts(self):
         report = {

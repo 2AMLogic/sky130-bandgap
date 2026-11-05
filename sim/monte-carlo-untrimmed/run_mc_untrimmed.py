@@ -365,6 +365,7 @@ def build_batch_groups(pin, body, points, spiceinit_text, out_dir, args) -> list
             capacity_wait_s=args.batch_capacity_wait_s,
             runner_version_check=args.batch_runner_version_check, poll_interval_s=30.0,
             max_concurrent_jobs=getattr(args, "batch_max_concurrent_jobs", None),
+            resume=getattr(args, "batch_resume", False),
         )
         for p in points
     ]
@@ -434,6 +435,12 @@ def samples_path(corners_dir: Path, corner_id: str) -> Path:
     """Where a batch run keeps a point's parsed draws: the stand-in for the
     local `<corner_id>.log` that `emit_klt_yield.py` re-parses."""
     return corners_dir / f"{corner_id}.samples.json"
+
+
+def check_batch_only_flags(args) -> None:
+    """`--batch-resume` means nothing to a local run: refuse rather than ignore it."""
+    if getattr(args, "batch_resume", False) and args.backend != "batch":
+        raise cr.HarnessError("--batch-resume requires --backend batch")
 
 
 def collect_batch(pin, pdk, body, points, args, corners_dir) -> tuple[dict[str, list], dict]:
@@ -1108,6 +1115,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
                    help="batch only: keep at most N shard jobs in flight (request field "
                         "batch.max_concurrent_jobs) so a large split stays under the fleet's "
                         "instance cap; unset leaves requests unchanged")
+    p.add_argument("--batch-resume", action="store_true",
+                   help="batch only: pass `klt sim --resume` so each point reuses the "
+                        "checkpoint under sim/build/monte-carlo-untrimmed/batch/<point>/"
+                        "klt-out/ and runs only the shards an earlier attempt did not "
+                        "finish; with no matching checkpoint klt does a full submit")
     p.add_argument("--batch-runner-version-check", choices=("enforce", "warn"), default="enforce",
                    help="batch only: klt runner/client version-skew policy")
     return p.parse_args(argv)
@@ -1124,6 +1136,7 @@ def main(argv: list[str]) -> int:
         )
 
     batch = args.backend == "batch"
+    check_batch_only_flags(args)
 
     pin = cr.load_pin()
     pdk = check_pdk_and_ngspice(pin, args.allow_pdk_mismatch, require_ngspice=not batch)

@@ -536,6 +536,12 @@ a yield-campaign input): 170 of 280 shards were still lost (`lost_shard`,
 `unlaunched_shards` 170, `resumable: true`), so points returned 6-10 of 20 draws and the
 mean/sigma comparison is still unverified. The throttle did not fix the loss; the
 cause is unconfirmed.
+`run_mc_untrimmed.py --batch-resume` (batch only) now passes `klt sim --resume`, so a
+point reuses `sim/build/monte-carlo-untrimmed/batch/<point>/klt-out/checkpoint.json`
+and runs only the shards an earlier attempt left unfinished. That build directory is
+gitignored and per worktree: the checkpoints of the three attempts above were not
+kept, so no resumed run has been made. Resuming needs the same worktree as the
+interrupted attempt; without a checkpoint `--resume` is a full submit.
 See issue #444.
 
 `psrr-injector-attribution --backend batch` (issue #398) is a variant set, not a
