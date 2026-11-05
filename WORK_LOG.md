@@ -3,6 +3,12 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-11-05
+
+- **PR #471**: sim: add --batch-resume pass-through to the untrimmed MC harness
+- **PR #470**: sim: add batch max-concurrent-jobs throttle and record throttled N=20 smoke attempt
+- **PR #469**: sim: record second N=20 batch smoke attempt as failure evidence
+
 ### 2026-11-04
 
 - **PR #463**: fix(sim): netlist testbenches via klt netlist instead of raw xschem
