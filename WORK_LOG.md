@@ -3,6 +3,11 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-11-06
+
+- **PR #473**: chore(layout): run ERC flow from shared layout venv, drop separate klt pin
+- **Issue #466** (closed): Consolidate ERC klt pin into the main layout venv (both pins now ==0.8.0)
+
 ### 2026-11-05
 
 - **PR #471**: sim: add --batch-resume pass-through to the untrimmed MC harness
