@@ -6,7 +6,7 @@
     "scope": "repo"
   },
   "netlist": {
-    "path": "sim/pex-native/records/20261106-pilot/pex-report.json",
+    "path": "sim/pex-native/records/20261106-pilot/pex-netlist.spice",
     "scope": "repo"
   },
   "reference_netlist": {
@@ -7725,7 +7725,7 @@
       },
       "extracted": {
         "netlist": {
-          "path": "sim/pex-native/records/20261106-pilot/pex-report.json",
+          "path": "sim/pex-native/records/20261106-pilot/pex-netlist.spice",
           "scope": "repo"
         },
         "exit_status": 0,

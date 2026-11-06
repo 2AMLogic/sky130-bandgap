@@ -35,7 +35,7 @@ set +e
 uvx --from "$KLT_PIN" klt pex --deck sky130 --top bandgap_core_routed \
   --measure-command "python3 -I $ROOT/sim/pex-native/measure_command.py" \
   --reference-netlist "$REF" --measure-timeout-s 7200 \
-  --outdir "$OUT/pex" -o "$OUT/pex-report.json" --format json "$GDS" \
+  --outdir "$OUT/pex" -o "$OUT/pex-netlist.spice" --format json "$GDS" \
   > "$OUT/pex-stdout.json" 2> "$OUT/pex-stderr.txt"
 rc=$?
 set -e
