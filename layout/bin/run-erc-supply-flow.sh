@@ -5,7 +5,7 @@
 # control, and append one record under layout/bandgap-core/erc/.
 #
 # Usage (cold machine):
-#   layout/bin/run-erc-supply-flow.sh            # create .venv-erc if missing
+#   layout/bin/run-erc-supply-flow.sh            # create layout/.venv if missing
 #   layout/bin/run-erc-supply-flow.sh --force    # reinstall the pinned klt
 #
 # Requires: python3 with venv, network access on first run. It needs NO PDK
@@ -34,7 +34,7 @@ set -euo pipefail
 
 LAYOUT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO_ROOT="$(cd "$LAYOUT_DIR/.." && pwd)"
-VENV="$LAYOUT_DIR/.venv-erc"
+VENV="$LAYOUT_DIR/.venv"
 KLT="$VENV/bin/klt"
 
 # Every `klt erc` invocation below runs from the repo root with REPO-RELATIVE
@@ -63,15 +63,10 @@ GDS_RECORDS=(
   20260923-070209-dbd57a9
 )
 
+# The ERC flow shares the DRC/LVS flow's pinned `klt` (layout/requirements.txt,
+# layout/.venv); setup-venv.sh owns the bootstrap and the --force reinstall.
 if [[ ! -x "$KLT" || "${1:-}" == "--force" ]]; then
-  echo "run-erc-supply-flow.sh: creating $VENV from layout/requirements-erc.txt"
-  python3 -m venv "$VENV"
-  "$VENV/bin/pip" install --quiet --upgrade pip
-  # --force-reinstall for the same reason setup-venv.sh needs it: the pin is
-  # by git ref, and pip will happily consider an already-installed build with
-  # the same package version "satisfied".
-  "$VENV/bin/pip" install --quiet --force-reinstall \
-    -r "$LAYOUT_DIR/requirements-erc.txt"
+  "$LAYOUT_DIR/bin/setup-venv.sh" ${1:+"$1"}
 fi
 "$KLT" --version
 

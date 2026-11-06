@@ -18,13 +18,12 @@ fi
 echo "setup-venv.sh: creating $VENV"
 python3 -m venv "$VENV"
 "$VENV/bin/pip" install --quiet --upgrade pip
-# `--force-reinstall` is load-bearing on the `--force` path, and its absence
-# was a silent reproducibility hole: requirements.txt once pinned `klayout-tools`
-# by git *commit*, and commits sharing a package *version* made plain
-# `pip install -r` see the requirement as already satisfied and leave the OLD
-# build in place. The pin is now a PyPI version (`==0.8.0`), but a bump from
-# another version still benefits from the forced reinstall. A pin bump then appears to install while changing
-# nothing, and the flow runs against a `klt` the repo no longer pins.
+# `--force-reinstall` is load-bearing on the `--force` path: plain
+# `pip install -r` treats an already-installed build with the same package
+# version as "satisfied", so a pin change could appear to install while
+# leaving the old build in place and the flows would run against a `klt` the
+# repo no longer pins. (The pin is a PyPI version, `==0.8.0`; it was once a
+# git commit.)
 "$VENV/bin/pip" install --quiet --force-reinstall --no-deps \
   -r "$LAYOUT_DIR/requirements.txt"
 "$VENV/bin/pip" install --quiet -r "$LAYOUT_DIR/requirements.txt"

@@ -133,7 +133,6 @@ second run added no evidence).
 layout/
   README.md                  # this file
   requirements.txt           # pinned `klt` install (PyPI `==0.8.0`) for the DRC/LVS flow
-  requirements-erc.txt       # separately pinned `klt` install for the ERC supply flow
   bin/
     setup-venv.sh             # create/refresh layout/.venv from requirements.txt
     run-trivial-cell-flow.sh  # the repeatable driver: gen -> drc -> extract -> lvs -> report
@@ -146,7 +145,6 @@ layout/
     render-record.py          # renders + verdict-checks a record's record.md
   tests/                      # PDK-free unit coverage for the flows' own gates
   .venv/                      # gitignored -- `klt` install, created by setup-venv.sh
-  .venv-erc/                  # gitignored -- ERC flow's `klt` install (requirements-erc.txt)
   bandgap-core/
     erc-supply-spec.json                    # T1 item 11 supply spec (klt 0.7.0 rejects comment keys)
     erc-supply-spec.rationale.md            # per-field rationale for that spec
@@ -647,12 +645,12 @@ json` output for every committed routed GDS plus a gated `record.md`.
   n-well shape. An antenna verdict or a
   floating-gate finding is a real defect but is not this item's subject and
   does not fail the gate (klayout-tools#1994).
-- **A separate `klt` pin.** `requirements-erc.txt` pins `klt` into
-  `layout/.venv-erc` (v0.7.0 when this record was produced; `==0.8.0` since
-  issue #448), independently of `requirements.txt`, so picking up
-  `klt erc`'s September capability did not drag the whole committed DRC/LVS
-  evidence trail along with it. That file documents exactly
-  which upstream changes the newer pin buys.
+- **One `klt` pin.** The ERC flow runs from the same `layout/.venv` and
+  `requirements.txt` pin as DRC/LVS. It was once pinned separately
+  (`requirements-erc.txt` / `layout/.venv-erc`, so `klt erc`'s September
+  capability did not drag the DRC/LVS evidence trail along); the two pins
+  converged on `==0.8.0` in issue #448 and the split was removed. Committed
+  v0.7.0 ERC records still cite the old file in their provenance.
 - **Result**: the supply half and the `erc.missing_tie` half are both
   computed. The eight n-well shapes (five PMOS-body wells at `VDD`, three
   vertical-PNP base tubs at `VSS`) are scoped per class with
