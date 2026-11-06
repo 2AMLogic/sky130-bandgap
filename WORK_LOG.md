@@ -5,6 +5,12 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-06
 
+- **PR #480**: feat: native klt pex pilot for output-voltage TC with recorded 15-corner result
+- **PR #478**: fix: skip already-tracked bytes when publishing sim evidence
+- **PR #477**: docs: add inert guard replay report and script for write-confinement review
+- **Issue #476** (closed): publish_corner_evidence: skip staged files whose bytes are already tracked in git
+- **Issue #335** (closed): Produce native klt pex comparison evidence for T1 item 7
+- **Issue #332** (closed): Guard decision review: Review historical variable resolution for scoped scratch writes
 - **PR #473**: chore(layout): run ERC flow from shared layout venv, drop separate klt pin
 - **Issue #466** (closed): Consolidate ERC klt pin into the main layout venv (both pins now ==0.8.0)
 
