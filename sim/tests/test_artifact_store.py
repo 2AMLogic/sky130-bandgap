@@ -8,6 +8,7 @@ import json
 import os
 import shutil
 import stat
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -46,6 +47,7 @@ class PublishCornerEvidence(unittest.TestCase):
         self.corners = self.repo / "sim" / "benchx" / "corners" / "run1"
         self.corners.mkdir(parents=True)
         (self.corners / "tt.log").write_text("raw bytes\n")
+        subprocess.run(["git", "init", "-q", str(self.repo)], check=True)
         self.bin = self.tmp / "bin"
         self.bin.mkdir()
 
@@ -124,6 +126,55 @@ class PublishCornerEvidence(unittest.TestCase):
             self.publish()
             with self.assertRaisesRegex(sim_common.EvidenceStoreError, "append-only"):
                 self.publish()
+
+    def track(self, rel, data: bytes):
+        p = self.repo / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(data)
+        subprocess.run(["git", "-C", str(self.repo), "add", rel], check=True)
+
+    def test_tracked_duplicate_is_skipped_and_listed(self):
+        self.stub()
+        (self.corners / "dup.gds").write_bytes(b"committed bytes")
+        self.track("layout/old/dup.gds", b"committed bytes")
+        with mock.patch.object(
+            sim_common.subprocess, "run", wraps=sim_common.subprocess.run
+        ) as run, self.env():
+            manifest = self.publish()
+        put = [c.args[0] for c in run.call_args_list
+               if c.args[0][:3] == ["klt", "artifact", "put"] and "--manifest" in c.args[0]]
+        self.assertEqual(len(put), 1)
+        self.assertFalse(any(a.endswith("dup.gds") for a in put[0]))
+        self.assertTrue(any(a.endswith("tt.log") for a in put[0]))
+        names = [e["name"] for e in json.loads(manifest.read_text())["entries"]]
+        self.assertEqual(names, ["tt.log"])
+        summary = manifest.with_suffix("").with_suffix(".md").read_text()
+        self.assertIn("layout/old/dup.gds", summary)
+
+    def test_same_name_different_bytes_is_stored(self):
+        self.stub()
+        (self.corners / "dup.gds").write_bytes(b"new bytes")
+        self.track("layout/old/dup.gds", b"old bytes")
+        with self.env():
+            manifest = self.publish()
+        names = sorted(e["name"] for e in json.loads(manifest.read_text())["entries"])
+        self.assertEqual(names, ["dup.gds", "tt.log"])
+
+    def test_all_duplicates_fail_closed(self):
+        self.stub()
+        self.track("layout/old/tt.log", b"raw bytes\n")
+        with self.env(), self.assertRaisesRegex(
+            sim_common.EvidenceStoreError, "already committed"
+        ):
+            self.publish()
+        self.assert_nothing_written()
+
+    def test_untracked_copy_is_not_a_duplicate(self):
+        self.stub()
+        (self.repo / "loose.txt").write_bytes(b"raw bytes\n")  # present, not tracked
+        with self.env():
+            manifest = self.publish()
+        self.assertEqual(len(json.loads(manifest.read_text())["entries"]), 1)
 
 
 if __name__ == "__main__":

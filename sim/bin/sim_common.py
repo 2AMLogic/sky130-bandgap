@@ -379,6 +379,22 @@ def _sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
+def _tracked_hashes(repo_root: Path) -> dict[str, str]:
+    """`{sha256: tracked path}` for `repo_root`, via the CI checker's own
+    `tracked_hashes()` (loaded from scripts/ci so there is one copy of the
+    rule-4 hashing). Fails closed if git cannot list the files."""
+    checker = REPO_DIR / "scripts" / "ci" / "check_artifact_manifests.py"
+    spec = importlib.util.spec_from_file_location("check_artifact_manifests", checker)
+    if spec is None or spec.loader is None:
+        raise EvidenceStoreError(f"cannot load {checker}")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    try:
+        return mod.tracked_hashes(repo_root)
+    except (subprocess.CalledProcessError, OSError) as err:
+        raise EvidenceStoreError(f"cannot list tracked files in {repo_root}: {err}") from err
+
+
 def publish_corner_evidence(
     corners_dir: Path,
     repo_root: Path | None = None,
@@ -395,6 +411,12 @@ def publish_corner_evidence(
     and `<run-id>` come from `sim/<bench>/corners/<run-id>/` unless passed
     explicitly (the layout flow stages outside that tree, issue #426).
 
+    Files whose sha256 equals a tracked file's (the flow is deterministic, so
+    older records may already commit identical bytes) are not stored, because
+    rule 4 of scripts/ci/check_artifact_manifests.py forbids it; the summary
+    lists each as "already committed at <path>". If every file is such a
+    duplicate the run is not a new record and this raises.
+
     Fail closed: any failure raises `EvidenceStoreError` before the manifest
     or summary is written. The raw files stay in the ignored directory.
     """
@@ -410,6 +432,21 @@ def publish_corner_evidence(
     summary = manifest.with_name(f"{bench}-{run_id}.md")
     if manifest.exists() or summary.exists():
         raise EvidenceStoreError(f"{manifest} already exists: evidence is append-only")
+    tracked = _tracked_hashes(repo_root)
+    skipped: list[tuple[Path, str, str]] = []
+    kept: list[Path] = []
+    for f in files:
+        digest = _sha256_file(f)
+        if digest in tracked:
+            skipped.append((f, digest, tracked[digest]))
+        else:
+            kept.append(f)
+    if not kept:
+        raise EvidenceStoreError(
+            f"all {len(files)} staged file(s) are already committed byte-for-byte "
+            f"(e.g. {skipped[0][2]}); an all-duplicate run is not a new record"
+        )
+    files = kept
     with tempfile.TemporaryDirectory() as tmp:
         staged = Path(tmp) / manifest.name
         proc = subprocess.run(
@@ -438,6 +475,12 @@ def publish_corner_evidence(
         "| name | size (bytes) | sha256 |", "|---|---:|---|",
         *(f"| {e.get('name', '')} | {e['size']} | {e['sha256']} |" for e in entries), "",
     ]
+    if skipped:
+        lines += [
+            "Not stored (identical bytes are already tracked in git):", "",
+            "| name | sha256 | already committed at |", "|---|---|---|",
+            *(f"| {f.name} | {d} | `{t}` |" for f, d, t in skipped), "",
+        ]
     summary.write_text("\n".join(lines))
     return manifest
 

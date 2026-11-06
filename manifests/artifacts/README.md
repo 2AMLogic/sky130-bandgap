@@ -33,5 +33,8 @@ a bucket name, an account ID or any object-store URI into this repo.
 
 `scripts/ci/check_artifact_manifests.py` (in `npm run check:ci`) fails on a bad
 schema, a non-`artifact:` `uri`, any storage-location string (S3 URI or AWS ARN), or an entry
-whose sha256 matches a tracked file. Evidence committed before this change stays
+whose sha256 matches a tracked file. The publisher (`publish_corner_evidence()`)
+prevents that case rather than the checker relaxing: it drops any staged file whose
+sha256 equals a tracked file's, lists it in the `.md` summary as already committed
+at its tracked path, and fails closed if every file is a duplicate. Evidence committed before this change stays
 where it is (`sim/` is append-only).
