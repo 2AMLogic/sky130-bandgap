@@ -1,0 +1,8 @@
+{
+  "delta_limits_sha256": "31837ef030826b03501679a42b83cead52b761440c0e978a8b3d84d57d575122",
+  "extracted_sha256": "272f23dc0e15d511ed736953346227303ce39ab3ded145eabf224138a204cae9",
+  "gds_sha256": "311c0f14cdd85aa5255018c590cbe755e31fd1ac81e04895d6302fea2146aae9",
+  "klt_pin": "klayout-tools==0.8.0",
+  "layout_record": "20260923-070209-dbd57a9",
+  "reference_sha256": "0251b22a9ce102cb398263c2f4069783af3c07ac138c309ce71ca6e3f6b92403"
+}

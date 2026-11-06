@@ -498,6 +498,7 @@
     }
   ],
   "record_only_directories": [
+    "sim/pex-native",
     "sim/signoff-envelopes"
   ]
 }

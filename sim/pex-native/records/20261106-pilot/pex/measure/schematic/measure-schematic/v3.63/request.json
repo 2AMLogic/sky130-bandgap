@@ -1,0 +1,98 @@
+{
+  "analysis_steps": [
+    {
+      "analysis": {
+        "args": "temp -40 125 11",
+        "kind": "dc"
+      },
+      "measurements": [
+        {
+          "name": "vref27",
+          "spice": ".meas dc vref27 FIND v(vref) AT=27"
+        },
+        {
+          "expr": "vref27",
+          "limits": {
+            "max": 1.224,
+            "min": 1.176
+          },
+          "name": "vref_27",
+          "unit": "V"
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "limits": {
+            "max": 1.224,
+            "min": 1.176
+          },
+          "name": "vref_min",
+          "unit": "V"
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "limits": {
+            "max": 1.224,
+            "min": 1.176
+          },
+          "name": "vref_max",
+          "unit": "V"
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*(165))*1e6",
+          "limits": {
+            "max": 50.0
+          },
+          "name": "tc_ppm",
+          "unit": "ppm/degC"
+        },
+        {
+          "expr": "length(v(vref))",
+          "limits": {
+            "max": 16,
+            "min": 16
+          },
+          "name": "n_temp_points"
+        }
+      ],
+      "name": "main"
+    }
+  ],
+  "backend": "batch",
+  "batch": {
+    "capacity_wait_s": 600.0,
+    "poll_interval_s": 30.0,
+    "runner_version_check": "warn"
+  },
+  "corners": {
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "temperature_c": [
+      27
+    ]
+  },
+  "engine": "ngspice",
+  "models": {
+    "lib": "libs.tech/combined/sky130.lib.spice",
+    "pdk": "sky130A"
+  },
+  "netlist": "netlist.cir",
+  "options": {
+    "keep_artifacts": true,
+    "ngspice_init": [
+      "set ngbehavior=hsa",
+      "set skywaterpdk",
+      "set ng_nomodcheck",
+      "option noinit",
+      "option klu"
+    ],
+    "timeout_s": 10800
+  },
+  "remote": {
+    "hosts": 5
+  }
+}

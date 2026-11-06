@@ -521,3 +521,19 @@ surfaced:
 - **Does not record a tier grant.** `product/everyblock/grants.md` is the authoritative
   ledger and grants are the operator's call, per its own "How a grant gets recorded
   here" procedure — nothing here should be read as one.
+
+## Revision 2026-11-06 (issue #335): native `klt pex` evidence for T1 item 7 — recorded, failing, not yet cited
+
+A first-party `klt pex` run now exists for the output-voltage-TC bench (spec rows 1a/1b) on the
+injector-inclusive composed cell: `sim/pex-native/records/20261106-pilot/` (pinned klt 0.8.0 via
+`uvx`, `--measure-command` + `--reference-netlist`, 5 process x 3 supply = 15 corners run on the
+batch fleet, layout record `20260923-070209-dbd57a9` as pointed to by `LATEST`). All 15 corners
+returned on both sides; `delta[]` carries `vref_27`, `vref_min`, `vref_max`, `tc_ppm`,
+`n_temp_points`.
+
+Against the limits declared before the run (`sim/pex-native/delta-limits.json`: 5 mV on
+`vref_27`, 10 mV on `vref_min`/`vref_max`), **45 of 45 graded deltas exceed their limit**:
+`vref_27` extracted-minus-schematic is -27.2…-28.2 mV at every corner and `vref_min` reaches
+-33.3 mV. The ratified absolute limits are unchanged and graded independently; this is not a
+verdict against them. Item 7 stays uncited (see `signoff/README.md`). Nothing here relaxes a
+limit or changes the circuit.

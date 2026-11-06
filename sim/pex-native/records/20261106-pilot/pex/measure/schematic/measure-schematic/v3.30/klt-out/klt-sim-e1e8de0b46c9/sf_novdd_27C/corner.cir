@@ -1,0 +1,32 @@
+* klt sim -- generated corner deck, do not edit
+.lib /opt/pdk/sky130A/libs.tech/combined/sky130.lib.spice sf
+.include /var/tmp/eda-job-klt-sim-e1e8de0b46c9/inputs/netlist.cir
+.temp 27
+.control
+save all
+setplot new
+echo klt_step_begin 0 $curplot
+dc temp -40 125 11
+echo klt_step_end 0 $curplot
+set klt_plot_0 = $curplot
+meas dc vref27 FIND v(vref) AT=27
+let main__vref27 = vref27
+print main__vref27
+let vref_27 = vref27
+let main__vref_27 = vref_27
+print main__vref_27
+let vref_min = minimum(v(vref))
+let main__vref_min = vref_min
+print main__vref_min
+let vref_max = maximum(v(vref))
+let main__vref_max = vref_max
+print main__vref_max
+let tc_ppm = (maximum(v(vref))-minimum(v(vref)))/(vref27*(165))*1e6
+let main__tc_ppm = tc_ppm
+print main__tc_ppm
+let n_temp_points = length(v(vref))
+let main__n_temp_points = n_temp_points
+print main__n_temp_points
+quit
+.endc
+.end
