@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "comment": "Pilot delta limits for the native klt pex run (issue #335), declared BEFORE any result is recorded. Do not edit after results are seen: a change needs a separate dated commit with reasoning, before the next run. These deltas never replace the ratified absolute limits on vref_* (graded independently from the manifest).",
+  "declared": "2026-11-06",
+  "origin": "Curator revision on issue #335 (2026-11-06); values were chosen without a prior run and are carried over unchanged.",
+  "bench": "sim/output-voltage-tc/experiment.json (spec rows 1a/1b), 5 process x 3 supply = 15 corners, temperature swept inside the deck",
+  "comparison": "extracted minus schematic, per corner, on the injector-inclusive composed cell",
+  "observables": [
+    {
+      "name": "vref_27",
+      "unit": "V",
+      "abs_delta_max": 0.005,
+      "rationale": "About 28 % of the 17.6 mV margin the 1b record shows to the ratified lower bound at tt/27C; layout parasitics should not consume most of the margin."
+    },
+    {
+      "name": "vref_min",
+      "unit": "V",
+      "abs_delta_max": 0.010,
+      "rationale": "Sweep extreme across -40..125 C; same order as the 5-10 mV spread between 1b corners."
+    },
+    {
+      "name": "vref_max",
+      "unit": "V",
+      "abs_delta_max": 0.010,
+      "rationale": "Sweep extreme across -40..125 C; same order as the 5-10 mV spread between 1b corners."
+    }
+  ]
+}
