@@ -21,7 +21,7 @@
     {
       "path": "package.json",
       "role": "ci-entry-points",
-      "content_hash": "sha256:7112439efd54f4ceaf84037153b48594b3d86e4796329f396f2731ed9789734f"
+      "content_hash": "sha256:74b7a287c673e1a2e328572eebf9ebf21fef68772101a2bc56d75c144c2a190d"
     }
   ],
   "ci": {

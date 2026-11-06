@@ -27,8 +27,7 @@ erc/
 
 Reproduce with `layout/bin/run-erc-supply-flow.sh` (no PDK install needed — the
 curated deck and the antenna-limit table both ship inside `klt`). The `klt` build
-is pinned separately from the DRC/LVS flow's; see `layout/requirements-erc.txt`
-for why.
+is the one pinned in `layout/requirements.txt`, shared with the DRC/LVS flow.
 
 ## The claim, stated exactly
 
