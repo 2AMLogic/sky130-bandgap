@@ -3,6 +3,10 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-11-07
+
+- **PR #483**: Bump Repo Skills 0.25.1 -> 0.25.10
+
 ### 2026-11-06
 
 - **PR #480**: feat: native klt pex pilot for output-voltage TC with recorded 15-corner result
