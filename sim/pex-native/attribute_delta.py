@@ -9,7 +9,7 @@ Read-only analysis of a committed pilot record (default
     attribute_delta.py probe  [--record DIR]   # tt/27C/3.30V, 5 single-corner local ngspice runs
     attribute_delta.py all    [--record DIR]   # all three, as the README section's tables
 
-`legs` is pure Python (numpy). `rtc` is ONE ngspice run, `probe` is five
+`legs` is pure Python (stdlib only). `rtc` is ONE ngspice run, `probe` is five
 sequential single-corner runs (schematic, extracted, and three ablations of the
 extracted netlist) -- a debug probe, never a corner grid; anything wider must go
 through `klt sim` to the batch fleet.
@@ -67,12 +67,12 @@ def parse_resistors(text: str) -> tuple[list[tuple], list[tuple]]:
 
 
 def effective_resistance(edges: list[tuple], a: str, b: str) -> float:
-    """Two-terminal resistance of a resistor network (nodal analysis)."""
-    import numpy as np
+    """Two-terminal resistance of a resistor network.
 
-    nodes = sorted({n for e in edges for n in e[:2]})
-    idx = {n: i for i, n in enumerate(nodes)}
-    # keep only the connected component holding `a` (dangling islands are singular)
+    Pure Python (the headless tier has no numpy): exact star-mesh elimination
+    of every node except `a` and `b`, lowest degree first, on a sparse
+    conductance map. What remains is one a-b conductance."""
+    # keep only the connected component holding `a` (dangling islands drop out)
     adj: dict[str, set[str]] = {}
     for x, y, _v in edges:
         adj.setdefault(x, set()).add(y)
@@ -85,23 +85,29 @@ def effective_resistance(edges: list[tuple], a: str, b: str) -> float:
                 todo.append(nb)
     if b not in comp:
         raise ValueError(f"{b} not connected to {a}")
-    order = sorted(comp)
-    ci = {n: i for i, n in enumerate(order)}
-    g = np.zeros((len(order), len(order)))
+    # conductance map; parallel edges add, self-loops carry no current
+    g: dict[str, dict[str, float]] = {n: {} for n in comp}
     for x, y, v in edges:
-        if x in ci and y in ci:
+        if x in comp and y in comp and x != y:
             c = 1.0 / v
-            i, j = ci[x], ci[y]
-            g[i, i] += c
-            g[j, j] += c
-            g[i, j] -= c
-            g[j, i] -= c
-    keep = [i for n, i in ci.items() if n != a]
-    kk = {i: k for k, i in enumerate(keep)}
-    rhs = np.zeros(len(keep))
-    rhs[kk[ci[b]]] = 1.0
-    sol = np.linalg.solve(g[np.ix_(keep, keep)], rhs)
-    return float(sol[kk[ci[b]]])
+            g[x][y] = g[x].get(y, 0.0) + c
+            g[y][x] = g[y].get(x, 0.0) + c
+    live = comp - {a, b}
+    while live:
+        n = min(live, key=lambda k: (len(g[k]), k))
+        live.discard(n)
+        nbrs = g.pop(n)
+        total = sum(nbrs.values())
+        for u in nbrs:
+            del g[u][n]
+        # star -> mesh: new conductance g_u * g_w / sum(g) between each pair
+        items = list(nbrs.items())
+        for i, (u, gu) in enumerate(items):
+            for w, gw in items[i + 1 :]:
+                c = gu * gw / total
+                g[u][w] = g[u].get(w, 0.0) + c
+                g[w][u] = g[w].get(u, 0.0) + c
+    return 1.0 / g[a][b]
 
 
 def assign_legs(devices: list[tuple]) -> dict[str, list[tuple]]:
