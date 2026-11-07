@@ -98,5 +98,66 @@ class PexNative(unittest.TestCase):
         self.assertTrue(grade_deltas.grade({"delta": rows[1:]}, limits)["missing"])
 
 
+FIXTURE = """X$1 VB__t0 n1__t0 VSS__t1 res_high_po r=50 L=5U W=1U
+X$2 n1__t1 VBQ__t0 VSS__t2 res_high_po r=50 L=5U W=1U
+X$3 VOUT__t0 VA__t0 VSS__t3 res_high_po r=100 L=0.5U W=1U
+X$4 VOUT__t1 VB__t1 VSS__t4 res_high_po r=100 L=0.5U W=1U
+R_n1_t0 n1__t0 n1 10
+R_n1_t1 n1__t1 n1 10
+RVB_t0 VB__t0 VB 5
+RVB_t1 VB__t1 VB 6
+RVBQ_t0 VBQ__t0 VBQ 3
+RVOUT_t0 VOUT__t0 VOUT 1
+RVOUT_t1 VOUT__t1 VOUT 4
+RVA_t0 VA__t0 VA 2
+RMOS_t0 M__t0 VB 7
+"""
+
+
+class AttributeDelta(unittest.TestCase):
+    """issue #486: `attribute_delta.py` resistor-only analysis and netlist ablations."""
+
+    def setUp(self):
+        import attribute_delta
+
+        self.ad = attribute_delta
+
+    def test_leg_sums_on_tiny_fixture(self):
+        a = self.ad.analyse_legs(FIXTURE)
+        self.assertEqual((a["n_device_cards"], a["n_r_cards"]), (4, 9))
+        r1, r2a, r2b = (a["legs"][n] for n in ("R1", "R2A", "R2B"))
+        self.assertAlmostEqual(r1["device_sum_ohm"], 100.0)
+        self.assertAlmostEqual(r1["extracted_ohm"], 128.0)  # 100 + 2x10 link + 5 (VB arm) + 3 (VBQ arm)
+        self.assertAlmostEqual(r1["internal_link_parasitic_ohm"], 20.0)
+        self.assertAlmostEqual(r1["pin_net_and_other_ohm"], 8.0)
+        self.assertAlmostEqual(r2a["extracted_ohm"], 103.0)
+        self.assertAlmostEqual(r2b["extracted_ohm"], 110.0)  # the dangling MOS arm on VB carries no current
+        self.assertAlmostEqual(a["K_device"], 1.0)
+        self.assertEqual(a["link"]["n_links"], 1)
+        self.assertAlmostEqual(a["link"]["median_ohm"], 20.0)
+
+    def test_committed_pilot_counts(self):
+        a = self.ad.analyse_legs((self.ad.DEFAULT_RECORD / "extracted.spice").read_text())
+        self.assertEqual((a["n_device_cards"], a["n_r_cards"]), (145, 800))
+        self.assertEqual({n: v["n_units"] for n, v in a["legs"].items()}, {"R1": 7, "R2A": 69, "R2B": 69})
+        self.assertAlmostEqual(a["legs"]["R1"]["device_sum_ohm"], 14026.89, places=1)
+        self.assertEqual(a["link"]["n_links"], 142)
+
+    def test_short_parasitics_selects_array_stars(self):
+        none_left = self.ad._short_parasitics(FIXTURE, None)
+        self.assertIn("RMOS_t0 M__t0 VB 1m", none_left)
+        self.assertIn("R_n1_t0 n1__t0 n1 1m", none_left)
+        array_only = self.ad._short_parasitics(FIXTURE, True)
+        self.assertIn("RMOS_t0 M__t0 VB 1m", array_only)
+        self.assertIn("R_n1_t0 n1__t0 n1 10", array_only)
+        self.assertIn("RVB_t0 VB__t0 VB 5", array_only)  # touches a resistor terminal: kept
+        self.assertIn("X$1 VB__t0", array_only)  # device cards untouched
+
+    def test_model_resistors_keeps_geometry(self):
+        out = self.ad._model_resistors(FIXTURE)
+        self.assertIn("XRM$1 VB__t0 n1__t0 VSS__t1 sky130_fd_pr__res_high_po W=1 L=5 mult=1 m=1", out)
+        self.assertIn("XRM$3 VOUT__t0 VA__t0 VSS__t3 sky130_fd_pr__res_high_po W=1 L=0.5 mult=1 m=1", out)
+
+
 if __name__ == "__main__":
     unittest.main()
