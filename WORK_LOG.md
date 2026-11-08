@@ -5,6 +5,8 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-07
 
+- **PR #487**: docs: attribute pex-native pilot Vref delta to resistor-leg parasitics
+- **Issue #486** (closed): Attribute the pex-native pilot's −27.8 mV Vref delta by leg resistance and node voltage
 - **PR #483**: Bump Repo Skills 0.25.1 -> 0.25.10
 
 ### 2026-11-06
