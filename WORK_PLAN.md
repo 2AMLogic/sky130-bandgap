@@ -58,7 +58,6 @@ Issues carrying `loom:curated`.
 
 ## Proposed (Architect / Hermit)
 
-- **#485**: Remove docs/guard-review-332 replay: closed one-off Loom hook review, unreferenced *(hermit)*
 
 ## Epics
 
