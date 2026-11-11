@@ -30,7 +30,7 @@ _None._
 
 Issues currently being built (`loom:building`).
 
-_None._
+- **#370**: Re-qualify reference records under open_pdks f6eeac7 (follow-up to #369)
 
 ## PRs Awaiting Review
 
@@ -51,7 +51,7 @@ Issues carrying `loom:curated`.
 - **#306**: Reduce the startup injector's supply-dependent GDRV load so PSRR clears DR-006's 60 dB floor (design cause confirmed by #300) *(curated)*
 - **#315**: Complete #306's circuit fix (startup injector PSRR) and the post-fix layout cycle *(curated)*
 - **#368**: Design a state-dependent startup-injector reference-stack element that clears the 60 dB PSRR floor at ff/125/3.63 and sf/27/2.97 *(curated)*
-- **#395**: Enable --backend batch for remaining pre-layout corner-run benches (prereq of #370) *(curated)*
+- **#370**: Re-qualify reference records under open_pdks f6eeac7 (follow-up to #369) *(curated)*
 - **#432**: Follow-on from PR #431: first live routed-flow run with artifact broker *(curated)*
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(curated)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(curated)*
@@ -72,7 +72,7 @@ _None._
 | Very important | 0 |
 | Important | 2 |
 | Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 0 |
+| In Progress (`loom:building`) | 1 |
 | PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 0 |
 | Curated | 7 |
