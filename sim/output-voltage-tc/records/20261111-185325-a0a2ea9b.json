@@ -1,0 +1,311 @@
+{
+  "author": "313063438+loom-fleet-dispatch[bot]@users.noreply.github.com",
+  "corners": [
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-d03660e4d67d",
+        "klt_corner_id": "tt/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "tt_27c_3.30v",
+      "elapsed_s": 15.345,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc/corners/20261111-185325-a0a2ea9b/tt_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.210323
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.186357
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.216902
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 152.9517
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 10800
+    }
+  ],
+  "execution": {
+    "backend": "batch",
+    "blockers": [],
+    "collected_at": "2026-11-11T18:54:58Z",
+    "corner_runtime_max_s": 15.3,
+    "corner_runtime_median_s": 15.3,
+    "corner_runtime_min_s": 15.3,
+    "corner_runtime_sum_s": 15.3,
+    "jobs": [
+      {
+        "collected_at": "2026-11-11T18:54:58Z",
+        "corner_count": 1,
+        "corner_runtime_max_s": 15.3,
+        "corner_runtime_min_s": 15.3,
+        "corner_runtime_sum_s": 15.3,
+        "engine": "ngspice",
+        "engine_version": "46",
+        "job_elapsed_s": 23,
+        "job_id": "klt-sim-d03660e4d67d",
+        "klt_client_version": "0.9.2.dev661+g1de5c0432aad",
+        "klt_exit_code": 3,
+        "klt_status": "fail",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "1be6f46890366d5484b3e4e59b4452d37f09d8cdd3b3d25949b7f6e6637880a3",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "pdk_provenance": {
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ],
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+        },
+        "queue_provision_and_transfer_s": 68.4,
+        "remote": {
+          "ami_id": "ami-095c25ae241a4d360",
+          "availability_zone": "us-east-1c",
+          "client_collected_at": "2026-11-11T18:54:58.091846Z",
+          "client_klt_version": "0.9.2.dev661+g1de5c0432aad",
+          "client_launched_at": "2026-11-11T18:53:54.847595Z",
+          "client_status_terminal_at": "2026-11-11T18:54:57.175467Z",
+          "client_submitted_at": "2026-11-11T18:53:27.206593Z",
+          "concurrency": "1",
+          "elapsed_seconds": 23,
+          "exit_code": "3",
+          "exit_reason": {
+            "exit_code": 3,
+            "message": "klt sim exited 3 (a corner or measurement failed): aggregate status 'fail'; the job state is failed because of this verdict exit code, not a runner crash and not the whole-job ceiling (a ceiling kill reports state timeout, exit 124)",
+            "nothing_checked": false,
+            "nothing_checked_reasons": [],
+            "report_status": "fail",
+            "units": {
+              "by_status": {
+                "fail": 1
+              },
+              "first_not_passed": [
+                {
+                  "code": null,
+                  "corner_id": "tt/novdd/27C",
+                  "message": null,
+                  "status": "fail"
+                }
+              ],
+              "total": 1
+            }
+          },
+          "instance_id": "i-0975e8723bff64da7",
+          "instance_type": "m7i.4xlarge",
+          "job_ceiling": {
+            "basis": "conservative_serial_bound",
+            "check": "warn",
+            "exceeds_ceiling": true,
+            "job_bound_s": 10920.0,
+            "max_job_seconds": 3600.0,
+            "max_job_seconds_source": "fleet_config",
+            "max_units_per_job": 0,
+            "overhead_s": 120.0,
+            "per_unit_timeout_s": 10800,
+            "recommended_hosts": null,
+            "unit_count": 1,
+            "warning": "batch job bound 10920s (options.timeout_s 10800s x 1 units + 120s; a conservative fully-serial upper bound, not a runtime estimate) exceeds the fleet's whole-job ceiling of 3600s (max_job_seconds from fleet_config); a job still running at the ceiling is killed and every unit is reported batch_job_timeout. No remote.hosts value fits: a single unit's bound exceeds the ceiling -- lower options.timeout_s to at most 3480s"
+          },
+          "job_id": "klt-sim-d03660e4d67d",
+          "lifecycle": "spot",
+          "physical_cores": "8",
+          "provider": "aws-batch-fleet",
+          "region": "us-east-1",
+          "runner_compatibility": "match",
+          "runner_klt_version": "0.9.0",
+          "runner_model_inputs": null,
+          "runner_request_features": {
+            "missing": [],
+            "required": [
+              "analysis_steps",
+              "options.ngspice_init"
+            ],
+            "status": "supported"
+          },
+          "spot": true,
+          "state": "failed",
+          "worker_environment": {
+            "capture": "ok",
+            "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+            "diagnostics": [],
+            "engine_build_comparison": {
+              "status": "match"
+            },
+            "image_manifest": null,
+            "model_inputs": null,
+            "omp_num_threads": null,
+            "pdk": {
+              "models_staged": false,
+              "root": "/opt/pdk",
+              "stamp_scheme": "sources-sha256",
+              "stamp_scope": "executed",
+              "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+              "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+              "variant": "sky130A"
+            },
+            "pdk_stamp_comparison": {
+              "reason": "client_stamp_unavailable",
+              "status": "not_comparable"
+            },
+            "simulator": {
+              "binary_source": "PATH",
+              "requested_binary": "ngspice",
+              "selected_path": "/usr/local/bin/ngspice",
+              "version_banner": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Oct  1 23:51:59 UTC 2026\n******\n",
+              "version_probe": "ok"
+            }
+          }
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-395/sim/build/output-voltage-tc/20261111-185325-a0a2ea9b/batch/v3.30/klt-report.json",
+        "submit_to_collect_wall_s": 91.4,
+        "submitted_at": "2026-11-11T18:53:26Z",
+        "supply_v": 3.3
+      }
+    ],
+    "klt_client": "klt 0.9.2.dev661+g1de5c0432aad",
+    "local_pinned_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+    "mechanism": "klt sim --backend batch (2am EDA batch fleet, Spot)",
+    "remote_ami_ids": [
+      "ami-095c25ae241a4d360"
+    ],
+    "remote_engine_versions": [
+      "46"
+    ],
+    "remote_instance_types": [
+      "m7i.4xlarge"
+    ],
+    "remote_pdk_matches_pin": true,
+    "submit_to_collect_wall_s": 91.4,
+    "submitted_at": "2026-11-11T18:53:26Z",
+    "timing_note": "elapsed_s per corner is the remote engine wall clock reported by klt (runtime_s). job_elapsed_s is the fleet harness's own job time. queue_provision_and_transfer_s = submit-to-collect wall minus job_elapsed_s (S3 upload, Spot acquisition/boot, polling granularity, download)."
+  },
+  "experiment": {
+    "claim": "README.md 'Target specification (ratified -- see DR-005, issue #1)' rows 'Output reference' (1.20 V +/-2% untrimmed, 3sigma mismatch MC N>=300 + process corners, -40...125 degC) and 'Temp coefficient (-40...125 degC)' (< 50 ppm/degC), for the 3.3 V primary flavor (DR-001). Measures design/bandgap_core.sch open-circuit, untrimmed (no trim network -- that is issue #13), across process and supply corners with temperature swept continuously inside the deck. This bench is the corner-matrix half of the ratified claim (see statistical_convention below); the 3sigma mismatch-MC half is issue #12's sim/monte-carlo-untrimmed bench.",
+    "provenance": "schematic",
+    "provenance_source": "sim/output-voltage-tc/testbench/tb_vref_tc.sch",
+    "slug": "output-voltage-tc",
+    "statistical_convention": "N/A (corner-matrix claim, not a distribution claim -- untrimmed spread from local mismatch is issue #12's Monte Carlo)",
+    "title": "Untrimmed output reference and box-method temperature coefficient over -40..125 degC"
+  },
+  "git": {
+    "branch": "feature/issue-395",
+    "dirty": true,
+    "sha": "a0a2ea9b"
+  },
+  "jobs": null,
+  "links": {
+    "artifact_manifest": "manifests/artifacts/output-voltage-tc-20261111-185325-a0a2ea9b.manifest.json",
+    "corners_dir": "sim/output-voltage-tc/corners/20261111-185325-a0a2ea9b/",
+    "json": "sim/output-voltage-tc/records/20261111-185325-a0a2ea9b.json",
+    "manifest": "sim/output-voltage-tc/experiment.json",
+    "netlist_snapshot": "sim/output-voltage-tc/netlist-snapshots/20261111-185325-a0a2ea9b.spice",
+    "record": "sim/output-voltage-tc/records/20261111-185325-a0a2ea9b.md",
+    "testbench": "sim/output-voltage-tc/testbench/tb_vref_tc.sch"
+  },
+  "matrix": {
+    "is_subset": true,
+    "n_points": 1,
+    "point_ids": [
+      "tt_27c_3.30v"
+    ],
+    "points": [
+      [
+        "tt",
+        27.0,
+        3.3
+      ]
+    ],
+    "process": [
+      "tt"
+    ],
+    "subset_reason": "issue #395 single-corner fleet comparison",
+    "supply_v": [
+      3.3
+    ],
+    "temperature_c": [
+      27.0
+    ]
+  },
+  "overall_blockers": [],
+  "overall_pass": false,
+  "pdk": {
+    "installed_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "lib_file": "/home/ubuntu/.ciel/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "root": "/home/ubuntu/.ciel",
+    "variant": "sky130A"
+  },
+  "record_id": "20261111-185325-a0a2ea9b",
+  "spread_checks": [
+    {
+      "measurement": "vref_27",
+      "min_spread": 0.0001,
+      "n": 1,
+      "note": "VREF(27 degC) must move by at least 0.1 mV across the process/supply matrix. A dead-flat result across 15 corner points means the corner include or the supply param is not reaching the simulator.",
+      "observed_spread": 0.0,
+      "pass": false,
+      "reason": "fewer than two corner points"
+    }
+  ],
+  "supersedes": "",
+  "timestamp": "2026-11-11T18:53:25Z",
+  "tools": {
+    "klt": "klt 0.9.2.dev661+g1de5c0432aad",
+    "ngspice": "ngspice-46 (remote, batch fleet m7i.4xlarge; not the dispatch host's ngspice)",
+    "platform": "Linux 7.0.0-1014-aws x86_64",
+    "python": "3.12.3",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}

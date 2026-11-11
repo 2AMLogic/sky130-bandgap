@@ -1,0 +1,319 @@
+{
+  "author": "313063438+loom-fleet-dispatch[bot]@users.noreply.github.com",
+  "corners": [
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-6ca6bdbdafad",
+        "klt_corner_id": "tt/novdd/27C",
+        "klt_status": "pass"
+      },
+      "corner_id": "tt_27c_3.30v",
+      "elapsed_s": 20.897,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/line-regulation/corners/20261111-185145-a0a2ea9b/tt_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))*1e3",
+          "max": 48.0,
+          "min": null,
+          "name": "line_shift_mv",
+          "pass": true,
+          "reason": "",
+          "unit": "mV",
+          "value": 0.02506145
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/vrefnom/0.66*100",
+          "max": null,
+          "min": null,
+          "name": "line_reg_pct_per_v",
+          "pass": true,
+          "reason": "",
+          "unit": "%/V",
+          "value": 0.003137305
+        },
+        {
+          "expr": "db(0.66/(maximum(v(vref))-minimum(v(vref))))",
+          "max": null,
+          "min": null,
+          "name": "line_psrr_db",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 88.41075
+        },
+        {
+          "expr": "vrefnom",
+          "max": 1.26,
+          "min": 1.14,
+          "name": "vref_nom",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.210335
+        },
+        {
+          "expr": "v(vdd)[0]",
+          "max": 2.98,
+          "min": 2.96,
+          "name": "sweep_start_v",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.97
+        },
+        {
+          "expr": "v(vdd)[30]",
+          "max": 3.64,
+          "min": 3.62,
+          "name": "sweep_end_v",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.63
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 31,
+          "min": 31,
+          "name": "n_supply_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 31.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 10800
+    }
+  ],
+  "execution": {
+    "backend": "batch",
+    "blockers": [],
+    "collected_at": "2026-11-11T18:53:14Z",
+    "corner_runtime_max_s": 20.9,
+    "corner_runtime_median_s": 20.9,
+    "corner_runtime_min_s": 20.9,
+    "corner_runtime_sum_s": 20.9,
+    "jobs": [
+      {
+        "collected_at": "2026-11-11T18:53:14Z",
+        "corner_count": 1,
+        "corner_runtime_max_s": 20.9,
+        "corner_runtime_min_s": 20.9,
+        "corner_runtime_sum_s": 20.9,
+        "engine": "ngspice",
+        "engine_version": "46",
+        "job_elapsed_s": 28,
+        "job_id": "klt-sim-6ca6bdbdafad",
+        "klt_client_version": "0.9.2.dev661+g1de5c0432aad",
+        "klt_exit_code": 0,
+        "klt_status": "pass",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "8c545bcd405659cf6a75b495404758cf10027cf67cdec0e1472da9df46cbe703",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "pdk_provenance": {
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ],
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+        },
+        "queue_provision_and_transfer_s": 59.6,
+        "remote": {
+          "ami_id": "ami-095c25ae241a4d360",
+          "availability_zone": "us-east-1c",
+          "client_collected_at": "2026-11-11T18:53:14.149159Z",
+          "client_klt_version": "0.9.2.dev661+g1de5c0432aad",
+          "client_launched_at": "2026-11-11T18:52:11.006664Z",
+          "client_status_terminal_at": "2026-11-11T18:53:13.257335Z",
+          "client_submitted_at": "2026-11-11T18:51:47.070212Z",
+          "concurrency": "1",
+          "elapsed_seconds": 28,
+          "exit_code": "0",
+          "instance_id": "i-0869228cc24b84a8c",
+          "instance_type": "m6i.4xlarge",
+          "job_ceiling": {
+            "basis": "conservative_serial_bound",
+            "check": "warn",
+            "exceeds_ceiling": true,
+            "job_bound_s": 10920.0,
+            "max_job_seconds": 3600.0,
+            "max_job_seconds_source": "fleet_config",
+            "max_units_per_job": 0,
+            "overhead_s": 120.0,
+            "per_unit_timeout_s": 10800,
+            "recommended_hosts": null,
+            "unit_count": 1,
+            "warning": "batch job bound 10920s (options.timeout_s 10800s x 1 units + 120s; a conservative fully-serial upper bound, not a runtime estimate) exceeds the fleet's whole-job ceiling of 3600s (max_job_seconds from fleet_config); a job still running at the ceiling is killed and every unit is reported batch_job_timeout. No remote.hosts value fits: a single unit's bound exceeds the ceiling -- lower options.timeout_s to at most 3480s"
+          },
+          "job_id": "klt-sim-6ca6bdbdafad",
+          "lifecycle": "spot",
+          "physical_cores": "8",
+          "provider": "aws-batch-fleet",
+          "region": "us-east-1",
+          "runner_compatibility": "match",
+          "runner_klt_version": "0.9.0",
+          "runner_model_inputs": null,
+          "runner_request_features": {
+            "missing": [],
+            "required": [
+              "analysis_steps",
+              "options.ngspice_init"
+            ],
+            "status": "supported"
+          },
+          "spot": true,
+          "state": "done",
+          "worker_environment": {
+            "capture": "ok",
+            "cpu_model": "Intel(R) Xeon(R) Platinum 8375C CPU @ 2.90GHz",
+            "diagnostics": [],
+            "engine_build_comparison": {
+              "status": "match"
+            },
+            "image_manifest": null,
+            "model_inputs": null,
+            "omp_num_threads": null,
+            "pdk": {
+              "models_staged": false,
+              "root": "/opt/pdk",
+              "stamp_scheme": "sources-sha256",
+              "stamp_scope": "executed",
+              "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+              "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+              "variant": "sky130A"
+            },
+            "pdk_stamp_comparison": {
+              "reason": "client_stamp_unavailable",
+              "status": "not_comparable"
+            },
+            "simulator": {
+              "binary_source": "PATH",
+              "requested_binary": "ngspice",
+              "selected_path": "/usr/local/bin/ngspice",
+              "version_banner": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Oct  1 23:51:59 UTC 2026\n******\n",
+              "version_probe": "ok"
+            }
+          }
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-395/sim/build/line-regulation/20261111-185145-a0a2ea9b/batch/v3.30/klt-report.json",
+        "submit_to_collect_wall_s": 87.6,
+        "submitted_at": "2026-11-11T18:51:46Z",
+        "supply_v": 3.3
+      }
+    ],
+    "klt_client": "klt 0.9.2.dev661+g1de5c0432aad",
+    "local_pinned_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+    "mechanism": "klt sim --backend batch (2am EDA batch fleet, Spot)",
+    "remote_ami_ids": [
+      "ami-095c25ae241a4d360"
+    ],
+    "remote_engine_versions": [
+      "46"
+    ],
+    "remote_instance_types": [
+      "m6i.4xlarge"
+    ],
+    "remote_pdk_matches_pin": true,
+    "submit_to_collect_wall_s": 87.6,
+    "submitted_at": "2026-11-11T18:51:46Z",
+    "timing_note": "elapsed_s per corner is the remote engine wall clock reported by klt (runtime_s). job_elapsed_s is the fleet harness's own job time. queue_provision_and_transfer_s = submit-to-collect wall minus job_elapsed_s (S3 upload, Spot acquisition/boot, polling granularity, download)."
+  },
+  "experiment": {
+    "claim": "README.md 'Target specification (ratified -- see DR-005, issue #1)' row 'Supply' (3.3 V +/-10%) read as an output-shift requirement, checked against the only bound the ratified spec implies without inventing a number: the supply-induced shift must fit inside the entire +/-2% untrimmed output-accuracy window (48 mV p-p on 1.20 V). NECESSARY, not sufficient -- a real budget gives line regulation a fraction of that window. Setting a dedicated line-regulation line item remains a future spec pass's call; these numbers are its input.",
+    "provenance": "schematic",
+    "provenance_source": "sim/line-regulation/testbench/tb_vref_linereg.sch",
+    "slug": "line-regulation",
+    "statistical_convention": "N/A (corner-matrix claim)",
+    "title": "Line regulation: untrimmed output shift across the full 3.3 V +/-10% supply range"
+  },
+  "git": {
+    "branch": "feature/issue-395",
+    "dirty": true,
+    "sha": "a0a2ea9b"
+  },
+  "jobs": null,
+  "links": {
+    "artifact_manifest": "manifests/artifacts/line-regulation-20261111-185145-a0a2ea9b.manifest.json",
+    "corners_dir": "sim/line-regulation/corners/20261111-185145-a0a2ea9b/",
+    "json": "sim/line-regulation/records/20261111-185145-a0a2ea9b.json",
+    "manifest": "sim/line-regulation/experiment.json",
+    "netlist_snapshot": "sim/line-regulation/netlist-snapshots/20261111-185145-a0a2ea9b.spice",
+    "record": "sim/line-regulation/records/20261111-185145-a0a2ea9b.md",
+    "testbench": "sim/line-regulation/testbench/tb_vref_linereg.sch"
+  },
+  "matrix": {
+    "is_subset": true,
+    "n_points": 1,
+    "point_ids": [
+      "tt_27c_3.30v"
+    ],
+    "points": [
+      [
+        "tt",
+        27.0,
+        3.3
+      ]
+    ],
+    "process": [
+      "tt"
+    ],
+    "subset_reason": "issue #395 single-corner fleet comparison",
+    "supply_v": [
+      3.3
+    ],
+    "temperature_c": [
+      27.0
+    ]
+  },
+  "overall_blockers": [],
+  "overall_pass": false,
+  "pdk": {
+    "installed_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "lib_file": "/home/ubuntu/.ciel/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "root": "/home/ubuntu/.ciel",
+    "variant": "sky130A"
+  },
+  "record_id": "20261111-185145-a0a2ea9b",
+  "spread_checks": [
+    {
+      "measurement": "vref_nom",
+      "min_spread": 0.005,
+      "n": 1,
+      "note": "Primary corner-liveness guard for this bench: VREF at the nominal supply must move by at least 5 mV across the 15-point process/temperature matrix. It spans ~33 mV (1.1747 V at the hot corners to 1.2082 V at the cold ones), so this is a wide-margin assertion that the .lib corner include and .temp really are reaching the simulator. It is placed on VREF rather than on the line shift because VREF is the quantity with a large, well-understood corner dependence; the line shift is a second-order effect measured in tens of microvolts and is a poor liveness signal.",
+      "observed_spread": 0.0,
+      "pass": false,
+      "reason": "fewer than two corner points"
+    },
+    {
+      "measurement": "line_shift_mv",
+      "min_spread": 0.005,
+      "n": 1,
+      "note": "Secondary guard: the supply-induced shift must itself move by at least 5 uV across the matrix. RE-SCALED from the original 0.05 mV. That threshold was set against the first run of this bench, whose 0.11 .. 1.27 mV readings turned out to be the DC solver's convergence noise floor rather than the circuit (see the tolerance note below). With the noise removed the real quantity is 0.0074 .. 0.030 mV, so a 0.05 mV spread requirement can never be met and the guard fires on every run -- as it did on record 20260803-115354-7759435, which is committed as a failing record. The new threshold is scaled to the resolved magnitude and still leaves ~4.5x margin on the observed 0.023 mV spread, while sitting three orders of magnitude above the noise floor at these tolerances. Note what did NOT change: the pass window on the measurement itself (24 mV) is untouched -- no spec bound was moved to make anything pass, only a harness self-check that had been calibrated against a number now known to be an artifact.",
+      "observed_spread": 0.0,
+      "pass": false,
+      "reason": "fewer than two corner points"
+    }
+  ],
+  "supersedes": "",
+  "timestamp": "2026-11-11T18:51:45Z",
+  "tools": {
+    "klt": "klt 0.9.2.dev661+g1de5c0432aad",
+    "ngspice": "ngspice-46 (remote, batch fleet m6i.4xlarge; not the dispatch host's ngspice)",
+    "platform": "Linux 7.0.0-1014-aws x86_64",
+    "python": "3.12.3",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "sha256": "7637c4124c872010d548b68ffbc0d8f90874229ad3fea5c999272404a34744b9",
+      "size": 13824,
+      "kind": "evidence",
+      "producer": {
+        "tool": "klt",
+        "version": "0.9.2.dev661+g1de5c0432aad",
+        "loom.repo": "2AMLogic/sky130-bandgap",
+        "commit": "a0a2ea9b581810c873a66b418354f308ae2cc502"
+      },
+      "uri": "artifact:evidence/2AMLogic__sky130-bandgap/76/7637c4124c872010d548b68ffbc0d8f90874229ad3fea5c999272404a34744b9",
+      "name": "sim/output-voltage-tc/corners/20261111-185325-a0a2ea9b/batch-v3.30/klt-report.json",
+      "media_type": "application/json"
+    },
+    {
+      "sha256": "1be6f46890366d5484b3e4e59b4452d37f09d8cdd3b3d25949b7f6e6637880a3",
+      "size": 16048,
+      "kind": "evidence",
+      "producer": {
+        "tool": "klt",
+        "version": "0.9.2.dev661+g1de5c0432aad",
+        "loom.repo": "2AMLogic/sky130-bandgap",
+        "commit": "a0a2ea9b581810c873a66b418354f308ae2cc502"
+      },
+      "uri": "artifact:evidence/2AMLogic__sky130-bandgap/1b/1be6f46890366d5484b3e4e59b4452d37f09d8cdd3b3d25949b7f6e6637880a3",
+      "name": "sim/output-voltage-tc/corners/20261111-185325-a0a2ea9b/batch-v3.30/netlist.cir"
+    },
+    {
+      "sha256": "2947b6adde679c59623bb5481c7ccde47fdceb14af6200403257d636075024ab",
+      "size": 1877,
+      "kind": "evidence",
+      "producer": {
+        "tool": "klt",
+        "version": "0.9.2.dev661+g1de5c0432aad",
+        "loom.repo": "2AMLogic/sky130-bandgap",
+        "commit": "a0a2ea9b581810c873a66b418354f308ae2cc502"
+      },
+      "uri": "artifact:evidence/2AMLogic__sky130-bandgap/29/2947b6adde679c59623bb5481c7ccde47fdceb14af6200403257d636075024ab",
+      "name": "sim/output-voltage-tc/corners/20261111-185325-a0a2ea9b/batch-v3.30/request.json",
+      "media_type": "application/json"
+    },
+    {
+      "sha256": "333dee0a451e9ab62754576c7c28c9ac41060967753ff006a2acf7360ef4f453",
+      "size": 2276,
+      "kind": "evidence",
+      "producer": {
+        "tool": "klt",
+        "version": "0.9.2.dev661+g1de5c0432aad",
+        "loom.repo": "2AMLogic/sky130-bandgap",
+        "commit": "a0a2ea9b581810c873a66b418354f308ae2cc502"
+      },
+      "uri": "artifact:evidence/2AMLogic__sky130-bandgap/33/333dee0a451e9ab62754576c7c28c9ac41060967753ff006a2acf7360ef4f453",
+      "name": "sim/output-voltage-tc/corners/20261111-185325-a0a2ea9b/tt_27c_3.30v.log"
+    }
+  ]
+}

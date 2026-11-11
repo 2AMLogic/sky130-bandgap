@@ -54,14 +54,16 @@ BATCH_ENABLED_SLUGS = frozenset({
     "psrr-dc-with-injector",
     "psrr-dc",
     "quiescent-current",
+    "line-regulation",
+    "output-voltage-tc",
+    "startup-ramp",
+    "startup-time",
 })
 
 #: Benches whose `meas` commands need the single-step request form (see
-#: `build_request()`). Translated and checked against the local deck with
-#: `klt sim --backend local`, but NOT enabled: the fleet runner image's klt
-#: (0.7.0 on 2026-10-20) rejects `analysis_steps` with
-#: `batch_runner_feature_unsupported`, so every job fails before simulating.
-#: Move a slug into `BATCH_ENABLED_SLUGS` once a live single-corner run passes.
+#: `build_request()`). Enabled above once the runner klt accepted
+#: `analysis_steps` (klayout-tools#3516). Kept as its own set because the
+#: request shape differs from the scalar-analysis benches.
 STEP_REQUEST_SLUGS = frozenset({
     "line-regulation",
     "output-voltage-tc",
@@ -78,14 +80,6 @@ STEP_NAME = "main"
 #: reason. They stay on the local runner (issue #395); `--backend batch` names
 #: the reason instead of the generic "not enabled".
 BATCH_UNSUPPORTED_REASONS = {
-    **{
-        slug: (
-            "its `meas` commands are sent as an `analysis_steps[]` request, which the batch "
-            "fleet's runner klt (0.7.0 on 2026-10-20) does not support yet "
-            "(`batch_runner_feature_unsupported`); enable it once the runner image is updated"
-        )
-        for slug in STEP_REQUEST_SLUGS
-    },
     "error-amp-loop": (
         "its deck chains three analyses (op, ac, ac) with `alter` commands between "
         "them; that needs a multi-step `analysis_steps[]` translation, which is not "
