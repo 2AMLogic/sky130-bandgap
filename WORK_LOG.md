@@ -3,6 +3,11 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-11-10
+
+- **PR #491**: chore: remove unreferenced guard-review-332 hook replay
+- **Issue #485** (closed): Remove docs/guard-review-332 replay: closed one-off Loom hook review, unreferenced
+
 ### 2026-11-07
 
 - **PR #487**: docs: attribute pex-native pilot Vref delta to resistor-leg parasitics
