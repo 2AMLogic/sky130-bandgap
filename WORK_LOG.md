@@ -3,6 +3,11 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-11-11
+
+- **PR #493**: feat(sim): enable batch backend for the four analysis_steps pre-layout benches
+- **Issue #395** (closed): Enable --backend batch for remaining pre-layout corner-run benches (prereq of #370)
+
 ### 2026-11-10
 
 - **PR #491**: chore: remove unreferenced guard-review-332 hook replay
