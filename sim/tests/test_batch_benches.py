@@ -114,20 +114,14 @@ class Requests(unittest.TestCase):
         self.addCleanup(shutil.rmtree, self.tmp, True)
 
     def test_enabled_set_is_exactly_what_ran_on_the_fleet(self):
-        """Scalar-analysis benches were compared live on the fleet (issue #395);
-        the step-form ones are held back until the runner's klt supports
-        `analysis_steps`, and `corner-run.py` must refuse them with that reason."""
-        self.assertLessEqual({"psrr-dc", "quiescent-current"}, batch_sim.BATCH_ENABLED_SLUGS)
+        """Every bench here was compared live on the fleet (issue #395): the
+        scalar-analysis ones first, the `analysis_steps` ones once the runner's
+        klt accepted that shape (klayout-tools#3516). `error-amp-loop` stays
+        local with its reason recorded."""
+        for slug in BENCHES:
+            self.assertIn(slug, batch_sim.BATCH_ENABLED_SLUGS, slug)
         for slug, (_kind, has_meas) in BENCHES.items():
             self.assertEqual(has_meas, slug in batch_sim.STEP_REQUEST_SLUGS, slug)
-            self.assertEqual(has_meas, slug not in batch_sim.BATCH_ENABLED_SLUGS, slug)
-            if has_meas:
-                exp = cr.load_experiment(SIM_DIR / slug)
-                with self.assertRaises(batch_sim.BatchError) as ctx:
-                    batch_sim.build_groups(
-                        exp, PIN, matrix(exp), snapshot_body(slug), SPICEINIT, self.tmp / slug, 60,
-                        capacity_wait_s=0, runner_version_check="enforce", poll_interval_s=30)
-                self.assertIn("batch_runner_feature_unsupported", str(ctx.exception))
         self.assertNotIn("error-amp-loop", batch_sim.BATCH_ENABLED_SLUGS)
         self.assertIn("error-amp-loop", batch_sim.BATCH_UNSUPPORTED_REASONS)
 
