@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "status": "pass",
-  "netlist": "sim/startup-stability/netlist-snapshots/20261015-022916-ff69193.spice",
+  "netlist": "sim/startup-stability/netlist-snapshots/20261111-234331-ebc9a64b.spice",
   "corner_count": 45,
   "passed": 45,
   "failed": 0,
@@ -24,8 +24,8 @@
     ],
     "recorded_from": [
       {
-        "file": "sim/startup-stability/records/20261015-022916-ff69193.json",
-        "sha256": "af1abcded1aaf633b674b72e3b5b9be013b88bc14e7a4889ce0e7cd7a693270e"
+        "file": "sim/startup-stability/records/20261111-234331-ebc9a64b.json",
+        "sha256": "e35d6b2c8d5fb5fea8c04b52e78b9dac9aea2443c8464d76337bc9373236782b"
       }
     ],
     "excluded_measurements": {
@@ -43,10 +43,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:7e748fddf2373db69d3e498626abb36b17b977867da5519a4b5b6238c8355eac",
+      "content_hash": "sha256:184ccf7fc0bda1ab994157daacd7c081f2f4766f0f3c41ffa40e2bcc08ba3770",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/startup-stability/netlist-snapshots/20261015-022916-ff69193.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/startup-stability/netlist-snapshots/20261111-234331-ebc9a64b.spice)"
   },
   "measurements": [
     {
