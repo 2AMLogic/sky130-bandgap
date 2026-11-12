@@ -32,12 +32,13 @@ No spec relaxation is made or implied.
 | `psrr-dc-post-layout` | `20260923-073641-dbd4dda` | `20261112-165538-ffb50731` | 45/45 | FAIL, same as old (psrr_band_min 20/45 pass) |
 | `quiescent-current-post-layout` | `20260923-072514-dbd57a9` | `20261112-172211-ffb50731` | 45/45 | PASS 45/45, same as old |
 | `startup-stability-post-layout` | `20260924-041313-999407b` | `20261112-171240-ffb50731` | 8/8 (the bench's own worst-corner subset) | PASS 8/8, same as old |
+| `trim-lsb-chained` | `20261008-163545-ffa415c` | `20261112-224417-24a14a1` | 60 batch requests (15 corners; `chained` 17 codes, `lumped` 3 codes), no subset | PASS, per-corner graded table identical to old |
 
 ### Not yet re-qualified (as of post-layout slice C, 2026-11-12)
 
 | Bench | Status |
 |---|---|
-| `psrr-injector-candidates`, slice D (MC, offset-MC, attribution, `trim-lsb-chained`, layout reports) | Not attempted yet. Old records remain the evidence. |
+| `psrr-injector-candidates`, slice D remainder (MC, offset-MC, attribution, layout reports) | Not attempted yet. Old records remain the evidence. |
 | post-layout `startup-ramp`, `startup-time`, `line-regulation`, `output-voltage-tc` (slice C') | Not re-qualified in slice C: these are not batch-enabled (`POST_LAYOUT_STEP_REQUEST_SLUGS`, fleet runner klt rejects `analysis_steps`) and local grids are forbidden on the dispatch worker. Old records remain the evidence. Whether the fleet runner now accepts them was not re-tested here. |
 
 ### Per-row old/new deltas, `startup-stability` (worst case over 45 corners)
@@ -103,6 +104,17 @@ and `quiescent-current-post-layout`, and at most 1.5e-8 A (`itrav_min`) for
 pre-existing `psrr-dc-post-layout` failure (21/45 corners below the 60 dB
 floor on `psrr_dc`, 25/45 on `psrr_band_min`) is unchanged and is a
 pre-existing finding, not a PDK-pin effect; no spec row is relaxed here.
+
+### Per-row old/new deltas, slice D1 (`trim-lsb-chained`)
+
+Run with the runner's batch-only path under `f6eeac7`. The per-corner graded
+`chained` table (VREF at codes 0/-16, span, LSB, min/max step, monotonic) is
+identical to the superseded record for all 15 corners, so nothing moved because
+of the re-pin. The DR-005 Trim-row verdict (derived qualification section, now
+inline in the new record) is the same as the superseded
+`20261008-163545-ffa415c-dr005-qualification.md`: FAIL on range (down 38.46 mV =
+3.2 % < 5 %; up 0) and on >= 5 bits (17 levels, 4.09 bits); max step passes.
+That is a pre-existing finding, not a PDK-pin effect; no spec row is relaxed.
 
 ## Alternatives considered
 
