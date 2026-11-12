@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "status": "pass",
-  "netlist": "sim/startup-ramp/netlist-snapshots/20260923-202758-81803b1.spice",
+  "netlist": "sim/startup-ramp/netlist-snapshots/20261112-075045-f9871d93.spice",
   "corner_count": 45,
   "passed": 45,
   "failed": 0,
@@ -24,8 +24,8 @@
     ],
     "recorded_from": [
       {
-        "file": "sim/startup-ramp/records/20260923-202758-81803b1.json",
-        "sha256": "8567c258029574610aba0cf479a153abc3682ff0e95a80a5035f3148f5b4c544"
+        "file": "sim/startup-ramp/records/20261112-075045-f9871d93.json",
+        "sha256": "54da81e1240ee00f4972facd04717d6a1a0b86eef76ad1f9b8f622a9dfb49a51"
       }
     ],
     "excluded_measurements": {
@@ -43,10 +43,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:1421d39d39ac45f50f78c63295caab0c3630017c349d1781f05fa635792d4a7b",
+      "content_hash": "sha256:20018bc3c4b89672521a1c4ce416d758eee6e0c8f1a031c65f871978b6219309",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/startup-ramp/netlist-snapshots/20260923-202758-81803b1.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/startup-ramp/netlist-snapshots/20261112-075045-f9871d93.spice)"
   },
   "measurements": [
     {
@@ -105,16 +105,16 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000374306,
+          "value": -0.000374308,
           "status": "pass",
-          "margin": 0.001374306
+          "margin": 0.001374308
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": -1.05171e-07,
+          "value": -1.137e-07,
           "status": "pass",
-          "margin": 0.001000105171
+          "margin": 0.0010001137
         },
         {
           "name": "t_start_g",
@@ -144,9 +144,9 @@
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": -1.50492e-07,
+          "value": -9.57645e-08,
           "status": "pass",
-          "margin": 0.001000150492
+          "margin": 0.0010000957645
         },
         {
           "name": "t_start_g",
@@ -233,16 +233,16 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000362362,
+          "value": -0.000362361,
           "status": "pass",
-          "margin": 0.001362362
+          "margin": 0.001362361
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": -8.97693e-08,
+          "value": -8.97701e-08,
           "status": "pass",
-          "margin": 0.0010000897693
+          "margin": 0.0010000897701
         },
         {
           "name": "t_start_g",
@@ -432,9 +432,9 @@
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": -2.44728e-08,
+          "value": -2.37224e-08,
           "status": "pass",
-          "margin": 0.0010000244728
+          "margin": 0.0010000237224000001
         },
         {
           "name": "t_start_g",
@@ -464,9 +464,9 @@
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": -2.12989e-08,
+          "value": -2.12982e-08,
           "status": "pass",
-          "margin": 0.0010000212989
+          "margin": 0.0010000212982
         },
         {
           "name": "t_start_g",
@@ -489,16 +489,16 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000355006,
+          "value": -0.000355008,
           "status": "pass",
-          "margin": 0.001355006
+          "margin": 0.001355008
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": -2.50554e-08,
+          "value": -2.99706e-08,
           "status": "pass",
-          "margin": 0.0010000250554
+          "margin": 0.0010000299706
         },
         {
           "name": "t_start_g",
@@ -681,16 +681,16 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000433644,
+          "value": -0.000433643,
           "status": "pass",
-          "margin": 0.001433644
+          "margin": 0.001433643
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": -2.13773e-07,
+          "value": -1.91375e-07,
           "status": "pass",
-          "margin": 0.001000213773
+          "margin": 0.0010001913750000001
         },
         {
           "name": "t_start_g",
@@ -713,16 +713,16 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000388597,
+          "value": -0.000388592,
           "status": "pass",
-          "margin": 0.001388597
+          "margin": 0.0013885920000000001
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": -1.61529e-07,
+          "value": -1.65072e-07,
           "status": "pass",
-          "margin": 0.0010001615290000001
+          "margin": 0.001000165072
         },
         {
           "name": "t_start_g",
@@ -752,9 +752,9 @@
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": -1.39794e-07,
+          "value": -1.39793e-07,
           "status": "pass",
-          "margin": 0.001000139794
+          "margin": 0.001000139793
         },
         {
           "name": "t_start_g",
@@ -777,16 +777,16 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000455285,
+          "value": -0.000455287,
           "status": "pass",
-          "margin": 0.001455285
+          "margin": 0.001455287
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": -1.77776e-07,
+          "value": -1.74957e-07,
           "status": "pass",
-          "margin": 0.001000177776
+          "margin": 0.001000174957
         },
         {
           "name": "t_start_g",
@@ -976,9 +976,9 @@
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": -2.46408e-07,
+          "value": -2.46409e-07,
           "status": "pass",
-          "margin": 0.001000246408
+          "margin": 0.001000246409
         },
         {
           "name": "t_start_g",
@@ -1040,9 +1040,9 @@
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": -2.27641e-07,
+          "value": -2.2764e-07,
           "status": "pass",
-          "margin": 0.001000227641
+          "margin": 0.00100022764
         },
         {
           "name": "t_start_g",
@@ -1264,9 +1264,9 @@
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": -1.94354e-08,
+          "value": -1.94301e-08,
           "status": "pass",
-          "margin": 0.0010000194354000001
+          "margin": 0.0010000194301
         },
         {
           "name": "t_start_g",
@@ -1328,9 +1328,9 @@
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": -4.77467e-08,
+          "value": 2.76969e-08,
           "status": "pass",
-          "margin": 0.0010000477467
+          "margin": 0.0009999723031
         },
         {
           "name": "t_start_g",
@@ -1424,9 +1424,9 @@
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 3.29537e-08,
+          "value": 3.29538e-08,
           "status": "pass",
-          "margin": 0.0009999670463000001
+          "margin": 0.0009999670462
         },
         {
           "name": "t_start_g",

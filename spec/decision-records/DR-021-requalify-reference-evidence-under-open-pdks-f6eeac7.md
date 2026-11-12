@@ -23,12 +23,18 @@ No spec relaxation is made or implied.
 |---|---|---|---|---|
 | `startup-stability` | `20261015-133821-9f956c4` | `20261111-234331-ebc9a64b` | 45/45 | PASS (old: 10 of 45 FAIL, all 125 C) |
 | `psrr-dc-with-injector` | `20260923-124813-af9ff1e` | `20261112-033711-4182dd56` | 45/45 | FAIL 24/45, same as old (see below) |
+| `line-regulation` | `20260817-021208-13476b7` | `20261112-071544-f9871d93` | 45/45 | PASS 45/45, same as old |
+| `output-voltage-tc` | `20260817-015751-13476b7` | `20261112-072452-f9871d93` | 45/45 | FAIL 45/45 (`tc_ppm`), same as old |
+| `psrr-dc` | `20260909-232410-e8e2e46` | `20261112-073424-f9871d93` | 45/45 | PASS 45/45, same as old |
+| `quiescent-current` | `20260909-232410-e8e2e46` | `20261112-074405-f9871d93` | 45/45 | PASS 45/45, same as old |
+| `startup-ramp` | `20260923-202758-81803b1` | `20261112-075045-f9871d93` | 45/45 | FAIL 13/45 (`vref_spread`), same as old |
+| `startup-time` | `20260909-232410-e8e2e46` | `20261112-075916-f9871d93` | 45/45 | FAIL 45/45, same as old |
 
-### Not yet re-qualified (as of the `psrr-dc-with-injector` slice, 2026-11-12)
+### Not yet re-qualified (as of the pre-layout slice B, 2026-11-12)
 
 | Bench | Status |
 |---|---|
-| `psrr-injector-candidates`, slice B (pre-layout benches), slice C, slice D | Not attempted in this slice. Old records remain the evidence. |
+| `psrr-injector-candidates`, slice C (post-layout benches), slice D (MC, offset-MC, attribution, `trim-lsb-chained`, layout reports) | Not attempted in this slice. Old records remain the evidence. |
 
 ### Per-row old/new deltas, `startup-stability` (worst case over 45 corners)
 
@@ -67,6 +73,18 @@ failure is unchanged and not a PDK-pin effect. No result moved, so nothing
 is outside tolerance because of the re-pin. This bench is a diagnostic
 companion (issue #300); the pre-existing failure is already tracked and no
 spec row is relaxed here.
+
+### Per-row old/new deltas, pre-layout slice B (all 45 corners each)
+
+Run with `corner-run.py --backend batch`, full matrix, no subset. For every
+measurement of the six benches the min and max over the 45 corners are
+identical between old and new record to the printed precision (4 significant
+figures), and the per-measurement pass/fail counts are identical. Nothing moved,
+so no result is outside tolerance because of the re-pin. The pre-existing
+failures (`output-voltage-tc` `tc_ppm` 142-159 ppm/C at all 45 corners;
+`startup-ramp` `vref_spread` at 13 corners; `startup-time` at all 45 corners)
+are unchanged and not PDK-pin effects; no spec row is relaxed here and no new
+ratified-row failure appears.
 
 ## Alternatives considered
 

@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "status": "pass",
-  "netlist": "sim/quiescent-current/netlist-snapshots/20260909-232410-e8e2e46.spice",
+  "netlist": "sim/quiescent-current/netlist-snapshots/20261112-074405-f9871d93.spice",
   "corner_count": 45,
   "passed": 45,
   "failed": 0,
@@ -24,8 +24,8 @@
     ],
     "recorded_from": [
       {
-        "file": "sim/quiescent-current/records/20260909-232410-e8e2e46.json",
-        "sha256": "82ea1119d67d346cca5151f40bf47f55d93f9b48f43f03cfd800ec186165c4c6"
+        "file": "sim/quiescent-current/records/20261112-074405-f9871d93.json",
+        "sha256": "dd229608185c330983be90238771e905a7cd6c563107486198cd275108b26bfa"
       }
     ],
     "excluded_measurements": {
@@ -35,10 +35,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:b9ab067ecb7951d708c9e1a14393e9c9d93fb1dd19f2edd74bcfea395c6709d1",
+      "content_hash": "sha256:930e8d18d9e19bc2e093ce66256650ba296c690f902d46b800aeed7860201d53",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/quiescent-current/netlist-snapshots/20260909-232410-e8e2e46.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/quiescent-current/netlist-snapshots/20261112-074405-f9871d93.spice)"
   },
   "measurements": [
     {
@@ -556,9 +556,9 @@
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.069702e-05,
+          "value": 2.069701e-05,
           "status": "pass",
-          "margin": 1.969702e-05
+          "margin": 1.969701e-05
         }
       ]
     },
