@@ -1,0 +1,1715 @@
+{
+  "author": "313063438+loom-fleet-dispatch[bot]@users.noreply.github.com",
+  "corners": [
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "klt_corner_id": "ff/novdd/-40C",
+        "klt_status": "pass"
+      },
+      "corner_id": "ff_-40c_2.97v",
+      "elapsed_s": 31.447,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability-post-layout/corners/20261112-171240-ffb50731/ff_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5816733
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0001777964
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0005497684
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.000576879
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000529289
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.202973
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.728571
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.525691e-05
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 10800
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "klt_corner_id": "ff/novdd/-40C",
+        "klt_status": "pass"
+      },
+      "corner_id": "ff_-40c_3.63v",
+      "elapsed_s": 32.658,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability-post-layout/corners/20261112-171240-ffb50731/ff_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6573705
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0004503613
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001004422
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001250719
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000794774
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.204203
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.391245
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.531771e-05
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 10800
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "klt_corner_id": "ff/novdd/125C",
+        "klt_status": "pass"
+      },
+      "corner_id": "ff_125c_2.97v",
+      "elapsed_s": 35.767,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability-post-layout/corners/20261112-171240-ffb50731/ff_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6414343
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 7.739832e-08
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0001395342
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0005526266
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000392866
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.168181
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.906643
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.605525e-05
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 10800
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "klt_corner_id": "ff/novdd/125C",
+        "klt_status": "pass"
+      },
+      "corner_id": "ff_125c_3.63v",
+      "elapsed_s": 22.67,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability-post-layout/corners/20261112-171240-ffb50731/ff_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.7051793
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 8.87969e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0005739631
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001202758
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000578723
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.186654
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.565815
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.684816e-05
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": true,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 10800
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "klt_corner_id": "ss/novdd/-40C",
+        "klt_status": "pass"
+      },
+      "corner_id": "ss_-40c_2.97v",
+      "elapsed_s": 23.796,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability-post-layout/corners/20261112-171240-ffb50731/ss_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5537849
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0003389741
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0005222896
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.000531308
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000488374
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.202884
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.643502
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.492629e-05
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 10800
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "klt_corner_id": "ss/novdd/-40C",
+        "klt_status": "pass"
+      },
+      "corner_id": "ss_-40c_3.63v",
+      "elapsed_s": 42.273,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability-post-layout/corners/20261112-171240-ffb50731/ss_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6374502
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0005591654
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0009676302
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.001000204
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000745922
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.203022
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.310086
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.461605e-05
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 10800
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "klt_corner_id": "ss/novdd/125C",
+        "klt_status": "pass"
+      },
+      "corner_id": "ss_125c_2.97v",
+      "elapsed_s": 22.316,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability-post-layout/corners/20261112-171240-ffb50731/ss_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6135458
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.131502e-09
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.345211e-05
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0003057452
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000360996
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.167068
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.81968
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.559242e-05
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 10800
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "klt_corner_id": "ss/novdd/125C",
+        "klt_status": "pass"
+      },
+      "corner_id": "ss_125c_3.63v",
+      "elapsed_s": 29.054,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability-post-layout/corners/20261112-171240-ffb50731/ss_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.685259
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.806277e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0003503734
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0008911408
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000540083
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.167978
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.488566
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.521663e-05
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": true,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 10800
+    }
+  ],
+  "execution": {
+    "backend": "batch",
+    "blockers": [],
+    "collected_at": "2026-11-12T17:19:34Z",
+    "corner_runtime_max_s": 42.3,
+    "corner_runtime_median_s": 31.4,
+    "corner_runtime_min_s": 22.3,
+    "corner_runtime_sum_s": 240.0,
+    "jobs": [
+      {
+        "collected_at": "2026-11-12T17:15:23Z",
+        "corner_count": 4,
+        "corner_runtime_max_s": 35.8,
+        "corner_runtime_min_s": 22.3,
+        "corner_runtime_sum_s": 113.3,
+        "engine": "ngspice",
+        "engine_version": "46",
+        "job_elapsed_s": null,
+        "job_id": null,
+        "klt_client_version": "0.9.2.dev873+g2eb24559a512",
+        "klt_exit_code": 0,
+        "klt_status": "pass",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "a7fd31ffffcddf00c4233e302643767bf5d6bd8d2a5ede13276911efdf1b8e70",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "pdk_provenance": {
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ],
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+        },
+        "queue_provision_and_transfer_s": null,
+        "remote": {
+          "fleet": [
+            {
+              "ami_id": "ami-095c25ae241a4d360",
+              "availability_zone": "us-east-1c",
+              "client_collected_at": "2026-11-12T17:14:11.451882Z",
+              "client_klt_version": "0.9.2.dev873+g2eb24559a512",
+              "client_launched_at": "2026-11-12T17:13:08.549554Z",
+              "client_status_terminal_at": "2026-11-12T17:14:10.638053Z",
+              "client_submitted_at": "2026-11-12T17:12:42.330688Z",
+              "concurrency": "1",
+              "elapsed_seconds": 40,
+              "exit_code": "0",
+              "instance_id": "i-09cb944d478d5ee7d",
+              "instance_type": "m6i.4xlarge",
+              "job_id": "klt-sim-bc0c705d9873",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "8",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "done",
+              "worker_environment": {
+                "capture": "ok",
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8375C CPU @ 2.90GHz",
+                "diagnostics": [],
+                "engine_build_comparison": {
+                  "status": "match"
+                },
+                "image_manifest": null,
+                "model_inputs": null,
+                "omp_num_threads": null,
+                "pdk": {
+                  "models_staged": false,
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_scope": "executed",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "variant": "sky130A"
+                },
+                "pdk_stamp_comparison": {
+                  "reason": "client_stamp_unavailable",
+                  "status": "not_comparable"
+                },
+                "simulator": {
+                  "binary_source": "PATH",
+                  "requested_binary": "ngspice",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Oct  1 23:51:59 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                }
+              }
+            },
+            {
+              "ami_id": "ami-095c25ae241a4d360",
+              "availability_zone": "us-east-1c",
+              "client_collected_at": "2026-11-12T17:15:23.511942Z",
+              "client_klt_version": "0.9.2.dev873+g2eb24559a512",
+              "client_launched_at": "2026-11-12T17:14:20.614417Z",
+              "client_status_terminal_at": "2026-11-12T17:15:22.744138Z",
+              "client_submitted_at": "2026-11-12T17:12:42.332932Z",
+              "concurrency": "1",
+              "elapsed_seconds": 44,
+              "exit_code": "0",
+              "instance_id": "i-074d91710190f20ac",
+              "instance_type": "m6i.4xlarge",
+              "job_id": "klt-sim-2926f48b6f83",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "8",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "done",
+              "worker_environment": {
+                "capture": "ok",
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8375C CPU @ 2.90GHz",
+                "diagnostics": [],
+                "engine_build_comparison": {
+                  "status": "match"
+                },
+                "image_manifest": null,
+                "model_inputs": null,
+                "omp_num_threads": null,
+                "pdk": {
+                  "models_staged": false,
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_scope": "executed",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "variant": "sky130A"
+                },
+                "pdk_stamp_comparison": {
+                  "reason": "client_stamp_unavailable",
+                  "status": "not_comparable"
+                },
+                "simulator": {
+                  "binary_source": "PATH",
+                  "requested_binary": "ngspice",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Oct  1 23:51:59 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                }
+              }
+            },
+            {
+              "ami_id": "ami-095c25ae241a4d360",
+              "availability_zone": "us-east-1c",
+              "client_collected_at": "2026-11-12T17:14:14.630970Z",
+              "client_klt_version": "0.9.2.dev873+g2eb24559a512",
+              "client_launched_at": "2026-11-12T17:13:11.757504Z",
+              "client_status_terminal_at": "2026-11-12T17:14:13.826343Z",
+              "client_submitted_at": "2026-11-12T17:12:42.334866Z",
+              "concurrency": "1",
+              "elapsed_seconds": 32,
+              "exit_code": "0",
+              "instance_id": "i-0733010d781a4545c",
+              "instance_type": "m6i.4xlarge",
+              "job_id": "klt-sim-8882966ffa40",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "8",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "done",
+              "worker_environment": {
+                "capture": "ok",
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8375C CPU @ 2.90GHz",
+                "diagnostics": [],
+                "engine_build_comparison": {
+                  "status": "match"
+                },
+                "image_manifest": null,
+                "model_inputs": null,
+                "omp_num_threads": null,
+                "pdk": {
+                  "models_staged": false,
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_scope": "executed",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "variant": "sky130A"
+                },
+                "pdk_stamp_comparison": {
+                  "reason": "client_stamp_unavailable",
+                  "status": "not_comparable"
+                },
+                "simulator": {
+                  "binary_source": "PATH",
+                  "requested_binary": "ngspice",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Oct  1 23:51:59 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                }
+              }
+            },
+            {
+              "ami_id": "ami-095c25ae241a4d360",
+              "availability_zone": "us-east-1c",
+              "client_collected_at": "2026-11-12T17:15:23.060287Z",
+              "client_klt_version": "0.9.2.dev873+g2eb24559a512",
+              "client_launched_at": "2026-11-12T17:14:20.082675Z",
+              "client_status_terminal_at": "2026-11-12T17:15:22.284367Z",
+              "client_submitted_at": "2026-11-12T17:12:42.336254Z",
+              "concurrency": "1",
+              "elapsed_seconds": 30,
+              "exit_code": "0",
+              "instance_id": "i-0f4b3c2a37985fa86",
+              "instance_type": "m6i.4xlarge",
+              "job_id": "klt-sim-5ab339c63db7",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "8",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "done",
+              "worker_environment": {
+                "capture": "ok",
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8375C CPU @ 2.90GHz",
+                "diagnostics": [],
+                "engine_build_comparison": {
+                  "status": "match"
+                },
+                "image_manifest": null,
+                "model_inputs": null,
+                "omp_num_threads": null,
+                "pdk": {
+                  "models_staged": false,
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_scope": "executed",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "variant": "sky130A"
+                },
+                "pdk_stamp_comparison": {
+                  "reason": "client_stamp_unavailable",
+                  "status": "not_comparable"
+                },
+                "simulator": {
+                  "binary_source": "PATH",
+                  "requested_binary": "ngspice",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Oct  1 23:51:59 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                }
+              }
+            }
+          ]
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-370/sim/build/startup-stability-post-layout/20261112-171240-ffb50731/batch/v2.97/klt-report.json",
+        "submit_to_collect_wall_s": 161.7,
+        "submitted_at": "2026-11-12T17:12:41Z",
+        "supply_v": 2.97
+      },
+      {
+        "collected_at": "2026-11-12T17:19:34Z",
+        "corner_count": 4,
+        "corner_runtime_max_s": 42.3,
+        "corner_runtime_min_s": 22.7,
+        "corner_runtime_sum_s": 126.7,
+        "engine": "ngspice",
+        "engine_version": "46",
+        "job_elapsed_s": null,
+        "job_id": null,
+        "klt_client_version": "0.9.2.dev873+g2eb24559a512",
+        "klt_exit_code": 0,
+        "klt_status": "pass",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "0a80fbe594a251ed1cbc5d9ea634e6a4a88fd91194bc2dae1904e6de5eff1a01",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "pdk_provenance": {
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ],
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+        },
+        "queue_provision_and_transfer_s": null,
+        "remote": {
+          "fleet": [
+            {
+              "ami_id": "ami-095c25ae241a4d360",
+              "availability_zone": "us-east-1c",
+              "client_collected_at": "2026-11-12T17:15:24.084946Z",
+              "client_klt_version": "0.9.2.dev873+g2eb24559a512",
+              "client_launched_at": "2026-11-12T17:14:21.110167Z",
+              "client_status_terminal_at": "2026-11-12T17:15:23.291520Z",
+              "client_submitted_at": "2026-11-12T17:12:42.355925Z",
+              "concurrency": "1",
+              "elapsed_seconds": 47,
+              "exit_code": "0",
+              "instance_id": "i-0a2c20f36e6846367",
+              "instance_type": "m6i.4xlarge",
+              "job_id": "klt-sim-cf6a6e75a86b",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "8",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "done",
+              "worker_environment": {
+                "capture": "ok",
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8375C CPU @ 2.90GHz",
+                "diagnostics": [],
+                "engine_build_comparison": {
+                  "status": "match"
+                },
+                "image_manifest": null,
+                "model_inputs": null,
+                "omp_num_threads": null,
+                "pdk": {
+                  "models_staged": false,
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_scope": "executed",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "variant": "sky130A"
+                },
+                "pdk_stamp_comparison": {
+                  "reason": "client_stamp_unavailable",
+                  "status": "not_comparable"
+                },
+                "simulator": {
+                  "binary_source": "PATH",
+                  "requested_binary": "ngspice",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Oct  1 23:51:59 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                }
+              }
+            },
+            {
+              "ami_id": "ami-095c25ae241a4d360",
+              "availability_zone": "us-east-1f",
+              "client_collected_at": "2026-11-12T17:14:41.348922Z",
+              "client_klt_version": "0.9.2.dev873+g2eb24559a512",
+              "client_launched_at": "2026-11-12T17:13:38.207341Z",
+              "client_status_terminal_at": "2026-11-12T17:14:40.404320Z",
+              "client_submitted_at": "2026-11-12T17:12:42.353197Z",
+              "concurrency": "1",
+              "elapsed_seconds": 31,
+              "exit_code": "0",
+              "instance_id": "i-084dd74b4bc4b665c",
+              "instance_type": "m7i.4xlarge",
+              "job_id": "klt-sim-b6d1e10cc556",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "8",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "done",
+              "worker_environment": {
+                "capture": "ok",
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+                "diagnostics": [],
+                "engine_build_comparison": {
+                  "status": "match"
+                },
+                "image_manifest": null,
+                "model_inputs": null,
+                "omp_num_threads": null,
+                "pdk": {
+                  "models_staged": false,
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_scope": "executed",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "variant": "sky130A"
+                },
+                "pdk_stamp_comparison": {
+                  "reason": "client_stamp_unavailable",
+                  "status": "not_comparable"
+                },
+                "simulator": {
+                  "binary_source": "PATH",
+                  "requested_binary": "ngspice",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Oct  1 23:51:59 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                }
+              }
+            },
+            {
+              "ami_id": "ami-095c25ae241a4d360",
+              "availability_zone": "us-east-1f",
+              "client_collected_at": "2026-11-12T17:19:34.720851Z",
+              "client_klt_version": "0.9.2.dev873+g2eb24559a512",
+              "client_launched_at": "2026-11-12T17:18:01.135685Z",
+              "client_status_terminal_at": "2026-11-12T17:19:33.935359Z",
+              "client_submitted_at": "2026-11-12T17:12:42.359784Z",
+              "concurrency": "2",
+              "elapsed_seconds": 50,
+              "exit_code": "0",
+              "instance_id": "i-09ed3f30a716f30f0",
+              "instance_type": "c7i.8xlarge",
+              "job_id": "klt-sim-e8fe556b84d3",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "16",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "done",
+              "worker_environment": {
+                "capture": "ok",
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+                "diagnostics": [],
+                "engine_build_comparison": {
+                  "status": "match"
+                },
+                "image_manifest": null,
+                "model_inputs": null,
+                "omp_num_threads": null,
+                "pdk": {
+                  "models_staged": false,
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_scope": "executed",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "variant": "sky130A"
+                },
+                "pdk_stamp_comparison": {
+                  "reason": "client_stamp_unavailable",
+                  "status": "not_comparable"
+                },
+                "simulator": {
+                  "binary_source": "PATH",
+                  "requested_binary": "ngspice",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Oct  1 23:51:59 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                }
+              }
+            },
+            {
+              "ami_id": "ami-095c25ae241a4d360",
+              "availability_zone": "us-east-1f",
+              "client_collected_at": "2026-11-12T17:16:48.030919Z",
+              "client_klt_version": "0.9.2.dev873+g2eb24559a512",
+              "client_launched_at": "2026-11-12T17:15:45.260406Z",
+              "client_status_terminal_at": "2026-11-12T17:16:47.279625Z",
+              "client_submitted_at": "2026-11-12T17:12:42.358003Z",
+              "concurrency": "2",
+              "elapsed_seconds": 37,
+              "exit_code": "0",
+              "instance_id": "i-08a7498f15878a440",
+              "instance_type": "c7i.8xlarge",
+              "job_id": "klt-sim-3ba70b5f9e53",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "16",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "done",
+              "worker_environment": {
+                "capture": "ok",
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+                "diagnostics": [],
+                "engine_build_comparison": {
+                  "status": "match"
+                },
+                "image_manifest": null,
+                "model_inputs": null,
+                "omp_num_threads": null,
+                "pdk": {
+                  "models_staged": false,
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_scope": "executed",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "variant": "sky130A"
+                },
+                "pdk_stamp_comparison": {
+                  "reason": "client_stamp_unavailable",
+                  "status": "not_comparable"
+                },
+                "simulator": {
+                  "binary_source": "PATH",
+                  "requested_binary": "ngspice",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Oct  1 23:51:59 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                }
+              }
+            }
+          ]
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-370/sim/build/startup-stability-post-layout/20261112-171240-ffb50731/batch/v3.63/klt-report.json",
+        "submit_to_collect_wall_s": 413.0,
+        "submitted_at": "2026-11-12T17:12:41Z",
+        "supply_v": 3.63
+      }
+    ],
+    "klt_client": "klt 0.9.2.dev873+g2eb24559a512",
+    "local_pinned_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+    "mechanism": "klt sim --backend batch (2am EDA batch fleet, Spot)",
+    "remote_ami_ids": [
+      "None"
+    ],
+    "remote_engine_versions": [
+      "46"
+    ],
+    "remote_instance_types": [
+      "None"
+    ],
+    "remote_pdk_matches_pin": true,
+    "submit_to_collect_wall_s": 413.0,
+    "submitted_at": "2026-11-12T17:12:41Z",
+    "timing_note": "elapsed_s per corner is the remote engine wall clock reported by klt (runtime_s). job_elapsed_s is the fleet harness's own job time. queue_provision_and_transfer_s = submit-to-collect wall minus job_elapsed_s (S3 upload, Spot acquisition/boot, polling granularity, download)."
+  },
+  "experiment": {
+    "claim": "spec/topology-survey.md Startup row (\"self-starting, < 1 ms\") -- the no-other-stable-state half, on the cell that would actually be fabricated. Substantiates that the ROUTED, LVS-clean bandgap-core layout (issue #62) -- which since issue #285 DRAWS design/startup_injector.sch inside the composed cell (MPC1, MPC2, MNS, MNI, MNC, QS) -- has exactly ONE DC operating point over the whole 0..VDD range of its startup node GDRV, and that the loop is pulled downhill by a bounded-below current everywhere in the degenerate region rather than merely somewhere in it. The DUT is the composed cell ALONE: this bench instantiates design/bandgap_core.sym with NO separate design/startup_injector.sym instance, because the extracted body already contains one, and it carries NO bare-core control instance, because the drawn cell cannot express one (issue #299 -- see the 'dropped measurements' note below for what that costs and where those claims still live). The extracted core comes from klt extract --parasitics translated to a simulatable netlist (sim/bin/post_layout_common.py), NOT design/bandgap_core.sch directly -- see 'Netlist provenance' below. The schematic-level counterpart of this claim, WITH its bare-core control, is sim/startup-stability/ (report row 8a); the startup TIME claim on this same composed cell is the sibling post-layout bench sim/startup-ramp-post-layout/; the +/-1% output-accuracy claim is issue #11.",
+    "provenance": "extracted",
+    "provenance_source": "layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_routed.gds via `klt extract --parasitics` (layout record 20260923-070209-dbd57a9), translated by sim/bin/post_layout_common.py, over this bench's own sim/startup-stability-post-layout/testbench/tb_startup_stability_pl.sch",
+    "slug": "startup-stability-post-layout",
+    "statistical_convention": "N/A (corner-matrix claim, not a distribution claim)",
+    "title": "Startup: the degenerate zero-current state is not an operating point of the COMPOSED LAYOUT CELL -- POST-LAYOUT (extracted netlist)"
+  },
+  "git": {
+    "branch": "feature/issue-370",
+    "dirty": true,
+    "sha": "ffb50731"
+  },
+  "jobs": null,
+  "layout_provenance": {
+    "core_port_order": [
+      "D1",
+      "D2",
+      "GDRV",
+      "NE",
+      "NG",
+      "PN",
+      "TAIL",
+      "VA",
+      "VB",
+      "VBQ",
+      "VDD",
+      "VOUT",
+      "VSS"
+    ],
+    "device_translation_counts": {
+      "mos": 73,
+      "pnp": 24,
+      "res": 145
+    },
+    "layout_gds": "layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_routed.gds",
+    "layout_record": "layout/bandgap-core/reports/20260923-070209-dbd57a9/record.md",
+    "layout_record_id": "20260923-070209-dbd57a9",
+    "lvs_mismatch_count_at_extraction": null,
+    "parasitics_snapshot": {
+      "c_count": 156,
+      "json": "sim/startup-time-post-layout/parasitics-snapshot/20260923-070209-dbd57a9/bandgap_core_routed.pex.json",
+      "r_count": 799,
+      "source": "reused:sim/startup-time-post-layout/parasitics-snapshot/20260923-070209-dbd57a9",
+      "spice": "sim/startup-time-post-layout/parasitics-snapshot/20260923-070209-dbd57a9/bandgap_core_routed.pex.spice",
+      "total_capacitance_ff": 1487.344084,
+      "total_resistance_ohm": 234007.2692
+    }
+  },
+  "links": {
+    "artifact_manifest": "manifests/artifacts/startup-stability-post-layout-20261112-171240-ffb50731.manifest.json",
+    "corners_dir": "sim/startup-stability-post-layout/corners/20261112-171240-ffb50731/",
+    "json": "sim/startup-stability-post-layout/records/20261112-171240-ffb50731.json",
+    "manifest": "sim/startup-stability-post-layout/experiment.json",
+    "netlist_snapshot": "sim/startup-stability-post-layout/netlist-snapshots/20261112-171240-ffb50731.spice",
+    "record": "sim/startup-stability-post-layout/records/20261112-171240-ffb50731.md",
+    "testbench": "sim/startup-stability-post-layout/testbench/tb_startup_stability_pl.sch"
+  },
+  "matrix": {
+    "is_subset": true,
+    "n_points": 8,
+    "point_ids": [
+      "ff_-40c_2.97v",
+      "ff_-40c_3.63v",
+      "ff_125c_2.97v",
+      "ff_125c_3.63v",
+      "ss_-40c_2.97v",
+      "ss_-40c_3.63v",
+      "ss_125c_2.97v",
+      "ss_125c_3.63v"
+    ],
+    "points": [
+      [
+        "ff",
+        -40.0,
+        2.97
+      ],
+      [
+        "ff",
+        -40.0,
+        3.63
+      ],
+      [
+        "ff",
+        125.0,
+        2.97
+      ],
+      [
+        "ff",
+        125.0,
+        3.63
+      ],
+      [
+        "ss",
+        -40.0,
+        2.97
+      ],
+      [
+        "ss",
+        -40.0,
+        3.63
+      ],
+      [
+        "ss",
+        125.0,
+        2.97
+      ],
+      [
+        "ss",
+        125.0,
+        3.63
+      ]
+    ],
+    "process": [
+      "ff",
+      "ss"
+    ],
+    "subset_reason": "issue #16's Acceptance Criteria ask for issue #10's degenerate-state checks re-run 'at worst corners', not the full 45-point matrix sim/startup-stability's own schematic-level records use. This 8-point subset (process in {ff, ss} x temperature in {-40, 125} C x supply in {2.97, 3.63} V) is the temperature/supply extremes crossed with the two process corners sim/startup-stability/experiment.json's own notes field and sim/startup-ramp/experiment.json's vref_spread note identify as where this design's margin is thinnest: ff/125 C/3.63 V is the worst recorded dvref (+8.70 mV, record 20260803-204236-f41373d); the sibling startup-ramp bench's only two documented FAILs in its early records are both at ff/-40 C (2.97 V and 3.63 V, on vref_spread); ss is the slow-amplifier corner the same startup-ramp notes cite as the worst t_start_s (ss/125 C/2.97 V, +146 us against the 1 ms bound). tt/sf/fs and the 27 C / nominal-supply interior points are intentionally omitted -- they are not where the design's own prior evidence puts the degenerate-state margin at risk, and every one of them is already covered by sim/startup-time-post-layout's full 45-point matrix on the SAME extracted composed cell, whose 45/45 PASS (record 20260923-070906-dbd57a9, t_start 0.0678-0.1818 ms, gdrv_final 1.598-2.611 V) is the same 'the drawn injector evicts the degenerate state' statement measured transiently at every one of them. It also keeps this bench's cost bounded: each corner is four forced 251-point non-continuation DC sweeps over a parasitic-laden extracted netlist.",
+    "supply_v": [
+      2.97,
+      3.63
+    ],
+    "temperature_c": [
+      -40.0,
+      125.0
+    ]
+  },
+  "overall_blockers": [],
+  "overall_pass": true,
+  "pdk": {
+    "installed_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "lib_file": "/home/ubuntu/.ciel/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "root": "/home/ubuntu/.ciel",
+    "variant": "sky130A"
+  },
+  "record_id": "20261112-171240-ffb50731",
+  "spread_checks": [
+    {
+      "measurement": "vgdrv_dut",
+      "min_spread": 0.3,
+      "n": 8,
+      "note": "The startup node's operating voltage tracks the supply (GDRV ~ VDD - |Vgs_p|), so a multi-corner run must show it moving by more than the +/-10 % supply span. A flat vgdrv_dut across the matrix means the corner/supply knobs are not reaching the simulator.",
+      "observed_spread": 0.9223130000000002,
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "measurement": "vref_dut",
+      "min_spread": 0.01,
+      "n": 8,
+      "note": "Untrimmed output over process and temperature must move by more than 10 mV; a frozen value would indicate the .lib corner or .temp injection stopped taking effect.",
+      "observed_spread": 0.03713499999999992,
+      "pass": true,
+      "reason": ""
+    }
+  ],
+  "supersedes": "20260924-041313-999407b",
+  "timestamp": "2026-11-12T17:12:40Z",
+  "tools": {
+    "klt": "klt 0.9.2.dev873+g2eb24559a512",
+    "ngspice": "ngspice-46 (remote, batch fleet None; not the dispatch host's ngspice)",
+    "platform": "Linux 7.0.0-1014-aws x86_64",
+    "python": "3.12.3",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}
