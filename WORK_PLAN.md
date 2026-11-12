@@ -36,7 +36,7 @@ Issues currently being built (`loom:building`).
 
 PRs waiting on Judge (`loom:review-requested`).
 
-_None._
+- **#495**: sim: re-qualify startup-stability under open_pdks f6eeac7 (DR-021 index)
 
 ## Approved (Awaiting Merge)
 
@@ -73,7 +73,7 @@ _None._
 | Important | 2 |
 | Ready (`loom:issue`) | 0 |
 | In Progress (`loom:building`) | 1 |
-| PRs awaiting review | 0 |
+| PRs awaiting review | 1 |
 | Approved PRs awaiting merge | 0 |
 | Curated | 7 |
 | Architect / Hermit proposals | 0 |
