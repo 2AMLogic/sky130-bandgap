@@ -3,6 +3,14 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-11-12
+
+- **PR #501**: sim: re-qualify three post-layout benches under open_pdks f6eeac7 (DR-021 slice C)
+- **PR #500**: sim: re-qualify six pre-layout benches under open_pdks f6eeac7 (DR-021 slice B)
+- **PR #498**: sim: re-qualify psrr-dc-with-injector under open_pdks f6eeac7 (DR-021 slice)
+- **PR #497**: Bump Repo Skills 0.25.10 -> 0.26.1
+- **PR #495**: sim: re-qualify startup-stability under open_pdks f6eeac7 (DR-021 index)
+
 ### 2026-11-11
 
 - **PR #493**: feat(sim): enable batch backend for the four analysis_steps pre-layout benches
