@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "status": "fail",
-  "netlist": "sim/psrr-dc-post-layout/netlist-snapshots/20260923-073641-dbd4dda.spice",
+  "netlist": "sim/psrr-dc-post-layout/netlist-snapshots/20261112-165538-ffb50731.spice",
   "corner_count": 45,
   "passed": 20,
   "failed": 25,
@@ -24,8 +24,8 @@
     ],
     "recorded_from": [
       {
-        "file": "sim/psrr-dc-post-layout/records/20260923-073641-dbd4dda.json",
-        "sha256": "60edc50ee6be5597aa2f48c5a7afbe187372f90829ea0775d409e439edd4528d"
+        "file": "sim/psrr-dc-post-layout/records/20261112-165538-ffb50731.json",
+        "sha256": "134b95f232c6fbbfd9db90c91230ccafa26e7132cf0b204e06cb3aee909a2085"
       }
     ],
     "excluded_measurements": {
@@ -38,10 +38,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:8fe21bb30541a1d3010cb05f42ba9b4c712e6fc72e83cb48696029cf08a8f105",
+      "content_hash": "sha256:e7860392b01b2827e374178d70efacee7dd4e090ff48b505a7a6a3c7376e9d9e",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/psrr-dc-post-layout/netlist-snapshots/20260923-073641-dbd4dda.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/psrr-dc-post-layout/netlist-snapshots/20261112-165538-ffb50731.spice)"
   },
   "measurements": [
     {

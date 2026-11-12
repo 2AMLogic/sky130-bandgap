@@ -29,12 +29,16 @@ No spec relaxation is made or implied.
 | `quiescent-current` | `20260909-232410-e8e2e46` | `20261112-074405-f9871d93` | 45/45 | PASS 45/45, same as old |
 | `startup-ramp` | `20260923-202758-81803b1` | `20261112-075045-f9871d93` | 45/45 | FAIL 13/45 (`vref_spread`), same as old |
 | `startup-time` | `20260909-232410-e8e2e46` | `20261112-075916-f9871d93` | 45/45 | FAIL 45/45, same as old |
+| `psrr-dc-post-layout` | `20260923-073641-dbd4dda` | `20261112-165538-ffb50731` | 45/45 | FAIL, same as old (psrr_band_min 20/45 pass) |
+| `quiescent-current-post-layout` | `20260923-072514-dbd57a9` | `20261112-172211-ffb50731` | 45/45 | PASS 45/45, same as old |
+| `startup-stability-post-layout` | `20260924-041313-999407b` | `20261112-171240-ffb50731` | 8/8 (the bench's own worst-corner subset) | PASS 8/8, same as old |
 
-### Not yet re-qualified (as of the pre-layout slice B, 2026-11-12)
+### Not yet re-qualified (as of post-layout slice C, 2026-11-12)
 
 | Bench | Status |
 |---|---|
-| `psrr-injector-candidates`, slice C (post-layout benches), slice D (MC, offset-MC, attribution, `trim-lsb-chained`, layout reports) | Not attempted in this slice. Old records remain the evidence. |
+| `psrr-injector-candidates`, slice D (MC, offset-MC, attribution, `trim-lsb-chained`, layout reports) | Not attempted yet. Old records remain the evidence. |
+| post-layout `startup-ramp`, `startup-time`, `line-regulation`, `output-voltage-tc` (slice C') | Not re-qualified in slice C: these are not batch-enabled (`POST_LAYOUT_STEP_REQUEST_SLUGS`, fleet runner klt rejects `analysis_steps`) and local grids are forbidden on the dispatch worker. Old records remain the evidence. Whether the fleet runner now accepts them was not re-tested here. |
 
 ### Per-row old/new deltas, `startup-stability` (worst case over 45 corners)
 
@@ -85,6 +89,20 @@ failures (`output-voltage-tc` `tc_ppm` 142-159 ppm/C at all 45 corners;
 `startup-ramp` `vref_spread` at 13 corners; `startup-time` at all 45 corners)
 are unchanged and not PDK-pin effects; no spec row is relaxed here and no new
 ratified-row failure appears.
+
+### Per-row old/new deltas, post-layout slice C
+
+Run with `--backend batch`, same extracted netlist inputs as the superseded
+records (layout record `20260923-070209-dbd57a9`), no subset beyond what the
+bench itself uses (`startup-stability-post-layout` is an 8-corner worst-corner
+bench by design). For every measurement of the three benches the min and max
+and the per-measurement pass counts match the superseded record; the largest
+per-corner absolute difference is 0 for `psrr-dc-post-layout` (all measurements)
+and `quiescent-current-post-layout`, and at most 1.5e-8 A (`itrav_min`) for
+`startup-stability-post-layout`. Nothing moved because of the re-pin. The
+pre-existing `psrr-dc-post-layout` failure (21/45 corners below the 60 dB
+floor on `psrr_dc`, 25/45 on `psrr_band_min`) is unchanged and is a
+pre-existing finding, not a PDK-pin effect; no spec row is relaxed here.
 
 ## Alternatives considered
 
