@@ -25,13 +25,13 @@
     {
       "item": "5",
       "index": 0,
-      "describes": "sim/output-voltage-tc/netlist-snapshots/20260817-015751-13476b7.spice",
+      "describes": "sim/output-voltage-tc/netlist-snapshots/20261112-072452-f9871d93.spice",
       "note": "netlist snapshot the output-voltage-tc record simulated (row 1a); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
     },
     {
       "item": "5",
       "index": 1,
-      "describes": "sim/output-voltage-tc/netlist-snapshots/20260817-015751-13476b7.spice",
+      "describes": "sim/output-voltage-tc/netlist-snapshots/20261112-072452-f9871d93.spice",
       "note": "netlist snapshot the output-voltage-tc record simulated (row 3a); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
     },
     {
@@ -49,7 +49,7 @@
     {
       "item": "5",
       "index": 4,
-      "describes": "sim/psrr-dc/netlist-snapshots/20260909-232410-e8e2e46.spice",
+      "describes": "sim/psrr-dc/netlist-snapshots/20261112-073424-f9871d93.spice",
       "note": "netlist snapshot the psrr-dc record simulated (row 4a); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
     },
     {
@@ -61,7 +61,7 @@
     {
       "item": "5",
       "index": 6,
-      "describes": "sim/line-regulation/netlist-snapshots/20260817-021208-13476b7.spice",
+      "describes": "sim/line-regulation/netlist-snapshots/20261112-071544-f9871d93.spice",
       "note": "netlist snapshot the line-regulation record simulated (row 5a); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
     },
     {
@@ -73,7 +73,7 @@
     {
       "item": "5",
       "index": 8,
-      "describes": "sim/quiescent-current/netlist-snapshots/20260909-232410-e8e2e46.spice",
+      "describes": "sim/quiescent-current/netlist-snapshots/20261112-074405-f9871d93.spice",
       "note": "netlist snapshot the quiescent-current record simulated (row 6a); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
     },
     {
@@ -97,7 +97,7 @@
     {
       "item": "5",
       "index": 12,
-      "describes": "sim/startup-ramp/netlist-snapshots/20260923-202758-81803b1.spice",
+      "describes": "sim/startup-ramp/netlist-snapshots/20261112-075045-f9871d93.spice",
       "note": "netlist snapshot the startup-ramp record simulated (row 8c); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
     },
     {

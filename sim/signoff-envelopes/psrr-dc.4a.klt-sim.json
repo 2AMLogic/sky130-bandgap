@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "status": "pass",
-  "netlist": "sim/psrr-dc/netlist-snapshots/20260909-232410-e8e2e46.spice",
+  "netlist": "sim/psrr-dc/netlist-snapshots/20261112-073424-f9871d93.spice",
   "corner_count": 45,
   "passed": 45,
   "failed": 0,
@@ -24,8 +24,8 @@
     ],
     "recorded_from": [
       {
-        "file": "sim/psrr-dc/records/20260909-232410-e8e2e46.json",
-        "sha256": "9cb3445e71b7a1ad4314cb8292e56f12e94ae338cedb0bfbe9ce422f373fee20"
+        "file": "sim/psrr-dc/records/20261112-073424-f9871d93.json",
+        "sha256": "24e8308ae05b6d208f28913af89a22a02ad18812bff639690bbab42cd700aaf5"
       }
     ],
     "excluded_measurements": {
@@ -38,10 +38,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:14694ae20e1fcbe53d9b6a79e39b9195ba5425d9d128a18d632c4f99dbf24b9e",
+      "content_hash": "sha256:b1de715c28d6bd7a4b0ce67bb04a1f58c565aba2c8da6397d02c288b9d8239de",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/psrr-dc/netlist-snapshots/20260909-232410-e8e2e46.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/psrr-dc/netlist-snapshots/20261112-073424-f9871d93.spice)"
   },
   "measurements": [
     {
@@ -196,9 +196,9 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 116.0117,
+          "value": 116.0118,
           "status": "pass",
-          "margin": 56.011700000000005
+          "margin": 56.011799999999994
         },
         {
           "name": "psrr_1k",
@@ -388,9 +388,9 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 96.03138,
+          "value": 96.03137,
           "status": "pass",
-          "margin": 36.03138
+          "margin": 36.031369999999995
         },
         {
           "name": "psrr_1k",
@@ -420,9 +420,9 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 87.86492,
+          "value": 87.86491,
           "status": "pass",
-          "margin": 27.864919999999998
+          "margin": 27.864909999999995
         },
         {
           "name": "psrr_1k",
@@ -516,9 +516,9 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 89.3833,
+          "value": 89.38329,
           "status": "pass",
-          "margin": 29.383300000000006
+          "margin": 29.383290000000002
         },
         {
           "name": "psrr_1k",
@@ -964,9 +964,9 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 91.25871,
+          "value": 91.25856,
           "status": "pass",
-          "margin": 31.258709999999994
+          "margin": 31.258560000000003
         },
         {
           "name": "psrr_1k",
@@ -1060,9 +1060,9 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 98.71733,
+          "value": 98.71734,
           "status": "pass",
-          "margin": 38.717330000000004
+          "margin": 38.71733999999999
         },
         {
           "name": "psrr_1k",
@@ -1092,9 +1092,9 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 90.84069,
+          "value": 90.8407,
           "status": "pass",
-          "margin": 30.840689999999995
+          "margin": 30.8407
         },
         {
           "name": "psrr_1k",
@@ -1348,9 +1348,9 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 103.0315,
+          "value": 103.0316,
           "status": "pass",
-          "margin": 43.031499999999994
+          "margin": 43.0316
         },
         {
           "name": "psrr_1k",
