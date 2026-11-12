@@ -22,12 +22,12 @@ No spec relaxation is made or implied.
 | Bench | Old record | New record | Corners | Result |
 |---|---|---|---|---|
 | `startup-stability` | `20261015-133821-9f956c4` | `20261111-234331-ebc9a64b` | 45/45 | PASS (old: 10 of 45 FAIL, all 125 C) |
+| `psrr-dc-with-injector` | `20260923-124813-af9ff1e` | `20261112-033711-4182dd56` | 45/45 | FAIL 24/45, same as old (see below) |
 
-### Not yet re-qualified (slice A attempt, 2026-11-12)
+### Not yet re-qualified (as of the `psrr-dc-with-injector` slice, 2026-11-12)
 
 | Bench | Status |
 |---|---|
-| `psrr-dc-with-injector` | Batch run lost shards (`batch_no_capacity` / `lost_shard`, 600 s capacity wait exhausted); the record carried n/a corners and was discarded, not committed. Not run locally. Old record `20260923-124813-af9ff1e` remains the evidence. Retry when fleet capacity allows. |
 | `psrr-injector-candidates`, slice B (pre-layout benches), slice C, slice D | Not attempted in this slice. Old records remain the evidence. |
 
 ### Per-row old/new deltas, `startup-stability` (worst case over 45 corners)
@@ -55,6 +55,18 @@ Called out: the old record's 10 failures (125 C corners, `itrav_min` /
 `dvref` max more than doubled (6.6 mV -> 14.7 mV) but stays inside its 20 mV
 limit, so no ratified row fails. Whether the old failures were a PDK effect
 or a transient of the old run was not investigated here.
+
+### Per-row old/new deltas, `psrr-dc-with-injector` (all 45 corners)
+
+`psrr_dc`, `psrr_band_min` and `psrr_1m` are identical between
+`20260923-124813-af9ff1e` and `20261112-033711-4182dd56` at every corner
+(max absolute difference 0 dB). Worst case `psrr_band_min` 24.78 dB
+(`ff_125c_3.63v`) in both; worst `psrr_1m` 15.53 dB in both. Both records
+FAIL 24 of 45 corners against the DR-006 60 dB band-min floor, so the
+failure is unchanged and not a PDK-pin effect. No result moved, so nothing
+is outside tolerance because of the re-pin. This bench is a diagnostic
+companion (issue #300); the pre-existing failure is already tracked and no
+spec row is relaxed here.
 
 ## Alternatives considered
 
