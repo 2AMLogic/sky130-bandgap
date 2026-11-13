@@ -334,7 +334,7 @@ EXTRA_VARIANTS += (
         costs="one added device",
     ),
 )
-#: Issue #368 (DR-021): the two-state-signal candidate. `VSENSE` alone cannot both pull `NG` to ~0
+#: Issue #368 (DR-022): the two-state-signal candidate. `VSENSE` alone cannot both pull `NG` to ~0
 #: when running and leave it alone at the window edge (DR-020), because its swing is only ~0.9 V
 #: against a ~0.7 V threshold. A ratioed inverter `FL` (weak always-on load, input `VSENSE`) trips
 #: near one threshold and a second inverter restores `FL` to a rail-to-rail flag `FH`
@@ -347,10 +347,11 @@ _G5P = ("sky130_fd_pr__pfet_g5v0d10v5 L={l} W={w} nf=1 ad={a} as={a} pd={p} ps={
         "sa=0 sb=0 sd=0 m=1")
 
 
-def _flag_cards(l_load: str = "20", l_clamp: str = "20") -> str:
+def _flag_cards(l_load: str = "20", l_clamp: str = "20", latch: bool = False) -> str:
+    """`latch=True` gates the load with `FH` (DR-022 revision): no standing current while running."""
     dev = lambda t, l: t.format(l=l, w=1, a="0.29", p="2.58", r="0.29")
     return "\n".join((
-        f"XMFL FL VSS VDD VDD {dev(_G5P, l_load)}",
+        f"XMFL FL {'FH' if latch else 'VSS'} VDD VDD {dev(_G5P, l_load)}",
         f"XMFI FL VSENSE VSS VSS {dev(_G5N, '0.5')}",
         f"XMFP FH FL VDD VDD {dev(_G5P, '0.5')}",
         f"XMFN FH FL VSS VSS {dev(_G5N, '0.5')}",
@@ -362,16 +363,26 @@ EXTRA_VARIANTS += (
     Variant(
         "flag_mng", (Edit("XMNS ", insert=_flag_cards()),),
         what="two-inverter `VSENSE` level flag `FH` (ratioed `XMFL`/`XMFI` trip, `XMFP`/`XMFN` "
-             "restorer) gating a clamp `XMNF` on `NG` (issue #368, DR-021)",
+             "restorer) gating a clamp `XMNF` on `NG` (issue #368, DR-022)",
         costs="five added devices (all W=1) and a standing `VDD` -> `VSS` current through the "
               "weak load while the core runs; no resize",
-    ),    Variant(
+    ),
+    Variant(
         "mpc2_vs_flag",
         (Edit("XMPC2 ", retarget=("NG", "VSENSE", "NC1", "VDD")), Edit("XMNS ", insert=_flag_cards())),
         what="`mpc2_vs` (DR-020: stack current collapses once `VSENSE` ~ VREF) plus the "
-             "`flag_mng` level-flag clamp (issue #368, DR-021)",
+             "`flag_mng` level-flag clamp (issue #368, DR-022)",
         costs="five added devices (all W=1), `MPC2` rewired; standing `VDD` -> `VSS` current "
               "through the weak load while the core runs",
+    ),
+    Variant(
+        "mpc2_vs_flaglatch",
+        (Edit("XMPC2 ", retarget=("NG", "VSENSE", "NC1", "VDD")),
+         Edit("XMNS ", insert=_flag_cards(latch=True))),
+        what="`mpc2_vs_flag` with the flag load `XMFL` gated by `FH` instead of `VSS` (DR-022's one "
+             "allowed revision: removes the standing current while the core runs)",
+        costs="same five devices as `mpc2_vs_flag`; the latch makes `FH` bistable, and DR-022 "
+              "records that it loses window-edge eviction",
     ),
 )
 VARIANTS_BY_NAME = {v.name: v for v in VARIANTS + EXTRA_VARIANTS}

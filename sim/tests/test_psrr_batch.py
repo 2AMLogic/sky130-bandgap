@@ -192,6 +192,15 @@ class CandidatesBatchRequests(unittest.TestCase):
         self.assertTrue(card(flag, "XMFN").startswith("XMFN FH FL VSS VSS "))
         self.assertTrue(card(flag, "XMFP").startswith("XMFP FH FL VDD VDD "))
 
+    def test_mpc2_vs_flaglatch_differs_from_flag_only_in_the_load_gate(self):
+        flag = H.batch_netlist(H.VARIANTS_BY_NAME["mpc2_vs_flag"], 3.63, self.base)
+        latch = H.batch_netlist(H.VARIANTS_BY_NAME["mpc2_vs_flaglatch"], 3.63, self.base)
+        card = lambda text, name: next(ln for ln in text.splitlines() if ln.startswith(name + " "))
+        self.assertTrue(card(flag, "XMFL").startswith("XMFL FL VSS VDD VDD "))
+        self.assertTrue(card(latch, "XMFL").startswith("XMFL FL FH VDD VDD "))
+        cards = lambda text: [ln for ln in text.splitlines() if ln.startswith("X")]
+        self.assertEqual([c.replace("XMFL FL VSS", "XMFL FL FH") for c in cards(flag)], cards(latch))
+
     def test_every_point_becomes_one_ac_and_one_op_request_per_variant_and_supply(self):
         points = H.matrix()
         seen = []

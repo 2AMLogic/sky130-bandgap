@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "sha256": "5e6df31f7fcf46f89ec855b413e93215f5ef2f51fcfe05b91f1ec590076e2fef",
+      "size": 46619,
+      "kind": "evidence",
+      "producer": {
+        "tool": "klt",
+        "version": "0.9.2.dev885+ge4c446bd91f2",
+        "loom.repo": "2AMLogic/sky130-bandgap",
+        "commit": "99138c6e67c1d87fdf867e4d9a6aa89f8c38a40f"
+      },
+      "uri": "artifact:evidence/2AMLogic__sky130-bandgap/5e/5e6df31f7fcf46f89ec855b413e93215f5ef2f51fcfe05b91f1ec590076e2fef",
+      "name": "sim/startup-stability/corners/20261113-083451-99138c6/tt_27c_2.97v.log"
+    }
+  ]
+}
