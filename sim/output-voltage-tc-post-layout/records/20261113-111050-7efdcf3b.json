@@ -1,0 +1,1795 @@
+{
+  "author": "313063438+loom-fleet-dispatch[bot]@users.noreply.github.com",
+  "corners": [
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-11ea7c936567",
+        "klt_corner_id": "tt/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "tt_27c_2.97v",
+      "elapsed_s": 3.634,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20261113-111050-7efdcf3b/tt_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193599
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_min",
+          "pass": false,
+          "reason": "below min 1.176",
+          "unit": "V",
+          "value": 1.167495
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.202707
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 178.7911
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 230
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-5c278fa5f482",
+        "klt_corner_id": "tt/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "tt_27c_3.30v",
+      "elapsed_s": 3.705,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20261113-111050-7efdcf3b/tt_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193737
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_min",
+          "pass": false,
+          "reason": "below min 1.176",
+          "unit": "V",
+          "value": 1.167687
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.202872
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 178.6325
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 230
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-47e462bce704",
+        "klt_corner_id": "tt/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "tt_27c_3.63v",
+      "elapsed_s": 3.229,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20261113-111050-7efdcf3b/tt_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193925
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_min",
+          "pass": false,
+          "reason": "below min 1.176",
+          "unit": "V",
+          "value": 1.172176
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.203076
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 156.8579
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 230
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-11ea7c936567",
+        "klt_corner_id": "ss/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ss_27c_2.97v",
+      "elapsed_s": 3.573,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20261113-111050-7efdcf3b/ss_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193297
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_min",
+          "pass": false,
+          "reason": "below min 1.176",
+          "unit": "V",
+          "value": 1.167068
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.202884
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 181.9043
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 230
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-5c278fa5f482",
+        "klt_corner_id": "ss/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ss_27c_3.30v",
+      "elapsed_s": 3.803,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20261113-111050-7efdcf3b/ss_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193358
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_min",
+          "pass": false,
+          "reason": "below min 1.176",
+          "unit": "V",
+          "value": 1.167124
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.202943
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 181.9105
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 230
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-47e462bce704",
+        "klt_corner_id": "ss/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ss_27c_3.63v",
+      "elapsed_s": 3.224,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20261113-111050-7efdcf3b/ss_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193442
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_min",
+          "pass": false,
+          "reason": "below min 1.176",
+          "unit": "V",
+          "value": 1.167978
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.203022
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 177.9626
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 230
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-11ea7c936567",
+        "klt_corner_id": "ff/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ff_27c_2.97v",
+      "elapsed_s": 3.524,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20261113-111050-7efdcf3b/ff_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.194439
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_min",
+          "pass": false,
+          "reason": "below min 1.176",
+          "unit": "V",
+          "value": 1.168181
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.202993
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 176.6382
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 230
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-5c278fa5f482",
+        "klt_corner_id": "ff/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ff_27c_3.30v",
+      "elapsed_s": 3.689,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20261113-111050-7efdcf3b/ff_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.1948
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_min",
+          "pass": false,
+          "reason": "below min 1.176",
+          "unit": "V",
+          "value": 1.169756
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.203526
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 171.2971
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 230
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-47e462bce704",
+        "klt_corner_id": "ff/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ff_27c_3.63v",
+      "elapsed_s": 3.224,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20261113-111050-7efdcf3b/ff_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.195788
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_min",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.186483
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.204203
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 89.81084
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 230
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-11ea7c936567",
+        "klt_corner_id": "sf/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "sf_27c_2.97v",
+      "elapsed_s": 3.684,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20261113-111050-7efdcf3b/sf_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.197584
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_min",
+          "pass": false,
+          "reason": "below min 1.176",
+          "unit": "V",
+          "value": 1.170882
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.205052
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 172.9232
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 230
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-5c278fa5f482",
+        "klt_corner_id": "sf/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "sf_27c_3.30v",
+      "elapsed_s": 3.73,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20261113-111050-7efdcf3b/sf_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.198505
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_min",
+          "pass": false,
+          "reason": "below min 1.176",
+          "unit": "V",
+          "value": 1.171026
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.206735
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 180.5762
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 230
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-47e462bce704",
+        "klt_corner_id": "sf/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "sf_27c_3.63v",
+      "elapsed_s": 3.273,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20261113-111050-7efdcf3b/sf_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.199547
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_min",
+          "pass": false,
+          "reason": "below min 1.176",
+          "unit": "V",
+          "value": 1.17199
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.208727
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 185.6098
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 230
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-11ea7c936567",
+        "klt_corner_id": "fs/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "fs_27c_2.97v",
+      "elapsed_s": 3.613,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20261113-111050-7efdcf3b/fs_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193485
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_min",
+          "pass": false,
+          "reason": "below min 1.176",
+          "unit": "V",
+          "value": 1.167045
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.20359
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 185.5784
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 230
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-5c278fa5f482",
+        "klt_corner_id": "fs/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "fs_27c_3.30v",
+      "elapsed_s": 3.682,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20261113-111050-7efdcf3b/fs_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193516
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_min",
+          "pass": false,
+          "reason": "below min 1.176",
+          "unit": "V",
+          "value": 1.167877
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.203618
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 181.4913
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 230
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-47e462bce704",
+        "klt_corner_id": "fs/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "fs_27c_3.63v",
+      "elapsed_s": 3.172,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/output-voltage-tc-post-layout/corners/20261113-111050-7efdcf3b/fs_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "vref27",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_27",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193682
+        },
+        {
+          "expr": "minimum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_min",
+          "pass": false,
+          "reason": "below min 1.176",
+          "unit": "V",
+          "value": 1.171097
+        },
+        {
+          "expr": "maximum(v(vref))",
+          "max": 1.224,
+          "min": 1.176,
+          "name": "vref_max",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.203655
+        },
+        {
+          "expr": "(maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
+          "max": 50.0,
+          "min": null,
+          "name": "tc_ppm",
+          "pass": false,
+          "reason": "above max 50",
+          "unit": "ppm/degC",
+          "value": 165.307
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 16,
+          "min": 16,
+          "name": "n_temp_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 16.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 230
+    }
+  ],
+  "execution": {
+    "backend": "batch",
+    "blockers": [],
+    "collected_at": "2026-11-13T11:12:10Z",
+    "corner_runtime_max_s": 3.8,
+    "corner_runtime_median_s": 3.6,
+    "corner_runtime_min_s": 3.2,
+    "corner_runtime_sum_s": 52.8,
+    "jobs": [
+      {
+        "collected_at": "2026-11-13T11:12:10Z",
+        "corner_count": 5,
+        "corner_runtime_max_s": 3.7,
+        "corner_runtime_min_s": 3.5,
+        "corner_runtime_sum_s": 18.0,
+        "engine": "ngspice",
+        "engine_version": "47",
+        "job_elapsed_s": 11,
+        "job_id": "klt-sim-11ea7c936567",
+        "klt_client_version": "0.9.2.dev885+ge4c446bd91f2",
+        "klt_exit_code": 3,
+        "klt_status": "fail",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "ead2afb69ef3e8c7eedf988796aa912e35be69b42ea0f3620c60b7ee70c52988",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "pdk_provenance": {
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ],
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+        },
+        "queue_provision_and_transfer_s": 66.5,
+        "remote": {
+          "ami_id": "ami-0f6bb304291339ed0",
+          "availability_zone": "us-east-1a",
+          "client_collected_at": "2026-11-13T11:12:10.225260Z",
+          "client_klt_version": "0.9.2.dev885+ge4c446bd91f2",
+          "client_launched_at": "2026-11-13T11:11:37.150639Z",
+          "client_status_terminal_at": "2026-11-13T11:12:09.030967Z",
+          "client_submitted_at": "2026-11-13T11:10:54.602396Z",
+          "concurrency": "2",
+          "elapsed_seconds": 11,
+          "exit_code": "3",
+          "exit_reason": {
+            "exit_code": 3,
+            "message": "klt sim exited 3 (a corner or measurement failed): aggregate status 'fail'; the job state is failed because of this verdict exit code, not a runner crash and not the whole-job ceiling (a ceiling kill reports state timeout, exit 124)",
+            "nothing_checked": false,
+            "nothing_checked_reasons": [],
+            "report_status": "fail",
+            "units": {
+              "by_status": {
+                "fail": 5
+              },
+              "first_not_passed": [
+                {
+                  "code": null,
+                  "corner_id": "tt/novdd/27C",
+                  "message": null,
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "ss/novdd/27C",
+                  "message": null,
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "ff/novdd/27C",
+                  "message": null,
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "sf/novdd/27C",
+                  "message": null,
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "fs/novdd/27C",
+                  "message": null,
+                  "status": "fail"
+                }
+              ],
+              "total": 5
+            }
+          },
+          "instance_id": "i-03e5ec8f3e93655f6",
+          "instance_type": "c7i.8xlarge",
+          "job_ceiling": {
+            "basis": "conservative_serial_bound",
+            "check": "warn",
+            "exceeds_ceiling": false,
+            "job_bound_s": 1270.0,
+            "max_job_seconds": 3600.0,
+            "max_job_seconds_source": "fleet_config",
+            "max_units_per_job": 15,
+            "overhead_s": 120.0,
+            "per_unit_timeout_s": 230,
+            "recommended_hosts": 1,
+            "unit_count": 5
+          },
+          "job_id": "klt-sim-11ea7c936567",
+          "lifecycle": "spot",
+          "models_lib_comparison": {
+            "status": "match"
+          },
+          "physical_cores": "16",
+          "provider": "aws-batch-fleet",
+          "region": "us-east-1",
+          "runner_compatibility": "match",
+          "runner_klt_version": "0.9.0",
+          "runner_model_inputs": null,
+          "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+          "runner_request_features": {
+            "missing": [],
+            "required": [
+              "analysis_steps",
+              "options.ngspice_init"
+            ],
+            "status": "supported"
+          },
+          "spot": true,
+          "state": "failed",
+          "worker_environment": {
+            "capture": "ok",
+            "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+            "diagnostics": [],
+            "engine_build_comparison": {
+              "status": "match"
+            },
+            "image_manifest": null,
+            "model_inputs": null,
+            "omp_num_threads": null,
+            "pdk": {
+              "models_staged": false,
+              "root": "/opt/pdk",
+              "stamp_scheme": "sources-sha256",
+              "stamp_scope": "executed",
+              "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+              "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+              "variant": "sky130A"
+            },
+            "pdk_stamp_comparison": {
+              "reason": "client_stamp_unavailable",
+              "status": "not_comparable"
+            },
+            "simulator": {
+              "binary_source": "PATH",
+              "requested_binary": "ngspice",
+              "selected_path": "/usr/local/bin/ngspice",
+              "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+              "version_probe": "ok"
+            }
+          }
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-370/sim/build/output-voltage-tc-post-layout/20261113-111050-7efdcf3b/batch/v2.97/klt-report.json",
+        "submit_to_collect_wall_s": 77.5,
+        "submitted_at": "2026-11-13T11:10:52Z",
+        "supply_v": 2.97
+      },
+      {
+        "collected_at": "2026-11-13T11:12:09Z",
+        "corner_count": 5,
+        "corner_runtime_max_s": 3.8,
+        "corner_runtime_min_s": 3.7,
+        "corner_runtime_sum_s": 18.6,
+        "engine": "ngspice",
+        "engine_version": "47",
+        "job_elapsed_s": 12,
+        "job_id": "klt-sim-5c278fa5f482",
+        "klt_client_version": "0.9.2.dev885+ge4c446bd91f2",
+        "klt_exit_code": 3,
+        "klt_status": "fail",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "c0bcdcc1f440e1ae8e01829894d7b5da8ff4fcd974f5271c57fa7b797e04c381",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "pdk_provenance": {
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ],
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+        },
+        "queue_provision_and_transfer_s": 64.8,
+        "remote": {
+          "ami_id": "ami-0f6bb304291339ed0",
+          "availability_zone": "us-east-1a",
+          "client_collected_at": "2026-11-13T11:12:09.479208Z",
+          "client_klt_version": "0.9.2.dev885+ge4c446bd91f2",
+          "client_launched_at": "2026-11-13T11:11:36.242678Z",
+          "client_status_terminal_at": "2026-11-13T11:12:08.233604Z",
+          "client_submitted_at": "2026-11-13T11:10:54.404441Z",
+          "concurrency": "2",
+          "elapsed_seconds": 12,
+          "exit_code": "3",
+          "exit_reason": {
+            "exit_code": 3,
+            "message": "klt sim exited 3 (a corner or measurement failed): aggregate status 'fail'; the job state is failed because of this verdict exit code, not a runner crash and not the whole-job ceiling (a ceiling kill reports state timeout, exit 124)",
+            "nothing_checked": false,
+            "nothing_checked_reasons": [],
+            "report_status": "fail",
+            "units": {
+              "by_status": {
+                "fail": 5
+              },
+              "first_not_passed": [
+                {
+                  "code": null,
+                  "corner_id": "tt/novdd/27C",
+                  "message": null,
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "ss/novdd/27C",
+                  "message": null,
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "ff/novdd/27C",
+                  "message": null,
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "sf/novdd/27C",
+                  "message": null,
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "fs/novdd/27C",
+                  "message": null,
+                  "status": "fail"
+                }
+              ],
+              "total": 5
+            }
+          },
+          "instance_id": "i-03fad1f098377c0a7",
+          "instance_type": "c7i.8xlarge",
+          "job_ceiling": {
+            "basis": "conservative_serial_bound",
+            "check": "warn",
+            "exceeds_ceiling": false,
+            "job_bound_s": 1270.0,
+            "max_job_seconds": 3600.0,
+            "max_job_seconds_source": "fleet_config",
+            "max_units_per_job": 15,
+            "overhead_s": 120.0,
+            "per_unit_timeout_s": 230,
+            "recommended_hosts": 1,
+            "unit_count": 5
+          },
+          "job_id": "klt-sim-5c278fa5f482",
+          "lifecycle": "spot",
+          "models_lib_comparison": {
+            "status": "match"
+          },
+          "physical_cores": "16",
+          "provider": "aws-batch-fleet",
+          "region": "us-east-1",
+          "runner_compatibility": "match",
+          "runner_klt_version": "0.9.0",
+          "runner_model_inputs": null,
+          "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+          "runner_request_features": {
+            "missing": [],
+            "required": [
+              "analysis_steps",
+              "options.ngspice_init"
+            ],
+            "status": "supported"
+          },
+          "spot": true,
+          "state": "failed",
+          "worker_environment": {
+            "capture": "ok",
+            "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+            "diagnostics": [],
+            "engine_build_comparison": {
+              "status": "match"
+            },
+            "image_manifest": null,
+            "model_inputs": null,
+            "omp_num_threads": null,
+            "pdk": {
+              "models_staged": false,
+              "root": "/opt/pdk",
+              "stamp_scheme": "sources-sha256",
+              "stamp_scope": "executed",
+              "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+              "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+              "variant": "sky130A"
+            },
+            "pdk_stamp_comparison": {
+              "reason": "client_stamp_unavailable",
+              "status": "not_comparable"
+            },
+            "simulator": {
+              "binary_source": "PATH",
+              "requested_binary": "ngspice",
+              "selected_path": "/usr/local/bin/ngspice",
+              "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+              "version_probe": "ok"
+            }
+          }
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-370/sim/build/output-voltage-tc-post-layout/20261113-111050-7efdcf3b/batch/v3.30/klt-report.json",
+        "submit_to_collect_wall_s": 76.8,
+        "submitted_at": "2026-11-13T11:10:52Z",
+        "supply_v": 3.3
+      },
+      {
+        "collected_at": "2026-11-13T11:12:09Z",
+        "corner_count": 5,
+        "corner_runtime_max_s": 3.3,
+        "corner_runtime_min_s": 3.2,
+        "corner_runtime_sum_s": 16.1,
+        "engine": "ngspice",
+        "engine_version": "47",
+        "job_elapsed_s": 11,
+        "job_id": "klt-sim-47e462bce704",
+        "klt_client_version": "0.9.2.dev885+ge4c446bd91f2",
+        "klt_exit_code": 3,
+        "klt_status": "fail",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "35f8ea2d6e64fd0aea1f6427bac37072410f51c8e56a3546c6c62eac95b9df3a",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "pdk_provenance": {
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ],
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+        },
+        "queue_provision_and_transfer_s": 65.9,
+        "remote": {
+          "ami_id": "ami-0f6bb304291339ed0",
+          "availability_zone": "us-east-1a",
+          "client_collected_at": "2026-11-13T11:12:09.623771Z",
+          "client_klt_version": "0.9.2.dev885+ge4c446bd91f2",
+          "client_launched_at": "2026-11-13T11:11:36.342624Z",
+          "client_status_terminal_at": "2026-11-13T11:12:08.368164Z",
+          "client_submitted_at": "2026-11-13T11:10:54.086830Z",
+          "concurrency": "2",
+          "elapsed_seconds": 11,
+          "exit_code": "3",
+          "exit_reason": {
+            "exit_code": 3,
+            "message": "klt sim exited 3 (a corner or measurement failed): aggregate status 'fail'; the job state is failed because of this verdict exit code, not a runner crash and not the whole-job ceiling (a ceiling kill reports state timeout, exit 124)",
+            "nothing_checked": false,
+            "nothing_checked_reasons": [],
+            "report_status": "fail",
+            "units": {
+              "by_status": {
+                "fail": 5
+              },
+              "first_not_passed": [
+                {
+                  "code": null,
+                  "corner_id": "tt/novdd/27C",
+                  "message": null,
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "ss/novdd/27C",
+                  "message": null,
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "ff/novdd/27C",
+                  "message": null,
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "sf/novdd/27C",
+                  "message": null,
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "fs/novdd/27C",
+                  "message": null,
+                  "status": "fail"
+                }
+              ],
+              "total": 5
+            }
+          },
+          "instance_id": "i-0a05575d18d8cde52",
+          "instance_type": "c7i.8xlarge",
+          "job_ceiling": {
+            "basis": "conservative_serial_bound",
+            "check": "warn",
+            "exceeds_ceiling": false,
+            "job_bound_s": 1270.0,
+            "max_job_seconds": 3600.0,
+            "max_job_seconds_source": "fleet_config",
+            "max_units_per_job": 15,
+            "overhead_s": 120.0,
+            "per_unit_timeout_s": 230,
+            "recommended_hosts": 1,
+            "unit_count": 5
+          },
+          "job_id": "klt-sim-47e462bce704",
+          "lifecycle": "spot",
+          "models_lib_comparison": {
+            "status": "match"
+          },
+          "physical_cores": "16",
+          "provider": "aws-batch-fleet",
+          "region": "us-east-1",
+          "runner_compatibility": "match",
+          "runner_klt_version": "0.9.0",
+          "runner_model_inputs": null,
+          "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+          "runner_request_features": {
+            "missing": [],
+            "required": [
+              "analysis_steps",
+              "options.ngspice_init"
+            ],
+            "status": "supported"
+          },
+          "spot": true,
+          "state": "failed",
+          "worker_environment": {
+            "capture": "ok",
+            "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+            "diagnostics": [],
+            "engine_build_comparison": {
+              "status": "match"
+            },
+            "image_manifest": null,
+            "model_inputs": null,
+            "omp_num_threads": null,
+            "pdk": {
+              "models_staged": false,
+              "root": "/opt/pdk",
+              "stamp_scheme": "sources-sha256",
+              "stamp_scope": "executed",
+              "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+              "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+              "variant": "sky130A"
+            },
+            "pdk_stamp_comparison": {
+              "reason": "client_stamp_unavailable",
+              "status": "not_comparable"
+            },
+            "simulator": {
+              "binary_source": "PATH",
+              "requested_binary": "ngspice",
+              "selected_path": "/usr/local/bin/ngspice",
+              "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+              "version_probe": "ok"
+            }
+          }
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-370/sim/build/output-voltage-tc-post-layout/20261113-111050-7efdcf3b/batch/v3.63/klt-report.json",
+        "submit_to_collect_wall_s": 76.9,
+        "submitted_at": "2026-11-13T11:10:52Z",
+        "supply_v": 3.63
+      }
+    ],
+    "klt_client": "klt 0.9.2.dev885+ge4c446bd91f2",
+    "local_pinned_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+    "mechanism": "klt sim --backend batch (2am EDA batch fleet, Spot)",
+    "remote_ami_ids": [
+      "ami-0f6bb304291339ed0"
+    ],
+    "remote_engine_versions": [
+      "47"
+    ],
+    "remote_instance_types": [
+      "c7i.8xlarge"
+    ],
+    "remote_pdk_matches_pin": true,
+    "submit_to_collect_wall_s": 77.5,
+    "submitted_at": "2026-11-13T11:10:52Z",
+    "timing_note": "elapsed_s per corner is the remote engine wall clock reported by klt (runtime_s). job_elapsed_s is the fleet harness's own job time. queue_provision_and_transfer_s = submit-to-collect wall minus job_elapsed_s (S3 upload, Spot acquisition/boot, polling granularity, download)."
+  },
+  "experiment": {
+    "claim": "README.md 'Target specification (ratified -- see DR-005, issue #1)' rows 'Output reference' (1.20 V +/-2% untrimmed, 3sigma mismatch MC N>=300 + process corners, -40...125 degC) and 'Temp coefficient (-40...125 degC)' (< 50 ppm/degC), for the 3.3 V primary flavor (DR-001). Measures the ROUTED, LVS-clean bandgap-core layout (issue #62) open-circuit, untrimmed, via klt extract --parasitics translated to a simulatable netlist (sim/bin/post_layout_common.py) -- NOT design/bandgap_core.sch directly; see 'Netlist provenance' below.",
+    "provenance": "extracted",
+    "provenance_source": "layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_routed.gds via `klt extract --parasitics` (layout record 20260923-070209-dbd57a9), translated by sim/bin/post_layout_common.py, wrapped over the unmodified sim/output-voltage-tc/testbench/tb_vref_tc.sch",
+    "slug": "output-voltage-tc-post-layout",
+    "statistical_convention": "N/A (corner-matrix claim, not a distribution claim -- untrimmed spread from local mismatch is issue #12's Monte Carlo)",
+    "title": "Untrimmed output reference and box-method temperature coefficient over -40..125 degC -- POST-LAYOUT (extracted netlist)"
+  },
+  "git": {
+    "branch": "feature/issue-370",
+    "dirty": true,
+    "sha": "7efdcf3b"
+  },
+  "jobs": null,
+  "layout_provenance": {
+    "core_port_order": [
+      "D1",
+      "D2",
+      "GDRV",
+      "NE",
+      "NG",
+      "PN",
+      "TAIL",
+      "VA",
+      "VB",
+      "VBQ",
+      "VDD",
+      "VOUT",
+      "VSS"
+    ],
+    "device_translation_counts": {
+      "mos": 73,
+      "pnp": 24,
+      "res": 145
+    },
+    "layout_gds": "layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_routed.gds",
+    "layout_record": "layout/bandgap-core/reports/20260923-070209-dbd57a9/record.md",
+    "layout_record_id": "20260923-070209-dbd57a9",
+    "lvs_mismatch_count_at_extraction": null,
+    "parasitics_snapshot": {
+      "c_count": 156,
+      "json": "sim/startup-time-post-layout/parasitics-snapshot/20260923-070209-dbd57a9/bandgap_core_routed.pex.json",
+      "r_count": 799,
+      "source": "reused:sim/startup-time-post-layout/parasitics-snapshot/20260923-070209-dbd57a9",
+      "spice": "sim/startup-time-post-layout/parasitics-snapshot/20260923-070209-dbd57a9/bandgap_core_routed.pex.spice",
+      "total_capacitance_ff": 1487.344084,
+      "total_resistance_ohm": 234007.2692
+    }
+  },
+  "links": {
+    "artifact_manifest": "manifests/artifacts/output-voltage-tc-post-layout-20261113-111050-7efdcf3b.manifest.json",
+    "corners_dir": "sim/output-voltage-tc-post-layout/corners/20261113-111050-7efdcf3b/",
+    "json": "sim/output-voltage-tc-post-layout/records/20261113-111050-7efdcf3b.json",
+    "manifest": "sim/output-voltage-tc/experiment.json",
+    "netlist_snapshot": "sim/output-voltage-tc-post-layout/netlist-snapshots/20261113-111050-7efdcf3b.spice",
+    "record": "sim/output-voltage-tc-post-layout/records/20261113-111050-7efdcf3b.md",
+    "testbench": "sim/output-voltage-tc/testbench/tb_vref_tc.sch"
+  },
+  "matrix": {
+    "is_subset": true,
+    "n_points": 15,
+    "point_ids": [
+      "tt_27c_2.97v",
+      "tt_27c_3.30v",
+      "tt_27c_3.63v",
+      "ss_27c_2.97v",
+      "ss_27c_3.30v",
+      "ss_27c_3.63v",
+      "ff_27c_2.97v",
+      "ff_27c_3.30v",
+      "ff_27c_3.63v",
+      "sf_27c_2.97v",
+      "sf_27c_3.30v",
+      "sf_27c_3.63v",
+      "fs_27c_2.97v",
+      "fs_27c_3.30v",
+      "fs_27c_3.63v"
+    ],
+    "points": [
+      [
+        "tt",
+        27.0,
+        2.97
+      ],
+      [
+        "tt",
+        27.0,
+        3.3
+      ],
+      [
+        "tt",
+        27.0,
+        3.63
+      ],
+      [
+        "ss",
+        27.0,
+        2.97
+      ],
+      [
+        "ss",
+        27.0,
+        3.3
+      ],
+      [
+        "ss",
+        27.0,
+        3.63
+      ],
+      [
+        "ff",
+        27.0,
+        2.97
+      ],
+      [
+        "ff",
+        27.0,
+        3.3
+      ],
+      [
+        "ff",
+        27.0,
+        3.63
+      ],
+      [
+        "sf",
+        27.0,
+        2.97
+      ],
+      [
+        "sf",
+        27.0,
+        3.3
+      ],
+      [
+        "sf",
+        27.0,
+        3.63
+      ],
+      [
+        "fs",
+        27.0,
+        2.97
+      ],
+      [
+        "fs",
+        27.0,
+        3.3
+      ],
+      [
+        "fs",
+        27.0,
+        3.63
+      ]
+    ],
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "subset_reason": "Reuses sim/output-voltage-tc's own subset: the box-method TC needs the -40..125 degC excursion swept continuously INSIDE the deck (dc temp), so the runner's outer temperature axis is collapsed to one point on purpose. Process and supply axes run in full (5 x 3 = 15 points).",
+    "supply_v": [
+      2.97,
+      3.3,
+      3.63
+    ],
+    "temperature_c": [
+      27.0
+    ]
+  },
+  "overall_blockers": [],
+  "overall_pass": false,
+  "pdk": {
+    "installed_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "lib_file": "/home/ubuntu/.ciel/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "root": "/home/ubuntu/.ciel",
+    "variant": "sky130A"
+  },
+  "record_id": "20261113-111050-7efdcf3b",
+  "spread_checks": [
+    {
+      "measurement": "vref_27",
+      "min_spread": 0.0001,
+      "n": 15,
+      "note": "VREF(27 degC) must move by at least 0.1 mV across the process/supply matrix. A dead-flat result across 15 corner points means the corner include or the supply param is not reaching the simulator.",
+      "observed_spread": 0.006249999999999867,
+      "pass": true,
+      "reason": ""
+    }
+  ],
+  "supersedes": "20260923-074724-dbd4dda",
+  "timestamp": "2026-11-13T11:10:50Z",
+  "tools": {
+    "klt": "klt 0.9.2.dev885+ge4c446bd91f2",
+    "ngspice": "ngspice-47 (remote, batch fleet c7i.8xlarge; not the dispatch host's ngspice)",
+    "platform": "Linux 7.0.0-1014-aws x86_64",
+    "python": "3.12.3",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}

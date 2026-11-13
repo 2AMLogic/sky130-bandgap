@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "status": "fail",
-  "netlist": "sim/output-voltage-tc-post-layout/netlist-snapshots/20260923-074724-dbd4dda.spice",
+  "netlist": "sim/output-voltage-tc-post-layout/netlist-snapshots/20261113-111050-7efdcf3b.spice",
   "corner_count": 15,
   "passed": 1,
   "failed": 14,
@@ -24,8 +24,8 @@
     ],
     "recorded_from": [
       {
-        "file": "sim/output-voltage-tc-post-layout/records/20260923-074724-dbd4dda.json",
-        "sha256": "27809b1a7d321f7f00b05831afaf405b6b9ffd2252e040c07e70a595abc5b694"
+        "file": "sim/output-voltage-tc-post-layout/records/20261113-111050-7efdcf3b.json",
+        "sha256": "85838cb05f9a78a45428c5ca1b14532a0a6362a57028d5f5957e0510ec919a2f"
       }
     ],
     "excluded_measurements": {
@@ -34,10 +34,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:1ea43b17176f57bb6a1b67e15e0a208f7bac5b1613e7ee2f50b1bc668ac787bf",
+      "content_hash": "sha256:3634d0c6c871555711a038c636c8669e348682276745be88729c4532b1a5eb04",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/output-voltage-tc-post-layout/netlist-snapshots/20260923-074724-dbd4dda.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/output-voltage-tc-post-layout/netlist-snapshots/20261113-111050-7efdcf3b.spice)"
   },
   "measurements": [
     {
