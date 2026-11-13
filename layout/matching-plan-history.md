@@ -1,0 +1,2707 @@
+# Bandgap core -- matching-plan increment history (issue #62 and successors)
+
+Archive of the per-increment narratives that used to sit inline in
+[`matching-plan.md`](matching-plan.md) Section 7. Nothing here was rewritten:
+each section below is the original text, under its original heading, so an old
+`Section 7<x>` citation or anchor still resolves to the same words.
+
+Condensed out of the plan per the operator ruling on issue #499 (2026-11-13):
+the plan keeps a two- to three-line entry for every increment under the same
+heading, plus the full text of the sections other files cite directly (7t, 7x,
+7bb, 7cc, 7ff) and the latest scoreboard table (Section 7cc's). This file keeps
+everything that moved -- the narratives, and the three superseded per-increment
+scoreboards that came out of the kept sections.
+
+**This is history, not the plan.** Read `matching-plan.md` for the current
+rationale and `layout/bandgap-core/reports/LATEST` for the measured evidence;
+where a statement below was superseded by a later increment, the later
+increment is the one that holds.
+
+### 7a. Friction filed while routing the core (issue #62)
+
+**First increment (PR #64), all three now CLOSED upstream:**
+
+- **[klayout-tools#432](https://github.com/2AMLogic/klayout-tools/issues/432)**
+  (closed via #440) -- `gen bjt_array` now draws the bipolar
+  device-recognition marker and well tap itself; the local recognition
+  overlay PR #64 had to compose is retired.
+- **[klayout-tools#433](https://github.com/2AMLogic/klayout-tools/issues/433)**
+  (closed via #439) -- the router now *rejects* a same-block bus attempt
+  instead of certifying it as a routed short. It does not make bussing
+  drawable -- see #454 below, and Section 5a for the met1 workaround this
+  increment uses instead.
+- **[klayout-tools#434](https://github.com/2AMLogic/klayout-tools/issues/434)**
+  (closed via #441) -- `ring_gap_side` lets the router cross into a
+  guard-ringed block, so per-group rings and connectivity are no longer
+  mutually exclusive (Section 5a).
+
+**Second increment (this PR), the residual blockers on LVS closure:**
+
+- **[klayout-tools#454](https://github.com/2AMLogic/klayout-tools/issues/454)**
+  -- re-raises #433's un-shipped half: there is still no metal2/via role or
+  via-drop routing, so `gen-compose` itself cannot draw an intra-block bus;
+  this flow's `met1_bus.py` is a layout-side workaround, not a fix.
+- **[klayout-tools#461](https://github.com/2AMLogic/klayout-tools/issues/461)**
+  -- MOS gate poly is drawn exactly coincident with the diffusion edge, so
+  no contact can land on a gate at all. **This is the dominant blocker on
+  criterion 4** (Section 8): it blocks all MOS finger bussing and every
+  schematic node that terminates on a gate.
+- **[klayout-tools#462](https://github.com/2AMLogic/klayout-tools/issues/462)**
+  -- the dummy-device marker-layer suppression path only covers MOS gates,
+  never bipolar or resistor devices, so this layout's array dummy edge
+  units extract as real, unmatched devices.
+- **[klayout-tools#463](https://github.com/2AMLogic/klayout-tools/issues/463)**
+  -- `res_array` on sky130 can only draw the base `res_generic_po` flavour;
+  a schematic built on a higher-sheet-rho flavour has no matching drawable
+  device class.
+
+**Third increment, one new filing (since CLOSED via klayout-tools#481):**
+
+- **[klayout-tools#470](https://github.com/2AMLogic/klayout-tools/issues/470)**
+  -- when two different net labels land on one electrical net, KLayout names
+  it `A|B`, and `klt extract` emits that net with an empty `warnings[]`
+  while `klt lvs` compares it without comment. The most dangerous error this
+  toolchain can produce -- "the layout asserts two schematic nodes are one"
+  -- is reported only as a punctuation mark inside a net name, invisible to
+  DRC (the collision is between labels, through a pad, not between wires).
+  Found because the second increment's own layout had shipped one; see
+  Section 5b item 4. The flow now scans the extracted netlist for it and
+  gates on the result, but every caller having to reinvent a `"|" in name`
+  check is the gap.
+
+None of #461/#462/#463 moved upstream during the third increment, so none of
+their consequences changed. What changed is how much is attributed to them:
+Section 5b lists four things that had been recorded as blocked by #461 and
+were not.
+
+### 7b. Fourth increment: every named blocker closed, three new ones found
+
+All five gaps the third increment was waiting on merged upstream, and
+`layout/requirements.txt`'s pin is bumped past all of them:
+
+| upstream gap | fixed by | what it changed here |
+|---|---|---|
+| [#461](https://github.com/2AMLogic/klayout-tools/issues/461) MOS gate poly has no contact landing area | #474 | **the increment.** Gates are contactable, so every split MOS group is bussed into one `m=N` device and the six schematic nodes that terminate on a gate are drawn |
+| [#462](https://github.com/2AMLogic/klayout-tools/issues/462) dummy marker is MOS-gate-only | #471 | nothing, on sky130 -- see #491 below |
+| [#463](https://github.com/2AMLogic/klayout-tools/issues/463) `res_array` base flavour only | #475 | the resistor blocks draw the schematic's own `res_high_po`, so the device class matches |
+| [#454](https://github.com/2AMLogic/klayout-tools/issues/454) no metal2/via role | #468 | not yet taken up: `met1_bus.py` still hand-plans its wires. Moving onto router-planned routing is real rework, called out in `MET1_BUS_NOTE` |
+| [#470](https://github.com/2AMLogic/klayout-tools/issues/470) silent `A|B` merged net names | #481 | the flow's own label-collision gate stays (it is what caught the original), but the upstream silence is fixed |
+
+Three new filings, all generic tool-gap descriptions:
+
+- **[klayout-tools#490](https://github.com/2AMLogic/klayout-tools/issues/490)**
+  -- the sky130 extraction deck registers an **empty** region as the body
+  terminal source for every nfet, every `bulk_to_substrate` resistor and
+  every bipolar collector, and `connect_global`s it to a synthesized
+  `vsubs` net. No drawn shape can ever join that net, so a reference
+  netlist that names its substrate node (every real schematic does) can
+  never match. **This is the dominant remaining LVS term**, and unlike every
+  previous dominant term it cannot be attacked from the layout side at all.
+- **[klayout-tools#491](https://github.com/2AMLogic/klayout-tools/issues/491)**
+  -- #462's extractor-side fix is unreachable on sky130: the curated deck
+  declares no `dummy` layer, no generator draws one, and `klt extract`
+  exposes no override. So array dummy edge units still extract as real,
+  unmatched devices.
+- **[klayout-tools#492](https://github.com/2AMLogic/klayout-tools/issues/492)**
+  -- `gen-compose`'s router resolves only metal roles, so it cannot reach
+  the poly gate port #461's landing pad exists for. Not a blocker (this
+  repo draws the licon and li1 riser itself in `met1_bus.gate_contact`), but
+  every consumer that wants a gate wired now re-derives the same stack from
+  layer numbers read out of the extraction deck.
+
+Two gaps the first increment **picked up rather than filed**, having landed
+upstream in the interval: klayout-tools#415 (`res_array` row folding,
+Section 4a) and klayout-tools#421 (`diff_pair`'s nfet-in-nwell
+misclassification). Both are covered by `layout/requirements.txt`'s pin
+bump; #421's fix was verified effective before relying on it (an isolated
+`flavor: "nfet"` `diff_pair` now extracts `{"nfet": 8}`, not `pfet`).
+
+### 7c. Fifth increment: rip-up-and-reroute, no filing, no number moved
+
+The fourth increment's own record named the highest-value next lever as its
+own router, not an upstream gap: `D1`, `VDD` and `VSS` each have exactly one
+hop that comes up short on every one of `ROUTE_ORDER_PASSES`' whole-cell
+reorderings, because reordering *which net draws first* cannot express "net
+J's own greedy first solution sits exactly where net K's one remaining hop
+needs to go, and no order changes that because J must still be drawn before
+K". This increment builds that missing mechanism:
+`gen_bandgap_routed._route_one_net` (the per-net solver, split out of
+`route_inter_block_nets` so it can be called in isolation),
+`_replay_tail` and `_repair_unrouted_hops` run once, after the order-search
+above picks its winner: find a still-unrouted hop, read which already-drawn
+net blocked it, and -- when that net is itself earlier in the same draw
+order -- roll back to just before it, redraw it forced past its own first
+`skip_first` fully-routed solutions (its "next-best" routing against the
+same geometry), and replay everything after it so the forward pass's "a net
+only ever sees final geometry" invariant still holds. Kept only if the
+total unrouted-hop count drops and no new drawn-short conflict appears;
+reverted and blacklisted otherwise, bounded to `REPAIR_MAX_SKIPS_PER_NET`
+(3) attempts per blocker net and `REPAIR_MAX_ATTEMPTS` (8) total, so a
+genuine capacity deadlock costs a fixed, small multiple of one order-search
+pass rather than looping.
+
+**It ran, found real targets, and did not move the number.** The repaired
+record's `bus-summary.json` shows the repair pass's own attempt entry in
+`_route_order_attempts` (`"repair_pass": true`): it identified `VSS`'s
+failing hop as blocked by the already-routed `VOUT` (drawn nine positions
+earlier in the winning order) and `D1`'s as blocked by `D2` (drawn first),
+both legitimate rip-up targets by the ordering rule above, and forced each
+through its available alternate solutions. Neither alternate freed the
+target hop; the repaired attempt's score tied the order-search's own best
+(`"kept": false`), so the original geometry was kept unchanged.
+`mismatch_count` is unchanged at **106**, `pin_count` unchanged at **16**,
+`device_counts` unchanged, and the same three schematic nets (`D1`, `VDD`,
+`VSS`) are still `partial` in the coverage table -- a clean, evidence-backed
+negative result, not a regression.
+
+**What this narrows for the next increment.** The remaining congestion
+survives being asked "what is your next-best routing against the same
+geometry" at the per-net level (`CANDIDATE_ASSIGNMENTS`/chain-order
+granularity), which is real evidence that a single net's own alternate
+choices are not the limiting resource here -- the floorplan's free
+corridors themselves are. That leaves the fourth increment's other two
+candidates as the ones actually worth attempting next: taking up
+klayout-tools#468's metal2/via1 roles so the router (not this repo) plans
+the wires on a second layer entirely, or a floorplan revision that splits
+`amp_input_pair` (180 of the cell's 300 um) so something can cross the
+middle. No new upstream friction filed this increment -- the gap this
+increment closes (a router capability, not a `klt` capability) and the gap
+it leaves open (floorplan congestion) are both this repo's own.
+
+### 7d. Sixth increment: both remaining candidates investigated -- one ruled out, one narrowed, no code shipped
+
+The fifth increment's own record left two candidates for closing AC1: take
+up klayout-tools#468's metal2/via1 roles, or split `amp_input_pair`. This
+increment investigated both against `origin/main` (`a969fee`) before
+committing to either, and found the first is not viable at all and the
+second would not, by itself, be sufficient -- so no router or floorplan
+change is shipped here. Both findings are worth recording so a future
+increment does not re-spend time re-discovering them.
+
+**klayout-tools#468 is already merged, already in this repo's pinned `klt`
+commit, and does not add routing capacity for this design.**
+`2AMLogic/klayout-tools#468` (`de334e5`, closing issue #454) merged
+2026-08-04, and `git merge-base --is-ancestor` against the two commits
+confirms it is an *ancestor* of `8c277eb` -- the commit this repo's
+`layout/requirements.txt` already pins as of PR #71 -- so no pin bump is
+needed to have it. But reading `klayout_tools.gen._PDK_ROLE_LAYERS` and
+`klayout_tools.decks.sky130.EXTRACTION_DECK` directly (source, not the PR
+description) shows why it does not help here: for the `sky130` family,
+`"metal2"` resolves to `(68, 20)` and `"via1"` to `(67, 44)` -- i.e.
+`EXTRACTION_DECK.metals[1]`/`.vias[0]`, which are exactly met1 and mcon,
+the same two layers `met1_bus.py` already hand-draws every bus and
+inter-block net on (MET1_BUS_NOTE). sky130's curated extraction deck
+declares only two metal levels in total (`metals=((67,20),(68,20))` --
+li1, met1); there is no third physical layer for `"metal2"` to expose. The
+role lets `gen-compose`'s own router *plan* wires on met1 with via-drops to
+li1 pads -- capability this repo's hand-written router already has and
+already fully exercises. Separately, `gen_compose.route_two_pin` is a
+two-pin-only Manhattan-backbone planner (one jog, five diagnostic checks);
+it has no equivalent of this repo's own per-net candidate-assignment
+search, multi-order chain routing, or the channel-track/detour search
+`_connect`/`_channel_paths` run. Swapping onto it would trade a more
+capable per-net router for a less capable one, on the same physical layer,
+for zero new capacity. **Ruled out**: klayout-tools#468 is not a lever for
+AC1 closure on this floorplan, and no further increment should re-evaluate
+it without new evidence (e.g. a *third* metal level being curated for
+sky130 upstream, which #468 is not).
+
+**Widening this repo's own router search by 2-3x reproduces the identical
+result, at roughly double the runtime.** As a second, independent
+experiment (not committed -- see below), `CANDIDATE_ASSIGNMENTS` (3->6),
+`CANDIDATES_PER_TERMINAL` (3->5), `REPAIR_MAX_SKIPS_PER_NET` (3->8) and
+`REPAIR_MAX_ATTEMPTS` (8->24) were all raised together and the full flow
+re-run against the unmodified floorplan. Runtime went from ~13 min to
+26:04 (`time` total); the result was byte-identical to the fifth
+increment's own record in every gated field: `mismatch_count=106`,
+9/12 schematic nets drawn, and the same three hops unrouted with the same
+`blocked_by` attributions (`D1` by `D2`, `VDD` by `GDRV`/`TAIL`, `VSS` by
+`VOUT`). This is stronger evidence than the fifth increment's own (which
+tried a bounded `skip_first<=3` search) that the remaining congestion is a
+genuine floorplan free-corridor deadlock, not a search-depth limit -- and
+it is not worth carrying as a permanent cost (2x runtime, zero
+improvement), so the parameter changes were reverted rather than kept.
+**Ruled out**: increasing this router's own search depth, at least up to
+this multiple, is not a lever either.
+
+**New data narrowing the floorplan-split candidate itself.** Reading
+`bus-summary.json`'s `_inter_block` records (not just the coverage table)
+for the three still-unrouted hops shows the floorplan-split candidate is
+not sufficient on its own, even if it works:
+
+- `VDD`'s two failing hops are blocked by `GDRV` and `TAIL` respectively,
+  both of which are drawn *after* `VDD` in the winning net order. The
+  repair pass's own eligibility rule
+  (`net_index[blocker] < net_index[failing_net]`, `_repair_unrouted_hops`)
+  permanently excludes a later-drawn blocker from ever being a rip-up
+  target -- so no amount of `REPAIR_MAX_SKIPS_PER_NET`/`REPAIR_MAX_ATTEMPTS`
+  budget could ever free `VDD` via this mechanism, independent of the
+  search-depth finding above. A structural note, not a tuning one.
+- `VSS`'s failing hop (`pnp_ptat:VSS trunk` -> `pnp_ctat:VSS trunk`,
+  blocked by `VOUT`) is entirely within **row 0** (the resistor/PNP row,
+  `pnp_ctat` at x~7 to `pnp_ptat` at x~280) -- physically unrelated to
+  `amp_input_pair`, which lives in row 1. **A floorplan revision that
+  splits `amp_input_pair` would, even if fully successful, close at most
+  `D1` and `VDD` -- it cannot touch `VSS`'s hop**, which competes with
+  `VOUT`'s own route for the same row-0 corridor near the floorplan's
+  bottom margin. Full AC1 closure needs two independent floorplan fixes,
+  not one: a row-1/row-2 corridor (the `amp_input_pair` split already
+  proposed) *and* a separate row-0 corridor fix between `pnp_ctat` and
+  `pnp_ptat`.
+
+**Why no code change ships in this increment.** Splitting `amp_input_pair`
+is a real floorplan/matching redesign (today it is one `diff_pair`
+instance interdigitating MP1/MP2 for common-centroid matching; no
+generator param exists to place it as two gapped halves, so doing this
+means either a new upstream generator capability or two separate
+`diff_pair` instances placed by hand -- the latter changes the device's own
+matching topology, `matching-plan.md` Section 1's "dominant mismatch
+contributor" device, and is not a change to make inside a search-and-
+report increment). Combined with the row-0 finding above (the split alone
+would not even complete AC1), attempting it as this increment's own scope
+would not fit the same bounded, single-lever pattern every prior increment
+here has followed. Recorded as ruled-in-scope-but-not-attempted for
+whoever picks it up next, with the two-separate-corridors framing above so
+it is scoped correctly from the start.
+
+### 7e. Seventh increment: the channel-search-window lever, run to completion -- not a monotonic win, ruled out
+
+Section 7d's same-day follow-up pass named one still-untried, apparently
+"safe" lever and could not verify it: widening `CHANNEL_NEAR_TRACKS` (8->16)
+and `CHANNEL_DOGLEG_TRACKS` (5->9) in `gen_bandgap_routed.py`'s
+`_channel_paths` -- the per-*hop* path-search candidate window, distinct
+from the whole-cell net-order/repair search Section 7d's other experiment
+widened. That pass reasoned the change was "monotonic (a strict superset of
+the current candidate paths, so it can only match or improve on the current
+result, never regress it)" for a single hop in isolation, made the edit,
+started a flow run, and reverted unverified when the run did not finish
+within that session.
+
+This increment made the identical edit and ran `run-bandgap-routed-flow.sh`
+to completion (`20260804-100209-f3b4908`, 24m19s wall time, DRC clean,
+`device_counts`/`pin_count` unchanged) to get a real answer. **The
+single-hop monotonicity reasoning does not extend to the whole-cell
+result**, and the run demonstrates why: widening the window changes which
+paths are *available* to the per-net candidate search, which changes which
+whole-cell net order wins `gen_bandgap_routed.py`'s own order-search scoring
+(the same order/repair search Section 7c's repair pass and Section 7d's
+other experiment operate over) -- so a wider per-hop window can free one hop
+by routing an *earlier* net differently, at the cost of consuming the
+corridor a *later* net's now-unrouted hop needed. That is exactly what
+happened:
+
+| net | baseline (`496ab43`) | this experiment (`f3b4908` + window widened) |
+| --- | --- | --- |
+| `VDD` | NO (blocked by `GDRV`/`TAIL`) | **yes** -- now fully drawn |
+| `TAIL` | yes (fully drawn) | **NO** -- blocked by `VOUT` |
+| `D1` | NO (blocked by `D2`) | NO (blocked by `D2`, unchanged) |
+| `VSS` | NO (blocked by `VOUT`) | NO (blocked by `VOUT`, unchanged) |
+
+`VDD` gained; `TAIL` -- previously one of the 9 fully-drawn nets -- lost.
+Schematic inter-block coverage stayed at **9/12** (membership shifted, count
+did not), `mismatch_count` moved **106 -> 105** (one fewer mismatch, not a
+material change against the causes catalogued in the routed record's "LVS
+mismatch analysis"), and runtime nearly doubled (24m19s vs. the ~13 min
+baseline). `VSS`'s hop is unaffected either way, consistent with Section
+7d's finding that it is a row-0 corridor problem unrelated to this window.
+
+**Ruled out, and reverted (not shipped)**: a wider per-hop candidate window
+is not a lever for AC1 closure on this floorplan -- it is a lateral trade
+between hops chosen by the whole-cell order search, not a net gain, and it
+costs real runtime. This closes out the last lever named in the issue
+thread as "genuinely untested"; the remaining candidate is unchanged from
+Section 7d: a floorplan revision splitting `amp_input_pair` (for `D1`/`VDD`)
+plus a separate row-0 corridor fix between `pnp_ctat` and `pnp_ptat` (for
+`VSS`) -- both real floorplan/matching redesigns, not parameter tuning, and
+still not attempted.
+
+### 7f. Eighth increment: widening row 0's own block margin, run to completion -- `VSS`'s blocker unchanged, `GDRV` regresses, ruled out
+
+Sections 7d/7e narrowed the remaining candidate for `VSS`'s hop
+(`pnp_ctat:VSS trunk` -> `pnp_ptat:VSS trunk`) to "a separate row-0 corridor
+fix between `pnp_ctat` and `pnp_ptat`" but flagged that an actual
+`amp_input_pair` split is a real matching-topology redesign, out of scope
+for a single bounded increment. This increment looked for a smaller,
+row-0-only lever short of that redesign: `place_blocks()`'s
+`BLOCK_MARGIN_UM` (the horizontal clearance between blocks placed
+side-by-side in the same row) is a single global constant, applied to every
+row's gaps identically. Row 0 (`pnp_ctat`/`res_r2`/`res_trim`/`res_r1`/
+`pnp_ptat`, 5 blocks, 4 gaps) is not the floorplan's widest row -- row 1
+(driven by `amp_input_pair`) is, at 308.2 um vs. row 0's 299.28 um measured
+from the `20260804-065252-496ab43` record's `compose.inner.json` -- so
+widening only row 0's own gaps looked like a plausible, bounded, mostly-free
+lever: up to ~9 um of it costs nothing (row 0 is re-centered under row 1's
+already-wider span), and the < 0.05 mm^2 area budget (Section 6) had ~9.8%
+headroom (45,508 / 50,000 um^2 used) for the rest.
+
+**What was tried.** Added a `ROW_BLOCK_MARGIN_OVERRIDE_UM = {0: 24.0}` table
+to `gen_bandgap_routed.py` (row 0's margin 16 -> 24 um, i.e. +8 um per gap x
+4 gaps = +32 um of row-0 width), consulted by `place_blocks()` in place of
+the flat `BLOCK_MARGIN_UM` on a per-row basis -- every other row's geometry
+is untouched. Chosen conservatively so the resulting composed bbox
+(estimated ~48.7k um^2 from the width delta) stayed under the 50,000 um^2
+budget with margin to spare, confirmed by the actual run below.
+
+**The run completed** (record `20260804-104732-fc95614`, ~16 min wall
+time -- inside the flow's normal ~13-16 min range, not the prior session's
+unexplained hang). DRC stayed clean, `device_counts`/`pin_count` unchanged,
+composed bbox grew **45,508 -> 48,708 um^2** (still under the 50,000 budget,
+but consuming nearly all the remaining headroom for a change that, per the
+comparison below, bought nothing).
+
+| net | baseline (`496ab43`) | this experiment (row 0 margin 16->24) |
+| --- | --- | --- |
+| `VDD` | partial (blocked at `amp_input_pair`) | partial (blocked at `amp_input_pair`, unchanged) |
+| `D1` | partial (blocked at `amp_nmirr`) | partial (blocked at `amp_nmirr`, unchanged) |
+| `VSS` | partial (blocked at `pnp_ctat`) | partial (blocked at `pnp_ctat`, unchanged) |
+| `GDRV` | **drawn** | **partial** -- newly blocked at `core_mirror` |
+
+**`VSS`'s own blocker did not move at all** -- the coverage table's "not
+drawn" column names the identical block (`pnp_ctat`) before and after, so
+the extra row-0 corridor this change added was not the resource the router
+was short of for that hop; whatever `VSS`'s actual path needs, more
+horizontal gap between row 0's blocks is not it. `D1` and `VDD` were
+similarly untouched (both still blocked at the same block as baseline).
+Worse, `GDRV` -- fully drawn at baseline -- regressed to partial: the
+whole-cell net-order search picked a different winning order once row 0's
+blocks sat further apart, and that reshuffle cost `GDRV`'s route through
+`core_mirror` even though nothing about `GDRV`'s own hop touches row 0.
+Schematic inter-block coverage moved **9/12 -> 8/12** (a net regression, not
+a lateral trade this time) and `mismatch_count` moved **106 -> 107** (one
+worse). This is the same failure mode Section 7e already demonstrated for
+the per-hop channel window -- widening a router resource anywhere on this
+floorplan reshuffles the whole-cell order search's winner, and a hop
+untouched by the widened resource can still lose from the reshuffle -- now
+confirmed for a floorplan-geometry lever too, not just a search-parameter
+one.
+
+**Ruled out, and reverted (not shipped)**: widening row 0's own
+`BLOCK_MARGIN_UM` is not a lever for `VSS` (or `D1`/`VDD`) -- it left the
+actual blocking contention untouched while regressing a previously-drawn
+net and consuming most of the remaining area-budget headroom for zero
+gain. `ROW_BLOCK_MARGIN_OVERRIDE_UM` and the `place_blocks()` per-row
+lookup it drove were reverted after this measurement, not shipped; the new
+report directory this run produced was not committed either, per this
+issue's established convention for a tried-and-ruled-out lever (Sections
+7d/7e). This closes out "wider gap, same floorplan" as a category of
+lever for `VSS`'s hop specifically (distinct from the whole-row-1-blocking
+`amp_input_pair` split candidate, which this increment does not bear on
+either way): the remaining candidates for AC1 closure are unchanged from
+Section 7d/7e -- a floorplan revision splitting `amp_input_pair` (for
+`D1`/`VDD`) and a `pnp_ctat`/`res_r2`/`pnp_ptat` **re-placement** (not
+just re-spacing) for `VSS` -- both real floorplan/matching redesigns, still
+not attempted.
+
+### 7g. Ninth increment: `blocked_by` names one veto of many -- a per-hop blocker tally, and what it says about the three hops left after #78
+
+Every increment from 7c on characterized each still-unrouted hop by *one*
+net: the `blocked_by` value the hop's own record carries. That value comes
+from `_LAST_BLOCKER` (`gen_bandgap_routed.py`), which is only ever the
+*last* candidate path `_connect()` happened to try before giving up -- an
+artifact of search order, not necessarily the net actually holding the
+corridor. This increment tested that framing directly and found it
+incomplete, then used the corrected picture to ask what is really left.
+
+**The set of failing hops changed under this increment's feet, and the
+analysis is against the new one.** An earlier draft of this section
+analysed `D1`, `VDD` x2 and `VSS`. PR #78 (`bulk_terminal()` offering all
+three ring taps) landed while that draft was open and moved the failure:
+`VDD` now routes end to end, `GDRV` takes the corridor `VDD` used to leave
+free, and `mismatch_count` is 92 rather than 106. Everything below is
+measured against the post-#78 floorplan -- record
+`20260804-113412-4fb2a3a`, this increment's own full flow run, whose
+`device_counts`/`pin_count`/`mismatch_count=92`/`violation_count=0` are
+identical to the `20260804-105025-25d02e6` baseline on `main`. The three
+hops in play are now **`D1`, `VSS`, `GDRV`**, one hop each.
+
+**The tally is now part of the flow's own record, not a one-off
+diagnostic.** `_connect()`'s per-candidate blocker tracking (previously
+`_LAST_BLOCKER`, overwritten on every rejection) is joined by
+`_BLOCKER_COUNTS`, a per-call tally reset at the start of every `_connect()`
+invocation and surfaced on a failed hop as `blocked_by_counts`
+(`bus-summary.json`'s `_inter_block` entries, and so every future record)
+alongside the existing `blocked_by`. `blocked_by` is unchanged, for
+backward compatibility with the repair pass's own targeting and any
+existing reader; `blocked_by_counts` is strictly additive. Unit-covered in
+`layout/tests/test_routed_flow_gates.py` (`TestConnectRouter`'s two
+blocker-tally tests, `TestDrawChainBlockedByCounts`). The table below is
+read straight out of that record -- no standalone harness required to
+reproduce it:
+
+| hop | recorded `blocked_by` | distinct vetoing nets | rejected candidates (attempts / distinct geometries) | breakdown |
+| --- | --- | --- | --- | --- |
+| `D1` (`amp_nmirr:D1:far0` -> `amp_input_pair:D1:far1`) | `D2` | 8 | 5262 / 4780 | `D2` 3091, `GDRV` 806, `TAIL` 732, `VA` 256, `VB` 238, `D1` 82, `PN` 55, `VSS` 2 |
+| `VSS` (`pnp_ptat:VSS trunk` -> `pnp_ctat:VSS trunk`) | `VOUT` | 20 | 5230 / 4748 | `VOUT` 2546, `VA` 1445, `VSS` 407, `VBQ` 271, `TAIL` 101, `VB` 91, `D2` 33, plus **13** distinct `res_r2` intra-block bus segments totalling 336 |
+| `GDRV` (`core_mirror:GDRV:far1` -> `amp_pmirr:GDRV:far0`) | `TAIL` | 3 | 5636 / 5154 | `VDD` 2851, `TAIL` 2778, `GDRV` 7 |
+
+Two things fall out of the table immediately. `VSS`'s recorded blocker
+(`VOUT`) accounts for under half its rejections, with `VA` nearly as large
+and `res_r2`'s own intra-block series-chain bus (the 108-unit ladder folded
+into 9 rows, Section 4a) a real contributor -- row 0's internal wiring is
+part of that deadlock, which no prior increment's per-net framing
+surfaced. `GDRV`'s recorded blocker (`TAIL`) is likewise not its largest;
+`VDD` is, and `GDRV` is contested by only **three** nets, the narrowest
+congestion of the three hops.
+
+**These are exhaustive counts, not samples.** A hop that fails has had
+*every* candidate `_connect()` can generate rejected, and each rejection
+tallies exactly one net, so the tally's sum is the size of the search:
+5230, 5262 and 5636 candidate attempts respectively for the three hops
+above (4748 / 4780 / 5154 distinct geometries -- the detour ladder re-offers
+the two plain elbows at each of its 241 offsets, which the attempt count
+includes and the geometry count does not). That is every elbow, every
+floorplan-channel crossing, and every Z-detour/four-segment escape across
+the full +/-48 um `DETOUR_OFFSETS_UM` range, for that hop's endpoints.
+Summed over each net's whole per-net search (`_route_one_net` enumerates
+`CANDIDATE_ASSIGNMENTS` pad assignments x `_chain_orders` visit orders,
+each re-running `_connect` on every hop), the three nets between them burn
+**66,478 / 57,937 / 39,452** rejected candidate paths for `VSS` / `D1` /
+`GDRV`. "The router's search just needs to be smarter" is not a live
+hypothesis for any of them.
+
+**Which blockers are actually rippable?** A pure-Python replay harness
+(reads a record's per-block `*.gen.json`, rebuilds the intra-block busses
+and re-runs `route_inter_block_nets` on the recorded winning order -- no
+`klt` calls, ~70 s per configuration instead of a ~15 min flow run)
+reproduces the record's routing exactly, then re-runs it with one net's
+*inter-block* wiring removed from the order entirely. Removing a net this
+way does not remove its intra-block metal: `_draw_intra_block_busses` draws
+every MOS group's combs and every array's trunks before the inter-block
+router starts, and those carry net names too. That distinction is what the
+test measures:
+
+| removed net | effect on the hop that named it |
+| --- | --- |
+| `VA` | **`VSS`'s hop routes completely** -- all five terminals joined, zero conflicts |
+| `VOUT` | **`VSS`'s hop routes completely** as well |
+| `VDD` | `GDRV` still fails; `VDD` still vetoes 819 candidates (down from 2851) purely from intra-block comb metal, and `TAIL` grows to 4045 |
+| `TAIL` | `GDRV` still fails, with a **byte-identical** blocker tally (`VDD` 2851, `TAIL` 2778, `GDRV` 7) -- not one of `TAIL`'s 2778 vetoes came from its inter-block route |
+| `D2` | `D1` still fails, and gets *worse* (two failing hops instead of one); `D2` still vetoes 2854 of its original 3091 from intra-block metal |
+
+So the three hops are not the same kind of failure, and the old
+one-blocker-per-hop framing hid that:
+
+- **`VSS` is genuine inter-block corridor contention.** Two different nets'
+  drawn routes each independently hold it, and removing *either* frees it.
+- **`GDRV` and `D1` are not.** The metal in their way is overwhelmingly
+  intra-block comb/trunk geometry that exists before the inter-block router
+  runs at all -- so no net order, no rip-up target, and no repair budget can
+  move it. `GDRV`'s corridor is bounded by `core_mirror`'s and
+  `amp_pmirr`'s own `VDD`/`TAIL` combs; `D1`'s by `amp_nmirr`'s and
+  `amp_input_pair`'s own `D2` combs.
+
+That also explains a result Section 7c's repair pass has been producing
+ever since: this record's repair pass ran, found all three named blockers
+*eligible* (each is drawn earlier in the winning order than the net it
+blocks -- `VOUT` at 4 vs `VSS` at 9, `TAIL` at 10 vs `GDRV` at 11, `D2` at
+0 vs `D1` at 12), tried them, and produced a result identical to the
+forward pass (`_route_order_attempts`' last entry: `repair_pass: true`,
+`kept: false`). For `GDRV`/`D1` no rerouting of the named net could have
+helped -- the blocking metal is not the part the repair pass can move. For
+`VSS` the target selection was right and the *alternate solutions* were the
+limit: `_route_one_net`'s `skip_first` search never reaches a `VOUT`
+routing that vacates the corridor, even though deleting `VOUT` outright
+does. Widening the repair pass's targeting to the full `blocked_by_counts`
+list (so it could also reach `VA`) was considered and is **not** shipped:
+for two of the three hops it targets metal the pass cannot move by
+construction, and for the third the constraint is the alternate-solution
+search, not the target -- it would cost runtime for no reachable gain,
+which is the same test Sections 7e/7f applied to their own levers.
+
+**What this narrows for the next increment.** The remaining candidate is
+still the floorplan revision Section 7d named, but the reason is now
+sharper and the two halves are genuinely different problems:
+
+- `D1` and `GDRV` need **block-internal** relief -- either splitting
+  `amp_input_pair` (Section 7d) or otherwise re-planning `amp_nmirr`'s,
+  `amp_pmirr`'s and `core_mirror`'s comb escapes so their own `D2`/`VDD`/
+  `TAIL` fingers do not wall off the one corridor between them. Nothing in
+  the inter-block router reaches this.
+- `VSS` needs **corridor** relief in row 0 -- and specifically enough of it
+  to clear `VOUT` *and* `VA` *and* `res_r2`'s own bus, since removing any
+  single one of the first two is sufficient in isolation but the floorplan
+  has to accommodate all of them at once. Section 7f already ruled out
+  simply widening row 0's block margin as a way to get it.
+
+Neither is a router parameter, and this increment ships no routing change:
+only the `blocked_by_counts` diagnostic, so the next increment can read
+this breakdown out of any record instead of re-deriving it.
+
+### 7h. Tenth increment: PR #78 changed the unrouted set from `D1`/`VDD`/`VSS` to `D1`/`GDRV`/`VSS` -- re-ran the search-depth lever against the new set, still not a lever
+
+PR #78 (merged after Section 7f) fixed `VDD`'s two blocked hops by offering
+every PMOS guard-ring tap (`TAP_N`/`TAP_S`/`TAP_E`) as a routing candidate
+instead of pinning `bulk_terminal()` to `TAP_S` -- `core_mirror` and
+`amp_input_pair` now route their n-well taps through `TAP_N`, and `VDD` is
+fully drawn (`klt lvs` correspondence went from `0`/`0` to `3`/`1` as a
+result, since every reference PMOS bulk is on `VDD`). The fix's own record
+disclosed a cost rather than burying it: the corridor `VDD` now uses through
+`core_mirror` is one `GDRV` previously had, so **`GDRV`'s hop from
+`core_mirror` to `amp_pmirr`/`amp_nmirr` is now blocked** (`blocked_by:
+TAIL`) where it was fully drawn before. Schematic inter-block coverage is
+unchanged at 9/12 -- a different net in the short column, not a net gain --
+so this section's job is to re-run the checks Sections 7d-7f already
+performed against the *new* unrouted set (`D1`, `GDRV`, `VSS`) rather than
+assume a finding measured against the old set (`D1`, `VDD`, `VSS`) still
+holds for a floorplan whose winning route order has changed.
+
+**What was tried.** Section 7d's router-search-depth widening
+(`CANDIDATE_ASSIGNMENTS` 3->6, `CANDIDATES_PER_TERMINAL` 3->5,
+`REPAIR_MAX_SKIPS_PER_NET` 3->8, `REPAIR_MAX_ATTEMPTS` 8->24) was re-applied,
+unmodified, against current `main` (`75db569`, i.e. post-PR-#78) and run to
+completion.
+
+**The result: byte-identical to the post-#78 baseline in every gated
+field.** `mismatch_count=92` (unchanged from the `20260804-105025-25d02e6`
+baseline), `devices.matched=3`/`nets.matched=1` (unchanged), `device_counts`/
+`pin_count` unchanged, met1 routing `nets=13, unrouted=3` with the identical
+three nets (`D1`, `GDRV`, `VSS`) blocked at the identical points
+(`GDRV`'s hop still reports `blocked_by=TAIL`). DRC stayed clean. This
+matches Section 7d's original finding for the pre-#78 net set exactly:
+widening this repo's own router's search budget 2x is not a lever, whether
+the specific net it fails to free is `VDD` (pre-#78) or `GDRV` (post-#78) --
+the mechanism ruled out in Section 7d is the *search*, not any one net's
+path, so re-verifying against the changed net set was expected to (and did)
+reproduce the same negative result, not superseded by it.
+
+**Also checked, by inspection rather than a further flow run**: `_connect`'s
+existing per-hop search (two direct elbows, `free_channels()`'s block-edge
+channel tracks restricted to `CHANNEL_NEAR_TRACKS`/`CHANNEL_DOGLEG_TRACKS`
+nearest options, then `DETOUR_OFFSETS_UM`'s 0.4 um-pitch Z-detour sweep out
+to +-48.4 um from each endpoint) is already a near-continuous search of the
+plane around both of a hop's endpoints, bounded only by already-drawn met1 --
+`free_channels()`'s own docstring states a block's bbox is not an obstacle to
+this router, only another node's drawn metal is. **Section 7g -- a
+concurrently developed increment that merged while this one was in review --
+has since measured exactly that, and independently confirms this section's
+result at the mechanism level.** Its per-`_connect()`-call blocker tally
+(now carried in every record as `blocked_by_counts`) shows `GDRV`'s hop
+rejecting **all 5636** candidate paths `_connect()` can generate -- every
+elbow, every floorplan-channel crossing, and the full +/-48 um detour sweep
+-- against just three vetoing nets (`VDD` 2851, `TAIL` 2778, `GDRV` 7); and
+its replay harness shows that deleting `TAIL`'s *inter-block* route leaves
+that tally byte-identical, i.e. the metal walling off the corridor is
+`core_mirror`'s and `amp_pmirr`'s own intra-block comb geometry, drawn
+before the inter-block router runs at all. A search that already exhausts
+its candidate space against obstacles no net order can move cannot be
+improved by giving it a larger budget -- which is precisely the negative
+result this section measured end to end, arrived at from the opposite
+direction. This section therefore does not re-derive that tally or re-run
+that harness; see Section 7g for the per-hop breakdown.
+
+**Ruled out, and reverted (not shipped)**: router search-depth widening is
+not a lever for the current (`D1`, `GDRV`, `VSS`) unrouted set, exactly as
+Section 7d found for the prior (`D1`, `VDD`, `VSS`) set. No code change
+ships from this increment; the report directory this run produced was not
+committed, per this issue's established convention (Sections 7d-7f). The
+remaining candidates for AC1 closure are unchanged in kind from Section
+7d-7f, updated only in which net stands in for the row-1/row-2 corridor
+problem: a floorplan revision splitting `amp_input_pair` (now for `D1`/
+`GDRV` -- `GDRV`'s blocked hop, like `VDD`'s before it, touches
+`core_mirror`'s row-1/row-2 crossing, the same region a split would open)
+and a separate `pnp_ctat`/`res_r2`/`pnp_ptat` re-placement for `VSS` -- both
+real floorplan/matching redesigns, still not attempted. Section 7g sharpens
+that same pair by naming what kind of relief each half needs: `D1` and
+`GDRV` need **block-internal** relief (their blockers are comb geometry the
+inter-block router never reorders), while `VSS` needs **corridor** relief in
+row 0 wide enough for `VOUT`, `VA` and `res_r2`'s own bus at once.
+
+### 7i. Eleventh increment: `VSS`'s row-0 re-placement attempted directly -- fixes `VSS`, at the cost of a different row-0 net each time, no net win, not shipped
+
+Every prior increment on `VSS`'s hop (7d/7f/7g) narrowed the candidate to "a
+`pnp_ctat`/`res_r2`/`pnp_ptat` **re-placement**, not just re-spacing" without
+attempting one, on the grounds that a real floorplan/matching redesign does
+not fit the bounded, single-lever pattern the other levers here were tested
+under. This increment attempted the cheapest possible re-placement move --
+reordering row 0's five `BLOCKS` entries left-to-right, which changes no
+device's own topology or generator params and costs zero area (row 0's width
+is a sum of the same five block widths plus `BLOCK_MARGIN_UM` regardless of
+order, and row 0 has never been the floorplan's widest row -- row 1,
+driven by `amp_input_pair`, is, per Section 7f) -- to test the theory
+directly with two concrete orderings, each run to completion.
+
+**Why this is a real placement change, not a parameter sweep.** Baseline row
+0 order is `pnp_ctat, res_r2, res_trim, res_r1, pnp_ptat` -- `VSS`'s two
+trunks (`pnp_ctat`/`pnp_ptat`) sit at opposite ends of the row, so its hop
+must cross all three resistor blocks, competing for the same corridor
+`VA`'s and `VOUT`'s own routes already use (Section 7g's replay-harness
+finding). Moving the PNP blocks adjacent to each other removes that
+crossing entirely for `VSS` -- which is exactly what both experiments below
+confirm happens -- but the resistor blocks' own inter-block partners
+(`VA`/`VB`/`VBQ`, each anchored on `res_trim`/`res_r1`) do not go away, so
+the question was always whether *something* has to give, not whether `VSS`
+itself can be fixed.
+
+**Experiment 1: `res_r2, res_trim, res_r1, pnp_ctat, pnp_ptat`** (both PNP
+blocks moved to the row's right end, resistor blocks keep their existing
+relative order). Full flow run to completion, DRC clean,
+`device_counts`/`pin_count` unchanged, composed bbox unchanged (row 1 is
+still the width-driving row, confirmed with `place_blocks()` called
+directly against the recorded `*.gen.json` bboxes before spending a flow
+run on it). Result:
+
+| net | baseline (`496ab43`/`4fb2a3a`) | experiment 1 |
+| --- | --- | --- |
+| `VSS` | partial (blocked at `pnp_ctat`) | **drawn** -- all 5 hops routed, 0 conflicts |
+| `VB` | drawn | **partial** -- blocked at `amp_input_pair`, vetoed 4764/5636 times by `VA` alone |
+| `D1`, `GDRV` | partial (unchanged) | partial (unchanged) -- confirms Section 7g's finding that these two are untouched by row 0, since neither block moved |
+
+`VSS` routes cleanly for the first time in this issue's history: every hop
+of its 5-terminal chain succeeds with zero rejected candidates worth
+naming. But `VB`'s hop into `amp_input_pair` -- previously fully drawn --
+now fails, vetoed overwhelmingly by `VA`'s own route (which, with
+`pnp_ctat` now two blocks further from `res_trim` than at baseline, has to
+cross more of row 0's own width to reach it, and claims the same ascent
+corridor into `amp_input_pair` that `VB` needs). Schematic coverage stays
+at **9/12** (a lateral trade, not a gain), `mismatch_count` stays at **92**
+-- byte-identical to baseline in the one metric AC4 actually gates on.
+
+**Experiment 2: `res_r2, res_trim, pnp_ctat, pnp_ptat, res_r1`** (PNP blocks
+moved between `res_trim` and `res_r1` instead, preserving `res_trim`-`pnp_ctat`
+adjacency for `VA` and `pnp_ptat`-`res_r1` adjacency for `VBQ`, hypothesising
+that keeping *two* of the three resistor-to-PNP relationships short would
+cost less than experiment 1's one-sided move). Full flow run to completion,
+DRC clean, same device/pin counts. Result: **worse, not better**.
+
+| net | baseline | experiment 2 |
+| --- | --- | --- |
+| `VA` | drawn | drawn (unchanged -- the adjacency this ordering targeted held) |
+| `VB` | drawn | **drawn** (fixed -- routes via a different chain now that `res_trim`/`res_r1` are not forced adjacent) |
+| `VBQ` | drawn | drawn (unchanged -- the other adjacency this ordering targeted held) |
+| `TRIM` | drawn | **labelled only** -- new casualty, `res_r2`-`res_trim` no longer joins |
+| `VSS` | partial | **partial** (still not fixed -- `amp_nload`/`pnp_ctat`/`pnp_ptat` join but `amp_nmirr` does not, a different missing leg than baseline's) |
+
+Schematic coverage drops to **8/12** (down from 9/12) and `mismatch_count`
+rises to **94** (up from 92, `nets.layout` also grew 191 -> 193) -- a net
+regression on both of AC1's and AC4's own gated numbers. Putting the two PNP
+blocks *between* the three resistor blocks fixes `VB` (this ordering's own
+target) but breaks `TRIM` (`res_r2`-`res_trim`, previously trivial since
+they were adjacent at baseline) and only partially helps `VSS` (three of its
+four legs join, not all).
+
+**Neither experiment ships.** Per this issue's established convention for a
+tried-and-not-net-positive lever (Sections 7d-7h), `BLOCKS`'s row 0 order is
+reverted to baseline and neither experiment's report directory is committed.
+Experiment 1 is the closer of the two -- proof that `VSS` itself is fixable
+by placement alone, with a measured, named cost (`VB`) rather than a vague
+one -- but "byte-identical `mismatch_count`, one schematic net traded for
+another" is not a criterion-1 or criterion-4 improvement, and shipping it
+would just swap which section of this document explains the remaining 3/12
+gap without changing its size.
+
+**What this closes off, and what it leaves open.** A single 1D reordering of
+row 0's five blocks cannot satisfy all four of the row's own adjacency
+wants at once: `VA` (`res_trim`-`pnp_ctat`), `VB` (`res_trim`-`res_r1`,
+mediated through `amp_input_pair`), `VBQ` (`res_r1`-`pnp_ptat`), and `VSS`
+(`pnp_ctat`-`pnp_ptat`) form a 4-edge cycle over the row's own two PNP
+blocks and two of its three resistor blocks (`res_r2` is not part of the
+cycle and never moved in either experiment). Five slots in a line supply at
+most four adjacent pairs, and the cycle needs all four simultaneously to
+avoid trading one for another -- confirmed twice now, in both directions
+this increment tried. This rules out "row 0, reordered" as a category, on
+top of Section 7f's already-ruled-out "row 0, respaced" -- consistent with
+Section 7d/7g's original framing that `VSS` needs **corridor** relief (more
+physical room for `VOUT`/`VA`/`res_r2`'s bus to coexist with `VSS`'s own
+hop), not just a different arrangement of the same room. The remaining
+candidate is unchanged in kind: a genuine 2D floorplan revision (e.g. a
+second row for the resistor group, freeing row 0 for the two PNP blocks
+alone -- not attempted here because it adds a full `ROW_MARGIN_UM` and a new
+row height to the height budget; a back-of-envelope check against this
+increment's own `place_blocks()` figures -- new row 0 (PNPs only) 58.2 x
+9.14 um, new row 1 (resistors) 225.08 x 12.2 um, rows 2/3 (the former
+row 1/row 2, unchanged) 308.2 x 43.38 um and 274.06 x 19.08 um, stacked with
+the existing 22 um `ROW_MARGIN_UM` between each -- puts the resulting
+composed bbox (guard ring included, `+20` um each dimension per Section 6's
+own convention) at `(308.2+20) x (149.8+20) = 55,728` um^2 against the
+50,000 um^2 budget, over by about 11%, so that specific shape of fix would
+need to shrink the budget's consumption elsewhere first, not just add a row)
+or a corridor carved out of the existing row 0/row 1 margin specifically for
+`VSS`'s trunk-to-trunk hop. Both remain real redesigns, not attempted in
+this pass.
+
+### 7j. Twelfth increment: the genuine 2D revision attempted directly -- fixes `VSS`'s named hop, costs two other nets, net regression, not shipped
+
+Section 7i's own back-of-envelope named the only two candidates left after
+ruling out 1D row-0 reordering as a category: a second resistor row (freeing
+row 0 for the two PNP blocks alone), measured 11% over the 50,000 um^2
+budget at this floorplan's sizing, or a dedicated row 0/row 1 corridor. This
+increment attempted the first candidate directly, with the budget overrun
+closed by tightening `ROW_MARGIN_UM` (the between-*row* channel, never
+touched by any prior increment -- Sections 7f/7h/7i all tightened or widened
+`BLOCK_MARGIN_UM`, the between-*block*-in-a-row channel, a different axis).
+
+**What was tried.** `BLOCKS`' row 0 (`pnp_ctat`, `res_r2`, `res_trim`,
+`res_r1`, `pnp_ptat`) was split into two physical rows, keeping each
+sub-group's existing left-to-right order (a minimal-diff split, not a new
+reordering): row 0 now holds only `pnp_ctat`/`pnp_ptat` -- adjacent, which
+is exactly Section 7i's experiment 1 arrangement, the one already shown to
+fully route `VSS`'s own trunk-to-trunk hop in isolation -- and a new row 1
+holds `res_r2`/`res_trim`/`res_r1`. The former row 1 (amp band) and row 2
+(mirror band) shift to row 2/row 3 unchanged in content. This adds a third
+`ROW_MARGIN_UM` channel to the height budget (PNP row to resistor row,
+alongside the pre-existing resistor-to-amp and amp-to-mirror channels), which
+at the un-widened 22 um value reproduces Section 7i's own estimate almost
+exactly (measured this increment: composed bbox would be 328.2 x 169.8 =
+**55,728** um^2 by direct `place_blocks()` computation against the current
+recorded block bboxes -- 11.5% over budget, confirming the back-of-envelope
+was accurate). `ROW_MARGIN_UM` was lowered 22 -> 15 um, uniformly across
+**every** row boundary (not a per-boundary override) -- 1 um under
+`BLOCK_MARGIN_UM`'s own already-proven-workable 16 um same-row clearance, so
+not an untested minimum, just the existing block-to-block value applied on
+the row axis. Recomputed against the same block bboxes before spending a
+flow run on it: composed bbox 328.2 x 148.8 = 48,836.16 um^2, 2.3% under
+budget.
+
+**The run completed** (record `20260804-150853-a074ca5`, not committed --
+see below -- DRC clean, `device_counts`/`pin_count` unchanged, composed bbox
+**48,836 um^2**, matching the hand computation to the um^2, confirming
+`place_blocks()`'s bbox-derived math is exactly what the flow draws).
+
+| net | baseline (`4fb2a3a`) | this experiment (row split + `ROW_MARGIN_UM` 22->15) |
+| --- | --- | --- |
+| `VSS` | partial (`pnp_ctat` hop fails) | **partial, but a different hop**: `pnp_ctat`<->`pnp_ptat` now routes end to end (confirmed in `bus-summary.json`'s per-hop trace -- `routed: true`), but `amp_nload:VSS:far0` -> `amp_nmirr.TAP_S` now fails, blocked by `D1` |
+| `TRIM` | drawn (`res_r2`-`res_trim`, both legs) | **partial** -- both `TRIM_A` and `TRIM_B` now fail, overwhelmingly vetoed by `VA` (3278/5268 and 1952/5282 rejections respectively) and, for `TRIM_B`, by `TRIM_A`'s own now-longer route (1484) |
+| `GDRV` | partial (blocked at `core_mirror`) | partial (blocked at `core_mirror`, unchanged) -- `blocked_by_counts` (`TAIL` 2705, `VDD` 2293, `VOUT` 630) is the same magnitude as the pre-split baseline's tally (Section 7g: `TAIL` 2778, `VDD` 2851), confirming yet again this hop's blocker is `core_mirror`/`amp_pmirr`'s own intra-block comb geometry, untouched by any floorplan change on either side of the row-0/row-1 boundary |
+| `D1` | partial (blocked at `amp_nmirr`) | partial (blocked at `amp_nmirr`, unchanged) -- same mechanism as `GDRV` above |
+
+Schematic inter-block coverage moved **9/12 -> 8/12** (a regression, not a
+lateral trade) and `mismatch_count` moved **92 -> 94** (two worse). `VSS`'s
+own named hop (`pnp_ctat`<->`pnp_ptat`) is genuinely fixed -- direct,
+per-hop evidence, not a coverage-table inference -- which is real
+confirmation that Section 7i's finding generalizes from a 1D reorder to an
+actual 2D floorplan split: PNP adjacency removes that specific corridor
+contention regardless of which axis freed the room. But the same session
+that fixes it introduces **two** new casualties (`TRIM_A`, `TRIM_B`) and
+shifts `VSS`'s own remaining congestion onto a different hop
+(`amp_nload`-`amp_nmirr`) rather than clearing it -- a worse trade than any
+prior increment's, including Section 7i's own experiments (which cost at
+most one net for one net).
+
+**Why this happened, read from the tally.** `TRIM_A`'s dominant blocker is
+`VA` (3278 of 5268 rejections) -- the net that already had to cross from
+`pnp_ctat` (now in its own row) up through the resistor row to reach
+`amp_input_pair` two rows further up. Moving `pnp_ctat` off the resistor
+row's own band and compressing every row-to-row channel to fit the budget
+both worked against `TRIM_A`/`TRIM_B` at once: `VA`'s path is now longer
+(crosses one more row boundary than at baseline) and every channel it
+crosses is narrower (15 um vs. 22 um) than before. The uniform
+`ROW_MARGIN_UM` cut is not neutral background -- it is exactly the axis
+`VA`'s new, longer path depends on, so shrinking it to fit the split's own
+height cost took room away from the net most exposed by the split itself.
+
+**Ruled out, and reverted (not shipped)**: a genuine 2D floorplan revision
+-- not a parameter tweak, not a 1D reorder -- was run to completion on this
+issue for the first time this increment, and it is *worse* than doing
+nothing, not merely a lateral trade. `BLOCKS`' row assignments and
+`ROW_MARGIN_UM` are both reverted to baseline (`22.0`, uniform); the
+report directory this run produced (`20260804-150853-a074ca5`) is not
+committed and `reports/LATEST` still points at `4fb2a3a`, per this issue's
+established convention for a tried-and-not-net-positive lever (Sections
+7d-7i). This closes the "second resistor row" half of Section 7i's own
+remaining-candidate pair -- it does not merely need the earlier
+increment's 11% area cut, it needs that area cut to come from *somewhere
+that is not `VA`'s own crossing budget*, which the uniform `ROW_MARGIN_UM`
+reduction this increment tried is not. The one candidate left, genuinely
+unexplored, is a **non-uniform** channel budget: keep the row 0/row 1
+(PNP/resistor) and row 1/row 2 (resistor/amp) boundaries wide enough for
+`VA`'s and the other resistor-row nets' existing crossings, and take the
+area saving from elsewhere in the floorplan entirely (not the row-margin
+axis at all) -- e.g. the amp band's or mirror band's own internal spacing,
+or accepting a smaller `RING_MARGIN_UM`. That is a different, still
+untried shape of the same "second row" idea, not a re-run of this one.
+
+### 7k. Thirteenth increment: Section 7j's own "non-uniform channel budget" candidate attempted, in two shapes -- neither avoids the trade, and the mechanism turns out not to be channel width at all
+
+Section 7j left exactly one candidate open: the same PNP-row/resistor-row
+split, but with the area saving sourced from a channel `VA`'s route does
+*not* cross, instead of a uniform `ROW_MARGIN_UM` cut across every boundary.
+This increment attempts that candidate directly, in two independent shapes,
+plus a third control run (the same split with every margin left at its
+un-widened baseline value, over budget but otherwise untouched) to isolate
+what the uniform cut in Section 7j was actually doing.
+
+**Setup, common to all three runs.** `ROW_MARGIN_UM` is generalized from a
+single scalar to a `ROW_MARGIN_OVERRIDES_UM` dict keyed by boundary index (the
+channel between row `i` and row `i + 1`), defaulting to the unchanged `22.0`
+for any boundary not named -- a backward-compatible generalization, not a
+behavior change on its own by construction (an empty override dict makes
+`.get(row_index, ROW_MARGIN_UM)` return the same `22.0` for every boundary
+the unmodified scalar did; this permutation -- the mechanism with no split
+and no override -- was not run separately as its own flow record, since the
+code path is unconditionally identical to the pre-existing scalar lookup).
+`BLOCKS`' row
+0 is split the same way Section 7j did it: row 0 = `pnp_ctat`/`pnp_ptat`
+(adjacent), new row 1 = `res_r2`/`res_trim`/`res_r1`, former row 1 (amp band)
+and row 2 (mirror band) shift to row 2/row 3.
+
+| run | change from baseline split | composed bbox | gate | coverage | `mismatch_count` |
+| --- | --- | --- | --- | --- | --- |
+| A (control) | row-0 split only, every margin at its original value (`ROW_MARGIN_UM=22`, `RING_MARGIN_UM=8`) | 328.2 x 169.8 = **55,728 um^2** (11.5% over) | fails `within_budget` | 8/12 | 95 |
+| B | row-0 split + `RING_MARGIN_UM` 8 -> 2 (every row boundary, including both channels `VA` crosses, left at 22) | **49,896 um^2** (0.2% under) | passes | 8/12 | 95 |
+| C | row-0 split + `ROW_MARGIN_OVERRIDES_UM={2: 4.0}` (only the row-2/row-3 amp-to-mirror boundary cut, the one channel none of `VA`/`VB`/`VBQ`/`TRIM` crosses; `RING_MARGIN_UM` and every other row boundary untouched) | **49,821 um^2** (0.4% under) | passes | 8/12 | 94 |
+
+All three ran to completion with `violation_count=0` (DRC clean) and
+identical `device_counts`/`pin_count` to the baseline record -- run A's sole
+gate failure is `within_budget`, confirming every other gate (DRC, device
+classes, pin promotion) still passed. None of the three beats the shipped
+baseline's 9/12 / 92. Per-net detail:
+
+| net | baseline (`4fb2a3a`) | A (uncut, over budget) | B (`RING_MARGIN_UM` cut) | C (row-2/3 boundary cut) |
+| --- | --- | --- | --- | --- |
+| `VA` | drawn | **partial** -- loses `res_trim` even though its own crossing channels are untouched | drawn | drawn |
+| `VB`, `VBQ` | drawn | drawn | drawn | drawn |
+| `TRIM` | drawn | drawn | **labelled only** -- `res_r2`/`res_trim` are in the *same* row in every one of these runs, no row boundary between them at all | **labelled only**, same mechanism |
+| `VSS` | partial (`pnp_ctat` hop) | **drawn** -- both PNP arrays' adjacency (Section 7i/7j's own finding) fully fixes it here | partial, but a *different* hop (`amp_nmirr` now missing, not `pnp_ctat`) | partial, `amp_nmirr` missing, same as B |
+| `GDRV` | partial (`core_mirror`) | partial, unchanged | **labelled only** -- worse: `amp_nmirr`/`amp_pmirr` both now missing, not just `core_mirror` | partial, unchanged (matches baseline exactly) |
+| `D1` | partial (`amp_nmirr`) | **labelled only** -- worse, loses `amp_input_pair`/`amp_nload` too | partial, unchanged | partial, unchanged |
+| `D2` | drawn | **labelled only** -- a regression on a previously-fully-working net, from a boundary (row 2/row 3) whose width run A does not even touch | drawn | drawn |
+
+**The finding this run set adds, beyond Section 7j's own:** `TRIM` is a
+same-row net (`res_r2` and `res_trim` are both in the new row 1 in every one
+of these runs) that never crosses a row boundary at all, yet it breaks in
+both B and C -- the two runs that touch *any* margin elsewhere in the
+floorplan -- and survives intact in A, the one run that touches nothing. That
+rules out Section 7j's own explanation (`TRIM_A`/`TRIM_B` failing because
+`VA`'s crossing channel got narrower) as the general mechanism: C leaves
+every channel `VA`, `VB`, `TRIM`, or `VBQ` could plausibly use at its full
+22 um width, and `TRIM` still fails. Run A independently confirms the same
+point from the other direction -- it changes nothing about any margin at all
+(the split is the only difference from baseline) and still trades `D1`
+further and breaks `D2` outright, a previously-fully-working net whose own
+row-2/row-3 boundary width A does not touch either. `GDRV`/`D1`'s specific
+blocker (block-internal comb geometry, Section 7g/7j) is unaffected across
+all three, exactly as every prior increment found -- but which *other*,
+previously-working nets get displaced changes completely between A, B, and C
+despite each one touching a different (or no) parameter. The mechanism is
+the whole-cell route-**order** search (`ROUTE_ORDER_PASSES`, ~14
+candidate orders tried per run) re-converging on a different winning order
+for *any* change to the floorplan's own geometry -- including one, like A,
+that changes no channel width at all, only which rows exist -- not a specific
+channel's available width. A per-boundary margin budget cannot target a
+failure mode that is global to the order search, so this closes off
+"non-uniform row-margin budget" as a category, the same way Section 7i closed
+off 1D row-0 reordering: not because the specific values tried were wrong,
+but because the axis itself (channel width, uniform or not) does not control
+which order the search picks.
+
+**Ruled out, and reverted (not shipped)**: all three runs' code (the
+`ROW_MARGIN_OVERRIDES_UM` generalization, the row-0 split, and the
+`RING_MARGIN_UM` change from run B) is reverted to baseline; none of the
+three runs' report directories are committed and `reports/LATEST` still
+points at `4fb2a3a`, per this issue's established convention. The
+`ROW_MARGIN_OVERRIDES_UM` mechanism itself is a legitimate, backward-compatible
+generalization by construction (see the Setup note above) -- it is not
+shipped here only because nothing in this increment found a value for it
+that helps; a future increment that needs a genuine per-boundary margin for
+an unrelated reason does not need to re-derive it.
+
+**What is left.** The 2D-split path (Section 7i/7j/7k) is now three-for-three
+on "fixes `VSS`'s named hop but nets a regression via order-search
+sensitivity," across a 1D reorder, a uniform 2D margin cut, and two
+non-uniform 2D margin cuts. `GDRV`/`D1` have never moved under any floorplan
+change tried across all thirteen increments -- their blocker is
+block-internal comb geometry the inter-block router draws before it starts
+routing between blocks at all (Section 7g), which no placement change reaches
+by construction. The remaining candidates for AC1's last 3/12 gap are
+qualitatively different from everything tried so far: (a) a router change
+that either reorders *intra*-block bussing relative to inter-block routing,
+or makes the order search itself route-order-stable under small floorplan
+perturbations (so a future margin/placement change can be evaluated on its
+own merit instead of via a different emergent global order every time); or
+(b) accepting the corridor deadlock as a hard floorplan-generation limit of
+this router and pursuing klayout-tools' own two-pin router / a genuine second
+metal role instead (klayout-tools#454 is merged, but Section 7d already found
+its `"metal2"` role aliases to the same met1 layer on sky130 -- a *third*
+routing layer, not merely a second role name, would be the actual capability
+gap to file).
+
+### 7l. Fourteenth increment: `klt` pin bump picks up five upstream fixes; a stale `hints.same_nets` declaration turns out to be actively blocking, not neutral -- `mismatch_count` 92 -> 32
+
+Sections 7d-7k are all router/floorplan-geometry attempts on AC1's remaining
+`D1`/`GDRV`/`VSS` trio and all came up empty. This increment does not touch
+routing or the floorplan at all -- it re-checks the friction-tracker
+blockers named in the last several records (klayout-tools#490, #491, #492,
+#504) and finds all four closed upstream since the current `klt` pin
+(`8c277eb9`, set at the fifth increment) was cut, none of them picked up
+yet. Bumping the pin to `147602af` (current `klayout-tools` `main`) pulls in
+the fixes:
+
+- **klayout-tools#490 -> #495**: an NMOS body / `bulk_to_substrate` resistor
+  bulk / bipolar collector terminal now resolves to a real drawn `tap.drawing`
+  ring outside `nwell` when one is present and contacted, instead of an
+  unconditional synthesized `vsubs` global.
+- **klayout-tools#491 -> #494**: sky130's curated deck now declares a
+  `dummy` marker layer, and `mos_array`/`res_array`/`bjt_array` draw it over
+  each array's own `dummy_cells` footprint, so `klt extract`'s existing
+  dummy-suppression (since #462) finally fires on sky130.
+- **klayout-tools#492 -> #497**: `mos_array`/`diff_pair` gain an opt-in
+  `gate_contact` param; not adopted here (default off, byte-identical
+  geometry) -- this flow already hand-draws the gate contact via
+  `met1_bus.py`'s own `gate_contact` helper (MOS_GATE_NOTE), and swapping to
+  the generator-side version is a separate rework, not a pin-bump side
+  effect.
+- **#496 -> #498**: `gen-compose`'s Manhattan backbone stub now widens to
+  match a wide north/south pad (e.g. this flow's `TAP_N`/`TAP_S` taps) --
+  measured to change nothing in this flow's own composed geometry (DRC
+  stayed clean before and after).
+- **klayout-tools#504 -> #505**: a dedicated `device.class_arity` mismatch
+  category for a bulk-terminal-vs-plain resistor class pair, diagnostic
+  only.
+
+**The pin bump alone broke the flow.** `klt lvs` returned
+`{"status": "error", "error": "layout net 'vsubs' not found"}` for every one
+of the flow's three LVS attempts (combined-from-netlist, combined-from-GDS,
+uncombined). Root cause: `gen_bandgap_routed.py`'s `run_lvs()` unconditionally
+sent `hints.same_nets: [["vsubs", "VSS"]]` -- a declaration that was load-bearing
+through the pin bump above, and became actively wrong the moment it landed.
+This layout already draws the exact shape #495 keys off (both NMOS groups'
+substrate guard-ring taps and both PNP base ties, wired to `VSS`), so once any
+such tap is drawn anywhere in the design, sky130's single shared
+`deck.substrate_net` global identity resolves to that real net everywhere it
+is used -- confirmed by reading the extracted netlist back: every nfet's `b`
+terminal and every `res_high_po`'s `w` terminal now read `VSS` directly, not
+`vsubs`. There is no longer a `vsubs` net in this layout's extracted netlist
+at all, so a `hints.same_nets` entry naming it is not a no-op -- it is a
+request for a correspondence between a net that exists (`VSS`) and one that
+does not (`vsubs`), which `klt lvs` correctly rejects as a hard error instead
+of running.
+
+**The fix: `SUBSTRATE_SAME_NETS` is now empty.** Verified by manually
+constructing the same LVS request with the `hints` key removed and running it
+directly against this run's own `bandgap_core_routed.gds`/`.extract.spice`:
+`status: "mismatch"` (not `error`), and no mismatch entry mentions `vsubs`
+anywhere -- the correspondence the flow previously had to *declare* is now
+something `klt lvs` *discovers* on its own from the drawn geometry. Landed as
+a code change (`SUBSTRATE_SAME_NETS: list[list[str]] = []`), not a one-off
+manual patch, with the surrounding `SUBSTRATE_NET_NOTE`/`DUMMY_DEVICE_NOTE`
+prose and the record generator's per-cause writeup updated to match (both
+retired causes moved to a new "Retired since the last increment" record
+section instead of being silently dropped).
+
+**Measured result** (`layout/bandgap-core/reports/20260804-174203-ddf7f17/record.md`,
+full flow re-run to completion after the fix, DRC clean,
+`run-trivial-cell-flow.sh` re-run unmodified -- see below):
+
+| metric | baseline (`4fb2a3a`, post-PR-#78) | this increment |
+| --- | --- | --- |
+| `mismatch_count` | 92 | **32** |
+| `devices.matched` | 3 | **6** |
+| `nets.matched` | 1 | **3** |
+| `pins.matched` | 17 | 16 |
+| `device_counts` | `{"nfet": 16, "pfet": 52, "pnp": 24, "res_high_po": 159}` | `{"nfet": 16, "pfet": 52, "pnp": 16, "res_high_po": 147}` (dummy suppression: `dummy_devices_dropped: 20`) |
+| `pin_count` | 16 | 15 |
+| AC1 schematic coverage | 9/12 | **9/12 (unchanged)** -- this increment does not touch routing |
+| AC5 friction | 5 closed gaps named | **9 closed gaps named** (#490/#491/#492/#496/#504 added) |
+
+`mismatch_count` category breakdown moved from
+`{"device.body_unverified": ..., "device.unmatched": ..., "net.merged": ...,
+"net.split": ...}`-shaped (dominated by the unresolvable substrate
+declaration) to `{"device.unmatched": 19, "net.merged": 3, "net.split": 10}`
+-- no `device.body_unverified` warnings at all now, confirming every body
+terminal resolves to a real net. The remaining `device.unmatched` entries are
+1 NFET + 4 PFET + 4 PNP + 10 `RES_HIGH_PO` (reference + layout sides
+combined); the `RES_HIGH_PO` entries are cause 4 above (arity), not a
+substrate or dummy artifact.
+
+**Non-regression proof carried an unexpected finding of its own.**
+`layout/bin/run-trivial-cell-flow.sh`'s hand-authored `reference.spice`
+enumerates 8 M-cards (`klt gen mos_array`'s pinned defaults draw 4 real + 4
+dummy units) -- written that way specifically because, through this pin,
+sky130 could not suppress dummies at all (the fixture's own header said so).
+Once #494 lands, `klt extract` correctly drops the 4 dummy units
+(`dummy_devices_dropped: 4`), and the fixture's LVS-match proof regressed to
+`status: "mismatch"` (`layout: 4, reference: 8` devices) -- caught by
+`render-record.py`'s own verdict-flip assertion (`run-trivial-cell-flow.sh`
+exited 1). Fixed by updating `reference.spice` (and both negative controls)
+to 4 M-cards: a dummy unit has no schematic counterpart by construction (it
+exists only for layout-matching symmetry), so 4 real devices is the
+topologically correct reference now that the layout side can express the
+distinction -- not a relaxation to chase a smaller number, the mirror image
+of the `res_generic_po` -> `res_high_po` correction PR #71 made for the same
+reason. Re-run after the fix: DRC clean, LVS match (`devices.matched: 4/4`,
+`nets.matched: 13/13`), both negative controls still `mismatch` -- the
+four-way verdict restored. See `layout/trivial-cell/reference.spice`'s own
+header and `layout/README.md` for the full writeup.
+
+**What this does and does not move.** AC4 (LVS-clean) is still NOT MET, but
+`mismatch_count` more than halved and two of six previously-disclosed causes
+are fully retired, both with a real mechanism (not a workaround): the
+substrate correspondence is discovered from drawn geometry instead of
+declared, and dummy devices are excluded from the comparison because the
+tool can now tell them apart from real ones, not because this flow hid them.
+AC1 (routing) is untouched -- `D1`/`GDRV`/`VSS` remain exactly where
+Sections 7g-7k left them, and this increment does not claim otherwise. No new
+friction filed: every gap this increment interacts with was already on the
+tracker and is now closed, re-verified against the current pin rather than
+assumed from the issue history.
+
+### 7m. Fifteenth increment: cause 4 (resistor device-class arity) still has no fix upstream -- filed the missing follow-up, no code change
+
+> **Superseded in part by Section 7n (sixteenth increment).** This section's
+> operative premise -- that the only alternative to an upstream fix was "to
+> add a bulk node to the reference's R cards, i.e. to stop the reference
+> being a transcription of the schematic," which this flow refuses -- turned
+> out to be false *for this device*: `design/bandgap_core.sch` already wires
+> the bulk pin, so adding it is a transcription **fix**, not an invented
+> connection. Section 7n makes that fix and retires the arity cause without
+> waiting on klayout-tools#506. The filing below stands on its own merits
+> and stays open: #506 is still a valid generic ask for the case where the
+> reference genuinely does not (and cannot) state a bulk net. Read this
+> section as the record of the filing, and Section 7n for what the arity
+> cause actually turned out to need.
+
+Sections 7d-7k exhausted every floorplan/router lever this repo can pull for
+AC1's remaining `D1`/`GDRV`/`VSS` trio (Section 7k's own closing line: "What
+is left is qualitatively different... either an order-search change... or
+accepting the corridor deadlock as a hard limit of this router"). This
+increment does not attempt either -- it instead re-examines AC4's own
+remaining causes, since Section 7l's fourteenth increment retired two of the
+six and left cause 4 (the resistor device-class arity mismatch,
+`RES_HIGH_PO` `device.unmatched` entries in the `20260804-174203-ddf7f17`
+record) as the largest still-open, *not yet actually attempted*, blocker: it
+is what stops **every** resistor from pairing, in a layout that already
+matches every other class it can (nfet/pfet/pnp all extract and, per
+Section 7l, resolve their body terminals to real drawn nets).
+
+**Checked whether the upstream fix already exists.** klayout-tools#504 (this
+flow's own filing) proposed three options to close the arity gap, in order
+of preference: (1) a request-side `reference.device_bulk` hint that
+normalizes the reference's implicit bulk terminal before comparing --
+composing with the existing `hints.same_nets` hook the way issue #281's
+`device.body_unverified` acknowledgement does for the analogous MOS-body
+case; (2) the symmetric layout-side bulk-drop flag; (3) at minimum, a
+diagnostic naming the mismatch. #505 (merged, picked up in Section 7l)
+shipped **only** option 3 -- confirmed by reading `docs/cli/lvs.md`'s
+`device.class_arity` section directly off the pinned `klt` commit
+(`147602af`): it states in so many words that options 1/2 are "deliberately
+deferred". Searched `2AMLogic/klayout-tools` for any newer issue that might
+already track the deferred half (`class_arity`, `device_bulk`,
+"bulk-terminal-drop") -- none exists. This is a real, unfiled gap, not a
+duplicate.
+
+**Filed as [klayout-tools#506](https://github.com/2AMLogic/klayout-tools/issues/506)**,
+generically scoped (no design-specific detail per this repo's friction
+protocol): asks for option 1 (or, failing that, option 2) from #504's own
+list, since #505 only ever intended to ship the diagnostic first and revisit
+reconciliation separately. Recommends option 1 as the better fix to
+implement first, for the same reason #504 did -- it is a reference-side-only
+normalization, so it changes nothing about how the layout side is scored,
+and composes with the existing `hints.same_nets` mechanism rather than
+inventing a parallel one.
+
+**No code or routing change ships from this increment.** This is a
+friction-filing-only pass, same category as the diagnostic increments
+Section 7g/7h ran when the finding was "no lever here, but here is why" --
+except this time the finding is "the fix exists in principle, upstream
+already scoped it, and simply has not been built yet." Re-verified
+`layout/bin/run-bandgap-routed-flow.sh` and `run-trivial-cell-flow.sh` both
+still produce the exact `20260804-174203-ddf7f17` / prior trivial-cell
+results unmodified (no `klt` pin change, no generator change), so there is
+nothing new to re-run or re-record here -- this section is the record.
+
+**What this does and does not move.** AC4 is still NOT MET and
+`mismatch_count` is unchanged at 32 -- this increment does not touch the
+flow. AC5 (friction filing) gains one more named, currently-open gap
+(`klayout-tools#506`) that a future increment should watch: once it lands
+and this flow's `klt` pin is bumped past it, adding a `reference.device_bulk`
+declaration for `res_high_po`'s bulk terminal (bound to `VSS`, the same net
+`SUBSTRATE_NET_NOTE`'s drawn taps already resolve to) is very plausibly the
+single highest-value remaining lever for AC4 -- cause 4 is what stops every
+one of the 147 drawn resistor devices from pairing, ahead of cause 3's
+lower-magnitude value differences and unrelated to AC1's still-open routing
+causes.
+
+### 7n. Sixteenth increment: `reference.spice`'s resistor bulk-terminal transcription gap fixed -- class arity now matches without waiting on klayout-tools#506, `mismatch_count` unchanged, and the real blocker for R2A/R2B/R1 turns out to be the DR-002 trim ladder's own topology, not the arity or a value difference
+
+Sections 7l and 7m both disclosed cause 4 as "no resistor can be paired at
+all" because the sky130 deck marks `res_high_po` `bulk_to_substrate`, so the
+layout side extracts a 3-terminal `DeviceClassResistorWithBulk` while
+`reference.spice`'s 2-terminal `R` cards read as the incompatible
+`DeviceClassResistor` -- and stated that "the only workaround available
+today is to add a bulk node to the reference's R cards... which this flow
+refuses to do for the same reason it refuses every other reference edit."
+Section 7m acted on exactly that premise, filing klayout-tools#506 for the
+upstream reconciliation on the grounds that no in-repo option remained.
+That statement rests on an unstated assumption -- that adding a bulk node
+would mean *inventing* a schematic connection that is not actually there.
+Checking that assumption directly (not assuming it) finds it is false:
+
+- `design/bandgap_core.sch` explicitly wires the bulk pin of every one of
+  R2A/R2B/R1's `res_high_po` instances to `VSS`, via ordinary `lab_pin`
+  components: `r2ab lab=VSS` (line 258), `r2bb lab=VSS` (line 267), `r1b
+  lab=VSS` (line 283).
+- `sky130_fd_pr__res_high_po`'s own PDK SPICE model
+  (`$PDK_ROOT/sky130A/libs.ref/sky130_fd_pr/spice/sky130_fd_pr__res_high_po.model.spice`)
+  is `.subckt sky130_fd_pr__res_high_po r0 r1 b ...` -- a genuine 3-terminal
+  device; the third terminal is not an artifact of `klt`'s extraction deck.
+- The checked-in xschem netlist snapshot `reference.spice` already cites as
+  its own provenance
+  (`sim/output-voltage-tc/netlist-snapshots/20260803-115356-7759435.spice`)
+  states it directly: `XR2A VA VOUT VSS sky130_fd_pr__res_high_po ...`,
+  `XR2B VB VOUT VSS ...`, `XR1 VBQ VB VSS ...`. The real xschem netlister,
+  run independently of this layout, already produces a 3-terminal card for
+  every one of these devices.
+
+So `reference.spice`'s 2-terminal R cards were an incomplete transcription
+of design/bandgap_core.sch, not a faithful one -- the same category of bug
+the res_generic_po -> res_high_po correction (Section 7, prior increments)
+and the removed `RGDRV AOUT GDRV 0` bridge card fixed previously, not the
+"reference edit to accommodate the layout" category those corrections (and
+Sections 7l/7m's own statement) were guarding against. Fixed: `RR2A`/`RR2B`/
+`RR1` now carry `VSS` as a third node, in the same node order (`A B BULK
+value model`) `klt extract` itself emits for this device class (confirmed
+against this flow's own extracted netlist, e.g. `R$85 VOUT $6 VSS 1599
+res_high_po`).
+
+**Verified structurally fixed, in isolation, before measuring the flow.**
+Reading `reference.spice` directly with `klayout.db.NetlistSpiceReader`
+before this fix registers `RES_HIGH_PO` as `DeviceClassResistor` (2
+terminals); after the fix it registers `DeviceClassResistorWithBulk` (3
+terminals) -- the same class the layout side already registers. The class
+arity mismatch klayout-tools#504/#505 diagnosed is genuinely retired.
+
+**Measured effect on the full flow: none.** `mismatch_count` is 32 both
+before (Section 7m's re-run,
+`layout/bandgap-core/reports/20260804-181651-f3b2b2e/record.md`) and after
+(`layout/bandgap-core/reports/20260804-190815-092c8cb/record.md`),
+`category_counts` is byte-identical
+(`{"device.unmatched": 19, "net.merged": 3, "net.split": 10}`), and the
+`device.unmatched` entry list is identical too, R1/R2A/R2B (reference
+side) and seven anonymous layout-side `RES_HIGH_PO` devices among them both
+before and after -- the only textual difference between the two runs' lists
+is `MPAMP`/`MPOUT` swapping positions within the reference-side entries,
+the comparer's own enumeration order for an identical device set, not a
+changed result. This is not a null result from an ineffective fix -- it
+is direct evidence that the arity mismatch was never the *operative*
+blocker for these three devices, once traced further:
+
+- `klt lvs`'s own `net.split`/`net.merged` categories already name `VOUT`,
+  `VB`, and `VBQ` -- exactly the three nodes R2A/R2B/R1 sit on -- both
+  before and after this fix. AC1's coverage table scores these three
+  **drawn** (every block they reach is joined), so this is not the
+  D1/GDRV/VSS routing-congestion cause (Section 7c-7l) resurfacing under a
+  different name.
+- The actual mechanism: `design/bandgap_core.sch`'s `CORE_PARAMS` carries
+  `n_r2_trim=0` (DR-002's untrimmed code). At code 0 the schematic has *no*
+  trim devices at all -- R2A/R2B's length is a single `res_high_po` device
+  each, full stop, and `reference.spice` correctly enumerates none. But
+  `res_trim`'s 32 unit resistors are drawn as real, physical devices in the
+  layout *unconditionally*, regardless of code -- a metal-option tap
+  ladder, not a code-gated one (matching-plan.md's own resistor-ladder
+  section already documents this design). So the layout has trim devices
+  and `TRIM_A`/`TRIM_A_CODE_0`/`TRIM_B`/`TRIM_B_CODE_0` nodes the schematic
+  does not have at all at this code. This is not a value difference on an
+  otherwise-paired device (Section 7l's cause 3 as previously framed) -- it
+  is a genuine extra branch in the layout's own device graph that
+  `combine_devices` cannot fold away, because folding combines devices that
+  already share a two-sided identity with a reference counterpart, not
+  devices the reference has none for at all.
+
+**What this does and does not change.** AC4 (LVS-clean) is still NOT MET,
+`mismatch_count` unchanged at 32. AC5's friction-filing status is unchanged
+in substance and files no new gap: klayout-tools#504/#505 stay closed and
+correctly diagnostic, and Section 7m's klayout-tools#506 stays **open** but
+is no longer a dependency of this flow. It is deliberately *not* closed as
+invalid: #506 asks `klt` to reconcile the arity for the case where the
+reference genuinely cannot state a bulk net, and that case is real -- it is
+just not this device's case, because `design/bandgap_core.sch` wires the
+bulk pin explicitly. What this increment retires is 7m's narrower premise
+that an upstream fix was the *only* remaining option here, not the filing
+itself. The disclosed-causes list drops from four to three: the arity
+mismatch is retired, and the former cause 3 ("resistor values differ") is
+reframed as what it actually is -- a structural topology difference (the
+always-drawn trim ladder), with the 380-ohm-head value difference as a
+secondary, still-unreached detail behind it. AC1 (routing) is untouched --
+this increment does not touch the router, the floorplan, or any `klt`
+capability.
+
+**Not shipped as a routing fix, because it is not one.** Closing this cause
+for real would mean either drawing `res_trim`'s taps so they are
+electrically shorted out of the DC path at code 0 (a real layout change,
+matching the trim ladder's own "metal option" design intent -- code 0 should
+mean "not in circuit," not "in circuit as a dangling branch"), or teaching
+the reference to model the trim ladder as a parametrized device set that
+happens to be empty at code 0 in a way the comparer's `combine_devices` can
+still traverse through to the main chain. Both are materially larger,
+separate tasks from this increment's transcription fix, and out of scope
+here for the same reason Sections 7d-7l's own larger candidates were --
+this section's job is the arity fix and the diagnosis it unlocks, not a new
+router or ladder-generator change.
+
+### 7o. Seventeenth increment: named and filed the metal-level capability gap behind AC1's corridor deadlock, no code change
+
+Section 7k's own closing line named two qualitatively different remaining
+candidates for AC1's `D1`/`GDRV`/`VSS` trio: an order-search change to this
+repo's own router, or "accepting the corridor deadlock as a hard limit of
+this router and pursuing ... a genuine second metal role instead ... a
+third routing layer, not merely a second role name, would be the actual
+capability gap to file." Section 7d had already found the second half of
+that -- klayout-tools#454's `"metal2"` role resolves to the same met1 layer
+this flow's own bus already hand-routes on, sky130's curated deck has only
+two metal levels total -- but ruled it out as *this floorplan's* lever
+without ever filing the underlying capability gap upstream. This increment
+closes that gap in the friction record, not in the routing.
+
+**Re-verified against current `klayout-tools` `main`.** Reading
+`klayout_tools.decks.sky130.EXTRACTION_DECK` and
+`klayout_tools.gen._PDK_ROLE_LAYERS["sky130"]` directly (source, not a PR
+description):
+
+- `EXTRACTION_DECK.metals = ((67, 20), (68, 20))` -- li1.drawing and
+  met1.drawing, exactly two connectivity levels, joined by
+  `vias = ((67, 44),)` (mcon). No met2/met3/met4 entry, even though the same
+  curated deck's own layer-number table already knows those GDS numbers
+  (used only as MiM-cap bottom-plate layers elsewhere, never as a
+  `metals`/`vias` connectivity level).
+- `_PDK_ROLE_LAYERS["sky130"]["metal"]` = `(67, 20)` (li1, the device-pad
+  layer); `_PDK_ROLE_LAYERS["sky130"]["metal2"]` = `(68, 20)` (met1) -- the
+  *same* layer `EXTRACTION_DECK.metals[1]` already names, and the same layer
+  this flow's own `met1_bus.py` already hand-routes every bus and
+  inter-block net on (MET1_BUS_NOTE). Compare gf180mcu in the same table:
+  its curated deck's `metals` stack runs Metal1-Metal5 (klayout-tools#220),
+  so `"metal2"` genuinely names a level above Metal1's device pads there --
+  sky130 has no equivalent third level to promote, at any role name.
+
+**Searched for an existing filing before opening a new one** (`gh issue
+list` against `2AMLogic/klayout-tools` for "metal2 role sky130", "third
+routing layer", "sky130 met2", "extraction deck metals stack") -- found
+klayout-tools#454 (closed, the role-name-only fix already picked up here)
+and klayout-tools#220 (the *gf180mcu* one-metal-level gap, a different
+family and a different shape: gf180mcu had no second level at all, sky130
+has exactly two and the ask here is for a third). No open or closed issue
+names the sky130-specific "the deck's own connectivity stack is two levels
+deep, so a caller whose bussing already needs the second one has no
+independent plane left" gap. Filed as
+[klayout-tools#508](https://github.com/2AMLogic/klayout-tools/issues/508),
+generically scoped per the friction protocol (no design-specific detail --
+describes any sky130-target router whose own intra-block bussing saturates
+`"metal"`, not this repo's floorplan).
+
+**No code or routing change ships from this increment**, same category as
+Section 7m's fifteenth increment: a friction-filing-only pass. A new
+`ROUTING_PLANE_NOTE` (sibling to `RES_BULK_ARITY_NOTE`/
+`RES_TRIM_TOPOLOGY_NOTE`) and the AC1 coverage-table narrative, the AC5
+friction-scoreboard row, and the "what this record does NOT claim" section
+in `gen_bandgap_routed.py` all now name klayout-tools#508 alongside
+klayout-tools#506 -- text-only, so a fresh flow run is required the same
+way Section 7l's fourteenth increment required one for
+`RES_BULK_ARITY_NOTE`'s text (the note strings are embedded in generated
+`record.md` output). Re-ran both flows to confirm no regression: `layout/
+bandgap-core`'s current record reproduces `mismatch_count=32`,
+`devices.matched=6`, `nets.matched=3`, 9/12 schematic coverage,
+`device_counts`/`pin_count` all unchanged from Section 7n's own record --
+this increment's only measured difference is the friction-scoreboard/
+coverage-table prose. `layout/trivial-cell` non-regression: DRC clean, LVS
+match (`devices.matched: 4/4`, `nets.matched: 13/13`), both negative
+controls still `mismatch`.
+
+**What this does and does not move.** AC1 is unchanged at 9/12 -- this
+increment does not touch routing or the floorplan, and per Section 7k's own
+framing, filing klayout-tools#508 documents *why* there is no metal-level
+lever left to pull locally, not a new lever itself. AC5 gains one more
+named, currently-open gap: two of AC4's/AC1's remaining causes now each have
+an upstream filing tracking their own capability gap (`klayout-tools#506`
+for the resistor arity, `klayout-tools#508` for the routing-plane budget),
+neither of which this repo can close from its own side. If
+`klayout-tools#508` lands (a third connectivity level curated for sky130
+with its own `"metal3"`/`"via2"` role pair), the next AC1 increment should
+re-evaluate whether the freed plane changes any of Section 7g's per-hop
+blocker tallies -- worth checking `blocked_by_counts` again rather than
+re-deriving it from scratch, since that diagnostic already exists.
+
+### 7p. Eighteenth increment: bumped the `klt` pin past klayout-tools#508's merge, picked up the third connectivity level, no routing change yet
+
+Section 7o's own closing line named the trigger for this increment:
+klayout-tools#508 landing. It has -- checked directly via `gh issue view
+508 --repo 2AMLogic/klayout-tools`, state `CLOSED`/`COMPLETED`, and via the
+GraphQL `closedByPullRequestsReferences` edge, which names the exact
+merged PR: [klayout-tools#511](https://github.com/2AMLogic/klayout-tools/pull/511)
+(`feat(decks): add sky130 met2 as a third connectivity level
+(metal3/via2)`), merged 2026-08-04T19:56:08Z at `af5791b`. `main` has no
+commits after it (`git ls-remote` confirms `af5791b` is still the tip), so
+this pin is current, not a partial bump.
+
+**What #511 actually ships**, read from its own PR body and re-verified
+against the pinned commit directly (not reconstructed from the PR
+description alone):
+
+- `klayout_tools.decks.sky130.EXTRACTION_DECK.metals` is now
+  `((67, 20), (68, 20), (69, 20))` -- li1.drawing, met1.drawing,
+  **met2.drawing** -- with `.vias` now `((67, 44), (68, 44))` (mcon.drawing,
+  and the new met1<->met2 via, `via.drawing`) and `.metal_labels` now
+  `((67, 5), (68, 5), (69, 5))`.
+- `klayout_tools.gen._PDK_ROLE_LAYERS["sky130"]` gains `"metal3": (69, 20)`
+  and `"via2": (68, 44)`, mirroring the existing `"metal2"`/`"via1"` pair
+  exactly (same shape `met1_bus.py`'s own `MET1_LAYER`/`MCON_LAYER`
+  constants already follow for the first level).
+- `gen_compose`'s router resolves the new role generically (confirmed by
+  #511's own Judge-facing description of `_resolve_route_layer`/
+  `_resolve_via_drop_layer` walking `deck.metals`/`.vias` by index, no
+  hardcoded role names) -- no `gen_compose.py` code change was needed
+  upstream for `"metal3"` to become selectable.
+- The via-drop restriction this repo has run into before is unchanged and
+  still applies to the new role: single-hop only. A `"metal3"` backbone
+  reaches a `"metal2"`(met1)-role pin one via hop away, not a
+  `"metal"`(li1)-role pin two hops away.
+
+**What this increment ships**: `layout/requirements.txt`'s pin only, bumped
+from `147602af31c47fb935383b1761e8ce2f21c534cf` to
+`af5791b557fc7c669c3981335a294256ccf37e6f`, plus updating every NOTE
+constant and generated `record.md` section in `gen_bandgap_routed.py` that
+named klayout-tools#508/#506 as open -- both are closed now (#506 as
+COMPLETED, independently of this repo's own needs; see RES_BULK_ARITY_NOTE)
+-- so a fresh record does not ship stale "still open" claims about gaps
+that no longer are. **No routing, floorplan, or router-logic change ships
+here.** `met1_bus.py` still draws every bus and inter-block net on met1
+only; the router's candidate-path search (`_channel_paths`/`_connect`/
+`_route_one_net`) is untouched.
+
+**Non-regression proof**: `layout/bin/run-trivial-cell-flow.sh` re-run
+unmodified still PASSes with the identical four-way verdict (see
+`trivial-cell/reports/` for the refreshed record); `layout/bin/
+run-bandgap-routed-flow.sh` re-run reproduces AC1/AC4's prior numbers
+unchanged -- 9/12 schematic nets, `mismatch_count=32`,
+`devices.matched=6`, `nets.matched=3` -- exactly as expected, since the
+newly available `"metal3"`/`"via2"` role is not yet referenced anywhere in
+this repo's own code.
+
+**What this does and does not move.** AC1/AC4 are unchanged in number.
+AC5 gains no new filing (nothing new to file -- the opposite: this
+increment is the friction-filing series' own upstream fix landing) and
+loses two "currently open" gaps from its own scoreboard: klayout-tools#506
+and #508 are both closed as of this record, so **no gap this flow has ever
+filed is open upstream any longer**. What changes is scope for the *next*
+increment: the metal-level capability constraint Sections 7d-7o spent
+eleven increments confirming was real and immovable from this repo's own
+side no longer holds. The next AC1 increment's job is concrete and
+narrower than "find a lever" -- it is "spend the lever that now exists":
+extend `met1_bus.py` (or a sibling module alongside it) to draw the
+still-unrouted `D1`/`GDRV`/`VSS` trio's hops on met2/via.drawing, which
+starts as a genuinely empty plane relative to every block's own met1
+interior bussing (`bus_mos_comb`'s finger trunks -- the "block-internal
+comb geometry the inter-block router cannot reorder at all" Section 7g's
+per-hop blocker tally named as two of the three hops' actual obstacle).
+That is real new geometry code (via1 landing-pad sizing against met2's own
+DRC thresholds, a second `conflicts()`/`components()` proof analogous to
+`Met1Bus`'s existing met1 ones, and deciding whether to route the whole
+hop on met2 or only the congested segment), not a parameter flip -- left
+for the next increment, per this issue's own one-lever-per-increment
+discipline.
+
+### 7q. Nineteenth increment: AC1 closes on a met2 escape plane built on Section 7p's pin, and removing four labels drops every remaining connectivity mismatch
+
+Section 7o's closing line said: "If `klayout-tools#508` lands (a third
+connectivity level curated for sky130 with its own `"metal3"`/`"via2"` role
+pair), the next AC1 increment should re-evaluate whether the freed plane
+changes any of Section 7g's per-hop blocker tallies." It landed --
+[klayout-tools#511](https://github.com/2AMLogic/klayout-tools/pull/511),
+merged 2026-08-04 -- and the answer is that the freed plane does not change
+the tallies, it makes them irrelevant.
+
+**Baseline re-measured first, not assumed.** The flow was re-run unmodified
+both at the pre-bump pin and, by Section 7p, at the post-bump one:
+`mismatch_count` 32, `unrouted` = `{D1, GDRV, VSS}`, one failed hop each,
+unchanged across the bump. Every number below is a delta against that
+measured baseline, not against a remembered one -- and Section 7p's own
+record is the controlled counterfactual for this section, since it is the
+same `klt` pin with none of the routing logic.
+
+#### AC1: MET, 12/12 -- and how
+
+`EXTRACTION_DECK.metals` on sky130 is now `((67,20), (68,20), (69,20))` with
+`vias = ((67,44), (68,44))` and `metal_labels = ((67,5), (68,5), (69,5))`.
+That is the fact Sections 7d and 7o said did not exist: a conductor above
+met1 that `klt extract` will traverse. `met1_bus.Met1Bus` gains `via1()`
+(met1 pad + `via.drawing` cut + met2 pad) and `hseg2()`/`vseg2()`, and
+`gen_bandgap_routed._connect_met2()` lifts a hop onto it.
+
+Three properties of the escape are deliberate:
+
+- **It is tried strictly last.** `_connect` runs every met1 form it always
+  did -- both elbows, every channel path, every Z-detour and four-segment
+  escape -- and only falls through to met2 when all of them have been drawn
+  and rolled back. met1 stays the primary plane, because met1 is the plane
+  the curated `klt drc` deck actually checks (below).
+- **The via1 drop point can walk.** The via stack's met1 landing pad is
+  0.32 um (sized by sky130's `via.4a`/`via.5a`), wider than the 0.24 um wire
+  that reaches it, so it can foul a neighbour the wire itself cleared.
+  `_met2_drop` walks the pad along a short guarded met1 stub through
+  `MET2_DROP_OFFSETS_UM` until one fits, rather than declaring the hop
+  unroutable because its exact endpoint was 0.04 um too tight.
+- **`components()` now spans both planes.** This is the load-bearing one. The
+  split-node gate counts connected components of each node's own drawn metal;
+  counting met1 and met2 separately would score a met2-escaped node as 2 and
+  fail the gate, and counting met1 alone would score it 2 as well. Rectangles
+  are joined only within a plane, and a met1 piece is joined to a met2 piece
+  only where a `via1` cut of the same net sits inside both -- so a via stack
+  that missed its own met1 is reported as the split node it is, instead of
+  reading as connected because each plane is individually in one piece.
+
+Result (`layout/bandgap-core/reports/20260804-211109-0336eb4/record.md`):
+**13/13 declared nets routed, 0 unrouted, 12/12 schematic inter-block nets
+fully drawn.** Seven hops use the escape -- the
+`D1`/`GDRV`/`VSS` trio Sections 7c-7o could not place, plus two `VDD` hops
+that met1 could only reach through long detours. Drawn-short conflicts 0,
+split routed nodes 0, DRC clean. The flow also got roughly 11x faster (8m13s
+-> 43s), because the search no longer exhausts its entire candidate set on
+three hops that had no met1 answer.
+
+**What this says about Sections 7e-7k in hindsight.** Nothing in them was
+wrong, and re-reading them was what made this increment cheap: they
+established that no lane, margin, placement or search-depth change moved the
+trio, which is precisely the signature of a capacity limit rather than a
+search limit. Section 7g's per-hop blocker tallies were the sharpest form of
+that evidence -- `VSS`'s hop vetoed by 20 distinct nets including thirteen
+segments of the resistor ladder's own bus is not a hop that one more detour
+shape was going to find. The one thing worth naming as a lesson: Section 7d
+found in the *sixth* increment that `metal2` was not a second plane on
+sky130, and that finding sat in this document, unfiled, until the
+seventeenth. Filing it is what got it fixed, in one day.
+
+#### AC4: 32 -> 18, and every remaining category is a value, not a connection
+
+Two changes, measured separately.
+
+**1. The unrouted trio closing (met2 escape alone): 32 -> 26.**
+`category_counts` goes `{device.unmatched: 19, net.merged: 3, net.split: 10}`
+-> `{device.property: 7, device.unmatched: 13, net.unmatched: 6}`, and
+`devices.matched` 6 -> 10. `net.split`/`net.merged` reach **0**: the nodes
+that were split in the layout where the reference has one are now joined.
+
+**2. Removing four `pins[]` labels: 26 -> 18.** This is the increment's
+second substantive finding, and it was isolated *before* being fixed, by
+re-running `klt lvs` on the byte-identical extracted netlist with only those
+four pins stripped from its `.SUBCKT` line.
+
+A labelled met1 net is promoted by `klt extract` to a top-level pin, and
+`klt lvs`'s `combine_devices` will not fold a series chain through a pinned
+node -- folding one away would delete an externally visible port. This flow
+labelled `TRIM_A`, `TRIM_B`, `TRIM_A_CODE_0` and `TRIM_B_CODE_0`. Every one
+of those sits on a node *interior to the schematic's own R2A/R2B device*,
+which at DR-002's code 0 the schematic does not have at all. So each divider
+leg was pinned into three pieces on the layout side, none of the three could
+pair with the reference's single R2A/R2B, and the orphaned nodes dragged
+`VBQ`, `R1` and `Q2` out of correspondence with them too.
+
+With them gone: `category_counts` = `{device.property: 17,
+device.unmatched: 1}`, `net.unmatched` **0**, layout nets 11 vs reference
+11. The single `device.unmatched` is `MCC`, the compensation cap this layout
+deliberately does not draw. **For the first time in this issue's history, no
+remaining mismatch is a connectivity difference.**
+
+Section 7n's cause list is correspondingly split in two. It had conflated
+"the trim ladder makes the layout look like it has extra devices" (a
+*labelling* artifact, fixed here) with "the trim ladder adds real length" (a
+*geometry* defect, below). They are different problems with different fixes,
+and the second was invisible while the first was live.
+
+Fixed structurally, not by deleting labels at the call site: `INTER_BLOCK_MET1`
+entries carry an `internal: "<schematic device>"` field, `_route_one_net`
+skips `bus.label()` for them, and `trim_tap_pins()` (widened to
+`trim_tap_ladder()` in Section 7r) still locates and
+validates the DR-002 code taps every run but reports them into `record.md`
+instead of into `pins[]`. The taps are still documented; they are just no
+longer asserted to be device-level ports of this cell. Filed upstream as
+[klayout-tools#514](https://github.com/2AMLogic/klayout-tools/issues/514):
+the tool gap is that there is no way to name a net *without* promoting it,
+and no report anywhere attributes the resulting mismatches to the label.
+(klayout-tools#291's `--top-cell-pins` does not cover this -- it demotes by
+which cell a label was drawn in, and this flow draws every label into one
+overlay cell, so the flag is all-or-nothing.)
+
+#### The new defect this exposed: R2 legs are 286 um, not 270 um
+
+With R2A/R2B finally *paired*, the comparer reports a value for the first
+time: layout **91,462.8 ohm** vs reference 88,130. 91,462.8 / 319.8
+ohm-per-square = **286 squares**, i.e. a 286 um drawn leg at W = 1 um, where
+`design/bandgap_core.sch`'s `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim` at
+`n_r2=54, r_lseg=5, n_r2_trim=0` states 270 um.
+
+The 16 um is exactly `res_trim`'s 16 x 1 um leg, which this layout wires in
+series unconditionally. So the drawn cell sits at DR-002 trim code **+16** --
+and DR-002 rejects every positive code outright (issue #46 found `n_r2=55`,
+i.e. +5 um, already collapses the operating point at the ff/2.97 V and
+fs/2.97 V hot corners; `sim/trim-range-monotonicity/` finds +1/+2 collapse
+too). Worse, because the ladder hangs *after* the full-length `res_r2` leg,
+every tap short of the far end moves the leg further **up** from 270 -- the
+drawn ladder implements the direction DR-002 forbids and cannot express any
+of the 16 downward codes DR-002 certifies.
+
+`R1` is the control that rules out a modelling artifact: its drawn body reads
+exactly right (35 um = 7 x 5 um) and its only value difference is the
+`res_high_po` model's per-device 380 ohm head term, which the extractor's
+sheet-resistance model does not carry and no drawn shape can add.
+
+**Not fixed here, and deliberately.** The fix is a re-decomposition of each
+270 um leg -- 50 coarse 5 um units + 20 fine 1 um units is the minimal
+integral decomposition that keeps the specified total and still offers all 16
+downward codes (51 + 15 totals 270 but is one code short). That changes both
+matched arrays' unit counts and row folds, so it touches Sections 1 and 3's
+matching-effort argument and issue #62's AC2 evidence line, and it perturbs
+the floorplan and therefore the router. It is a design change that deserves
+its own before/after, not a rider on a routing increment. Filed as **issue
+#91** with the full evidence and proposed decomposition.
+
+What *is* shipped here is that it can never again be invisible:
+`r2_leg_length()` states drawn-vs-specified leg length from the flow's own
+constants in every record, unconditionally, whether or not `klt lvs` reaches
+those devices -- with the delta expressed in DR-002's own units
+(`effective_trim_code: +16`). It is reported, not yet gated, precisely
+because gating it today would stop the flow producing the record that
+measures it; issue #91's acceptance criteria promote it to a `flow_gate` row.
+
+#### The met2 plane is not checked by `klt drc`, and this flow checks it itself
+
+The flip side of #511: the curated sky130 **DRC** deck was not extended
+alongside the extraction deck. `klayout_tools.decks.sky130.DECK` has 10
+rules and its only routing-stack geometry rules are `li1.width.1`,
+`li1.space.1`, `met1.width.1`, `met1.space.1`, `met1.enclosing.mcon.1` --
+nothing mentioning `(69,20)` or `(68,44)` at all. So `klt drc --deck sky130`
+returns `violation_count: 0` on a layout whose met2 could be 10 nm wide.
+
+That is not inferred: `drc.json`'s own `coverage` block (the field
+klayout-tools#189 added) lists this run's `layers_in_stream_without_rules`,
+and `68/44` and `69/20` are both in it. The tool is honest about the gap; it
+simply has no rules to apply.
+
+`layout/bin/met2_drc.py` applies them, from the installed sky130A PDK's own
+source deck (`libs.tech/klayout/drc/sky130A_mr.drc`): `m2.1` width 0.14,
+`m2.2` spacing 0.14, `m2.6` area 0.0676, `via.1a` cut exactly 0.15, `via.2`
+spacing 0.17, `via.4a`/`via.5a` met1 enclosure, `m2.4`/`m2.5` met2
+enclosure, plus a via-with-no-metal-above-or-below check that is a
+connectivity error nothing else would report. It is a `flow_gate` row, and
+it comes back clean on this record (11 via1 cuts, 4 met2 polygons).
+
+Two notes worth keeping, both found by building the checker's own negative
+control rather than by reading:
+
+- `Region.with_area(min, max)` silently resolves to KLayout's *other*
+  two-argument overload, `with_area(area, inverse)`. The first cut of the
+  `m2.6` rule therefore read as "area exactly 0, inverted", returned every
+  polygon, and reported four area violations the layout did not have. The
+  three-argument `(min, max, inverse)` form is required. A checker that
+  passes everything and a checker that fails everything are equally useless;
+  only the negative control tells them apart, which is why
+  `layout/tests/test_met2_drc.py` exercises every rule in both directions.
+- `Met1Bus.conflicts()` now scores met2 and via1 alongside met1 and li1, and
+  for the new plane it is not a safety net but the only net -- there is no
+  deck rule behind it to fall back on.
+
+Filed upstream as
+[klayout-tools#513](https://github.com/2AMLogic/klayout-tools/issues/513):
+the curated deck's *rule* coverage now trails its own *extraction* coverage
+on sky130, the same shape klayout-tools#188 closed for gf180mcu's upper
+metals.
+
+#### One incidental correctness fix
+
+`_draw_guarded` rolled back a rejected path's shapes and rectangles but not
+`wire_count`, so the reported `met1_wire_count` tallied every *attempted*
+segment -- tens of thousands on a congested hop -- rather than the drawn
+layout. Both guards now restore it. Found by the met2 rollback test
+asserting full `mark()` equality, which the existing met1 rollback test did
+not.
+
+#### Also fixed: `setup-venv.sh --force` did not force
+
+`requirements.txt` pins `klayout-tools` by git commit, but the pinned commits
+share a package version (0.2.0), so plain `pip install -r` treats the
+requirement as already satisfied and leaves the *old* build in place. A pin
+bump appeared to install while changing nothing -- this increment's first
+attempt at the bump silently ran against the previous pin, and was only
+caught by reading `EXTRACTION_DECK.metals` back and finding two levels. The
+`--force` path now passes `--force-reinstall`.
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | PARTIAL, 9/12 | **MET, 12/12** |
+| 2 (real ladder unit count) | MET | MET (but see issue #91 -- the count is real, the *length* is 16 um over; **fixed in Section 7r**) |
+| 3 (device classes + pins) | MET | MET (pin_count 15 -> 11: the four internal-node labels are gone) |
+| 4 (`klt lvs` clean) | NOT MET, 32 | NOT MET, **18**; `device.unmatched` 19 -> 1, no connectivity mismatches left |
+| 5 (blocking gaps filed) | MET | MET (+#513, +#514; #508 closed via #511) |
+
+**Suggested next increment**: issue #91 (the R2 leg re-decomposition) is now
+the largest single remaining cause of AC4 and the only one that is a genuine
+layout defect. Of the rest, `MCC` is deliberate, the `res_high_po` head term
+is a model/extractor difference no drawn shape can close, and the PNP
+`ne`/area parameters are a reference-side transcription question that
+`design/bandgap_core.sch` does not itself answer (it states `m=8`, not an
+emitter area). *(Done -- Section 7r.)*
+
+### 7r. Twentieth increment: the R2 leg is re-decomposed, not extended -- 286 um -> 270 um, the trim ladder trims downward, and the check that found it becomes a gate (issue #91)
+
+Section 7q's closing line named this as the next increment, and it is the
+one remaining AC4 cause that was a **layout defect** rather than a model or
+transcription difference. It is fixed here.
+
+#### What was wrong
+
+`design/bandgap_core.sch`'s `CORE_PARAMS` states each divider leg as
+`L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim = 5*54 + 1*0 = 270 um`. The layout
+drew `res_r2` at the full 54 coarse units per leg (270 um) and then wired
+`res_trim`'s 16 x 1 um leg **in series after it** -- `TRIM_A` joined
+`res_r2`'s tail to `res_trim`'s head, and `VA` picked up the far end of the
+trim chain. Drawn DC path: **286 um**.
+
+Two independent measurements agreed, both from Section 7q's own record:
+
+1. `klt lvs` (only able to pair R2A/R2B at all once Section 7q's four
+   interior labels came off) reported layout **91,462.8 ohm** against the
+   reference's 88,130. 91,462.8 / 319.8 ohm-per-square = **286 squares** at
+   W = 1 um.
+2. `r2_leg_length()` stated it from the flow's own constants: `drawn_um`
+   286, `spec_um` 270, `delta_um` +16, `effective_trim_code` **+16**.
+
+`R1` was the control: its drawn body read exactly right (35 um = 7 x 5 um),
+so the R2 delta was drawn length, not a modelling artifact.
+
+The direction mattered more than the 5.9%. With the ladder wired *after* a
+full-length leg, every tap short of the far end moved the leg further **up**
+from 270 -- so the drawn ladder implemented exactly the direction
+DR-002 rejects and could express none of the 16 downward codes it certifies.
+Issue #46 found `n_r2=55` (+5 um) loses the operating point above ~124 degC
+at ff/2.97 V and fs/2.97 V; `sim/trim-range-monotonicity/` finds +1/+2
+collapse as well. K = R2/R1 sets VOUT and its TC, so this was a first-order
+spec error.
+
+#### The fix: split the 270 um, do not add to it
+
+| | before | after |
+| --- | --- | --- |
+| `res_r2` | 54 coarse 5 um units/leg = 270 um | **50** = 250 um |
+| `res_trim` | 16 fine 1 um units/leg = 16 um, in series *after* | **20** = 20 um, the leg's *last* 20 um |
+| leg at the wired tap | 286 um | **270 um** |
+| codes expressible | +16 only (one wired option, upward) | **0..-20**, DR-002 certifies 0..-16 |
+| `r2_leg_length()` | `matches: false`, `delta_um: +16`, code +16 | `matches: true`, `delta_um: 0`, code 0 |
+
+50/20 is the minimal integral decomposition that keeps 270 um *and* reaches
+DR-002's -16 from inside it. 51 + 15 also totals 270 but stops at -15, one
+code short of the certified range; 52 + 10 stops at -10; and so on. The
+tap addressing follows from `bus_res_series`'s interdigitation directly:
+chain position `j` of leg `l` is segment `2j + l`, and its `_B` terminal has
+`j+1` fine units behind it, so code `-k` is chain position
+`N_R2_TRIM_UNITS - k - 1` and yields `270 - k` um. `trim_tap_port()` is that
+one line; `trim_tap_ladder()` enumerates all 21 codes, validates every port
+against the block's own reported `ports[]`, and computes each code's leg
+length from the tap index rather than asserting it -- so the record's tap
+table *is* the demonstration that the ladder runs downward, not a claim
+about it.
+
+Four of those taps (-17..-20, i.e. 253 down to 250 um) are outside DR-002's
+certified range. They exist in drawn metal, because a metal-option ladder's
+physical taps exist whether or not a code is certified, and they are
+reported **flagged out-of-certified-range** rather than silently offered:
+the alternative -- drawing them and not saying so -- is exactly the kind of
+quiet over-claim this record set exists to prevent.
+
+#### The check is now a gate, which is the part that stops the recurrence
+
+`r2_leg_length()` already existed (Section 7q added it) and already reported
+the defect correctly. It reached `record.md`'s table and nothing else, so a
+correct measurement sat in every record for an increment without failing
+anything. It is now the `r2_leg_length_matches` row of `flow_gate()`, so the
+flow's exit status carries it. `full_scale_ladder`, the pre-existing row, is
+not a substitute and never was: it checks the ladder's unit *count*, and the
+286 um leg passed it for nineteen increments.
+
+`layout/tests/test_routed_flow_gates.py` had, correspondingly, been *pinning
+the broken behaviour* (`assertFalse(matches)`, `delta_um=16.0`,
+`effective_trim_code=16`) -- deliberately, as Section 7q's evidence, but it
+meant the suite would have gone red only when the defect was fixed. Those
+assertions are flipped, and `TestTrimTapLadder` is new: it asserts the
+code-0 length, that every certified code subtracts exactly 1 um, that **no**
+tap can express a leg longer than the specified one, that the four
+uncertified taps are drawn-and-flagged, that the two legs interdigitate by
+parity, and that the port `VA`/`VB` are actually wired to is the code-0 tap.
+
+#### One incidental correctness fix, found by re-running the flow
+
+The new block geometry moved the floorplan, and the first re-run came back
+with a single `met1.space.1` violation, verbatim from that run's `drc.json`:
+
+```json
+{"rule": "met1.space.1", "check": "space", "layer": "met1.drawing",
+ "source_cell": "bandgap_core_bus__bandgap_core_bus",
+ "bbox": {"left": 39860, "bottom": 370, "right": 39972, "top": 490},
+ "polygon": [[39860, 370], [39860, 490], [39900, 490], [39972, 370]]}
+```
+
+That wedge is a 0.12 um gap between a met2 escape drop's via1 landing pad
+(0.32 um square, centred at 39.74, 0.65) and the wire directly below it
+(y 0.13..0.37) -- a wire **of its own net**. `_draw_guarded`
+already applied the same-node notch rule to wires (a first cut of the
+multi-track channel search had shipped exactly this shape once before), but
+`_met2_drop` applied only a *foreign*-node test to the landing pad. The pad
+is 0.32 um where the stub reaching it is 0.24, so it overhangs its own stub
+by 0.04 um on each side, and that overhang can land inside `met1.space.1` of
+a same-net wire the stub itself cleared by overlapping. `met1.space.1` does
+not exempt same-net edges -- only touching ones.
+
+`_met2_drop` now applies the same rule `_draw_guarded` does, on both landing
+pads, and walks to the next offset instead. Note which check caught it:
+`conflicts()` compares different nets only and was silent, and so was the
+met2 DRC checker; `klt drc` was the only thing that saw it. Both directions
+are now unit-tested (`test_met2_drop_backtracks_off_a_same_node_notch` and
+its negative control, a pad that legitimately overlaps its own wire).
+
+No new friction was filed upstream for this increment: nothing here is a
+`klt` gap. `res_array` already had every parameter the new decomposition
+needs (`num`, `rows`, `length_um`), the defect was this repo's own
+arithmetic, and the notch was this repo's own router.
+
+#### Measured result
+
+Record `20260804-231410-539e30b`. The clean flow was run twice in immediate
+succession and produced byte-identical `record.md` output modulo the record
+id, so only one of the two is checked in -- the same repeatability
+convention `layout/README.md` states for the trivial-cell flow. The
+DRC-failing run above is **not** checked in as a record directory: it was
+produced mid-increment, before this section's own cause-list prose was
+updated, so its `record.md` would state a defect its own leg-length table
+shows as fixed. Its one durable fact is quoted verbatim above, and the
+regression is pinned by unit test rather than by a 2 MB record:
+
+| | before (7q) | after |
+| --- | --- | --- |
+| drawn leg length | 286 um | **270 um** |
+| `klt lvs` R2A/R2B `r` | 91,462.8 vs 88,130 | **86,346 vs 88,130** |
+| DRC / met2 DRC | clean / clean | clean / clean |
+| schematic inter-block nets | 12/12 | 12/12 |
+| drawn shorts / split routed nodes | 0 / 0 | 0 / 0 |
+| composed bbox | 45,508 um^2 | 45,968 um^2 (budget 50,000) |
+| `mismatch_count` | 18 | 18 |
+| `device.unmatched` | 1 (MCC) | 1 (MCC) |
+
+`mismatch_count` did **not** move, and that is the honest and expected
+result rather than a disappointment: R2A/R2B still differ in `r`, but the
+residual is now *exactly* the `res_high_po` model difference `R1` has always
+shown, and the value proves it. The reference models a segment as
+`R ~ 380 + 325*L`; the extractor derives R from body squares alone at
+319.8 ohm/sq. So the difference on any leg should be `5.2*L + 380`:
+
+- `R1`: 11,755 - 11,193 = 562 = 5.2 x 35 + 380 ✓
+- `R2A`/`R2B`: 88,130 - 86,346 = 1,784 = 5.2 x 270 + 380 ✓
+
+Both close on the same two model constants, which is the arithmetic proof
+that the drawn length on each device is now exactly the schematic's -- 35 um
+and 270 um. Before the fix, R2's residual was +3,332.8 in the *other*
+direction and closed on nothing. What changed is the **kind** of the
+residual: AC4's remaining causes are now three, and none of them is a layout
+defect.
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | MET, 12/12 |
+| 2 (real ladder unit count) | MET (count real, *length* 16 um over) | **MET, and the length is right**: 100 coarse + 40 fine units = 270 um/leg, gated |
+| 3 (device classes + pins) | MET | MET (pin_count 11, unchanged) |
+| 4 (`klt lvs` clean) | NOT MET, 18 | NOT MET, 18 -- but every remaining cause is a model or reference-transcription difference, none a layout defect |
+| 5 (blocking gaps filed) | MET | MET (nothing new to file this increment) |
+
+**Suggested next increment**: AC4's three residual causes are all
+reference-side or model-side, so the next move on it is not a layout change
+at all -- it is deciding whether `reference.spice` should carry the PNP
+emitter geometry `design/bandgap_core.sch` does not state (cause 3), and
+whether the `res_high_po` head term (cause 2) is worth a `klt` feature
+request for a device-level series term the extractor could carry. Neither is
+a defect in the drawn cell.
+
+### 7s. Twenty-first increment: the PNP `ae`/`pe`/`ne` transcription gap, closed the same way RES_BULK_ARITY_NOTE closed the resistor bulk terminal -- `mismatch_count` 18 -> 4
+
+Section 7q's own closing line called the PNP `ne`/area gap "a reference-side
+transcription question that `design/bandgap_core.sch` does not itself answer
+(it states `m=8`, not an emitter area)". That framing undersold what the
+schematic *does* answer: it states which vendor macro to instantiate
+(`model=pnp_05v5_W0p68L0p68` / `_W3p40L3p40`), and SkyWater's own naming
+convention for those fixed, non-parametric cells states the emitter's `W`
+and `L` directly -- independent of anything this repo's own `bjt_array`
+generator draws. That is knowable without touching the layout at all, the
+same shape as RES_BULK_ARITY_NOTE's resistor bulk-terminal fix (sixteenth
+increment): a value the schematic's own reference *could* state, and a prior
+record's premise that it could not was wrong.
+
+**What was actually missing.** `klt lvs`'s SPICE reader has no notion of a
+`M`/`mult` field for `DeviceClassBJT3Transistor` at all. Confirmed directly
+with `klayout.db.NetlistSpiceReader`: a `Q` card carrying only `pnp m=8`
+parses to `NE=1` (the class default), with `AE`/`PE`/`AB`/`PB`/`AC`/`PC` all
+0 -- `m=8` is silently dropped, not folded into anything. That is unlike
+`DeviceClassMOS3Transistor`, where a bare `m=` folds directly into `W` at
+read time (also confirmed directly: `pfet L=2U W=8U m=2` reads back as
+`W=16.0`) -- which is why the eleven MOS device cards in `reference.spice`
+never needed this fix and the two PNP cards did.
+
+**The fix.** `layout/bandgap-core/reference.spice`'s `QQ1`/`QQ2` cards now
+state `AE`/`PE`/`NE` computed from the vendor macro's own W/L (`AE=W*L`,
+`PE=2*(W+L)`, standard SPICE rectangular-junction geometry) times the
+schematic's own `m=8`, matching exactly what `klt lvs`'s `combine_devices`
+produces on the layout side when it folds 8 parallel unit devices into one
+(confirmed against the combined-LVS device table: layout Q1 reads
+`AE=3.6992 PE=21.76 NE=8`, Q2 reads `AE=92.48 PE=108.8 NE=8`, both exactly
+`8 * unit value`). `AB`/`PB`/`AC`/`PC` (base/collector area/perimeter) are
+deliberately left unstated: unlike the emitter, that geometry is not part of
+the vendor's fixed macro -- `klt gen bjt_array` draws its own
+matching-faithful base/collector floorplan from base layers, not an instance
+of `sky130_fd_pr__pnp_05v5_W*` -- so stating a value there would mean
+deriving it from this layout's own drawn geometry to make LVS pass, which is
+exactly the reference-accommodates-the-layout shape this file's own
+convention refuses. See PNP_EMITTER_GEOMETRY_NOTE in
+`layout/bin/gen_bandgap_routed.py` and the corresponding note in
+`reference.spice` for the full derivation.
+
+**Measured effect, including one result not predicted going in.**
+`mismatch_count` drops 18 -> 4, `device.property` 17 -> 3, and every mismatch
+on both `Q1`/`Q2` is gone -- all seven parameters each (`ae`/`pe`/`ab`/`pb`/
+`ac`/`pc`/`ne`), not just the three (`ae`/`pe`/`ne`) this fix states. That
+is not evidence the base/collector geometry also matches (it does not, on
+either device: the layout's `AB`/`AC` are non-zero, the reference's stay at
+the class default 0) -- it is that KLayout's own `NetlistComparer` decides
+whether to flag a device-property mismatch at all using only that device
+class's `is_primary` parameters. Checked directly via
+`DeviceClassBJT3Transistor().parameter_definitions()`: `AE` and `NE` are
+`is_primary=True`; `PE`/`AB`/`PB`/`AC`/`PC` are not. Before this fix `NE`
+(primary) differed, so the comparer flagged the pair and this repo's own
+`klt lvs` wrapper (`_classify_param_mismatch` in
+`2AMLogic/klayout-tools`) then enumerated every parameter that differed,
+secondary ones included -- which is why `pe`/`ab`/`pb`/`ac`/`pc` all showed
+up as mismatches even though nothing about this increment touched them.
+After the fix, `AE`/`NE` agree, the comparer's own equivalence check never
+flags the pair at all, and the secondary parameters are never compared --
+not fixed, not evidence they match, simply outside what the tool's device
+equivalence exercises for this class. Both `AB`/`PB`/`AC`/`PC` remaining 0 in
+`reference.spice` are disclosed as such in PNP_EMITTER_GEOMETRY_NOTE rather
+than left to look silently resolved.
+
+No `klt` capability gap was found or filed this increment: the fix is a
+`reference.spice` transcription correction, not a tool limitation.
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | MET, 12/12 (unchanged) |
+| 2 (real ladder unit count) | MET (length fixed in Section 7r) | MET (unchanged) |
+| 3 (device classes + pins) | MET | MET (unchanged) |
+| 4 (`klt lvs` clean) | NOT MET, 18 | NOT MET, **4**; `device.property` 17 -> 3, both PNP devices fully clear |
+| 5 (blocking gaps filed) | MET | MET (unchanged; no new gap filed) |
+
+**Remaining causes, all disclosed, none worked around**: `res_high_po`'s
+per-device 380 ohm head-resistance term (an extractor modelling gap, not a
+layout defect -- it is the whole of the residual `r` difference on all three
+resistors, `R1` and both R2 legs, each closing on the same `5.2*L + 380`)
+and `MMCC` (deliberately undrawn, per issue #15). Section 7r's R2 leg
+re-decomposition (issue #91) landed on `main` before this increment did, and
+it did **not** reduce `mismatch_count`: it changed the *kind* of the R2
+residual from a drawn-length defect to the same model term `R1` always
+showed. So with both increments in, neither remaining cause is a layout
+defect, and neither is closable by drawing anything -- `mismatch_count=4` is
+1 deliberately-undrawn device plus 3 model-term value differences.
+
+### Section 7t scoreboard (archived)
+
+Moved verbatim out of `matching-plan.md` Section 7t; the section itself stays in the plan.
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET (issue #91 landed as Section 7r) | unchanged |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, 4 | unchanged, **4** — no code change this increment |
+| 5 (blocking gaps filed) | MET | MET (+#518) |
+
+### 7u. Twenty-third increment: bumped past klayout-tools#518/#519 and #521/#526 -- and found the fix does not close AC4, because this flow's own trim-tap decomposition breaks the per-instance offset's assumption
+
+Section 7t named klayout-tools#518 as "closing it needs #518 upstream ...
+out of this repo's hands." It landed: 2AMLogic/klayout-tools#518 merged via
+[#519](https://github.com/2AMLogic/klayout-tools/pull/519) on 2026-08-04,
+adding `ResistorDevice.fixed_offset_ohm` (mirrors `CapacitorDevice.
+perim_cap_f_um` from #512/#517) and setting sky130's `res_high_po` deck
+entry to the measured `sheet_rho_ohm_sq=324.827244` /
+`fixed_offset_ohm=379.705147` (both on by default -- no opt-in flag this
+repo's own code needs to pass). Checking the range past #519 for anything
+else worth picking up in the same bump surfaced a second, necessary fix:
+2AMLogic/klayout-tools#521, merged via
+[#526](https://github.com/2AMLogic/klayout-tools/pull/526), which found
+that #519's correction was applied only inside `klt extract`'s JSON-report
+path (`_describe_devices`), not to the `kdb.Netlist` itself -- so the
+`.spice` file `NetlistSpiceWriter` writes (which is exactly what this
+flow's own `klt lvs` step reads back in as both sides of the comparison,
+Flow step 5/6 in every prior record) still carried the uncorrected
+body-only value. Without #526, #519 would have been invisible to this
+flow's own LVS result even though `klt extract`'s JSON report looked
+corrected. `git log 2b592b5..127b52d` (klayout-tools main tip as of this
+writing) adds four more commits past #526, none touching
+`decks/sky130.py`/`extract.py`/`lvs.py` (confirmed via `git diff --stat`
+over that range) -- gf180mcu/IHP-Open-PDK feature work and a Loom-repo
+housekeeping fix, unrelated to this flow. Pinned `layout/requirements.txt`
+at `39bdbc4` (immediately after #526), not tip, per this repo's own
+deliberate-bump discipline.
+
+**Non-regression proof, same discipline as every pin bump**:
+`layout/bin/run-trivial-cell-flow.sh` re-run unmodified still PASSes with
+the identical four-way verdict.
+
+**Re-ran `run-bandgap-routed-flow.sh` and measured the effect directly --
+it does not close this cause; it makes the disclosed `r` delta larger.**
+`mismatch_count` and `category_counts` are unchanged (still 4; still
+`device.property`: 3, `device.unmatched`: 1), but the underlying `r` values
+on `R1`/`R2A`/`R2B` moved further from the reference, not closer:
+
+| device | pre-bump (body-only) | reference | post-bump | reference |
+| --- | --- | --- | --- | --- |
+| `R2A`/`R2B` (each leg) | 86,346 (1,784 under) | 88,130 | 114,282.71617 (26,152.7 over) | 88,130 |
+| `R1` | 11,193 (562 under) | 11,755 | 14,026.889569 (2,271.9 over) | 11,755 |
+
+**Root cause, confirmed exactly, not inferred.** The fixed offset is
+charged once per *drawn* resistor primitive before `klt lvs`'s
+`combine_devices` folds a series chain into one device. This repo's own
+`res_array`-drawn trim ladder does not represent `R2A`/`R2B`/`R1` as one
+drawn primitive each: it draws 50 coarse 5um + 20 fine 1um = **70** separate,
+individually-contacted primitives per R2 leg (and **7** for R1), joined by
+`met1_bus.py`'s unit-to-unit jumpers, specifically so that DR-002's trim
+taps land on real, contactable metal (RES_TRIM_LENGTH_NOTE / Section 7r).
+`combine_devices` sums each primitive's already-corrected `r`, which sums
+the fixed offset 70 (or 7) times, not once for the logical device
+design/bandgap_core.sch's own `R ~ 380 + 325*L` model states for the whole
+leg. Verified to the digit against `lvs.combined.json`:
+`324.827244 x 270 + 70 x 379.705147 = 114,282.71617` (R2, either leg) and
+`324.827244 x 35 + 7 x 379.705147 = 14,026.889569` (R1) -- both match the
+comparer's reported `r` exactly.
+
+**Not worked around.** Rewriting `design/bandgap_core.sch`'s simplified
+single-device `R ~ 380 + 325*L` model to account for this repo's own choice
+of a 70-primitive (or 7-primitive) trim-tap decomposition would be tuning
+the reference to the layout's own implementation detail, the same
+reference-edit-to-accommodate-the-layout RES_BULK_ARITY_NOTE and every
+prior AC4 increment in this section refuse. The alternative -- drawing the
+ladder as one continuous poly body with intermediate tap contacts instead
+of `res_array`'s discrete unit-per-primitive geometry -- is a `klt gen`
+capability this repo does not have.
+
+**Filed upstream, generic, no design-specific detail**: searched the
+tracker first for `fixed_offset_ohm`, "combine_devices resistor", "head
+resistance series", "res_array taps" -- no existing filing for this shape
+(the closest hits, #500/#514/#518/#521, are all different gaps, already
+cited above or in prior sections). Filed as
+[klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559):
+a per-instance fixed-offset correction and a `combine_devices`-style series
+fold have no shared notion of "these N drawn primitives are one logical
+device for the purpose of this correction" vs. "N independent device
+instances that happen to be wired in series" -- the body/sheet-resistance
+term folds correctly under series combination because it is linear in
+length; the fixed offset is not that kind of term, and nothing currently
+distinguishes the two cases.
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET | unchanged |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, 4 | unchanged, **4** -- `r` deltas larger, category counts and `mismatch_count` unchanged |
+| 5 (blocking gaps filed) | MET | MET (+#559, non-blocking) |
+
+**Practical floor, as far as this flow can currently determine.** AC4's
+`mismatch_count=4` (1 deliberately-undrawn `MCC` + 3 `device.property` on
+the resistor triple) has now survived three consecutive increments (7t,
+this one) that each closed a real upstream gap without moving it, for two
+different structural reasons in turn: first "the extractor's model has no
+term for this," now "this repo's own trim-tap decomposition doesn't match
+what a per-instance term assumes." Closing it further needs either a new
+`klt gen` capability (a continuous-poly-with-taps resistor generator) or a
+`combine_devices`-side per-logical-device accounting mode (klayout-tools#559)
+-- both out of this repo's hands, same as Section 7t's own conclusion.
+Whether `mismatch_count=4` (MCC undrawn + a now-precisely-understood
+resistor model/topology interaction) constitutes acceptable closure for
+issue #62's AC4 is a decision this flow does not make for itself; it reports
+the measured floor and defers the ruling.
+
+### 7v. Real-SPICE check of the folded array's head resistance (issue #98) -- reading 2 confirmed, and material: K=R2/R1 shifts +8.67%, VOUT leaves the ±1% window at all 5 corners checked
+
+No layout code change this increment (investigation only, per issue #98's
+own scope). Section 7u above (issue #62's own klt-pin-bump increment, PR
+#97, merged) measured that picking up 2AMLogic/klayout-tools#518/#519/#526
+upstream makes `klt lvs`'s extracted `R1`/`R2A`/`R2B` read +19.3%/+29.7%
+higher than `design/bandgap_core.sch`'s single-`res_high_po`-device model,
+because `res_r2`/`res_trim`/`res_r1`'s folded array draws each divider leg
+as N separately-contacted unit instances (7 for R1, 70 for R2A/R2B) wired in
+series through real drawn metal+via (`bus_res_series`), not one lumped
+device. Issue #98 asked whether that is a real electrical property of the
+fabricated part or an LVS/extraction-only bookkeeping artifact, and -- if
+real -- whether it moves `K = R2/R1` (and therefore `VOUT`/TC) enough to
+matter.
+
+**Reading 2, confirmed by independent real-SPICE evidence, not just
+re-reading the LVS numbers.** `sim/res-array-head-resistance/` chains N real
+`sky130_fd_pr__res_high_po` unit-device SPICE model instances (the PDK's own
+nonlinear `rhead`/`rbody` semiconductor-resistor cards, via ideal
+zero-resistance wires) at the layout's own N/L shapes and measures the total
+two-terminal resistance directly in ngspice -- a completely independent
+mechanism from `klt`'s own analytic `L/W*sheet_rho + fixed_offset`
+extraction formula. The result reproduces `klt`'s reported LVS values to
+5-6 significant figures (chained R1 = 14,026.89 ohm vs. klt's 14,026.89;
+chained R2A/R2B = 114,282.70 ohm vs. klt's 114,282.72), which rules out
+"extractor bookkeeping artifact": two unrelated computations landing on the
+same number to that precision means both are measuring the same real
+electrical quantity. The model card's own structure explains the mechanism:
+`sky130_fd_pr__res_high_po`'s `rhead` sub-resistor has a *hardcoded*
+`l=1.0`, independent of the caller's drawn body length -- a real device pays
+this term once per physically separate, individually-contacted instance,
+not once per logical divider leg. The routed layout's `bus_res_series` draws
+real contacts and metal risers at every one of the array's internal unit
+boundaries (not just at the two ends of the logical leg), which is exactly
+the structure this model term represents. **A real fabricated part built
+from this layout really does pay N times the head/fringe resistance term.**
+
+**Material**: K shifts from 7.4973 (the single-device model
+`design/bandgap_core.sch` and every existing PVT sim record in this repo
+actually simulates today) to 8.1474 under the routed layout's real chained
+topology (+8.67%) -- not a uniform scale factor on both resistors, since
+R1's delta (+19.39%) and R2A/R2B's delta (+29.74%) differ, exactly the
+asymmetry issue #98's Problem section flagged as the concern. Substituting
+the chained-array topology into the real core testbench (same schematic
+`sim/output-voltage-tc/testbench/tb_vref_tc.sch`, same box-method
+`-40..125 degC` TC sweep `sim/trim-range-monotonicity/` already uses) pushes
+`VOUT(27 degC)` outside the draft ±1% spec window (1.188-1.212 V) at **all
+5** of the (process, supply) corners checked -- `tt`/3.30 V, `ss`/3.30 V,
+`ff`/2.97 V, `sf`/2.97 V, `fs`/2.97 V -- landing around 1.233-1.235 V. At the
+two corners issue #46/#91 already flagged as margin-thin (`ff`/2.97 V,
+`fs`/2.97 V), the shift is worse than an accuracy miss: it reproduces the
+*exact* regulation-collapse signature #46 and `sim/trim-range-monotonicity/`
+found for a positive R2/K increase (`VOUT` pinned near 2.85 V, box TC
+~8,000 ppm/°C) -- the same hot-corner operating-point bifurcation, triggered
+here not by a trim code or a resize, but by the routed layout's own real
+electrical topology at the untrimmed, as-shipped `n_r2_trim=0` code. Full
+per-corner table, checks, and the standalone Phase A comparison:
+`sim/res-array-head-resistance/records/20260805-113409-6caa9f8.md`.
+
+**What this does NOT mean**: it is not evidence that the fabricated part
+would ship broken with no possibility of correction -- DR-002's own
+downward-only trim ladder (`n_r2_trim`) is exactly the lever that corrects a
+K/VOUT that reads too high, and this shift is entirely in that direction (K
+increases, `VOUT` increases). What it does mean is that
+`design/bandgap_core.sch`'s sizing (`n_r1=7`, `n_r2=54`, chosen against the
+single-device model) and every existing PVT/trim-range verification record
+in this repo were computed against a resistor model the routed layout does
+not actually build, and the untrimmed operating point silently relies on
+that mismatch not existing. See `spec/decision-records/DR-003-res-array-
+head-resistance-sizing.md` for the ratified finding and the follow-up scope
+this hands to issue #99, the resizing issue (not undertaken here, per this
+issue's own investigation-only scope and this project's one-lever-per-
+increment discipline -- see Sections 7a-7u above).
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET (issue #91 landed as Section 7r) | unchanged |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, 4 | unchanged -- no code change this increment |
+| 5 (blocking gaps filed) | MET | unchanged (no new `klt` gap -- the finding is this design's own array-folding choice interacting with a now-correct extractor, per issue #98's own provenance note, not a tool gap) |
+
+**Suggested next increment**: issue #99, a resizing issue against
+`design/bandgap_core.sch`'s `n_r1`/`n_r2` (or an alternative that reduces
+the number of separately-contacted `res_high_po` unit instances the routed
+array draws), re-verified against the same full PVT corner set issue #46
+used, following
+`spec/decision-records/DR-003-res-array-head-resistance-sizing.md`'s
+"Consequences" section.
+
+### 7w. Twenty-sixth increment: no new lever on klayout-tools#559, but a stale/self-contradictory met2-DRC-coverage claim found and fixed
+
+Followed Section 7u/7v's own suggested next steps: re-checked
+[klayout-tools#559](https://github.com/2AMLogic/klayout-tools/issues/559)
+directly (`gh issue view 559 --repo 2AMLogic/klayout-tools`) -- still open,
+0 comments, no linked PR, no movement since it was filed. No new lever found
+in `klt`'s own `lvs.py`/`hints.*` API either (the exhaustive search this and
+the two prior increments already ran). `mismatch_count` stays **4**.
+
+What this increment did find: [klayout-tools#513](https://github.com/2AMLogic/klayout-tools/issues/513)
+(the curated *DRC* deck's missing met2/via rule coverage, filed by the
+nineteenth increment, Section 7q) closed via
+[#515](https://github.com/2AMLogic/klayout-tools/pull/515) the day before
+this increment ran, adding `met2.width.1`, `met2.space.1`, `via.width.1`,
+`via.space.1`, `met1.enclosing.via.1` and `met2.enclosing.via.1` -- and the
+fix was *already* inside this repo's own `klt` pin (`39bdbc4`, bumped for
+#526 shortly after #515 merged, per Section 7u). `drc.json`'s own
+`coverage.layers_in_stream_without_rules` in every record since confirms
+`68/44`/`69/20` are no longer unchecked -- but the code narrating that fact
+had not caught up. `gen_bandgap_routed.py` hardcoded "the curated deck
+carries no met2.\*/via.\* rule at all" in six places (module docstring,
+`MET2_ESCAPE_NOTE`, `flow_gate`'s docstring, two record.md step
+descriptions, and record.md's own coverage paragraph); `layout/bin/
+met2_drc.py`'s docstring and JSON `"reason"` field said the same, as did
+`met1_bus.py`'s DRC-budget docstring.
+
+**One of those was a live self-contradiction, not just stale prose.**
+record.md's coverage paragraph asserted "`klt drc` does not check any of
+this geometry" one sentence before quoting its own `coverage` list, which
+by that point named *neither* escape-plane layer as unchecked -- e.g.
+`layout/bandgap-core/reports/20260805-105719-f126dca/record.md` states both
+in the same breath. Fixed by extracting the paragraph into a new pure
+function, `gen_bandgap_routed.met2_drc_coverage_note(unchecked)`, which
+states what the run's own `coverage` list actually measured rather than a
+hardcoded increment-era fact -- unit-tested for both the "still gapped" and
+"now covered" branches (`TestMet2DrcCoverageNote`, 4 cases,
+`layout/tests/test_routed_flow_gates.py`). Every other stale comment now
+states the real, narrower remaining gap: `klt drc` checks met2/via1
+width/spacing/enclosure; only the met2 min-area rule (`m2.6`) is still
+uncovered upstream (#515 deliberately left it out -- the curated deck's
+rule vocabulary has no `area` check primitive), which is why
+`layout/bin/met2_drc.py` still has a reason to exist, just a narrower one
+than before.
+
+Prose/comment accuracy only -- no generator, gate, or threshold logic
+changed; `npm run check:ci` green (163 unit tests, py_compile, JSON/bash
+lint, xschem quote check).
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET | unchanged |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, 4 | unchanged -- no code or measurement change this increment |
+| 5 (blocking gaps filed) | MET | unchanged (no new gap to file; #513 was already closed, this increment only caught this repo's own code up to that fact) |
+
+**Suggested next increment (superseded by Section 7z)**: keep re-checking
+klayout-tools#559 for movement -- see Section 7z for what changed (it closed
+upstream via #583, and #587 made the fix reachable from this flow's own
+request shape).
+
+### Section 7x scoreboard (archived)
+
+Moved verbatim out of `matching-plan.md` Section 7x; the section itself stays in the plan.
+
+#### Scoreboard after this increment
+
+| AC | before | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET | unchanged -- still drawn at `n_r2=54`; the re-transcription to `n_r2=50` is the next increment |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, 4 | unchanged -- no layout/measurement change this increment |
+| 5 (blocking gaps filed) | MET | unchanged (no new gap -- the sizing move is verified in `sim/`, the redraw is a scoped follow-on, not a tool gap) |
+
+### 7y. Twenty-seventh increment: the resize lands in the drawn array (issue #108) -- `mismatch_count` 4 -> 1, `res_high_po`'s value cause retired by a transcription-convention decision, not a tool fix
+
+Section 7x's own "Suggested next increment" is this one: `gen_bandgap_routed.py`
+is re-transcribed from the pre-resize sizing to the one issue #99/DR-003
+adopted, and `reference.spice` is re-derived from it, closing the
+schematic-vs-layout transient 7x opened deliberately.
+
+**Layout re-transcription.** `N_R1` stays **7** (DR-003 deliberately held it
+fixed -- holding R1 fixes the branch current so `K` is corrected without
+raising the hot-corner headroom demand the collapse depends on). `N_R2_COARSE`
+moves **50 -> 46** and `SCH_N_R2` **54 -> 50**, re-transcribing issue #91's
+same coarse-plus-fine decomposition shape (Section 7r) to the shorter 250 um
+leg: 46 coarse 5 um units (230 um) plus the unchanged 20 fine 1 um units
+(20 um) = 250 um at DR-002 code 0, still reaching every one of DR-002's
+certified 0..-16 downward codes (47 coarse + 15 fine also totals 250 um but
+stops one code short, at -15 -- the same minimality argument Section 7r made
+at the old count). `r2_leg_length()`'s `spec_um` gate moves 270 -> 250 um and
+still reports `matches: true`.
+
+**The `rows` fold: re-verified empirically, not re-derived from a
+divisibility rule.** `res_array`'s `rows` parameter does not actually require
+an exact divisor of `num` -- `klt gen res_array` folds a remainder into a
+shorter last row without complaint -- but re-running the full routed flow
+found that this repo's *own* hand-rolled fold-turn bus router
+(`bus_res_series` in `gen_bandgap_routed.py`, which draws the met1 jumper at
+each row-boundary corner as a routed hop, not a straight-line one) is not
+fold-shape-agnostic:
+
+- Every true divisor of the resized `2 * N_R2_COARSE = 92` (2, 4, 23, 46)
+  pushed the composed cell over the 50,000 um^2 budget: 71,440 / 51,666 /
+  51,941 / 62,509 um^2 respectively (rows=4, the divisor closest to the old
+  10-rows-at-100-units aspect ratio, was the *closest* miss).
+- A scan of nearby non-divisor counts (6-11) found four (6, 7, 8, 10) that
+  route cleanly and two (9, 11) that do not: at rows=9, `bus-summary.json`'s
+  `res_r2.links` reports 4 of 90 fold-turn hops `"routed": false`, all on
+  leg 1 -- a genuinely broken series chain, not a value mismatch. `klt lvs`
+  reflects it directly: `R2B` fails to fold into one combined device (it has
+  no reference counterpart at all) and several orphan `res_high_po`
+  primitives show up as `device.unmatched`, taking `mismatch_count` to 15
+  (rows=9) or 18 (rows=11) against the 1 every clean fold produces. This is
+  filed nowhere upstream -- `bus_res_series` is this repo's own script, not
+  a `klt` capability, so it is not klayout-tools friction per CLAUDE.md's
+  protocol; it is a note left in the `res_r2` block's own `rows` comment for
+  the next person who reaches for an arbitrary fold count.
+- **`rows` is kept at 10** -- unchanged from the pre-resize count -- and
+  re-verified against the resized 92-unit count: 0 unrouted fold-turn hops,
+  0 drawn-short conflicts, DRC clean, `mismatch_count=1`. The measured
+  `res_r2` footprint (75.6 x 13.6 um) and the composed cell bbox
+  (45,968 um^2) come out identical to the post-#91 figures to the um^2 --
+  the resize's entire area effect is absorbed by the coarse-unit count
+  without moving this block's own bounding box at all.
+
+**`reference.spice`: the single-device-vs-chained transcription-convention
+question, settled.** DR-003's closure and issue #99 left open whether
+`reference.spice` should keep stating design/bandgap_core.sch's
+single-device approximation (`R ~ 380 + 325*L` once per leg, Section 7t) or
+switch to the chained value the routed array's real multi-primitive topology
+pays (Section 7u/7v, RES_HEAD_RESISTANCE_NOTE). This increment decides:
+**chained.** Two reasons, both already established by prior sections rather
+than new arguments:
+
+1. It is what `klt lvs`'s own `combine_devices` actually sums the layout
+   side to (Section 7u measured this exactly: each R2 leg read
+   114,282.71617 ohm at the pre-resize count, `= sheet_rho * length_um +
+   fixed_offset * primitive_count`, not the single-device formula). Stating
+   the single-device value here was never going to reach zero `r` delta --
+   it was comparing the layout against a model the layout does not build.
+2. It is the value issue #99's own PVT re-verification was sized against
+   (`sim/res-array-resize/records/20260805-204809-2c83c7a.md`'s "Chained-array
+   resistance the resize targets" table), so stating it here makes
+   `reference.spice` agree with the same evidence base the sizing decision
+   itself relied on, not a third number nothing in this repo's records
+   claims the fabricated part reaches.
+
+`RR1`/`RR2A`/`RR2B` now read **14026.89 / 106267.35 / 106267.35** ohm (was
+11755 / 88130 / 88130, the single-device values for the old counts) --
+verified independently to the digit two ways: against
+`klayout.db.NetlistSpiceReader` reading `reference.spice` back, and against
+`sim/res-array-resize/records/20260805-204809-2c83c7a.md`'s own real-ngspice
+chained-model table. `reference.spice`'s own RESISTOR VALUE CONVENTION note
+carries the full reasoning inline, for the next transcription this file
+needs.
+
+**Result: `res_high_po`'s value cause is retired, not merely improved --
+`mismatch_count` 4 -> 1.** `category_counts` moves from
+`{"device.property": 3, "device.unmatched": 1}` to `{"device.unmatched": 1}`
+-- `R1`/`R2A`/`R2B` move from a `device.property` mismatch to a full match,
+leaving only `MMCC` (the deliberately-undrawn compensation cap) on either
+side. This closes the cause without needing klayout-tools#559 (still open
+upstream as a genuine ask -- a `klt gen` continuous-poly-with-taps resistor
+capability that would let this layout draw one logical device per leg
+instead of a chained series primitive count -- but not a live blocker of
+this repo's own LVS result any more, since the reference now states the
+value the chain actually sums to rather than the value a different,
+undrawn topology would sum to).
+
+**Fresh routed-flow record**: DRC clean, met2 DRC clean (0 violations),
+composed bbox 45,968 um^2 (< 50,000 um^2 budget, matching the post-#91
+figure to the um^2), `device_counts` unchanged in kind
+(`{"nfet": 16, "pfet": 52, "pnp": 16, "res_high_po": 139}`), `pin_count=11`,
+`mismatch_count=1`. `layout/bandgap-core/reports/<latest>/record.md` (see
+`reports/LATEST`) carries the full per-criterion scoreboard and net tables.
+
+#### Scoreboard after this increment
+
+| AC | before (7x) | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET, drawn at `n_r2=54` | MET, re-transcribed to `n_r2=50` (92 coarse + 40 fine units, 250 um/leg); `r2_leg_length_matches` still true |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, `mismatch_count=4` | NOT MET, `mismatch_count=1` -- only `MMCC` (deliberate scope choice) left |
+| 5 (blocking gaps filed) | MET | unchanged (klayout-tools#559 remains open as a capability request, not a live blocker) |
+
+**How much of the `mismatch_count` change is attributable to the deliberate
+resize vs. anything else, explicitly**: all of it is attributable to the
+`reference.spice` transcription-convention decision (single-device ->
+chained) this increment makes, not to the resize's numeric sizing by itself.
+A chained-value reference would have matched the layout's `combine_devices`
+sum at the *old* `n_r2=54` sizing too (Section 7u already measured that
+exact chained value, 114,282.71617 ohm, without a reference change) --
+resizing `n_r2` alone, with the reference still stating the single-device
+approximation, would have moved `RR2A`/`RR2B`'s stated value (81630 ohm at
+`n_r2=50`, `380 + 325*250`) but left a nonzero, merely smaller,
+`device.property` delta against whatever the layout's chain actually sums
+to at the new count. The `mismatch_count` 4 -> 1 change recorded here is
+therefore a transcription-convention fix riding along with the resize
+propagation, not a side effect of the resize's electrical sizing itself --
+worth stating explicitly so a future reader does not read "the resize
+closed LVS" into a record where the resize's actual electrical effect
+(Section 7x) is unrelated to which resistor value convention the reference
+states.
+
+### 7z. Twenty-eighth increment: `klt` pin bumped past klayout-tools#583/#587 -- the once-per-combined-device correction is now reachable, measured under all four accounting variants, and deliberately NOT adopted (adopting it would REGRESS `mismatch_count` 1 -> 4)
+
+No generator, gate, router or LVS-request logic changes this increment. The
+only functional diff is the `klt` pin (`39bdbc4` -> `acb0ae6`) plus a new
+read-only measurement harness, `layout/bin/measure_fixed_offset_variants.py`.
+
+**What the two upstream PRs are.**
+[klayout-tools#583](https://github.com/2AMLogic/klayout-tools/pull/583)
+(merged 2026-08-05, closes
+[#559](https://github.com/2AMLogic/klayout-tools/issues/559), which Section 7u
+filed) defers `res_high_po`'s `fixed_offset_ohm` head/end term until *after*
+`Netlist.combine_devices()` folds a series chain, applying it once per
+surviving combined device instead of once per drawn primitive.
+[klayout-tools#587](https://github.com/2AMLogic/klayout-tools/pull/587)
+(merged, closes #585/#586) then made that deferral usable from this flow's own
+request shape, by (1) matching the deck's resistor device-class name
+**case-insensitively** and (2) adding
+`run_extract(..., apply_resistor_fixed_offset=False)` so a caller can defer at
+extraction time.
+
+**A wrong diagnosis, corrected before it shipped.** An earlier draft of this
+increment claimed `klt lvs`'s `_resolve_layout` "silently ignores
+`layout.deck`" on the pre-extracted (`{netlist, top}`) request shape, and that
+this was why #583 alone did not reach this flow. That claim is **factually
+wrong** and is recorded here only so the mistake is not repeated. Read
+directly from `src/klayout_tools/lvs.py` at the pinned commit:
+
+```python
+layout_deck_name = layout_spec.get("deck")
+layout_deck = get_extraction_deck(layout_deck_name) if layout_deck_name else None
+```
+
+`layout_deck` resolves **unconditionally** inside `run_lvs`, straight from the
+request dict, independent of which layout shape the caller used -- it is not
+gated behind any `layout.file` / inline-extraction branch. The real reason
+#583 alone did not reach this flow was #587's own bug: the post-combine
+correction looked its device class up by the deck's lowercase name
+(`res_high_po`), while a netlist round-tripped through
+`kdb.NetlistSpiceReader` -- exactly the pre-extracted form this flow feeds
+`klt lvs` -- reports class names UPPERCASED (`RES_HIGH_PO`), so the lookup
+silently missed. That is visible in this repo's own records: a pre-#587
+`lvs.json` carries both spellings. The wrong-diagnosis draft was never merged;
+the sections it would have added are not in this document, and no record in
+`layout/bandgap-core/reports/` states it.
+
+**Measured, not asserted: all four accounting combinations.**
+`layout/bin/measure_fixed_offset_variants.py` reads a shipped record's own
+drawn `.gds` and re-runs `klt lvs` under each combination of "defer at
+extraction?" x "pass `layout.deck` to `klt lvs`?". Evidence:
+`layout/bandgap-core/fixed-offset-variants/<record-id>/` (`variants.json`
+plus its rendered `record.md`). At this increment's record:
+
+| variant | extraction offset | `layout.deck` | `mismatch_count` | `devices.matched` | R2A/R2B `r` (ohm) | R1 `r` (ohm) |
+| --- | --- | --- | --- | --- | --- | --- |
+| `primary_nodeck` (**the shipped flow**) | per primitive | absent | **1** | 15 | matched | matched |
+| `primary_deck` | per primitive | `sky130` | 4 | 12 | 106,647.055849 | 14,406.594716 |
+| `deferred_nodeck` | deferred | absent | 4 | 12 | 81,206.811000 | 11,368.953540 |
+| `deferred_deck` (**#587's intended pairing**) | deferred | `sky130` | 4 | 12 | 81,586.516147 | 11,748.658687 |
+
+Reference-side values, identical in every variant: `R2A`/`R2B` = 106,267.35,
+`R1` = 14,026.89 ohm.
+
+**The verdict changed since the wrong-diagnosis draft, and it changed against
+adoption.** Before issue #108 (Section 7y) settled `reference.spice` on the
+CHAINED value, every variant reported `mismatch_count = 4` and the deferral
+was merely *neutral*. Now that the reference states the value this flow's own
+multi-primitive chain actually sums to, the shipped per-primitive accounting
+is the **only** variant that matches at all: adopting #587's deferral would
+take `mismatch_count` **1 -> 4** and `devices.matched` **15 -> 12**, putting
+the three resistor `device.property` findings back. So the deferral is not
+declined on a philosophical objection alone -- it is declined because it is a
+measured regression on this flow's own record.
+
+The design argument points the same way and is the more durable one: DR-003
+(issue #98) ratified, with independent real-SPICE evidence (Section 7v), that
+this layout physically pays the head/end term once per separately contacted
+instance. Re-reporting each leg at the single-device value would state a
+resistance the fabricated cell does not have.
+
+**`klt` pin held at `acb0ae6`, deliberately, and not floated to tip.** Per
+this repo's own deliberate-bump discipline (`layout/requirements.txt`),
+`acb0ae6` is #587's own merge commit -- the exact commit every number above
+was measured against. Upstream `main` has since moved on (`71d46d0`, a loom
+housekeeping resync; `162a258`, #590, which exposes
+`--defer-resistor-fixed-offset` on the `klt extract` **CLI**; `6fdd38f`, #591,
+`options.parameter_tolerance`). None is picked up: #590 threads a CLI flag
+onto the `run_extract` Python parameter this harness already calls directly,
+and #591's tolerance option is a comparison-loosening knob -- adopting it to
+move an LVS number would be exactly the relax-to-pass this repo's `CLAUDE.md`
+refuses, so it is noted here as available-and-declined rather than picked up
+silently.
+
+**Fresh routed-flow record at the new pin**: DRC clean (0), met2 DRC clean
+(0), composed bbox 45,968 um^2 (< 50,000 um^2 budget), `device_counts` =
+`{"nfet": 16, "pfet": 52, "pnp": 16, "res_high_po": 139}`, `pin_count = 11`,
+`mismatch_count = 1` (`{"device.unmatched": 1}` -- `MMCC` only),
+`devices.matched = 15`. Identical in every gated and recorded number to the
+pre-bump record on `main`: the bump is confirmed non-regressing rather than
+assumed to be.
+
+#### Scoreboard after this increment
+
+| AC | before (7y) | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET, `n_r2=50` | unchanged |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, `mismatch_count=1` | NOT MET, `mismatch_count=1` -- re-measured at the new pin, not carried over. The remaining 1 is `MMCC`; the upstream tool fix that could have touched the resistors is now reachable, measured, and shown to be a regression here |
+| 5 (blocking gaps filed) | MET | unchanged (klayout-tools#559/#585/#586 all closed upstream; no new blocking gap -- the `klt extract` CLI's missing deferral flag, noted while writing the harness, closed upstream as #588 -> #590 before this increment shipped) |
+
+**Suggested next increment**: there is no upstream `klt` lever left on AC4 --
+every gap this flow filed as blocking is closed, and the one remaining
+mismatch (`MMCC`, the deliberately-undrawn compensation cap) is a scope
+decision about this repo's own single-ended layout, not a tool gap or a
+transcription question. Either draw `MCC` (and re-budget the area) or record
+the omission as a permanent, accepted deviation in the record's own
+acceptance-criteria table; both are decisions, not increments.
+
+### 7aa. Twenty-ninth increment: DR-002's `r_lseg_trim` revision (1 -> 0.5 um, issue #106/PR #111) propagated into the drawn array -- `N_R2_COARSE` 46 -> 48, `reference.spice` re-derived, `mismatch_count` holds at 1 (issue #112)
+
+Same shape as Section 7y's `n_r2` resize propagation, one lever narrower:
+DR-002's own "Revision (issue #106 -- chained fine-trim LSB)" halved
+`design/bandgap_core.sch`'s `.param r_lseg_trim` from 1 to 0.5 um to bring
+the chained-topology per-code LSB back under DR-002's own `<=3.000 mV/code`
+comfort bound (measured 3.123-3.146 mV/code at 1 um vs. 2.403-2.421 mV/code
+at 0.5 um, all 5 corners -- `sim/trim-lsb-chained/records/`). That revision
+explicitly deferred `layout/bin/gen_bandgap_routed.py`'s own
+`R_LSEG_TRIM_UM`/`SCH_R_LSEG_TRIM_UM` re-transcription and a fresh `klt`
+DRC/LVS run as "the next increment, per this project's one-lever-per-
+increment discipline" -- done here.
+
+**What moved.** `R_LSEG_UM`, `N_R1`, `N_R2_TRIM_UNITS` and `SCH_N_R2` are
+untouched. `R_LSEG_TRIM_UM`/`SCH_R_LSEG_TRIM_UM` move 1.0 -> 0.5;
+`N_R2_COARSE` moves 46 -> 48 to hold the untrimmed leg fixed at the
+schematic's 250 um (`5*48 + 0.5*20 == 250`, matching DR-002's Revision
+section's own arithmetic verbatim). `res_r2`'s `num` (`2*N_R2_COARSE`)
+moves 92 -> 96; `rows` stays at 10, re-verified empirically at the new
+count rather than assumed carried over, per Section 7y's own precedent for
+why that fold is not divisor-driven (`bus_res_series`'s fold-turn router is
+not fold-shape-agnostic at every count).
+
+**`reference.spice`'s chained `RR2A`/`RR2B` move, `RR1` does not.** R1
+carries no trim ladder, so its chained value (14,026.89 ohm) is unaffected.
+R2A/R2B's chained value is re-derived at the new 48-coarse/20-fine
+decomposition, using the same real `sky130_fd_pr__res_high_po` model
+constants (`sheet_rho_ohm_sq=324.827244`, `fixed_offset_ohm=379.705147`)
+Section 7u/7y's own derivation cites:
+
+```
+R2A = R2B = 48*(324.827244*5 + 379.705147) + 20*(324.827244*0.5 + 379.705147)
+          = 107,026.76 ohm   (was 106,267.35 at the 46-coarse/1um-fine split)
+K = R2/R1 = 107,026.76 / 14,026.89 = 7.6301   (was 7.5760)
+```
+
+Verified to the digit against `klt lvs`'s own pre-fix mismatch report on
+the freshly-extracted, re-partitioned netlist
+(`layout.property.r=107026.76099600003` in this increment's
+`lvs.combined.json`, captured before `reference.spice` was updated to
+match) -- the same "does this formula reproduce what `combine_devices`
+actually sums the layout side to" cross-check Section 7y established for
+the `n_r2` resize.
+
+**Fresh routed-flow record**: DRC clean (0), met2 DRC clean (0), composed
+bbox 45,968 um^2 (< 50,000 um^2 budget, identical to Section 7y/7z's
+figure -- the 4 extra coarse units' length is offset almost exactly by the
+fine ladder's 40 units each shrinking 0.5 um), `device_counts =
+{"nfet": 16, "pfet": 52, "pnp": 16, "res_high_po": 143}`, `pin_count = 11`,
+`mismatch_count = 1` (`{"device.unmatched": 1}` -- `MMCC` only, unchanged),
+`devices.matched = 15`. `r2_leg_length()` reports `matches: true`,
+`coarse_um=240.0`, `trim_um=10.0`, `spec_um=250.0`, `delta_um=0.0`.
+
+#### Scoreboard after this increment
+
+| AC | before (7z) | after |
+| --- | --- | --- |
+| 1 (full inter-block routing) | MET, 12/12 | unchanged |
+| 2 (real ladder unit count) | MET, `n_r2=50` | unchanged; drawn decomposition re-partitions 46/20 -> 48/20 coarse/fine, still 250 um/leg at code 0 |
+| 3 (device classes + pins) | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, `mismatch_count=1` | NOT MET, `mismatch_count=1` -- re-measured at the new decomposition and reference values, not carried over. The remaining 1 is still `MMCC`; this increment's `r_lseg_trim` propagation touches only resistor value/geometry, not connectivity, so no new cause was expected or found |
+| 5 (blocking gaps filed) | MET | unchanged -- no new `klt` gap; this is a pure re-transcription of a schematic-side decision already ratified in DR-002 |
+
+**Suggested next increment**: none identified by this propagation. AC4's
+sole remaining cause (`MMCC`) is unchanged from Section 7z's own
+"Suggested next increment" -- draw `MCC` (re-budgeting area) or record the
+omission as a permanent, accepted deviation; both are decisions, not
+increments this issue's own one-lever-per-increment scope covers.
+
+### Section 7bb scoreboard (archived)
+
+Moved verbatim out of `matching-plan.md` Section 7bb; the section itself stays in the plan.
+
+#### Scoreboard after this increment
+
+| AC | before (7aa) | after |
+| --- | --- | --- |
+| 1-3, 5 | MET | unchanged |
+| 4 (`klt lvs` clean) | NOT MET, `mismatch_count=1` (`MMCC`) | unchanged -- no drawn-geometry change this increment; the feasibility question the twenty-ninth increment's own "suggested next increment" left open is now answered (MIM overlay: tooling-infeasible today, filed as klayout-tools#775; MOS-cap path chosen, gated on DR-007) |
+
+### 7dd. Thirty-second increment: the schematic finally *models* the chained array instead of sizing around it (issue #178) -- `n_r2` 50 -> 51, `N_R2_COARSE` 48 -> 49, and a newly measured post-layout interconnect-resistance finding
+
+**What moved, and why it is a schematic-side lever landing in the layout.**
+Section 7x/7y's resize corrected the *drawn* part's `K = R2/R1` while leaving
+`design/bandgap_core.sch`'s own `XR1`/`XR2A`/`XR2B` lines modelling one
+`res_high_po` device per leg. That is the gap DR-003 explicitly left open, and
+it is why the schematic-level harness read `VOUT(27 degC) ~ 1.165 V` -- about
+36 mV below what this flow draws. Issue #178 closes it in the schematic: each
+leg is now an **exact lumped equivalent** of this file's own N-instance
+decomposition (a body device at `Ltot - (N-1)*r_ov_seg`, plus one replica
+unit whose drop an ideal VCVS multiplies by `N-1`; exact because both `rhead`
+and `rbody` are affine in the drawn length, and verified identical to an
+explicit 143-instance chain to 7 significant figures across `-40..125 degC`).
+With one model describing both representations, `n_r2` was re-derived against
+DR-005's **ratified** ±2 % untrimmed window rather than the superseded draft
+±1 %, giving `n_r2` 50 -> 51 and, on this side, `N_R2_COARSE` 48 -> 49
+(`5*49 + 0.5*20 == 255 == 5*51`). See `gen_bandgap_routed.py`'s
+`RES_HEAD_SIZING_NOTE`.
+
+**Results** (`layout/bandgap-core/reports/20260817-020222-13476b7/record.md`):
+
+| Stage | Before this increment | After |
+| --- | --- | --- |
+| DRC / met2 DRC | clean | clean |
+| extract | `device_counts={"nfet":16,"pfet":52,"pnp":16,"res_high_po":143}` | `{"nfet":16,"pfet":52,"pnp":16,"res_high_po":145}` (+2 = one extra coarse unit per R2 leg) |
+| `klt lvs` (combined) | `mismatch_count=0`, `devices.matched=16` | `mismatch_count=0`, `devices.matched=16` (held, against a **re-derived** `reference.spice`: `RR2A`/`RR2B` 107 026.76 -> 109 030.60 ohm) |
+| pins | 11 | 11 |
+
+**A stale-`klt` artifact this increment re-detected, and did NOT design
+around.** With the device-level legs now identical on both sides, the residual
+schematic-vs-extracted delta became measurable: driving the resistor-only
+subset of the extracted netlist terminal to terminal gives `R1` = 18 520.8 ohm
+against a 14 026.89 ohm device sum (+32.0 %) and `R2A`/`R2B` =
+141 169 / 141 363 ohm against 109 030.60 (+29.5 / +29.7 %). `K` falls
+7.7733 -> 7.622 and the branch current falls ~24 %, together dropping
+post-layout `VREF` 17.35 mV below the schematic -- which is the whole reason
+the extracted run sits outside DR-005's accuracy floor (`vref_min`
+1.1666-1.1697 V) while the schematic run passes it at all 45 corners.
+
+That is **[klayout-tools#800](https://github.com/2AMLogic/klayout-tools/issues/800)**
+-- `klt extract --parasitics` subtracts only MOS gate poly, not recognised
+resistor bodies, from the poly parasitic role, so every drawn `res_high_po`
+body is charged once as the device value and again as net parasitic
+resistance. Filed from this repo's own friction protocol; **closed upstream
+2026-08-12**; not present in the build that produced this snapshot. The
+signature matches to the digit: the issue predicts ~459 ohm per internal chain
+net, this snapshot reports 2 x 229.727 = 459.45 ohm, and total parasitic R
+(226 256 ohm) is 97.5 % of total device R (232 088 ohm). Confirmed against the
+installed source, not inferred: the `PATH` `klt` (`git+...@a482d393`, 0.2.0)
+still builds the poly role with `[nfet_gate, pfet_gate]` as its whole subtract
+list, and this file's own pin (`acb0ae6`, 2026-08-06) predates the fix too.
+Full numbers: `sim/output-voltage-tc-post-layout/README.md`.
+
+**Suggested next increment**: bump `layout/requirements.txt` past
+klayout-tools#800's fix under this file's usual pin-bump discipline (range
+check, `run-trivial-cell-flow.sh` non-regression, re-run this flow), and close
+the second gap the same investigation exposed -- `sim/bin/post_layout_common.py`
+invokes bare `klt` from `PATH` while this flow uses the commit-pinned
+`layout/.venv/bin/klt`, so a layout record and a post-layout sim record can be
+produced by different `klt` builds with nothing forcing them to agree. Then
+re-run `sim/output-voltage-tc-post-layout`. Explicitly **not** the levers to
+reach for: re-routing `bus_res_series`' inter-unit jumpers, or absorbing the
+delta into `n_r2` -- both would compensate a tool bug with silicon.
+
+### 7ee. Thirty-third increment (issue #283): the "closed upstream 2026-08-12" premise above was wrong -- klayout-tools#800 was closed **not planned**, not fixed; the residual is a different, still-open upstream defect (klayout-tools#2359)
+
+Section 7dd's own "Suggested next increment" assumed klayout-tools#800 had a
+merged fix to bump past. It did not: re-checking the issue directly shows it
+was closed **`not_planned`** on 2026-08-12, not fixed. The closing comment
+(from the tool maintainer, not this repo) reproduced this issue's own literal
+repro steps against a synthetic layout and found the described mechanism --
+`klt extract --parasitics`'s poly role subtracting only MOS gates, not
+recognised resistor bodies -- **does not exist in the code**: `_resolve_resistors`
+already removes every recognised resistor body from the net-parasitics `poly`
+region *before* the MOS-gate subtraction step even runs, confirmed by direct
+inspection of the installed source (`_resolve_resistors`/`_compute_parasitics`
+in `klayout_tools/extract.py`, klt v0.5.0). The closer explicitly invited a
+fresh repro against real geometry if the anomaly persisted.
+
+**It does persist -- re-verified empirically, not assumed.** The bare `klt` on
+`PATH` `sim/bin/post_layout_common.py` invokes is now v0.5.0 (git
+`6bf5610939a096b81605a381e70454bf1cb20316`, tagged `v0.5.0`, released
+2026-09-15 -- five weeks past #800's closure). Running
+`klt extract layout/bandgap-core/reports/20260817-020222-13476b7/bandgap_core_routed.gds --deck sky130 --top bandgap_core_routed --parasitics --format json`
+directly against that build reproduces the prior snapshot's numbers **bit for
+bit**: `total_resistance_ohm` 226256.0625 (unchanged to four decimal places),
+and the internal chain-node signature is still exactly `2 x 229.7271/229.7272
+= 459.4543` ohm. A `klt` version bump alone does not, and per the finding
+below cannot, close this row.
+
+**Root cause, now correctly identified: klayout-tools#2359 (open), not #800.**
+A sibling investigation (issue #284, same date) filed
+[klayout-tools#2359](https://github.com/2AMLogic/klayout-tools/issues/2359)
+against the real mechanism: `_n_squares` fits **one** equivalent rectangle to
+a net's *total* merged area/perimeter, which overstates R by roughly an order
+of magnitude for a short, wide fragment current crosses along its short axis
+-- exactly what is left on a chain-internal net once the (correctly
+subtracted) resistor bodies are removed: two contacted, unmarked resistor
+heads plus a metal jumper. That issue's own minimal repro reports **359.96
+ohm** of poly role resistance on the internal net of a two-unit
+`res_generic_po` chain built from documented-generic (0.42 um head, 5 um
+marked body) sky130 dimensions -- matching this snapshot's own by-layer
+breakdown (poly role 359.9576 ohm of the 459.4543 ohm total) to four
+significant figures. klayout-tools#2359 is **open, unfixed** as of this
+writing (2026-09-23).
+
+**Consequence for this row.** The FAIL is real and not clearable by any `klt`
+build available today, but the strength and specificity of the #2359 match
+(same mechanism, same order of magnitude, matching digits) is evidence
+*against* reading it as a real design defect in the drawn resistor network --
+it is far more consistent with a still-open extraction-geometry limitation
+than with the divider's actual electrical behavior. See
+`sim/output-voltage-tc-post-layout/README.md` and
+`design/block-characterization-report.md` row 1b for the corrected citation
+and the re-graded verdict text. **Not touched here**: `layout/requirements.txt`'s
+pin (this finding concerns the bare-`PATH` `klt` `sim/bin/post_layout_common.py`
+invokes, not the commit-pinned layout DRC/LVS flow this file tracks; no
+`layout/.venv` exists in this environment to safely bump-and-reverify that
+separate pin under this file's own non-regression discipline) and rows 3a/3b
+(box-method TC, DR-009 -- explicitly out of scope, not re-litigated here).
+
+### 7gg. Thirty-fifth increment: the startup injector is drawn into the composed cell (issue #285) -- `devices.matched` 16 -> 22, and the first PSRR number this design has ever had with an injector attached
+
+*(Numbered 7gg: 7ee is issue #283's citation correction and 7ff is issue #288's combine-determinism finding, both landed while this increment was in flight.)*
+-> #2359 citation correction, issue #283.)*
+
+**What was wrong.** `design/startup_injector.sch` had no layout. The composed
+cell therefore shipped without it, and -- because `reference.spice`
+transcribed `design/bandgap_core.sch` alone -- `klt lvs` was clean across a
+gap **both sides shared**. Every post-layout record in `sim/` was a
+measurement of a circuit the schematic-level rows do not describe, which is
+what made `design/block-characterization-report.md` rows 8a and 8e describe
+two different circuits while sitting in the same table.
+
+**What was drawn.** Five new blocks, all on the existing row 3 (`amp_cc`'s):
+`su_ref` (a `diff_pair` at `splits=1` for MPC1/MPC2, the injector's only
+matched pair), `su_sense`/`su_inj`/`su_clamp` (single-unit `mos_array`
+blocks for MNS/MNI/MNC, which share W/L with nothing), and `pnp_su` (a
+`bjt_array` identical to `pnp_ctat` -- QS is the same unit device at the same
+count). Row 3 was reused rather than a sixth row opened, and that is an AREA
+decision: row 3 is 63.38 um tall and 102 um narrower than the widest row, so
+the tallest injector block (MNS, 48.82 um) fits inside height the floorplan
+already pays for. A sixth row would have cost `ROW_MARGIN_UM` + 48.82 um
+across the cell's full width, ~21,000 um^2, which lands the cell over
+DR-007's 80,000 um^2 budget. Measured cost of the chosen shape: 66,293 ->
+**70,360 um^2** (+6.1 %, 12 % margin remaining).
+
+**The one generator-level thing that had to change.** `bus_mos_comb` derived
+its horizontal trunk-lane spacing purely from the device row's own height
+(`height / (lanes + 1)`). Every block drawn before this one has rows >= 6 um
+tall, so that formula was always legal by accident. On MPC1/MPC2's W=1
+devices it derives a **0.25 um** pitch against met1's 0.24 um width plus the
+deck's 0.14 um `met1.space.1` -- and the first drawn attempt produced six
+drawn-short conflicts and seven `met1.space.1` violations, i.e. two nodes'
+trunks merged into one conductor, which reads *downstream* as better
+connectivity. Two changes close it: a `MOS_LANE_PITCH_UM` floor (a row too
+short for its own lanes now **raises instead of drawing**), and a per-row
+*dense rank* of the block-wide node order so a node absent from a row does
+not leave a gap that pushes the outermost lane past the row edge. The rank is
+a rank, never a re-ordering, which is what preserves the comb's planarity
+argument. `layout/tests/test_routed_flow_gates.py::TestCombLanePitch` asserts
+both properties plus the non-regression one: rows >= 6 um still get the old
+height-derived spacing, so every previously drawn block reproduces unchanged.
+
+**Result.** DRC clean, met2-DRC clean, `klt lvs` (with `combine_devices`)
+`match` at `mismatch_count: 0` with **22/22 devices and 14/14 nets** matched,
+up from 16/16 and 11/11 (`layout/bandgap-core/reports/20260923-070209-dbd57a9/`).
+
+**What the re-run measured, including the part that is not good news.** Five
+post-layout benches were re-run against the injector-inclusive extracted
+netlist. `startup-time-post-layout` flipped FAIL 45/45 -> **PASS 45/45**
+(`gdrv_final` 1.598-2.611 V; the degenerate all-off state parks it at VDD) --
+the injector demonstrably works in the drawn cell. `psrr-dc-post-layout`
+flipped the other way: PASS 45/45 -> **FAIL 25/45**, `psrr_band_min` down to
+22.75 dB against DR-006's 60 dB floor, corroborated by
+`line-regulation-post-layout`'s `line_shift_mv` going 0.038 -> 18.47 mV at
+the same worst corner. The degradation is monotone in supply and
+fast-PMOS-selective (worst at `sf`/`ff`/3.63 V, ~0 dB at `fs`/-40 C), which
+is the signature of MPC1/MPC2's supply-dependent standing current out of the
+amplifier's high-impedance GDRV node -- **not** of the NMOS clamp MNC, which
+would show the opposite process selectivity. This is the first PSRR number
+this design has ever had with an injector attached at all (`sim/psrr-dc`
+instantiates `design/bandgap_core.sym` alone), so it is newly *measured*
+rather than necessarily newly *introduced*. Disposition is issue **#300**;
+the explicitly wrong lever is removing the injector from the layout again.

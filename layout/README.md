@@ -321,8 +321,9 @@ table, and a quantitative LVS mismatch analysis. Summary of what it measures:
 | LVS | not attempted | runs; **`mismatch_count: 0`** as of issue #62's thirty-first increment (`MCC` now drawn) — see below |
 
 Getting from the #15 skeleton to this state took roughly twenty-three
-increments (the full history is `layout/matching-plan.md` Sections 7a-7u,
-not repeated here); a few changes are worth knowing before reading a record:
+increments (`layout/matching-plan.md` Section 7 keeps a short entry for each
+one; the full narratives are archived in
+[`matching-plan-history.md`](matching-plan-history.md), not repeated here); a few changes are worth knowing before reading a record:
 
 1. **Full-length ladder.** `res_array` gained a `rows` fold parameter
    (2AMLogic/klayout-tools#415, merged upstream), so the real R2A/R2B ladder
