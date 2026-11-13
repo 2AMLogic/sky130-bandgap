@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "status": "pass",
-  "netlist": "sim/startup-ramp-post-layout/netlist-snapshots/20260924-041313-999407b.spice",
+  "netlist": "sim/startup-ramp-post-layout/netlist-snapshots/20261113-111230-7efdcf3b.spice",
   "corner_count": 45,
   "passed": 45,
   "failed": 0,
@@ -24,8 +24,8 @@
     ],
     "recorded_from": [
       {
-        "file": "sim/startup-ramp-post-layout/records/20260924-041313-999407b.json",
-        "sha256": "9473c14ab5d44559931bbf01b721fcdeeb5dc10ee5c513bfae89f053f95c6ae7"
+        "file": "sim/startup-ramp-post-layout/records/20261113-111230-7efdcf3b.json",
+        "sha256": "f82d556daefff05c7bd37d49534c5970e652bcd567bcaca2ecd98e978c9a6bfe"
       }
     ],
     "excluded_measurements": {
@@ -41,10 +41,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:9865a7e7626c92b44e5029830f2c67221fd87e2a9fb072c012af93bab8bd2299",
+      "content_hash": "sha256:8c5fbc0e4fbd9dc15d3bad25ec8236e9d6665cf56dd4be5868bb036ca585bd74",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/startup-ramp-post-layout/netlist-snapshots/20260924-041313-999407b.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/startup-ramp-post-layout/netlist-snapshots/20261113-111230-7efdcf3b.spice)"
   },
   "measurements": [
     {
@@ -430,16 +430,16 @@
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.237526e-06,
+          "value": 1.237549e-06,
           "status": "pass",
-          "margin": 0.000998762474
+          "margin": 0.000998762451
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 8.636166e-09,
+          "value": 8.63613e-09,
           "status": "pass",
-          "margin": 0.000999991363834
+          "margin": 0.00099999136387
         }
       ]
     },
@@ -455,23 +455,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -1.73615e-05,
+          "value": -1.73564e-05,
           "status": "pass",
-          "margin": 0.0010173615
+          "margin": 0.0010173564
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.522309e-07,
+          "value": 4.522279e-07,
           "status": "pass",
-          "margin": 0.0009995477691
+          "margin": 0.0009995477721
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 7.525377e-09,
+          "value": 7.525351e-09,
           "status": "pass",
-          "margin": 0.000999992474623
+          "margin": 0.0009999924746490001
         }
       ]
     },
@@ -494,16 +494,16 @@
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 5.192771e-06,
+          "value": 5.192772e-06,
           "status": "pass",
-          "margin": 0.000994807229
+          "margin": 0.000994807228
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.120395e-08,
+          "value": 1.120397e-08,
           "status": "pass",
-          "margin": 0.00099998879605
+          "margin": 0.00099998879603
         }
       ]
     },
@@ -565,9 +565,9 @@
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 8.025012e-09,
+          "value": 8.025013e-09,
           "status": "pass",
-          "margin": 0.000999991974988
+          "margin": 0.000999991974987
         }
       ]
     },
@@ -974,9 +974,9 @@
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.332e-07,
+          "value": 1.33198e-07,
           "status": "pass",
-          "margin": 0.0009998668
+          "margin": 0.0009998668020000001
         },
         {
           "name": "t_start_g",
@@ -1038,16 +1038,16 @@
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.53067e-08,
+          "value": 4.53443e-08,
           "status": "pass",
-          "margin": 0.0009999546933
+          "margin": 0.0009999546557
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 7.401007e-09,
+          "value": 7.400998e-09,
           "status": "pass",
-          "margin": 0.000999992598993
+          "margin": 0.000999992599002
         }
       ]
     },

@@ -37,13 +37,13 @@
     {
       "item": "5",
       "index": 2,
-      "describes": "sim/output-voltage-tc-post-layout/netlist-snapshots/20260923-074724-dbd4dda.spice",
+      "describes": "sim/output-voltage-tc-post-layout/netlist-snapshots/20261113-111050-7efdcf3b.spice",
       "note": "netlist snapshot the output-voltage-tc-post-layout record simulated (row 1b); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
     },
     {
       "item": "5",
       "index": 3,
-      "describes": "sim/output-voltage-tc-post-layout/netlist-snapshots/20260923-074724-dbd4dda.spice",
+      "describes": "sim/output-voltage-tc-post-layout/netlist-snapshots/20261113-111050-7efdcf3b.spice",
       "note": "netlist snapshot the output-voltage-tc-post-layout record simulated (row 3b); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
     },
     {
@@ -67,7 +67,7 @@
     {
       "item": "5",
       "index": 7,
-      "describes": "sim/line-regulation-post-layout/netlist-snapshots/20260923-075227-dbd4dda.spice",
+      "describes": "sim/line-regulation-post-layout/netlist-snapshots/20261113-110852-7efdcf3b.spice",
       "note": "netlist snapshot the line-regulation-post-layout record simulated (row 5c); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
     },
     {
@@ -103,7 +103,7 @@
     {
       "item": "5",
       "index": 13,
-      "describes": "sim/startup-ramp-post-layout/netlist-snapshots/20260924-041313-999407b.spice",
+      "describes": "sim/startup-ramp-post-layout/netlist-snapshots/20261113-111230-7efdcf3b.spice",
       "note": "netlist snapshot the startup-ramp-post-layout record simulated (row 8d); the minted envelope's provenance.input.content_hash. Re-minted by sim/signoff-envelopes/emit_klt_sim_envelopes.py."
     },
     {
