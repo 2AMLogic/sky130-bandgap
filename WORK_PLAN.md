@@ -24,19 +24,19 @@ _None._
 
 Human-approved issues ready for implementation (`loom:issue`).
 
-_None._
+- **#370**: Re-qualify reference records under open_pdks f6eeac7 (follow-up to #369)
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
-- **#370**: Re-qualify reference records under open_pdks f6eeac7 (follow-up to #369)
+_None._
 
 ## PRs Awaiting Review
 
 PRs waiting on Judge (`loom:review-requested`).
 
-- **#495**: sim: re-qualify startup-stability under open_pdks f6eeac7 (DR-021 index)
+- **#509**: sim: record level-flag injector fails startup-stability standing current; latched revision loses eviction (DR-022)
 
 ## Approved (Awaiting Merge)
 
@@ -58,7 +58,9 @@ Issues carrying `loom:curated`.
 
 ## Proposed (Architect / Hermit)
 
-_None._
+- **#499**: Condense layout/matching-plan.md Section 7: ~3,500 lines of per-increment changelog *(hermit)*
+- **#511**: Dedup verify/explore/build_deck/run_point between the two psrr-injector sim scripts *(hermit)*
+- **#517**: Shrink layout/bin/met2_drc.py to its orphan-via check: pinned klt 0.8.0 already checks the met2/via rules it duplicates *(hermit)*
 
 ## Epics
 
@@ -71,11 +73,11 @@ _None._
 | Operator merge-risk holds | 0 |
 | Very important | 0 |
 | Important | 2 |
-| Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 1 |
+| Ready (`loom:issue`) | 1 |
+| In Progress (`loom:building`) | 0 |
 | PRs awaiting review | 1 |
 | Approved PRs awaiting merge | 0 |
 | Curated | 7 |
-| Architect / Hermit proposals | 0 |
+| Architect / Hermit proposals | 3 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->

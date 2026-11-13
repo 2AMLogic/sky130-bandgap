@@ -3,6 +3,18 @@
 Merged PRs and closed issues recorded by Guide. Initial history covers the
 30-day window beginning 2026-09-07; earlier history remains in GitHub.
 
+### 2026-11-13
+
+- **PR #516**: sim: re-qualify the four analysis_steps post-layout benches and psrr-injector-attribution under open_pdks f6eeac7 (DR-021 slice C'+D4)
+- **PR #515**: sim: collect error-amp-offset-mc batch reports into a record
+- **PR #513**: docs(spec): record slice D3 dispositions in DR-021 and the stale C' batch refusal
+- **PR #512**: sim: run the four analysis_steps post-layout benches on the batch fleet
+- **PR #508**: sim: re-qualify psrr-injector-candidates under open_pdks f6eeac7 (DR-021 slice D2)
+- **PR #507**: test: run emit_klt record-selector guard under sim/tests discovery
+- **Issue #514** (closed): error-amp-offset-mc: batch collector has no open tracking issue (DR-021 cites closed #398)
+- **Issue #510** (closed): sim: enable --backend batch for the four analysis_steps post-layout benches (fleet runner now accepts them)
+- **Issue #506** (closed): Wire orphaned selector test into CI: sim/signoff-envelopes/test_emit_klt_sim_envelopes.py is never run
+
 ### 2026-11-12
 
 - **PR #504**: sim: re-qualify trim-lsb-chained under open_pdks f6eeac7 (DR-021 slice D1)
