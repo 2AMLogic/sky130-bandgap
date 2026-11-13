@@ -87,25 +87,32 @@ BATCH_UNSUPPORTED_REASONS = {
     ),
 }
 
-#: Post-layout benches (`sim/*-post-layout/`, issue #396) whose manifest is a
-#: single analysis card plus `let` lines -- the only shape `split_analyses()`
-#: can express as a `klt sim` request. The deck body is the extracted-netlist
-#: body, shipped to the fleet inside the request's netlist file like any other.
-POST_LAYOUT_BATCH_ENABLED_SLUGS = frozenset(
-    {"psrr-dc-post-layout", "quiescent-current-post-layout", "startup-stability-post-layout"}
-)
+#: Post-layout benches (`sim/*-post-layout/`, issues #396 and #398) that may
+#: run with `--backend batch`. The deck body is the extracted-netlist body,
+#: shipped to the fleet inside the request's netlist file like any other. All
+#: seven are enabled: three are a single analysis card plus `let` lines (#396),
+#: the other four are the `meas`-card translation below (#398, enabled by
+#: #510 once the runner accepted `analysis_steps`).
+POST_LAYOUT_BATCH_ENABLED_SLUGS = frozenset({
+    "psrr-dc-post-layout",
+    "quiescent-current-post-layout",
+    "startup-stability-post-layout",
+    "startup-ramp-post-layout",
+    "startup-time-post-layout",
+    "line-regulation-post-layout",
+    "output-voltage-tc-post-layout",
+})
 
 #: Post-layout benches (issue #398) whose manifests carry `meas` cards. They
 #: are translated: `split_analyses()` turns the cards into `spice`
 #: measurements and `build_request()` sends one `analysis_steps[]` step, the
-#: same shape as `STEP_REQUEST_SLUGS`. They are NOT enabled for the same
-#: reason those are not: the fleet runner's klt (0.7.0 on 2026-10-21) rejects
-#: `analysis_steps` with `batch_runner_feature_unsupported` before simulating
-#: (live single-corner submission of `startup-time-post-layout`, 2026-10-21),
-#: so `--dry-run` prints the requests and a real `--backend batch` run is
-#: refused with this reason. Move a slug into
-#: `POST_LAYOUT_BATCH_ENABLED_SLUGS` once the runner image accepts the shape
-#: and a live single-corner run matches the bench's newest local record.
+#: same shape as `STEP_REQUEST_SLUGS`. Kept as its own set because that
+#: request shape differs from the scalar-analysis benches', not because it is
+#: held back: the fleet runner's klt rejected `analysis_steps` with
+#: `batch_runner_feature_unsupported` until klayout-tools#3516 (closed
+#: 2026-11-07, runner klt 0.9.0), and these four were enabled on 2026-11-13
+#: (issue #510) after one live single-corner run each matched the bench's
+#: newest local record -- see `sim/README.md`.
 POST_LAYOUT_STEP_REQUEST_SLUGS = frozenset({
     "startup-ramp-post-layout",
     "startup-time-post-layout",
@@ -113,14 +120,16 @@ POST_LAYOUT_STEP_REQUEST_SLUGS = frozenset({
     "output-voltage-tc-post-layout",
 })
 
-POST_LAYOUT_BATCH_REFUSALS = {
-    slug: (
-        "its `meas` cards are sent as an `analysis_steps[]` request, which the batch fleet's "
-        "runner klt (0.7.0 on 2026-10-21) does not support yet "
-        "(`batch_runner_feature_unsupported`); enable it once the runner image is updated"
-    )
-    for slug in sorted(POST_LAYOUT_STEP_REQUEST_SLUGS)
-}
+#: Post-layout benches whose request the fleet runner cannot execute yet, slug
+#: -> reason, named by `require_batch_enabled()` instead of the generic "not
+#: enabled" and admitted by `--dry-run` so the request can still be printed.
+#: **Empty since issue #510** (2026-11-13): every post-layout bench is
+#: enabled. The mechanism is kept, not the entries -- add a slug here (and
+#: leave it out of `POST_LAYOUT_BATCH_ENABLED_SLUGS`) when the runner image
+#: rejects a request shape we can already build, and move it back once the
+#: runner accepts the shape AND a live single-corner run matches that bench's
+#: newest local record.
+POST_LAYOUT_BATCH_REFUSALS: dict[str, str] = {}
 
 
 def require_batch_enabled(
@@ -145,6 +154,17 @@ def require_batch_enabled(
 #: sweep (issue #320 measured ~6.4 ks per corner on an AWS sweep host).
 DEFAULT_BATCH_TIMEOUT_S = 10800
 
+#: The same default for the post-layout benches (`post_layout_common.py`),
+#: which is where `DEFAULT_BATCH_TIMEOUT_S` does not fit: no `remote.hosts`
+#: split can bring a 10 800 s per-unit budget under the fleet's whole-job
+#: ceiling (issue #510), so the declared budget was unenforceable and every
+#: shard carried one unit. The slowest corner measured across all seven
+#: post-layout benches' newest records is 96.7 s
+#: (`startup-ramp-post-layout`, `20260924-041313-999407b`), so 600 s is ~6x
+#: the worst case and still lets `shard_hosts()` pack 5 units per job
+#: (bound 3 120 s for the 15-corner-per-supply groups these benches build).
+POST_LAYOUT_BATCH_TIMEOUT_S = 600
+
 #: The fleet's whole-job ceiling and the fixed per-job overhead klt adds to its
 #: fully-serial bound (`timeout_s x units + overhead`); a job still running at
 #: the ceiling is killed and every unit reports `batch_job_timeout`.
@@ -163,6 +183,40 @@ def shard_hosts(units: int, timeout_s: float) -> int:
     """
     per_job = max(1, int((FLEET_JOB_CEILING_S - FLEET_JOB_OVERHEAD_S) // max(1, timeout_s)))
     return max(1, -(-max(1, units) // per_job))
+
+
+def job_bound_s(units: int, timeout_s: float, hosts: int | None = None) -> float:
+    """klt's conservative fully-serial bound for the largest of a request's
+    shard jobs: `timeout_s x ceil(units / hosts) + overhead`. `hosts` defaults
+    to what `build_request()` would send (`shard_hosts()`)."""
+    units = max(1, units)
+    hosts = max(1, hosts or shard_hosts(units, timeout_s))
+    return timeout_s * -(-units // hosts) + FLEET_JOB_OVERHEAD_S
+
+
+def require_job_bound_fits(units: int, timeout_s: float, *, what: str = "this request") -> None:
+    """Raise `BatchError` unless a request of `units` units at `timeout_s` can
+    be sharded under the fleet's whole-job ceiling.
+
+    klt only *warns* when the bound exceeds `max_job_seconds`, and the job is
+    then killed at the ceiling with every unit reported `batch_job_timeout` --
+    so a budget that cannot fit is a declared-but-unenforceable budget, not a
+    conservative one. Sharding cannot save a `timeout_s` whose single-unit
+    bound already exceeds the ceiling, which is the case this refuses.
+    """
+    bound = job_bound_s(units, timeout_s)
+    if bound <= FLEET_JOB_CEILING_S:
+        return
+    raise BatchError(
+        f"{what}: a batch job bound of {bound:.0f}s (--timeout {timeout_s:g}s x "
+        f"{-(-max(1, units) // shard_hosts(max(1, units), timeout_s))} units per shard + "
+        f"{FLEET_JOB_OVERHEAD_S}s overhead) exceeds the fleet's whole-job ceiling of "
+        f"{FLEET_JOB_CEILING_S}s (klt's `max_job_seconds`, which it only warns about); a job "
+        "still running at the ceiling is killed and every unit is reported "
+        f"`batch_job_timeout`. No remote.hosts value fits -- pass --timeout "
+        f"{FLEET_JOB_CEILING_S - FLEET_JOB_OVERHEAD_S}s or less "
+        f"(the post-layout default is {POST_LAYOUT_BATCH_TIMEOUT_S}s)"
+    )
 
 #: klt exit codes that still carry a full report on stdout (`docs/cli/sim.md`
 #: "Exit codes": 0 pass, 3 limit failure, 4 error/inconclusive/not_checked).
@@ -432,6 +486,7 @@ def build_groups(
     poll_interval_s: float,
     gate_slug: str | None = None,
     allow_step_requests: bool = False,
+    enforce_job_ceiling: bool = False,
 ) -> list[Group]:
     """Write one netlist + request per supply voltage into `out_dir`.
 
@@ -440,7 +495,13 @@ def build_groups(
     checked against `POST_LAYOUT_BATCH_ENABLED_SLUGS`.
     `allow_step_requests` admits `STEP_REQUEST_SLUGS` and
     `POST_LAYOUT_STEP_REQUEST_SLUGS` (tests, local klt checks, `--dry-run`);
-    a real run never sets it."""
+    a real run never sets it.
+    `enforce_job_ceiling` refuses a `timeout_s` whose per-shard bound cannot
+    fit the fleet's whole-job ceiling (`require_job_bound_fits()`), instead of
+    letting klt warn and submit anyway. The post-layout path sets it (issue
+    #510); the pre-layout path does not, because its `DEFAULT_BATCH_TIMEOUT_S`
+    was measured from a ~6.4 ks corner (issue #320) and changing that budget
+    is a separate decision."""
     if gate_slug is None:
         if exp.slug not in BATCH_ENABLED_SLUGS and not (
             allow_step_requests and exp.slug in STEP_REQUEST_SLUGS
@@ -480,6 +541,12 @@ def build_groups(
             raise BatchError(
                 f"supply {supply} V: the requested corners are not a process x temperature "
                 "cross product, which a single klt sim request cannot express"
+            )
+        if enforce_job_ceiling:
+            require_job_bound_fits(
+                len(processes) * len(temps),
+                timeout_s,
+                what=f"{gate_slug or exp.slug} at supply {supply:.2f} V",
             )
         gdir = out_dir / f"v{supply:.2f}"
         gdir.mkdir(parents=True, exist_ok=True)
@@ -1034,6 +1101,7 @@ def execute(
     poll_interval_s: float = 30.0,
     runner: Callable[[Group], GroupOutcome] = run_klt,
     gate_slug: str | None = None,
+    enforce_job_ceiling: bool = False,
 ) -> tuple[list[dict], list[str], dict]:
     """Build, submit, collect and fold a batch run. Returns
     `(results, overall_blockers, record_extra)`; raises `BatchError` when no
@@ -1042,6 +1110,7 @@ def execute(
         exp, pin, matrix, body, spiceinit_text, work_dir, timeout_s,
         capacity_wait_s=capacity_wait_s, runner_version_check=runner_version_check,
         poll_interval_s=poll_interval_s, gate_slug=gate_slug,
+        enforce_job_ceiling=enforce_job_ceiling,
     )
     started, t0 = _now(), time.monotonic()
     outcomes = collect(groups, runner)

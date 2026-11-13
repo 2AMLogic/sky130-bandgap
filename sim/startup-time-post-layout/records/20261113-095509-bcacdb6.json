@@ -1,0 +1,328 @@
+{
+  "author": "313063438+loom-fleet-dispatch[bot]@users.noreply.github.com",
+  "corners": [
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-3481989a0aca",
+        "klt_corner_id": "tt/novdd/27C",
+        "klt_status": "pass"
+      },
+      "corner_id": "tt_27c_3.30v",
+      "elapsed_s": 3.324,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-time-post-layout/corners/20261113-095509-bcacdb6/tt_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "minimum(tcand)*1e3",
+          "max": 1.0,
+          "min": null,
+          "name": "t_start_ms",
+          "pass": true,
+          "reason": "",
+          "unit": "ms",
+          "value": 0.08886417
+        },
+        {
+          "expr": "vreffin",
+          "max": 1.4,
+          "min": 1.0,
+          "name": "vref_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.193888
+        },
+        {
+          "expr": "gdrvfin",
+          "max": 2.9,
+          "min": 0.5,
+          "name": "gdrv_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.08979
+        },
+        {
+          "expr": "vddfin",
+          "max": 3.7,
+          "min": 2.9,
+          "name": "vdd_final",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 3.3
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": null,
+          "min": 400,
+          "name": "n_tran_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 418.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": true,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 600
+    }
+  ],
+  "execution": {
+    "backend": "batch",
+    "blockers": [],
+    "collected_at": "2026-11-13T09:56:03Z",
+    "corner_runtime_max_s": 3.3,
+    "corner_runtime_median_s": 3.3,
+    "corner_runtime_min_s": 3.3,
+    "corner_runtime_sum_s": 3.3,
+    "jobs": [
+      {
+        "collected_at": "2026-11-13T09:56:03Z",
+        "corner_count": 1,
+        "corner_runtime_max_s": 3.3,
+        "corner_runtime_min_s": 3.3,
+        "corner_runtime_sum_s": 3.3,
+        "engine": "ngspice",
+        "engine_version": "47",
+        "job_elapsed_s": 11,
+        "job_id": "klt-sim-3481989a0aca",
+        "klt_client_version": "0.9.2.dev887+gec7400b7d8e5",
+        "klt_exit_code": 0,
+        "klt_status": "pass",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "170caad95ab96888649ea0fccbfe0241f8a0c456ca499d52c0e7e5c1b4e3619b",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "pdk_provenance": {
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ],
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+        },
+        "queue_provision_and_transfer_s": 41.9,
+        "remote": {
+          "ami_id": "ami-0f6bb304291339ed0",
+          "availability_zone": "us-east-1f",
+          "client_collected_at": "2026-11-13T09:56:03.128315Z",
+          "client_klt_version": "0.9.2.dev887+gec7400b7d8e5",
+          "client_launched_at": "2026-11-13T09:55:30.861860Z",
+          "client_status_terminal_at": "2026-11-13T09:56:02.364759Z",
+          "client_submitted_at": "2026-11-13T09:55:10.781153Z",
+          "concurrency": "1",
+          "elapsed_seconds": 11,
+          "exit_code": "0",
+          "instance_id": "i-0ebe0f8f93f212512",
+          "instance_type": "c7i.4xlarge",
+          "job_ceiling": {
+            "basis": "conservative_serial_bound",
+            "check": "warn",
+            "exceeds_ceiling": false,
+            "job_bound_s": 720.0,
+            "max_job_seconds": 3600.0,
+            "max_job_seconds_source": "fleet_config",
+            "max_units_per_job": 5,
+            "overhead_s": 120.0,
+            "per_unit_timeout_s": 600,
+            "recommended_hosts": 1,
+            "unit_count": 1
+          },
+          "job_id": "klt-sim-3481989a0aca",
+          "lifecycle": "spot",
+          "models_lib_comparison": {
+            "status": "match"
+          },
+          "physical_cores": "8",
+          "provider": "aws-batch-fleet",
+          "region": "us-east-1",
+          "runner_compatibility": "match",
+          "runner_klt_version": "0.9.0",
+          "runner_model_inputs": null,
+          "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+          "runner_request_features": {
+            "missing": [],
+            "required": [
+              "analysis_steps",
+              "options.ngspice_init"
+            ],
+            "status": "supported"
+          },
+          "spot": true,
+          "state": "done",
+          "worker_environment": {
+            "capture": "ok",
+            "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+            "diagnostics": [],
+            "engine_build_comparison": {
+              "status": "match"
+            },
+            "image_manifest": null,
+            "model_inputs": null,
+            "omp_num_threads": null,
+            "pdk": {
+              "models_staged": false,
+              "root": "/opt/pdk",
+              "stamp_scheme": "sources-sha256",
+              "stamp_scope": "executed",
+              "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+              "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+              "variant": "sky130A"
+            },
+            "pdk_stamp_comparison": {
+              "reason": "client_stamp_unavailable",
+              "status": "not_comparable"
+            },
+            "simulator": {
+              "binary_source": "PATH",
+              "requested_binary": "ngspice",
+              "selected_path": "/usr/local/bin/ngspice",
+              "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+              "version_probe": "ok"
+            }
+          }
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-510/sim/build/startup-time-post-layout/20261113-095509-bcacdb6/batch/v3.30/klt-report.json",
+        "submit_to_collect_wall_s": 52.9,
+        "submitted_at": "2026-11-13T09:55:10Z",
+        "supply_v": 3.3
+      }
+    ],
+    "klt_client": "klt 0.9.2.dev887+gec7400b7d8e5",
+    "local_pinned_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+    "mechanism": "klt sim --backend batch (2am EDA batch fleet, Spot)",
+    "remote_ami_ids": [
+      "ami-0f6bb304291339ed0"
+    ],
+    "remote_engine_versions": [
+      "47"
+    ],
+    "remote_instance_types": [
+      "c7i.4xlarge"
+    ],
+    "remote_pdk_matches_pin": true,
+    "submit_to_collect_wall_s": 52.9,
+    "submitted_at": "2026-11-13T09:55:10Z",
+    "timing_note": "elapsed_s per corner is the remote engine wall clock reported by klt (runtime_s). job_elapsed_s is the fleet harness's own job time. queue_provision_and_transfer_s = submit-to-collect wall minus job_elapsed_s (S3 upload, Spot acquisition/boot, polling granularity, download)."
+  },
+  "experiment": {
+    "claim": "README.md 'Target specification (ratified -- see DR-005, issue #1)' row 'Startup time' (< 1 ms), for the 3.3 V primary flavor (DR-001). Ramps the supply feeding the ROUTED, LVS-clean bandgap-core layout (issue #62) from 0 V to the corner supply in t_ramp and measures the first time VREF rises through 1.08 V (90% of the 1.20 V draft nominal), open-circuit, over the full 45-point PVT matrix, via klt extract --parasitics translated to a simulatable netlist (sim/bin/post_layout_common.py) -- NOT design/bandgap_core.sch directly; see 'Netlist provenance' below. NOTE: the no-injector caveat the schematic-level manifest carries does NOT apply to this record any more (issue #285). The composed cell now DRAWS design/startup_injector.sch -- six devices (MPC1, MPC2, MNS, MNI, MNC, QS), LVS-matched against a reference netlist that carries them too -- so this bench measures the extracted core AS DRAWN, injector included, while the wrapped schematic bench stays the bare core. The two halves of this spec line therefore measure DIFFERENT circuits on purpose: schematic = the unprotected core (parks in the all-off degenerate state), post-layout = the cell that would be fabricated. Read this record against the layout record named under 'Netlist provenance', not against the schematic-level record.",
+    "provenance": "extracted",
+    "provenance_source": "layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_routed.gds via `klt extract --parasitics` (layout record 20260923-070209-dbd57a9), translated by sim/bin/post_layout_common.py, wrapped over the unmodified sim/startup-time/testbench/tb_vref_startup.sch",
+    "slug": "startup-time-post-layout",
+    "statistical_convention": "N/A (corner-matrix claim)",
+    "title": "Supply-ramp startup time of the untrimmed core over the full PVT matrix -- POST-LAYOUT (extracted netlist)"
+  },
+  "git": {
+    "branch": "feature/issue-510",
+    "dirty": true,
+    "sha": "bcacdb6"
+  },
+  "jobs": null,
+  "layout_provenance": {
+    "core_port_order": [
+      "D1",
+      "D2",
+      "GDRV",
+      "NE",
+      "NG",
+      "PN",
+      "TAIL",
+      "VA",
+      "VB",
+      "VBQ",
+      "VDD",
+      "VOUT",
+      "VSS"
+    ],
+    "device_translation_counts": {
+      "mos": 73,
+      "pnp": 24,
+      "res": 145
+    },
+    "layout_gds": "layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_routed.gds",
+    "layout_record": "layout/bandgap-core/reports/20260923-070209-dbd57a9/record.md",
+    "layout_record_id": "20260923-070209-dbd57a9",
+    "lvs_mismatch_count_at_extraction": null,
+    "parasitics_snapshot": {
+      "c_count": 156,
+      "json": "sim/startup-time-post-layout/parasitics-snapshot/20260923-070209-dbd57a9/bandgap_core_routed.pex.json",
+      "r_count": 799,
+      "source": "local",
+      "spice": "sim/startup-time-post-layout/parasitics-snapshot/20260923-070209-dbd57a9/bandgap_core_routed.pex.spice",
+      "total_capacitance_ff": 1487.344084,
+      "total_resistance_ohm": 234007.2692
+    }
+  },
+  "links": {
+    "artifact_manifest": "manifests/artifacts/startup-time-post-layout-20261113-095509-bcacdb6.manifest.json",
+    "corners_dir": "sim/startup-time-post-layout/corners/20261113-095509-bcacdb6/",
+    "json": "sim/startup-time-post-layout/records/20261113-095509-bcacdb6.json",
+    "manifest": "sim/startup-time/experiment.json",
+    "netlist_snapshot": "sim/startup-time-post-layout/netlist-snapshots/20261113-095509-bcacdb6.spice",
+    "record": "sim/startup-time-post-layout/records/20261113-095509-bcacdb6.md",
+    "testbench": "sim/startup-time/testbench/tb_vref_startup.sch"
+  },
+  "matrix": {
+    "is_subset": true,
+    "n_points": 1,
+    "point_ids": [
+      "tt_27c_3.30v"
+    ],
+    "points": [
+      [
+        "tt",
+        27.0,
+        3.3
+      ]
+    ],
+    "process": [
+      "tt"
+    ],
+    "subset_reason": "issue #510 single-corner fleet comparison",
+    "supply_v": [
+      3.3
+    ],
+    "temperature_c": [
+      27.0
+    ]
+  },
+  "overall_blockers": [],
+  "overall_pass": false,
+  "pdk": {
+    "installed_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "lib_file": "/home/ubuntu/.ciel/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "root": "/home/ubuntu/.ciel",
+    "variant": "sky130A"
+  },
+  "record_id": "20261113-095509-bcacdb6",
+  "spread_checks": [
+    {
+      "measurement": "vdd_final",
+      "min_spread": 0.5,
+      "n": 1,
+      "note": "The settled supply must move by at least 0.5 V across the matrix (2.97 -> 3.63 V is 0.66 V). This is the corner-liveness check for this bench: it proves the runner's supply knob reaches the simulator. It is deliberately NOT placed on t_start_ms or vref_final -- if the core does not self-start, those are pinned at their sentinel/zero values by the physics under test, and a spread check on them would report a second, redundant failure that says nothing new.",
+      "observed_spread": 0.0,
+      "pass": false,
+      "reason": "fewer than two corner points"
+    }
+  ],
+  "supersedes": "",
+  "timestamp": "2026-11-13T09:55:09Z",
+  "tools": {
+    "klt": "klt 0.9.2.dev887+gec7400b7d8e5",
+    "ngspice": "ngspice-47 (remote, batch fleet c7i.4xlarge; not the dispatch host's ngspice)",
+    "platform": "Linux 7.0.0-1014-aws x86_64",
+    "python": "3.12.3",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}

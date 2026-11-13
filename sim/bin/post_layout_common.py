@@ -668,7 +668,11 @@ def parse_post_layout_args(argv: list[str], doc: str = "") -> argparse.Namespace
         default=None,
         help=(
             "per-corner ngspice timeout in seconds (default: 300 locally, "
-            f"{batch_sim.DEFAULT_BATCH_TIMEOUT_S} with --backend batch)"
+            f"{batch_sim.POST_LAYOUT_BATCH_TIMEOUT_S} with --backend batch). With "
+            "--backend batch a value whose per-shard job bound cannot fit the fleet's "
+            f"whole-job ceiling ({batch_sim.FLEET_JOB_CEILING_S} s, i.e. more than "
+            f"{batch_sim.FLEET_JOB_CEILING_S - batch_sim.FLEET_JOB_OVERHEAD_S} s per corner) "
+            "is an error, not a warning"
         ),
     )
     p.add_argument(
@@ -732,7 +736,9 @@ def parse_post_layout_args(argv: list[str], doc: str = "") -> argparse.Namespace
     )
     args = p.parse_args(argv)
     if args.timeout is None:
-        args.timeout = batch_sim.DEFAULT_BATCH_TIMEOUT_S if args.backend == "batch" else 300
+        args.timeout = (
+            batch_sim.POST_LAYOUT_BATCH_TIMEOUT_S if args.backend == "batch" else 300
+        )
     return args
 
 
@@ -906,6 +912,13 @@ def run_post_layout_experiment(
             batch_sim.require_batch_enabled(
                 slug, batch_sim.POST_LAYOUT_BATCH_ENABLED_SLUGS, dry_run=args.dry_run
             )
+            # Refuse an unenforceable per-corner budget here, before any work:
+            # a `--timeout` whose single-unit job bound already exceeds the
+            # fleet ceiling cannot be fixed by any `remote.hosts` split, so
+            # klt would warn and submit a job that is killed at the ceiling
+            # with every unit reported `batch_job_timeout` (issue #510).
+            # `build_groups()` re-checks each request's real unit count.
+            batch_sim.require_job_bound_fits(1, args.timeout, what=f"{slug} --timeout")
         except batch_sim.BatchError as err:
             raise cr.HarnessError(str(err)) from err
 
@@ -1012,6 +1025,7 @@ def run_post_layout_experiment(
                 capacity_wait_s=args.batch_capacity_wait_s,
                 runner_version_check=args.batch_runner_version_check,
                 poll_interval_s=30.0, gate_slug=slug, allow_step_requests=True,
+                enforce_job_ceiling=True,
             )
         except batch_sim.BatchError as err:
             raise cr.HarnessError(str(err)) from err
@@ -1060,6 +1074,7 @@ def run_post_layout_experiment(
                     capacity_wait_s=args.batch_capacity_wait_s,
                     runner_version_check=args.batch_runner_version_check,
                     gate_slug=slug,
+                    enforce_job_ceiling=True,
                 )
             except batch_sim.BatchError as err:
                 raise cr.HarnessError(str(err)) from err
