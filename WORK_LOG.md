@@ -5,6 +5,7 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-12
 
+- **PR #504**: sim: re-qualify trim-lsb-chained under open_pdks f6eeac7 (DR-021 slice D1)
 - **PR #501**: sim: re-qualify three post-layout benches under open_pdks f6eeac7 (DR-021 slice C)
 - **PR #500**: sim: re-qualify six pre-layout benches under open_pdks f6eeac7 (DR-021 slice B)
 - **PR #498**: sim: re-qualify psrr-dc-with-injector under open_pdks f6eeac7 (DR-021 slice)
