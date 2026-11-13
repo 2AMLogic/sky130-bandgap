@@ -791,8 +791,12 @@ def render_execution(ex: dict, blockers: list[str]) -> list[str]:
     ]
     for j in ex["jobs"]:
         rem = j.get("remote") or {}
+        # A sharded request has no top-level job id and one per shard (#523),
+        # so the label is plural whenever the fleet split the request.
+        ids = batch_sim.meta_job_ids(j)
         lines.append(
-            f"  - Job `{j['job_id']}` (supply {j['supply_v']:.2f} V): klt status {j['klt_status']}, "
+            f"  - Job{'s' if len(ids) != 1 else ''} {batch_sim.format_job_ids(ids, backtick=True)} "
+            f"(supply {j['supply_v']:.2f} V): klt status {j['klt_status']}, "
             f"{rem.get('instance_type')} {rem.get('lifecycle')} {rem.get('availability_zone')}, "
             f"wall {j['submit_to_collect_wall_s']} s = job {j['job_elapsed_s']} s + "
             f"queue/provision/transfer {j['queue_provision_and_transfer_s']} s"

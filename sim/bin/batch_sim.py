@@ -806,7 +806,7 @@ def collect(
             remote = (o.report.get("environment") or {}).get("remote") or {}
             diag = next(iter((o.report["corners"][0].get("diagnostics")) or [{}]), {})
             lines.append(
-                f"  {o.group.describe()}: job {remote.get('job_id')} "
+                f"  {o.group.describe()}: job(s) {format_job_ids(fleet_job_ids(remote))} "
                 f"[{diag.get('runner_code') or diag.get('code')}]: {diag.get('message')}"
             )
         raise BatchError(
@@ -896,11 +896,14 @@ def corner_result(
             "diagnostics": diags,
             "failure": failure,
             "job_id": job.get("job_id"),
+            "job_ids": meta_job_ids(job),
         },
     }
 
 
-def synthetic_failure(exp, corner, timeout_s: int, reason: str, evaluate: Callable, job_id) -> dict:
+def synthetic_failure(
+    exp, corner, timeout_s: int, reason: str, evaluate: Callable, job_id, job_ids=None
+) -> dict:
     checks, _ = evaluate(exp, {})
     return {
         "corner_id": corner.id,
@@ -917,8 +920,59 @@ def synthetic_failure(exp, corner, timeout_s: int, reason: str, evaluate: Callab
         "pass": False,
         "log": None,
         "batch": {"klt_status": None, "klt_corner_id": None, "diagnostics": [],
-                  "failure": reason, "job_id": job_id},
+                  "failure": reason, "job_id": job_id, "job_ids": list(job_ids or [])},
     }
+
+
+def fleet_jobs(remote: dict | None) -> list[dict]:
+    """The per-fleet-job entries of one request's `environment.remote`.
+
+    klt reports an unsharded request as a flat `{job_id, ...}` and a sharded
+    one as `{"fleet": [{job_id, ...}, ...]}` with no top-level `job_id`, so a
+    caller that reads `remote["job_id"]` alone records `None` for every sharded
+    request even though the ids are right there (issue #523)."""
+    if not isinstance(remote, dict):
+        return []
+    fleet = remote.get("fleet")
+    if isinstance(fleet, list):
+        return [f for f in fleet if isinstance(f, dict)]
+    return [remote]
+
+
+def fleet_job_ids(remote: dict | None) -> list[str]:
+    """Every fleet job id of one request, in report order: one element for an
+    unsharded report, one per shard for a sharded one. An entry carrying no id
+    is skipped rather than recorded as a `None`, and a missing or empty
+    `remote` gives `[]`."""
+    return [j["job_id"] for j in fleet_jobs(remote) if j.get("job_id")]
+
+
+def meta_job_ids(job: dict) -> list[str]:
+    """One `job_meta()` entry's ids, tolerating an entry built before
+    `job_ids` existed (a hand-written fixture, an older record read back)."""
+    ids = job.get("job_ids")
+    if ids:
+        return list(ids)
+    return [job["job_id"]] if job.get("job_id") else []
+
+
+def format_job_ids(ids, *, empty: str = "(none reported)", backtick: bool = False) -> str:
+    """Fleet job ids for one line of prose. `backtick=True` for a record's
+    markdown, plain for a log header or an stderr message."""
+    if not ids:
+        return empty
+    return ", ".join(f"`{i}`" if backtick else str(i) for i in ids)
+
+
+def md_job_ids(job: dict, *, empty: str = "(none reported)") -> str:
+    """One `job_meta()` entry's fleet job ids, backtick-quoted for record prose."""
+    return format_job_ids(meta_job_ids(job), empty=empty, backtick=True)
+
+
+def md_fleet_job_ids(jobs: list[dict], *, empty: str = "(none reported)") -> str:
+    """Every fleet job id across a record's `execution.jobs[]`, backtick-quoted."""
+    return format_job_ids([i for j in jobs for i in meta_job_ids(j)],
+                          empty=empty, backtick=True)
 
 
 def job_meta(o: GroupOutcome, local_lib_sha256: str, blockers: list[str]) -> dict:
@@ -933,7 +987,11 @@ def job_meta(o: GroupOutcome, local_lib_sha256: str, blockers: list[str]) -> dic
     job_elapsed = remote.get("elapsed_seconds")
     meta = {
         "supply_v": o.group.supply_v,
+        # `job_id` keeps its original meaning -- the request's single fleet job
+        # id, absent when klt sharded the request -- so readers of committed
+        # records do not change shape; `job_ids` is the complete list (#523).
         "job_id": remote.get("job_id"),
+        "job_ids": fleet_job_ids(remote),
         "submitted_at": o.submitted_at,
         "collected_at": o.collected_at,
         "submit_to_collect_wall_s": round(o.wall_s, 1),
@@ -1007,15 +1065,19 @@ def assemble(
     for corner in matrix:
         k = _key(corner.process, corner.temp_c, corner.supply_v)
         hits = by_key.get(k, [])
-        job_id = next((m["job_id"] for m in jobs_meta if m["supply_v"] == corner.supply_v), None)
+        jm = next((m for m in jobs_meta if m["supply_v"] == corner.supply_v), None)
+        job_id = jm["job_id"] if jm else None
+        job_ids = meta_job_ids(jm) if jm else []
         if not hits:
             blockers.append(f"{corner.id}: no result returned")
-            results.append(synthetic_failure(exp, corner, timeout_s, "no result returned for this corner", evaluate, job_id))
+            results.append(synthetic_failure(
+                exp, corner, timeout_s, "no result returned for this corner", evaluate,
+                job_id, job_ids))
         elif len(hits) > 1:
             blockers.append(f"{corner.id}: {len(hits)} duplicate results returned")
             results.append(synthetic_failure(
                 exp, corner, timeout_s, f"{len(hits)} duplicate results returned; refusing to pick one",
-                evaluate, job_id))
+                evaluate, job_id, job_ids))
         else:
             kc, group, meta = hits[0]
             results.append(corner_result(exp, corner, kc, timeout_s, evaluate, meta, "", group.request))
@@ -1104,7 +1166,8 @@ def write_corner_logs(
         lines = [
             f"# corner: {corner.id}",
             f"# process={corner.process} temp={corner.temp_c:g}C supply={corner.supply_v:.2f}V",
-            f"# executed on the batch fleet; job {b.get('job_id')}; klt corner status: {b.get('klt_status')}",
+            f"# executed on the batch fleet; job(s) {format_job_ids(meta_job_ids(b))}; "
+            f"klt corner status: {b.get('klt_status')}",
             "# ngspice exit code / signal: not exposed by klt sim (see sim/README.md)",
             f"# engine wall clock: {res['elapsed_s']}s (--timeout was {res['timeout_s']}s)",
             f"# result: {'PASS' if res['pass'] else 'FAIL'}"

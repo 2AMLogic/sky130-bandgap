@@ -157,8 +157,15 @@ class BatchRequests(unittest.TestCase):
         self.assertEqual(self.groups[0].request["remote"]["hosts"], 300)
 
 
-def _report(point, n=None, lib_sha="abc", drop=(), shuffle=False):
-    """A stubbed klt report: one `corners[]` entry per Monte Carlo draw."""
+def _shard_ids(point, shards):
+    return [f"job-{point.corner_id}-s{i}" for i in range(shards)]
+
+
+def _report(point, n=None, lib_sha="abc", drop=(), shuffle=False, shards=0):
+    """A stubbed klt report: one `corners[]` entry per Monte Carlo draw.
+
+    `shards=N` is the shape klt returns for a *sharded* request (issue #523):
+    `environment.remote` carries a `fleet` list and no top-level `job_id`."""
     n = point.samples if n is None else n
     corners = []
     for k in range(n):
@@ -169,9 +176,11 @@ def _report(point, n=None, lib_sha="abc", drop=(), shuffle=False):
                         "monte_carlo": {"sample_index": k}, "measurements": ms, "diagnostics": []})
     if shuffle:
         corners.reverse()
+    remote = ({"fleet": [{"job_id": j} for j in _shard_ids(point, shards)]} if shards
+              else {"job_id": f"job-{point.corner_id}"})
     return {"corner_count": n, "corners": corners, "status": "pass",
             "environment": {"models_lib_sha256": lib_sha, "engine_version": "45",
-                            "remote": {"job_id": f"job-{point.corner_id}"}}}
+                            "remote": remote}}
 
 
 class BatchCollection(unittest.TestCase):
@@ -211,6 +220,27 @@ class BatchCollection(unittest.TestCase):
         self.assertEqual(len(by_point[self.points[0].corner_id]), 18)
         self.assertEqual(execution["jobs"][0]["samples_dropped"], 2)
 
+    def test_sharded_request_records_every_fleet_job_id(self):
+        _, execution = self._run(lambda p: _report(p, lib_sha=self.sha, shards=3))
+        for job, point in zip(execution["jobs"], self.points):
+            with self.subTest(point=point.corner_id):
+                self.assertIsNone(job["job_id"])
+                self.assertEqual(job["job_ids"], _shard_ids(point, 3))
+
+    def test_samples_sidecar_carries_the_shard_ids(self):
+        self._run(lambda p: _report(p, lib_sha=self.sha, shards=3))
+        point = self.points[0]
+        written = json.loads(R.samples_path(self.corners_dir, point.corner_id).read_text())
+        self.assertIsNone(written["job_id"])
+        self.assertEqual(written["job_ids"], _shard_ids(point, 3))
+
+    def test_samples_sidecar_is_unchanged_for_an_unsharded_request(self):
+        self._run(lambda p: _report(p, lib_sha=self.sha))
+        point = self.points[0]
+        written = json.loads(R.samples_path(self.corners_dir, point.corner_id).read_text())
+        self.assertEqual(written["job_id"], f"job-{point.corner_id}")
+        self.assertEqual(written["job_ids"], [f"job-{point.corner_id}"])
+
     def test_wrong_sample_count_is_refused(self):
         with self.assertRaises(cr.HarnessError) as cm:
             self._run(lambda p: _report(p, n=p.samples - 1, lib_sha=self.sha))
@@ -237,6 +267,108 @@ class BatchCollection(unittest.TestCase):
         cid = E.corner_id_for(27.0)
         vout = E.load_vout_samples(self.corners_dir / f"{cid}.log")
         self.assertEqual(len(vout), 19)  # the dropped draw is absent, the rest converged
+
+
+BENCH_DIR = SIM_DIR / "monte-carlo-untrimmed"
+
+
+class SeedWording(unittest.TestCase):
+    """On the batch path klt derives every sample's own `.options seed=` from
+    the request's `monte_carlo.seed`; there is no `setseed` / `reset` loop, so
+    a record that says `setseed` -- including the convergence table's
+    "ngspice draws sequentially per `setseed`" claim -- names a mechanism that
+    did not run (issue #523). The local wording is unchanged byte for byte."""
+
+    LOCAL = {"backend": "local"}
+    BATCH = {"backend": "batch"}
+
+    def test_local_seed_prose_is_unchanged_byte_for_byte(self):
+        for execution in (None, {}, self.LOCAL):
+            with self.subTest(execution=execution):
+                self.assertEqual(
+                    R.seed_mechanism(execution),
+                    f"`setseed {R.SEED_A}` (second-seed point uses {R.SEED_B})")
+                self.assertEqual(R.seed_label(execution, R.SEED_B), f"`setseed {R.SEED_B}`")
+                self.assertEqual(R.seed_convention(execution), f"fixed setseed {R.SEED_A}")
+                self.assertEqual(
+                    R.convergence_sequence_note(execution),
+                    "ngspice draws sequentially per `setseed`, so the first K samples of "
+                    "the full run are identical to what a standalone K-sample run would "
+                    "produce \u2014 this is a real convergence trend, not a re-simulation "
+                    "at each row")
+
+    def test_batch_seed_prose_never_says_setseed(self):
+        for text in (R.seed_mechanism(self.BATCH), R.seed_label(self.BATCH, R.SEED_B),
+                     R.seed_convention(self.BATCH), R.convergence_sequence_note(self.BATCH)):
+            with self.subTest(text=text):
+                self.assertNotIn("setseed", text)
+                self.assertIn("monte_carlo", text)
+
+    def test_batch_convergence_note_claims_only_the_verified_property(self):
+        """The rows are prefixes of one `monte_carlo.sample_index`-ordered draw
+        sequence -- that much `batch_sim.samples_from_report()` guarantees. That
+        a standalone K-sample request reproduces the first K draws of an
+        N-sample one is a local `setseed` property this repo has not shown for
+        klt's derived per-sample seeds, so the batch wording must not claim it."""
+        note = R.convergence_sequence_note(self.BATCH)
+        self.assertIn("sample_index", note)
+        self.assertIn("not a re-simulation at each row", note)
+        self.assertIn("not known to reproduce these same first K draws", note)
+        clause = R.convergence_sequence_clause({"backend": "batch"}, 300, 100)
+        self.assertNotIn("identical to a standalone", clause)
+        self.assertEqual(
+            R.convergence_sequence_clause(None, 300, 100),
+            "same seed stream, the 300-sample run's first 100 draws are identical "
+            "to a standalone 100-sample run")
+
+    def test_sample_count_sufficient_detail_follows_the_backend(self):
+        """The check detail is stored in the record JSON, so a committed record
+        replays whatever was written at run time; only the generator can be
+        fixed, and only for the next record."""
+        point = {"convergence": [{"n": 100, "sigma": 0.008, "mean": 1.2},
+                                 {"n": 300, "sigma": 0.0081, "mean": 1.2}]}
+        local = R.convergence_check(point, None)[0]["detail"]
+        batch = R.convergence_check(point, self.BATCH)[0]["detail"]
+        self.assertIn("same seed stream, the 300-sample run's first 100 draws are "
+                      "identical to a standalone 100-sample run", local)
+        self.assertNotIn("identical to a standalone", batch)
+        self.assertIn("ordered by sample_index", batch)
+        # everything outside the mechanism clause is untouched
+        self.assertIn("relative change", batch)
+        self.assertIn("Full checkpoint series: N=100", batch)
+
+    # Committed records are read-only fixtures: append-only evidence, never rewritten.
+    def _record(self, backend):
+        for path in sorted(BENCH_DIR.glob("records/*.json")):
+            r = json.loads(path.read_text())
+            if "points" in r and (r.get("execution") or {}).get("backend") == backend:
+                return r
+        self.skipTest(f"no committed {backend} record for this bench")
+
+    def test_a_batch_record_renders_with_no_setseed_anywhere(self):
+        md = R.render_record(self._record("batch"))
+        self.assertNotIn("setseed", md)
+        self.assertIn(f"Reproducible: klt `monte_carlo` seed {R.SEED_A}", md)
+        self.assertIn(f"`monte_carlo` seed {R.SEED_B}", md)
+        self.assertIn("`monte_carlo.sample_index` fixes the draw order", md)
+
+    def test_a_local_record_still_renders_the_setseed_wording(self):
+        md = R.render_record(self._record(None))
+        self.assertIn(
+            f"Reproducible: `setseed {R.SEED_A}` (second-seed point uses {R.SEED_B}). "
+            f"N matches", md)
+        self.assertIn(f"`setseed {R.SEED_B}`", md)
+        self.assertIn("ngspice draws sequentially per `setseed`", md)
+
+
+class CommittedRecordsAreNotRewritten(unittest.TestCase):
+    def test_rendering_a_committed_record_writes_nothing(self):
+        before = {p: p.stat().st_mtime_ns for p in BENCH_DIR.glob("records/*")}
+        for path in sorted(BENCH_DIR.glob("records/*.json")):
+            r = json.loads(path.read_text())
+            if "points" in r:
+                R.render_record(r)
+        self.assertEqual({p: p.stat().st_mtime_ns for p in BENCH_DIR.glob("records/*")}, before)
 
 
 if __name__ == "__main__":
