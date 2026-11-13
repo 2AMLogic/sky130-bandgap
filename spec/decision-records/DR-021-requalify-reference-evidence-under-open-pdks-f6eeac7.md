@@ -555,9 +555,13 @@ This slice is that run, and it succeeded on the first submit.
 Run as `run_amp_offset_mc.py --backend batch --timeout 30
 --batch-capacity-wait-s 1800 --supersedes 20260817-130441-aa5324e`: 5 Monte
 Carlo points (three `tt_mm` temperatures at N=300, a 30-sample MC-off control,
-and a second-seed 300-sample repeat = **1 230 samples**), the **same** seeds
-(`20260803` / `20260804`) and the same N as the superseded record, so the two
-are comparable. All 1 230 samples parsed; **none excluded, none lost**.
+and a second-seed 300-sample repeat = **1 230 samples**), the **same** nominal
+seed values (`20260803` / `20260804`) and the same N as the superseded record,
+so the two are comparable **statistically** -- same N, same nominal seeds, but
+not the same draws: the batch backend derives its own per-sample seeds from
+those values rather than replaying a `setseed` loop, so the individual samples
+are a different stream (see the cause bullet below). All 1 230 samples parsed;
+**none excluded, none lost**.
 
 **The `--timeout` lesson from slice D4 was load-bearing here, not incidental.**
 At the runner's 7 200 s default each request declares `remote.hosts: 300` --
@@ -585,24 +589,49 @@ a property of Monte Carlo rather than a result that moved:
   bench rests on is therefore unchanged by the re-pin, which is exactly what the
   control exists to establish.
 - The **mismatch points are not**. `sigma(vos)` at 27 C reads 0.6399 mV against
-  the superseded 0.6254 mV (+2.3 %); the largest move is the second-seed point's
-  `sigma(vout)`, 6.5266 -> 7.0684 mV (+8.3 %). `budget_closure`'s ratio moves
+  the superseded 0.6254 mV (+2.3 %). The **largest** move in the record is
+  `sigma(dvbe1)` at -40 C, 0.4310 -> 0.3657 mV (**-15.1 %**); seven sigma
+  estimates move by more than 8 %, the next six being `dvbe1` at 27 C
+  (-12.2 %), `dvbe1` on the second seed (+10.9 %), `rrb` on the second seed
+  (-9.5 %), `vos` on the second seed (+8.9 %), `vgdrv` on the second seed
+  (+8.7 %) and `vout` on the second seed (+8.3 %). `dvbe1` is the vector the
+  `anchor_sigma` check grades against the published 0.480 mV: that ratio moves
+  1.05 -> 0.92 at 27 C, well inside its 0.7-1.4 band, and the -40 C point is
+  not graded against the previous record at all. `budget_closure`'s ratio moves
   1.04/1.07/1.10 -> 1.03/1.05/1.08 against its 0.7-1.4 band.
-- **The cause is the draw sequence, not the model cards.** The superseded record
-  was minted on Darwin arm64 and this one on the fleet's Linux x86_64, both
-  under ngspice-47. ngspice's mismatch draws for a given `setseed` are not
-  portable across platform, so "same seed" does not mean "same samples" here.
-  With N=300 the standard error on a sigma estimate is about +/-4 %, so a +2.3 %
-  move is inside sampling noise and the +8.3 % one is at roughly two standard
-  errors -- which is also why this bench ships a second seed and a +/-25 %
-  `seed_sigma_stable` tolerance rather than an equality check. Both records pass
-  that check, on both seeds.
-- **Not separable here, and said rather than implied**: because the platform and
-  the pin changed together, this run cannot attribute the residual between
-  model-card changes and draw-sequence changes. Doing so would need the same
-  `f6eeac7` deck re-run on the old platform, which is not available to this
-  issue. No conclusion in this record depends on the separation, because the
-  verdict, every check and the budget closure are unchanged either way.
+- **The cause is the backend's seeding scheme, not the model cards.** The batch
+  path does not use `setseed` at all. One `klt sim` request per point replaces
+  the `setseed` / `reset` / `dowhile` loop with `monte_carlo` `{n, seed}`, and
+  klt derives each sample's `.options seed=` from `monte_carlo.seed` itself
+  (`sim/error-amp-offset-mc/run_amp_offset_mc.py`, `build_batch_groups`
+  docstring; and the new record's own `execution.note`: "per-sample seeds come
+  from klt's monte_carlo seed contract, not `setseed`"). The draws are therefore
+  a different -- equally valid -- stream from `setseed N` **by construction of
+  the backend, on any platform**, so "same seed" does not mean "same samples"
+  here. The superseded record was minted on Darwin arm64 and this one on the
+  fleet's Linux x86_64, both under ngspice-47, but **whether ngspice's
+  `setseed` draws are portable across platform is not measured anywhere in this
+  issue**, and no such claim is needed to explain the difference. With N=300 the
+  standard error on a single sigma estimate is about +/-4.1 %, and about
+  +/-5.8 % on the ratio of two independent estimates, so the +2.3 % move on
+  `sigma(vos)` is inside sampling noise -- but the -15.1 % move on
+  `sigma(dvbe1)` is **not**, at roughly 3.7 single-estimate standard errors
+  (2.6 on the ratio), and no blanket "inside two standard errors" claim holds
+  across the set. This is why the bench grades seed stability with a +/-25 %
+  `seed_sigma_stable` tolerance and grades `dvbe1` against a **published**
+  anchor rather than against the previous record's draws. Both records pass
+  `seed_sigma_stable`, on both seeds, and every `anchor_sigma` check passes.
+- **Not separable here, and said rather than implied**: **three** things changed
+  together between the two records -- the PDK pin, the execution platform
+  (Darwin arm64 -> the fleet's Linux x86_64), and the seeding scheme (a local
+  `setseed` loop -> klt's `monte_carlo` contract on the batch backend) -- so this
+  run cannot attribute the residual between model-card changes and
+  draw-sequence changes. Re-running the `f6eeac7` deck on the old platform would
+  not settle it either, because the batch path would not reproduce the old draw
+  stream there; separating the two would need the old `setseed` loop re-run
+  locally at `f6eeac7`, which is not available to this issue. No conclusion in
+  this record depends on the separation, because the verdict, every check and
+  the budget closure are unchanged either way.
 
 `design/error-amp-offset-budget.md` section 2's allocation table is derived from
 the superseded record's sigmas and is **not** re-derived here (it is not in this
@@ -715,8 +744,9 @@ C'+D4, 225 are bit-identical to the record they supersede and the other 120
 differ only in the last printed digit. Slice F's 1 230 Monte Carlo samples are
 the one exception to "bit-identical or last-digit", and the exception is
 disclosed rather than smoothed: its MC-off control is bit-identical, its
-mismatch draws are not (up to +8.3 % on one sigma estimate, inside two standard
-errors at N=300), the cause is a non-portable draw sequence rather than a moved
-measurement, and every check, the verdict and the budget closure are
-unchanged. See slice F for why the pin and the draw sequence cannot be
-separated by this run, and for the fact that they do not need to be.
+mismatch draws are not (largest move -15.1 % on `sigma(dvbe1)` at -40 C, whose
+`anchor_sigma` check stays well inside its band), the cause is the batch
+backend's seeding scheme -- a different draw stream by construction, not a
+moved measurement -- and every check, the verdict and the budget closure are
+unchanged. See slice F for why the pin, the platform and the seeding scheme
+cannot be separated by this run, and for the fact that they do not need to be.

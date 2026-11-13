@@ -609,19 +609,36 @@ differences, and here is what they are and where they come from:
   every one of its nine measurements, mean and σ alike. The deterministic
   operating point this budget rests on did not move.
 - The **mismatch draws did**. σ(`vos`) at 27 °C reads 0.6399 mV against §2's
-  0.6254 mV (+2.3 %); the largest single move is the second-seed point's
-  σ(`vout`), 6.5266 → 7.0684 mV (+8.3 %). `budget_closure`'s ratio moves
+  0.6254 mV (+2.3 %). The **largest** single move is σ(`dvbe1`) at −40 °C,
+  0.4310 → 0.3657 mV (**−15.1 %**); seven σ estimates move by more than 8 %,
+  the next six being `dvbe1` at 27 °C (−12.2 %), `dvbe1` on the second seed
+  (+10.9 %), `rrb` on the second seed (−9.5 %), `vos` on the second seed
+  (+8.9 %), `vgdrv` on the second seed (+8.7 %) and `vout` on the second seed
+  (+8.3 %). `dvbe1` is graded by `anchor_sigma` against a published 0.480 mV,
+  not against the superseded record: that ratio moves 1.05 → 0.92 at 27 °C,
+  well inside its 0.7–1.4 band. `budget_closure`'s ratio moves
   1.04 / 1.07 / 1.10 → 1.03 / 1.05 / 1.08 against its 0.7–1.4 band.
-- **The cause is the draw sequence, not the model cards.** ngspice's mismatch
-  draws for a given `setseed` are not portable across platform, and the
-  superseded record was minted on Darwin arm64 while this one ran on the
-  fleet's Linux x86_64 (both ngspice-47). At N = 300 the standard error on a σ
-  estimate is ≈ ±4 %, so both moves sit inside two standard errors — which is
-  why this bench ships a second seed and a ±25 % `seed_sigma_stable` tolerance
-  rather than an equality check. Both records pass that check on both seeds.
-- Because platform and pin changed together, **this run cannot attribute the
-  residual between them**, and nothing in this document or in the new record
-  depends on separating them.
+- **The cause is the backend's seeding scheme, not the model cards.** The batch
+  path does not use `setseed` at all: one `klt sim` request per point replaces
+  the `setseed` / `reset` / `dowhile` loop with `monte_carlo` `{n, seed}`, and
+  klt derives each sample's `.options seed=` from `monte_carlo.seed` itself
+  (see `sim/error-amp-offset-mc/run_amp_offset_mc.py`, `build_batch_groups`,
+  and the new record's `execution.note`). The draw stream therefore differs
+  **by construction of the backend, on any platform**. The superseded record
+  was minted on Darwin arm64 and this one on the fleet's Linux x86_64 (both
+  ngspice-47), but **whether `setseed` draws are portable across platform is
+  not measured here**, and that claim is not needed to explain the difference.
+  At N = 300 the standard error on a single σ estimate is ≈ ±4.1 % (≈ ±5.8 %
+  on a ratio of two independent estimates), so the +2.3 % move on σ(`vos`)
+  sits inside sampling noise — but the −15.1 % move on σ(`dvbe1`) does **not**
+  (≈ 3.7 standard errors, 2.6 on the ratio), so no blanket "inside two standard
+  errors" claim holds across the set. This is why the bench grades seed
+  stability with a ±25 % `seed_sigma_stable` tolerance rather than an equality
+  check, and grades `dvbe1` against a published anchor. Both records pass
+  `seed_sigma_stable` on both seeds, and every `anchor_sigma` check passes.
+- Because the pin, the platform **and** the seeding scheme changed together,
+  **this run cannot attribute the residual among them**, and nothing in this
+  document or in the new record depends on separating them.
 
 Full comparison and the fleet-execution detail:
 [DR-021](../spec/decision-records/DR-021-requalify-reference-evidence-under-open-pdks-f6eeac7.md),
