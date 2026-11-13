@@ -39,16 +39,19 @@ No spec relaxation is made or implied.
 | `startup-time-post-layout` | `20260923-070906-dbd57a9` | `20261113-111050-7efdcf3b` | 45/45 | PASS 45/45, same as old |
 | `startup-ramp-post-layout` | `20260924-041313-999407b` | `20261113-111230-7efdcf3b` | 45/45 | FAIL 13/45 (`vref_spread`), same as old |
 | `psrr-injector-attribution` | `20261002-070506-29da08e` | `20261113-111649-7efdcf3b` | 45/45 x 5 variants (225 points), no subset | Overall FAIL, same as old (the same 4 of 429 checks; all 225 points bit-identical) |
+| `error-amp-offset-mc` | `20260817-130441-aa5324e` | `20261113-140022-64c42cad` | 5 MC points (3x300 + 30 control + 300 second seed = 1 230 samples), same seeds and N as the old record, 0 excluded | PASS, same as old (6/6 cross-point checks, `budget_closure` holds at all three temperatures); the mismatch *draws* are not bit-identical -- see below |
 
-### Not yet re-qualified (as of slice C'+D4, 2026-11-13)
+### Not yet re-qualified (as of slice F, 2026-11-13)
 
-Every bench of the 2026-11-11 Revision table now has a disposition: either a
-row in the index above, or a reason here. None is left as "not attempted".
+Every bench of the 2026-11-11 Revision table has a disposition: either a row
+in the index above, or a reason here. None is left as "not attempted". After
+slice F exactly **one** bench is not re-qualified, and it is also stated in
+`design/block-characterization-report.md` itself (row 1c and section 3 item 6),
+so a reader who starts there is not left to infer the gap from a date.
 
 | Bench | Status |
 |---|---|
 | `monte-carlo-untrimmed` | **Not re-qualified: batch collector loses samples.** `--backend batch` exists (#437) but has never produced a usable record; all three attempts on disk report `klt_status: "error"` on every job and parse back fewer samples than requested. A partial-sample MC record cannot be comparable evidence. Blocked on #444 (open, `loom:operator`). Old record `20260817-121131-d7d85b6` remains the evidence. See "Slice D3 dispositions" below. |
-| `error-amp-offset-mc` | **Not re-qualified: the collector now exists, but no fleet run has minted a record.** The blocker recorded in slice D3 is gone — `run_amp_offset_mc.py --backend batch` collects klt's per-sample reports into a record as of #514, and no longer refuses a real run. What is still missing is the run itself: no fleet submission for this bench has been made under `f6eeac7`, so there is no new record to cite, and the collector's report parsing has never met a real klt report (its tests use hand-built ones). The run belongs to #370 and should be small-N first. Old record `20260817-130441-aa5324e` remains the evidence. |
 | layout reports | **Re-qualification does not apply.** The cited DRC/LVS/extraction verdicts come from KLayout's curated sky130 deck at a pinned klt/KLayout version, not from the open_pdks ngspice model cards `f6eeac7` changed. No new report is minted or needed. See "Slice D3 dispositions" below. |
 
 ### Per-row old/new deltas, `startup-stability` (worst case over 45 corners)
@@ -402,10 +405,19 @@ and **no** measurement verdict, corner verdict or spread check changes:
 
 | Bench | Points | Largest absolute difference (measurement @ corner) | Largest relative | Verdict flips |
 |---|---|---|---|---|
-| `line-regulation-post-layout` | 15 | 3.0e-5 mV (`line_shift_mv` @ `sf_27c_3.30v`) | 1.8e-5 | none |
+| `line-regulation-post-layout` | 15 | 1.5e-4 dB (`line_psrr_db` @ `ff_-40c_3.30v`); 3.0e-5 mV (`line_shift_mv` @ `sf_27c_3.30v`) | 1.8e-5 | none |
 | `output-voltage-tc-post-layout` | 15 | 1.9e-3 ppm/C (`tc_ppm` @ `fs_27c_3.63v`) | 1.2e-5 | none |
 | `startup-time-post-layout` | 45 | 0 (every measurement at every corner) | 0 | none |
-| `startup-ramp-post-layout` | 45 | 1.4e-5 V (`vref_spread_early` @ `ss_-40c_3.63v`) | 1.7e-2 | none |
+| `startup-ramp-post-layout` | 45 | 1.4e-5 V (`vref_spread_early` @ `ss_-40c_3.63v`) | 3.4e-2 (`vref_converge` @ `ss_-40c_3.63v`, -0.000356 -> -0.000344) | none |
+
+Two cells in that table were corrected on 2026-11-13 after the #516 review, by
+recomputing both diffs from the committed records; neither correction touches a
+verdict or a conclusion. `line-regulation-post-layout`'s largest absolute
+difference is `line_psrr_db`'s 1.5e-4 dB, not `line_shift_mv`'s 3.0e-5 mV -- the
+two measurements are in different units, so both are now listed rather than one
+being called "largest". `startup-ramp-post-layout`'s largest *relative*
+difference is `vref_converge`'s 3.4e-2, not `vref_spread_early`'s 1.7e-2; the
+prose below the table already said so.
 
 `vref_nom`, `vref_27`, `vref_min`, `vref_max`, `n_supply_points`,
 `n_temp_points`, `sweep_start_v`, `sweep_end_v`, all five `startup-time`
@@ -427,8 +439,8 @@ failing corner sets are identical old-to-new, not merely the same counts:
   of 15 (`ff_27c_3.63v` clears the 1.176 V floor at 1.186483 V, as before) --
   rows 1b and 3b of `design/block-characterization-report.md`.
 - `startup-ramp-post-layout`: `vref_spread` fails the **same 13** corners,
-  worst 18.462 mV at `sf_-40c_2.97v`; the ratified `t_start < 1 ms` half still
-  passes 45/45 and `vref_converge` still passes 45/45 -- row 8d's DR-010
+  worst 18.462 mV at `sf_-40c_3.63v` (`sf_-40c_2.97v` reads 8.208 mV); the
+  ratified `t_start < 1 ms` half still passes 45/45 and `vref_converge` still passes 45/45 -- row 8d's DR-010
   exception, unchanged.
 - `line-regulation-post-layout` (row 5c) and `startup-time-post-layout`
   (row 8e, post-layout half) still PASS at every corner, with the eroded
@@ -490,6 +502,114 @@ nothing, cutting `MNI` recovers only partially. The runner has no
 carries no `Supersedes` field and supersession is recorded only by this index's
 row; the old record is not edited.
 
+### Slice E -- `design/block-characterization-report.md` regenerated (scope item 5 closed)
+
+No simulation, no fleet, no code: this slice re-derives the report's rows from
+the newest record under each cited `sim/*/records/` directory, which is what
+its own section 0 "Regeneration rule" requires after any new record lands.
+Twenty of its rows change citation; **no verdict, binding corner or disposition
+moves**, which is the expected outcome given the per-slice deltas recorded
+above.
+
+What the regeneration actually changed, beyond citations:
+
+- Three last-printed-digit updates. Row 1b's `vref_27` range
+  1.193300-1.199550 V -> 1.193297-1.199547 V; row 4f's check denominator
+  317 -> 363 and its body count 3 -> 4 variants / 135 -> 180 points (the
+  re-qualified `psrr-injector-candidates` record carries a fourth variant,
+  `ngclamp`, that the superseded one did not -- the two unmet ceiling checks
+  are still the same two, at the same corners, to the same 2.018/3.062 dB).
+- One rounding correction inherited from an earlier revision, not a new
+  measurement: rows 8d/8e printed `gdrv_final`'s floor as 1.598 V where both
+  the superseded and the re-qualified `startup-time-post-layout` record read
+  1.597262 V. It now reads 1.597 V.
+- Row 8a's citation jumps **two** records, and the report says so rather than
+  absorbing it. That row cited `20260909-232410-e8e2e46`; the intervening
+  `20261015-133821-9f956c4` -- which the report never cited -- failed 10 of 45
+  corners, and those failures do not reproduce under `f6eeac7` (see the
+  `startup-stability` delta table above). The row's PASS rests on the new
+  record, not on the record it skipped.
+- The two benches that were **not** re-qualified now carry that reason in the
+  report itself (row 1c and section 3 item 6), instead of citing a pre-pin
+  record as "the newest record on disk". `monte-carlo-untrimmed`'s row is the
+  one place in the report where the cited record is deliberately **not** the
+  newest file in its directory, and it now says why.
+
+Because the report's `sha256` is pinned by T1 item 8, `./signoff/regenerate.sh`
+was re-run in the same change: `signoff/evidence/characterization.generic.json`,
+`signoff/block-manifest.json` and `signoff/signoff-report.json` carry the new
+hash and nothing else moved. The T1 verdict is unchanged at **8/11 items met**,
+graded with the pinned released klayout-tools 0.8.0 wheel in a throwaway venv.
+
+Two documentation corrections to this record's own slice C' delta table were
+made in the same change, from the #516 review; both are recomputed from the
+committed records and neither touches a verdict. They are described under that
+table.
+
+### Slice F -- `error-amp-offset-mc` re-qualified, and the one delta in this record that is not last-digit rounding
+
+Slice D3 recorded this bench as blocked on a batch collector; #514 landed that
+collector, and slice E recorded that the only thing still missing was the run.
+This slice is that run, and it succeeded on the first submit.
+
+Run as `run_amp_offset_mc.py --backend batch --timeout 30
+--batch-capacity-wait-s 1800 --supersedes 20260817-130441-aa5324e`: 5 Monte
+Carlo points (three `tt_mm` temperatures at N=300, a 30-sample MC-off control,
+and a second-seed 300-sample repeat = **1 230 samples**), the **same** seeds
+(`20260803` / `20260804`) and the same N as the superseded record, so the two
+are comparable. All 1 230 samples parsed; **none excluded, none lost**.
+
+**The `--timeout` lesson from slice D4 was load-bearing here, not incidental.**
+At the runner's 7 200 s default each request declares `remote.hosts: 300` --
+one host per MC sample -- so the five requests would have asked the shared spot
+quota for 1 230 hosts, which is the shape that starved slices A and D3. Sizing
+the per-sample budget to the analysis actually being run (an `op` solve,
+`--timeout 30`) drops each 300-sample request to `remote.hosts: 3`. All five
+jobs came back `klt_status: pass` with `klt_exit_code: 0`, **zero
+`batch_no_capacity`, zero `lost_shard`, zero `batch_job_timeout`**. The budget
+was generous rather than tight: measured per-sample remote runtime was
+2.6-3.9 s against the 30 s bound. Wall clock was about 18 minutes for the whole
+bench (the five requests overlap; their submit-to-collect walls sum to 71
+minutes). **This is the first time this repo's `klt sim` Monte Carlo collector has
+met a real fleet report** -- its tests used hand-built ones -- and it parsed all
+five without a diagnostic.
+
+**The verdict does not move: PASS, 6 of 6 cross-point checks, `budget_closure`
+holding at all three temperatures.** But unlike every other slice in this
+record, the numbers are **not** reproduced to the printed precision, and that is
+a property of Monte Carlo rather than a result that moved:
+
+- The **MC-off control point** (`tt_27c_3.30v_mm-off`, mismatch switched off) is
+  **bit-identical** to the superseded record on every one of its nine
+  measurements, mean and sigma alike. The deterministic operating point this
+  bench rests on is therefore unchanged by the re-pin, which is exactly what the
+  control exists to establish.
+- The **mismatch points are not**. `sigma(vos)` at 27 C reads 0.6399 mV against
+  the superseded 0.6254 mV (+2.3 %); the largest move is the second-seed point's
+  `sigma(vout)`, 6.5266 -> 7.0684 mV (+8.3 %). `budget_closure`'s ratio moves
+  1.04/1.07/1.10 -> 1.03/1.05/1.08 against its 0.7-1.4 band.
+- **The cause is the draw sequence, not the model cards.** The superseded record
+  was minted on Darwin arm64 and this one on the fleet's Linux x86_64, both
+  under ngspice-47. ngspice's mismatch draws for a given `setseed` are not
+  portable across platform, so "same seed" does not mean "same samples" here.
+  With N=300 the standard error on a sigma estimate is about +/-4 %, so a +2.3 %
+  move is inside sampling noise and the +8.3 % one is at roughly two standard
+  errors -- which is also why this bench ships a second seed and a +/-25 %
+  `seed_sigma_stable` tolerance rather than an equality check. Both records pass
+  that check, on both seeds.
+- **Not separable here, and said rather than implied**: because the platform and
+  the pin changed together, this run cannot attribute the residual between
+  model-card changes and draw-sequence changes. Doing so would need the same
+  `f6eeac7` deck re-run on the old platform, which is not available to this
+  issue. No conclusion in this record depends on the separation, because the
+  verdict, every check and the budget closure are unchanged either way.
+
+`design/error-amp-offset-budget.md` section 2's allocation table is derived from
+the superseded record's sigmas and is **not** re-derived here (it is not in this
+issue's reference set, and re-deriving an allocation is its own task). That doc
+gains a short section 11 pointing at the new record and at this section, so it
+does not read as current.
+
 ## Alternatives considered
 
 - **Run non-batch / local grids for the remaining benches** - rejected: host
@@ -538,10 +658,10 @@ None.
 
 ## Consequences
 
-Scope item 5 is now **half done, half deferred**, and the split is not a
-judgement call:
+Scope item 5 is **complete** as of slice E. Both halves are recorded below;
+the deferral the slice C'+D4 revision of this section carried is discharged.
 
-- **Done here — the `signoff/` item-5 outputs cite the new records.**
+- **The `signoff/` item-5 outputs cite the new records** (done in slice C'+D4).
   `sim/signoff-envelopes/emit_klt_sim_envelopes.py --write` re-minted the four
   envelopes whose bench moved (`output-voltage-tc-post-layout` 1b and 3b,
   `line-regulation-post-layout` 5c, `startup-ramp-post-layout` 8d) plus
@@ -557,27 +677,31 @@ judgement call:
   the manifest with the pinned released klayout-tools 0.8.0 grader in a
   throwaway venv still renders byte-identically ("T1 8/11 items met"), so the
   T1 verdict is unmoved by this slice.
-- **Deferred to the next slice — `design/block-characterization-report.md`.**
-  Its rows 1b, 3b, 5c, 8d and 4e still cite the superseded records. Slice D3
-  deferred the whole of item 5 because four benches (slice C') were about to
-  be re-qualified and regenerating twice would have cited a set that was about
-  to change; **that precondition is now discharged** — C' ran here — so the
-  report edit is unblocked, needs neither a code change nor the fleet, and is
-  the one remaining step on this issue (see Alternatives for why it is its own
-  slice).
+- **`design/block-characterization-report.md` is regenerated** (slice E). Every
+  row now cites the newest record under its bench directory, or states why it
+  does not; no verdict, binding corner or disposition moved. Slice D3 had
+  deferred this because four benches (slice C') were about to be re-qualified
+  and regenerating twice would have cited a set that was about to change; C'
+  ran in the previous slice, so the regenerate-twice risk was gone. Its
+  `sha256` is pinned by T1 item 8, so `./signoff/regenerate.sh` was re-run with
+  it — the hash propagates to three files and the T1 verdict is unchanged at
+  8/11.
 
-With slice C'+D4 the re-run work is complete **and five more benches moved from
-a recorded reason into the index**. Eighteen of the twenty reference benches are
-now re-qualified under `f6eeac7`. Exactly two are not, and both keep their old
-record as the cited evidence:
+**Nineteen of the twenty reference benches are now re-qualified under
+`f6eeac7`.** Exactly one is not, and it keeps its old record as the cited
+evidence:
 
 | Bench | Waits on | Needs code? |
 |---|---|---|
-| `monte-carlo-untrimmed` | #444 (open, `loom:operator`) | yes — batch collector loses samples |
-| `error-amp-offset-mc` | a fleet run under #370 | no — #514 landed the batch collector |
+| `monte-carlo-untrimmed` | #444 (open, `loom:operator`) | yes — the batch collector loses samples |
+
+With slice E the derived artifacts are current, and with slice F the last
+bench that needed only a fleet submission has one. **#370's remaining work is
+exactly #444's**, which is an operator-held issue, not a scheduling matter.
 
 Layout reports need no re-qualification (slice D3). **Nothing on this issue is
-gated on fleet budget any more**: slice D3 closed by noting that two of this
+gated on fleet budget any more**, and slice F is the third independent
+confirmation of why: slice D3 closed by noting that two of this
 issue's slices had failed on the shared spot quota and that the remainder was
 therefore a scheduling matter. The retry in slice D4 settles that — with a
 per-point budget sized from the bench's own measured runtime rather than the
@@ -586,6 +710,13 @@ runner's default, 30 requests and 225 points went through with no
 capacity failures were a request-shape problem as much as a quota problem.
 
 No spec row is relaxed by any slice of this record, and no result moved outside
-its tolerance because of the re-pin — including the 345 points added here, of
-which 225 are bit-identical to the record they supersede and the other 120
-differ only in the last printed digit.
+its tolerance because of the re-pin. Of the 345 corner points added in slice
+C'+D4, 225 are bit-identical to the record they supersede and the other 120
+differ only in the last printed digit. Slice F's 1 230 Monte Carlo samples are
+the one exception to "bit-identical or last-digit", and the exception is
+disclosed rather than smoothed: its MC-off control is bit-identical, its
+mismatch draws are not (up to +8.3 % on one sigma estimate, inside two standard
+errors at N=300), the cause is a non-portable draw sequence rather than a moved
+measurement, and every check, the verdict and the budget closure are
+unchanged. See slice F for why the pin and the draw sequence cannot be
+separated by this run, and for the fact that they do not need to be.

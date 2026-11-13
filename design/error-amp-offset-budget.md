@@ -581,3 +581,48 @@ the amplifier's own offset term specifically, it does not supersede
 itself, and it says nothing about the temperature-coefficient row (#178/#179,
 still failing on the newest evidence) or the trimmed ±0.5 % row (no Monte
 Carlo evidence yet — see `sim/monte-carlo-untrimmed`'s own scope-limit note).
+
+---
+
+## 11. Update (issue #370): the §10 record is superseded under open_pdks `f6eeac7`; §2's allocation is **not** re-derived here
+
+Issue #369 moved this repo's open_pdks pin from `c6d73a3…` to `f6eeac7…`, and
+issue #370 re-ran this bench under the new pin:
+`sim/error-amp-offset-mc/records/20261113-140022-64c42cad` **supersedes**
+§10's `20260817-130441-aa5324e`. Same testbench, same five Monte Carlo points,
+the **same seeds** (`20260803` / `20260804`) and the same N (300 / 300 / 300 /
+30 control / 300 second-seed = 1 230 samples), run on the Spot batch fleet;
+none excluded, none lost. The record's own verdict is unchanged: **PASS**, 6 of
+6 cross-point checks, `budget_closure` holding at all three temperatures.
+
+**§§1–10 of this document are not re-derived against it, and that is a
+deliberate limit, not an oversight.** This bench is outside #370's named
+reference set (that set is the records cited by
+`design/block-characterization-report.md`, `signoff/` and
+`spec/topology-survey.md`), and re-deriving an allocation table is its own
+task, not a citation refresh. So **every σ in §2's table, and the allocation
+built on it, still comes from the superseded record.** They are stale, not
+wrong — but a reader comparing §2 against the newest record on disk will find
+differences, and here is what they are and where they come from:
+
+- The **MC-off control point** is **bit-identical** between the two records on
+  every one of its nine measurements, mean and σ alike. The deterministic
+  operating point this budget rests on did not move.
+- The **mismatch draws did**. σ(`vos`) at 27 °C reads 0.6399 mV against §2's
+  0.6254 mV (+2.3 %); the largest single move is the second-seed point's
+  σ(`vout`), 6.5266 → 7.0684 mV (+8.3 %). `budget_closure`'s ratio moves
+  1.04 / 1.07 / 1.10 → 1.03 / 1.05 / 1.08 against its 0.7–1.4 band.
+- **The cause is the draw sequence, not the model cards.** ngspice's mismatch
+  draws for a given `setseed` are not portable across platform, and the
+  superseded record was minted on Darwin arm64 while this one ran on the
+  fleet's Linux x86_64 (both ngspice-47). At N = 300 the standard error on a σ
+  estimate is ≈ ±4 %, so both moves sit inside two standard errors — which is
+  why this bench ships a second seed and a ±25 % `seed_sigma_stable` tolerance
+  rather than an equality check. Both records pass that check on both seeds.
+- Because platform and pin changed together, **this run cannot attribute the
+  residual between them**, and nothing in this document or in the new record
+  depends on separating them.
+
+Full comparison and the fleet-execution detail:
+[DR-021](../spec/decision-records/DR-021-requalify-reference-evidence-under-open-pdks-f6eeac7.md),
+slice F.
