@@ -24,14 +24,13 @@ _None._
 
 Human-approved issues ready for implementation (`loom:issue`).
 
-_None._
+- **#370**: Re-qualify reference records under open_pdks f6eeac7 (follow-up to #369)
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
-- **#370**: Re-qualify reference records under open_pdks f6eeac7 (follow-up to #369)
-- **#511**: Dedup verify/explore/build_deck/run_point between the two psrr-injector sim scripts
+- **#523**: Batch sim records: job_id is null for sharded requests, and MC record prose says setseed on the batch path
 
 ## PRs Awaiting Review
 
@@ -56,11 +55,14 @@ Issues carrying `loom:curated`.
 - **#432**: Follow-on from PR #431: first live routed-flow run with artifact broker *(curated)*
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(curated)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(curated)*
+- **#523**: Batch sim records: job_id is null for sharded requests, and MC record prose says setseed on the batch path *(curated)*
 
 ## Proposed (Architect / Hermit)
 
 - **#499**: Condense layout/matching-plan.md Section 7: ~3,500 lines of per-increment changelog *(hermit)*
 - **#517**: Shrink layout/bin/met2_drc.py to its orphan-via check: pinned klt 0.8.0 already checks the met2/via rules it duplicates *(hermit)*
+- **#522**: Dedup collect_batch/record_tools/samples_path between the two Monte Carlo runners into batch_sim *(hermit)*
+- **#525**: Dedup run_trim_lsb_chained.py's hand-rolled batch request onto batch_sim.build_adhoc_group (drifted: no remote.hosts, no ngspice_init) *(hermit)*
 
 ## Epics
 
@@ -73,11 +75,11 @@ _None._
 | Operator merge-risk holds | 0 |
 | Very important | 0 |
 | Important | 2 |
-| Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 2 |
+| Ready (`loom:issue`) | 1 |
+| In Progress (`loom:building`) | 1 |
 | PRs awaiting review | 1 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 7 |
-| Architect / Hermit proposals | 2 |
+| Curated | 8 |
+| Architect / Hermit proposals | 4 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
