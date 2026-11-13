@@ -1207,15 +1207,54 @@ def write_log(
 
 
 def mean(values: list[float]) -> float:
-    return sum(values) / len(values)
+    """Arithmetic mean, exactly the common value when every value is equal.
+
+    Two reasons this is not `sum(values) / len(values)`:
+
+      * `math.fsum` is correctly rounded and identical on every interpreter,
+        while the builtin `sum` is not -- CPython 3.12 gave it Neumaier
+        compensation (gh-100425), so the same draws summed by the builtin
+        differ in the last bit between 3.11 and 3.12. These statistics are
+        recorded evidence compared across runs, so they must not depend on
+        which interpreter produced them.
+      * even correctly rounded, `fsum(values) / n` is not exact for every
+        (value, n): 7 draws of `1.21` come back as 1.2099999999999997. That is
+        below `min(values)`, so `per_vector_stats`, which reports `mean`
+        alongside `min` and `max`, would emit a block whose mean sits outside
+        its own range. The mean of a set of equal values is that value, so
+        answer from the definition instead (PR #515).
+    """
+    if not values:
+        raise ZeroDivisionError("mean of no values")
+    if min(values) == max(values):
+        return values[0]
+    return math.fsum(values) / len(values)
 
 
 def stdev(values: list[float]) -> float:
+    """Sample standard deviation (n-1), exactly 0 when every value is equal.
+
+    The MC-off control points of the mismatch benches assert `sigma == 0.0`
+    exactly: with the mismatch switch off every draw is bit-identical, so any
+    non-zero sigma means mismatch leaked into the models. Deriving that sigma
+    through the mean leaves float residue whenever the mean is not exact --
+    ~1 ulp per draw, squared and summed into a sigma of ~1e-16 rather than 0.
+    That is how PR #515 found this: 20 draws of `1.21` gave 4.55626e-16 and
+    failed the check on CI's Python 3.11, while passing on 3.12, whose
+    compensated builtin `sum` happened to hide it.
+
+    `mean` is exact on equal values, so the shortcut below is what that
+    invariant rests on rather than an accident of rounding: the spread of a
+    set of equal values is zero by definition, on every interpreter and every
+    sample count. A single ulp of *real* spread still reports non-zero.
+    """
     n = len(values)
     if n < 2:
         return 0.0
+    if min(values) == max(values):
+        return 0.0
     mu = mean(values)
-    return math.sqrt(sum((v - mu) ** 2 for v in values) / (n - 1))
+    return math.sqrt(math.fsum((v - mu) ** 2 for v in values) / (n - 1))
 
 
 def per_vector_stats(vectors: Sequence[str], samples: list[dict[str, float]]) -> dict:
