@@ -581,3 +581,65 @@ the amplifier's own offset term specifically, it does not supersede
 itself, and it says nothing about the temperature-coefficient row (#178/#179,
 still failing on the newest evidence) or the trimmed ±0.5 % row (no Monte
 Carlo evidence yet — see `sim/monte-carlo-untrimmed`'s own scope-limit note).
+
+---
+
+## 11. Update (issue #370): the §10 record is superseded under open_pdks `f6eeac7`; §2's allocation is **not** re-derived here
+
+Issue #369 moved this repo's open_pdks pin from `c6d73a3…` to `f6eeac7…`, and
+issue #370 re-ran this bench under the new pin:
+`sim/error-amp-offset-mc/records/20261113-140022-64c42cad` **supersedes**
+§10's `20260817-130441-aa5324e`. Same testbench, same five Monte Carlo points,
+the **same seeds** (`20260803` / `20260804`) and the same N (300 / 300 / 300 /
+30 control / 300 second-seed = 1 230 samples), run on the Spot batch fleet;
+none excluded, none lost. The record's own verdict is unchanged: **PASS**, 6 of
+6 cross-point checks, `budget_closure` holding at all three temperatures.
+
+**§§1–10 of this document are not re-derived against it, and that is a
+deliberate limit, not an oversight.** This bench is outside #370's named
+reference set (that set is the records cited by
+`design/block-characterization-report.md`, `signoff/` and
+`spec/topology-survey.md`), and re-deriving an allocation table is its own
+task, not a citation refresh. So **every σ in §2's table, and the allocation
+built on it, still comes from the superseded record.** They are stale, not
+wrong — but a reader comparing §2 against the newest record on disk will find
+differences, and here is what they are and where they come from:
+
+- The **MC-off control point** is **bit-identical** between the two records on
+  every one of its nine measurements, mean and σ alike. The deterministic
+  operating point this budget rests on did not move.
+- The **mismatch draws did**. σ(`vos`) at 27 °C reads 0.6399 mV against §2's
+  0.6254 mV (+2.3 %). The **largest** single move is σ(`dvbe1`) at −40 °C,
+  0.4310 → 0.3657 mV (**−15.1 %**); seven σ estimates move by more than 8 %,
+  the next six being `dvbe1` at 27 °C (−12.2 %), `dvbe1` on the second seed
+  (+10.9 %), `rrb` on the second seed (−9.5 %), `vos` on the second seed
+  (+8.9 %), `vgdrv` on the second seed (+8.7 %) and `vout` on the second seed
+  (+8.3 %). `dvbe1` is graded by `anchor_sigma` against a published 0.480 mV,
+  not against the superseded record: that ratio moves 1.05 → 0.92 at 27 °C,
+  well inside its 0.7–1.4 band. `budget_closure`'s ratio moves
+  1.04 / 1.07 / 1.10 → 1.03 / 1.05 / 1.08 against its 0.7–1.4 band.
+- **The cause is the backend's seeding scheme, not the model cards.** The batch
+  path does not use `setseed` at all: one `klt sim` request per point replaces
+  the `setseed` / `reset` / `dowhile` loop with `monte_carlo` `{n, seed}`, and
+  klt derives each sample's `.options seed=` from `monte_carlo.seed` itself
+  (see `sim/error-amp-offset-mc/run_amp_offset_mc.py`, `build_batch_groups`,
+  and the new record's `execution.note`). The draw stream therefore differs
+  **by construction of the backend, on any platform**. The superseded record
+  was minted on Darwin arm64 and this one on the fleet's Linux x86_64 (both
+  ngspice-47), but **whether `setseed` draws are portable across platform is
+  not measured here**, and that claim is not needed to explain the difference.
+  At N = 300 the standard error on a single σ estimate is ≈ ±4.1 % (≈ ±5.8 %
+  on a ratio of two independent estimates), so the +2.3 % move on σ(`vos`)
+  sits inside sampling noise — but the −15.1 % move on σ(`dvbe1`) does **not**
+  (≈ 3.7 standard errors, 2.6 on the ratio), so no blanket "inside two standard
+  errors" claim holds across the set. This is why the bench grades seed
+  stability with a ±25 % `seed_sigma_stable` tolerance rather than an equality
+  check, and grades `dvbe1` against a published anchor. Both records pass
+  `seed_sigma_stable` on both seeds, and every `anchor_sigma` check passes.
+- Because the pin, the platform **and** the seeding scheme changed together,
+  **this run cannot attribute the residual among them**, and nothing in this
+  document or in the new record depends on separating them.
+
+Full comparison and the fleet-execution detail:
+[DR-021](../spec/decision-records/DR-021-requalify-reference-evidence-under-open-pdks-f6eeac7.md),
+slice F.

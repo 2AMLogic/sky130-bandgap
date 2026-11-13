@@ -1,0 +1,1963 @@
+{
+  "record_id": "20261113-140022-64c42cad",
+  "timestamp": "2026-11-13T14:00:22Z",
+  "author": "313063438+loom-fleet-dispatch[bot]@users.noreply.github.com",
+  "supersedes": "20260817-130441-aa5324e",
+  "experiment": {
+    "slug": "error-amp-offset-mc",
+    "title": "Error-amplifier offset budget by Monte Carlo: every term measured, and their sum checked",
+    "claim": "Issue #9 -- the DISTRIBUTION half of the error amplifier's offset/mismatch budget, graded against README.md 'Target specification (ratified -- see DR-005, issue #1)'. Measures, on one seed stream at the nominal process point: the amplifier's random input-referred offset in its own loop, the 8x PNP array pair's sigma(dVBE) and absolute VEB, the res_high_po R2/R1 ratio spread, and the resulting total spread of the untrimmed reference -- then checks that the first four reproduce the fifth. This is what design/error-amp-offset-budget.md's allocation is built on. It is NOT the +/-2% untrimmed output-accuracy spec claim (DR-005's ratified figure, formerly a +/-1% draft): this is mismatch only, at one process point, with no global process shift or temperature curvature. That claim is issue #11's experiment / sim/monte-carlo-untrimmed's yield claim. The deterministic half (stability, offset gain, PSRR, Iq) is sim/error-amp-loop/.",
+    "provenance": "schematic",
+    "provenance_source": "sim/error-amp-offset-mc/testbench/tb_amp_offset_mc.sch",
+    "statistical_convention": "N = 300 Monte Carlo samples per point, local mismatch only (section tt_mm: MC_MM_SWITCH=1, MC_PR_SWITCH=0); 1 sigma sample standard deviation (N-1), fixed setseed 20260803"
+  },
+  "budget_inputs": {
+    "offset_gain": 9.655367,
+    "offset_gain_record": "20260815-022219-001d1b7",
+    "offset_gain_source": "sim/error-amp-loop (measured, tt/27C/3.30V)",
+    "k_ptat": 7.77297089587991,
+    "r1_ohm": 14026.88,
+    "r2_ohm": 109030.52999999998,
+    "res_mm_pct_per_sqrt_area": 2.06,
+    "predicted_res_ratio_sigma_rel": 0.003700847893696137,
+    "anchor_dvbe1_mean_v": 0.063,
+    "anchor_dvbe1_sigma_v": 0.00048
+  },
+  "mismatch_model": {
+    "switch": "MC_MM_SWITCH (set by the .lib section: 0 in tt/ss/ff/sf/fs, 1 in *_mm)",
+    "sections": {
+      "mismatch": "tt_mm",
+      "control": "tt"
+    },
+    "source": "libs.tech/combined/continuous/models_*.spice + models_global.spice"
+  },
+  "statistics": {
+    "n_samples": 300,
+    "seed_a": 20260803,
+    "seed_b": 20260804
+  },
+  "pdk": {
+    "root": "/home/ubuntu/.ciel",
+    "variant": "sky130A",
+    "installed_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "pinned_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "matches_pin": true,
+    "lib_file": "/home/ubuntu/.ciel/sky130A/libs.tech/combined/sky130.lib.spice"
+  },
+  "tools": {
+    "ngspice": "ngspice-47 (remote, batch fleet; not this host's ngspice)",
+    "xschem": "XSCHEM V3.4.7",
+    "platform": "Linux 7.0.0-1014-aws x86_64",
+    "python": "3.12.3"
+  },
+  "git": {
+    "sha": "64c42cad",
+    "branch": "feature/issue-370",
+    "dirty": true
+  },
+  "execution": {
+    "backend": "batch",
+    "mechanism": "klt sim --backend batch (2am EDA batch fleet, Spot)",
+    "local_pinned_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+    "jobs": [
+      {
+        "supply_v": 3.3,
+        "job_id": null,
+        "submitted_at": "2026-11-13T14:00:23Z",
+        "collected_at": "2026-11-13T14:07:49Z",
+        "submit_to_collect_wall_s": 446.0,
+        "job_elapsed_s": null,
+        "queue_provision_and_transfer_s": null,
+        "corner_runtime_sum_s": 853.0,
+        "corner_runtime_max_s": 3.7,
+        "corner_runtime_min_s": 2.6,
+        "corner_count": 300,
+        "klt_status": "pass",
+        "klt_exit_code": 0,
+        "engine": "ngspice",
+        "engine_version": "47",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "893162a0ddf275276fb6bf849cc1391a5ef6278479826ab4e1b67d4f3b6de1dc",
+        "pdk_provenance": {
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ]
+        },
+        "klt_client_version": "0.9.2.dev930+g37dbc2458b5a",
+        "remote": {
+          "fleet": [
+            {
+              "provider": "aws-batch-fleet",
+              "job_id": "klt-sim-1542335c7dc3",
+              "region": "us-east-1",
+              "instance_id": "i-0a227b2dfead07895",
+              "instance_type": "m7i.4xlarge",
+              "availability_zone": "us-east-1b",
+              "ami_id": "ami-0f6bb304291339ed0",
+              "lifecycle": "spot",
+              "spot": true,
+              "state": "done",
+              "exit_code": "0",
+              "concurrency": "1",
+              "physical_cores": "8",
+              "elapsed_seconds": 46,
+              "client_submitted_at": "2026-11-13T14:00:25.945104Z",
+              "client_launched_at": "2026-11-13T14:06:22.862227Z",
+              "client_status_terminal_at": "2026-11-13T14:07:30.300000Z",
+              "client_collected_at": "2026-11-13T14:07:38.645547Z",
+              "runner_klt_version": "0.9.0",
+              "client_klt_version": "0.9.2.dev930+g37dbc2458b5a",
+              "runner_compatibility": "match",
+              "runner_request_features": {
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "missing": [],
+                "status": "supported"
+              },
+              "worker_environment": {
+                "capture": "ok",
+                "simulator": {
+                  "requested_binary": "ngspice",
+                  "binary_source": "PATH",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                },
+                "pdk": {
+                  "variant": "sky130A",
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "models_staged": false,
+                  "stamp_scope": "executed"
+                },
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+                "omp_num_threads": null,
+                "image_manifest": null,
+                "model_inputs": null,
+                "diagnostics": [],
+                "pdk_stamp_comparison": {
+                  "status": "not_comparable",
+                  "reason": "client_stamp_unavailable"
+                },
+                "engine_build_comparison": {
+                  "status": "match"
+                }
+              },
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "resumed": false,
+              "models_lib_comparison": {
+                "status": "match"
+              }
+            },
+            {
+              "provider": "aws-batch-fleet",
+              "job_id": "klt-sim-fd6e0b71c22f",
+              "region": "us-east-1",
+              "instance_id": "i-00100086e925e11e3",
+              "instance_type": "c7i.4xlarge",
+              "availability_zone": "us-east-1c",
+              "ami_id": "ami-0f6bb304291339ed0",
+              "lifecycle": "spot",
+              "spot": true,
+              "state": "done",
+              "exit_code": "0",
+              "concurrency": "1",
+              "physical_cores": "8",
+              "elapsed_seconds": 46,
+              "client_submitted_at": "2026-11-13T14:00:25.945867Z",
+              "client_launched_at": "2026-11-13T14:04:56.448187Z",
+              "client_status_terminal_at": "2026-11-13T14:05:38.707812Z",
+              "client_collected_at": "2026-11-13T14:05:40.619981Z",
+              "runner_klt_version": "0.9.0",
+              "client_klt_version": "0.9.2.dev930+g37dbc2458b5a",
+              "runner_compatibility": "match",
+              "runner_request_features": {
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "missing": [],
+                "status": "supported"
+              },
+              "worker_environment": {
+                "capture": "ok",
+                "simulator": {
+                  "requested_binary": "ngspice",
+                  "binary_source": "PATH",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                },
+                "pdk": {
+                  "variant": "sky130A",
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "models_staged": false,
+                  "stamp_scope": "executed"
+                },
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+                "omp_num_threads": null,
+                "image_manifest": null,
+                "model_inputs": null,
+                "diagnostics": [],
+                "pdk_stamp_comparison": {
+                  "status": "not_comparable",
+                  "reason": "client_stamp_unavailable"
+                },
+                "engine_build_comparison": {
+                  "status": "match"
+                }
+              },
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "resumed": false,
+              "models_lib_comparison": {
+                "status": "match"
+              }
+            },
+            {
+              "provider": "aws-batch-fleet",
+              "job_id": "klt-sim-3ce5d1f014d9",
+              "region": "us-east-1",
+              "instance_id": "i-052c5b7e6dbe241f3",
+              "instance_type": "m7i.4xlarge",
+              "availability_zone": "us-east-1a",
+              "ami_id": "ami-0f6bb304291339ed0",
+              "lifecycle": "spot",
+              "spot": true,
+              "state": "done",
+              "exit_code": "0",
+              "concurrency": "1",
+              "physical_cores": "8",
+              "elapsed_seconds": 47,
+              "client_submitted_at": "2026-11-13T14:00:25.947253Z",
+              "client_launched_at": "2026-11-13T14:06:30.267592Z",
+              "client_status_terminal_at": "2026-11-13T14:07:38.184853Z",
+              "client_collected_at": "2026-11-13T14:07:48.516627Z",
+              "runner_klt_version": "0.9.0",
+              "client_klt_version": "0.9.2.dev930+g37dbc2458b5a",
+              "runner_compatibility": "match",
+              "runner_request_features": {
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "missing": [],
+                "status": "supported"
+              },
+              "worker_environment": {
+                "capture": "ok",
+                "simulator": {
+                  "requested_binary": "ngspice",
+                  "binary_source": "PATH",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                },
+                "pdk": {
+                  "variant": "sky130A",
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "models_staged": false,
+                  "stamp_scope": "executed"
+                },
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+                "omp_num_threads": null,
+                "image_manifest": null,
+                "model_inputs": null,
+                "diagnostics": [],
+                "pdk_stamp_comparison": {
+                  "status": "not_comparable",
+                  "reason": "client_stamp_unavailable"
+                },
+                "engine_build_comparison": {
+                  "status": "match"
+                }
+              },
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "resumed": false,
+              "models_lib_comparison": {
+                "status": "match"
+              }
+            }
+          ]
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-370/sim/build/amp-offset-mc/batch/tt_mm_-40c_3.30v/klt-report.json",
+        "label": "tt_mm_-40c_3.30v",
+        "samples_dropped": 0
+      },
+      {
+        "supply_v": 3.3,
+        "job_id": null,
+        "submitted_at": "2026-11-13T14:00:23Z",
+        "collected_at": "2026-11-13T14:16:24Z",
+        "submit_to_collect_wall_s": 961.3,
+        "job_elapsed_s": null,
+        "queue_provision_and_transfer_s": null,
+        "corner_runtime_sum_s": 888.6,
+        "corner_runtime_max_s": 3.5,
+        "corner_runtime_min_s": 2.7,
+        "corner_count": 300,
+        "klt_status": "pass",
+        "klt_exit_code": 0,
+        "engine": "ngspice",
+        "engine_version": "47",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "893162a0ddf275276fb6bf849cc1391a5ef6278479826ab4e1b67d4f3b6de1dc",
+        "pdk_provenance": {
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ]
+        },
+        "klt_client_version": "0.9.2.dev930+g37dbc2458b5a",
+        "remote": {
+          "fleet": [
+            {
+              "provider": "aws-batch-fleet",
+              "job_id": "klt-sim-9ae1753d42c4",
+              "region": "us-east-1",
+              "instance_id": "i-07d7ce1287b9a8529",
+              "instance_type": "m6i.4xlarge",
+              "availability_zone": "us-east-1c",
+              "ami_id": "ami-0f6bb304291339ed0",
+              "lifecycle": "spot",
+              "spot": true,
+              "state": "done",
+              "exit_code": "0",
+              "concurrency": "1",
+              "physical_cores": "8",
+              "elapsed_seconds": 51,
+              "client_submitted_at": "2026-11-13T14:00:26.148095Z",
+              "client_launched_at": "2026-11-13T14:14:45.606005Z",
+              "client_status_terminal_at": "2026-11-13T14:16:19.810548Z",
+              "client_collected_at": "2026-11-13T14:16:23.953210Z",
+              "runner_klt_version": "0.9.0",
+              "client_klt_version": "0.9.2.dev930+g37dbc2458b5a",
+              "runner_compatibility": "match",
+              "runner_request_features": {
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "missing": [],
+                "status": "supported"
+              },
+              "worker_environment": {
+                "capture": "ok",
+                "simulator": {
+                  "requested_binary": "ngspice",
+                  "binary_source": "PATH",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                },
+                "pdk": {
+                  "variant": "sky130A",
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "models_staged": false,
+                  "stamp_scope": "executed"
+                },
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8375C CPU @ 2.90GHz",
+                "omp_num_threads": null,
+                "image_manifest": null,
+                "model_inputs": null,
+                "diagnostics": [],
+                "pdk_stamp_comparison": {
+                  "status": "not_comparable",
+                  "reason": "client_stamp_unavailable"
+                },
+                "engine_build_comparison": {
+                  "status": "match"
+                }
+              },
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "resumed": false,
+              "models_lib_comparison": {
+                "status": "match"
+              }
+            },
+            {
+              "provider": "aws-batch-fleet",
+              "job_id": "klt-sim-f00ec61cda85",
+              "region": "us-east-1",
+              "instance_id": "i-033e6f43ccdf4f655",
+              "instance_type": "m7i.4xlarge",
+              "availability_zone": "us-east-1b",
+              "ami_id": "ami-0f6bb304291339ed0",
+              "lifecycle": "spot",
+              "spot": true,
+              "state": "done",
+              "exit_code": "0",
+              "concurrency": "1",
+              "physical_cores": "8",
+              "elapsed_seconds": 47,
+              "client_submitted_at": "2026-11-13T14:00:26.153812Z",
+              "client_launched_at": "2026-11-13T14:06:24.757751Z",
+              "client_status_terminal_at": "2026-11-13T14:07:36.066477Z",
+              "client_collected_at": "2026-11-13T14:07:46.745559Z",
+              "runner_klt_version": "0.9.0",
+              "client_klt_version": "0.9.2.dev930+g37dbc2458b5a",
+              "runner_compatibility": "match",
+              "runner_request_features": {
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "missing": [],
+                "status": "supported"
+              },
+              "worker_environment": {
+                "capture": "ok",
+                "simulator": {
+                  "requested_binary": "ngspice",
+                  "binary_source": "PATH",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                },
+                "pdk": {
+                  "variant": "sky130A",
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "models_staged": false,
+                  "stamp_scope": "executed"
+                },
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+                "omp_num_threads": null,
+                "image_manifest": null,
+                "model_inputs": null,
+                "diagnostics": [],
+                "pdk_stamp_comparison": {
+                  "status": "not_comparable",
+                  "reason": "client_stamp_unavailable"
+                },
+                "engine_build_comparison": {
+                  "status": "match"
+                }
+              },
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "resumed": false,
+              "models_lib_comparison": {
+                "status": "match"
+              }
+            },
+            {
+              "provider": "aws-batch-fleet",
+              "job_id": "klt-sim-bcaf74b59c96",
+              "region": "us-east-1",
+              "instance_id": "i-09a3de054d866aa45",
+              "instance_type": "m7i.4xlarge",
+              "availability_zone": "us-east-1b",
+              "ami_id": "ami-0f6bb304291339ed0",
+              "lifecycle": "spot",
+              "spot": true,
+              "state": "done",
+              "exit_code": "0",
+              "concurrency": "1",
+              "physical_cores": "8",
+              "elapsed_seconds": 47,
+              "client_submitted_at": "2026-11-13T14:00:26.156554Z",
+              "client_launched_at": "2026-11-13T14:06:24.148636Z",
+              "client_status_terminal_at": "2026-11-13T14:07:34.875066Z",
+              "client_collected_at": "2026-11-13T14:07:46.065881Z",
+              "runner_klt_version": "0.9.0",
+              "client_klt_version": "0.9.2.dev930+g37dbc2458b5a",
+              "runner_compatibility": "match",
+              "runner_request_features": {
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "missing": [],
+                "status": "supported"
+              },
+              "worker_environment": {
+                "capture": "ok",
+                "simulator": {
+                  "requested_binary": "ngspice",
+                  "binary_source": "PATH",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                },
+                "pdk": {
+                  "variant": "sky130A",
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "models_staged": false,
+                  "stamp_scope": "executed"
+                },
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+                "omp_num_threads": null,
+                "image_manifest": null,
+                "model_inputs": null,
+                "diagnostics": [],
+                "pdk_stamp_comparison": {
+                  "status": "not_comparable",
+                  "reason": "client_stamp_unavailable"
+                },
+                "engine_build_comparison": {
+                  "status": "match"
+                }
+              },
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "resumed": false,
+              "models_lib_comparison": {
+                "status": "match"
+              }
+            }
+          ]
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-370/sim/build/amp-offset-mc/batch/tt_mm_27c_3.30v/klt-report.json",
+        "label": "tt_mm_27c_3.30v",
+        "samples_dropped": 0
+      },
+      {
+        "supply_v": 3.3,
+        "job_id": null,
+        "submitted_at": "2026-11-13T14:00:23Z",
+        "collected_at": "2026-11-13T14:18:15Z",
+        "submit_to_collect_wall_s": 1072.7,
+        "job_elapsed_s": null,
+        "queue_provision_and_transfer_s": null,
+        "corner_runtime_sum_s": 885.0,
+        "corner_runtime_max_s": 3.9,
+        "corner_runtime_min_s": 2.6,
+        "corner_count": 300,
+        "klt_status": "pass",
+        "klt_exit_code": 0,
+        "engine": "ngspice",
+        "engine_version": "47",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "893162a0ddf275276fb6bf849cc1391a5ef6278479826ab4e1b67d4f3b6de1dc",
+        "pdk_provenance": {
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ]
+        },
+        "klt_client_version": "0.9.2.dev930+g37dbc2458b5a",
+        "remote": {
+          "fleet": [
+            {
+              "provider": "aws-batch-fleet",
+              "job_id": "klt-sim-1211e41e341f",
+              "region": "us-east-1",
+              "instance_id": "i-012098fea1ec16d12",
+              "instance_type": "m7i.4xlarge",
+              "availability_zone": "us-east-1d",
+              "ami_id": "ami-0f6bb304291339ed0",
+              "lifecycle": "spot",
+              "spot": true,
+              "state": "done",
+              "exit_code": "0",
+              "concurrency": "1",
+              "physical_cores": "8",
+              "elapsed_seconds": 46,
+              "client_submitted_at": "2026-11-13T14:00:25.947353Z",
+              "client_launched_at": "2026-11-13T14:06:43.250770Z",
+              "client_status_terminal_at": "2026-11-13T14:07:48.502049Z",
+              "client_collected_at": "2026-11-13T14:07:51.729625Z",
+              "runner_klt_version": "0.9.0",
+              "client_klt_version": "0.9.2.dev930+g37dbc2458b5a",
+              "runner_compatibility": "match",
+              "runner_request_features": {
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "missing": [],
+                "status": "supported"
+              },
+              "worker_environment": {
+                "capture": "ok",
+                "simulator": {
+                  "requested_binary": "ngspice",
+                  "binary_source": "PATH",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                },
+                "pdk": {
+                  "variant": "sky130A",
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "models_staged": false,
+                  "stamp_scope": "executed"
+                },
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+                "omp_num_threads": null,
+                "image_manifest": null,
+                "model_inputs": null,
+                "diagnostics": [],
+                "pdk_stamp_comparison": {
+                  "status": "not_comparable",
+                  "reason": "client_stamp_unavailable"
+                },
+                "engine_build_comparison": {
+                  "status": "match"
+                }
+              },
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "resumed": false,
+              "models_lib_comparison": {
+                "status": "match"
+              }
+            },
+            {
+              "provider": "aws-batch-fleet",
+              "job_id": "klt-sim-0b039a1589e0",
+              "region": "us-east-1",
+              "instance_id": "i-09837860036dcaa69",
+              "instance_type": "m7i.4xlarge",
+              "availability_zone": "us-east-1d",
+              "ami_id": "ami-0f6bb304291339ed0",
+              "lifecycle": "spot",
+              "spot": true,
+              "state": "done",
+              "exit_code": "0",
+              "concurrency": "1",
+              "physical_cores": "8",
+              "elapsed_seconds": 46,
+              "client_submitted_at": "2026-11-13T14:00:25.948017Z",
+              "client_launched_at": "2026-11-13T14:17:11.535383Z",
+              "client_status_terminal_at": "2026-11-13T14:18:13.720821Z",
+              "client_collected_at": "2026-11-13T14:18:15.755080Z",
+              "runner_klt_version": "0.9.0",
+              "client_klt_version": "0.9.2.dev930+g37dbc2458b5a",
+              "runner_compatibility": "match",
+              "runner_request_features": {
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "missing": [],
+                "status": "supported"
+              },
+              "worker_environment": {
+                "capture": "ok",
+                "simulator": {
+                  "requested_binary": "ngspice",
+                  "binary_source": "PATH",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                },
+                "pdk": {
+                  "variant": "sky130A",
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "models_staged": false,
+                  "stamp_scope": "executed"
+                },
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+                "omp_num_threads": null,
+                "image_manifest": null,
+                "model_inputs": null,
+                "diagnostics": [],
+                "pdk_stamp_comparison": {
+                  "status": "not_comparable",
+                  "reason": "client_stamp_unavailable"
+                },
+                "engine_build_comparison": {
+                  "status": "match"
+                }
+              },
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "resumed": false,
+              "models_lib_comparison": {
+                "status": "match"
+              }
+            },
+            {
+              "provider": "aws-batch-fleet",
+              "job_id": "klt-sim-815f5ad491b8",
+              "region": "us-east-1",
+              "instance_id": "i-0bf6c96335c6889c8",
+              "instance_type": "m6i.4xlarge",
+              "availability_zone": "us-east-1c",
+              "ami_id": "ami-0f6bb304291339ed0",
+              "lifecycle": "spot",
+              "spot": true,
+              "state": "done",
+              "exit_code": "0",
+              "concurrency": "1",
+              "physical_cores": "8",
+              "elapsed_seconds": 51,
+              "client_submitted_at": "2026-11-13T14:00:25.948894Z",
+              "client_launched_at": "2026-11-13T14:05:27.846787Z",
+              "client_status_terminal_at": "2026-11-13T14:06:35.597063Z",
+              "client_collected_at": "2026-11-13T14:06:40.064588Z",
+              "runner_klt_version": "0.9.0",
+              "client_klt_version": "0.9.2.dev930+g37dbc2458b5a",
+              "runner_compatibility": "match",
+              "runner_request_features": {
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "missing": [],
+                "status": "supported"
+              },
+              "worker_environment": {
+                "capture": "ok",
+                "simulator": {
+                  "requested_binary": "ngspice",
+                  "binary_source": "PATH",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                },
+                "pdk": {
+                  "variant": "sky130A",
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "models_staged": false,
+                  "stamp_scope": "executed"
+                },
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8375C CPU @ 2.90GHz",
+                "omp_num_threads": null,
+                "image_manifest": null,
+                "model_inputs": null,
+                "diagnostics": [],
+                "pdk_stamp_comparison": {
+                  "status": "not_comparable",
+                  "reason": "client_stamp_unavailable"
+                },
+                "engine_build_comparison": {
+                  "status": "match"
+                }
+              },
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "resumed": false,
+              "models_lib_comparison": {
+                "status": "match"
+              }
+            }
+          ]
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-370/sim/build/amp-offset-mc/batch/tt_mm_125c_3.30v/klt-report.json",
+        "label": "tt_mm_125c_3.30v",
+        "samples_dropped": 0
+      },
+      {
+        "supply_v": 3.3,
+        "job_id": "klt-sim-b8ccdd060936",
+        "submitted_at": "2026-11-13T14:00:23Z",
+        "collected_at": "2026-11-13T14:14:22Z",
+        "submit_to_collect_wall_s": 838.9,
+        "job_elapsed_s": 16,
+        "queue_provision_and_transfer_s": 822.9,
+        "corner_runtime_sum_s": 100.6,
+        "corner_runtime_max_s": 3.6,
+        "corner_runtime_min_s": 3.1,
+        "corner_count": 30,
+        "klt_status": "pass",
+        "klt_exit_code": 0,
+        "engine": "ngspice",
+        "engine_version": "47",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "893162a0ddf275276fb6bf849cc1391a5ef6278479826ab4e1b67d4f3b6de1dc",
+        "pdk_provenance": {
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ]
+        },
+        "klt_client_version": "0.9.2.dev930+g37dbc2458b5a",
+        "remote": {
+          "provider": "aws-batch-fleet",
+          "job_id": "klt-sim-b8ccdd060936",
+          "region": "us-east-1",
+          "instance_id": "i-0a47bfbb467aaba31",
+          "instance_type": "c7i.8xlarge",
+          "availability_zone": "us-east-1a",
+          "ami_id": "ami-0f6bb304291339ed0",
+          "lifecycle": "spot",
+          "spot": true,
+          "state": "done",
+          "exit_code": "0",
+          "concurrency": "2",
+          "physical_cores": "16",
+          "elapsed_seconds": 16,
+          "client_submitted_at": "2026-11-13T14:00:26.146843Z",
+          "client_launched_at": "2026-11-13T14:13:47.522562Z",
+          "client_status_terminal_at": "2026-11-13T14:14:19.085361Z",
+          "client_collected_at": "2026-11-13T14:14:21.801193Z",
+          "runner_klt_version": "0.9.0",
+          "client_klt_version": "0.9.2.dev930+g37dbc2458b5a",
+          "runner_compatibility": "match",
+          "runner_request_features": {
+            "required": [
+              "measurements[].expr",
+              "options.ngspice_init"
+            ],
+            "missing": [],
+            "status": "supported"
+          },
+          "worker_environment": {
+            "capture": "ok",
+            "simulator": {
+              "requested_binary": "ngspice",
+              "binary_source": "PATH",
+              "selected_path": "/usr/local/bin/ngspice",
+              "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+              "version_probe": "ok"
+            },
+            "pdk": {
+              "variant": "sky130A",
+              "root": "/opt/pdk",
+              "stamp_scheme": "sources-sha256",
+              "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+              "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+              "models_staged": false,
+              "stamp_scope": "executed"
+            },
+            "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+            "omp_num_threads": null,
+            "image_manifest": null,
+            "model_inputs": null,
+            "diagnostics": [],
+            "pdk_stamp_comparison": {
+              "status": "not_comparable",
+              "reason": "client_stamp_unavailable"
+            },
+            "engine_build_comparison": {
+              "status": "match"
+            }
+          },
+          "runner_model_inputs": null,
+          "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+          "job_ceiling": {
+            "basis": "conservative_serial_bound",
+            "unit_count": 30,
+            "per_unit_timeout_s": 30,
+            "overhead_s": 120.0,
+            "job_bound_s": 1020.0,
+            "max_job_seconds": 3600.0,
+            "max_job_seconds_source": "fleet_config",
+            "exceeds_ceiling": false,
+            "check": "warn",
+            "max_units_per_job": 116,
+            "recommended_hosts": 1
+          },
+          "models_lib_comparison": {
+            "status": "match"
+          }
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-370/sim/build/amp-offset-mc/batch/tt_27c_3.30v_mm-off/klt-report.json",
+        "label": "tt_27c_3.30v_mm-off",
+        "samples_dropped": 0
+      },
+      {
+        "supply_v": 3.3,
+        "job_id": null,
+        "submitted_at": "2026-11-13T14:00:23Z",
+        "collected_at": "2026-11-13T14:16:26Z",
+        "submit_to_collect_wall_s": 962.9,
+        "job_elapsed_s": null,
+        "queue_provision_and_transfer_s": null,
+        "corner_runtime_sum_s": 848.8,
+        "corner_runtime_max_s": 3.7,
+        "corner_runtime_min_s": 2.6,
+        "corner_count": 300,
+        "klt_status": "pass",
+        "klt_exit_code": 0,
+        "engine": "ngspice",
+        "engine_version": "47",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "893162a0ddf275276fb6bf849cc1391a5ef6278479826ab4e1b67d4f3b6de1dc",
+        "pdk_provenance": {
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ]
+        },
+        "klt_client_version": "0.9.2.dev930+g37dbc2458b5a",
+        "remote": {
+          "fleet": [
+            {
+              "provider": "aws-batch-fleet",
+              "job_id": "klt-sim-0193ef435512",
+              "region": "us-east-1",
+              "instance_id": "i-00f6998ed26c4faeb",
+              "instance_type": "m7i.4xlarge",
+              "availability_zone": "us-east-1b",
+              "ami_id": "ami-0f6bb304291339ed0",
+              "lifecycle": "spot",
+              "spot": true,
+              "state": "done",
+              "exit_code": "0",
+              "concurrency": "1",
+              "physical_cores": "8",
+              "elapsed_seconds": 47,
+              "client_submitted_at": "2026-11-13T14:00:26.653440Z",
+              "client_launched_at": "2026-11-13T14:06:12.652583Z",
+              "client_status_terminal_at": "2026-11-13T14:07:21.318296Z",
+              "client_collected_at": "2026-11-13T14:07:23.563957Z",
+              "runner_klt_version": "0.9.0",
+              "client_klt_version": "0.9.2.dev930+g37dbc2458b5a",
+              "runner_compatibility": "match",
+              "runner_request_features": {
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "missing": [],
+                "status": "supported"
+              },
+              "worker_environment": {
+                "capture": "ok",
+                "simulator": {
+                  "requested_binary": "ngspice",
+                  "binary_source": "PATH",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                },
+                "pdk": {
+                  "variant": "sky130A",
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "models_staged": false,
+                  "stamp_scope": "executed"
+                },
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+                "omp_num_threads": null,
+                "image_manifest": null,
+                "model_inputs": null,
+                "diagnostics": [],
+                "pdk_stamp_comparison": {
+                  "status": "not_comparable",
+                  "reason": "client_stamp_unavailable"
+                },
+                "engine_build_comparison": {
+                  "status": "match"
+                }
+              },
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "resumed": false,
+              "models_lib_comparison": {
+                "status": "match"
+              }
+            },
+            {
+              "provider": "aws-batch-fleet",
+              "job_id": "klt-sim-b1571d8038ba",
+              "region": "us-east-1",
+              "instance_id": "i-0c52a8268c714f260",
+              "instance_type": "m7i.4xlarge",
+              "availability_zone": "us-east-1f",
+              "ami_id": "ami-0f6bb304291339ed0",
+              "lifecycle": "spot",
+              "spot": true,
+              "state": "done",
+              "exit_code": "0",
+              "concurrency": "1",
+              "physical_cores": "8",
+              "elapsed_seconds": 45,
+              "client_submitted_at": "2026-11-13T14:00:26.847061Z",
+              "client_launched_at": "2026-11-13T14:15:18.666810Z",
+              "client_status_terminal_at": "2026-11-13T14:16:22.294595Z",
+              "client_collected_at": "2026-11-13T14:16:25.869755Z",
+              "runner_klt_version": "0.9.0",
+              "client_klt_version": "0.9.2.dev930+g37dbc2458b5a",
+              "runner_compatibility": "match",
+              "runner_request_features": {
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "missing": [],
+                "status": "supported"
+              },
+              "worker_environment": {
+                "capture": "ok",
+                "simulator": {
+                  "requested_binary": "ngspice",
+                  "binary_source": "PATH",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                },
+                "pdk": {
+                  "variant": "sky130A",
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "models_staged": false,
+                  "stamp_scope": "executed"
+                },
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+                "omp_num_threads": null,
+                "image_manifest": null,
+                "model_inputs": null,
+                "diagnostics": [],
+                "pdk_stamp_comparison": {
+                  "status": "not_comparable",
+                  "reason": "client_stamp_unavailable"
+                },
+                "engine_build_comparison": {
+                  "status": "match"
+                }
+              },
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "resumed": false,
+              "models_lib_comparison": {
+                "status": "match"
+              }
+            },
+            {
+              "provider": "aws-batch-fleet",
+              "job_id": "klt-sim-2c8dc92f82de",
+              "region": "us-east-1",
+              "instance_id": "i-0b9254c6371d9f3bb",
+              "instance_type": "c7i.4xlarge",
+              "availability_zone": "us-east-1b",
+              "ami_id": "ami-0f6bb304291339ed0",
+              "lifecycle": "spot",
+              "spot": true,
+              "state": "done",
+              "exit_code": "0",
+              "concurrency": "1",
+              "physical_cores": "8",
+              "elapsed_seconds": 45,
+              "client_submitted_at": "2026-11-13T14:00:26.753717Z",
+              "client_launched_at": "2026-11-13T14:06:26.258692Z",
+              "client_status_terminal_at": "2026-11-13T14:07:36.959888Z",
+              "client_collected_at": "2026-11-13T14:07:48.154351Z",
+              "runner_klt_version": "0.9.0",
+              "client_klt_version": "0.9.2.dev930+g37dbc2458b5a",
+              "runner_compatibility": "match",
+              "runner_request_features": {
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "missing": [],
+                "status": "supported"
+              },
+              "worker_environment": {
+                "capture": "ok",
+                "simulator": {
+                  "requested_binary": "ngspice",
+                  "binary_source": "PATH",
+                  "selected_path": "/usr/local/bin/ngspice",
+                  "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Nov 12 22:47:40 UTC 2026\n******\n",
+                  "version_probe": "ok"
+                },
+                "pdk": {
+                  "variant": "sky130A",
+                  "root": "/opt/pdk",
+                  "stamp_scheme": "sources-sha256",
+                  "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+                  "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+                  "models_staged": false,
+                  "stamp_scope": "executed"
+                },
+                "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+                "omp_num_threads": null,
+                "image_manifest": null,
+                "model_inputs": null,
+                "diagnostics": [],
+                "pdk_stamp_comparison": {
+                  "status": "not_comparable",
+                  "reason": "client_stamp_unavailable"
+                },
+                "engine_build_comparison": {
+                  "status": "match"
+                }
+              },
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "resumed": false,
+              "models_lib_comparison": {
+                "status": "match"
+              }
+            }
+          ]
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-370/sim/build/amp-offset-mc/batch/tt_mm_27c_3.30v_seed-b/klt-report.json",
+        "label": "tt_mm_27c_3.30v_seed-b",
+        "samples_dropped": 0
+      }
+    ],
+    "note": "per-sample seeds come from klt's monte_carlo seed contract, not `setseed`: the statistics, not the individual draws, match a local run of the same seed"
+  },
+  "points": [
+    {
+      "corner_id": "tt_mm_-40c_3.30v",
+      "role": "mismatch",
+      "purpose": "local-mismatch distribution at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": -40.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vos": {
+          "n": 300,
+          "mean": -0.00017177745493333335,
+          "sigma": 0.0006714180010182586,
+          "max_abs": 0.00207145,
+          "min": -0.00207145,
+          "max": 0.001462883
+        },
+        "vout": {
+          "n": 300,
+          "mean": 1.2171515266666668,
+          "sigma": 0.006916864339442862,
+          "max_abs": 1.23306,
+          "min": 1.198918,
+          "max": 1.23306
+        },
+        "dvbe8": {
+          "n": 300,
+          "mean": 0.0490461213,
+          "sigma": 0.00013124409210711182,
+          "max_abs": 0.04938429,
+          "min": 0.04862848,
+          "max": 0.04938429
+        },
+        "veb8": {
+          "n": 300,
+          "mean": 0.8448060136666667,
+          "sigma": 0.00012839933935856167,
+          "max_abs": 0.8451547,
+          "min": 0.8444031,
+          "max": 0.8451547
+        },
+        "dvbe1": {
+          "n": 300,
+          "mean": 0.04944182603333333,
+          "sigma": 0.000365726171463812,
+          "max_abs": 0.05066632,
+          "min": 0.04844783,
+          "max": 0.05066632
+        },
+        "rra": {
+          "n": 300,
+          "mean": 0.0855822155,
+          "sigma": 0.00010752398795634786,
+          "max_abs": 0.08585407,
+          "min": 0.08525214,
+          "max": 0.08585407
+        },
+        "rrb": {
+          "n": 300,
+          "mean": 0.011423575200000001,
+          "sigma": 4.157085129291181e-05,
+          "max_abs": 0.01153893,
+          "min": 0.01132611,
+          "max": 0.01153893
+        },
+        "vgdrv": {
+          "n": 300,
+          "mean": 1.99105323,
+          "sigma": 0.0028131727949679535,
+          "max_abs": 1.998364,
+          "min": 1.983052,
+          "max": 1.998364
+        },
+        "rratio": {
+          "n": 300,
+          "mean": 7.49181865597787,
+          "sigma": 0.029041964073993128,
+          "max_abs": 7.57372347693758,
+          "min": 7.4119388497937395,
+          "max": 7.57372347693758
+        }
+      },
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and it is also sensitive to the testbench .nodeset; the threshold here only asserts that enough draws remain for the distribution to mean anything (>= 50%)."
+        },
+        {
+          "name": "sigma_nonzero[vos]",
+          "pass": true,
+          "detail": "sigma = 0.000671418 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 0.00691686 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[dvbe8]",
+          "pass": true,
+          "detail": "sigma = 0.000131244 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[veb8]",
+          "pass": true,
+          "detail": "sigma = 0.000128399 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[dvbe1]",
+          "pass": true,
+          "detail": "sigma = 0.000365726 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[rratio]",
+          "pass": true,
+          "detail": "sigma = 0.029042 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "array_scaling[dvbe8/dvbe1]",
+          "pass": true,
+          "detail": "sigma(8x)/sigma(1x) = 0.359 (0.1312 / 0.3657 mV); the model's 1/sqrt(mult) term predicts 0.354, band 0.25-0.55"
+        },
+        {
+          "name": "res_ratio_vs_pdk_coefficient",
+          "pass": true,
+          "detail": "sigma(R2/R1)/mean = 0.3876% vs 0.3701% predicted from the PDK's 2.06%/sqrt(W*L) res_high_po coefficient on L = 270/35 um (ratio 1.05, band 0.7-1.4)"
+        },
+        {
+          "name": "budget_closure",
+          "pass": true,
+          "detail": "measured sigma(VOUT) = 6.9169 mV vs 6.7281 mV from the four measured terms in quadrature (amp 6.4828 + PTAT 1.0202 + CTAT 0.1284 + resistor 1.4779 mV; ratio 1.03, band 0.7-1.4)"
+        }
+      ],
+      "pass": true,
+      "budget": {
+        "offset_gain": 9.655367,
+        "k_ptat": 7.77297089587991,
+        "terms_v": {
+          "amp": 0.006482787210237661,
+          "ptat": 0.0010201565082047623,
+          "ctat": 0.00012839933935856167,
+          "resistor": 0.0014778502754109657
+        },
+        "predicted_sigma_vout_v": 0.0067281332582918955,
+        "measured_sigma_vout_v": 0.006916864339442862,
+        "closure_ratio": 1.028051031973597
+      }
+    },
+    {
+      "corner_id": "tt_mm_27c_3.30v",
+      "role": "mismatch",
+      "purpose": "local-mismatch distribution at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vos": {
+          "n": 300,
+          "mean": -0.00018882840751666667,
+          "sigma": 0.000639856562156735,
+          "max_abs": 0.00200621,
+          "min": -0.00200621,
+          "max": 0.001423217
+        },
+        "vout": {
+          "n": 300,
+          "mean": 1.21082968,
+          "sigma": 0.00689835767602366,
+          "max_abs": 1.226804,
+          "min": 1.192626,
+          "max": 1.226804
+        },
+        "dvbe8": {
+          "n": 300,
+          "mean": 0.06235930793333334,
+          "sigma": 0.00015968803735191473,
+          "max_abs": 0.06276838,
+          "min": 0.06185878,
+          "max": 0.06276838
+        },
+        "veb8": {
+          "n": 300,
+          "mean": 0.7311541886666667,
+          "sigma": 0.00015844162405229652,
+          "max_abs": 0.7315827,
+          "min": 0.7306804,
+          "max": 0.7315827
+        },
+        "dvbe1": {
+          "n": 300,
+          "mean": 0.0629692032,
+          "sigma": 0.0004409778540466917,
+          "max_abs": 0.06450609,
+          "min": 0.06171914,
+          "max": 0.06450609
+        },
+        "rra": {
+          "n": 300,
+          "mean": 0.0880853916,
+          "sigma": 0.00011056292314343045,
+          "max_abs": 0.08836513,
+          "min": 0.08774608,
+          "max": 0.08836513
+        },
+        "rrb": {
+          "n": 300,
+          "mean": 0.011750061533333333,
+          "sigma": 4.254264126813377e-05,
+          "max_abs": 0.01186854,
+          "min": 0.01165076,
+          "max": 0.01186854
+        },
+        "vgdrv": {
+          "n": 300,
+          "mean": 2.0605666633333333,
+          "sigma": 0.0028108085513537688,
+          "max_abs": 2.067736,
+          "min": 2.052606,
+          "max": 2.067736
+        },
+        "rratio": {
+          "n": 300,
+          "mean": 7.496688533094628,
+          "sigma": 0.02893052016139674,
+          "max_abs": 7.57827137991489,
+          "min": 7.416833072981175,
+          "max": 7.57827137991489
+        }
+      },
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and it is also sensitive to the testbench .nodeset; the threshold here only asserts that enough draws remain for the distribution to mean anything (>= 50%)."
+        },
+        {
+          "name": "sigma_nonzero[vos]",
+          "pass": true,
+          "detail": "sigma = 0.000639857 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 0.00689836 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[dvbe8]",
+          "pass": true,
+          "detail": "sigma = 0.000159688 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[veb8]",
+          "pass": true,
+          "detail": "sigma = 0.000158442 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[dvbe1]",
+          "pass": true,
+          "detail": "sigma = 0.000440978 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[rratio]",
+          "pass": true,
+          "detail": "sigma = 0.0289305 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "anchor_mean[dvbe1]",
+          "pass": true,
+          "detail": "mean dVBE of the un-arrayed pair at 1 uA = 62.969 mV vs 63.0 mV published in design/device-characterization-summary.md section 4 (tolerance +/-1.5 mV)"
+        },
+        {
+          "name": "anchor_sigma[dvbe1]",
+          "pass": true,
+          "detail": "sigma = 0.4410 mV vs 0.480 mV published (ratio 0.92, band 0.7-1.4)"
+        },
+        {
+          "name": "array_scaling[dvbe8/dvbe1]",
+          "pass": true,
+          "detail": "sigma(8x)/sigma(1x) = 0.362 (0.1597 / 0.4410 mV); the model's 1/sqrt(mult) term predicts 0.354, band 0.25-0.55"
+        },
+        {
+          "name": "res_ratio_vs_pdk_coefficient",
+          "pass": true,
+          "detail": "sigma(R2/R1)/mean = 0.3859% vs 0.3701% predicted from the PDK's 2.06%/sqrt(W*L) res_high_po coefficient on L = 270/35 um (ratio 1.04, band 0.7-1.4)"
+        },
+        {
+          "name": "budget_closure",
+          "pass": true,
+          "detail": "measured sigma(VOUT) = 6.8984 mV vs 6.5752 mV from the four measured terms in quadrature (amp 6.1780 + PTAT 1.2413 + CTAT 0.1584 + resistor 1.8706 mV; ratio 1.05, band 0.7-1.4)"
+        }
+      ],
+      "pass": true,
+      "budget": {
+        "offset_gain": 9.655367,
+        "k_ptat": 7.77297089587991,
+        "terms_v": {
+          "amp": 0.0061780499349815875,
+          "ptat": 0.001241250466756617,
+          "ctat": 0.00015844162405229652,
+          "resistor": 0.0018705749021253836
+        },
+        "predicted_sigma_vout_v": 0.006575192615661022,
+        "measured_sigma_vout_v": 0.00689835767602366,
+        "closure_ratio": 1.049149139691043
+      }
+    },
+    {
+      "corner_id": "tt_mm_125c_3.30v",
+      "role": "mismatch",
+      "purpose": "local-mismatch distribution at the nominal process point",
+      "section": "tt_mm",
+      "temperature_c": 125.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vos": {
+          "n": 300,
+          "mean": -0.00024250405322066666,
+          "sigma": 0.000619602777196635,
+          "max_abs": 0.00201017,
+          "min": -0.00201017,
+          "max": 0.001358643
+        },
+        "vout": {
+          "n": 300,
+          "mean": 1.1868451833333333,
+          "sigma": 0.007204451777972143,
+          "max_abs": 1.203822,
+          "min": 1.167316,
+          "max": 1.203822
+        },
+        "dvbe8": {
+          "n": 300,
+          "mean": 0.081373509,
+          "sigma": 0.0002240520627885387,
+          "max_abs": 0.08197524,
+          "min": 0.08070914,
+          "max": 0.08197524
+        },
+        "veb8": {
+          "n": 300,
+          "mean": 0.5516597933333334,
+          "sigma": 0.0002214678493971773,
+          "max_abs": 0.5522334,
+          "min": 0.5510875,
+          "max": 0.5522334
+        },
+        "dvbe1": {
+          "n": 300,
+          "mean": 0.08226171833333333,
+          "sigma": 0.0006275893508461889,
+          "max_abs": 0.0842416,
+          "min": 0.08062199,
+          "max": 0.0842416
+        },
+        "rra": {
+          "n": 300,
+          "mean": 0.09348119113333334,
+          "sigma": 0.00011712305903011066,
+          "max_abs": 0.09377791,
+          "min": 0.09312198,
+          "max": 0.09377791
+        },
+        "rrb": {
+          "n": 300,
+          "mean": 0.012453829733333335,
+          "sigma": 4.4654493157194954e-05,
+          "max_abs": 0.0125793,
+          "min": 0.01235031,
+          "max": 0.0125793
+        },
+        "vgdrv": {
+          "n": 300,
+          "mean": 2.16344497,
+          "sigma": 0.002851525501912991,
+          "max_abs": 2.170269,
+          "min": 2.155478,
+          "max": 2.170269
+        },
+        "rratio": {
+          "n": 300,
+          "mean": 7.5063174000279105,
+          "sigma": 0.028719562941984456,
+          "max_abs": 7.587251136643308,
+          "min": 7.426523733435088,
+          "max": 7.587251136643308
+        }
+      },
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and it is also sensitive to the testbench .nodeset; the threshold here only asserts that enough draws remain for the distribution to mean anything (>= 50%)."
+        },
+        {
+          "name": "sigma_nonzero[vos]",
+          "pass": true,
+          "detail": "sigma = 0.000619603 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 0.00720445 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[dvbe8]",
+          "pass": true,
+          "detail": "sigma = 0.000224052 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[veb8]",
+          "pass": true,
+          "detail": "sigma = 0.000221468 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[dvbe1]",
+          "pass": true,
+          "detail": "sigma = 0.000627589 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[rratio]",
+          "pass": true,
+          "detail": "sigma = 0.0287196 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "array_scaling[dvbe8/dvbe1]",
+          "pass": true,
+          "detail": "sigma(8x)/sigma(1x) = 0.357 (0.2241 / 0.6276 mV); the model's 1/sqrt(mult) term predicts 0.354, band 0.25-0.55"
+        },
+        {
+          "name": "res_ratio_vs_pdk_coefficient",
+          "pass": true,
+          "detail": "sigma(R2/R1)/mean = 0.3826% vs 0.3701% predicted from the PDK's 2.06%/sqrt(W*L) res_high_po coefficient on L = 270/35 um (ratio 1.03, band 0.7-1.4)"
+        },
+        {
+          "name": "budget_closure",
+          "pass": true,
+          "detail": "measured sigma(VOUT) = 7.2045 mV vs 6.6880 mV from the four measured terms in quadrature (amp 5.9825 + PTAT 1.7416 + CTAT 0.2215 + resistor 2.4200 mV; ratio 1.08, band 0.7-1.4)"
+        }
+      ],
+      "pass": true,
+      "budget": {
+        "offset_gain": 9.655367,
+        "k_ptat": 7.77297089587991,
+        "terms_v": {
+          "amp": 0.0059824922080527415,
+          "ptat": 0.0017415501632171693,
+          "ctat": 0.0002214678493971773,
+          "resistor": 0.0024200313265834348
+        },
+        "predicted_sigma_vout_v": 0.006687960049250841,
+        "measured_sigma_vout_v": 0.007204451777972143,
+        "closure_ratio": 1.0772270953949787
+      }
+    },
+    {
+      "corner_id": "tt_27c_3.30v_mm-off",
+      "role": "control",
+      "purpose": "control: identical deck on the plain `tt` section (MC_MM_SWITCH=0); every sigma must come back exactly 0, which is what proves the spread above is the mismatch switch and not solver noise or a re-seeded operating point",
+      "section": "tt",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260803,
+      "requested_samples": 30,
+      "parsed_samples": 30,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vos": {
+          "n": 30,
+          "mean": -0.000121968,
+          "sigma": 0.0,
+          "max_abs": 0.000121968,
+          "min": -0.000121968,
+          "max": -0.000121968
+        },
+        "vout": {
+          "n": 30,
+          "mean": 1.210253,
+          "sigma": 0.0,
+          "max_abs": 1.210253,
+          "min": 1.210253,
+          "max": 1.210253
+        },
+        "dvbe8": {
+          "n": 30,
+          "mean": 0.0623484,
+          "sigma": 0.0,
+          "max_abs": 0.0623484,
+          "min": 0.0623484,
+          "max": 0.0623484
+        },
+        "veb8": {
+          "n": 30,
+          "mean": 0.7311427,
+          "sigma": 0.0,
+          "max_abs": 0.7311427,
+          "min": 0.7311427,
+          "max": 0.7311427
+        },
+        "dvbe1": {
+          "n": 30,
+          "mean": 0.0629664,
+          "sigma": 0.0,
+          "max_abs": 0.0629664,
+          "min": 0.0629664,
+          "max": 0.0629664
+        },
+        "rra": {
+          "n": 30,
+          "mean": 0.08808306,
+          "sigma": 0.0,
+          "max_abs": 0.08808306,
+          "min": 0.08808306,
+          "max": 0.08808306
+        },
+        "rrb": {
+          "n": 30,
+          "mean": 0.01174866,
+          "sigma": 0.0,
+          "max_abs": 0.01174866,
+          "min": 0.01174866,
+          "max": 0.01174866
+        },
+        "vgdrv": {
+          "n": 30,
+          "mean": 2.060762,
+          "sigma": 0.0,
+          "max_abs": 2.060762,
+          "min": 2.060762,
+          "max": 2.060762
+        },
+        "rratio": {
+          "n": 30,
+          "mean": 7.497285647895165,
+          "sigma": 0.0,
+          "max_abs": 7.497285647895165,
+          "min": 7.497285647895165,
+          "max": 7.497285647895165
+        }
+      },
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 30 samples, expected 30"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "30/30 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and it is also sensitive to the testbench .nodeset; the threshold here only asserts that enough draws remain for the distribution to mean anything (>= 50%)."
+        },
+        {
+          "name": "sigma_zero[vos]",
+          "pass": true,
+          "detail": "sigma = 0 with MC_MM_SWITCH=0 (must be exactly 0)"
+        },
+        {
+          "name": "sigma_zero[vout]",
+          "pass": true,
+          "detail": "sigma = 0 with MC_MM_SWITCH=0 (must be exactly 0)"
+        },
+        {
+          "name": "sigma_zero[dvbe8]",
+          "pass": true,
+          "detail": "sigma = 0 with MC_MM_SWITCH=0 (must be exactly 0)"
+        },
+        {
+          "name": "sigma_zero[veb8]",
+          "pass": true,
+          "detail": "sigma = 0 with MC_MM_SWITCH=0 (must be exactly 0)"
+        },
+        {
+          "name": "sigma_zero[dvbe1]",
+          "pass": true,
+          "detail": "sigma = 0 with MC_MM_SWITCH=0 (must be exactly 0)"
+        },
+        {
+          "name": "sigma_zero[rratio]",
+          "pass": true,
+          "detail": "sigma = 0 with MC_MM_SWITCH=0 (must be exactly 0)"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "corner_id": "tt_mm_27c_3.30v_seed-b",
+      "role": "seed-check",
+      "purpose": "seed-stability: same point, different setseed -- the samples must change while sigma must not, i.e. the reported spread is a property of the model, not of one lucky draw",
+      "section": "tt_mm",
+      "temperature_c": 27.0,
+      "supply_v": 3.3,
+      "seed": 20260804,
+      "requested_samples": 300,
+      "parsed_samples": 300,
+      "excluded_samples": 0,
+      "excluded_vout_v": [],
+      "stats": {
+        "vos": {
+          "n": 300,
+          "mean": -0.0001488529233,
+          "sigma": 0.0006366132876730043,
+          "max_abs": 0.00194123,
+          "min": -0.00194123,
+          "max": 0.001841627
+        },
+        "vout": {
+          "n": 300,
+          "mean": 1.2103879966666666,
+          "sigma": 0.007068355617381469,
+          "max_abs": 1.228366,
+          "min": 1.190524,
+          "max": 1.228366
+        },
+        "dvbe8": {
+          "n": 300,
+          "mean": 0.06235263243333333,
+          "sigma": 0.0001559985925234902,
+          "max_abs": 0.06277283,
+          "min": 0.06175961,
+          "max": 0.06277283
+        },
+        "veb8": {
+          "n": 300,
+          "mean": 0.73114526,
+          "sigma": 0.00015536450763965686,
+          "max_abs": 0.7315855,
+          "min": 0.7305979,
+          "max": 0.7315855
+        },
+        "dvbe1": {
+          "n": 300,
+          "mean": 0.06297157433333334,
+          "sigma": 0.00048714987556819643,
+          "max_abs": 0.06458041,
+          "min": 0.06150859,
+          "max": 0.06458041
+        },
+        "rra": {
+          "n": 300,
+          "mean": 0.0880785471,
+          "sigma": 0.00010899838981623398,
+          "max_abs": 0.08849509,
+          "min": 0.08765983,
+          "max": 0.08849509
+        },
+        "rrb": {
+          "n": 300,
+          "mean": 0.011748820366666666,
+          "sigma": 4.191995963242533e-05,
+          "max_abs": 0.01188362,
+          "min": 0.0116255,
+          "max": 0.01188362
+        },
+        "vgdrv": {
+          "n": 300,
+          "mean": 2.06067381,
+          "sigma": 0.0028955799704233677,
+          "max_abs": 2.069487,
+          "min": 2.052811,
+          "max": 2.069487
+        },
+        "rratio": {
+          "n": 300,
+          "mean": 7.496896311549846,
+          "sigma": 0.028838332109354933,
+          "max_abs": 7.590281600022016,
+          "min": 7.403648888133414,
+          "max": 7.590281600022016
+        }
+      },
+      "checks": [
+        {
+          "name": "sample_count",
+          "pass": true,
+          "detail": "parsed 300 samples, expected 300"
+        },
+        {
+          "name": "mc_solve_yield",
+          "pass": true,
+          "detail": "300/300 draws converged to the operating solution (VOUT in 0.9..1.5 V); 0 landed on the core's other stable branch and are excluded from every statistic below. This is a STARTUP observation (issue #10 -- the core has no startup circuit), not a mismatch one, and it is also sensitive to the testbench .nodeset; the threshold here only asserts that enough draws remain for the distribution to mean anything (>= 50%)."
+        },
+        {
+          "name": "sigma_nonzero[vos]",
+          "pass": true,
+          "detail": "sigma = 0.000636613 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[vout]",
+          "pass": true,
+          "detail": "sigma = 0.00706836 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[dvbe8]",
+          "pass": true,
+          "detail": "sigma = 0.000155999 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[veb8]",
+          "pass": true,
+          "detail": "sigma = 0.000155365 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[dvbe1]",
+          "pass": true,
+          "detail": "sigma = 0.00048715 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "sigma_nonzero[rratio]",
+          "pass": true,
+          "detail": "sigma = 0.0288383 (a zero here means the mismatch switch never reached the models)"
+        },
+        {
+          "name": "anchor_mean[dvbe1]",
+          "pass": true,
+          "detail": "mean dVBE of the un-arrayed pair at 1 uA = 62.972 mV vs 63.0 mV published in design/device-characterization-summary.md section 4 (tolerance +/-1.5 mV)"
+        },
+        {
+          "name": "anchor_sigma[dvbe1]",
+          "pass": true,
+          "detail": "sigma = 0.4871 mV vs 0.480 mV published (ratio 1.01, band 0.7-1.4)"
+        },
+        {
+          "name": "array_scaling[dvbe8/dvbe1]",
+          "pass": true,
+          "detail": "sigma(8x)/sigma(1x) = 0.320 (0.1560 / 0.4871 mV); the model's 1/sqrt(mult) term predicts 0.354, band 0.25-0.55"
+        },
+        {
+          "name": "res_ratio_vs_pdk_coefficient",
+          "pass": true,
+          "detail": "sigma(R2/R1)/mean = 0.3847% vs 0.3701% predicted from the PDK's 2.06%/sqrt(W*L) res_high_po coefficient on L = 270/35 um (ratio 1.04, band 0.7-1.4)"
+        },
+        {
+          "name": "budget_closure",
+          "pass": true,
+          "detail": "measured sigma(VOUT) = 7.0684 mV vs 6.5386 mV from the four measured terms in quadrature (amp 6.1467 + PTAT 1.2126 + CTAT 0.1554 + resistor 1.8644 mV; ratio 1.08, band 0.7-1.4)"
+        }
+      ],
+      "pass": true,
+      "budget": {
+        "offset_gain": 9.655367,
+        "k_ptat": 7.77297089587991,
+        "terms_v": {
+          "amp": 0.006146734929559433,
+          "ptat": 0.0012125725194833186,
+          "ctat": 0.00015536450763965686,
+          "resistor": 0.0018643629760167451
+        },
+        "predicted_sigma_vout_v": 0.00653855258033827,
+        "measured_sigma_vout_v": 0.007068355617381469,
+        "closure_ratio": 1.0810275715509792
+      }
+    }
+  ],
+  "cross_point_checks": [
+    {
+      "name": "seed_sigma_stable[vos]",
+      "pass": true,
+      "detail": "sigma(seed 20260804) / sigma(seed 20260803) = 0.995 (0.6366 mV vs 0.6399 mV; tolerance +/-25%)"
+    },
+    {
+      "name": "seed_sample_differs[vos]",
+      "pass": true,
+      "detail": "worst-sample magnitude differs between the two seeds (2.0062 mV vs 1.9412 mV), i.e. the draw really did change"
+    },
+    {
+      "name": "seed_sigma_stable[vout]",
+      "pass": true,
+      "detail": "sigma(seed 20260804) / sigma(seed 20260803) = 1.025 (7.0684 mV vs 6.8984 mV; tolerance +/-25%)"
+    },
+    {
+      "name": "seed_sample_differs[vout]",
+      "pass": true,
+      "detail": "worst-sample magnitude differs between the two seeds (1226.8040 mV vs 1228.3660 mV), i.e. the draw really did change"
+    },
+    {
+      "name": "seed_sigma_stable[dvbe8]",
+      "pass": true,
+      "detail": "sigma(seed 20260804) / sigma(seed 20260803) = 0.977 (0.1560 mV vs 0.1597 mV; tolerance +/-25%)"
+    },
+    {
+      "name": "seed_sample_differs[dvbe8]",
+      "pass": true,
+      "detail": "worst-sample magnitude differs between the two seeds (62.7684 mV vs 62.7728 mV), i.e. the draw really did change"
+    }
+  ],
+  "overall_pass": true,
+  "links": {
+    "testbench": "sim/error-amp-offset-mc/testbench/tb_amp_offset_mc.sch",
+    "runner": "sim/error-amp-offset-mc/run_amp_offset_mc.py",
+    "netlist_snapshot": "sim/error-amp-offset-mc/netlist-snapshots/20261113-140022-64c42cad.spice",
+    "logs": "sim/error-amp-offset-mc/corners/20261113-140022-64c42cad",
+    "record_json": "sim/error-amp-offset-mc/records/20261113-140022-64c42cad.json",
+    "budget_doc": "design/error-amp-offset-budget.md"
+  }
+}
