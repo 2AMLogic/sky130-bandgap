@@ -38,6 +38,8 @@ BENCH_VALUES = (
     1.2345678901234e-2, 300.0, 27.0,
 )
 
+NAN = float("nan")
+
 
 class StdevIsExactOnIdenticalDraws(unittest.TestCase):
     """The MC-off control-point invariant, across value and sample count."""
@@ -120,6 +122,56 @@ class MeanStaysInsideTheRangeItIsReportedWith(unittest.TestCase):
     def test_mean_of_no_values_still_raises(self):
         with self.assertRaises(ZeroDivisionError):
             sim_common.mean([])
+
+
+class ANaNDrawCannotPassForIdenticalDraws(unittest.TestCase):
+    """A NaN anywhere in the draws must still poison `mean` and `sigma`.
+
+    The equal-values shortcut decides equality with `all(v == values[0] ...)`
+    rather than `min(values) == max(values)`, because `min`/`max` skip a NaN
+    that is not the first element: `[0.5, nan, nan]` would pass `min == max`
+    and report `mean 0.5, sigma 0.0` for a sample set with no usable draws.
+
+    This matters at exactly one place, and it is the place the shortcut exists
+    for: the MC-off control point, where `evaluate()` asserts
+    `stats[name]["sigma"] == 0.0` (`run_amp_offset_mc.py`). `rratio` is set to
+    `float("nan")` by that runner whenever `rrb` is falsy and is not covered by
+    the `vout` operating-window filter, so a NaN draw there has to keep failing
+    the check loudly -- "something already wrong at the control point" is what
+    the check is for (PR #515 review).
+    """
+
+    NAN_PATTERNS = (
+        [0.5, NAN, NAN],      # NaN in the tail: min/max would skip both
+        [0.5, NAN, 0.5],      # finite values all equal, NaN between them
+        [NAN, 0.5, 0.5],      # NaN first
+        [0.5, NAN, 0.6],      # NaN plus genuine spread
+        [NAN] * 3,            # nothing but NaN
+        [1.21] * 19 + [NAN],  # one bad draw at the bench's control point
+    )
+
+    def test_mean_of_any_list_containing_nan_is_nan(self):
+        for values in self.NAN_PATTERNS:
+            self.assertTrue(math.isnan(sim_common.mean(values)),
+                            f"mean{values!r} must be NaN")
+
+    def test_stdev_of_any_list_containing_nan_is_nan(self):
+        for values in self.NAN_PATTERNS:
+            self.assertTrue(math.isnan(sim_common.stdev(values)),
+                            f"stdev{values!r} must be NaN")
+
+    def test_a_nan_draw_fails_the_benches_sigma_zero_comparison(self):
+        for values in self.NAN_PATTERNS:
+            self.assertFalse(sim_common.stdev(values) == 0.0,
+                             f"stdev{values!r} == 0.0 would pass sigma_zero")
+
+    def test_per_vector_stats_reports_nan_for_a_nan_bearing_vector(self):
+        # The runner's own `rratio = float("nan")` path, at a control point.
+        samples = [{"rratio": 0.5}, {"rratio": NAN}, {"rratio": NAN}]
+        stats = sim_common.per_vector_stats(("rratio",), samples)
+        self.assertTrue(math.isnan(stats["rratio"]["mean"]))
+        self.assertTrue(math.isnan(stats["rratio"]["sigma"]))
+        self.assertFalse(stats["rratio"]["sigma"] == 0.0)
 
 
 class StatisticsDoNotDependOnTheBuiltinSum(unittest.TestCase):

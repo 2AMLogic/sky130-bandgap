@@ -1223,10 +1223,17 @@ def mean(values: list[float]) -> float:
         alongside `min` and `max`, would emit a block whose mean sits outside
         its own range. The mean of a set of equal values is that value, so
         answer from the definition instead (PR #515).
+
+    The equality test is `all(v == values[0] ...)`, not `min == max`: `min`
+    and `max` skip a NaN that is not the first element, so a draw list whose
+    finite values are all equal would take the shortcut with NaN still in it
+    and report a clean mean for a sample set that has none. `v == values[0]`
+    is false for a NaN wherever it sits, so a NaN anywhere declines the
+    shortcut and falls through to the sum, which propagates it.
     """
     if not values:
         raise ZeroDivisionError("mean of no values")
-    if min(values) == max(values):
+    if all(v == values[0] for v in values):
         return values[0]
     return math.fsum(values) / len(values)
 
@@ -1247,11 +1254,17 @@ def stdev(values: list[float]) -> float:
     invariant rests on rather than an accident of rounding: the spread of a
     set of equal values is zero by definition, on every interpreter and every
     sample count. A single ulp of *real* spread still reports non-zero.
+
+    The shortcut tests `all(v == values[0] ...)` rather than `min == max` for
+    the reason given in `mean`: a NaN must not be able to pass for "every draw
+    is equal". A control point with a NaN draw has to keep reporting a NaN
+    sigma, so that `sigma == 0.0` fails loudly instead of recording a clean
+    spread for a sample set that is already broken.
     """
     n = len(values)
     if n < 2:
         return 0.0
-    if min(values) == max(values):
+    if all(v == values[0] for v in values):
         return 0.0
     mu = mean(values)
     return math.sqrt(math.fsum((v - mu) ** 2 for v in values) / (n - 1))
