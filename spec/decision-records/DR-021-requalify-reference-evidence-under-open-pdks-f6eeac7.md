@@ -48,7 +48,7 @@ row in the index above, or a reason here. None is left as "not attempted".
 | Bench | Status |
 |---|---|
 | `monte-carlo-untrimmed` | **Not re-qualified: batch collector loses samples.** `--backend batch` exists (#437) but has never produced a usable record; all three attempts on disk report `klt_status: "error"` on every job and parse back fewer samples than requested. A partial-sample MC record cannot be comparable evidence. Blocked on #444 (open, `loom:operator`). Old record `20260817-121131-d7d85b6` remains the evidence. See "Slice D3 dispositions" below. |
-| `error-amp-offset-mc` | **Not re-qualified: batch path is dry-run only.** `run_amp_offset_mc.py --backend batch` builds and prints the requests but refuses a real run ("collecting klt's per-sample reports into a record is not implemented yet"), asserted by `sim/tests/test_amp_offset_mc_batch.py`. Blocked on the collector half of #398. Old record `20260817-130441-aa5324e` remains the evidence. |
+| `error-amp-offset-mc` | **Not re-qualified: the collector now exists, but no fleet run has minted a record.** The blocker recorded in slice D3 is gone — `run_amp_offset_mc.py --backend batch` collects klt's per-sample reports into a record as of #514, and no longer refuses a real run. What is still missing is the run itself: no fleet submission for this bench has been made under `f6eeac7`, so there is no new record to cite, and the collector's report parsing has never met a real klt report (its tests use hand-built ones). The run belongs to #370 and should be small-N first. Old record `20260817-130441-aa5324e` remains the evidence. |
 | layout reports | **Re-qualification does not apply.** The cited DRC/LVS/extraction verdicts come from KLayout's curated sky130 deck at a pinned klt/KLayout version, not from the open_pdks ngspice model cards `f6eeac7` changed. No new report is minted or needed. See "Slice D3 dispositions" below. |
 
 ### Per-row old/new deltas, `startup-stability` (worst case over 45 corners)
@@ -179,27 +179,52 @@ submit needs an operator ruling, so it is not this slice's to force.
 **Old record `20260817-121131-d7d85b6` remains the evidence.** Re-qualifying
 it depends on #444.
 
-#### `error-amp-offset-mc` — not re-qualified: batch path is dry-run only
+#### `error-amp-offset-mc` — not re-qualified: no fleet run has minted a record
 
 The reference record is `20260817-130441-aa5324e` (cited by
 `design/block-characterization-report.md` row 6). The 2026-11-11 Revision
 recorded "no `--backend` option found (grep, 2026-11-11)". **That stamped
 fact has drifted and is corrected here**: `run_amp_offset_mc.py` does take
-`--backend {local,batch}` (added by `f11d9256`, request-building only), but
-batch is refused unless `--dry-run` is also passed:
+`--backend {local,batch}` (added by `f11d9256`, request-building only), and
+at slice D3 batch was refused unless `--dry-run` was also passed:
 
 > `--backend batch is dry-run only for error-amp-offset-mc: the request is
 > built and printed, but collecting klt's per-sample reports into a record
 > is not implemented yet (issue #398); run it locally, or add --dry-run`
 
 `sim/tests/test_amp_offset_mc_batch.py::test_batch_without_dry_run_is_refused_before_any_work`
-asserts that refusal, so it is the designed behaviour, not a regression. The
-disposition is unchanged by the correction: there is no batch path that can
-mint a record, and a local 12-point MC grid on a shared dispatch worker is
-forbidden by the host rules.
+asserted that refusal, so it was the designed behaviour, not a regression. The
+disposition at slice D3 was unchanged by the correction: there was no batch
+path that could mint a record, and a local 12-point MC grid on a shared
+dispatch worker is forbidden by the host rules.
 
-**Old record `20260817-130441-aa5324e` remains the evidence.** Re-qualifying
-it needs the collector half of #398 to land first.
+**Superseded on 2026-11-13 by #514**, which implements the collector: the
+refusal and its test are gone, `--backend batch` (no `--dry-run`) now submits
+one request per point, folds the per-sample reports back through the same
+`evaluate()` / `render_record()` path as a local run, and writes a record
+carrying an `execution` block. A submit/collect failure, a short report, a
+model-library mismatch or runner skew is still an error that writes no record
+and never falls back to a local run.
+
+**The disposition itself does not change: still not re-qualified.** #514 was
+code and unit tests only — no fleet submission was made and no record was
+minted, so there is nothing new to cite here. Two things follow from that and
+are recorded rather than glossed:
+
+- No committed klt report in this repo is a Monte Carlo one: of the
+  `klt-report.json` files under `sim/`, none carries a
+  `monte_carlo.sample_index` entry (`git grep -l sample_index -- sim`
+  matches only `sim/bin/batch_sim.py`, the two batch test files and
+  `sim/README.md`). The collector's tests therefore parse hand-built reports
+  whose shape comes from klt's own report contract, and the parsing is
+  **unverified against a real fleet report**.
+- #444 (the sibling bench's fleet smoke run losing 170–177 of 280 MC shards,
+  cause unconfirmed, `loom:operator`) is about the same fleet this bench would
+  submit to. A full 300-sample run here would be exposed to the same loss.
+
+**Old record `20260817-130441-aa5324e` remains the evidence.** Re-qualifying it
+now needs only a fleet run, which belongs to #370; it should be a small-N run
+first, for both reasons above.
 
 #### Layout reports — re-qualification does not apply
 
@@ -543,13 +568,13 @@ judgement call:
 
 With slice C'+D4 the re-run work is complete **and five more benches moved from
 a recorded reason into the index**. Eighteen of the twenty reference benches are
-now re-qualified under `f6eeac7`. Exactly two are not, both because code has to
-land elsewhere first, and both keep their old record as the cited evidence:
+now re-qualified under `f6eeac7`. Exactly two are not, and both keep their old
+record as the cited evidence:
 
 | Bench | Waits on | Needs code? |
 |---|---|---|
 | `monte-carlo-untrimmed` | #444 (open, `loom:operator`) | yes — batch collector loses samples |
-| `error-amp-offset-mc` | the collector half of #398 | yes — batch path is `--dry-run` only |
+| `error-amp-offset-mc` | a fleet run under #370 | no — #514 landed the batch collector |
 
 Layout reports need no re-qualification (slice D3). **Nothing on this issue is
 gated on fleet budget any more**: slice D3 closed by noting that two of this

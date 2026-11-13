@@ -474,7 +474,7 @@ own 10 800 s default and is deliberately not ceiling-enforced -- that budget is
 | `startup-time-post-layout` | yes (issue #510) | translated; `tran` deck measured with `meas tran FIND ... AT` cards, sent as one `analysis_steps[]` step |
 | `line-regulation-post-layout` | yes (issue #510) | translated; in-deck `dc v1` sweep plus a `meas dc FIND ... AT` card, sent as one `analysis_steps[]` step |
 | `output-voltage-tc-post-layout` | yes (issue #510) | translated; in-deck `dc temp` sweep plus a `meas dc FIND ... AT` card, sent as one `analysis_steps[]` step |
-| `error-amp-offset-mc` | `--dry-run` only (record collection) | one `klt sim` `monte_carlo` request per point (`{n, seed, vary: mismatch}`, `.op`, section as the process); see below |
+| `error-amp-offset-mc` | yes (issue #514) | one `klt sim` `monte_carlo` request per point (`{n, seed, vary: mismatch}`, `.op`, section as the process); see below |
 | `monte-carlo-untrimmed` | `--dry-run` only (record collection) | one `klt sim` `monte_carlo` request per point (14: 3 temperatures x 4 `config`s, the MC-off control, the second-seed point); the `config` axis rides in the netlist as `.param <coeff>=0` |
 | `psrr-injector-attribution` | yes (`--dry-run` prints the requests) | variant set, not Monte Carlo: per variant x supply, one `ac` and one `op` request over the 5 x 3 process x temperature cross product, each variant's netlist from `variant_body()` (30 requests for the full run); same shape as `psrr-injector-candidates` |
 
@@ -545,8 +545,28 @@ carries `n` and `seed`, and the runner's `let` vectors are the request's
 ngspice per sample with an `.options seed=` derived from `monte_carlo.seed`,
 which is **not** the stream `setseed N` + `reset` produces, so a batch run
 matches the local record in distribution, not sample for sample. A real
-`--backend batch` run is refused: turning klt's per-sample reports back into a
-record is not implemented. Checked on the fleet instead (2026-10-21, runner
+`--backend batch` run (issue #514) submits the requests concurrently
+(`batch_sim.collect()`), folds each report's `corners[]` (one per draw, ordered
+by `monte_carlo.sample_index`) into the same per-sample `VECTORS` list
+`parse_samples()` returns locally, and then shares the local path's `rratio`
+derivation, `mc_solve_yield` window, `evaluate()` and `render_record()`. A draw
+klt returned without every vector is dropped and counted
+(`execution.jobs[].samples_dropped`). Each point leaves
+`corners/<record_id>/<corner_id>.samples.json` and `.request.json` in place of
+the ngspice `.log`. The record gains an `execution` block (job ids, fleet engine
+version), and its `tools.ngspice` line names the fleet's ngspice rather than the
+dispatch host's. A submit/collect failure, a report whose draw count differs
+from the request, a model-library sha256 differing from the pinned one, or
+runner skew is an error with no record, no local fallback and nothing written
+under `sim/error-amp-offset-mc/`. The report-parsing half
+(`batch_sim.samples_from_report()`, `batch_sim.shard_loss()`) is shared with
+`monte-carlo-untrimmed`, so a collector defect shows up in one place for both
+benches. **No real fleet report for this bench is committed anywhere in this
+repo**: the collector's unit tests parse hand-built reports whose shape is taken
+from klt's own Monte Carlo report contract, not captured from a live run, so the
+shape is unverified against the fleet. The re-qualification run itself (issue
+#370) is where that first gets exercised, and it should be a small-N one for
+that reason. The request shape *was* checked on the fleet (2026-10-21, runner
 klt accepts the shape; `tt_mm` / 27 C, N = 60 of the 300, `klt sim --backend
 batch`, 3 shard jobs, 60/60 corners passed, none outside the operating window):
 sigma(vos) / sigma(vout) / sigma(dvbe8) / sigma(dvbe1) are 1.03 / 0.99 / 0.92 /

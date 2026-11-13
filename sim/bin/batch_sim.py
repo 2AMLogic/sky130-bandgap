@@ -664,6 +664,60 @@ def _unique(values) -> list:
 
 
 # --------------------------------------------------------------------------
+# Monte Carlo report parsing (shared by the bespoke MC runners)
+# --------------------------------------------------------------------------
+#
+# `build_mc_group()`'s counterpart on the way back: both MC benches
+# (`sim/error-amp-offset-mc`, `sim/monte-carlo-untrimmed`) turn one klt report
+# per point into the same `list[{vector: value}]` their local `.control` loops
+# produce via `sim_common.parse_samples()`. They live here, not in either
+# runner, so a defect in how a klt Monte Carlo report is read shows up in one
+# place for both benches (issue #514).
+
+
+def samples_from_report(
+    report: dict, request: dict, vectors: tuple[str, ...] | list[str]
+) -> tuple[list[dict[str, float]], int]:
+    """One group's klt report -> `(parsed samples, dropped)`: the same
+    `list[{vector: value}]` `sim_common.parse_samples()` returns from a local
+    log, restricted to `vectors`.
+
+    klt reports each Monte Carlo draw as one `corners[]` entry carrying
+    `monte_carlo.sample_index`; ordering by it restores the draw order a
+    first-K-of-N convergence series depends on. A draw missing any vector
+    (the engine failed or timed out on it) is dropped, as `parse_samples()`
+    drops an incomplete block, and counted so the record can say so."""
+    drawn = []
+    for kc in report["corners"]:
+        values = {
+            plain_name(m["name"], request): m["value"]
+            for m in kc.get("measurements") or []
+            if m.get("value") is not None
+        }
+        idx = (kc.get("monte_carlo") or {}).get("sample_index")
+        drawn.append((idx if idx is not None else len(drawn), values))
+    drawn.sort(key=lambda t: t[0])
+    parsed = [
+        {v: float(vals[v]) for v in vectors} for _, vals in drawn if set(vectors) <= set(vals)
+    ]
+    return parsed, len(drawn) - len(parsed)
+
+
+def shard_loss(report: dict) -> str:
+    """`unlaunched_shards` / `lost_shard` counts of one klt report, as a suffix
+    for an incomplete-point error (empty when the report records neither)."""
+    remote = (report.get("environment") or {}).get("remote") or {}
+    unlaunched = remote.get("unlaunched_shards") or 0
+    lost = sum(
+        1 for c in report.get("corners") or [] for d in c.get("diagnostics") or []
+        if d.get("code") == "lost_shard"
+    ) + sum(1 for d in report.get("diagnostics") or [] if d.get("code") == "lost_shard")
+    if not (unlaunched or lost):
+        return ""
+    return f" ({unlaunched} unlaunched_shards, {lost} lost_shard diagnostics in the klt report)"
+
+
+# --------------------------------------------------------------------------
 # submission and collection
 # --------------------------------------------------------------------------
 
