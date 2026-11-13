@@ -9,6 +9,8 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-13
 
+- **PR #524**: fix(sim): record every fleet job id and drop setseed wording from batch records
+- **Issue #523** (closed): Batch sim records: job_id is null for sharded requests, and MC record prose says setseed on the batch path
 - **PR #521**: docs: regenerate the characterization report onto the f6eeac7 records, and re-qualify error-amp-offset-mc
 - **PR #520**: refactor(sim): one definition of the psrr-injector run orchestration
 - **Issue #511** (closed): Dedup verify/explore/build_deck/run_point between the two psrr-injector sim scripts

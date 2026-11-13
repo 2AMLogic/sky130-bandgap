@@ -19,6 +19,8 @@ _None._
 
 - **#315**: Complete #306's circuit fix (startup injector PSRR) and the post-fix layout cycle
 - **#368**: Design a state-dependent startup-injector reference-stack element that clears the 60 dB PSRR floor at ff/125/3.63 and sf/27/2.97
+- **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control
+- **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437)
 
 ## Ready
 
@@ -30,7 +32,7 @@ Human-approved issues ready for implementation (`loom:issue`).
 
 Issues currently being built (`loom:building`).
 
-- **#523**: Batch sim records: job_id is null for sharded requests, and MC record prose says setseed on the batch path
+_None._
 
 ## PRs Awaiting Review
 
@@ -55,7 +57,6 @@ Issues carrying `loom:curated`.
 - **#432**: Follow-on from PR #431: first live routed-flow run with artifact broker *(curated)*
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(curated)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(curated)*
-- **#523**: Batch sim records: job_id is null for sharded requests, and MC record prose says setseed on the batch path *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -74,12 +75,12 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Very important | 0 |
-| Important | 2 |
+| Important | 4 |
 | Ready (`loom:issue`) | 1 |
-| In Progress (`loom:building`) | 1 |
+| In Progress (`loom:building`) | 0 |
 | PRs awaiting review | 1 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 8 |
+| Curated | 7 |
 | Architect / Hermit proposals | 4 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
