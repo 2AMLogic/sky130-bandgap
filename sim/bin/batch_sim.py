@@ -165,6 +165,23 @@ DEFAULT_BATCH_TIMEOUT_S = 10800
 #: (bound 3 120 s for the 15-corner-per-supply groups these benches build).
 POST_LAYOUT_BATCH_TIMEOUT_S = 600
 
+#: The same default for the Monte Carlo benches (`build_mc_group()`'s two
+#: callers, `sim/monte-carlo-untrimmed` and `sim/error-amp-offset-mc`), which
+#: is where their local `--timeout` defaults do not fit: locally `--timeout`
+#: bounds one *point* -- all N samples in one ngspice `.control` loop -- but on
+#: the fleet the same number becomes `options.timeout_s`, which bounds one
+#: *sample*. At the local defaults (3600 s / 7200 s) a single sample already
+#: exceeds the whole-job ceiling, so no `remote.hosts` split fits and every
+#: request asked for one Spot host per sample: the three committed
+#: `monte-carlo-untrimmed` batch attempts asked for 280 hosts each and lost
+#: 174 / 177 / 170 shards (issue #528). The slowest sample measured across
+#: both benches' batch records is 38.8 s (`monte-carlo-untrimmed`,
+#: `20261105-061037-ef9df345`; the error-amp bench's worst is 3.9 s in
+#: `20261113-140022-64c42cad`), so 240 s is ~6x the worst case -- the same
+#: margin `POST_LAYOUT_BATCH_TIMEOUT_S` uses -- and still lets `shard_hosts()`
+#: pack 14 samples per job (300 samples -> 22 hosts, bound 3 480 s).
+MC_BATCH_TIMEOUT_S = 240
+
 #: The fleet's whole-job ceiling and the fixed per-job overhead klt adds to its
 #: fully-serial bound (`timeout_s x units + overhead`); a job still running at
 #: the ceiling is killed and every unit reports `batch_job_timeout`.
@@ -194,7 +211,13 @@ def job_bound_s(units: int, timeout_s: float, hosts: int | None = None) -> float
     return timeout_s * -(-units // hosts) + FLEET_JOB_OVERHEAD_S
 
 
-def require_job_bound_fits(units: int, timeout_s: float, *, what: str = "this request") -> None:
+def require_job_bound_fits(
+    units: int,
+    timeout_s: float,
+    *,
+    what: str = "this request",
+    hint: str = f"the post-layout default is {POST_LAYOUT_BATCH_TIMEOUT_S}s",
+) -> None:
     """Raise `BatchError` unless a request of `units` units at `timeout_s` can
     be sharded under the fleet's whole-job ceiling.
 
@@ -203,6 +226,11 @@ def require_job_bound_fits(units: int, timeout_s: float, *, what: str = "this re
     so a budget that cannot fit is a declared-but-unenforceable budget, not a
     conservative one. Sharding cannot save a `timeout_s` whose single-unit
     bound already exceeds the ceiling, which is the case this refuses.
+
+    `hint` closes the message with a budget that does fit. It defaults to the
+    post-layout path this was written for (#510); a caller on another path
+    passes its own, so the message never points a Monte Carlo run at a
+    per-corner default that is not its own (issue #528).
     """
     bound = job_bound_s(units, timeout_s)
     if bound <= FLEET_JOB_CEILING_S:
@@ -214,8 +242,7 @@ def require_job_bound_fits(units: int, timeout_s: float, *, what: str = "this re
         f"{FLEET_JOB_CEILING_S}s (klt's `max_job_seconds`, which it only warns about); a job "
         "still running at the ceiling is killed and every unit is reported "
         f"`batch_job_timeout`. No remote.hosts value fits -- pass --timeout "
-        f"{FLEET_JOB_CEILING_S - FLEET_JOB_OVERHEAD_S}s or less "
-        f"(the post-layout default is {POST_LAYOUT_BATCH_TIMEOUT_S}s)"
+        f"{FLEET_JOB_CEILING_S - FLEET_JOB_OVERHEAD_S}s or less ({hint})"
     )
 
 #: klt exit codes that still carry a full report on stdout (`docs/cli/sim.md`
@@ -637,7 +664,19 @@ def build_mc_group(
     defaults to `.op`. `resume` makes `run_klt` pass `--resume`, so klt reuses a
     matching `<point dir>/klt-out/checkpoint.json` and runs only the shards the
     earlier attempt did not finish. Written to `out_dir/<label>/`; the corner list is empty
-    because the point is not a PVT cross product."""
+    because the point is not a PVT cross product.
+
+    `timeout_s` bounds one *sample* here, not the whole point: an MC request's
+    units are its `monte_carlo.n` draws, so a per-point budget passed straight
+    through is `n` times the bound klt actually enforces. A budget whose
+    single-sample bound already exceeds the fleet's whole-job ceiling is
+    refused before anything is written -- unconditionally, because both
+    callers need it. That is the case that submitted 280 one-sample Spot jobs
+    for samples finishing in 14-39 s (issue #528)."""
+    require_job_bound_fits(
+        samples, timeout_s, what=f"{label} --timeout",
+        hint=f"the Monte Carlo batch default is {MC_BATCH_TIMEOUT_S}s",
+    )
     gdir = out_dir / label
     gdir.mkdir(parents=True, exist_ok=True)
     netlist_path = gdir / "netlist.cir"
