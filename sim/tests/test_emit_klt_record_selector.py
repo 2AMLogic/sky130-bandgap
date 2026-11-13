@@ -5,7 +5,7 @@ The minter must never pick a record whose netlist snapshot simulated a different
 design from `design/netlist/*` (a candidate-branch experiment is newer than the
 shipped design's record, so recency alone selects it).
 
-Run directly (`python3 sim/signoff-envelopes/test_emit_klt_sim_envelopes.py`).
+Discovered by `npm run test:unit` (sim/tests).
 """
 
 from __future__ import annotations
@@ -16,8 +16,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
-spec = importlib.util.spec_from_file_location("emit", HERE / "emit_klt_sim_envelopes.py")
+REPO_ROOT = Path(__file__).resolve().parents[2]
+spec = importlib.util.spec_from_file_location(
+    "emit_selector", REPO_ROOT / "sim" / "signoff-envelopes" / "emit_klt_sim_envelopes.py"
+)
+assert spec and spec.loader
 emit = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(emit)
 
