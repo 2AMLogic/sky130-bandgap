@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "sha256": "5807ad3b639370c8147ba940dda6372359a034216354d02b679643bd7ce589d8",
+      "size": 14586,
+      "kind": "evidence",
+      "producer": {
+        "tool": "klt",
+        "version": "0.9.2.dev887+gec7400b7d8e5",
+        "loom.repo": "2AMLogic/sky130-bandgap",
+        "commit": "bcacdb6792db7532bdfa92155687f9072b4c8776"
+      },
+      "uri": "artifact:evidence/2AMLogic__sky130-bandgap/58/5807ad3b639370c8147ba940dda6372359a034216354d02b679643bd7ce589d8",
+      "name": "sim/line-regulation-post-layout/corners/20261113-094825-bcacdb6/batch-v3.30/klt-report.json",
+      "media_type": "application/json"
+    },
+    {
+      "sha256": "92f29bee2745d182464461108d03fb2c4be1842219a2eec96ff4cdb1056f9fb0",
+      "size": 112933,
+      "kind": "evidence",
+      "producer": {
+        "tool": "klt",
+        "version": "0.9.2.dev887+gec7400b7d8e5",
+        "loom.repo": "2AMLogic/sky130-bandgap",
+        "commit": "bcacdb6792db7532bdfa92155687f9072b4c8776"
+      },
+      "uri": "artifact:evidence/2AMLogic__sky130-bandgap/92/92f29bee2745d182464461108d03fb2c4be1842219a2eec96ff4cdb1056f9fb0",
+      "name": "sim/line-regulation-post-layout/corners/20261113-094825-bcacdb6/batch-v3.30/netlist.cir"
+    },
+    {
+      "sha256": "992ad462a9f339538fd9515f6554c7ea6ca3279f9e260bc60a22117050ff7669",
+      "size": 2163,
+      "kind": "evidence",
+      "producer": {
+        "tool": "klt",
+        "version": "0.9.2.dev887+gec7400b7d8e5",
+        "loom.repo": "2AMLogic/sky130-bandgap",
+        "commit": "bcacdb6792db7532bdfa92155687f9072b4c8776"
+      },
+      "uri": "artifact:evidence/2AMLogic__sky130-bandgap/99/992ad462a9f339538fd9515f6554c7ea6ca3279f9e260bc60a22117050ff7669",
+      "name": "sim/line-regulation-post-layout/corners/20261113-094825-bcacdb6/batch-v3.30/request.json",
+      "media_type": "application/json"
+    },
+    {
+      "sha256": "ec6430d2b8ee7e892834df3abbb224d33335d99ecb86f2447f42037c37a81861",
+      "size": 3242,
+      "kind": "evidence",
+      "producer": {
+        "tool": "klt",
+        "version": "0.9.2.dev887+gec7400b7d8e5",
+        "loom.repo": "2AMLogic/sky130-bandgap",
+        "commit": "bcacdb6792db7532bdfa92155687f9072b4c8776"
+      },
+      "uri": "artifact:evidence/2AMLogic__sky130-bandgap/ec/ec6430d2b8ee7e892834df3abbb224d33335d99ecb86f2447f42037c37a81861",
+      "name": "sim/line-regulation-post-layout/corners/20261113-094825-bcacdb6/tt_27c_3.30v.log"
+    }
+  ]
+}

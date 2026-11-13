@@ -439,41 +439,102 @@ failed, `1` harness/setup error (no record written).
 The `sim/*-post-layout/run_post_layout_*.py` runners share
 `sim/bin/post_layout_common.py`, which now accepts `--backend local|batch`
 (default `local`), `--batch-capacity-wait-s` and `--batch-runner-version-check`
-with the same meaning as `corner-run.py`'s, and `--timeout` defaults to 10800 s
-with `--backend batch`. The extracted-netlist body is written into each
-request's netlist file, so nothing but the klt client runs on the dispatch host;
-`--dry-run` prints the per-supply requests and submits nothing; a failed
-submission is an error, never a local run.
+with the same meaning as `corner-run.py`'s, and `--timeout` defaults to 600 s
+with `--backend batch` (`batch_sim.POST_LAYOUT_BATCH_TIMEOUT_S`). The
+extracted-netlist body is written into each request's netlist file, so nothing
+but the klt client runs on the dispatch host; `--dry-run` prints the per-supply
+requests and submits nothing; a failed submission is an error, never a local
+run.
+
+That 600 s is this path's own budget, not `corner-run.py`'s 10 800 s
+(`batch_sim.DEFAULT_BATCH_TIMEOUT_S`, sized in issue #320 from a ~6.4 ks
+homotopy-stepped DC corner). The fleet caps a **whole job** at
+`max_job_seconds` = 3 600 s and klt bounds a job conservatively at
+`timeout_s x units-per-shard + 120 s`, so a 10 800 s per-corner budget cannot
+fit at any `remote.hosts` value: klt only warns, then the job is killed at the
+ceiling with every unit reported `batch_job_timeout`, i.e. the declared budget
+was unenforceable and each shard carried a single corner. The slowest corner
+across all seven post-layout benches' newest records is 96.7 s
+(`startup-ramp-post-layout`, record `20260924-041313-999407b`), so 600 s is
+~6x the measured worst case and `batch_sim.shard_hosts()` packs 5 corners per
+job (bound 3 120 s for the 15-corners-per-supply groups these benches build).
+On this path an over-ceiling `--timeout` is now a **loud error** rather than a
+warning: `batch_sim.require_job_bound_fits()` refuses anything above 3 480 s
+before submission, and for `--dry-run` too, so a request that could not run is
+never printed as if it were valid (issue #510). The pre-layout path keeps its
+own 10 800 s default and is deliberately not ceiling-enforced -- that budget is
+#320's measurement and changing it is a separate decision.
 
 | Runner | `--backend batch` | Why |
 |---|---|---|
 | `psrr-dc-post-layout` | yes | `ac` analysis, scalar expressions |
 | `quiescent-current-post-layout` | yes | `op` analysis, scalar expressions |
 | `startup-stability-post-layout` | yes | `dc` + `let` intermediates (inlined, as for `startup-stability`) |
-| `startup-ramp-post-layout` | `--dry-run` only (runner klt) | translated; `tran` deck measured with `meas tran ... WHEN/FIND AT` cards |
-| `startup-time-post-layout` | `--dry-run` only (runner klt) | translated; `tran` deck measured with `meas tran FIND ... AT` cards |
-| `line-regulation-post-layout` | `--dry-run` only (runner klt) | translated; in-deck `dc v1` sweep plus a `meas dc FIND ... AT` card |
-| `output-voltage-tc-post-layout` | `--dry-run` only (runner klt) | translated; in-deck `dc temp` sweep plus a `meas dc FIND ... AT` card |
+| `startup-ramp-post-layout` | yes (issue #510) | translated; `tran` deck measured with `meas tran ... WHEN/FIND AT` cards, sent as one `analysis_steps[]` step |
+| `startup-time-post-layout` | yes (issue #510) | translated; `tran` deck measured with `meas tran FIND ... AT` cards, sent as one `analysis_steps[]` step |
+| `line-regulation-post-layout` | yes (issue #510) | translated; in-deck `dc v1` sweep plus a `meas dc FIND ... AT` card, sent as one `analysis_steps[]` step |
+| `output-voltage-tc-post-layout` | yes (issue #510) | translated; in-deck `dc temp` sweep plus a `meas dc FIND ... AT` card, sent as one `analysis_steps[]` step |
 | `error-amp-offset-mc` | `--dry-run` only (record collection) | one `klt sim` `monte_carlo` request per point (`{n, seed, vary: mismatch}`, `.op`, section as the process); see below |
 | `monte-carlo-untrimmed` | `--dry-run` only (record collection) | one `klt sim` `monte_carlo` request per point (14: 3 temperatures x 4 `config`s, the MC-off control, the second-seed point); the `config` axis rides in the netlist as `.param <coeff>=0` |
 | `psrr-injector-attribution` | yes (`--dry-run` prints the requests) | variant set, not Monte Carlo: per variant x supply, one `ac` and one `op` request over the 5 x 3 process x temperature cross product, each variant's netlist from `variant_body()` (30 requests for the full run); same shape as `psrr-injector-candidates` |
 
-The four `meas` benches (issue #398) are **translated but refused for real runs**:
-`batch_sim.split_analyses()` turns each `meas` card into a `klt sim` `spice`
-measurement, the manifest's expressions read them by name, and the deck is sent
-as one `analysis_steps[]` step (klt only lets an expression read a `meas`
-result inside a step's own plot). The fleet runner's klt is 0.7.0, which rejects
-`analysis_steps` before simulating (`batch_runner_feature_unsupported`; live
-single-corner submission of `startup-time-post-layout`, 2026-10-21, tracked at
-klayout-tools#3516), so `--dry-run` prints their requests and a real
-`--backend batch` run is refused with that reason
-(`batch_sim.POST_LAYOUT_BATCH_REFUSALS`). Move a slug into
-`POST_LAYOUT_BATCH_ENABLED_SLUGS` once the runner image accepts the shape and
-a live single-corner run matches the local record. Checked locally instead:
-the `startup-time-post-layout` request run through `klt sim --backend local`
-(tt / 27 C / 3.30 V) gives `vref_final=1.193888`, `gdrv_final=2.08979`,
-`t_start_ms=0.08886417`, `vdd_final=3.3`, identical to the matching row of
-record `20260923-070906-dbd57a9`.
+The four `meas` benches (issue #398) are **translated, and enabled since
+2026-11-13** (issue #510): `batch_sim.split_analyses()` turns each `meas` card
+into a `klt sim` `spice` measurement, the manifest's expressions read them by
+name, and the deck is sent as one `analysis_steps[]` step (klt only lets an
+expression read a `meas` result inside a step's own plot). klt reports those
+entries as `main.<name>`; `batch_sim.plain_name()` strips the qualifier. They
+were held back on 2026-10-21 because the fleet runner's klt (0.7.0) rejected
+`analysis_steps` before simulating (`batch_runner_feature_unsupported`, live
+single-corner submission of `startup-time-post-layout`, klayout-tools#3516,
+closed 2026-11-07). Re-checked on the fleet at enablement time rather than
+trusting that date stamp: every probe below reports
+`remote.runner_klt_version` **0.9.0** with
+`remote.runner_request_features = {required: [analysis_steps,
+options.ngspice_init], missing: [], status: supported}`, so the 0.7.0 claim is
+stale and the shape runs.
+
+`batch_sim.POST_LAYOUT_BATCH_REFUSALS` is kept as the mechanism (a refused
+slug is named with its reason and still admitted by `--dry-run`) but is now
+**empty**: add a slug there, and leave it out of
+`POST_LAYOUT_BATCH_ENABLED_SLUGS`, when the runner rejects a request shape we
+can already build; move it back once the runner accepts the shape AND a live
+single-corner run matches that bench's newest local record.
+
+Enabled after one `tt / 27 degC / 3.30 V` corner of each ran on the fleet
+through its own runner (`--backend batch`, capacity wait 600 s; ngspice **47**
+and open_pdks `f6eeac7`, against local records minted under ngspice 46) and was
+compared to the newest local record for that corner:
+
+| bench | fleet probe record | compared with | fleet job | result |
+|---|---|---|---|---|
+| `startup-time-post-layout` | `20261113-095509-bcacdb6` | `20260923-070906-dbd57a9` | `klt-sim-3481989a0aca` | all 5 measurements equal |
+| `startup-ramp-post-layout` | `20261113-094533-bcacdb6` | `20260924-041313-999407b` | `klt-sim-58fceda8faf6` | all 11 measurements equal |
+| `line-regulation-post-layout` | `20261113-094825-bcacdb6` | `20260923-075227-dbd4dda` | `klt-sim-e1852616cb6a` | 4 of 7 equal; 3 differ in the 6th-7th significant digit |
+| `output-voltage-tc-post-layout` | `20261113-095223-bcacdb6` | `20260923-074724-dbd4dda` | `klt-sim-e55381372ffe` | all 5 measurements equal |
+
+`line-regulation-post-layout`'s three differences are last-printed-digit
+rounding, not a model delta: `line_shift_mv` 0.3215409 vs 0.321543
+(6.5e-6 relative), `line_reg_pct_per_v` 0.04081122 vs 0.04081149 (6.6e-6),
+`line_psrr_db` 66.24616 vs 66.2461 (9.1e-7); `vref_nom`, both sweep
+endpoints and `n_supply_points` are identical. The same class of difference
+appeared on `startup-ramp` in the pre-layout twin (#493).
+
+Two things these probes deliberately do **not** show. First, each probe record's
+own verdict is **FAIL because it is a one-corner subset**
+(`--subset-reason "issue #510 single-corner fleet comparison"`), not because the
+fleet disagreed -- they are enablement evidence, not reference records, and
+re-qualifying these four benches full-matrix is #370 slice C'. Second,
+`output-voltage-tc-post-layout`'s corner itself fails (`tc_ppm` 178.6325 above
+its limit, `vref_min` 1.167687 below its floor) -- the local record
+`20260923-074724-dbd4dda` carries the *same* two failures with byte-identical
+values, so that is the bench's standing result, not a tool delta.
+
+One submission was refused with `batch_no_capacity` before these landed (the
+fleet was at `BATCH_MAX_VCPU=224`, shared with `ci-spot`; a 600 s capacity-wait
+budget was exhausted after 6 launch attempts). It was re-submitted with a
+1 800 s capacity wait and passed; nothing was run locally in between, per this
+repo's "a failed batch submission is an error, never a local run" rule.
 
 `error-amp-offset-mc --backend batch --dry-run` (issue #398) prints one request
 per `MismatchPoint` (3 temperatures, the MC-off control, the second-seed point;
