@@ -30,7 +30,7 @@
     {
       "path": "sim/bin/sim_common.py",
       "role": "harness",
-      "content_hash": "sha256:7c8a6adc273a8afe5200741909e99229c08cbf15a85dddd586a80d5bfce2e40b"
+      "content_hash": "sha256:1f445619b1e2134b99583c50bc6af5d1af5dbdf1077203ae271d57a8b987f5c5"
     },
     {
       "path": "sim/spiceinit",
@@ -277,7 +277,7 @@
         {
           "path": "sim/psrr-injector-attribution/run_psrr_injector_attribution.py",
           "role": "runner",
-          "content_hash": "sha256:1edc1581efe835d176318927bdcad9eac7f9572e8cba705c0b9bdef9c6806bd3"
+          "content_hash": "sha256:eb6c3ac2d43fd8bb407176d98a075ff168937422c4e4ab8d062ab93ba8b364ce"
         }
       ]
     },
@@ -288,7 +288,7 @@
         {
           "path": "sim/psrr-injector-candidates/run_psrr_injector_candidates.py",
           "role": "runner",
-          "content_hash": "sha256:305ba70dd0e56dd4a4a388e94be8f2d6c10f767c84bc47337cdaa243fe9f66d7"
+          "content_hash": "sha256:e8f7549f1dcfda688171c77ae8a283b9a48fefded6675c270ec124b1f29379a0"
         }
       ]
     },
