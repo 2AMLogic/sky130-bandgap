@@ -33,12 +33,13 @@ No spec relaxation is made or implied.
 | `quiescent-current-post-layout` | `20260923-072514-dbd57a9` | `20261112-172211-ffb50731` | 45/45 | PASS 45/45, same as old |
 | `startup-stability-post-layout` | `20260924-041313-999407b` | `20261112-171240-ffb50731` | 8/8 (the bench's own worst-corner subset) | PASS 8/8, same as old |
 | `trim-lsb-chained` | `20261008-163545-ffa415c` | `20261112-224417-24a14a1` | 60 batch requests (15 corners; `chained` 17 codes, `lumped` 3 codes), no subset | PASS, per-corner graded table identical to old |
+| `psrr-injector-candidates` | `20261002-200944-fe334b1` | `20261113-052755-9402fb82` | 45/45 x 4 variants (180 points), no subset | Overall FAIL, same as old (2 `candidate_within_bare_core_ceiling` checks at `sf_125c`; old record fails the same two) |
 
 ### Not yet re-qualified (as of post-layout slice C, 2026-11-12)
 
 | Bench | Status |
 |---|---|
-| `psrr-injector-candidates`, slice D remainder (MC, offset-MC, attribution, layout reports) | Not attempted yet. Old records remain the evidence. |
+| slice D remainder (`monte-carlo-untrimmed`, `error-amp-offset-mc`, `psrr-injector-attribution`, layout reports) | Not attempted yet. Old records remain the evidence. |
 | post-layout `startup-ramp`, `startup-time`, `line-regulation`, `output-voltage-tc` (slice C') | Not re-qualified in slice C: these are not batch-enabled (`POST_LAYOUT_STEP_REQUEST_SLUGS`, fleet runner klt rejects `analysis_steps`) and local grids are forbidden on the dispatch worker. Old records remain the evidence. Whether the fleet runner now accepts them was not re-tested here. |
 
 ### Per-row old/new deltas, `startup-stability` (worst case over 45 corners)
@@ -104,6 +105,19 @@ and `quiescent-current-post-layout`, and at most 1.5e-8 A (`itrav_min`) for
 pre-existing `psrr-dc-post-layout` failure (21/45 corners below the 60 dB
 floor on `psrr_dc`, 25/45 on `psrr_band_min`) is unchanged and is a
 pre-existing finding, not a PDK-pin effect; no spec row is relaxed here.
+
+### Per-row old/new deltas, slice D2 (`psrr-injector-candidates`)
+
+Run with `--backend batch --batch-capacity-wait-s 600` under `f6eeac7`, full
+45-corner matrix, no subset. The runner has no `--supersedes` option, so the new
+record carries no `Supersedes` field; supersession is recorded only by this
+index row (old record is not edited). The default variant set has since gained
+`ngclamp`, so the new record holds 180 points to the old 135; for the three
+variants common to both (`base`, `ref3`, `ref3_ngclamp`) the per-corner
+`psrr_band_min` difference is 0 dB at all 45 corners, and the below-60 dB counts
+are identical (24, 18, 0). The two failing `candidate_within_bare_core_ceiling`
+checks (`sf_125c_3.30v`, `sf_125c_3.63v`) are the same two the old record fails;
+nothing moved because of the re-pin. No spec relaxation is made.
 
 ### Per-row old/new deltas, slice D1 (`trim-lsb-chained`)
 
