@@ -553,7 +553,7 @@ def render_record(r: dict) -> str:
         add(
             f"- **Execution**: {ex['mechanism']}; {ex['requests']} requests "
             f"(per variant and supply, one `ac` and one `op`), fleet job ids "
-            + ", ".join(f"`{j['job_id']}`" for j in ex["jobs"])
+            + batch_sim.md_fleet_job_ids(ex["jobs"])
             + f"; remote ngspice {'/'.join(ex['remote_engine_versions'])}; remote model "
             f"library {'matches' if ex['remote_pdk_matches_pin'] else '**DOES NOT MATCH**'} the "
             f"pinned `{ex['local_pinned_lib_sha256'][:12]}`. Raw per-request evidence is under "

@@ -394,6 +394,69 @@ def record_tools(execution: dict | None) -> dict:
     return tools
 
 
+def _is_batch(execution: dict | None) -> bool:
+    return (execution or {}).get("backend") == "batch"
+
+
+def seed_mechanism(execution: dict | None) -> str:
+    """How this run's draws were seeded, for the record's "Reproducible:" line.
+
+    The local path runs a `.control` `setseed` / `reset` loop. The batch path
+    has klt derive every sample's own `.options seed=` from the request's
+    `monte_carlo.seed`, so a batch record that says `setseed` names a mechanism
+    that did not run (issue #523). The local wording is unchanged."""
+    if _is_batch(execution):
+        return (
+            f"klt `monte_carlo` seed {SEED_A} (second-seed point uses {SEED_B}); klt derives "
+            f"each sample's own `.options seed=` from it, so a batch run reproduces the "
+            f"statistics of a local run of the same seed, not its individual draws"
+        )
+    return f"`setseed {SEED_A}` (second-seed point uses {SEED_B})"
+
+
+def seed_label(execution: dict | None, seed: int) -> str:
+    """One point's seed, named by the mechanism that actually drew it (#523)."""
+    if _is_batch(execution):
+        return f"`monte_carlo` seed {seed}"
+    return f"`setseed {seed}`"
+
+
+def seed_convention(execution: dict | None) -> str:
+    """The seed clause of `experiment.statistical_convention` (#523)."""
+    if _is_batch(execution):
+        return (
+            f"klt monte_carlo seed {SEED_A} (one ngspice run per sample, .options seed= "
+            f"derived from it by klt, not a single ngspice PRNG stream)"
+        )
+    return f"fixed setseed {SEED_A}"
+
+
+def convergence_sequence_note(execution: dict | None) -> str:
+    """Why the running-sigma rows are a convergence trend, not re-simulations.
+
+    Locally one `setseed` stream is drawn sequentially, so the first K of N
+    draws *are* a standalone K-sample run. On the batch path klt runs one
+    ngspice per sample with its own derived seed; `batch_sim.samples_from_report()`
+    restores the draw order from `monte_carlo.sample_index`, so the rows are
+    still prefixes of one fixed sequence -- but this repo has not established
+    that a standalone K-sample request reproduces the first K draws of an
+    N-sample one, so the batch wording claims only the part that is verified
+    (issue #523)."""
+    if _is_batch(execution):
+        return (
+            "klt runs one ngspice per sample with its own derived seed and "
+            "`monte_carlo.sample_index` fixes the draw order, so each row is a prefix of "
+            "the one draw sequence this run returned — a real convergence trend over "
+            "that sequence, not a re-simulation at each row; unlike a local run, a "
+            "standalone K-sample request is not known to reproduce these same first K draws"
+        )
+    return (
+        "ngspice draws sequentially per `setseed`, so the first K samples of the full run "
+        "are identical to what a standalone K-sample run would produce — this is a real "
+        "convergence trend, not a re-simulation at each row"
+    )
+
+
 def samples_path(corners_dir: Path, corner_id: str) -> Path:
     """Where a batch run keeps a point's parsed draws: the stand-in for the
     local `<corner_id>.log` that `emit_klt_yield.py` re-parses."""
@@ -437,6 +500,7 @@ def collect_batch(pin, pdk, body, points, args, corners_dir) -> tuple[dict[str, 
             "point": point.corner_id, "section": point.section, "config": point.config,
             "temp_c": point.temp_c, "seed": point.seed, "requested": point.samples,
             "dropped_without_values": dropped, "job_id": meta["job_id"],
+            "job_ids": meta["job_ids"],
             "vectors": list(VECTORS), "samples": parsed,
         }, indent=1) + "\n")
         shutil.copyfile(o.group.request_path, corners_dir / f"{point.corner_id}.request.json")
@@ -474,6 +538,12 @@ def convergence_series(values: list[float]) -> list[dict]:
     K samples of an N-sample run (K < N) are identical to a standalone K-run
     with the same seed, so this is a real converging estimate, not a
     re-simulation at each checkpoint.
+
+    On the batch path `values` is the same fixed sequence, ordered by klt's
+    `monte_carlo.sample_index`, so the rows are still prefixes of one run --
+    but each sample has its own klt-derived seed, so the standalone-K-run
+    equivalence above is a local-only property. `convergence_sequence_note()`
+    is what the record says about each case (issue #523).
     """
     out = []
     for k in CONVERGENCE_CHECKPOINTS:
@@ -641,7 +711,20 @@ def seed_stability(results: dict[str, dict]) -> list[dict]:
     )
 
 
-def convergence_check(all_point_27c: dict | None) -> list[dict]:
+def convergence_sequence_clause(execution: dict | None, n: int, k: int) -> str:
+    """The parenthetical inside the `sample_count_sufficient` check detail.
+
+    Same split as `convergence_sequence_note()`: "the first K draws are a
+    standalone K-sample run" is a local `setseed`-stream property, so a batch
+    record must not assert it (issue #523)."""
+    if _is_batch(execution):
+        return ("one klt monte_carlo draw sequence, ordered by sample_index; the "
+                f"N={k} row is a prefix of the same N={n} sequence, not a re-run")
+    return (f"same seed stream, the {n}-sample run's first {k} draws are identical "
+            f"to a standalone {k}-sample run")
+
+
+def convergence_check(all_point_27c: dict | None, execution: dict | None = None) -> list[dict]:
     if not all_point_27c or "convergence" not in all_point_27c:
         return []
     series = all_point_27c["convergence"]
@@ -654,9 +737,9 @@ def convergence_check(all_point_27c: dict | None) -> list[dict]:
             "name": "sample_count_sufficient",
             "pass": rel <= CONVERGENCE_TOL,
             "detail": (
-                f"running sigma(VOUT) at N={prev['n']} vs N={last['n']} (same seed stream, "
-                f"the {last['n']}-sample run's first {prev['n']} draws are identical to a "
-                f"standalone {prev['n']}-sample run): {prev['sigma'] * 1e3:.4f} mV -> "
+                f"running sigma(VOUT) at N={prev['n']} vs N={last['n']} "
+                f"({convergence_sequence_clause(execution, last['n'], prev['n'])}): "
+                f"{prev['sigma'] * 1e3:.4f} mV -> "
                 f"{last['sigma'] * 1e3:.4f} mV, relative change {rel:.1%} (tolerance "
                 f"{CONVERGENCE_TOL:.0%}). Full checkpoint series: "
                 + ", ".join(f"N={p['n']}: {p['sigma'] * 1e3:.4f} mV" for p in series)
@@ -830,7 +913,7 @@ def render_record(r: dict) -> str:
         f"mismatch only (section `{MM_SECTION}`: `MC_MM_SWITCH=1`, `MC_PR_SWITCH=0`). Spread "
         f"is the sample standard deviation (N−1) reported as **1 σ**, with 3 σ alongside; "
         f"σ's own relative standard error is ≈ {100 / math.sqrt(2 * (n - 1)):.1f} %. "
-        f"Reproducible: `setseed {SEED_A}` (second-seed point uses {SEED_B}). N matches "
+        f"Reproducible: {seed_mechanism(r.get('execution'))}. N matches "
         f"`sim/pnp-mismatch` and `sim/error-amp-offset-mc`, so σ figures are directly "
         f"comparable across all three. See 'Sample-count justification' below for the "
         f"empirical convergence check."
@@ -912,10 +995,8 @@ def render_record(r: dict) -> str:
     if conv:
         add(
             "Running σ(VOUT) at increasing sample counts, computed from the SAME "
-            f"N={n}, seed={SEED_A} draw sequence at 27 °C / `all` config (ngspice draws "
-            "sequentially per `setseed`, so the first K samples of the full run are "
-            "identical to what a standalone K-sample run would produce — this is a real "
-            "convergence trend, not a re-simulation at each row):"
+            f"N={n}, seed={SEED_A} draw sequence at 27 °C / `all` config "
+            f"({convergence_sequence_note(r.get('execution'))}):"
         )
         add("")
         add("| N | running σ(VOUT) (mV) | running mean (V) |")
@@ -948,7 +1029,8 @@ def render_record(r: dict) -> str:
         )
     if seedb:
         add(
-            f"- **Second-seed point** (`{seedb['corner_id']}`, `setseed {SEED_B}`, "
+            f"- **Second-seed point** (`{seedb['corner_id']}`, "
+            f"{seed_label(r.get('execution'), SEED_B)}, "
             f"N = {seedb['parsed_samples']}): σ(VOUT) = {mv(seedb['stats']['vout']['sigma'])} "
             f"mV — see the seed-stability checks below: the individual samples change, σ "
             "does not."
@@ -1193,7 +1275,7 @@ def main(argv: list[str]) -> int:
     cross = decomposition_checks(results)
     cross += seed_stability(results)
     all_27c = results.get(f"{MM_SECTION}_all_27c_{SUPPLY_V:.2f}v")
-    cross += convergence_check(all_27c)
+    cross += convergence_check(all_27c, execution)
     overall = all(r["pass"] for r in ordered) and all(c["pass"] for c in cross)
 
     snapshots_dir.mkdir(parents=True, exist_ok=True)
@@ -1213,7 +1295,7 @@ def main(argv: list[str]) -> int:
             "statistical_convention": (
                 f"N = {args.samples} Monte Carlo samples per point, local mismatch only "
                 f"(section {MM_SECTION}: MC_MM_SWITCH=1, MC_PR_SWITCH=0); 1 sigma sample "
-                f"standard deviation (N-1), fixed setseed {SEED_A}"
+                f"standard deviation (N-1), {seed_convention(execution)}"
             ),
         },
         "mismatch_model": {

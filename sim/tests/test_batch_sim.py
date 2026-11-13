@@ -107,10 +107,40 @@ def klt_corner(corner, index=0, *, status="pass", diags=None, values=None, runti
     }
 
 
-def make_report(group, *, lib_sha=LIB_SHA, mutate=None, job="klt-sim-test", elapsed=500):
+def shard_ids(group, job="klt-sim-test", shards=3):
+    """The ids a `shards`-way sharded request reports, in report order."""
+    return [f"{job}-{group.supply_v:.2f}-s{i}" for i in range(shards)]
+
+
+def make_report(group, *, lib_sha=LIB_SHA, mutate=None, job="klt-sim-test", elapsed=500,
+                shards=None):
+    """`shards=N` gives the report the shape klt returns for a *sharded*
+    request (issue #523): `environment.remote` carries a `fleet` list of
+    per-shard entries and no top-level `job_id`, which is why every sharded
+    request used to record `job_id: null`."""
     corners = [klt_corner(c, i) for i, c in enumerate(group.corners)]
     if mutate:
         corners = mutate(corners, group)
+    if shards:
+        remote = {
+            "provider": "aws-batch-fleet",
+            "runner_compatibility": "match",
+            "fleet": [
+                {"job_id": jid, "instance_type": "c7i.4xlarge", "ami_id": "ami-1",
+                 "lifecycle": "spot"}
+                for jid in shard_ids(group, job, shards)
+            ],
+        }
+    else:
+        remote = {
+            "provider": "aws-batch-fleet",
+            "job_id": f"{job}-{group.supply_v:.2f}",
+            "instance_type": "c7i.4xlarge",
+            "ami_id": "ami-1",
+            "lifecycle": "spot",
+            "elapsed_seconds": elapsed,
+            "runner_compatibility": "match",
+        }
     return {
         "schema_version": 3,
         "status": "pass",
@@ -121,25 +151,17 @@ def make_report(group, *, lib_sha=LIB_SHA, mutate=None, job="klt-sim-test", elap
             "engine_version": "46",
             "models_lib_sha256": lib_sha,
             "netlist_sha256": "b" * 64,
-            "remote": {
-                "provider": "aws-batch-fleet",
-                "job_id": f"{job}-{group.supply_v:.2f}",
-                "instance_type": "c7i.4xlarge",
-                "ami_id": "ami-1",
-                "lifecycle": "spot",
-                "elapsed_seconds": elapsed,
-                "runner_compatibility": "match",
-            },
+            "remote": remote,
         },
         "provenance": {"klt_version": "0.6.0", "pdk": None},
     }
 
 
-def fake_runner(*, mutate=None, lib_sha=LIB_SHA, fail_supply=None, reverse=False):
+def fake_runner(*, mutate=None, lib_sha=LIB_SHA, fail_supply=None, reverse=False, shards=None):
     def run(group):
         if fail_supply is not None and group.supply_v == fail_supply:
             return batch_sim.GroupOutcome(group, "t0", "t1", 1.0, 1, None, "klt sim exited 1: boom")
-        rep = make_report(group, lib_sha=lib_sha, mutate=mutate)
+        rep = make_report(group, lib_sha=lib_sha, mutate=mutate, shards=shards)
         if reverse:
             rep["corners"].reverse()
         (group.dir / "klt-report.json").write_text(json.dumps(rep))
@@ -473,6 +495,150 @@ class Aggregation(unittest.TestCase):
         for v in ("2.97", "3.30", "3.63"):
             for name in ("request.json", "netlist.cir", "klt-report.json"):
                 self.assertTrue((corners / f"batch-v{v}" / name).is_file(), (v, name))
+
+
+class FleetJobIds(unittest.TestCase):
+    """A sharded `klt sim` request reports its fleet job ids under
+    `environment.remote.fleet[]` and leaves no top-level `job_id`, so reading
+    `remote["job_id"]` alone records `null` for every sharded request and the
+    one handle tying a record to its fleet jobs is lost (issue #523)."""
+
+    def setUp(self):
+        self.env = _Env()
+        self.addCleanup(shutil.rmtree, self.env.tmp, True)
+
+    # --- the read itself ------------------------------------------------
+
+    def test_flat_remote_is_one_job_id(self):
+        self.assertEqual(batch_sim.fleet_job_ids({"job_id": "klt-sim-a"}), ["klt-sim-a"])
+
+    def test_sharded_remote_is_every_shard_id_in_report_order(self):
+        remote = {"fleet": [{"job_id": "klt-sim-a"}, {"job_id": "klt-sim-b"},
+                            {"job_id": "klt-sim-c"}]}
+        self.assertEqual(batch_sim.fleet_job_ids(remote),
+                         ["klt-sim-a", "klt-sim-b", "klt-sim-c"])
+
+    def test_missing_or_empty_remote_is_no_ids_not_an_exception(self):
+        for remote in (None, {}, {"fleet": []}, "not-a-dict"):
+            with self.subTest(remote=remote):
+                self.assertEqual(batch_sim.fleet_job_ids(remote), [])
+
+    def test_fleet_entry_without_an_id_is_skipped_never_a_none(self):
+        remote = {"fleet": [{"job_id": "klt-sim-a"}, {"instance_type": "c7i"},
+                            {"job_id": None}, "junk"]}
+        self.assertEqual(batch_sim.fleet_job_ids(remote), ["klt-sim-a"])
+
+    # --- job_meta() -----------------------------------------------------
+
+    def _execute(self, shards=None, mutate=None):
+        (self.env.tmp / "sky130.lib.spice").write_text("lib")
+        sha = batch_sim.sha256_file(self.env.tmp / "sky130.lib.spice")
+        return self.env.execute(runner=fake_runner(lib_sha=sha, mutate=mutate, shards=shards))[0]
+
+    def _jobs(self, shards=None):
+        return self._execute(shards=shards)[2]["execution"]["jobs"]
+
+    def test_job_meta_on_an_unsharded_report_keeps_one_id_in_both_fields(self):
+        job = self._jobs()[0]
+        self.assertEqual(job["job_id"], "klt-sim-test-2.97")
+        self.assertEqual(job["job_ids"], ["klt-sim-test-2.97"])
+
+    def test_job_meta_on_a_sharded_report_lists_every_shard(self):
+        jobs = self._jobs(shards=3)
+        for job, supply in zip(jobs, (2.97, 3.30, 3.63)):
+            with self.subTest(supply=supply):
+                # `job_id` deliberately keeps its old meaning -- the single id,
+                # absent when klt sharded -- so record readers do not change shape.
+                self.assertIsNone(job["job_id"])
+                self.assertEqual(job["job_ids"],
+                                 [f"klt-sim-test-{supply:.2f}-s{i}" for i in range(3)])
+
+    # --- the consumers --------------------------------------------------
+
+    def test_corner_log_header_names_the_shard_ids_not_none(self):
+        self._execute(shards=3)
+        header = (self.env.tmp / "corners" / "tt_-40c_2.97v.log").read_text().splitlines()[2]
+        self.assertNotIn("None", header)
+        for i in range(3):
+            self.assertIn(f"klt-sim-test-2.97-s{i}", header)
+
+    def test_corner_result_carries_the_shard_ids(self):
+        res, _, _ = self._execute(shards=3)
+        self.assertEqual(res[0]["batch"]["job_ids"],
+                         [f"klt-sim-test-2.97-s{i}" for i in range(3)])
+
+    def test_synthetic_failure_for_a_missing_corner_carries_the_shard_ids(self):
+        def drop_first(corners, group):
+            return corners[1:] if group.supply_v == 2.97 else corners
+        res, blockers, _ = self._execute(shards=3, mutate=drop_first)
+        missing = next(r for r in res if not r["measurements"] or r["batch"]["failure"])
+        self.assertTrue(any("no result returned" in b for b in blockers))
+        self.assertEqual(missing["batch"]["job_ids"],
+                         [f"klt-sim-test-2.97-s{i}" for i in range(3)])
+
+    def test_died_before_simulating_error_names_every_shard_id(self):
+        """The fleet job died before simulating: the error is the only place
+        the ids are reported (no record is minted), so `job None` there loses
+        the handle entirely."""
+        def dead(corners, group):
+            return [klt_corner(c, values={}, status="error", diags=[{
+                "severity": "error", "code": "batch_job_failed",
+                "runner_code": "batch_runner_version_mismatch", "message": "skew"}])
+                for c in group.corners]
+        with self.assertRaises(batch_sim.BatchError) as cm:
+            self._execute(shards=3, mutate=dead)
+        msg = str(cm.exception)
+        self.assertNotIn("job None", msg)
+        for i in range(3):
+            self.assertIn(f"klt-sim-test-2.97-s{i}", msg)
+
+    # --- record prose ---------------------------------------------------
+
+    def test_record_prose_renders_every_shard_id_and_pluralises(self):
+        jobs = self._jobs(shards=3)
+        line = batch_sim.md_job_ids(jobs[0])
+        self.assertEqual(line, ", ".join(f"`klt-sim-test-2.97-s{i}`" for i in range(3)))
+        self.assertEqual(batch_sim.md_job_ids({"job_id": "a"}), "`a`")
+        self.assertEqual(batch_sim.md_job_ids({}), "(none reported)")
+        self.assertEqual(
+            batch_sim.md_fleet_job_ids([{"job_ids": ["a", "b"]}, {"job_id": "c"}]),
+            "`a`, `b`, `c`")
+        self.assertEqual(batch_sim.md_fleet_job_ids([]), "(none reported)")
+
+    def test_corner_run_execution_prose_names_the_shards_never_none(self):
+        res, blockers, extra = self._execute(shards=3)
+        text = "\n".join(cr.render_execution(extra["execution"], blockers))
+        self.assertNotIn("`None`", text)
+        for supply in (2.97, 3.30, 3.63):
+            for i in range(3):
+                self.assertIn(f"`klt-sim-test-{supply:.2f}-s{i}`", text)
+        self.assertIn("  - Jobs `klt-sim-test-2.97-s0`", text)
+
+    def test_no_consumer_still_renders_a_single_job_id_into_prose(self):
+        """The defect is one read repeated across benches, so the guard is
+        structural: no record-prose site may format `job_id` directly again
+        (issue #523). `batch_sim.job_meta()` keeps the field for record shape;
+        `trim-lsb-chained` and `pex-native` read `environment.remote`
+        themselves rather than `job_meta()` and are out of this issue's scope."""
+        consumers = [
+            SIM_DIR / "bin" / "corner-run.py",
+            SIM_DIR / "psrr-injector-attribution" / "run_psrr_injector_attribution.py",
+            SIM_DIR / "psrr-injector-candidates" / "run_psrr_injector_candidates.py",
+        ]
+        for path in consumers:
+            with self.subTest(path=path.name):
+                text = path.read_text()
+                self.assertNotRegex(text, r"`\{j\['job_id'\]\}`")
+                self.assertTrue(
+                    any(f"batch_sim.{h}(" in text
+                        for h in ("md_job_ids", "md_fleet_job_ids", "format_job_ids")),
+                    f"{path.name} does not render job ids through batch_sim")
+
+    def test_corner_run_execution_prose_is_unchanged_for_an_unsharded_run(self):
+        res, blockers, extra = self._execute()
+        text = "\n".join(cr.render_execution(extra["execution"], blockers))
+        self.assertIn("  - Job `klt-sim-test-2.97` (supply 2.97 V): klt status pass", text)
+
 
 
 class NoSilentLocalFallback(unittest.TestCase):

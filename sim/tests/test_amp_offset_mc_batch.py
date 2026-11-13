@@ -103,8 +103,12 @@ class BatchRequests(unittest.TestCase):
         self.assertEqual(self.groups[0].request["remote"]["hosts"], 300)
 
 
+def _shard_ids(point, shards):
+    return [f"job-{point.corner_id}-s{i}" for i in range(shards)]
+
+
 def _report(point, n=None, lib_sha="abc", drop=(), shuffle=False, spread=True,
-            unlaunched=0, lost=0):
+            unlaunched=0, lost=0, shards=0):
     """A stubbed klt report: one `corners[]` entry per Monte Carlo draw.
 
     `spread=False` gives every draw identical values -- the MC-off control
@@ -130,7 +134,10 @@ def _report(point, n=None, lib_sha="abc", drop=(), shuffle=False, spread=True,
                         "diagnostics": diags})
     if shuffle:
         corners.reverse()
-    remote = {"job_id": f"job-{point.corner_id}"}
+    # `shards=N` is the shape klt returns for a sharded request (issue #523):
+    # a `fleet` list of per-shard entries and NO top-level `job_id`.
+    remote = ({"fleet": [{"job_id": j} for j in _shard_ids(point, shards)]} if shards
+              else {"job_id": f"job-{point.corner_id}"})
     if unlaunched:
         remote["unlaunched_shards"] = unlaunched
     return {"corner_count": n, "corners": corners, "status": "pass",
@@ -183,6 +190,29 @@ class BatchCollection(unittest.TestCase):
                          [f"job-{p.corner_id}" for p in self.points])
         self.assertIn("ngspice-45 (remote, batch fleet", R.record_tools(execution)["ngspice"])
         self.assertNotIn("remote", R.record_tools(None)["ngspice"])
+
+    def test_sharded_request_records_every_fleet_job_id(self):
+        """klt splits a 300-sample point across shards; the ids live under
+        `remote.fleet[]` and there is no top-level `job_id` (issue #523)."""
+        _, execution = self._run(lambda p: _report(p, lib_sha=self.sha, shards=3))
+        for job, point in zip(execution["jobs"], self.points):
+            with self.subTest(point=point.corner_id):
+                self.assertIsNone(job["job_id"])
+                self.assertEqual(job["job_ids"], _shard_ids(point, 3))
+
+    def test_samples_sidecar_carries_the_shard_ids(self):
+        self._run(lambda p: _report(p, lib_sha=self.sha, shards=3))
+        point = self.points[0]
+        written = json.loads(R.samples_path(self.corners_dir, point.corner_id).read_text())
+        self.assertIsNone(written["job_id"])
+        self.assertEqual(written["job_ids"], _shard_ids(point, 3))
+
+    def test_samples_sidecar_is_unchanged_for_an_unsharded_request(self):
+        self._run(lambda p: _report(p, lib_sha=self.sha))
+        point = self.points[0]
+        written = json.loads(R.samples_path(self.corners_dir, point.corner_id).read_text())
+        self.assertEqual(written["job_id"], f"job-{point.corner_id}")
+        self.assertEqual(written["job_ids"], [f"job-{point.corner_id}"])
 
     def test_samples_file_and_request_copy_land_next_to_the_record(self):
         by_point, _ = self._run(lambda p: _report(p, lib_sha=self.sha))
@@ -246,6 +276,74 @@ class BatchCollection(unittest.TestCase):
         zeroed = [c for c in res["checks"] if c["name"].startswith("sigma_zero[")]
         self.assertEqual(len(zeroed), 6)
         self.assertTrue(all(c["pass"] for c in zeroed))
+
+
+BENCH_DIR = SIM_DIR / "error-amp-offset-mc"
+
+
+class SeedWording(unittest.TestCase):
+    """On the batch path klt derives every sample's own `.options seed=` from
+    the request's `monte_carlo.seed`; there is no `setseed` / `reset` loop, so
+    a record that says `setseed` names a mechanism that did not run (#523).
+    The local wording must stay byte for byte what it was."""
+
+    LOCAL = {"backend": "local"}
+    BATCH = {"backend": "batch"}
+
+    def test_local_seed_prose_is_unchanged_byte_for_byte(self):
+        for execution in (None, {}, self.LOCAL):
+            with self.subTest(execution=execution):
+                self.assertEqual(
+                    R.seed_mechanism(execution),
+                    f"`setseed {R.SEED_A}` (second-seed point uses {R.SEED_B})")
+                self.assertEqual(R.seed_label(execution, R.SEED_B), f"`setseed {R.SEED_B}`")
+                self.assertEqual(R.seed_convention(execution), f"fixed setseed {R.SEED_A}")
+
+    def test_batch_seed_prose_names_the_monte_carlo_seed_and_never_setseed(self):
+        for text in (R.seed_mechanism(self.BATCH), R.seed_label(self.BATCH, R.SEED_B),
+                     R.seed_convention(self.BATCH)):
+            with self.subTest(text=text):
+                self.assertNotIn("setseed", text)
+                self.assertIn("monte_carlo", text)
+        self.assertIn(str(R.SEED_A), R.seed_mechanism(self.BATCH))
+        self.assertIn(str(R.SEED_B), R.seed_label(self.BATCH, R.SEED_B))
+        self.assertIn(str(R.SEED_A), R.seed_convention(self.BATCH))
+
+    # The committed records are read-only fixtures here: they are this repo's
+    # append-only evidence and are never rewritten (see the issue's scope note).
+    def _record(self, backend):
+        for path in sorted(BENCH_DIR.glob("records/*.json")):
+            r = json.loads(path.read_text())
+            if "points" in r and (r.get("execution") or {}).get("backend") == backend:
+                return r
+        self.skipTest(f"no committed {backend} record for this bench")
+
+    def test_a_batch_record_renders_with_no_setseed_anywhere(self):
+        md = R.render_record(self._record("batch"))
+        self.assertNotIn("setseed", md)
+        self.assertIn(f"Reproducible: klt `monte_carlo` seed {R.SEED_A}", md)
+        self.assertIn(f"`monte_carlo` seed {R.SEED_B}", md)
+
+    def test_a_local_record_still_renders_the_setseed_wording(self):
+        md = R.render_record(self._record(None))
+        self.assertIn(
+            f"Reproducible: `setseed {R.SEED_A}` (second-seed point uses {R.SEED_B}). "
+            f"N matches", md)
+        self.assertIn(f"`setseed {R.SEED_B}`", md)
+
+    def test_statistical_convention_follows_the_backend(self):
+        self.assertIn("fixed setseed", R.seed_convention(None))
+        self.assertNotIn("setseed", R.seed_convention(self.BATCH))
+
+
+class CommittedRecordsAreNotRewritten(unittest.TestCase):
+    def test_rendering_a_committed_record_writes_nothing(self):
+        before = {p: p.stat().st_mtime_ns for p in BENCH_DIR.glob("records/*")}
+        for path in sorted(BENCH_DIR.glob("records/*.json")):
+            r = json.loads(path.read_text())
+            if "points" in r:
+                R.render_record(r)
+        self.assertEqual({p: p.stat().st_mtime_ns for p in BENCH_DIR.glob("records/*")}, before)
 
 
 class SharedHelpers(unittest.TestCase):
