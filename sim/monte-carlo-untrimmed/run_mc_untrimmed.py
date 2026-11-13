@@ -371,20 +371,6 @@ def build_batch_groups(pin, body, points, spiceinit_text, out_dir, args) -> list
     ]
 
 
-def shard_loss(report: dict) -> str:
-    """`unlaunched_shards` / `lost_shard` counts of one klt report, as a suffix
-    for an incomplete-point error (empty when the report records neither)."""
-    remote = (report.get("environment") or {}).get("remote") or {}
-    unlaunched = remote.get("unlaunched_shards") or 0
-    lost = sum(
-        1 for c in report.get("corners") or [] for d in c.get("diagnostics") or []
-        if d.get("code") == "lost_shard"
-    ) + sum(1 for d in report.get("diagnostics") or [] if d.get("code") == "lost_shard")
-    if not (unlaunched or lost):
-        return ""
-    return f" ({unlaunched} unlaunched_shards, {lost} lost_shard diagnostics in the klt report)"
-
-
 def write_log(corners_dir, point, pdk, record_id, stamp, deck, raw, rc, timed_out) -> Path:
     header = [
         f"# point: {point.corner_id}",
@@ -396,29 +382,6 @@ def write_log(corners_dir, point, pdk, record_id, stamp, deck, raw, rc, timed_ou
     return write_corner_log(
         corners_dir, point.corner_id, header, deck_sections(deck), pdk, rc, timed_out, stamp, raw
     )
-
-
-def samples_from_report(report: dict, request: dict) -> tuple[list[dict[str, float]], int]:
-    """One group's klt report -> `(parsed samples, dropped)`: the same
-    `list[{vector: value}]` `parse_samples()` returns from a local log.
-
-    klt reports each Monte Carlo draw as one `corners[]` entry carrying
-    `monte_carlo.sample_index`; ordering by it restores the draw order the
-    first-K-of-N convergence series depends on. A draw missing any vector
-    (the engine failed or timed out on it) is dropped, as `parse_samples()`
-    drops an incomplete block, and counted so the record can say so."""
-    drawn = []
-    for kc in report["corners"]:
-        values = {
-            batch_sim.plain_name(m["name"], request): m["value"]
-            for m in kc.get("measurements") or []
-            if m.get("value") is not None
-        }
-        idx = (kc.get("monte_carlo") or {}).get("sample_index")
-        drawn.append((idx if idx is not None else len(drawn), values))
-    drawn.sort(key=lambda t: t[0])
-    parsed = [{v: float(vals[v]) for v in VECTORS} for _, vals in drawn if set(VECTORS) <= set(vals)]
-    return parsed, len(drawn) - len(parsed)
 
 
 def record_tools(execution: dict | None) -> dict:
@@ -465,8 +428,8 @@ def collect_batch(pin, pdk, body, points, args, corners_dir) -> tuple[dict[str, 
         got = len(o.report["corners"])
         if got != point.samples:
             blockers.append(f"{point.corner_id}: requested {point.samples} samples, report has {got}"
-                            f"{shard_loss(o.report)}")
-        parsed, dropped = samples_from_report(o.report, o.group.request)
+                            f"{batch_sim.shard_loss(o.report)}")
+        parsed, dropped = batch_sim.samples_from_report(o.report, o.group.request, VECTORS)
         meta["samples_dropped"] = dropped
         jobs.append(meta)
         parsed_by_point[point.corner_id] = parsed

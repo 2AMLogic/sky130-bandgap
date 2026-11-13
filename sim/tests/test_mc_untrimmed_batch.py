@@ -94,14 +94,18 @@ class BatchRequests(unittest.TestCase):
         R.check_batch_only_flags(SimpleNamespace(backend="local", batch_resume=False))
 
     def test_shard_loss_names_unlaunched_and_lost_counts(self):
+        # `shard_loss`/`samples_from_report` moved into batch_sim (issue #514)
+        # so both MC runners read a klt report through one implementation.
+        self.assertFalse(hasattr(R, "shard_loss"))
+        self.assertFalse(hasattr(R, "samples_from_report"))
         report = {
             "environment": {"remote": {"unlaunched_shards": 11}},
             "corners": [{"diagnostics": [{"code": "lost_shard"}]}, {"diagnostics": []}],
         }
-        msg = R.shard_loss(report)
+        msg = batch_sim.shard_loss(report)
         self.assertIn("11 unlaunched_shards", msg)
         self.assertIn("1 lost_shard", msg)
-        self.assertEqual(R.shard_loss({"corners": []}), "")
+        self.assertEqual(batch_sim.shard_loss({"corners": []}), "")
 
     def test_roles_map_to_sections(self):
         by_role = {}
