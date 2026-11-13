@@ -1033,6 +1033,109 @@ def job_meta(o: GroupOutcome, local_lib_sha256: str, blockers: list[str]) -> dic
     return meta
 
 
+# --------------------------------------------------------------------------
+# Monte Carlo batch collection (shared by the bespoke MC runners)
+# --------------------------------------------------------------------------
+#
+# The whole submit -> wait -> validate -> write-sidecars sequence both MC
+# benches (`sim/error-amp-offset-mc`, `sim/monte-carlo-untrimmed`) run after
+# `build_mc_group()`. It lives here, not in either runner, so a collector
+# defect -- or a fix -- lands once for both (issues #514, #522). Each runner
+# keeps only the part that is actually bench-specific: building its own
+# groups, and translating `BatchError` to its harness error type.
+
+
+def record_tools(tools: dict, execution: dict | None) -> dict:
+    """`sim_common.tool_versions()`, with the engine line naming the fleet's
+    ngspice (not the dispatch host's) for a batch run. `tools` is copied, not
+    mutated."""
+    tools = dict(tools)
+    if execution:
+        versions = sorted({str(j["engine_version"]) for j in execution["jobs"]})
+        tools["ngspice"] = f"ngspice-{'/'.join(versions)} (remote, batch fleet; not this host's ngspice)"
+    return tools
+
+
+def samples_path(corners_dir: Path, corner_id: str) -> Path:
+    """Where a batch run keeps a point's parsed draws: the stand-in for the
+    local `<corner_id>.log` the local path writes (and `emit_klt_yield.py`
+    re-parses). The name is load-bearing -- readers derive it themselves with
+    `log_path.with_suffix(".samples.json")`."""
+    return corners_dir / f"{corner_id}.samples.json"
+
+
+def collect_mc_batch(
+    groups: list[Group],
+    points: list,
+    lib_sha: str,
+    vectors: tuple[str, ...] | list[str],
+    corners_dir: Path,
+    extra_fields: Callable[[object], dict] | None = None,
+) -> tuple[dict[str, list], dict]:
+    """Submit one request per Monte Carlo point, wait for every report and fold
+    them into `{corner_id: parsed samples}` plus the record's `execution` block.
+
+    `groups` and `points` are positionally paired. Every point must expose
+    `corner_id`, `section`, `temp_c`, `seed` and `samples`; `extra_fields(point)`
+    adds bench-specific keys to that point's sidecar (the untrimmed bench's
+    `config`), placed right after `section` so each bench's sidecar layout is
+    what it has always been.
+
+    Any submit/collect failure, wrong sample count, model-library mismatch or
+    runner skew is a `BatchError` -- the caller translates it to its own harness
+    error, and never falls back to a local run.
+
+    Nothing is written under the bench directory until every point has passed
+    those checks: an untrustworthy batch leaves no record and no half-populated
+    `corners/` directory beside it, so the refusal's "no record was written" is
+    literally true (issue #522; before it, only the amp-offset bench behaved
+    this way). The klt reports stay in the runner's untracked build directory
+    for debugging either way.
+    """
+    outcomes = collect(groups)
+    blockers: list[str] = []
+    parsed_by_point: dict[str, list] = {}
+    jobs = []
+    collected: list[tuple] = []
+    for point, o in zip(points, outcomes):
+        meta = job_meta(o, lib_sha, blockers)
+        got = len(o.report["corners"])
+        if got != point.samples:
+            blockers.append(f"{point.corner_id}: requested {point.samples} samples, report has {got}"
+                            f"{shard_loss(o.report)}")
+        parsed, dropped = samples_from_report(o.report, o.group.request, vectors)
+        meta["samples_dropped"] = dropped
+        jobs.append(meta)
+        parsed_by_point[point.corner_id] = parsed
+        collected.append((point, o, meta, parsed, dropped))
+    if blockers:
+        raise BatchError(
+            "batch results are not trustworthy; no record was written and nothing was run "
+            "locally:\n  " + "\n  ".join(blockers)
+        )
+    corners_dir.mkdir(parents=True, exist_ok=True)
+    for point, o, meta, parsed, dropped in collected:
+        samples_path(corners_dir, point.corner_id).write_text(json.dumps({
+            "point": point.corner_id, "section": point.section,
+            **(extra_fields(point) if extra_fields else {}),
+            "temp_c": point.temp_c, "seed": point.seed, "requested": point.samples,
+            "dropped_without_values": dropped, "job_id": meta["job_id"],
+            "job_ids": meta["job_ids"],
+            "vectors": list(vectors), "samples": parsed,
+        }, indent=1) + "\n")
+        shutil.copyfile(o.group.request_path, corners_dir / f"{point.corner_id}.request.json")
+    return parsed_by_point, {
+        "backend": "batch",
+        "mechanism": "klt sim --backend batch (2am EDA batch fleet, Spot)",
+        "local_pinned_lib_sha256": lib_sha,
+        "jobs": jobs,
+        "note": (
+            "per-sample seeds come from klt's monte_carlo seed contract, not `setseed`: the "
+            "statistics, not the individual draws, match a local run of the same seed"
+        ),
+    }
+
+
 def assemble(
     exp,
     matrix: list,
