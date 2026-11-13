@@ -34,8 +34,13 @@ No spec relaxation is made or implied.
 | `startup-stability-post-layout` | `20260924-041313-999407b` | `20261112-171240-ffb50731` | 8/8 (the bench's own worst-corner subset) | PASS 8/8, same as old |
 | `trim-lsb-chained` | `20261008-163545-ffa415c` | `20261112-224417-24a14a1` | 60 batch requests (15 corners; `chained` 17 codes, `lumped` 3 codes), no subset | PASS, per-corner graded table identical to old |
 | `psrr-injector-candidates` | `20261002-200944-fe334b1` | `20261113-052755-9402fb82` | 45/45 x 4 variants (180 points), no subset | Overall FAIL, same as old (2 `candidate_within_bare_core_ceiling` checks at `sf_125c`; old record fails the same two) |
+| `line-regulation-post-layout` | `20260923-075227-dbd4dda` | `20261113-110852-7efdcf3b` | 15/15 (the bench's own in-deck-sweep subset) | PASS 15/15, same as old |
+| `output-voltage-tc-post-layout` | `20260923-074724-dbd4dda` | `20261113-111050-7efdcf3b` | 15/15 (the bench's own in-deck-sweep subset) | FAIL, same as old (`tc_ppm` 15/15, `vref_min` 14/15) |
+| `startup-time-post-layout` | `20260923-070906-dbd57a9` | `20261113-111050-7efdcf3b` | 45/45 | PASS 45/45, same as old |
+| `startup-ramp-post-layout` | `20260924-041313-999407b` | `20261113-111230-7efdcf3b` | 45/45 | FAIL 13/45 (`vref_spread`), same as old |
+| `psrr-injector-attribution` | `20261002-070506-29da08e` | `20261113-111649-7efdcf3b` | 45/45 x 5 variants (225 points), no subset | Overall FAIL, same as old (the same 4 of 429 checks; all 225 points bit-identical) |
 
-### Not yet re-qualified (as of slice D3, 2026-11-13)
+### Not yet re-qualified (as of slice C'+D4, 2026-11-13)
 
 Every bench of the 2026-11-11 Revision table now has a disposition: either a
 row in the index above, or a reason here. None is left as "not attempted".
@@ -44,9 +49,7 @@ row in the index above, or a reason here. None is left as "not attempted".
 |---|---|
 | `monte-carlo-untrimmed` | **Not re-qualified: batch collector loses samples.** `--backend batch` exists (#437) but has never produced a usable record; all three attempts on disk report `klt_status: "error"` on every job and parse back fewer samples than requested. A partial-sample MC record cannot be comparable evidence. Blocked on #444 (open, `loom:operator`). Old record `20260817-121131-d7d85b6` remains the evidence. See "Slice D3 dispositions" below. |
 | `error-amp-offset-mc` | **Not re-qualified: batch path is dry-run only.** `run_amp_offset_mc.py --backend batch` builds and prints the requests but refuses a real run ("collecting klt's per-sample reports into a record is not implemented yet"), asserted by `sim/tests/test_amp_offset_mc_batch.py`. Blocked on the collector half of #398. Old record `20260817-130441-aa5324e` remains the evidence. |
-| `psrr-injector-attribution` | **Attempted and not re-qualified: fleet spot quota exhausted.** A full 5-variant x 45-corner run on 2026-11-13 completed but lost 15 of its 225 points to `batch_no_capacity` / `lost_shard`, including 7 `core_only` (the control variant) and 8 `ref_open` (the dominant-contributor variant). The record was **not committed**. Old record `20261002-070506-29da08e` remains the evidence. See "Slice D3 dispositions" below. |
 | layout reports | **Re-qualification does not apply.** The cited DRC/LVS/extraction verdicts come from KLayout's curated sky130 deck at a pinned klt/KLayout version, not from the open_pdks ngspice model cards `f6eeac7` changed. No new report is minted or needed. See "Slice D3 dispositions" below. |
-| post-layout `startup-ramp`, `startup-time`, `line-regulation`, `output-voltage-tc` (slice C') | **Still not re-qualified, but the slice C reason is now stale.** A single-corner submit on 2026-11-13 shows the fleet runner *does* accept `analysis_steps` (ngspice 47) and returns values bit-identical to the newest local record. Lifting the hold is a script change this issue puts out of scope, and the probe exposed a second blocker (`options.timeout_s` above the fleet's job ceiling); both are filed as **#510**. Old records remain the evidence. See "Slice C' re-test" below. |
 
 ### Per-row old/new deltas, `startup-stability` (worst case over 45 corners)
 
@@ -350,6 +353,118 @@ the difference between a run that progresses and one that does not --
 so it is worth passing a realistic `--timeout` on every batch submit, not
 only on the benches #510 covers.
 
+### Per-row old/new deltas, slice C' (the four `analysis_steps` post-layout benches)
+
+The slice C' hold recorded above is lifted: **#510 landed** (PR #512) and moved
+`startup-ramp-post-layout`, `startup-time-post-layout`,
+`line-regulation-post-layout` and `output-voltage-tc-post-layout` into
+`batch_sim.POST_LAYOUT_BATCH_ENABLED_SLUGS`, so all four ran here on the fleet
+at their full matrices.
+
+Run with `run_post_layout_*.py --backend batch --batch-capacity-wait-s 1800
+--timeout 230 --supersedes <old>`, no subset beyond what each bench itself uses
+(`line-regulation` and `output-voltage-tc` collapse one outer axis because
+their decks sweep it internally -- the superseded records carry the **same**
+`subset_reason`, byte-for-byte). Same extracted-netlist inputs as the
+superseded records (layout record `20260923-070209-dbd57a9`, parasitics
+snapshot reused), so the comparison is apples-to-apples; the only variable is
+the pin (`c6d73a3` -> `f6eeac7`, and with it the fleet's ngspice 47 against the
+old records' local ngspice 46).
+
+**Nothing moved.** Over all 120 corner points and all 28 measurements, the
+largest difference from the superseded record is last-printed-digit rounding,
+and **no** measurement verdict, corner verdict or spread check changes:
+
+| Bench | Points | Largest absolute difference (measurement @ corner) | Largest relative | Verdict flips |
+|---|---|---|---|---|
+| `line-regulation-post-layout` | 15 | 3.0e-5 mV (`line_shift_mv` @ `sf_27c_3.30v`) | 1.8e-5 | none |
+| `output-voltage-tc-post-layout` | 15 | 1.9e-3 ppm/C (`tc_ppm` @ `fs_27c_3.63v`) | 1.2e-5 | none |
+| `startup-time-post-layout` | 45 | 0 (every measurement at every corner) | 0 | none |
+| `startup-ramp-post-layout` | 45 | 1.4e-5 V (`vref_spread_early` @ `ss_-40c_3.63v`) | 1.7e-2 | none |
+
+`vref_nom`, `vref_27`, `vref_min`, `vref_max`, `n_supply_points`,
+`n_temp_points`, `sweep_start_v`, `sweep_end_v`, all five `startup-time`
+measurements and `startup-ramp`'s `isup_g` / `vref_f` / `vref_g` are **exactly
+equal** at every corner. `startup-ramp`'s largest *relative* differences
+(`vref_spread_early` 1.7e-2, `vref_converge` 3.4e-2, `vref_spread` 4.3e-3,
+`t_start_f` 8.3e-4) all sit on quantities whose absolute value is at or near
+zero -- 1.4e-5 V, 1.2e-5 V, 2e-6 V and 3.8e-11 s respectively -- i.e. the ratio
+is large only because the denominator is small, which is the same
+last-digit-rounding class `sim/README.md` already records for
+`line-regulation-post-layout`'s #510 probe and for `startup-ramp`'s pre-layout
+twin (#493).
+
+The pre-existing failures are unchanged and are **not** PDK-pin effects. The
+failing corner sets are identical old-to-new, not merely the same counts:
+
+- `output-voltage-tc-post-layout`: `tc_ppm` fails all 15 corners (89.81 ..
+  185.61 ppm/C, the same binding corner `sf_27c_3.63v`) and `vref_min` fails 14
+  of 15 (`ff_27c_3.63v` clears the 1.176 V floor at 1.186483 V, as before) --
+  rows 1b and 3b of `design/block-characterization-report.md`.
+- `startup-ramp-post-layout`: `vref_spread` fails the **same 13** corners,
+  worst 18.462 mV at `sf_-40c_2.97v`; the ratified `t_start < 1 ms` half still
+  passes 45/45 and `vref_converge` still passes 45/45 -- row 8d's DR-010
+  exception, unchanged.
+- `line-regulation-post-layout` (row 5c) and `startup-time-post-layout`
+  (row 8e, post-layout half) still PASS at every corner, with the eroded
+  line-regulation margin (`line_shift_mv` up to 18.47 mV, `line_psrr_db` down
+  to 31.06 dB at `ff_125c`) reproduced to within 3e-5 mV / 1.5e-4 dB.
+
+No result is outside its tolerance because of the re-pin, no ratified row newly
+fails, and no spec relaxation is made or implied.
+
+**Fleet execution note.** Every request sharded to `remote.hosts: 1`
+(`--timeout 230` x 15 units + 120 s = 3 570 s, under the 3 600 s whole-job
+ceiling), so each bench asked the fleet for at most three hosts instead of the
+45 a `DEFAULT_BATCH_TIMEOUT_S` request would have demanded. All ten jobs came
+back `state: done`/`failed`-on-verdict with `runner_request_features.status =
+supported` (runner klt 0.9.0, ngspice 47, `open_pdks f6eeac7`,
+`remote_pdk_matches_pin: true`), **no** `batch_no_capacity`, **no**
+`lost_shard`, and no corner without measurements. Wall clock was 60-124 s per
+bench. The two `klt_exit_code: 3` benches report
+`exit_reason.message` as a verdict exit ("not a runner crash and not the
+whole-job ceiling"), which is why their records are usable evidence where slice
+A's partial run was not.
+
+### Slice D4 -- `psrr-injector-attribution` re-run (the capacity retry succeeded)
+
+Slice D3 ran this bench's full matrix and lost 15 of 225 points to
+`batch_no_capacity` / `lost_shard`, deleted the record uncommitted, and recorded
+it as "needs only fleet headroom -- no code change -- so it is a straight retry".
+**That retry is this slice, and it succeeded.**
+
+Re-run at the same full 5-variant x 45-corner matrix (225 points, 30 `klt sim`
+requests: one `ac` and one `op` per variant per supply), `--backend batch
+--batch-capacity-wait-s 1800 --batch-max-jobs 8`, no subset, same variant set
+(`base`, `core_only`, `ref_open`, `inj_open`, `clamp_open`) and the same cited
+snapshot record (`sim/psrr-dc-with-injector/records/20260923-124813-af9ff1e.md`)
+as the superseded record. The one thing changed from slice D3's attempt is the
+per-point budget: **`--timeout 200`** rather than the runner's 1 800 s default,
+which puts each 15-unit request's bound at 3 120 s and so shards it to
+`remote.hosts: 1` instead of one host per corner. That is D3's own measured
+lesson applied, and it is why 30 requests fit inside the shared spot quota this
+time.
+
+**All 225 points came back with measurements; none was lost.** The result is
+not merely comparable to the superseded record, it is **bit-identical**: over
+all 225 points and all 14 measurements (`psrr_dc`, `psrr_band_min`, `psrr_1k`,
+`psrr_1m`, `v_gdrv`, `v_vref`, `v_ne`, `v_ng`, `v_nc1`, `i_vdd`, `f_dc`,
+`f_1k`, `f_1m`, `n_ac_points`) the maximum absolute difference from
+`20261002-070506-29da08e` is **0**. The check sets are the same 429 checks, and
+the same **4** fail -- `ref_stack_is_dominant` at `ff_125c_3.30v` and
+`sf_125c_3.63v`, `ref_open_restores_control` at `sf_125c_3.30v` (2.025 dB) and
+`sf_125c_3.63v` (3.067 dB) -- with zero check verdict flips. Those four are the
+second-order unrecovered term row 4e already disclosed, 5.6 dB above DR-006's
+floor rather than below it, and they are a pre-existing finding, not a PDK-pin
+effect.
+
+So row 4e's attribution conclusion stands unchanged under `f6eeac7`: cutting
+`MPC1`/`MPC2` (`ref_open`) recovers the control, cutting `MNC` recovers
+nothing, cutting `MNI` recovers only partially. The runner has no
+`--supersedes` option (as with `psrr-injector-candidates`), so the new record
+carries no `Supersedes` field and supersession is recorded only by this index's
+row; the old record is not edited.
+
 ## Alternatives considered
 
 - **Run non-batch / local grids for the remaining benches** - rejected: host
@@ -371,6 +486,26 @@ only on the benches #510 covers.
 - **Re-run the layout flow to mint new report ids** - rejected: it would
   produce a new layout rather than re-measure the cited one, and the cited
   verdicts carry no open_pdks model dependency to re-qualify.
+- **Keep the runners' default `--timeout` on the slice C'/D4 batch submits**
+  - rejected: `shard_hosts()` answers a large per-unit budget with one host
+  per corner, which is what starved slice A's and slice D3's runs on the
+  shared spot quota. Each request here was given a budget sized from the
+  bench's own measured worst corner (`--timeout 230` for C', 8x the 27.8 s
+  fleet worst; `--timeout 200` for D4, ~8x its ~24 s points), which shards
+  every request to a single host and still leaves the job bound under the
+  3 600 s ceiling.
+- **Regenerate `design/block-characterization-report.md` in this slice** -
+  rejected, deferred one more slice. The re-run work is complete so the
+  precondition is met, but that report is a hand-written 400-line narrative
+  with no generator: "regenerate" means re-stating ~20 evidence citations and
+  auditing the prose around them. Folding that into a PR that also adds five
+  new records makes both halves harder to review, and this issue's execution
+  rule slices by table row (the 2026-11-11 Revision lists the regeneration as
+  its own row-D item). It is the next slice, and the only remaining step that
+  needs neither code nor the fleet. **What is NOT deferred**: the `signoff/`
+  item-5 outputs are regenerated here, because they are mechanically derived
+  and `sim/tests/test_emit_klt_sim_envelopes.py` fails if they are not --
+  see Consequences.
 
 ## Spec lines affected
 
@@ -378,25 +513,54 @@ None.
 
 ## Consequences
 
-#370 stays open for one remaining step: regenerating
-`design/block-characterization-report.md` and the `signoff/` outputs so they
-cite the new records (scope item 5). They are deliberately **not** touched in
-this slice — they are snapshots of the whole reference set, and four of its
-benches (slice C') are expected to be re-qualified as soon as #510 lands, so
-regenerating now would mean regenerating twice and citing a set that is
-about to change.
+Scope item 5 is now **half done, half deferred**, and the split is not a
+judgement call:
 
-With slice D3 the re-run work itself is complete: every bench in the
-2026-11-11 Revision table is either re-qualified (the index above) or has a
-recorded reason it is not, each with what it waits on — #510 (slice C'),
-#444 (`monte-carlo-untrimmed`), #398's collector half
-(`error-amp-offset-mc`), and fleet spot-quota headroom
-(`psrr-injector-attribution`, a straight retry needing no code change).
-Layout reports need no re-qualification. No spec row is relaxed by any slice
-of this record, and no result moved outside its tolerance because of the
-re-pin.
+- **Done here — the `signoff/` item-5 outputs cite the new records.**
+  `sim/signoff-envelopes/emit_klt_sim_envelopes.py --write` re-minted the four
+  envelopes whose bench moved (`output-voltage-tc-post-layout` 1b and 3b,
+  `line-regulation-post-layout` 5c, `startup-ramp-post-layout` 8d) plus
+  `signoff/block-manifest.json` and `signoff/pinned-inputs.json`. This is
+  mechanical (the envelope selector takes the newest multi-point record whose
+  netlist snapshot matches `main`'s design) and it is *required*:
+  `sim/tests/test_emit_klt_sim_envelopes.py::test_committed_envelopes_are_fresh`
+  fails otherwise, exactly as slices B and C re-minted their own benches'
+  envelopes in the same PR as their records. No bound, limit, verdict or
+  corner count changed in that diff — only the pinned record ids, their
+  content hashes, and the last-printed-digit values (and the margins by the
+  same delta). `signoff/signoff-report.json` needed **no** change: re-grading
+  the manifest with the pinned released klayout-tools 0.8.0 grader in a
+  throwaway venv still renders byte-identically ("T1 8/11 items met"), so the
+  T1 verdict is unmoved by this slice.
+- **Deferred to the next slice — `design/block-characterization-report.md`.**
+  Its rows 1b, 3b, 5c, 8d and 4e still cite the superseded records. Slice D3
+  deferred the whole of item 5 because four benches (slice C') were about to
+  be re-qualified and regenerating twice would have cited a set that was about
+  to change; **that precondition is now discharged** — C' ran here — so the
+  report edit is unblocked, needs neither a code change nor the fleet, and is
+  the one remaining step on this issue (see Alternatives for why it is its own
+  slice).
 
-Of the four, only `psrr-injector-attribution` is purely a scheduling matter;
-the other three need code to land first. Two of this issue's slices have now
-failed on the shared spot quota, so the remaining re-qualification work is
-gated on fleet budget rather than on the design or the harness.
+With slice C'+D4 the re-run work is complete **and five more benches moved from
+a recorded reason into the index**. Eighteen of the twenty reference benches are
+now re-qualified under `f6eeac7`. Exactly two are not, both because code has to
+land elsewhere first, and both keep their old record as the cited evidence:
+
+| Bench | Waits on | Needs code? |
+|---|---|---|
+| `monte-carlo-untrimmed` | #444 (open, `loom:operator`) | yes — batch collector loses samples |
+| `error-amp-offset-mc` | the collector half of #398 | yes — batch path is `--dry-run` only |
+
+Layout reports need no re-qualification (slice D3). **Nothing on this issue is
+gated on fleet budget any more**: slice D3 closed by noting that two of this
+issue's slices had failed on the shared spot quota and that the remainder was
+therefore a scheduling matter. The retry in slice D4 settles that — with a
+per-point budget sized from the bench's own measured runtime rather than the
+runner's default, 30 requests and 225 points went through with no
+`batch_no_capacity` and no lost shard, and all ten C' jobs did the same. The
+capacity failures were a request-shape problem as much as a quota problem.
+
+No spec row is relaxed by any slice of this record, and no result moved outside
+its tolerance because of the re-pin — including the 345 points added here, of
+which 225 are bit-identical to the record they supersede and the other 120
+differ only in the last printed digit.
