@@ -95,10 +95,13 @@ class BatchRequests(unittest.TestCase):
         R.check_batch_only_flags(SimpleNamespace(backend="local", batch_resume=False))
 
     def test_shard_loss_names_unlaunched_and_lost_counts(self):
-        # `shard_loss`/`samples_from_report` moved into batch_sim (issue #514)
-        # so both MC runners read a klt report through one implementation.
-        self.assertFalse(hasattr(R, "shard_loss"))
-        self.assertFalse(hasattr(R, "samples_from_report"))
+        # `shard_loss`/`samples_from_report` moved into batch_sim (issue #514),
+        # then `record_tools`/`samples_path` and the collector itself (#522), so
+        # both MC runners read a klt report through one implementation.
+        for name in ("shard_loss", "samples_from_report", "record_tools", "samples_path",
+                     "collect_mc_batch"):
+            self.assertFalse(hasattr(R, name), f"{name} should come from batch_sim")
+            self.assertTrue(callable(getattr(batch_sim, name)))
         report = {
             "environment": {"remote": {"unlaunched_shards": 11}},
             "corners": [{"diagnostics": [{"code": "lost_shard"}]}, {"diagnostics": []}],
@@ -287,7 +290,8 @@ class BatchCollection(unittest.TestCase):
         self.sha = __import__("hashlib").sha256(b"lib").hexdigest()
         self.pdk = SimpleNamespace(lib_file=self.lib)
         self.points = R.build_points(20)
-        self.corners_dir = tmp / "corners"
+        self.bench = tmp / "monte-carlo-untrimmed"
+        self.corners_dir = self.bench / "corners" / "20260101-000000-abc1234"
         R.BUILD_DIR, self._old = tmp / "build", R.BUILD_DIR
         self.addCleanup(setattr, R, "BUILD_DIR", self._old)
 
@@ -299,6 +303,13 @@ class BatchCollection(unittest.TestCase):
         batch_sim.collect = fake_collect
         self.addCleanup(setattr, batch_sim, "collect", orig)
         return R.collect_batch(PIN, self.pdk, BODY, self.points, ARGS, self.corners_dir)
+
+    def _assert_bench_untouched(self):
+        """A refused batch leaves no record and no half-populated `corners/`
+        directory, so the error's "no record was written" is literally true
+        (issue #522). Before the shared collector this bench wrote each point's
+        sidecar inside the collection loop, so a refusal left them behind."""
+        self.assertFalse(self.bench.exists(), f"{self.bench} should not exist after a failure")
 
     def test_samples_ordered_and_same_shape_as_local_parse(self):
         by_point, execution = self._run(lambda p: _report(p, lib_sha=self.sha, shuffle=True))
@@ -324,26 +335,39 @@ class BatchCollection(unittest.TestCase):
     def test_samples_sidecar_carries_the_shard_ids(self):
         self._run(lambda p: _report(p, lib_sha=self.sha, shards=3))
         point = self.points[0]
-        written = json.loads(R.samples_path(self.corners_dir, point.corner_id).read_text())
+        written = json.loads(batch_sim.samples_path(self.corners_dir, point.corner_id).read_text())
         self.assertIsNone(written["job_id"])
         self.assertEqual(written["job_ids"], _shard_ids(point, 3))
+
+    def test_samples_sidecar_keeps_this_benchs_config_axis(self):
+        """`config` is this bench's extra per-point field; the shared collector
+        takes it through `extra_fields` and keeps it in its historical place,
+        right after `section` (issue #522)."""
+        self._run(lambda p: _report(p, lib_sha=self.sha))
+        point = self.points[0]
+        written = json.loads(batch_sim.samples_path(self.corners_dir, point.corner_id).read_text())
+        self.assertEqual(written["config"], point.config)
+        self.assertEqual(list(written)[:3], ["point", "section", "config"])
 
     def test_samples_sidecar_is_unchanged_for_an_unsharded_request(self):
         self._run(lambda p: _report(p, lib_sha=self.sha))
         point = self.points[0]
-        written = json.loads(R.samples_path(self.corners_dir, point.corner_id).read_text())
+        written = json.loads(batch_sim.samples_path(self.corners_dir, point.corner_id).read_text())
         self.assertEqual(written["job_id"], f"job-{point.corner_id}")
         self.assertEqual(written["job_ids"], [f"job-{point.corner_id}"])
 
-    def test_wrong_sample_count_is_refused(self):
+    def test_wrong_sample_count_is_refused_and_writes_nothing(self):
         with self.assertRaises(cr.HarnessError) as cm:
             self._run(lambda p: _report(p, n=p.samples - 1, lib_sha=self.sha))
         self.assertIn("requested", str(cm.exception))
+        self.assertIn("nothing was run locally", str(cm.exception))
+        self._assert_bench_untouched()
 
-    def test_model_library_mismatch_is_refused(self):
+    def test_model_library_mismatch_is_refused_and_writes_nothing(self):
         with self.assertRaises(cr.HarnessError) as cm:
             self._run(lambda p: _report(p, lib_sha="deadbeef"))
         self.assertIn("sha256", str(cm.exception))
+        self._assert_bench_untouched()
 
     def test_submit_failure_is_an_error_not_a_local_run(self):
         def boom(groups, runner=None, max_workers=None):
@@ -354,6 +378,7 @@ class BatchCollection(unittest.TestCase):
         with self.assertRaises(cr.HarnessError) as cm:
             R.collect_batch(PIN, self.pdk, BODY, self.points, ARGS, self.corners_dir)
         self.assertIn("submit failed", str(cm.exception))
+        self._assert_bench_untouched()
 
     def test_emit_klt_yield_reads_batch_samples_when_no_log(self):
         self._run(lambda p: _report(p, lib_sha=self.sha, drop={0}))
