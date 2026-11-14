@@ -1056,10 +1056,6 @@ class TestFlowGate(unittest.TestCase):
         self.assertNotIn("full_connectivity", gate)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 # ---------------------------------------------------------------------------
 # The MOS gate contact + finger-bus geometry (added with the post-#461 pin)
 # ---------------------------------------------------------------------------
@@ -2738,3 +2734,7 @@ class TestCombLanePitch(unittest.TestCase):
             bottom[1] - bottom[0], w_um / 3.0, delta=0.002
         )
         self.assertGreater(bottom[1] - bottom[0], bus_routing.MOS_LANE_PITCH_UM)
+
+
+if __name__ == "__main__":
+    unittest.main()
