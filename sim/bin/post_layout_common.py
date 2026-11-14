@@ -305,6 +305,47 @@ _R_RE = re.compile(
     r"^(R\$\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+([0-9.]+)\s+res_high_po\b.*$"
 )
 
+# klt 0.8.0 (issue #540) emits the SAME resistor as a subcircuit-style card
+# with an `X` prefix and the value moved into a NAMED parameter, after the
+# device-class name rather than before it:
+#
+#   klt 0.5.0:  R$98 <a> <b> <bulk> 2003.841367 res_high_po L=5U W=1U
+#   klt 0.8.0:  X$98 <a> <b> <bulk> res_high_po r=2003.841367 L=5U W=1U
+#
+# `_R_RE` matches neither prefix nor parameter shape there, so against a
+# 0.8.0 extraction all 145 resistors fell through untranslated and
+# `build_extracted_body`'s coverage guard aborted the run (`translated ...
+# res=0, extraction reports ... res_high_po=145`) -- the guard working, but
+# it blocks the bench entirely. This is the THIRD resistor card shape this
+# translator has had to absorb (see `_R_RE`'s own 0.30.10-vs-0.30.12 note):
+# the extracted netlist's per-device card syntax is not a stable contract
+# across klt releases, filed generically as the tool gap
+# 2AMLogic/klayout-tools#5741.
+#
+# `sim/pex-native/pexlib.normalize_klt_resistors` (issue #335) already
+# absorbs this same 0.8.0 dialect by pre-normalising the card back to the
+# `R$` form, deliberately "instead of editing the shared translator" --
+# correct while that pilot was the only consumer of a 0.8.0 extraction.
+# Issue #540 brings a 0.8.0 extraction onto the SHARED post-layout path, so
+# the shared translator now has to recognise the dialect natively; the
+# pilot's local normaliser is left exactly as it is (it feeds its own flow,
+# and `sim/pex-native/` is #335's and #541's area, not this issue's). The
+# value character class is copied from that normaliser's `_X_RES_RE` rather
+# than from `_R_RE`, so an exponent-form value parses on this path too.
+#
+# Matched ADDITIVELY, as a second pattern rather than a rewrite of `_R_RE`:
+# the other six post-layout benches still read committed klt 0.5.0
+# snapshots, so the old shape has to keep translating byte-identically.
+# A 0.5.0 snapshot contains no `X$` cards at all and a 0.8.0 snapshot no
+# `R$` cards, so the two patterns are mutually exclusive by construction.
+# Device-instance numbers are unique across classes, so renaming `X$98` to
+# `R$98` cannot collide with the `X$`-prefixed MOS/PNP cards this function
+# emits. The dropped bulk terminal and the discarded L/W are the same
+# deliberate simplifications `_R_RE` documents, for the same reason.
+_R_SUBCKT_RE = re.compile(
+    r"^X(\$\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+res_high_po\s+r=([0-9.eE+-]+)\b.*$"
+)
+
 # Boundary between the two PNP unit sizes this design draws (0.4624 um^2
 # small/CTAT vs 11.56 um^2 large/PTAT) -- see module docstring point 2.
 _PNP_AE_SMALL_LARGE_BOUNDARY_UM2 = 1.0
@@ -377,6 +418,13 @@ def translate_extracted_netlist(text: str) -> tuple[str, dict[str, int]]:
         if m:
             name, a, b, _bulk, val = m.groups()
             out.append(f"{name} {a} {b} {val}")
+            counts["res"] += 1
+            continue
+
+        m = _R_SUBCKT_RE.match(s)
+        if m:
+            name, a, b, _bulk, val = m.groups()
+            out.append(f"R{name} {a} {b} {val}")
             counts["res"] += 1
             continue
 
