@@ -56,6 +56,7 @@ sys.path.insert(0, str(SIM_DIR / "bin"))
 import batch_sim  # noqa: E402
 from sim_common import (  # noqa: E402
     MismatchPoint,
+    add_batch_args,
     add_common_args,
     check_pdk_and_ngspice,
     deck_sections,
@@ -1121,11 +1122,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "per sample) is an error, not a warning"
         ),
     )
-    p.add_argument(
-        "--backend",
-        choices=("local", "batch"),
-        default="local",
-        help=(
+    add_batch_args(
+        p,
+        backend_help=(
             "where the points run (default: local ngspice `.control` loops). 'batch' builds "
             "one `klt sim` Monte Carlo request per point for the Spot batch fleet, collects "
             "the per-sample reports and writes the normal record; `--dry-run` prints the "
@@ -1133,8 +1132,6 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "to a local run"
         ),
     )
-    p.add_argument("--batch-capacity-wait-s", type=float, default=3600.0,
-                   help="batch only: wait this long for Spot capacity per submission")
     p.add_argument("--batch-max-concurrent-jobs", type=int, default=None, metavar="N",
                    help="batch only: keep at most N shard jobs in flight (request field "
                         "batch.max_concurrent_jobs) so a large split stays under the fleet's "
@@ -1144,8 +1141,6 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
                         "checkpoint under sim/build/monte-carlo-untrimmed/batch/<point>/"
                         "klt-out/ and runs only the shards an earlier attempt did not "
                         "finish; with no matching checkpoint klt does a full submit")
-    p.add_argument("--batch-runner-version-check", choices=("enforce", "warn"), default="enforce",
-                   help="batch only: klt runner/client version-skew policy")
     args = p.parse_args(argv)
     if args.timeout is None:
         # Batch and local mean different things by `--timeout` (see the flag's

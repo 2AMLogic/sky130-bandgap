@@ -675,28 +675,14 @@ def parse_post_layout_args(argv: list[str], doc: str = "") -> argparse.Namespace
             "is an error, not a warning"
         ),
     )
-    p.add_argument(
-        "--backend",
-        choices=("local", "batch"),
-        default="local",
-        help=(
+    sim_common.add_batch_args(
+        p,
+        backend_help=(
             "where corners run (default: local). 'batch' sends the matrix to the Spot batch "
             "fleet through `klt sim --backend batch`; available for "
             f"{sorted(batch_sim.POST_LAYOUT_BATCH_ENABLED_SLUGS)} only (see sim/README.md). "
             "A failed batch submission is an error -- it never falls back to a local run"
         ),
-    )
-    p.add_argument(
-        "--batch-capacity-wait-s",
-        type=float,
-        default=3600.0,
-        help="wait this long for Spot capacity per batch submission (default 3600)",
-    )
-    p.add_argument(
-        "--batch-runner-version-check",
-        choices=("enforce", "warn"),
-        default="enforce",
-        help="klt runner/client version-skew policy for batch jobs (default enforce)",
     )
     p.add_argument(
         "-j",

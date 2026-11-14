@@ -845,29 +845,15 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             f"{batch_sim.DEFAULT_BATCH_TIMEOUT_S} with --backend batch"
         ),
     )
-    p.add_argument(
-        "--backend",
-        choices=("local", "batch"),
-        default="local",
-        help=(
+    sim_common.add_batch_args(
+        p,
+        backend_help=(
             "where corners run: 'local' (default, one ngspice per corner on this host) or "
             "'batch' (klt sim --backend batch on the Spot batch fleet; enabled for "
             + ", ".join(sorted(batch_sim.BATCH_ENABLED_SLUGS))
             + " only, see sim/README.md). A failed batch submission is an error -- it never "
             "falls back to running the matrix locally"
         ),
-    )
-    p.add_argument(
-        "--batch-capacity-wait-s",
-        type=float,
-        default=3600.0,
-        help="wait this long for Spot capacity per batch submission (default 3600)",
-    )
-    p.add_argument(
-        "--batch-runner-version-check",
-        choices=("enforce", "warn"),
-        default="enforce",
-        help="klt runner/client version-skew policy for batch jobs (default enforce)",
     )
     p.add_argument(
         "-j",
