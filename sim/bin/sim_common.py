@@ -90,8 +90,9 @@ def csv_floats(value: str) -> list[float]:
 def add_common_args(
     parser: argparse.ArgumentParser,
     *,
-    timeout_default: int,
+    timeout_default: int | None,
     samples_default: int | None = None,
+    timeout_help: str | None = None,
 ) -> None:
     """Add the `--author`/`--supersedes`/`--timeout`/`--allow-pdk-mismatch`/
     `--dry-run` flags every bespoke `run_*.py` script's `parse_args()`
@@ -103,6 +104,12 @@ def add_common_args(
     to append the shared set -- `--samples` (when requested) is added first
     within this call so its position matches the pre-existing scripts, where
     it was always the first flag added.
+
+    `timeout_default=None` leaves `--timeout` unset so the caller can resolve
+    it after parsing -- the two Monte Carlo runners pick a batch-only default
+    that way, because on the fleet `--timeout` bounds one sample rather than a
+    whole point (issue #528). Such a caller should pass `timeout_help` to say
+    so; the default help text describes the per-point meaning.
     """
     if samples_default is not None:
         parser.add_argument(
@@ -111,7 +118,8 @@ def add_common_args(
     parser.add_argument("--author", default="", help="record author (default: git user.email)")
     parser.add_argument("--supersedes", default="", help="record id this run supersedes")
     parser.add_argument(
-        "--timeout", type=int, default=timeout_default, help="per-point ngspice timeout (s)"
+        "--timeout", type=int, default=timeout_default,
+        help=timeout_help or "per-point ngspice timeout (s)",
     )
     parser.add_argument(
         "--allow-pdk-mismatch",

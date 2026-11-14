@@ -362,6 +362,16 @@ class ShardCount(unittest.TestCase):
         # (3600 - 120) // 1000 = 3 units per job -> ceil(7 / 3)
         self.assertEqual(batch_sim.shard_hosts(7, 1000), 3)
 
+    def test_mc_batch_default_packs_samples_into_shards(self):
+        # The two MC benches' batch default: 300 samples at 240 s is 14 per
+        # shard (22 hosts, bound 3 480 s), not one Spot host per sample (#528).
+        self.assertEqual(batch_sim.shard_hosts(300, batch_sim.MC_BATCH_TIMEOUT_S), 22)
+        self.assertEqual(batch_sim.shard_hosts(20, batch_sim.MC_BATCH_TIMEOUT_S), 2)
+        self.assertLessEqual(
+            batch_sim.job_bound_s(300, batch_sim.MC_BATCH_TIMEOUT_S),
+            batch_sim.FLEET_JOB_CEILING_S,
+        )
+
     def test_request_carries_the_shard_count(self):
         tmp = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, tmp, True)
@@ -372,6 +382,77 @@ class ShardCount(unittest.TestCase):
             )
             for g in groups:
                 self.assertEqual(g.request["remote"], {"hosts": hosts})
+
+
+class MonteCarloGroupCeiling(unittest.TestCase):
+    """`build_mc_group()` sizes `remote.hosts` from the sample count, and
+    refuses a per-sample budget no split can bring under the fleet's whole-job
+    ceiling -- before it writes anything (issue #528).
+
+    An MC request's units are its `monte_carlo.n` draws, so the per-point
+    budget the runners used locally is `n` times the bound klt enforces: at
+    3600 s even one sample is over the ceiling, which is how three committed
+    runs asked for 280 Spot hosts and lost ~175 shards each.
+    """
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+
+    def build(self, timeout_s, samples=300, out=None):
+        return batch_sim.build_mc_group(
+            "mc-point", out or self.tmp, "* netlist\n", PIN, "tt_mm", 27.0, 3.3,
+            samples, 20260803, [{"name": "vout", "expr": "v(vref)"}], "",
+            timeout_s, capacity_wait_s=60, runner_version_check="enforce",
+            poll_interval_s=30,
+        )
+
+    def test_sized_budget_shards_instead_of_one_host_per_sample(self):
+        g = self.build(batch_sim.MC_BATCH_TIMEOUT_S)
+        self.assertEqual(g.request["remote"]["hosts"], 22)
+        self.assertEqual(g.request["monte_carlo"]["n"], 300)
+        self.assertLessEqual(
+            batch_sim.job_bound_s(300, batch_sim.MC_BATCH_TIMEOUT_S, 22),
+            batch_sim.FLEET_JOB_CEILING_S,
+        )
+
+    def test_over_ceiling_budget_is_refused_naming_bound_ceiling_and_a_fit(self):
+        for timeout_s in (3600, 7200, batch_sim.DEFAULT_BATCH_TIMEOUT_S):
+            with self.subTest(timeout_s=timeout_s):
+                with self.assertRaises(batch_sim.BatchError) as cm:
+                    self.build(timeout_s)
+                msg = str(cm.exception)
+                self.assertIn("mc-point --timeout", msg)
+                self.assertIn(f"{timeout_s + batch_sim.FLEET_JOB_OVERHEAD_S}s", msg)
+                self.assertIn(f"{batch_sim.FLEET_JOB_CEILING_S}s", msg)
+                self.assertIn("3480s", msg)
+
+    def test_the_refusal_hint_names_the_mc_default_not_the_post_layout_one(self):
+        with self.assertRaises(batch_sim.BatchError) as cm:
+            self.build(3600)
+        msg = str(cm.exception)
+        self.assertIn(f"Monte Carlo batch default is {batch_sim.MC_BATCH_TIMEOUT_S}s", msg)
+        self.assertNotIn("post-layout", msg)
+
+    def test_nothing_is_written_when_the_budget_is_refused(self):
+        out = self.tmp / "refused"
+        with self.assertRaises(batch_sim.BatchError):
+            self.build(3600, out=out)
+        self.assertFalse(out.exists())
+
+    def test_boundary_budget_is_accepted_and_one_second_over_is_not(self):
+        limit = batch_sim.FLEET_JOB_CEILING_S - batch_sim.FLEET_JOB_OVERHEAD_S
+        g = self.build(limit, out=self.tmp / "ok")
+        self.assertEqual(g.request["remote"]["hosts"], 300)  # one sample per shard
+        self.assertEqual(
+            batch_sim.job_bound_s(300, limit, 300), batch_sim.FLEET_JOB_CEILING_S
+        )
+        with self.assertRaises(batch_sim.BatchError):
+            self.build(limit + 1, out=self.tmp / "no")
+
+    def test_a_small_sample_count_is_sized_too(self):
+        g = self.build(batch_sim.MC_BATCH_TIMEOUT_S, samples=20, out=self.tmp / "small")
+        self.assertEqual(g.request["remote"]["hosts"], 2)
 
 
 class Aggregation(unittest.TestCase):

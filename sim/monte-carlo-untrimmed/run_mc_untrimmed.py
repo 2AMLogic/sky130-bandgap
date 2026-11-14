@@ -96,6 +96,11 @@ N_CONTROL = 30  # the control point is deterministic; N only has to be > 1
 SEED_A = 20260803
 SEED_B = 20260804  # second seed, for the seed-stability check
 
+#: `--timeout` default for `--backend local`, where one timeout bounds a whole
+#: point: the `.control` loop runs all N samples in one ngspice process. The
+#: batch default is `batch_sim.MC_BATCH_TIMEOUT_S`, which bounds one sample.
+LOCAL_TIMEOUT_S = 3600
+
 # --------------------------------------------------------------------------
 # Isolation mechanism: zero out a device family's PDK mismatch coefficient
 # --------------------------------------------------------------------------
@@ -357,18 +362,26 @@ def build_batch_groups(pin, body, points, spiceinit_text, out_dir, args) -> list
     statistics, not the samples, match the local record. In particular
     `convergence_series()`'s "first K samples of the N-sample run are the K-sample
     run" still holds: klt's per-sample seeds are a function of `(seed, sample
-    index)`, and the first 20 of a 300-sample `--dry-run` equal a 20-sample run's."""
-    return [
-        batch_sim.build_mc_group(
-            p.corner_id, out_dir, batch_netlist(p, body), pin, p.section, p.temp_c, SUPPLY_V,
-            p.samples, p.seed, batch_measurements(), spiceinit_text, args.timeout,
-            capacity_wait_s=args.batch_capacity_wait_s,
-            runner_version_check=args.batch_runner_version_check, poll_interval_s=30.0,
-            max_concurrent_jobs=getattr(args, "batch_max_concurrent_jobs", None),
-            resume=getattr(args, "batch_resume", False),
-        )
-        for p in points
-    ]
+    index)`, and the first 20 of a 300-sample `--dry-run` equal a 20-sample run's.
+
+    A refused `--timeout` (one whose per-shard job bound cannot fit the fleet's
+    whole-job ceiling, issue #528) is re-raised as the harness error every
+    other failure here uses, so it reaches the user as a normal error on both
+    the submit path and `--dry-run` rather than a traceback."""
+    try:
+        return [
+            batch_sim.build_mc_group(
+                p.corner_id, out_dir, batch_netlist(p, body), pin, p.section, p.temp_c, SUPPLY_V,
+                p.samples, p.seed, batch_measurements(), spiceinit_text, args.timeout,
+                capacity_wait_s=args.batch_capacity_wait_s,
+                runner_version_check=args.batch_runner_version_check, poll_interval_s=30.0,
+                max_concurrent_jobs=getattr(args, "batch_max_concurrent_jobs", None),
+                resume=getattr(args, "batch_resume", False),
+            )
+            for p in points
+        ]
+    except batch_sim.BatchError as exc:
+        raise cr.HarnessError(str(exc)) from exc
 
 
 def write_log(corners_dir, point, pdk, record_id, stamp, deck, raw, rc, timed_out) -> Path:
@@ -1096,7 +1109,18 @@ def render_record(r: dict) -> str:
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    add_common_args(p, timeout_default=3600, samples_default=N_SAMPLES)
+    add_common_args(
+        p, timeout_default=None, samples_default=N_SAMPLES,
+        timeout_help=(
+            "ngspice timeout in seconds. Locally this bounds one point (the whole "
+            f"`.control` loop over its samples; default {LOCAL_TIMEOUT_S}). With "
+            "--backend batch it becomes the request's per-SAMPLE budget (default "
+            f"{batch_sim.MC_BATCH_TIMEOUT_S}); a value whose per-shard job bound cannot "
+            f"fit the fleet's whole-job ceiling ({batch_sim.FLEET_JOB_CEILING_S} s, i.e. "
+            f"more than {batch_sim.FLEET_JOB_CEILING_S - batch_sim.FLEET_JOB_OVERHEAD_S} s "
+            "per sample) is an error, not a warning"
+        ),
+    )
     p.add_argument(
         "--backend",
         choices=("local", "batch"),
@@ -1122,7 +1146,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
                         "finish; with no matching checkpoint klt does a full submit")
     p.add_argument("--batch-runner-version-check", choices=("enforce", "warn"), default="enforce",
                    help="batch only: klt runner/client version-skew policy")
-    return p.parse_args(argv)
+    args = p.parse_args(argv)
+    if args.timeout is None:
+        # Batch and local mean different things by `--timeout` (see the flag's
+        # help and issue #528), so the default has to follow the backend.
+        args.timeout = (
+            batch_sim.MC_BATCH_TIMEOUT_S if args.backend == "batch" else LOCAL_TIMEOUT_S
+        )
+    return args
 
 
 def main(argv: list[str]) -> int:
