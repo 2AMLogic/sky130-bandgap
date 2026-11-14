@@ -31,13 +31,18 @@ xschem must be 3.4.7 (the version CI builds; 3.4.4 leaves the sky130 symbols'
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+# `content_hash` is a sibling; scripts/ci/tests/* load this file by path, so
+# sys.path[0] is not this directory and the insert above is load-bearing.
+from content_hash import sha256_file_tagged  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DESIGN = REPO_ROOT / "design"
@@ -48,10 +53,6 @@ XSCHEM_VERSION = "3.4.7"
 
 RED = "\033[31m"
 RESET = "\033[0m"
-
-
-def sha256_file(path: Path) -> str:
-    return f"sha256:{hashlib.sha256(path.read_bytes()).hexdigest()}"
 
 
 def normalize(text: str, name: str) -> str:
@@ -105,9 +106,9 @@ def write() -> int:
             path.write_text(text)
             entries[name] = {
                 "schematic": f"design/{name}.sch",
-                "schematic_hash": sha256_file(DESIGN / f"{name}.sch"),
+                "schematic_hash": sha256_file_tagged(DESIGN / f"{name}.sch"),
                 "netlist": f"design/netlist/{name}.spice",
-                "netlist_hash": sha256_file(path),
+                "netlist_hash": sha256_file_tagged(path),
             }
     LOCK.write_text(
         json.dumps(
@@ -139,12 +140,12 @@ def check_lock() -> int:
             errors.append(f"{name}: no entry in the netlist lock")
             continue
         sch, net = REPO_ROOT / entry["schematic"], REPO_ROOT / entry["netlist"]
-        if sha256_file(sch) != entry["schematic_hash"]:
+        if sha256_file_tagged(sch) != entry["schematic_hash"]:
             errors.append(
                 f"{entry['schematic']} changed since design/netlist/{name}.spice was derived "
                 "from it; re-run scripts/ci/design_netlists.py --write"
             )
-        if sha256_file(net) != entry["netlist_hash"]:
+        if sha256_file_tagged(net) != entry["netlist_hash"]:
             errors.append(f"{entry['netlist']} was edited by hand; re-run --write")
     for extra in sorted(set(entries) - set(SCHEMATICS)):
         errors.append(f"{extra}: lock entry for a schematic this script does not manage")

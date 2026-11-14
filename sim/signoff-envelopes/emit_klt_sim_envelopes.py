@@ -43,7 +43,6 @@ Usage (from the repo root)
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import re
 import sys
@@ -54,6 +53,12 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 ENVELOPE_DIR = REPO_ROOT / "sim" / "signoff-envelopes"
 MANIFEST = REPO_ROOT / "signoff" / "block-manifest.json"
 PINNED_INPUTS = REPO_ROOT / "signoff" / "pinned-inputs.json"
+
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci"))
+
+# Both conventions are needed here: `recorded_from[].sha256` is bare, while
+# `provenance.input.content_hash` is the tagged form check_signoff_pins.py reads.
+from content_hash import sha256_file, sha256_file_tagged  # noqa: E402
 
 ITEM = "5"
 
@@ -162,14 +167,6 @@ GAP_ROWS: list[dict[str, str]] = [
         ),
     },
 ]
-
-
-def sha256_bytes(data: bytes) -> str:
-    return hashlib.sha256(data).hexdigest()
-
-
-def sha256_file(path: Path) -> str:
-    return sha256_bytes(path.read_bytes())
 
 
 def rel(path: Path) -> str:
@@ -434,7 +431,7 @@ def mint(entry: dict[str, Any]) -> tuple[str, dict[str, Any]]:
             "excluded_measurements": dict(sorted(excluded.items())),
         },
         "provenance": {
-            "input": {"content_hash": f"sha256:{sha256_file(snapshot_path)}", "role": "netlist"},
+            "input": {"content_hash": sha256_file_tagged(snapshot_path), "role": "netlist"},
             "note": (
                 "no klt_version: no klt invocation produced this envelope (see mint); the input "
                 f"pin is the sha256 of the netlist snapshot the record simulated ({snapshot})"

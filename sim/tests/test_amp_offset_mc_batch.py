@@ -49,7 +49,8 @@ def _load_runner():
 R = _load_runner()
 SNAPSHOT = sorted((SIM_DIR / "error-amp-offset-mc" / "netlist-snapshots").glob("*.spice"))[-1]
 BODY = cr.netlist_body(SNAPSHOT)
-ARGS = SimpleNamespace(timeout=7200, batch_capacity_wait_s=60.0, batch_runner_version_check="enforce")
+ARGS = SimpleNamespace(timeout=batch_sim.MC_BATCH_TIMEOUT_S, batch_capacity_wait_s=60.0,
+                       batch_runner_version_check="enforce")
 
 
 class BatchRequests(unittest.TestCase):
@@ -99,8 +100,101 @@ class BatchRequests(unittest.TestCase):
             self.assertNotIn(banned, text)
 
     def test_sharding_is_sized_by_sample_count(self):
-        # 300 samples x 7200 s serial bound is far above the fleet ceiling.
-        self.assertEqual(self.groups[0].request["remote"]["hosts"], 300)
+        # At the batch default a 300-sample point packs 14 samples per shard
+        # instead of asking for one Spot host per sample (issue #528). At the
+        # old 7200 s per-point default no split fit, so it asked for 300.
+        self.assertEqual(self.points[0].samples, 300)
+        self.assertEqual(
+            self.groups[0].request["remote"]["hosts"],
+            batch_sim.shard_hosts(300, batch_sim.MC_BATCH_TIMEOUT_S),
+        )
+        self.assertEqual(self.groups[0].request["remote"]["hosts"], 22)
+
+    def test_every_request_fits_the_fleet_job_ceiling_at_the_default(self):
+        for g, p in zip(self.groups, self.points):
+            with self.subTest(point=p.corner_id):
+                hosts = g.request["remote"]["hosts"]
+                self.assertLessEqual(hosts, p.samples)  # klt rejects hosts > units
+                bound = batch_sim.job_bound_s(
+                    p.samples, g.request["options"]["timeout_s"], hosts
+                )
+                self.assertLessEqual(bound, batch_sim.FLEET_JOB_CEILING_S)
+
+    def test_default_timeout_is_the_batch_default_under_backend_batch(self):
+        for g in self.groups:
+            self.assertEqual(
+                g.request["options"]["timeout_s"], batch_sim.MC_BATCH_TIMEOUT_S
+            )
+
+
+class OverCeilingBudgetIsRefused(unittest.TestCase):
+    """The former per-point default (7200 s) is a per-SAMPLE budget on the
+    fleet: its single-sample bound already exceeds the whole-job ceiling, so no
+    `remote.hosts` split fits and klt would only warn (issue #528)."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.out = Path(self._tmp.name)
+        self.points = R.build_points(300)
+
+    def _args(self, timeout):
+        return SimpleNamespace(timeout=timeout, batch_capacity_wait_s=60.0,
+                               batch_runner_version_check="enforce")
+
+    def test_refused_as_a_harness_error_naming_bound_ceiling_and_a_budget(self):
+        with self.assertRaises(cr.HarnessError) as cm:
+            R.build_batch_groups(PIN, BODY, self.points, SPICEINIT, self.out, self._args(7200))
+        msg = str(cm.exception)
+        self.assertIn("7320s", msg)  # the bound
+        self.assertIn(f"{batch_sim.FLEET_JOB_CEILING_S}s", msg)  # the ceiling
+        self.assertIn("3480s", msg)  # the largest budget that fits
+        self.assertIn(f"{batch_sim.MC_BATCH_TIMEOUT_S}s", msg)  # the MC default
+        self.assertNotIn("post-layout", msg)
+
+    def test_nothing_is_written_before_the_refusal(self):
+        with self.assertRaises(cr.HarnessError):
+            R.build_batch_groups(PIN, BODY, self.points, SPICEINIT, self.out, self._args(7200))
+        self.assertEqual(sorted(self.out.rglob("*")), [])
+
+    def test_exactly_at_the_limit_is_accepted_and_one_over_is_refused(self):
+        limit = batch_sim.FLEET_JOB_CEILING_S - batch_sim.FLEET_JOB_OVERHEAD_S
+        groups = R.build_batch_groups(
+            PIN, BODY, self.points, SPICEINIT, self.out / "ok", self._args(limit)
+        )
+        self.assertEqual(groups[0].request["remote"]["hosts"], self.points[0].samples)
+        with self.assertRaises(cr.HarnessError):
+            R.build_batch_groups(
+                PIN, BODY, self.points, SPICEINIT, self.out / "no", self._args(limit + 1)
+            )
+
+    def test_a_small_sample_count_still_shards_at_the_default(self):
+        points = R.build_points(20)
+        groups = R.build_batch_groups(
+            PIN, BODY, points, SPICEINIT, self.out / "small",
+            self._args(batch_sim.MC_BATCH_TIMEOUT_S),
+        )
+        self.assertEqual(groups[0].request["remote"]["hosts"], 2)
+
+
+class TimeoutDefaultFollowsTheBackend(unittest.TestCase):
+    """`--timeout` bounds a whole point locally and one sample on the fleet, so
+    one number cannot serve both (issue #528)."""
+
+    def test_batch_default_is_the_mc_batch_budget(self):
+        self.assertEqual(
+            R.parse_args(["--backend", "batch"]).timeout, batch_sim.MC_BATCH_TIMEOUT_S
+        )
+
+    def test_local_default_is_unchanged(self):
+        self.assertEqual(R.parse_args([]).timeout, 7200)
+        self.assertEqual(R.parse_args(["--backend", "local"]).timeout, R.LOCAL_TIMEOUT_S)
+
+    def test_an_explicit_timeout_still_wins_on_both_backends(self):
+        self.assertEqual(R.parse_args(["--timeout", "900"]).timeout, 900)
+        self.assertEqual(
+            R.parse_args(["--backend", "batch", "--timeout", "900"]).timeout, 900
+        )
 
 
 def _shard_ids(point, shards):
@@ -188,8 +282,10 @@ class BatchCollection(unittest.TestCase):
         self.assertEqual(execution["local_pinned_lib_sha256"], self.sha)
         self.assertEqual([j["job_id"] for j in execution["jobs"]],
                          [f"job-{p.corner_id}" for p in self.points])
-        self.assertIn("ngspice-45 (remote, batch fleet", R.record_tools(execution)["ngspice"])
-        self.assertNotIn("remote", R.record_tools(None)["ngspice"])
+        tools = cr.tool_versions()
+        self.assertIn("ngspice-45 (remote, batch fleet",
+                      batch_sim.record_tools(tools, execution)["ngspice"])
+        self.assertNotIn("remote", batch_sim.record_tools(tools, None)["ngspice"])
 
     def test_sharded_request_records_every_fleet_job_id(self):
         """klt splits a 300-sample point across shards; the ids live under
@@ -203,21 +299,21 @@ class BatchCollection(unittest.TestCase):
     def test_samples_sidecar_carries_the_shard_ids(self):
         self._run(lambda p: _report(p, lib_sha=self.sha, shards=3))
         point = self.points[0]
-        written = json.loads(R.samples_path(self.corners_dir, point.corner_id).read_text())
+        written = json.loads(batch_sim.samples_path(self.corners_dir, point.corner_id).read_text())
         self.assertIsNone(written["job_id"])
         self.assertEqual(written["job_ids"], _shard_ids(point, 3))
 
     def test_samples_sidecar_is_unchanged_for_an_unsharded_request(self):
         self._run(lambda p: _report(p, lib_sha=self.sha))
         point = self.points[0]
-        written = json.loads(R.samples_path(self.corners_dir, point.corner_id).read_text())
+        written = json.loads(batch_sim.samples_path(self.corners_dir, point.corner_id).read_text())
         self.assertEqual(written["job_id"], f"job-{point.corner_id}")
         self.assertEqual(written["job_ids"], [f"job-{point.corner_id}"])
 
     def test_samples_file_and_request_copy_land_next_to_the_record(self):
         by_point, _ = self._run(lambda p: _report(p, lib_sha=self.sha))
         point = self.points[0]
-        written = json.loads(R.samples_path(self.corners_dir, point.corner_id).read_text())
+        written = json.loads(batch_sim.samples_path(self.corners_dir, point.corner_id).read_text())
         self.assertEqual(written["point"], point.corner_id)
         self.assertEqual(written["section"], point.section)
         self.assertEqual(written["seed"], point.seed)
@@ -232,7 +328,7 @@ class BatchCollection(unittest.TestCase):
         by_point, execution = self._run(lambda p: _report(p, lib_sha=self.sha, drop={3, 4}))
         self.assertEqual(len(by_point[self.points[0].corner_id]), self.points[0].samples - 2)
         self.assertEqual(execution["jobs"][0]["samples_dropped"], 2)
-        written = json.loads(R.samples_path(self.corners_dir, self.points[0].corner_id).read_text())
+        written = json.loads(batch_sim.samples_path(self.corners_dir, self.points[0].corner_id).read_text())
         self.assertEqual(written["dropped_without_values"], 2)
 
     def test_short_report_is_refused_naming_the_point_and_the_shard_loss(self):
@@ -347,11 +443,13 @@ class CommittedRecordsAreNotRewritten(unittest.TestCase):
 
 
 class SharedHelpers(unittest.TestCase):
-    """The report helpers are `batch_sim`'s, shared with the sibling MC runner
-    (issue #514), so a collector defect shows up in one place for both."""
+    """The report helpers AND the collector that drives them are `batch_sim`'s,
+    shared with the sibling MC runner (issues #514, #522), so a collector defect
+    -- or a fix -- shows up in one place for both benches."""
 
     def test_runner_has_no_private_copy_of_the_report_helpers(self):
-        for name in ("samples_from_report", "shard_loss"):
+        for name in ("samples_from_report", "shard_loss", "record_tools", "samples_path",
+                     "collect_mc_batch"):
             self.assertFalse(hasattr(R, name), f"{name} should come from batch_sim")
             self.assertTrue(callable(getattr(batch_sim, name)))
 

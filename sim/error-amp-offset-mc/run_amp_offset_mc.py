@@ -91,6 +91,11 @@ N_CONTROL = 30  # the control point is deterministic; N only has to be > 1
 SEED_A = 20260803
 SEED_B = 20260804
 
+#: `--timeout` default for `--backend local`, where one timeout bounds a whole
+#: point: the `.control` loop runs all N samples in one ngspice process. The
+#: batch default is `batch_sim.MC_BATCH_TIMEOUT_S`, which bounds one sample.
+LOCAL_TIMEOUT_S = 7200
+
 # Core parameters, read off design/bandgap_core.sch's own CHAINED-ARRAY MODEL
 # derivation (issue #178) at the current n_r1=7, n_r2=51: R1 is 7 unit
 # res_high_po segments (head+end 379.705 ohm/instance, body 324.827 ohm/um,
@@ -275,27 +280,25 @@ def build_batch_groups(pin, body, points, spiceinit_text, out_dir, args) -> list
 
     klt derives each sample's `.options seed=` from `monte_carlo.seed` itself, so
     the draws are a different (equally valid) stream from `setseed N` -- the
-    statistics, not the samples, are what match the local record."""
+    statistics, not the samples, are what match the local record.
+
+    A refused `--timeout` (one whose per-shard job bound cannot fit the fleet's
+    whole-job ceiling, issue #528) is re-raised as the harness error every
+    other failure here uses, so it reaches the user as a normal error on both
+    the submit path and `--dry-run` rather than a traceback."""
     netlist = batch_netlist(body)
-    return [
-        batch_sim.build_mc_group(
-            p.corner_id, out_dir, netlist, pin, p.section, p.temp_c, SUPPLY_V, p.samples,
-            p.seed, batch_measurements(), spiceinit_text, args.timeout,
-            capacity_wait_s=args.batch_capacity_wait_s,
-            runner_version_check=args.batch_runner_version_check, poll_interval_s=30.0,
-        )
-        for p in points
-    ]
-
-
-def record_tools(execution: dict | None) -> dict:
-    """`tool_versions()`, with the engine line naming the fleet's ngspice (not
-    the dispatch host's) for a batch run."""
-    tools = cr.tool_versions()
-    if execution:
-        versions = sorted({str(j["engine_version"]) for j in execution["jobs"]})
-        tools["ngspice"] = f"ngspice-{'/'.join(versions)} (remote, batch fleet; not this host's ngspice)"
-    return tools
+    try:
+        return [
+            batch_sim.build_mc_group(
+                p.corner_id, out_dir, netlist, pin, p.section, p.temp_c, SUPPLY_V, p.samples,
+                p.seed, batch_measurements(), spiceinit_text, args.timeout,
+                capacity_wait_s=args.batch_capacity_wait_s,
+                runner_version_check=args.batch_runner_version_check, poll_interval_s=30.0,
+            )
+            for p in points
+        ]
+    except batch_sim.BatchError as exc:
+        raise cr.HarnessError(str(exc)) from exc
 
 
 def _is_batch(execution: dict | None) -> bool:
@@ -335,73 +338,25 @@ def seed_convention(execution: dict | None) -> str:
     return f"fixed setseed {SEED_A}"
 
 
-def samples_path(corners_dir: Path, corner_id: str) -> Path:
-    """Where a batch run keeps a point's parsed draws: the stand-in for the
-    local `<corner_id>.log` the local path writes."""
-    return corners_dir / f"{corner_id}.samples.json"
-
-
 def collect_batch(pin, pdk, body, points, args, corners_dir) -> tuple[dict[str, list], dict]:
-    """Submit one request per point, wait for every report and fold them into
-    `{corner_id: parsed samples}` plus the record's `execution` block. Any
-    submit/collect failure, wrong sample count, model-library mismatch or
-    runner skew is a `HarnessError`: no record, and never a local fallback.
+    """Submit one request per point and fold the reports into
+    `{corner_id: parsed samples}` plus the record's `execution` block.
 
-    The per-draw parsing itself is `batch_sim.samples_from_report()`, shared
-    with `sim/monte-carlo-untrimmed` so one defect in reading a klt Monte Carlo
-    report cannot behave differently between the two benches (issue #514)."""
+    The collection itself is `batch_sim.collect_mc_batch()`, shared with
+    `sim/monte-carlo-untrimmed` so one defect in reading a klt Monte Carlo
+    report -- or in deciding a batch is untrustworthy -- cannot behave
+    differently between the two benches (issues #514, #522). Any submit/collect
+    failure, wrong sample count, model-library mismatch or runner skew is a
+    `HarnessError`: no record, and never a local fallback."""
     groups = build_batch_groups(
         pin, body, points, (SIM_DIR / "spiceinit").read_text(), BUILD_DIR / "batch", args
     )
     try:
-        outcomes = batch_sim.collect(groups)
+        return batch_sim.collect_mc_batch(
+            groups, points, batch_sim.sha256_file(pdk.lib_file), VECTORS, corners_dir
+        )
     except batch_sim.BatchError as exc:
         raise cr.HarnessError(str(exc)) from exc
-    lib_sha = batch_sim.sha256_file(pdk.lib_file)
-    blockers: list[str] = []
-    parsed_by_point: dict[str, list] = {}
-    jobs = []
-    collected: list[tuple] = []
-    for point, o in zip(points, outcomes):
-        meta = batch_sim.job_meta(o, lib_sha, blockers)
-        got = len(o.report["corners"])
-        if got != point.samples:
-            blockers.append(f"{point.corner_id}: requested {point.samples} samples, report has {got}"
-                            f"{batch_sim.shard_loss(o.report)}")
-        parsed, dropped = batch_sim.samples_from_report(o.report, o.group.request, VECTORS)
-        meta["samples_dropped"] = dropped
-        jobs.append(meta)
-        parsed_by_point[point.corner_id] = parsed
-        collected.append((point, o, meta, parsed, dropped))
-    if blockers:
-        # Nothing has been written under sim/error-amp-offset-mc/ yet, and
-        # nothing will be: an untrustworthy batch leaves no record and no
-        # half-populated corners/ directory beside it. The klt reports stay
-        # under sim/build/amp-offset-mc/batch/<point>/klt-out/ for debugging.
-        raise cr.HarnessError(
-            "batch results are not trustworthy; no record was written and nothing was run "
-            "locally:\n  " + "\n  ".join(blockers)
-        )
-    corners_dir.mkdir(parents=True, exist_ok=True)
-    for point, o, meta, parsed, dropped in collected:
-        samples_path(corners_dir, point.corner_id).write_text(json.dumps({
-            "point": point.corner_id, "section": point.section, "temp_c": point.temp_c,
-            "seed": point.seed, "requested": point.samples,
-            "dropped_without_values": dropped, "job_id": meta["job_id"],
-            "job_ids": meta["job_ids"],
-            "vectors": list(VECTORS), "samples": parsed,
-        }, indent=1) + "\n")
-        shutil.copyfile(o.group.request_path, corners_dir / f"{point.corner_id}.request.json")
-    return parsed_by_point, {
-        "backend": "batch",
-        "mechanism": "klt sim --backend batch (2am EDA batch fleet, Spot)",
-        "local_pinned_lib_sha256": lib_sha,
-        "jobs": jobs,
-        "note": (
-            "per-sample seeds come from klt's monte_carlo seed contract, not `setseed`: the "
-            "statistics, not the individual draws, match a local run of the same seed"
-        ),
-    }
 
 
 def write_log(corners_dir, point, pdk, record_id, stamp, deck, raw, rc, timed_out) -> Path:
@@ -881,7 +836,18 @@ def render_record(r: dict) -> str:
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    add_common_args(p, timeout_default=7200, samples_default=N_SAMPLES)
+    add_common_args(
+        p, timeout_default=None, samples_default=N_SAMPLES,
+        timeout_help=(
+            "ngspice timeout in seconds. Locally this bounds one point (the whole "
+            f"`.control` loop over its samples; default {LOCAL_TIMEOUT_S}). With "
+            "--backend batch it becomes the request's per-SAMPLE budget (default "
+            f"{batch_sim.MC_BATCH_TIMEOUT_S}); a value whose per-shard job bound cannot "
+            f"fit the fleet's whole-job ceiling ({batch_sim.FLEET_JOB_CEILING_S} s, i.e. "
+            f"more than {batch_sim.FLEET_JOB_CEILING_S - batch_sim.FLEET_JOB_OVERHEAD_S} s "
+            "per sample) is an error, not a warning"
+        ),
+    )
     p.add_argument(
         "--backend",
         choices=("local", "batch"),
@@ -898,7 +864,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
                    help="batch only: wait this long for Spot capacity per submission")
     p.add_argument("--batch-runner-version-check", choices=("enforce", "warn"), default="enforce",
                    help="batch only: klt runner/client version-skew policy")
-    return p.parse_args(argv)
+    args = p.parse_args(argv)
+    if args.timeout is None:
+        # Batch and local mean different things by `--timeout` (see the flag's
+        # help and issue #528), so the default has to follow the backend.
+        args.timeout = (
+            batch_sim.MC_BATCH_TIMEOUT_S if args.backend == "batch" else LOCAL_TIMEOUT_S
+        )
+    return args
 
 
 def main(argv: list[str]) -> int:
@@ -1054,7 +1027,7 @@ def main(argv: list[str]) -> int:
             "matches_pin": pdk.matches_pin,
             "lib_file": str(pdk.lib_file),
         },
-        "tools": record_tools(execution),
+        "tools": batch_sim.record_tools(cr.tool_versions(), execution),
         "git": git_info,
         "execution": execution or {"backend": "local"},
         "points": ordered,

@@ -4,7 +4,7 @@
   "evidence": {
     "1": {
       "file": "signoff/attest/item-1.evidence.json",
-      "content_hash": "sha256:28777e1563458c4ee06d069a33a036ccb1e5fd14cc6d2113367e231c4b692933"
+      "content_hash": "sha256:350f918aea145833fca70d6aa0bd1bf502f241de69d4ccaf1b0e43c3aa56ecce"
     },
     "2": {
       "file": "signoff/attest/item-2.evidence.json",
@@ -122,13 +122,17 @@
       "file": "sim/monte-carlo-untrimmed/records/20260923-062524-1e38c62-klt-yield.json",
       "content_hash": "sha256:0b01d0dd123b8fae9bbb8044263f00c2f14fc8e1d9afea6e8856a712421b1694"
     },
+    "7": {
+      "file": "sim/pex-native/records/20261106-pilot/pex-stdout.json",
+      "content_hash": "sha256:311c0f14cdd85aa5255018c590cbe755e31fd1ac81e04895d6302fea2146aae9"
+    },
     "8": {
       "file": "signoff/evidence/characterization.generic.json",
-      "content_hash": "sha256:5b84cdb93a4e4b5b0a5d6b81c43d7e55f7604410b7472653ae0c965899c24888"
+      "content_hash": "sha256:c751c12c10b82c192b323ef00781f3b0be203fdedde1cbc29f656ff3574f2bef"
     },
     "9": {
       "file": "signoff/attest/item-9.evidence.json",
-      "content_hash": "sha256:2b9d874f99caa2048ae87d79c9be418aa2064bad86f0128fafae2def3f2a7ba4"
+      "content_hash": "sha256:b162f026592eb7d6acce3dbb707ab8b4c2cf370fb9342789d39679be3dfd8178"
     },
     "10": {
       "file": "signoff/attest/item-10.evidence.json",

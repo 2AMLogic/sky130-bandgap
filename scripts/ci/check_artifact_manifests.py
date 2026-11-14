@@ -18,26 +18,23 @@ Stdlib-only; rule 4 uses `git ls-files`. Usage:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import re
 import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+# `content_hash` is a sibling; scripts/ci/tests/* load this file by path, so
+# sys.path[0] is not this directory and the insert above is load-bearing.
+from content_hash import sha256_file  # noqa: E402
+
 MANIFEST_GLOB = "manifests/artifacts/*.manifest.json"
 REQUIRED = {"sha256", "size", "kind", "producer", "uri"}
 OPTIONAL = {"name", "media_type"}
 SHA_RE = re.compile(r"^[0-9a-f]{64}$")
 STORAGE_RE = re.compile(r"s3://|arn:aws:")
-
-
-def sha256_file(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open("rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
 
 
 def tracked_hashes(root: Path) -> dict[str, str]:

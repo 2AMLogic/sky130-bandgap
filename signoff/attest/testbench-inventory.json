@@ -30,7 +30,7 @@
     {
       "path": "sim/bin/sim_common.py",
       "role": "harness",
-      "content_hash": "sha256:1f445619b1e2134b99583c50bc6af5d1af5dbdf1077203ae271d57a8b987f5c5"
+      "content_hash": "sha256:752fae73f3465fc14fb9fd3bee4f74acaa79a7d00bb64d57513383810630547a"
     },
     {
       "path": "sim/spiceinit",
@@ -83,7 +83,7 @@
         {
           "path": "sim/error-amp-offset-mc/run_amp_offset_mc.py",
           "role": "runner",
-          "content_hash": "sha256:7356f932e4a0f85d8a8c976536723bd10f0681d070abfd32779d1ec0a8eabad2"
+          "content_hash": "sha256:19c3169cb9c1ea8df135c5647c79140c3e9e0093738f2e66e329fe8501d5b23c"
         }
       ]
     },
@@ -121,7 +121,7 @@
         {
           "path": "sim/monte-carlo-untrimmed/run_mc_untrimmed.py",
           "role": "runner",
-          "content_hash": "sha256:d3b97f342ba82d69042d701c4e4e65089dca51ba88a172c5633b707bcc6499aa"
+          "content_hash": "sha256:752d14f4c8c4fa48bd78c1c6545e1788af9cddc432ff1a707a74dd44920355bf"
         }
       ]
     },
@@ -481,7 +481,7 @@
         {
           "path": "sim/trim-lsb-chained/run_trim_lsb_chained.py",
           "role": "runner",
-          "content_hash": "sha256:6756b51fb75c025bc241cf5f1b450b377491b48ff9d7e01df98242f95716a9c0"
+          "content_hash": "sha256:3e5cf778d2c3889978e37640a29fd90afde1a910ca741017e5fd77ad02862f7a"
         }
       ]
     },

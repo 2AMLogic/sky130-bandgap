@@ -465,6 +465,27 @@ never printed as if it were valid (issue #510). The pre-layout path keeps its
 own 10 800 s default and is deliberately not ceiling-enforced -- that budget is
 #320's measurement and changing it is a separate decision.
 
+**`--timeout` means different things on the two Monte Carlo backends.** For
+`sim/monte-carlo-untrimmed` and `sim/error-amp-offset-mc`, a local run bounds
+one **point** -- all N samples run in a single ngspice `.control` loop -- so
+their local defaults stay 3 600 s and 7 200 s. On the fleet the same number
+becomes the request's `options.timeout_s`, which bounds **one sample**: an MC
+request's units are its `monte_carlo.n` draws. Passing a per-point budget
+through unchanged therefore declared a bound `n` times larger than klt
+enforces, and at 3 600 s even a single sample is over the whole-job ceiling, so
+no `remote.hosts` split fit and every request asked for **one Spot host per
+sample** -- the three committed `monte-carlo-untrimmed` batch attempts asked
+for 280 hosts each and lost 174 / 177 / 170 shards, for samples that finish in
+14-39 s (issue #528). With `--backend batch` and no `--timeout`, both runners
+now default to 240 s (`batch_sim.MC_BATCH_TIMEOUT_S`), ~6x the slowest sample
+measured across both benches' batch records (38.8 s,
+`monte-carlo-untrimmed/records/20261105-061037-ef9df345`; the error-amp bench's
+worst is 3.9 s), which packs 14 samples per job -- 300 samples shard to 22
+hosts at a 3 480 s bound. As on the post-layout path, an over-ceiling
+`--timeout` is a **loud error** before anything is written or submitted, on
+`--dry-run` too, and it names a budget that fits. Pass `--timeout` explicitly
+to override on either backend.
+
 | Runner | `--backend batch` | Why |
 |---|---|---|
 | `psrr-dc-post-layout` | yes | `ac` analysis, scalar expressions |
