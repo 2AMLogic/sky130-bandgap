@@ -96,12 +96,17 @@ class BatchRequests(unittest.TestCase):
 
     def test_shard_loss_names_unlaunched_and_lost_counts(self):
         # `shard_loss`/`samples_from_report` moved into batch_sim (issue #514),
-        # then `record_tools`/`samples_path` and the collector itself (#522), so
-        # both MC runners read a klt report through one implementation.
+        # then `record_tools`/`samples_path` and the collector itself (#522), and
+        # then the seed-contract predicates (#533), so both MC runners read a klt
+        # report -- and describe how their draws were seeded -- through one
+        # implementation.
         for name in ("shard_loss", "samples_from_report", "record_tools", "samples_path",
-                     "collect_mc_batch"):
+                     "collect_mc_batch",
+                     "is_batch", "seed_label", "seed_convention", "seed_mechanism"):
             self.assertFalse(hasattr(R, name), f"{name} should come from batch_sim")
             self.assertTrue(callable(getattr(batch_sim, name)))
+        # the pre-#533 private name must not come back either
+        self.assertFalse(hasattr(R, "_is_batch"), "_is_batch should come from batch_sim")
         report = {
             "environment": {"remote": {"unlaunched_shards": 11}},
             "corners": [{"diagnostics": [{"code": "lost_shard"}]}, {"diagnostics": []}],
@@ -405,10 +410,12 @@ class SeedWording(unittest.TestCase):
         for execution in (None, {}, self.LOCAL):
             with self.subTest(execution=execution):
                 self.assertEqual(
-                    R.seed_mechanism(execution),
+                    batch_sim.seed_mechanism(execution, R.SEED_A, R.SEED_B),
                     f"`setseed {R.SEED_A}` (second-seed point uses {R.SEED_B})")
-                self.assertEqual(R.seed_label(execution, R.SEED_B), f"`setseed {R.SEED_B}`")
-                self.assertEqual(R.seed_convention(execution), f"fixed setseed {R.SEED_A}")
+                self.assertEqual(
+                    batch_sim.seed_label(execution, R.SEED_B), f"`setseed {R.SEED_B}`")
+                self.assertEqual(
+                    batch_sim.seed_convention(execution, R.SEED_A), f"fixed setseed {R.SEED_A}")
                 self.assertEqual(
                     R.convergence_sequence_note(execution),
                     "ngspice draws sequentially per `setseed`, so the first K samples of "
@@ -417,8 +424,10 @@ class SeedWording(unittest.TestCase):
                     "at each row")
 
     def test_batch_seed_prose_never_says_setseed(self):
-        for text in (R.seed_mechanism(self.BATCH), R.seed_label(self.BATCH, R.SEED_B),
-                     R.seed_convention(self.BATCH), R.convergence_sequence_note(self.BATCH)):
+        for text in (batch_sim.seed_mechanism(self.BATCH, R.SEED_A, R.SEED_B),
+                     batch_sim.seed_label(self.BATCH, R.SEED_B),
+                     batch_sim.seed_convention(self.BATCH, R.SEED_A),
+                     R.convergence_sequence_note(self.BATCH)):
             with self.subTest(text=text):
                 self.assertNotIn("setseed", text)
                 self.assertIn("monte_carlo", text)

@@ -301,43 +301,6 @@ def build_batch_groups(pin, body, points, spiceinit_text, out_dir, args) -> list
         raise cr.HarnessError(str(exc)) from exc
 
 
-def _is_batch(execution: dict | None) -> bool:
-    return (execution or {}).get("backend") == "batch"
-
-
-def seed_mechanism(execution: dict | None) -> str:
-    """How this run's draws were seeded, for the record's "Reproducible:" line.
-
-    The local path runs a `.control` `setseed` / `reset` loop. The batch path
-    has klt derive every sample's own `.options seed=` from the request's
-    `monte_carlo.seed`, so a batch record that says `setseed` names a mechanism
-    that did not run (issue #523). The local wording is unchanged."""
-    if _is_batch(execution):
-        return (
-            f"klt `monte_carlo` seed {SEED_A} (second-seed point uses {SEED_B}); klt derives "
-            f"each sample's own `.options seed=` from it, so a batch run reproduces the "
-            f"statistics of a local run of the same seed, not its individual draws"
-        )
-    return f"`setseed {SEED_A}` (second-seed point uses {SEED_B})"
-
-
-def seed_label(execution: dict | None, seed: int) -> str:
-    """One point's seed, named by the mechanism that actually drew it (#523)."""
-    if _is_batch(execution):
-        return f"`monte_carlo` seed {seed}"
-    return f"`setseed {seed}`"
-
-
-def seed_convention(execution: dict | None) -> str:
-    """The seed clause of `experiment.statistical_convention` (#523)."""
-    if _is_batch(execution):
-        return (
-            f"klt monte_carlo seed {SEED_A} (one ngspice run per sample, .options seed= "
-            f"derived from it by klt, not a single ngspice PRNG stream)"
-        )
-    return f"fixed setseed {SEED_A}"
-
-
 def collect_batch(pin, pdk, body, points, args, corners_dir) -> tuple[dict[str, list], dict]:
     """Submit one request per point and fold the reports into
     `{corner_id: parsed samples}` plus the record's `execution` block.
@@ -615,7 +578,7 @@ def render_record(r: dict) -> str:
         f"local mismatch only (section `{MM_SECTION}`). Spread is the sample standard "
         f"deviation (N−1) reported as **1 σ**, with 3 σ alongside; σ's own relative "
         f"standard error is ≈ {100 / math.sqrt(2 * (n - 1)):.1f} %. Reproducible: "
-        f"{seed_mechanism(r.get('execution'))}. N matches "
+        f"{batch_sim.seed_mechanism(r.get('execution'), SEED_A, SEED_B)}. N matches "
         f"`sim/pnp-mismatch`, so the σ figures are directly comparable."
     )
     add(f"- **Result**: {'PASS' if r['overall_pass'] else 'FAIL'} — see the tables below.")
@@ -707,7 +670,7 @@ def render_record(r: dict) -> str:
     if seedb:
         add(
             f"- **Second-seed point** (`{seedb['corner_id']}`, "
-            f"{seed_label(r.get('execution'), SEED_B)}, "
+            f"{batch_sim.seed_label(r.get('execution'), SEED_B)}, "
             f"N = {seedb['parsed_samples']}): "
             + "; ".join(
                 f"σ({name}) = {mv(seedb['stats'][name]['sigma'])} mV"
@@ -998,7 +961,7 @@ def main(argv: list[str]) -> int:
             "statistical_convention": (
                 f"N = {args.samples} Monte Carlo samples per point, local mismatch only "
                 f"(section {MM_SECTION}: MC_MM_SWITCH=1, MC_PR_SWITCH=0); 1 sigma sample "
-                f"standard deviation (N-1), {seed_convention(execution)}"
+                f"standard deviation (N-1), {batch_sim.seed_convention(execution, SEED_A)}"
             ),
         },
         "budget_inputs": {
