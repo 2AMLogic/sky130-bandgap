@@ -11,7 +11,7 @@
         "path": "signoff/attest/testbench-inventory.json",
         "scope": "repo"
       },
-      "content_hash": "sha256:1dfacb93e9f63f354345659a395330dbd6c5e6c22ceb36c00db3e59fb8b845c7"
+      "content_hash": "sha256:7c45dbcb63b053515af8eaa451508729e058618bb0f03b76c8d751e394f88f4c"
     }
   },
   "note": "Produced by scripts/ci/attest_inventories.py in the artifact-anchored generic form klt 0.7.0 grades; replace with `klt signoff --attest` once a klayout-tools release carries it (klayout-tools#2844)."
