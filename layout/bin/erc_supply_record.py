@@ -23,33 +23,30 @@ and the swapped-net negative control is gated the other way round
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import pathlib
 import sys
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "scripts" / "ci"))
+
+# Both conventions are needed here: the gate compares against a tagged
+# `provenance.input.content_hash`, the record table renders a bare digest.
+from content_hash import sha256_file, sha256_file_tagged  # noqa: E402
+
 SUPPLIES = ("VDD", "VSS")
 TIES = ("nwell_tie_vdd", "nwell_tie_vss")
-
-
-def sha256_file(path: pathlib.Path) -> str:
-    h = hashlib.sha256()
-    with path.open("rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
 
 
 def gate_supply_report(report: dict, gds: pathlib.Path) -> tuple[bool, list[str]]:
     """Return (ok, reasons). ``reasons`` lists every gate failure, not just the first."""
     reasons: list[str] = []
 
-    declared = sha256_file(gds)
+    declared = sha256_file_tagged(gds)
     got = ((report.get("provenance") or {}).get("input") or {}).get("content_hash")
-    if got != f"sha256:{declared}":
+    if got != declared:
         reasons.append(
             f"provenance.input.content_hash {got!r} does not match sha256 of {gds.name} "
-            f"(sha256:{declared})"
+            f"({declared})"
         )
 
     checked = set((report.get("erc_coverage") or {}).get("checked") or [])

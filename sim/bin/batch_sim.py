@@ -33,17 +33,23 @@ can never yield an overall PASS.
 
 from __future__ import annotations
 
-import hashlib
 import json
 import re
 import shutil
 import subprocess
+import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts" / "ci"))
+
+# Re-exported on purpose: `batch_sim.sha256_file` is how the benches and
+# `sim/tests/*` already reach the bare-hex helper.
+from content_hash import sha256_file  # noqa: E402
 
 #: Experiments whose deck shape this adapter has been validated against,
 #: including a live single-corner comparison on the fleet. Everything else
@@ -296,14 +302,6 @@ class GroupOutcome:
 # --------------------------------------------------------------------------
 # request construction
 # --------------------------------------------------------------------------
-
-
-def sha256_file(path: Path) -> str:
-    h = hashlib.sha256()
-    with open(path, "rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
 
 
 def spiceinit_lines(spiceinit_text: str) -> list[str]:
