@@ -69,7 +69,7 @@ not been re-measured on a current extraction.
    `--critical-net VB,VBQ --distributed-rc` and the README states which share of
    the delta survives.
 3. **Bring `signoff/README.md` and the README status text back in line with the
-   report** (no issue yet). Four statements have drifted: the item-5 row still
+   report** (#543). Four statements have drifted: the item-5 row still
    lists 8a as failing and counts 16 envelopes where `sim/signoff-envelopes/`
    holds 14; the item-3 row still cites the 0.2.0-era
    `20260817-020222-13476b7` DRC report instead of the
@@ -120,9 +120,11 @@ not been re-measured on a current extraction.
 | #435, #370; #306, #315 | #444; #368 |
 | #517 `met2_drc.py` scope | A verification-policy ruling: keep the independent re-check or delegate to `klt drc` |
 
-Every open issue is in progress, blocked, or waiting on a ruling; the
-dispatchable work today is Now items 1 and 2, both now filed and curated (#540,
-#541), plus Now item 3, which still needs an issue.
+Every actionable issue named in this document is in progress, curated for
+dispatch, blocked, or waiting on a ruling; the repo-hygiene issues outside
+this lane are filed and dispatched separately and are not tracked here.
+Dispatched today: Now item 1 (#540, `loom:building`). Items 2 and 3 (#541,
+#543) are filed and `loom:curated`, awaiting promotion to dispatchable.
 
 ## Not planned
 
