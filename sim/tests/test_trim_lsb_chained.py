@@ -78,10 +78,49 @@ class RequestCoverageTests(unittest.TestCase):
         chained = {(j.supply_v, j.code) for j in jobs if j.config == "chained"}
         self.assertEqual(chained, {(v, c) for v in (2.97, 3.30, 3.63) for c in range(0, -17, -1)})
         self.assertEqual(len(jobs), 3 * 17 + 3 * 3)
-        req = rt.build_request(jobs[0], PIN, 100)
+
+    def test_request_is_built_by_the_shared_batch_builder(self) -> None:
+        """The request document comes from `batch_sim.build_adhoc_group()`, not a
+        private copy, so it carries `remote.hosts` and `options.ngspice_init` (#525)."""
+        job = next(j for j in rt.build_jobs() if j.config == "lumped")
+        body = [".save i(v1)", ".param n_r2_trim=0", "XTB vref vdd 0 tb_core"]
+        with tempfile.TemporaryDirectory() as d:
+            groups, by_dir = rt.write_groups([job], body, {}, 51, PIN, Path(d), 1800)
+            self.assertEqual(len(groups), 1)
+            g = groups[0]
+            self.assertIs(by_dir[g.dir], job)
+            self.assertEqual(json.loads(g.request_path.read_text()), g.request)
+            self.assertIn(f".param vsup={job.supply_v}", g.netlist_path.read_text())
+            self.assertIn(f".param n_r2_trim={job.code}", g.netlist_path.read_text())
+
+        req = g.request
         self.assertEqual(req["backend"], "batch")
         self.assertEqual(req["corners"]["process"], ["tt", "ss", "ff", "sf", "fs"])
-        self.assertEqual(req["analysis"]["args"], "temp -40 125 11")
+        self.assertEqual(req["corners"]["temperature_c"], [27])
+        self.assertEqual(req["analysis"], {"kind": "dc", "args": "temp -40 125 11"})
+        self.assertEqual([m["name"] for m in req["measurements"]], ["vref_27", "vref_min", "vref_max"])
+        self.assertEqual(req["models"], {"pdk": "sky130A", "lib": "sky130.lib.spice"})
+        # the two fields the hand-rolled request had drifted away from
+        units = len(rt.PROCESSES)
+        self.assertEqual(req["remote"]["hosts"], rt.batch_sim.shard_hosts(units, 1800))
+        self.assertGreater(req["remote"]["hosts"], 1, "unsharded: the job bound would exceed the fleet ceiling")
+        self.assertLessEqual(
+            rt.batch_sim.job_bound_s(units, 1800, req["remote"]["hosts"]),
+            rt.batch_sim.FLEET_JOB_CEILING_S,
+        )
+        expected_init = rt.batch_sim.spiceinit_lines((rt.SIM_DIR / "spiceinit").read_text())
+        self.assertTrue(expected_init)
+        self.assertEqual(req["options"]["ngspice_init"], expected_init)
+        self.assertEqual(req["options"]["timeout_s"], 1800)
+        self.assertTrue(req["options"]["keep_artifacts"])
+
+        self.assertEqual(req["batch"], {"poll_interval_s": rt.BATCH_POLL_INTERVAL_S,
+                                        "capacity_wait_s": rt.BATCH_CAPACITY_WAIT_S,
+                                        "runner_version_check": rt.BATCH_RUNNER_VERSION_CHECK})
+
+    def test_private_request_builder_is_gone(self) -> None:
+        self.assertFalse(hasattr(rt, "build_request"),
+                         "run_trim_lsb_chained should not re-implement batch_sim.build_request")
 
 
 class CoreBodyTests(unittest.TestCase):
