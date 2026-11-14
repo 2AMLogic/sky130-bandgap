@@ -1136,6 +1136,52 @@ def collect_mc_batch(
     }
 
 
+# The seed contract's own prose. These four describe how a record reports the
+# way its draws were seeded -- shared behaviour, so a wording or logic
+# correction to the seed note lands once for both benches rather than twice
+# (issues #514, #522, #533). The two bench seed constants are injected rather
+# than imported, the same dependency-injection shape `record_tools(tools, ...)`
+# uses above: `SEED_A` / `SEED_B` stay each runner's own choice, so a future
+# per-bench reseed is not a cross-module change.
+
+
+def is_batch(execution: dict | None) -> bool:
+    return (execution or {}).get("backend") == "batch"
+
+
+def seed_mechanism(execution: dict | None, seed_a: int, seed_b: int) -> str:
+    """How this run's draws were seeded, for the record's "Reproducible:" line.
+
+    The local path runs a `.control` `setseed` / `reset` loop. The batch path
+    has klt derive every sample's own `.options seed=` from the request's
+    `monte_carlo.seed`, so a batch record that says `setseed` names a mechanism
+    that did not run (issue #523). The local wording is unchanged."""
+    if is_batch(execution):
+        return (
+            f"klt `monte_carlo` seed {seed_a} (second-seed point uses {seed_b}); klt derives "
+            f"each sample's own `.options seed=` from it, so a batch run reproduces the "
+            f"statistics of a local run of the same seed, not its individual draws"
+        )
+    return f"`setseed {seed_a}` (second-seed point uses {seed_b})"
+
+
+def seed_label(execution: dict | None, seed: int) -> str:
+    """One point's seed, named by the mechanism that actually drew it (#523)."""
+    if is_batch(execution):
+        return f"`monte_carlo` seed {seed}"
+    return f"`setseed {seed}`"
+
+
+def seed_convention(execution: dict | None, seed_a: int) -> str:
+    """The seed clause of `experiment.statistical_convention` (#523)."""
+    if is_batch(execution):
+        return (
+            f"klt monte_carlo seed {seed_a} (one ngspice run per sample, .options seed= "
+            f"derived from it by klt, not a single ngspice PRNG stream)"
+        )
+    return f"fixed setseed {seed_a}"
+
+
 def assemble(
     exp,
     matrix: list,

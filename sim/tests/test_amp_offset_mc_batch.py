@@ -296,20 +296,23 @@ class SeedWording(unittest.TestCase):
         for execution in (None, {}, self.LOCAL):
             with self.subTest(execution=execution):
                 self.assertEqual(
-                    R.seed_mechanism(execution),
+                    batch_sim.seed_mechanism(execution, R.SEED_A, R.SEED_B),
                     f"`setseed {R.SEED_A}` (second-seed point uses {R.SEED_B})")
-                self.assertEqual(R.seed_label(execution, R.SEED_B), f"`setseed {R.SEED_B}`")
-                self.assertEqual(R.seed_convention(execution), f"fixed setseed {R.SEED_A}")
+                self.assertEqual(
+                    batch_sim.seed_label(execution, R.SEED_B), f"`setseed {R.SEED_B}`")
+                self.assertEqual(
+                    batch_sim.seed_convention(execution, R.SEED_A), f"fixed setseed {R.SEED_A}")
 
     def test_batch_seed_prose_names_the_monte_carlo_seed_and_never_setseed(self):
-        for text in (R.seed_mechanism(self.BATCH), R.seed_label(self.BATCH, R.SEED_B),
-                     R.seed_convention(self.BATCH)):
+        for text in (batch_sim.seed_mechanism(self.BATCH, R.SEED_A, R.SEED_B),
+                     batch_sim.seed_label(self.BATCH, R.SEED_B),
+                     batch_sim.seed_convention(self.BATCH, R.SEED_A)):
             with self.subTest(text=text):
                 self.assertNotIn("setseed", text)
                 self.assertIn("monte_carlo", text)
-        self.assertIn(str(R.SEED_A), R.seed_mechanism(self.BATCH))
-        self.assertIn(str(R.SEED_B), R.seed_label(self.BATCH, R.SEED_B))
-        self.assertIn(str(R.SEED_A), R.seed_convention(self.BATCH))
+        self.assertIn(str(R.SEED_A), batch_sim.seed_mechanism(self.BATCH, R.SEED_A, R.SEED_B))
+        self.assertIn(str(R.SEED_B), batch_sim.seed_label(self.BATCH, R.SEED_B))
+        self.assertIn(str(R.SEED_A), batch_sim.seed_convention(self.BATCH, R.SEED_A))
 
     # The committed records are read-only fixtures here: they are this repo's
     # append-only evidence and are never rewritten (see the issue's scope note).
@@ -334,8 +337,8 @@ class SeedWording(unittest.TestCase):
         self.assertIn(f"`setseed {R.SEED_B}`", md)
 
     def test_statistical_convention_follows_the_backend(self):
-        self.assertIn("fixed setseed", R.seed_convention(None))
-        self.assertNotIn("setseed", R.seed_convention(self.BATCH))
+        self.assertIn("fixed setseed", batch_sim.seed_convention(None, R.SEED_A))
+        self.assertNotIn("setseed", batch_sim.seed_convention(self.BATCH, R.SEED_A))
 
 
 class CommittedRecordsAreNotRewritten(unittest.TestCase):
@@ -349,14 +352,22 @@ class CommittedRecordsAreNotRewritten(unittest.TestCase):
 
 
 class SharedHelpers(unittest.TestCase):
-    """The report helpers AND the collector that drives them are `batch_sim`'s,
-    shared with the sibling MC runner (issues #514, #522), so a collector defect
-    -- or a fix -- shows up in one place for both benches."""
+    """The report helpers, the collector that drives them AND the seed-contract
+    predicates are `batch_sim`'s, shared with the sibling MC runner (issues #514,
+    #522, #533), so a defect -- or a fix -- shows up in one place for both
+    benches."""
 
     def test_runner_has_no_private_copy_of_the_report_helpers(self):
         for name in ("samples_from_report", "shard_loss", "record_tools", "samples_path",
-                     "collect_mc_batch"):
+                     "collect_mc_batch",
+                     "is_batch", "_is_batch", "seed_label", "seed_convention",
+                     "seed_mechanism"):
             self.assertFalse(hasattr(R, name), f"{name} should come from batch_sim")
+
+    def test_batch_sim_exposes_the_seed_contract_predicates(self):
+        for name in ("is_batch", "seed_label", "seed_convention", "seed_mechanism"):
+            self.assertTrue(callable(getattr(batch_sim, name, None)),
+                            f"batch_sim.{name} should be a callable")
             self.assertTrue(callable(getattr(batch_sim, name)))
 
     def test_shard_loss_names_unlaunched_and_lost_counts(self):
