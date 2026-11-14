@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 """Coverage for `sim/monte-carlo-untrimmed/run_mc_untrimmed.py --backend batch`
-(issue #398): each `Point` becomes one `klt sim` Monte Carlo request instead of a
-`setseed` / `reset` / `dowhile` ngspice loop, and the `config` axis (which
+(issue #398): each `Point` becomes one `klt sim` Monte Carlo request instead of
+a `setseed` / `reset` / `dowhile` ngspice loop, and the `config` axis (which
 mismatch coefficients are zeroed) rides in the request's netlist.
+
+The bench-independent half of this coverage -- the request-shape, budget and
+collector tests of the ONE `batch_sim` collector both MC benches drive --
+lives in `mc_batch_shared.py` (issue #536); only what reads this bench's own
+constants stays here.
 
 No ngspice, no fleet: the tests build requests from the committed netlist
 snapshot and read them back.
@@ -10,7 +15,6 @@ snapshot and read them back.
 
 from __future__ import annotations
 
-import importlib.util
 import json
 import sys
 import tempfile
@@ -21,50 +25,36 @@ from unittest import mock
 
 SIM_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SIM_DIR / "bin"))
+sys.path.insert(0, str(SIM_DIR / "tests"))
 sys.path.insert(0, str(SIM_DIR / "monte-carlo-untrimmed"))
 
 import batch_sim  # noqa: E402
+import mc_batch_shared  # noqa: E402
 import sim_common  # noqa: E402
 
 cr = sim_common.load_corner_run()
 PIN = json.loads((SIM_DIR / "pdk.json").read_text())
 SPICEINIT = (SIM_DIR / "spiceinit").read_text()
 
-
-def _load_runner():
-    path = SIM_DIR / "monte-carlo-untrimmed" / "run_mc_untrimmed.py"
-    spec = importlib.util.spec_from_file_location("mc_untrimmed", path)
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules["mc_untrimmed"] = mod
-    spec.loader.exec_module(mod)
-    return mod
-
-
-R = _load_runner()
+R = mc_batch_shared._load_runner(SIM_DIR / "monte-carlo-untrimmed" / "run_mc_untrimmed.py",
+                                 "mc_untrimmed")
 SNAPSHOT = sorted((SIM_DIR / "monte-carlo-untrimmed" / "netlist-snapshots").glob("*.spice"))[-1]
 BODY = cr.netlist_body(SNAPSHOT)
 ARGS = SimpleNamespace(timeout=batch_sim.MC_BATCH_TIMEOUT_S, batch_capacity_wait_s=60.0,
                        batch_runner_version_check="enforce")
 
 
-class BatchRequests(unittest.TestCase):
-    def setUp(self):
-        self._tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self._tmp.cleanup)
-        self.points = R.build_points(300)
-        self.groups = R.build_batch_groups(PIN, BODY, self.points, SPICEINIT, Path(self._tmp.name), ARGS)
+class _UntrimmedBench:
+    """What the shared mixins read: this bench's runner and deck constants."""
 
-    def test_one_request_per_point_with_its_section_seed_and_samples(self):
-        self.assertEqual(len(self.groups), len(self.points))
-        for g, p in zip(self.groups, self.points):
-            with self.subTest(point=p.corner_id):
-                req = g.request
-                self.assertEqual(req["backend"], "batch")
-                self.assertEqual(req["corners"], {"process": [p.section], "temperature_c": [int(p.temp_c)]})
-                self.assertEqual(req["monte_carlo"], {"n": p.samples, "seed": p.seed, "vary": "mismatch"})
-                self.assertEqual(req["analysis"], {"kind": "op", "args": ""})
-                self.assertEqual(json.loads(g.request_path.read_text()), req)
+    R = R
+    PIN = PIN
+    BODY = BODY
+    SPICEINIT = SPICEINIT
+    ARGS = ARGS
 
+
+class BatchRequests(_UntrimmedBench, mc_batch_shared.BatchRequestsShared, unittest.TestCase):
     def test_max_concurrent_jobs_is_off_by_default_and_passed_through(self):
         for g in self.groups:
             self.assertNotIn("max_concurrent_jobs", g.request["batch"])
@@ -157,231 +147,40 @@ class BatchRequests(unittest.TestCase):
         for banned in (".save", ".lib", ".temp", ".control"):
             self.assertNotIn(banned, text)
 
-    def test_sharding_is_sized_by_sample_count(self):
-        # At the batch default a 300-sample point packs 14 samples per shard
-        # instead of asking for one Spot host per sample (issue #528).
-        self.assertEqual(self.points[0].samples, 300)
-        self.assertEqual(
-            self.groups[0].request["remote"]["hosts"],
-            batch_sim.shard_hosts(300, batch_sim.MC_BATCH_TIMEOUT_S),
-        )
-        self.assertEqual(self.groups[0].request["remote"]["hosts"], 22)
 
-    def test_every_request_fits_the_fleet_job_ceiling_at_the_default(self):
-        for g, p in zip(self.groups, self.points):
-            with self.subTest(point=p.corner_id):
-                hosts = g.request["remote"]["hosts"]
-                self.assertLessEqual(hosts, p.samples)  # klt rejects hosts > units
-                bound = batch_sim.job_bound_s(
-                    p.samples, g.request["options"]["timeout_s"], hosts
-                )
-                self.assertLessEqual(bound, batch_sim.FLEET_JOB_CEILING_S)
-
-    def test_default_timeout_is_the_batch_default_under_backend_batch(self):
-        for g in self.groups:
-            self.assertEqual(
-                g.request["options"]["timeout_s"], batch_sim.MC_BATCH_TIMEOUT_S
-            )
+class OverCeilingBudgetIsRefused(_UntrimmedBench, mc_batch_shared.OverCeilingBudgetShared,
+                                 unittest.TestCase):
+    LOCAL_TIMEOUT_S = 3600
 
 
-class OverCeilingBudgetIsRefused(unittest.TestCase):
-    """The former per-point default (3600 s) is a per-SAMPLE budget on the
-    fleet: its single-sample bound already exceeds the whole-job ceiling, so no
-    `remote.hosts` split fits and klt would only warn (issue #528)."""
-
-    def setUp(self):
-        self._tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self._tmp.cleanup)
-        self.out = Path(self._tmp.name)
-        self.points = R.build_points(300)
-
-    def _args(self, timeout):
-        return SimpleNamespace(timeout=timeout, batch_capacity_wait_s=60.0,
-                               batch_runner_version_check="enforce")
-
-    def test_refused_as_a_harness_error_naming_bound_ceiling_and_a_budget(self):
-        with self.assertRaises(cr.HarnessError) as cm:
-            R.build_batch_groups(PIN, BODY, self.points, SPICEINIT, self.out, self._args(3600))
-        msg = str(cm.exception)
-        self.assertIn("3720s", msg)  # the bound
-        self.assertIn(f"{batch_sim.FLEET_JOB_CEILING_S}s", msg)  # the ceiling
-        self.assertIn("3480s", msg)  # the largest budget that fits
-        self.assertIn(f"{batch_sim.MC_BATCH_TIMEOUT_S}s", msg)  # the MC default
-        self.assertNotIn("post-layout", msg)
-
-    def test_nothing_is_written_before_the_refusal(self):
-        with self.assertRaises(cr.HarnessError):
-            R.build_batch_groups(PIN, BODY, self.points, SPICEINIT, self.out, self._args(3600))
-        self.assertEqual(sorted(self.out.rglob("*")), [])
-
-    def test_exactly_at_the_limit_is_accepted_and_one_over_is_refused(self):
-        limit = batch_sim.FLEET_JOB_CEILING_S - batch_sim.FLEET_JOB_OVERHEAD_S
-        groups = R.build_batch_groups(
-            PIN, BODY, self.points, SPICEINIT, self.out / "ok", self._args(limit)
-        )
-        self.assertEqual(groups[0].request["remote"]["hosts"], self.points[0].samples)
-        with self.assertRaises(cr.HarnessError):
-            R.build_batch_groups(
-                PIN, BODY, self.points, SPICEINIT, self.out / "no", self._args(limit + 1)
-            )
-
-    def test_a_small_sample_count_still_shards_at_the_default(self):
-        points = R.build_points(20)
-        groups = R.build_batch_groups(
-            PIN, BODY, points, SPICEINIT, self.out / "small",
-            self._args(batch_sim.MC_BATCH_TIMEOUT_S),
-        )
-        self.assertEqual(groups[0].request["remote"]["hosts"], 2)
+class TimeoutDefaultFollowsTheBackend(_UntrimmedBench, mc_batch_shared.TimeoutDefaultShared,
+                                      unittest.TestCase):
+    LOCAL_TIMEOUT_S = 3600
 
 
-class TimeoutDefaultFollowsTheBackend(unittest.TestCase):
-    """`--timeout` bounds a whole point locally and one sample on the fleet, so
-    one number cannot serve both (issue #528)."""
+class BatchCollection(_UntrimmedBench, mc_batch_shared.BatchCollectionShared,
+                      unittest.TestCase):
+    BENCH_NAME = "monte-carlo-untrimmed"
+    REPORT_STEP = 1e-3
 
-    def test_batch_default_is_the_mc_batch_budget(self):
-        self.assertEqual(
-            R.parse_args(["--backend", "batch"]).timeout, batch_sim.MC_BATCH_TIMEOUT_S
-        )
-
-    def test_local_default_is_unchanged(self):
-        self.assertEqual(R.parse_args([]).timeout, 3600)
-        self.assertEqual(R.parse_args(["--backend", "local"]).timeout, R.LOCAL_TIMEOUT_S)
-
-    def test_an_explicit_timeout_still_wins_on_both_backends(self):
-        self.assertEqual(R.parse_args(["--timeout", "900"]).timeout, 900)
-        self.assertEqual(
-            R.parse_args(["--backend", "batch", "--timeout", "900"]).timeout, 900
-        )
-
-
-def _shard_ids(point, shards):
-    return [f"job-{point.corner_id}-s{i}" for i in range(shards)]
-
-
-def _report(point, n=None, lib_sha="abc", drop=(), shuffle=False, shards=0):
-    """A stubbed klt report: one `corners[]` entry per Monte Carlo draw.
-
-    `shards=N` is the shape klt returns for a *sharded* request (issue #523):
-    `environment.remote` carries a `fleet` list and no top-level `job_id`."""
-    n = point.samples if n is None else n
-    corners = []
-    for k in range(n):
-        ms = [] if k in drop else [
-            {"name": "vout", "value": 1.2 + k * 1e-3}, {"name": "vgdrv", "value": 2.0 + k * 1e-3},
+    @staticmethod
+    def _report_measurements(k, step):
+        return [
+            {"name": "vout", "value": 1.2 + step}, {"name": "vgdrv", "value": 2.0 + step},
         ]
-        corners.append({"process": point.section, "temperature_c": point.temp_c, "status": "pass",
-                        "monte_carlo": {"sample_index": k}, "measurements": ms, "diagnostics": []})
-    if shuffle:
-        corners.reverse()
-    remote = ({"fleet": [{"job_id": j} for j in _shard_ids(point, shards)]} if shards
-              else {"job_id": f"job-{point.corner_id}"})
-    return {"corner_count": n, "corners": corners, "status": "pass",
-            "environment": {"models_lib_sha256": lib_sha, "engine_version": "45",
-                            "remote": remote}}
-
-
-class BatchCollection(unittest.TestCase):
-    def setUp(self):
-        self._tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self._tmp.cleanup)
-        tmp = Path(self._tmp.name)
-        self.lib = tmp / "sky130.lib.spice"
-        self.lib.write_text("lib")
-        self.sha = __import__("hashlib").sha256(b"lib").hexdigest()
-        self.pdk = SimpleNamespace(lib_file=self.lib)
-        self.points = R.build_points(20)
-        self.bench = tmp / "monte-carlo-untrimmed"
-        self.corners_dir = self.bench / "corners" / "20260101-000000-abc1234"
-        R.BUILD_DIR, self._old = tmp / "build", R.BUILD_DIR
-        self.addCleanup(setattr, R, "BUILD_DIR", self._old)
-
-    def _run(self, make_report):
-        def fake_collect(groups, runner=None, max_workers=None):
-            return [batch_sim.GroupOutcome(g, "t0", "t1", 1.0, 0, make_report(p), None, "", g.request_path)
-                    for g, p in zip(groups, self.points)]
-        orig = batch_sim.collect
-        batch_sim.collect = fake_collect
-        self.addCleanup(setattr, batch_sim, "collect", orig)
-        return R.collect_batch(PIN, self.pdk, BODY, self.points, ARGS, self.corners_dir)
-
-    def _assert_bench_untouched(self):
-        """A refused batch leaves no record and no half-populated `corners/`
-        directory, so the error's "no record was written" is literally true
-        (issue #522). Before the shared collector this bench wrote each point's
-        sidecar inside the collection loop, so a refusal left them behind."""
-        self.assertFalse(self.bench.exists(), f"{self.bench} should not exist after a failure")
-
-    def test_samples_ordered_and_same_shape_as_local_parse(self):
-        by_point, execution = self._run(lambda p: _report(p, lib_sha=self.sha, shuffle=True))
-        first = by_point[self.points[0].corner_id]
-        self.assertEqual(len(first), 20)
-        self.assertEqual(set(first[0]), set(R.VECTORS))
-        self.assertEqual([s["vout"] for s in first], sorted(s["vout"] for s in first))
-        self.assertEqual(execution["backend"], "batch")
-        self.assertEqual(execution["jobs"][0]["job_id"], f"job-{self.points[0].corner_id}")
-
-    def test_draws_without_values_are_dropped_and_counted(self):
-        by_point, execution = self._run(lambda p: _report(p, lib_sha=self.sha, drop={3, 4}))
-        self.assertEqual(len(by_point[self.points[0].corner_id]), 18)
-        self.assertEqual(execution["jobs"][0]["samples_dropped"], 2)
-
-    def test_sharded_request_records_every_fleet_job_id(self):
-        _, execution = self._run(lambda p: _report(p, lib_sha=self.sha, shards=3))
-        for job, point in zip(execution["jobs"], self.points):
-            with self.subTest(point=point.corner_id):
-                self.assertIsNone(job["job_id"])
-                self.assertEqual(job["job_ids"], _shard_ids(point, 3))
-
-    def test_samples_sidecar_carries_the_shard_ids(self):
-        self._run(lambda p: _report(p, lib_sha=self.sha, shards=3))
-        point = self.points[0]
-        written = json.loads(batch_sim.samples_path(self.corners_dir, point.corner_id).read_text())
-        self.assertIsNone(written["job_id"])
-        self.assertEqual(written["job_ids"], _shard_ids(point, 3))
 
     def test_samples_sidecar_keeps_this_benchs_config_axis(self):
         """`config` is this bench's extra per-point field; the shared collector
         takes it through `extra_fields` and keeps it in its historical place,
         right after `section` (issue #522)."""
-        self._run(lambda p: _report(p, lib_sha=self.sha))
+        self._run(lambda p: self._report(p, lib_sha=self.sha))
         point = self.points[0]
         written = json.loads(batch_sim.samples_path(self.corners_dir, point.corner_id).read_text())
         self.assertEqual(written["config"], point.config)
         self.assertEqual(list(written)[:3], ["point", "section", "config"])
 
-    def test_samples_sidecar_is_unchanged_for_an_unsharded_request(self):
-        self._run(lambda p: _report(p, lib_sha=self.sha))
-        point = self.points[0]
-        written = json.loads(batch_sim.samples_path(self.corners_dir, point.corner_id).read_text())
-        self.assertEqual(written["job_id"], f"job-{point.corner_id}")
-        self.assertEqual(written["job_ids"], [f"job-{point.corner_id}"])
-
-    def test_wrong_sample_count_is_refused_and_writes_nothing(self):
-        with self.assertRaises(cr.HarnessError) as cm:
-            self._run(lambda p: _report(p, n=p.samples - 1, lib_sha=self.sha))
-        self.assertIn("requested", str(cm.exception))
-        self.assertIn("nothing was run locally", str(cm.exception))
-        self._assert_bench_untouched()
-
-    def test_model_library_mismatch_is_refused_and_writes_nothing(self):
-        with self.assertRaises(cr.HarnessError) as cm:
-            self._run(lambda p: _report(p, lib_sha="deadbeef"))
-        self.assertIn("sha256", str(cm.exception))
-        self._assert_bench_untouched()
-
-    def test_submit_failure_is_an_error_not_a_local_run(self):
-        def boom(groups, runner=None, max_workers=None):
-            raise batch_sim.BatchError("submit failed")
-        orig = batch_sim.collect
-        batch_sim.collect = boom
-        self.addCleanup(setattr, batch_sim, "collect", orig)
-        with self.assertRaises(cr.HarnessError) as cm:
-            R.collect_batch(PIN, self.pdk, BODY, self.points, ARGS, self.corners_dir)
-        self.assertIn("submit failed", str(cm.exception))
-        self._assert_bench_untouched()
-
     def test_emit_klt_yield_reads_batch_samples_when_no_log(self):
-        self._run(lambda p: _report(p, lib_sha=self.sha, drop={0}))
+        self._run(lambda p: self._report(p, lib_sha=self.sha, drop={0}))
         import emit_klt_yield as E
         cid = E.corner_id_for(27.0)
         vout = E.load_vout_samples(self.corners_dir / f"{cid}.log")
@@ -480,14 +279,9 @@ class SeedWording(unittest.TestCase):
         self.assertIn("ngspice draws sequentially per `setseed`", md)
 
 
-class CommittedRecordsAreNotRewritten(unittest.TestCase):
-    def test_rendering_a_committed_record_writes_nothing(self):
-        before = {p: p.stat().st_mtime_ns for p in BENCH_DIR.glob("records/*")}
-        for path in sorted(BENCH_DIR.glob("records/*.json")):
-            r = json.loads(path.read_text())
-            if "points" in r:
-                R.render_record(r)
-        self.assertEqual({p: p.stat().st_mtime_ns for p in BENCH_DIR.glob("records/*")}, before)
+class CommittedRecordsAreNotRewritten(_UntrimmedBench, mc_batch_shared.CommittedRecordsShared,
+                                      unittest.TestCase):
+    BENCH_DIR = BENCH_DIR
 
 
 if __name__ == "__main__":
