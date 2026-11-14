@@ -112,6 +112,11 @@
       "note": "a `klt yield` report carries no `provenance` block at all, so `klt signoff` hashes the sample-set document the report names in its own top-level `samples` field and uses that as the citation's input hash -- this is that document. It is therefore also the one pin whose `describes` path must stay identical to the cited envelope's `samples` value: issue #288 made that value repo-relative (it used to be an absolute, machine-local path, which is why this item could not be cited at all), and sim/tests/test_emit_klt_yield.py guards it."
     },
     {
+      "item": "7",
+      "describes": "layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_routed.gds",
+      "note": "pex-stdout.json records provenance.input.content_hash = sha256 of the routed GDS it extracted (role `layout`), the same stream items 2, 3 and 11 pin. The record is cited while failing: 45 of 45 graded deltas are out of limit (sim/pex-native/records/20261106-pilot/graded-deltas.json), so item 7 grades check_failed rather than no_evidence."
+    },
+    {
       "item": "8",
       "describes": "design/block-characterization-report.md",
       "note": "characterization.generic.json is the hand-rolled `kind: generic` envelope asserting this report; signoff/regenerate.sh step 1 refreshes both the envelope's provenance.input.content_hash and the manifest pin from the report's own bytes."
