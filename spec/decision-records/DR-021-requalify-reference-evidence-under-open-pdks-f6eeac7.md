@@ -41,17 +41,17 @@ No spec relaxation is made or implied.
 | `psrr-injector-attribution` | `20261002-070506-29da08e` | `20261113-111649-7efdcf3b` | 45/45 x 5 variants (225 points), no subset | Overall FAIL, same as old (the same 4 of 429 checks; all 225 points bit-identical) |
 | `error-amp-offset-mc` | `20260817-130441-aa5324e` | `20261113-140022-64c42cad` | 5 MC points (3x300 + 30 control + 300 second seed = 1 230 samples), same seeds and N as the old record, 0 excluded | PASS, same as old (6/6 cross-point checks, `budget_closure` holds at all three temperatures); the mismatch *draws* are not bit-identical -- see below |
 
-### Not yet re-qualified (as of slice F, 2026-11-13)
+### Not yet re-qualified (as of slice G, 2026-11-13)
 
 Every bench of the 2026-11-11 Revision table has a disposition: either a row
 in the index above, or a reason here. None is left as "not attempted". After
-slice F exactly **one** bench is not re-qualified, and it is also stated in
+slice G exactly **one** bench is not re-qualified, and it is also stated in
 `design/block-characterization-report.md` itself (row 1c and section 3 item 6),
 so a reader who starts there is not left to infer the gap from a date.
 
 | Bench | Status |
 |---|---|
-| `monte-carlo-untrimmed` | **Not re-qualified: batch collector loses samples.** `--backend batch` exists (#437) but has never produced a usable record; all three attempts on disk report `klt_status: "error"` on every job and parse back fewer samples than requested. A partial-sample MC record cannot be comparable evidence. Blocked on #444 (open, `loom:operator`). Old record `20260817-121131-d7d85b6` remains the evidence. See "Slice D3 dispositions" below. |
+| `monte-carlo-untrimmed` | **Not re-qualified: batch collector loses samples.** `--backend batch` exists (#437) but has never produced a usable record; all three attempts on disk report `klt_status: "error"` on every job and parse back fewer samples than requested. A partial-sample MC record cannot be comparable evidence. Blocked on #444 (open, `loom:operator`). Old record `20260817-121131-d7d85b6` remains the evidence. See "Slice D3 dispositions" below, and "Slice G" for the measured cause of the sample loss (one Spot host per sample, from the runner's default per-unit budget; code half filed as #528). |
 | layout reports | **Re-qualification does not apply.** The cited DRC/LVS/extraction verdicts come from KLayout's curated sky130 deck at a pinned klt/KLayout version, not from the open_pdks ngspice model cards `f6eeac7` changed. No new report is minted or needed. See "Slice D3 dispositions" below. |
 
 ### Per-row old/new deltas, `startup-stability` (worst case over 45 corners)
@@ -639,6 +639,109 @@ issue's reference set, and re-deriving an allocation is its own task). That doc
 gains a short section 11 pointing at the new record and at this section, so it
 does not read as current.
 
+### Slice G -- the reference set re-confirmed at build time, and a measured cause for the one remaining gap
+
+No simulation, no fleet, no code. Two things this record asserted at an
+earlier head are re-derived against `origin/main` @ `e1c01e9a`, and the one
+disposition that read "cause unconfirmed" is given a quantified cause computed
+from the three attempt records already on disk.
+
+**1. Scope item 1's reference set is complete.** The 2026-10-20 Revision asked
+the Builder to confirm the set against `signoff/` and `spec/topology-survey.md`
+at build time; this is that confirmation, from `grep -ohE 'sim/[a-z0-9_-]+/'`
+over the three cited sources at `e1c01e9a`:
+
+- `design/block-characterization-report.md` cites 20 bench directories -- every
+  one of them an index row or a disposition above -- plus `sim/bin/` (tooling)
+  and `sim/pex-native/`.
+- `spec/topology-survey.md` cites **no** `sim/*/` path at all.
+- `signoff/` mentions 13 bench directories that are **not** in the reference set
+  (`bandgap-smoke`, `error-amp-loop`, `mos-matching-characterization`,
+  `mos-mirror-sizing-extended`, `pdk-smoke`, `pnp-characterization`,
+  `pnp-mismatch`, `res-array-head-resistance`, `res-array-resize`,
+  `resistor-flavor-characterization`, `resistor-tc-single-length`,
+  `trim-range-monotonicity`, `pex-native`). Every one of those hits is in
+  `signoff/attest/testbench-inventory.json` -- the T1 item 9 *inventory* of
+  every testbench in the tree -- except `pex-native`, which appears only in
+  `signoff/README.md` prose. An inventory entry is not a cited result, so none
+  of the 13 is reference evidence and none needs re-qualification. The
+  2026-10-20 Revision's "they cite no additional bench dirs" is correct in
+  substance (no additional *evidence* citation) and imprecise as written (there
+  are additional *path mentions*); corrected here rather than left to be
+  re-derived by the next reader.
+- `sim/pex-native` needs no re-qualification for a second, independent reason:
+  its cited record `sim/pex-native/records/20261106-pilot/` was minted
+  2026-11-06, after the re-pin, and each of its six measurement reports
+  (`pex/measure/{schematic,extracted}/*/v{2.97,3.30,3.63}/klt-report.json`)
+  records `open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7` as the
+  worker's PDK stamp (`environment.remote.fleet[].worker_environment.pdk
+  .stamp_text`). It is already under the new pin.
+
+**2. The derived artifacts are still current.** Slices C'+D4 and E re-minted the
+item-5 envelopes, the block manifest and the report hash; three unrelated commits
+have landed since (`25df545a`, `d865735d`, `1ddcbf76` -- record prose and a T1
+attestation rebuild). Re-checked at `e1c01e9a`: `npm run check:signoff-pins`
+passes (33 artifact manifests, 9 T1 attestations current, every item-5 envelope
+resolving to an `f6eeac7` netlist snapshot, item 8 matching the report's
+`sha256`) and `sim/tests` is green (316 tests). Nothing went stale.
+
+**3. `monte-carlo-untrimmed`: the shard loss has a measured cause, and it is a
+request shape at least as much as a quota.** Slice D3 recorded the three #444
+attempts as "every klt job `klt_status: error`, `klt_exit_code: 4`, fewer samples
+parsed than requested", cause unconfirmed. Recomputed from those committed
+records:
+
+| Record | N | Requests | Shards per request | Shards total | Lost (`null` fleet entry) | Worst measured sample |
+|---|---|---|---|---|---|---|
+| `20261104-192509-4193f7c5` | 20 | 14 | 20 | 280 | 174 | 17.3 s |
+| `20261105-052441-84832cb5` | 20 | 14 | 20 | 280 | 177 | 14.3 s |
+| `20261105-061037-ef9df345` | 20 | 14 | 20 | 280 | 170 | 38.8 s |
+
+**Shards per request equals the sample count in all three.** That is
+`batch_sim.shard_hosts()` answering the runner's default per-unit budget:
+`run_mc_untrimmed.py` passes `timeout_default=3600` to `add_common_args()`,
+`build_request()` counts an MC point's units as `processes x temps x
+monte_carlo.n` (so 20), and `shard_hosts(20, 3600)` is **20** -- one Spot host
+per Monte Carlo sample, 280 hosts asked for across a smoke run whose samples
+finish in 14-39 s. Two things follow arithmetically:
+
+- At `--timeout 3600` the per-shard bound is `job_bound_s(20, 3600) = 3720 s`,
+  **over** the fleet's own `FLEET_JOB_CEILING_S = 3600` even at the finest
+  split -- the case `shard_hosts()`'s docstring calls "cannot be fixed by
+  sharding". The post-layout path refuses exactly that through
+  `require_job_bound_fits()` (`enforce_job_ceiling`, #510); `build_mc_group()`
+  never calls it, so these requests were submitted without complaint.
+- Sizing the budget from the bench's own measured worst sample collapses the
+  shape: `shard_hosts(20, 160) = 1` (bound 3 320 s, inside the ceiling) -- 14
+  hosts for the whole smoke run instead of 280. At the reference N=300,
+  `shard_hosts(300, 3600) = 300` against `shard_hosts(300, 160) = 15`.
+
+This is the same request-shape lesson slice D4 applied to
+`psrr-injector-attribution` (`--timeout 200` rather than the runner's 1 800 s
+default: `remote.hosts: 1` per request, 30 requests through the shared quota
+with nothing lost) and slice C' applied with `--timeout 230`. Those two benches
+and this one failed the same way, and the other two are already fixed by sizing
+the budget. The code half is filed as #528 (add the missing ceiling guard to the
+MC path; size or document the runners' default budget) -- a change to
+`sim/bin/batch_sim.py` / `run_mc_untrimmed.py`, which this issue puts out of
+scope.
+
+**What this does and does not change.** The disposition is unchanged:
+`monte-carlo-untrimmed` is still **not re-qualified** and
+`20260817-121131-d7d85b6` is still the cited evidence. This slice does not run
+the bench, for two reasons that are not this record's to overrule:
+
+- A Monte Carlo fleet submit for this bench is #444's own acceptance criterion,
+  and #444 is held at `loom:operator` pending an operator ruling on exactly that
+  submit. No role acts on an operator-held issue.
+- The diagnosis is a **hypothesis with arithmetic behind it, not a proven fix**.
+  It explains the shard count exactly, and it predicts that a retry at
+  `--timeout ~160` shards to one host per request; it does **not** prove the
+  170-177 lost shards were caused by the host demand rather than by something
+  else that also returns `klt_exit_code: 4`. What would settle it is one
+  small-N submit at a sized budget -- 14 hosts instead of 280 -- and
+  authorising that submit is #444's.
+
 ## Alternatives considered
 
 - **Run non-batch / local grids for the remaining benches** - rejected: host
@@ -657,6 +760,13 @@ does not read as current.
   precedent in this family (#395, #396, #398) is a separate issue with its
   own live single-corner validation. Filed as #510, with the measured probe
   as its evidence.
+- **Re-run `monte-carlo-untrimmed` here at a sized `--timeout`, now that
+  slice G has explained the shard loss** - rejected: the fix is a hypothesis
+  until a submit proves it, and a Monte Carlo fleet submit for this bench is
+  #444's own acceptance criterion while #444 is held at `loom:operator` pending
+  an operator ruling on exactly that submit. The arithmetic is recorded for
+  whoever gets that ruling; forcing the submit from here is not this issue's
+  call.
 - **Re-run the layout flow to mint new report ids** - rejected: it would
   produce a new layout rather than re-measure the cited one, and the cited
   verdicts carry no open_pdks model dependency to re-qualify.
@@ -722,11 +832,18 @@ evidence:
 
 | Bench | Waits on | Needs code? |
 |---|---|---|
-| `monte-carlo-untrimmed` | #444 (open, `loom:operator`) | yes — the batch collector loses samples |
+| `monte-carlo-untrimmed` | #444 (open, `loom:operator`) | yes — the batch collector loses samples; cause measured in slice G, code half filed as #528 |
 
 With slice E the derived artifacts are current, and with slice F the last
 bench that needed only a fleet submission has one. **#370's remaining work is
 exactly #444's**, which is an operator-held issue, not a scheduling matter.
+Slice G re-confirmed the reference set and the derived artifacts at
+`e1c01e9a` and closed the one "cause unconfirmed" left in this record: the
+sample loss is `shard_hosts()` answering the MC runner's 3 600 s default
+budget with one Spot host per sample (280 for a 20-sample smoke run), the
+same request shape slices C' and D4 fixed by sizing `--timeout`. That is a
+hypothesis with arithmetic behind it, not a proven fix, and the submit that
+would prove it is #444's to authorise.
 
 Layout reports need no re-qualification (slice D3). **Nothing on this issue is
 gated on fleet budget any more**, and slice F is the third independent
@@ -737,6 +854,10 @@ per-point budget sized from the bench's own measured runtime rather than the
 runner's default, 30 requests and 225 points went through with no
 `batch_no_capacity` and no lost shard, and all ten C' jobs did the same. The
 capacity failures were a request-shape problem as much as a quota problem.
+Slice G makes that the fourth confirmation and the first one that is purely
+arithmetic: the one bench still unrun submitted 280 host-requests for samples
+that finish in 14-39 s, and a budget sized from its own measurement asks for
+14.
 
 No spec row is relaxed by any slice of this record, and no result moved outside
 its tolerance because of the re-pin. Of the 345 corner points added in slice
