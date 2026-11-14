@@ -712,6 +712,26 @@ What it does, and what it deliberately does not change:
   per supply, the exact `request.json`, `netlist.cir` and `klt-report.json`.
   Per-corner `elapsed_s` is the remote engine wall clock; it is never a
   dispatch-call duration.
+- **Worker attestation lives in a table, not on every fleet entry** (issue
+  #549). klt attaches a full `worker_environment` block -- the worker's
+  ngspice `version_banner`, PDK stamp, engine-build comparison and CPU model,
+  about 1.4 kB -- to *every* fleet job of a request, so a sharded request used
+  to re-serialize a byte-identical block once per shard (1.4 MB of the records
+  then on disk, at 1-2 distinct values per record). Records written from #549
+  on keep each distinct block exactly once in
+  `execution.worker_environments`, keyed by the sha256 of its canonical JSON,
+  with every fleet entry carrying a `worker_environment_ref` to **its own**
+  block -- so a shard that genuinely ran a different environment is as visible
+  as it ever was, and only identical repeats stop being written. Records
+  committed before it keep the inline shape, because `sim/` is append-only;
+  **read either shape through
+  `batch_sim.fleet_worker_environment(entry, table)`** (one entry) or
+  **`batch_sim.execution_worker_environments(execution)`** (a record's distinct
+  blocks) rather than reaching for `entry["worker_environment"]`, which is
+  present only on the older records. A `*_ref` with no table entry raises
+  rather than reading as "no attestation": that would hide lost evidence. The
+  `klt-report.json` copies under `corners/<record-id>/` are the fleet's own
+  artifacts and always keep klt's inline shape.
 - **Failure semantics**: a corner is PASS only if klt reports no error
   diagnostic, no timeout, and every measurement is present and in limits.
   The `timeout` diagnostic (per-corner budget) and the fleet job's own
