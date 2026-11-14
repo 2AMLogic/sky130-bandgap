@@ -4,7 +4,7 @@
   "evidence": {
     "1": {
       "file": "signoff/attest/item-1.evidence.json",
-      "content_hash": "sha256:28777e1563458c4ee06d069a33a036ccb1e5fd14cc6d2113367e231c4b692933"
+      "content_hash": "sha256:350f918aea145833fca70d6aa0bd1bf502f241de69d4ccaf1b0e43c3aa56ecce"
     },
     "2": {
       "file": "signoff/attest/item-2.evidence.json",
@@ -128,7 +128,7 @@
     },
     "9": {
       "file": "signoff/attest/item-9.evidence.json",
-      "content_hash": "sha256:f575bc7e18f450b2a004126eebfe63d7e5d877be32894b8895757213e7c71498"
+      "content_hash": "sha256:b162f026592eb7d6acce3dbb707ab8b4c2cf370fb9342789d39679be3dfd8178"
     },
     "10": {
       "file": "signoff/attest/item-10.evidence.json",

@@ -66,7 +66,6 @@ from __future__ import annotations
 
 import argparse
 import collections
-import hashlib
 import json
 import platform
 import sys
@@ -75,7 +74,9 @@ from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts" / "ci"))
 
+from content_hash import sha256_file_tagged  # noqa: E402
 from layout_common import git  # noqa: E402
 
 REQUEST_NAME = "lvs.combined.request.json"
@@ -86,14 +87,6 @@ VARIANTS: tuple[tuple[str, int | None], ...] = (
     ("as_committed", None),
     ("max_attempts_1", 1),
 )
-
-
-def _sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(65536), b""):
-            digest.update(chunk)
-    return f"sha256:{digest.hexdigest()}"
 
 
 def _require(path: Path, what: str) -> Path:
@@ -137,7 +130,7 @@ def _klt_identity(repo_root: Path, declared_ref: str | None) -> dict[str, Any]:
 
     identity: dict[str, Any] = {
         "module_location": location,
-        "lvs_module_sha256": _sha256_file(Path(lvs.__file__).resolve()),
+        "lvs_module_sha256": sha256_file_tagged(Path(lvs.__file__).resolve()),
         "declared_ref": declared_ref,
     }
     try:

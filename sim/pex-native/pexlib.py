@@ -18,14 +18,20 @@ injector-inclusive cell. Three jobs live here so `measure_command.py`,
 
 from __future__ import annotations
 
-import hashlib
 import re
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent.parent
 DESIGN_NETLIST_DIR = REPO_ROOT / "design" / "netlist"
 EXPERIMENT_JSON = REPO_ROOT / "sim" / "output-voltage-tc" / "experiment.json"
+
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci"))
+
+# Re-exported on purpose: `pexlib.sha256_text` / `pexlib.sha256_file` is how
+# `compose_reference.py` and `grade_deltas.py` already reach them.
+from content_hash import sha256_file, sha256_text  # noqa: E402, F401
 
 TOP = "bandgap_core_routed"
 #: The four pins the testbench instantiates `bandgap_core` through.
@@ -43,14 +49,6 @@ INJECTOR_DEVICES = ("XMPC1", "XMPC2", "XMNS", "XQS", "XMNI", "XMNC")
 
 class PexNativeError(RuntimeError):
     """An input check failed; the pilot must not produce evidence."""
-
-
-def sha256_text(text: str) -> str:
-    return hashlib.sha256(text.encode()).hexdigest()
-
-
-def sha256_file(path: Path) -> str:
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def corner_ids() -> list[str]:
