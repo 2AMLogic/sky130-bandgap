@@ -33,7 +33,7 @@
         "command": null,
         "kind": "generic",
         "check_status": "pass",
-        "content_hash": "sha256:28777e1563458c4ee06d069a33a036ccb1e5fd14cc6d2113367e231c4b692933",
+        "content_hash": "sha256:350f918aea145833fca70d6aa0bd1bf502f241de69d4ccaf1b0e43c3aa56ecce",
         "input_verified": true,
         "exit_status": 0,
         "artifact_binding": {
@@ -42,7 +42,7 @@
             "path": "signoff/attest/design-sources.inventory.json",
             "scope": "repo"
           },
-          "content_hash": "sha256:28777e1563458c4ee06d069a33a036ccb1e5fd14cc6d2113367e231c4b692933",
+          "content_hash": "sha256:350f918aea145833fca70d6aa0bd1bf502f241de69d4ccaf1b0e43c3aa56ecce",
           "input_verified": true,
           "summary": "Design sources: schematics, symbols and derived netlists, each hash-pinned.",
           "source": "signoff/attest/design-sources.inventory.json"
@@ -390,7 +390,7 @@
         "command": null,
         "kind": "generic",
         "check_status": "pass",
-        "content_hash": "sha256:62fee9164c776d5c3b618723968b4b336ece8050d6b516177af17d77bd63a57c",
+        "content_hash": "sha256:1ccdcc3beef273aa9366c0847a8c4e0dd09bd0c67939bfc4d70a24d6bde56d1d",
         "input_verified": true,
         "exit_status": 0,
         "artifact_binding": {
@@ -399,7 +399,7 @@
             "path": "signoff/attest/testbench-inventory.json",
             "scope": "repo"
           },
-          "content_hash": "sha256:62fee9164c776d5c3b618723968b4b336ece8050d6b516177af17d77bd63a57c",
+          "content_hash": "sha256:1ccdcc3beef273aa9366c0847a8c4e0dd09bd0c67939bfc4d70a24d6bde56d1d",
           "input_verified": true,
           "summary": "Testbenches shipped: every runnable testbench with its cold-start command and the PDK/tool pins.",
           "source": "signoff/attest/testbench-inventory.json"
