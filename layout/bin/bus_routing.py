@@ -721,7 +721,7 @@ def trim_tap_port(leg: int, code: int) -> str:
 #:
 #: Declared rather than inferred. "A comb node that no inter-block route names
 #: is a typo" was a true invariant for every block drawn before issue #285 and
-#: `layout/tests/test_routed_flow_gates.py` asserts it, so a node that really
+#: `layout/tests/test_bus_routing.py` asserts it, so a node that really
 #: is block-internal has to say so here instead of quietly weakening the
 #: check: an un-declared comb net is still a typo, and still fails that test.
 #: These nets get no met1 label either (labels come from INTER_BLOCK_MET1), so

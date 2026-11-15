@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
-import hashlib
 import json
 import math
 import os
@@ -47,6 +46,10 @@ SIM_DIR = BIN_DIR.parent
 SPICEINIT_FILE = SIM_DIR / "spiceinit"
 REPO_DIR = SIM_DIR.parent
 ARTIFACT_MANIFEST_DIR = Path("manifests") / "artifacts"
+
+sys.path.insert(0, str(REPO_DIR / "scripts" / "ci"))
+
+from content_hash import sha256_file  # noqa: E402
 
 
 @dataclass(frozen=True)
@@ -380,14 +383,6 @@ def require_artifact_store() -> None:
         )
 
 
-def _sha256_file(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open("rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
 def _tracked_hashes(repo_root: Path) -> dict[str, str]:
     """`{sha256: tracked path}` for `repo_root`, via the CI checker's own
     `tracked_hashes()` (loaded from scripts/ci so there is one copy of the
@@ -445,7 +440,7 @@ def publish_corner_evidence(
     skipped: list[tuple[Path, str, str]] = []
     kept: list[Path] = []
     for f in files:
-        digest = _sha256_file(f)
+        digest = sha256_file(f)
         if digest in tracked:
             skipped.append((f, digest, tracked[digest]))
         else:

@@ -31,12 +31,17 @@ Modes:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import re
 import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+# `content_hash` is a sibling; scripts/ci/tests/* load this file by path, so
+# sys.path[0] is not this directory and the insert above is load-bearing.
+from content_hash import sha256_file_tagged, sha256_text, tagged  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ATTEST = REPO_ROOT / "signoff" / "attest"
@@ -56,10 +61,6 @@ SWITCH_NOTE = (
     "generic form klt 0.7.0 grades; replace with `klt signoff --attest` once a "
     "klayout-tools release carries it (klayout-tools#2844)."
 )
-
-
-def sha256_file(path: Path) -> str:
-    return f"sha256:{hashlib.sha256(path.read_bytes()).hexdigest()}"
 
 
 def dump(document: dict) -> str:
@@ -83,7 +84,7 @@ def entries(roles: list[tuple[str, str]]) -> list[dict]:
             continue
         seen.add(path)
         out.append(
-            {"path": path, "role": role, "content_hash": sha256_file(REPO_ROOT / path)}
+            {"path": path, "role": role, "content_hash": sha256_file_tagged(REPO_ROOT / path)}
         )
     return out
 
@@ -271,7 +272,7 @@ def inventory_passes(inventory: dict | None) -> bool:
     """Mechanical verdict: the inventory is non-empty and every row has its anchors.
 
     Item 2 has no inventory (the envelope pins the GDS, whose existence
-    sha256_file already asserted by reading it), so it passes by construction.
+    sha256_file_tagged already asserted by reading it), so it passes by construction.
     """
     if inventory is None:
         return True
@@ -318,12 +319,12 @@ def build() -> dict[Path, str]:
         text = dump(inventory)
         out[path] = text
         rel = path.relative_to(REPO_ROOT).as_posix()
-        digest = f"sha256:{hashlib.sha256(text.encode()).hexdigest()}"
+        digest = tagged(sha256_text(text))
         pins[item] = (rel, digest)
         out[ATTEST / f"item-{item}.evidence.json"] = dump(
             envelope(item, summaries[item], rel, rel, digest, inventory)
         )
-    gds_hash = sha256_file(REPO_ROOT / ROUTED_GDS)
+    gds_hash = sha256_file_tagged(REPO_ROOT / ROUTED_GDS)
     pins[2] = (ROUTED_GDS, gds_hash)
     out[ATTEST / "item-2.evidence.json"] = dump(
         envelope(

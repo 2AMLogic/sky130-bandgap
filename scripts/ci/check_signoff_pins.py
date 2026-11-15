@@ -70,10 +70,15 @@ rather than in the `signoff` job that has to install the pinned grader.
 
 from __future__ import annotations
 
-import hashlib
 import json
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+# `content_hash` is a sibling; scripts/ci/tests/* load this file by path, so
+# sys.path[0] is not this directory and the insert above is load-bearing.
+from content_hash import sha256_file_tagged  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = REPO_ROOT / "signoff" / "block-manifest.json"
@@ -92,14 +97,6 @@ How to fix, depending on which one is true:
     re-derived. That is the rot this check exists to catch; do not re-pin
     around it.
 """.strip()
-
-
-def sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1 << 20), b""):
-            digest.update(chunk)
-    return f"sha256:{digest.hexdigest()}"
 
 
 def pin_key(item: str, index: int | None) -> str:
@@ -180,7 +177,7 @@ def check_pin(key: str, citation: dict, declaration: dict, errors: list[str]) ->
         return False
 
     ok = True
-    actual = sha256_file(artifact_path)
+    actual = sha256_file_tagged(artifact_path)
     if actual != pin:
         errors.append(
             f"{key}: {declaration['describes']} no longer matches the pin in "

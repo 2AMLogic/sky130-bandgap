@@ -56,7 +56,7 @@
     {
       "path": "scripts/ci/design_netlists.py",
       "role": "netlist-generator-and-checker",
-      "content_hash": "sha256:f289a844f0b239b8a6d31ce4c90759def22b886a4ad5ea32c348fa49eb1ada92"
+      "content_hash": "sha256:0ffddd57f1d5a9d17a1043170440f955074e4d6588396ff0e52adb60b0ef9e33"
     }
   ],
   "checks": [

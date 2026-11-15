@@ -33,17 +33,23 @@ can never yield an overall PASS.
 
 from __future__ import annotations
 
-import hashlib
 import json
 import re
 import shutil
 import subprocess
+import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts" / "ci"))
+
+# Re-exported on purpose: `batch_sim.sha256_file` is how the benches and
+# `sim/tests/*` already reach the bare-hex helper.
+from content_hash import sha256_file  # noqa: E402
 
 #: Experiments whose deck shape this adapter has been validated against,
 #: including a live single-corner comparison on the fleet. Everything else
@@ -296,14 +302,6 @@ class GroupOutcome:
 # --------------------------------------------------------------------------
 # request construction
 # --------------------------------------------------------------------------
-
-
-def sha256_file(path: Path) -> str:
-    h = hashlib.sha256()
-    with open(path, "rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
 
 
 def spiceinit_lines(spiceinit_text: str) -> list[str]:
@@ -1173,6 +1171,52 @@ def collect_mc_batch(
             "statistics, not the individual draws, match a local run of the same seed"
         ),
     }
+
+
+# The seed contract's own prose. These four describe how a record reports the
+# way its draws were seeded -- shared behaviour, so a wording or logic
+# correction to the seed note lands once for both benches rather than twice
+# (issues #514, #522, #533). The two bench seed constants are injected rather
+# than imported, the same dependency-injection shape `record_tools(tools, ...)`
+# uses above: `SEED_A` / `SEED_B` stay each runner's own choice, so a future
+# per-bench reseed is not a cross-module change.
+
+
+def is_batch(execution: dict | None) -> bool:
+    return (execution or {}).get("backend") == "batch"
+
+
+def seed_mechanism(execution: dict | None, seed_a: int, seed_b: int) -> str:
+    """How this run's draws were seeded, for the record's "Reproducible:" line.
+
+    The local path runs a `.control` `setseed` / `reset` loop. The batch path
+    has klt derive every sample's own `.options seed=` from the request's
+    `monte_carlo.seed`, so a batch record that says `setseed` names a mechanism
+    that did not run (issue #523). The local wording is unchanged."""
+    if is_batch(execution):
+        return (
+            f"klt `monte_carlo` seed {seed_a} (second-seed point uses {seed_b}); klt derives "
+            f"each sample's own `.options seed=` from it, so a batch run reproduces the "
+            f"statistics of a local run of the same seed, not its individual draws"
+        )
+    return f"`setseed {seed_a}` (second-seed point uses {seed_b})"
+
+
+def seed_label(execution: dict | None, seed: int) -> str:
+    """One point's seed, named by the mechanism that actually drew it (#523)."""
+    if is_batch(execution):
+        return f"`monte_carlo` seed {seed}"
+    return f"`setseed {seed}`"
+
+
+def seed_convention(execution: dict | None, seed_a: int) -> str:
+    """The seed clause of `experiment.statistical_convention` (#523)."""
+    if is_batch(execution):
+        return (
+            f"klt monte_carlo seed {seed_a} (one ngspice run per sample, .options seed= "
+            f"derived from it by klt, not a single ngspice PRNG stream)"
+        )
+    return f"fixed setseed {seed_a}"
 
 
 def assemble(
