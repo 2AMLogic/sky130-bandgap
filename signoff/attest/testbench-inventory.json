@@ -30,7 +30,7 @@
     {
       "path": "sim/bin/sim_common.py",
       "role": "harness",
-      "content_hash": "sha256:3098c3626bdf259a77baa396da0ab7d0ee85d6dcf386e44f56ae3778f040292f"
+      "content_hash": "sha256:92696289a7656db0219392d790ab00480664474b63de02bd0e5f11e605af56d3"
     },
     {
       "path": "sim/spiceinit",
@@ -261,7 +261,7 @@
         {
           "path": "sim/psrr-dc-with-injector/experiment.json",
           "role": "experiment",
-          "content_hash": "sha256:0d41dd8ca4b40c7b8c6b78ac139d7baaad64aa30327abe11e442f2b8acd32376"
+          "content_hash": "sha256:a1cbf921d5ae24f0778caaa572168af369c0f30ff4d5749a4281215162e8f519"
         },
         {
           "path": "sim/psrr-dc-with-injector/testbench/tb_vref_psrr_injector.sch",

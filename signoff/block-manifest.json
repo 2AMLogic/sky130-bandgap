@@ -4,7 +4,7 @@
   "evidence": {
     "1": {
       "file": "signoff/attest/item-1.evidence.json",
-      "content_hash": "sha256:28777e1563458c4ee06d069a33a036ccb1e5fd14cc6d2113367e231c4b692933"
+      "content_hash": "sha256:350f918aea145833fca70d6aa0bd1bf502f241de69d4ccaf1b0e43c3aa56ecce"
     },
     "2": {
       "file": "signoff/attest/item-2.evidence.json",
@@ -35,14 +35,14 @@
       },
       {
         "file": "sim/signoff-envelopes/output-voltage-tc-post-layout.1b.klt-sim.json",
-        "content_hash": "sha256:3634d0c6c871555711a038c636c8669e348682276745be88729c4532b1a5eb04",
+        "content_hash": "sha256:50c3afab1476dcc8876047560a165d9b36549a12a6147bd77e3e0dd2f6a650b9",
         "rows": [
           "1b"
         ]
       },
       {
         "file": "sim/signoff-envelopes/output-voltage-tc-post-layout.3b.klt-sim.json",
-        "content_hash": "sha256:3634d0c6c871555711a038c636c8669e348682276745be88729c4532b1a5eb04",
+        "content_hash": "sha256:50c3afab1476dcc8876047560a165d9b36549a12a6147bd77e3e0dd2f6a650b9",
         "rows": [
           "3b"
         ]
@@ -122,17 +122,21 @@
       "file": "sim/monte-carlo-untrimmed/records/20260923-062524-1e38c62-klt-yield.json",
       "content_hash": "sha256:0b01d0dd123b8fae9bbb8044263f00c2f14fc8e1d9afea6e8856a712421b1694"
     },
+    "7": {
+      "file": "sim/pex-native/records/20261106-pilot/pex-stdout.json",
+      "content_hash": "sha256:311c0f14cdd85aa5255018c590cbe755e31fd1ac81e04895d6302fea2146aae9"
+    },
     "8": {
       "file": "signoff/evidence/characterization.generic.json",
-      "content_hash": "sha256:5b84cdb93a4e4b5b0a5d6b81c43d7e55f7604410b7472653ae0c965899c24888"
+      "content_hash": "sha256:28604265e9bbddb2a2e3fa361b9b452e515394a89b4c4487d20a99b4de3ad571"
     },
     "9": {
       "file": "signoff/attest/item-9.evidence.json",
-      "content_hash": "sha256:598ad52c0a93844626655c7142249d30ac2aa7861829ca376c566517c873c2b9"
+      "content_hash": "sha256:70e33ef566f2896b03110d3b3911adfe5fd718e111dd84bdebe2b1bfbe69d967"
     },
     "10": {
       "file": "signoff/attest/item-10.evidence.json",
-      "content_hash": "sha256:588d0a1026c38244ed24bfc3aa00bc26db7e415631f7460b4ce2d59e19c4813a"
+      "content_hash": "sha256:6ccb541c65d473fbf97303b66528506d0a8e575adbe8c0b5b631be913e8a74a1"
     },
     "11": [
       {

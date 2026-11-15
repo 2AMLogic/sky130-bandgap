@@ -1186,6 +1186,13 @@ Corrected Section 7dd's 'closed upstream 2026-08-12' premise:
 klayout-tools#800 was closed **not planned**, not fixed, and the residual is a
 different, still-open upstream defect (klayout-tools#2359).
 
+> **Superseded in turn by Section 7hh (issue #540, 2026-11-14).** This
+> increment's replacement citation did not hold either: klayout-tools#2359
+> closed `completed` 2026-09-23 and its fix is present in the ratified
+> `klayout-tools==0.8.0` pin, yet re-extracting the same routed GDS at that
+> pin made the row *worse*. The statement above that #2359 is "still-open"
+> was true when written and is false now. See 7hh.
+
 Issue #283 -- record cited: `20260817-020222-13476b7`.
 
 ### 7ff. Thirty-fourth increment: the "`mismatch_count` 0 -> 12 under a newer `klt`" finding investigated (issue #288) -- it is not a version-to-version regression and not an accounting re-baseline, it is a **nondeterministic** combine; pin NOT bumped, filed as klayout-tools#2374
@@ -1290,6 +1297,70 @@ Drew the startup injector into the composed cell: `devices.matched` 16 -> 22,
 and the first PSRR number this design has ever had with an injector attached.
 
 Issue #285 -- record cited: `20260923-070209-dbd57a9`.
+
+### 7hh. Thirty-sixth increment (issue #540): the klayout-tools#2359 attribution carried by 7ee is REFUTED by measurement at the ratified pin -- the pin is NOT bumped
+
+Sections 7dd and 7ee both attributed row 1b's post-layout `vref_min` miss to
+an **open** upstream extraction defect -- first klayout-tools#800, then
+klayout-tools#2359. The second citation has now been tested directly and it
+fails.
+
+klayout-tools#2359 closed **`completed`** 2026-09-23 (upstream PR #2392,
+"count parasitic squares per conductor fragment, not per merged net"). That
+fix is absent from `v0.6.0` and present in `v0.7.0`/`v0.8.0`, so this file's
+own ratified pin -- `klayout-tools==0.8.0`, Section 7's pin of record -- has
+carried it all along. Every post-layout record to date measured a snapshot
+extracted at `klt` **0.5.0** (released 2026-09-15, eight days before the fix
+merged), which is why the attribution survived unexamined.
+
+Re-extracting the **same** routed GDS (`20260923-070209-dbd57a9`, i.e.
+`layout/bandgap-core/reports/LATEST`) at the 0.8.0 pin changed exactly one
+thing -- `total_resistance_ohm` 234007.2692 -> 179145.6648, **-23.44 %** --
+with `device_counts`, translated device counts, `.SUBCKT` port order,
+`r_count`/`c_count`/`cc_count` and `total_capacitance_ff` all bit-identical.
+Row 1b nonetheless moved the **wrong way**: `vref_min` 1.167045-1.186483 V
+-> **1.153502-1.168538 V**, FAIL 14/15 -> **FAIL 15/15**, mean -14.22 mV,
+and the one corner that used to clear the 1.176 V floor (`ff, 3.63 V`) lost
+17.94 mV. Row 3b's box TC moved with it (136.5-212.0 ppm/degC, worse at every
+corner).
+
+The mechanism is a **redistribution**, not a reduction. Per-net parasitic R
+across the two versions shows `VSS` as the only net that rose --
+16 012.97 -> **25 948.43 ohm, +62 %**, spread across 229 star arms -- while
+every other net fell (`VOUT` -41.8 %, `VBQ` -64.7 %, `VA`/`VB` -24.5 %,
+`PN` -27.8 %). `VSS` is the shared return for the PNP stack and the whole
+ladder's bulk, so in the lumped-star model an inflated `VSS` lifts the local
+ground under the divider taps and subtracts directly from `v(vref)`. The
+totals are dominated by `VDD` (70 kohm, barely moved); the signal-relevant
+return path is what got worse.
+
+That inflation is the behaviour klayout-tools#2458 describes -- a net's
+per-level lumped R summed in series, so via-stitched strapping raises rather
+than lowers the reported resistance -- and #2458's fix is **opt-in**: the
+upstream disposition leaves the legacy series sum as the default, with a
+graph-based alternative behind `--resistance-graph`. A via-stitched `VSS`
+plane is exactly its geometry. `run_klt_extract_parasitics` does not pass that
+flag.
+
+**The pin is NOT bumped by this increment** (it is already `0.8.0`; the host's
+`klt` is a `0.9.2.dev` build and was bypassed with a throwaway
+`klayout-tools==0.8.0` virtualenv on `PATH` for the extraction step only, per
+the host's agent rules). No DRC/LVS report is re-generated and no drawn
+geometry changes: this increment records a **measurement and an attribution
+correction**, not a tooling change.
+
+Dispositions, unchanged in direction but on a corrected basis: still do **not**
+re-size `n_r2` and **not** re-route the array's inter-unit jumpers for row 1b
+-- not because a fix is pending upstream, but because the default extraction
+resistance model is not yet a physical return-path model. Whether the residual
+survives a distributed/in-path model is issue **#541**'s question. A third
+`klt` resistor card dialect met on the way (`X$n ... res_high_po r=<value>`,
+versus 0.5.0's `R$n ... <value> res_high_po`) is filed generically as
+klayout-tools#5741.
+
+Issue #540 -- record cited: `20261114-184650-4a9f2c97`
+(`sim/output-voltage-tc-post-layout/records/`), layout record
+`20260923-070209-dbd57a9`.
 
 ## 8. Known limitations / follow-on work
 
