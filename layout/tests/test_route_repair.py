@@ -25,7 +25,7 @@ These are pure-Python unit tests exercising the control flow directly (no
 ports) -- following the pattern `test_routed_flow_gates.py` established for
 this repo's other router-internal gates.
 
-SEE ALSO `layout/tests/test_routed_flow_gates.py`, whose (same-named)
+SEE ALSO `layout/tests/test_bus_routing.py`, whose (same-named)
 `TestRouteOneNetSkipFirst`/`TestRepairUnroutedHops` classes cover these same
 three functions from the other side: through `trunk`/`comb` terminals and
 with the *real* `_route_one_net` really drawing met1, so they pin the
