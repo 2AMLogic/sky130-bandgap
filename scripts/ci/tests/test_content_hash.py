@@ -49,9 +49,6 @@ SCANNED_TREES = ("sim", "layout", "scripts")
 HASHLIB_ALLOWED = {
     # The canonical implementation itself.
     "scripts/ci/content_hash.py",
-    # `_sha()` -- a bare file digest under its own name, never presented as
-    # `sha256_file`, so it is outside issue #538's convention split.
-    "sim/monte-carlo-untrimmed/qualify_dr005.py",
     # Hashes an in-memory netlist body (joined text), not a file.
     "sim/trim-lsb-chained/run_trim_lsb_chained.py",
 }
