@@ -1,4 +1,7 @@
-"""Shared helpers deduplicated out of the two psrr-injector scripts (issue #379).
+"""Shared helpers deduplicated out of the two psrr-injector scripts (issue #379),
+living in `sim/bin/injector_common.py` since issue #557 split them out of
+`sim_common.py`; the generic `corner_id` / `matrix` helpers it also exercises
+stay in `sim_common`.
 
 Issue #511 added the run-orchestration half (the local deck, the per-point run,
 `explore`'s print loop, and `verify`'s record skeleton and write tail), so the
@@ -23,6 +26,7 @@ from unittest import mock
 
 SIM_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SIM_DIR / "bin"))
+import injector_common  # noqa: E402
 import sim_common  # noqa: E402
 
 RUNNERS = {
@@ -85,9 +89,9 @@ class SharedHelpersTest(unittest.TestCase):
                 {"corner_id": "a", "measurements": [{"name": "psrr_band_min", "value": -41.5}]},
                 {"corner_id": "b", "measurements": [{"name": "psrr_band_min", "value": None}]},
             ]}))
-            self.assertEqual(sim_common.band_min_by_corner(rec, "rec"), {"a": -41.5})
-            with self.assertRaises(sim_common._cr().HarnessError):
-                sim_common.band_min_by_corner(tmp / "missing.json", "rec")
+            self.assertEqual(injector_common.band_min_by_corner(rec, "rec"), {"a": -41.5})
+            with self.assertRaises(injector_common._cr().HarnessError):
+                injector_common.band_min_by_corner(tmp / "missing.json", "rec")
 
     def test_run_all_variants(self):
         def fake(v, p, t, s):
@@ -97,7 +101,7 @@ class SharedHelpersTest(unittest.TestCase):
 
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
-            res = sim_common.run_all_variants(fake, ["x", "y"], [("tt", 27, 1.8)], 2, 5)
+            res = injector_common.run_all_variants(fake, ["x", "y"], [("tt", 27, 1.8)], 2, 5)
         self.assertEqual(set(res), {("x", "tt_27c_1.80v"), ("y", "tt_27c_1.80v")})
         out = buf.getvalue()
         self.assertIn("[  1/2] x     tt_27c_1.80v", out)
@@ -109,9 +113,9 @@ class SharedHelpersTest(unittest.TestCase):
             deck = tmp / "deck.cir"
             deck.write_text("R1 a b 1k\n")
             kcs = {"ac": {"artifacts": {"deck": str(deck)}, "diagnostics": []}}
-            self.assertIsNone(sim_common.artifact_text(None, "deck"))
-            self.assertEqual(sim_common.artifact_text(kcs["ac"], "deck"), "R1 a b 1k\n")
-            sim_common.write_batch_log(tmp / "logs", "v__c", "rid", kcs)
+            self.assertIsNone(injector_common.artifact_text(None, "deck"))
+            self.assertEqual(injector_common.artifact_text(kcs["ac"], "deck"), "R1 a b 1k\n")
+            injector_common.write_batch_log(tmp / "logs", "v__c", "rid", kcs)
             text = (tmp / "logs" / "v__c.log").read_text()
             self.assertIn("| R1 a b 1k", text)
             self.assertIn("(not retrieved)", text)  # no ngspice log artifact
@@ -123,14 +127,14 @@ class InjectorOrchestrationTest(unittest.TestCase):
 
     def test_parse_corner_spec(self):
         self.assertEqual(
-            sim_common.parse_corner_spec("ff,125,3.63;tt,27,3.30"),
+            injector_common.parse_corner_spec("ff,125,3.63;tt,27,3.30"),
             [("ff", 125.0, 3.63), ("tt", 27.0, 3.3)],
         )
         with self.assertRaises(ValueError):
-            sim_common.parse_corner_spec("ff,125")
+            injector_common.parse_corner_spec("ff,125")
 
     def test_injector_deck_head_control_and_op_readouts(self):
-        deck = sim_common.injector_deck(
+        deck = injector_common.injector_deck(
             "slug", "run.py", FAKE_PDK, fake_variant("v1", "a variant"), "ff", 125.0, 3.63,
             ["XR1 a b r"],
             deck_options=("wnflag=1", "reltol=1e-6"), ac_analysis="ac dec 10 0.1 1meg",
@@ -155,7 +159,7 @@ class InjectorOrchestrationTest(unittest.TestCase):
         candidates bench does not -- the shared deck measures exactly what it
         is handed, and adds nothing of its own."""
         def deck_for(op_meas):
-            return sim_common.injector_deck(
+            return injector_common.injector_deck(
                 "s", "r.py", FAKE_PDK, fake_variant("v"), "tt", 27.0, 3.3, [],
                 deck_options=(), ac_analysis="ac dec 10 0.1 1meg", ac_meas=(),
                 op_meas=op_meas)
@@ -177,9 +181,9 @@ class InjectorOrchestrationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             build = Path(d) / "build"
             logs = Path(d) / "corners"
-            with mock.patch.object(sim_common, "run_ngspice", fake_run_ngspice):
+            with mock.patch.object(injector_common, "run_ngspice", fake_run_ngspice):
                 rows = [
-                    sim_common.injector_run_point(
+                    injector_common.injector_run_point(
                         FAKE_PDK, fake_variant("v1"), p, t, s, 60, logs, "rid",
                         build_dir=build, deck=f"* deck {p}")
                     for p, t, s in (("tt", 27.0, 3.3), ("ff", 125.0, 3.63))
@@ -200,10 +204,10 @@ class InjectorOrchestrationTest(unittest.TestCase):
         """Explore mode passes `corners_dir=None` and must write nothing under
         `sim/<experiment>/`."""
         with tempfile.TemporaryDirectory() as d:
-            with mock.patch.object(sim_common, "run_ngspice",
+            with mock.patch.object(injector_common, "run_ngspice",
                                    lambda *a: ("", 0, False)), \
-                 mock.patch.object(sim_common, "write_log") as wl:
-                sim_common.injector_run_point(
+                 mock.patch.object(injector_common, "write_log") as wl:
+                injector_common.injector_run_point(
                     FAKE_PDK, fake_variant("v1"), "tt", 27.0, 3.3, 60, None, "explore",
                     build_dir=Path(d), deck="* deck")
             wl.assert_not_called()
@@ -222,12 +226,12 @@ class InjectorOrchestrationTest(unittest.TestCase):
             calls.append(("batch", timeout, corners_dir, record_id))
             return batch_results, ["a blocker"], {"backend": "batch"}
 
-        out = sim_common.injector_run_variants(
+        out = injector_common.injector_run_variants(
             fake_args(), FAKE_PDK, FAKE_PIN, [], ["v1"], [("tt", 27.0, 3.3)], None, "rid",
             run_all=run_all, run_all_batch=run_all_batch)
         self.assertEqual(out, (local_results, [], None))
 
-        out = sim_common.injector_run_variants(
+        out = injector_common.injector_run_variants(
             fake_args(backend="batch"), FAKE_PDK, FAKE_PIN, [], ["v1"], [("tt", 27.0, 3.3)],
             None, "rid", run_all=run_all, run_all_batch=run_all_batch)
         self.assertEqual(out, (batch_results, ["a blocker"], {"backend": "batch"}))
@@ -245,9 +249,9 @@ class InjectorOrchestrationTest(unittest.TestCase):
 
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
-            rc = sim_common.injector_explore(
+            rc = injector_common.injector_explore(
                 fake_args(backend="batch"), FAKE_PDK, FAKE_PIN, [], ["x"],
-                [("tt", 27.0, 3.3)], base_snapshot=sim_common.REPO_DIR / "sim" / "snap.spice",
+                [("tt", 27.0, 3.3)], base_snapshot=injector_common.REPO_DIR / "sim" / "snap.spice",
                 label_width=13, run_all=None, run_all_batch=run_all_batch)
         out = buf.getvalue()
         self.assertEqual(rc, 0)
@@ -265,9 +269,9 @@ class InjectorOrchestrationTest(unittest.TestCase):
         def banner(args):
             buf = io.StringIO()
             with contextlib.redirect_stdout(buf):
-                sim_common.injector_banner(
+                injector_common.injector_banner(
                     args, FAKE_PDK, ["v1", "v2"], [("tt", 27.0, 3.3)], "rid",
-                    slug="a-bench", base_snapshot=sim_common.REPO_DIR / "sim" / "snap.spice")
+                    slug="a-bench", base_snapshot=injector_common.REPO_DIR / "sim" / "snap.spice")
             return buf.getvalue()
 
         local = banner(fake_args())
@@ -277,29 +281,29 @@ class InjectorOrchestrationTest(unittest.TestCase):
         self.assertIn("= 2 ngspice runs (batch fleet)", banner(fake_args(backend="batch")))
 
     def test_batch_integrity_checks_are_failures_not_footnotes(self):
-        self.assertEqual(sim_common.batch_integrity_checks([]), [])
-        self.assertEqual(sim_common.batch_integrity_checks(["a", "b"]), [
+        self.assertEqual(injector_common.batch_integrity_checks([]), [])
+        self.assertEqual(injector_common.batch_integrity_checks(["a", "b"]), [
             {"name": "batch_integrity[0]", "pass": False, "detail": "a"},
             {"name": "batch_integrity[1]", "pass": False, "detail": "b"},
         ])
 
     def test_new_record_id_is_date_time_sha(self):
-        with mock.patch.object(sim_common._cr(), "git_state",
+        with mock.patch.object(injector_common._cr(), "git_state",
                                lambda: {"sha": "abc1234", "branch": "b", "dirty": False}):
-            record_id, git_info, now = sim_common.new_record_id()
+            record_id, git_info, now = injector_common.new_record_id()
         self.assertEqual(record_id, f"{now:%Y%m%d}-{now:%H%M%S}-abc1234")
         self.assertEqual(git_info["sha"], "abc1234")
 
     def test_injector_links_splices_extra_after_cited_record(self):
-        plain = sim_common.injector_links(
-            sim_common.REPO_DIR / "sim" / "snap.spice", "sim/companion", "rid0", "slug", "run.py")
+        plain = injector_common.injector_links(
+            injector_common.REPO_DIR / "sim" / "snap.spice", "sim/companion", "rid0", "slug", "run.py")
         self.assertEqual(list(plain),
                          ["base_snapshot", "cited_record", "companion_manifest", "runner"])
         self.assertEqual(plain["base_snapshot"], "sim/snap.spice")
         self.assertEqual(plain["cited_record"], "sim/companion/records/rid0.json")
         self.assertEqual(plain["runner"], "sim/slug/run.py")
-        with_extra = sim_common.injector_links(
-            sim_common.REPO_DIR / "sim" / "snap.spice", "sim/companion", "rid0", "slug",
+        with_extra = injector_common.injector_links(
+            injector_common.REPO_DIR / "sim" / "snap.spice", "sim/companion", "rid0", "slug",
             "run.py", {"ceiling_record": "x.json", "attribution": "y/"})
         self.assertEqual(list(with_extra), [
             "base_snapshot", "cited_record", "ceiling_record", "attribution",
@@ -311,11 +315,11 @@ class InjectorOrchestrationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             tmp = Path(d)
             record = {"record_id": "rid", "overall_pass": True, "checks": [], "_results": {}}
-            with mock.patch.object(sim_common, "REPO_DIR", tmp), \
-                 mock.patch.object(sim_common, "publish_run_evidence",
+            with mock.patch.object(injector_common, "REPO_DIR", tmp), \
+                 mock.patch.object(injector_common, "publish_run_evidence",
                                    side_effect=RuntimeError("store down")):
                 with self.assertRaises(RuntimeError):
-                    sim_common.write_injector_record(
+                    injector_common.write_injector_record(
                         record, tmp / "records", tmp / "corners", tmp / "records" / "rid.md",
                         tmp / "records" / "rid.json", render=lambda r: "md")
             self.assertFalse((tmp / "records").exists())
@@ -328,10 +332,10 @@ class InjectorOrchestrationTest(unittest.TestCase):
             record = {"record_id": "rid", "checks": checks, "overall_pass": False,
                       "_results": {"x": 1}, "_points": []}
             buf = io.StringIO()
-            with mock.patch.object(sim_common, "REPO_DIR", tmp), \
-                 mock.patch.object(sim_common, "publish_run_evidence", lambda c: None), \
+            with mock.patch.object(injector_common, "REPO_DIR", tmp), \
+                 mock.patch.object(injector_common, "publish_run_evidence", lambda c: None), \
                  contextlib.redirect_stdout(buf):
-                rc = sim_common.write_injector_record(
+                rc = injector_common.write_injector_record(
                     record, tmp / "records", tmp / "corners", tmp / "records" / "rid.md",
                     tmp / "records" / "rid.json", render=lambda r: f"md for {r['record_id']}")
             self.assertEqual(rc, 2)
@@ -345,10 +349,10 @@ class InjectorOrchestrationTest(unittest.TestCase):
             self.assertNotIn("FAIL ok", out)
 
             record["overall_pass"] = True
-            with mock.patch.object(sim_common, "REPO_DIR", tmp), \
-                 mock.patch.object(sim_common, "publish_run_evidence", lambda c: None), \
+            with mock.patch.object(injector_common, "REPO_DIR", tmp), \
+                 mock.patch.object(injector_common, "publish_run_evidence", lambda c: None), \
                  contextlib.redirect_stdout(io.StringIO()):
-                rc = sim_common.write_injector_record(
+                rc = injector_common.write_injector_record(
                     record, tmp / "records", tmp / "corners", tmp / "records" / "rid2.md",
                     tmp / "records" / "rid2.json", render=lambda r: "md")
             self.assertEqual(rc, 0)
@@ -372,10 +376,10 @@ class InjectorRecordSkeletonTest(unittest.TestCase):
             processes=R.PROCESSES, temps_c=R.TEMPS_C, supplies_v=R.SUPPLIES_V,
         )
         kw.update(over)
-        return R, sim_common.injector_record_head(
+        return R, injector_common.injector_record_head(
             fake_args(), FAKE_PDK, FAKE_PIN, [fake_variant("base")], None,
-            "20260101-000000-abc1234", sim_common.datetime(2026, 1, 1,
-                                                           tzinfo=sim_common.timezone.utc),
+            "20260101-000000-abc1234", injector_common.datetime(2026, 1, 1,
+                                                           tzinfo=injector_common.timezone.utc),
             {"sha": "abc1234", "branch": "b", "dirty": False}, extra_record, **kw)
 
     def test_attribution_record_keys_match_its_newest_committed_record(self):
@@ -413,7 +417,7 @@ class InjectorRecordSkeletonTest(unittest.TestCase):
                     "ceiling_record": f"{R.CEILING_BENCH}/records/{R.CEILING_RECORD_ID}.json",
                     "attribution": f"{R.ATTRIBUTION}/",
                 }
-            links = sim_common.injector_links(
+            links = injector_common.injector_links(
                 R.BASE_SNAPSHOT, R.COMPANION, R.CITED_RECORD_ID, R.SLUG, R.SCRIPT, extra)
             with self.subTest(bench=name):
                 self.assertEqual(links, newest_committed_record(name)["links"])
