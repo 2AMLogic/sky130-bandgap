@@ -85,7 +85,6 @@ run locally).
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import math
 import re
@@ -267,7 +266,7 @@ def input_provenance(body: list[str]) -> dict:
     }
     return {
         "schematic_sha256": {k: batch_sim.sha256_file(v) for k, v in files.items()},
-        "netlist_body_sha256": hashlib.sha256("\n".join(body).encode()).hexdigest(),
+        "netlist_body_sha256": batch_sim.sha256_text("\n".join(body)),
         "startup_injector_in_bench": False,
     }
 

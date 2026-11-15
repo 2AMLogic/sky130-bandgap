@@ -49,8 +49,6 @@ SCANNED_TREES = ("sim", "layout", "scripts")
 HASHLIB_ALLOWED = {
     # The canonical implementation itself.
     "scripts/ci/content_hash.py",
-    # Hashes an in-memory netlist body (joined text), not a file.
-    "sim/trim-lsb-chained/run_trim_lsb_chained.py",
 }
 
 #: The helper names that used to be duplicated. Only `content_hash` may bind
