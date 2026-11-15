@@ -4,7 +4,7 @@ A bandgap voltage reference on the sky130 open PDK, designed and verified by AI
 agents with xschem, ngspice and klayout-tools (`klt`); this file says where the
 block stands and what work comes next.
 
-Status as of 2026-11-14, `main` @ `4a9f2c97`. The verdict of record is
+Status as of 2026-11-15, `main` @ `eb787fc8`. The verdict of record is
 [`signoff/signoff-report.json`](../signoff/signoff-report.json), not this file;
 the tracking issue is #436.
 
@@ -26,6 +26,12 @@ grades **8 of 11 T1 items `met`**:
 
 Also done:
 
+- Row 1b re-measured on an extraction at the pinned klayout-tools 0.8.0
+  (#540, PR #559, record `20261114-184650-4a9f2c97` on snapshot
+  `20260923-070209-dbd57a9`): the miss got worse (15 of 15 corners) and the
+  bench's own standing attribution to klayout-tools#2359 is **refuted** — see
+  below. This was the roadmap's first action item; it completed within a day
+  of being filed.
 - Reference evidence re-qualified under open_pdks `f6eeac7`: 19 of 20 benches
   (DR-021, PRs #495 to #521). Only `monte-carlo-untrimmed` still cites its
   2026-08-17 record.
@@ -43,32 +49,31 @@ Also done:
 
 The failing item-5 rows, in the repo's own row numbering:
 
-- **1b**, post-layout `vref_min` below 1.176 V at 14 of 15 corners.
+- **1b**, post-layout `vref_min` below 1.176 V at all 15 corners (1.1535–1.1685 V).
 - **3a / 3b**, temperature coefficient above 50 ppm/°C at every corner; kept as
   a disclosed FAIL by DR-009.
 - **4b**, post-layout PSRR, worst 22.75 dB, caused by the startup injector
   (DR-011, #368, #315).
 
-Changed since the last hand-written status: klayout-tools#2359, which the README
-and `sim/output-voltage-tc-post-layout/README.md` cite as the open cause of row
-1b, was closed on 2026-09-23. The post-layout benches still read the parasitics
-snapshot `20260817-020222-13476b7`, extracted before that date, so row 1b has
-not been re-measured on a current extraction.
+Changed since the last hand-written status: row 1b has been re-measured on an
+extraction produced by the pinned klayout-tools 0.8.0 (#540), and the miss got
+worse — 15 of 15 corners, where the pre-#540 extraction failed 14 of 15. That
+re-measurement refutes the long-standing attribution of row 1b to
+klayout-tools#2359: the pinned build carries that fix, yet every corner still
+misses the floor. The residual now tracks the extractor's default lumped-star
+`VSS` return allocation (klayout-tools#2458, opt-in fix), not a confirmed
+design defect; whether a distributed/in-path model removes it is Now item 1
+(#541).
 
 ## Now
 
-1. **Re-extract parasitics at the pinned klt and re-measure row 1b** (#540).
-   Done when a new `sim/output-voltage-tc-post-layout/parasitics-snapshot/`
-   directory produced by klayout-tools 0.8.0 exists, a record that supersedes
-   `20261113-111050-7efdcf3b` reports `vref_min` on it, and the statements that
-   call klayout-tools#2359 open are corrected to the measured outcome.
-2. **Separate routing resistance from the extractor's star model in the pex
+1. **Separate routing resistance from the extractor's star model in the pex
    pilot** (#541). `sim/pex-native/README.md` leaves this open: the
    −27.754 mV delta is almost entirely resistor-array parasitics. Done when a
    second record under `sim/pex-native/records/` runs with
    `--critical-net VB,VBQ --distributed-rc` and the README states which share of
    the delta survives.
-3. **Bring `signoff/README.md` and the README status text back in line with the
+2. **Bring `signoff/README.md` and the README status text back in line with the
    report** (#543). Four statements have drifted: the item-5 row still
    lists 8a as failing and counts 16 envelopes where `sim/signoff-envelopes/`
    holds 14; the item-3 row still cites the 0.2.0-era
@@ -78,7 +83,7 @@ not been re-measured on a current extraction.
    klayout-tools#2374 while `layout/requirements.txt` pins 0.8.0. Done when each
    statement matches the committed files and `npm run check:signoff-pins`
    passes.
-4. **Close out #432**. A routed-flow record with an artifact manifest now exists
+3. **Close out #432**. A routed-flow record with an artifact manifest now exists
    (`manifests/artifacts/layout-bandgap-core-20261028-063447-2c76afb7.manifest.json`).
    Done when `klt artifact verify` and `scripts/ci/check_artifact_manifests.py`
    pass on it and the issue is closed, or the remaining failure is stated there.
@@ -97,8 +102,9 @@ not been re-measured on a current extraction.
   has a record under `f6eeac7` and DR-021 leaves "proposed".
 - **#315, injector certification and the post-fix layout cycle.** After #368
   lands a circuit change that passes PSRR and startup-stability at 45/45.
-- **Post-layout trim check.** After Now item 1: a `trim-lsb-chained` run on the
-  extracted chain, which the README lists as not yet done.
+- **Post-layout trim check.** Unblocked — the re-extraction it waited on is
+  done: a `trim-lsb-chained` run on the extracted chain, which the README lists
+  as not yet done.
 
 ## Later
 
@@ -123,8 +129,9 @@ not been re-measured on a current extraction.
 Every actionable issue named in this document is in progress, curated for
 dispatch, blocked, or waiting on a ruling; the repo-hygiene issues outside
 this lane are filed and dispatched separately and are not tracked here.
-Dispatched today: Now item 1 (#540, `loom:building`). Items 2 and 3 (#541,
-#543) are filed and `loom:curated`, awaiting promotion to dispatchable.
+Dispatched: Now item 1 (#541, `loom:building`). Item 2 (#543) is filed and
+`loom:curated`, awaiting promotion to dispatchable; item 3 (#432) is
+`loom:blocked` on its verification gate.
 
 ## Not planned
 
