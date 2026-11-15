@@ -370,7 +370,7 @@
         "command": null,
         "kind": "generic",
         "check_status": "pass",
-        "content_hash": "sha256:c751c12c10b82c192b323ef00781f3b0be203fdedde1cbc29f656ff3574f2bef",
+        "content_hash": "sha256:28604265e9bbddb2a2e3fa361b9b452e515394a89b4c4487d20a99b4de3ad571",
         "input_verified": null,
         "exit_status": 0
       }
@@ -390,7 +390,7 @@
         "command": null,
         "kind": "generic",
         "check_status": "pass",
-        "content_hash": "sha256:4fdff696d5ece10ca180f13f7a6137a07cf43bf834a0b0873e2269f35dc07686",
+        "content_hash": "sha256:8e6a92c7433f358c7c826b2812a16949cbf80eb9532d54ac86b3c732aa5cbef1",
         "input_verified": true,
         "exit_status": 0,
         "artifact_binding": {
@@ -399,7 +399,7 @@
             "path": "signoff/attest/testbench-inventory.json",
             "scope": "repo"
           },
-          "content_hash": "sha256:4fdff696d5ece10ca180f13f7a6137a07cf43bf834a0b0873e2269f35dc07686",
+          "content_hash": "sha256:8e6a92c7433f358c7c826b2812a16949cbf80eb9532d54ac86b3c732aa5cbef1",
           "input_verified": true,
           "summary": "Testbenches shipped: every runnable testbench with its cold-start command and the PDK/tool pins.",
           "source": "signoff/attest/testbench-inventory.json"
@@ -421,7 +421,7 @@
         "command": null,
         "kind": "generic",
         "check_status": "pass",
-        "content_hash": "sha256:588d0a1026c38244ed24bfc3aa00bc26db7e415631f7460b4ce2d59e19c4813a",
+        "content_hash": "sha256:6ccb541c65d473fbf97303b66528506d0a8e575adbe8c0b5b631be913e8a74a1",
         "input_verified": true,
         "exit_status": 0,
         "artifact_binding": {
@@ -430,7 +430,7 @@
             "path": "signoff/attest/repo-hygiene.inventory.json",
             "scope": "repo"
           },
-          "content_hash": "sha256:588d0a1026c38244ed24bfc3aa00bc26db7e415631f7460b4ce2d59e19c4813a",
+          "content_hash": "sha256:6ccb541c65d473fbf97303b66528506d0a8e575adbe8c0b5b631be913e8a74a1",
           "input_verified": true,
           "summary": "Repo hygiene: README, LICENSE, CI workflow and the commands it runs.",
           "source": "signoff/attest/repo-hygiene.inventory.json"

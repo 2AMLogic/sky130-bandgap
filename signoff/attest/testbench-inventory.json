@@ -261,7 +261,7 @@
         {
           "path": "sim/psrr-dc-with-injector/experiment.json",
           "role": "experiment",
-          "content_hash": "sha256:0d41dd8ca4b40c7b8c6b78ac139d7baaad64aa30327abe11e442f2b8acd32376"
+          "content_hash": "sha256:a1cbf921d5ae24f0778caaa572168af369c0f30ff4d5749a4281215162e8f519"
         },
         {
           "path": "sim/psrr-dc-with-injector/testbench/tb_vref_psrr_injector.sch",

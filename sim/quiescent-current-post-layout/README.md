@@ -180,4 +180,27 @@ rewrite.
 
 Moved verbatim from the "Experiments that do not go through the corner runner" table in `sim/README.md` (issue #339). The newest entry under `records/` is authoritative for the current verdict; the text below was written when the cited records were current.
 
-**Post-layout (`provenance: extracted`) re-run of `sim/quiescent-current`'s Iq claim (issue #16)**, same extracted-layout DUT body as the row above, wrapping `sim/quiescent-current/testbench/tb_vref_iq.sch` unmodified. Runs the FULL 45-point matrix (nothing swept inside the deck, so no axis is collapsed). Its `README.md` carries the divergence finding required by issue #16 — post-layout Iq is 35.8 % below the schematic-level record, attributed to R1 growing 55 % (the drawn chained array's per-unit head resistance, plus a `klt extract --parasitics` short/wide-fragment resistance overstatement on the array's internal nodes — klayout-tools#2359, open; previously mis-attributed to the since-refuted klayout-tools#800, corrected by issue #283)
+**Post-layout (`provenance: extracted`) re-run of `sim/quiescent-current`'s Iq claim (issue #16)**, same extracted-layout DUT body as the row above, wrapping `sim/quiescent-current/testbench/tb_vref_iq.sch` unmodified. Runs the FULL 45-point matrix (nothing swept inside the deck, so no axis is collapsed). Its `README.md` carries the divergence finding required by issue #16 — post-layout Iq is 35.8 % below the schematic-level record, attributed to R1 growing 55 % (the drawn chained array's per-unit head resistance, plus a `klt extract --parasitics` short/wide-fragment resistance overstatement on the array's internal nodes — klayout-tools#2359; previously mis-attributed to the since-refuted klayout-tools#800, corrected by issue #283)
+
+> **Row 6b's `#2359` attribution is now unsupported, and row 6b has NOT been re-measured (issue #540, 2026-11-14).**
+> klayout-tools#2359 closed `completed` 2026-09-23 and its fix is present in the ratified
+> `klayout-tools==0.8.0` pin. Issue #540 re-extracted the same routed GDS
+> (`20260923-070209-dbd57a9`) at that pin and re-ran **row 1b/3b only**: row 1b, which shared
+> this exact `#2359` cause claim, got **worse** (`vref_min` FAIL 14/15 → 15/15), so the
+> claim is refuted there. The parasitic resistance did not simply fall — it redistributed,
+> with `VSS` the one net that rose (+62 %, 16 013 → 25 948 Ω over 229 star arms) while
+> `VOUT`/`VBQ`/`VA`/`VB` all fell 24–65 %. Since row 6b's finding above rests on **R1 growing
+> 55 %** — a divider-leg claim, i.e. exactly the nets that went *down* at the new pin — its
+> stated magnitude is the one most likely to have moved, in the opposite direction from row 1b's.
+> **Status: pending its own re-measurement.** Until `sim/quiescent-current-post-layout/` is
+> re-run against the klt-0.8.0 snapshot, treat the 35.8 % divergence and the 55 % R1 growth
+> above as measurements at `klt` **0.5.0**, valid as append-only evidence of what was measured
+> then and *not* as current attributions. Re-running the other six post-layout benches is the
+> follow-up #540 explicitly scoped out; a residual-attribution model (`--critical-net` /
+> `--distributed-rc`) is issue #541.
+>
+> **Note on snapshot resolution:** this bench holds no local parasitics snapshot, so
+> `resolve_parasitics_snapshot`'s sibling glob now resolves #540's klt-0.8.0 snapshot
+> (`sim/output-voltage-tc-post-layout/parasitics-snapshot/20260923-070209-dbd57a9/`, which
+> sorts ahead of `sim/startup-time-post-layout/`'s). **The next run of this bench will
+> therefore measure the 0.8.0 extraction, not the 0.5.0 one its committed records used.**
