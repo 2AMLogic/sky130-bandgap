@@ -47,9 +47,9 @@ from typing import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts" / "ci"))
 
-# Re-exported on purpose: `batch_sim.sha256_file` is how the benches and
-# `sim/tests/*` already reach the bare-hex helper.
-from content_hash import sha256_file  # noqa: E402
+# Re-exported on purpose: `batch_sim.sha256_file` and `batch_sim.sha256_text`
+# are how the benches and `sim/tests/*` already reach the bare-hex helpers.
+from content_hash import sha256_file, sha256_text  # noqa: E402
 
 #: Experiments whose deck shape this adapter has been validated against,
 #: including a live single-corner comparison on the fleet. Everything else

@@ -52,8 +52,6 @@ HASHLIB_ALLOWED = {
     # `_sha()` -- a bare file digest under its own name, never presented as
     # `sha256_file`, so it is outside issue #538's convention split.
     "sim/monte-carlo-untrimmed/qualify_dr005.py",
-    # Hashes an in-memory netlist body (joined text), not a file.
-    "sim/trim-lsb-chained/run_trim_lsb_chained.py",
 }
 
 #: The helper names that used to be duplicated. Only `content_hash` may bind
