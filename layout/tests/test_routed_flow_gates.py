@@ -976,7 +976,7 @@ class TestFlowGate(unittest.TestCase):
             # verdict, and the curated sky130 deck still carries no met2
             # min-area rule (`m2.6`, klayout-tools#513/#515 left it out) --
             # so without this row an undersized met2 area would pass the
-            # whole flow (MET2_ESCAPE_NOTE).
+            # whole flow (layout/generator-notes.md#met2-escape-note).
             "met2_drc_clean": {"met2_drc_clean": False},
         }
         self.assertEqual(

@@ -132,6 +132,88 @@ def add_common_args(
     parser.add_argument("--dry-run", action="store_true", help="print the plan, write nothing under sim/")
 
 
+#: `--batch-capacity-wait-s` default for every harness that can submit to the
+#: Spot batch fleet: how long one `klt sim` submission waits for Spot capacity
+#: (with backoff) before failing instead. The fleet is vCPU-budgeted, so a burst
+#: of submissions gets `batch_no_capacity` and this is what keeps a submit
+#: waiting rather than failing the step outright.
+DEFAULT_BATCH_CAPACITY_WAIT_S = 3600.0
+
+#: `--batch-runner-version-check` default: `klt`'s runner/client version-skew
+#: policy. `"enforce"` refuses a run against a skewed fleet runner; `"warn"`
+#: proceeds and says so.
+DEFAULT_BATCH_RUNNER_VERSION_CHECK = "enforce"
+
+#: The canonical `--help` text for the two batch flags whose wording is the same
+#: for every bench. Before issue #544 each of the six harnesses carried its own
+#: copy of these two strings and they had drifted into three wordings apiece, so
+#: `--help` for the same flag read differently depending on which bench you
+#: asked. They are module constants rather than literals inside
+#: `add_batch_args()` so a test can assert the rendered `--help` of every bench
+#: against the one source (`sim/tests/test_batch_cli_flags.py`).
+BATCH_CAPACITY_WAIT_HELP = (
+    "batch only: wait this long for Spot capacity per submission "
+    f"(default {DEFAULT_BATCH_CAPACITY_WAIT_S:g})"
+)
+BATCH_RUNNER_VERSION_CHECK_HELP = (
+    "batch only: klt runner/client version-skew policy "
+    f"(default {DEFAULT_BATCH_RUNNER_VERSION_CHECK})"
+)
+
+
+def add_batch_args(parser: argparse.ArgumentParser, *, backend_help: str) -> None:
+    """Add the `--backend`/`--batch-capacity-wait-s`/`--batch-runner-version-check`
+    flag block that six production harnesses each hand-rolled identically in
+    their own `parse_args()` -- `corner-run.py`, `post_layout_common.py`, both
+    Monte Carlo runners and both PSRR injector benches (issue #544).
+
+    This finishes for the batch flag set what `add_common_args()` above did for
+    `--author`/`--timeout`/... in issue #207: the batch flags landed *beside*
+    that helper instead of inside it, and by six copies in they had drifted --
+    `type`/`default`/`choices` still agreed but the help text had split into
+    three wordings for each of the two flags canonicalised here.
+
+    It is a sibling of `add_common_args()` rather than an `add_common_args(...,
+    batch_flags=True)` parameter because only two of those six callers (the two
+    Monte Carlo runners) call `add_common_args()` at all -- the other four
+    hand-roll their own `--author`/`--timeout`/`--dry-run` set with per-bench
+    help text and per-bench extra flags interleaved, so a parameter on that
+    helper would have been unusable by four of the six. Flags are listed in
+    `--help` in the order they are added, so callers put this call exactly where
+    their `--backend` block already was.
+
+    `backend_help` is required and has no default because `--backend`'s help
+    legitimately differs per bench: `corner-run.py` and `post_layout_common.py`
+    each name their own enabled-slug set, the Monte Carlo runners describe a
+    per-point `klt sim` Monte Carlo request, and the PSRR benches describe a
+    per-point grid. Only the two flags whose text was identical in intent across
+    all six are canonicalised here.
+
+    The genuinely per-bench batch flags (`--batch-hosts`,
+    `--batch-max-concurrent-jobs`, `--batch-max-jobs`, `--batch-resume`) stay in
+    the benches that implement them -- no bench should advertise a flag its own
+    backend ignores -- so callers add those around this call.
+    """
+    parser.add_argument(
+        "--backend",
+        choices=("local", "batch"),
+        default="local",
+        help=backend_help,
+    )
+    parser.add_argument(
+        "--batch-capacity-wait-s",
+        type=float,
+        default=DEFAULT_BATCH_CAPACITY_WAIT_S,
+        help=BATCH_CAPACITY_WAIT_HELP,
+    )
+    parser.add_argument(
+        "--batch-runner-version-check",
+        choices=("enforce", "warn"),
+        default=DEFAULT_BATCH_RUNNER_VERSION_CHECK,
+        help=BATCH_RUNNER_VERSION_CHECK_HELP,
+    )
+
+
 def build_mismatch_points(
     samples: int,
     *,
@@ -1490,6 +1572,7 @@ def run_all_batch(
             shutil.copyfile(o.group.netlist_path, gdir / "netlist.cir")
             if o.report_path:
                 shutil.copyfile(o.report_path, gdir / "klt-report.json")
+    worker_environments = batch_sim.hoist_worker_environments(jobs)
     versions = sorted({str(j["engine_version"]) for j in jobs})
     execution = {
         "backend": "batch",
@@ -1497,6 +1580,7 @@ def run_all_batch(
         "requests": len(groups),
         "max_concurrent_requests": request_workers,
         "jobs": jobs,
+        batch_sim.WORKER_ENVIRONMENTS_TABLE: worker_environments,
         "remote_engine_versions": versions,
         "remote_instance_types": sorted({str(j["remote"].get("instance_type")) for j in jobs}),
         "local_pinned_lib_sha256": lib_sha,

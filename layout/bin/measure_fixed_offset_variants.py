@@ -12,8 +12,9 @@ sky130's curated extraction deck models `res_high_po` as
 #519). This flow draws each logical schematic resistor as a *series chain of
 separately contacted* primitives (`res_r2`/`res_trim`/`res_r1`, 70/70/7 per
 logical device -- required so every DR-002 trim tap lands on real,
-individually contacted metal; see `gen_bandgap_routed.py`'s
-RES_HEAD_RESISTANCE_NOTE), so `options.combine_devices` sums the head/end
+individually contacted metal; see
+layout/generator-notes.md#res-head-resistance-note), so
+`options.combine_devices` sums the head/end
 term once per drawn primitive rather than once for the logical device.
 
 klayout-tools#559 filed that as an accounting question; #583 answered it by

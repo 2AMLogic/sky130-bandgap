@@ -1,0 +1,4 @@
+schematic VREF 1.210747 V
+RVB_seg8=998.987 (record) ohm: VREF 1.182253 V, delta -28.494 mV
+RVB_seg8=95 ohm: VREF 1.212442 V, delta +1.695 mV
+RVB_seg8=399 ohm: VREF 1.201892 V, delta -8.855 mV
