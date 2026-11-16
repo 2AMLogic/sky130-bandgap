@@ -343,7 +343,9 @@ completed post-layout benches above:
   far below anything that would change which corners pass or fail a ±2 %
   window.
 - The much larger shifts the other benches document (`sim/quiescent-current-post-layout/`'s
-  −35.8 % Iq, `sim/psrr-dc-post-layout/`'s −4.05 dB PSRR,
+  −35.8 % Iq [re-measured 2026-11-15 by issue #560 at the klt-0.8.0 pin: −10.5 % mean,
+  verdict unchanged 45/45 PASS — see that bench's `README.md`],
+  `sim/psrr-dc-post-layout/`'s −4.05 dB PSRR,
   `sim/line-regulation-post-layout/`'s +29.6 mV `vref_nom`) are, per those
   same README's own attributions, either (a) the **drawn chained-array
   topology** — a `design/bandgap_core.sch` change from the DR-003 resize
