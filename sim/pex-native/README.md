@@ -160,10 +160,12 @@ The leg table's `K_extracted` is a **two-terminal network** value. On this
 record it is not the divider's operating point: a ladder net is shared by more
 than one current path, so leg K (−13.06 %) and operating K (−5.05 %, below)
 differ — under the pilot's star model the two coincided (7.3766 both ways),
-which is why the pilot's identity closed and this one does not. The probe
-values and every `rtc` number are unchanged from the pilot's section (same
-normaliser, same schematic); `attribute_delta.py` now prints the operating K so
-the two records are comparable on that line. The `array_parasitics_only` memo
+which is why the pilot's identity closed and this one does not. The probe's
+`schematic` column and every `rtc` number are unchanged from the pilot's section
+(same schematic netlist, same zero normaliser); the extracted columns move with
+the extraction, which is the result reported below. `attribute_delta.py` now
+prints the operating K so the two records are comparable on that line. The
+`array_parasitics_only` memo
 is likewise not apples-to-apples across the two records: the ablation classifies
 a card by whether either node is a resistor-array terminal, and a mid-chain
 ladder segment between two non-array terminals shorts where the star arm
@@ -220,7 +222,7 @@ Two limits on that statement:
   (terminal position is a device-placement proxy, not true per-segment routing
   geometry)". Answering that needs per-segment routing geometry or
   `--resistance-graph` (refused together with `--distributed-rc` on this pin) —
-  a follow-up, not part of this record.
+  a follow-up (#573), not part of this record.
 * **Mixed-model K.** Only VB and VBQ moved to a ladder. VOUT (979.6 Ω, 6
   terminals) and VA (5206.2 Ω, 17 terminals) stay star-modelled: R2A is
   bit-identical across the two records (116902.3 Ω), while R1 (VB→VBQ ends) and
