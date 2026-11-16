@@ -23,7 +23,6 @@ the unit test (`test_geometry_resistance.py`) need no klayout and no ngspice.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import sys
 from pathlib import Path
@@ -31,6 +30,13 @@ from pathlib import Path
 import numpy as np
 from scipy.sparse import coo_matrix
 from scipy.sparse.linalg import spsolve
+
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci"))
+
+# The repo's one SHA-256 helper (issue #538): bare hex, exactly the form the
+# `*_sha256` keys in `inputs.json` below carry.
+from content_hash import sha256_file  # noqa: E402
 
 SHEET = {"poly": 48.2, "li1": 12.8, "met1": 0.125}  # ohm/sq, sky130A.tech
 CUT = {"licon": 152.0, "mcon": 9.3}  # ohm per cut, sky130A.tech `contact pc,xpc` / `contact mcon`
@@ -234,8 +240,8 @@ def main(argv: list[str]) -> int:
     args.outdir.mkdir(parents=True, exist_ok=True)
     (args.outdir / "geometry-r.json").write_text(json.dumps(res, indent=2, sort_keys=True, default=str) + "\n")
     (args.outdir / "inputs.json").write_text(json.dumps(
-        {"gds": str(args.gds), "gds_sha256": hashlib.sha256(args.gds.read_bytes()).hexdigest(),
-         "script_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        {"gds": str(args.gds), "gds_sha256": sha256_file(args.gds),
+         "script_sha256": sha256_file(Path(__file__)),
          "pitches_nm": list(PITCHES_NM)}, indent=2, sort_keys=True) + "\n")
     print(json.dumps({k: v["end_to_end"] for k, v in res.items()}, indent=2))
     return 0
