@@ -107,28 +107,62 @@ def klt_corner(corner, index=0, *, status="pass", diags=None, values=None, runti
     }
 
 
+def worker_env(*, banner="ngspice-46", cpu="Intel(R) Xeon(R) Platinum 8488C"):
+    """One `worker_environment` block, shaped like klt's own (issue #549): the
+    ~1.4 kB of ngspice banner, PDK stamp, build comparison and CPU model klt
+    attaches to *every* fleet job of a request."""
+    return {
+        "capture": "ok",
+        "simulator": {
+            "requested_binary": "ngspice", "binary_source": "PATH",
+            "selected_path": "/usr/local/bin/ngspice", "version_probe": "ok",
+            "version_banner": f"******\n** {banner} : Circuit level simulation program\n"
+                              "** Compiled with KLU Direct Linear Solver\n" + "** pad\n" * 12,
+        },
+        "pdk": {
+            "variant": "sky130A", "root": "/opt/pdk", "stamp_scheme": "sources-sha256",
+            "stamp_sha256": "4" * 64,
+            "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+            "models_staged": False, "stamp_scope": "executed",
+        },
+        "cpu_model": cpu, "omp_num_threads": None, "image_manifest": None,
+        "model_inputs": None, "diagnostics": [],
+        "pdk_stamp_comparison": {"status": "not_comparable", "reason": "client_stamp_unavailable"},
+        "engine_build_comparison": {"status": "match"},
+    }
+
+
 def shard_ids(group, job="klt-sim-test", shards=3):
     """The ids a `shards`-way sharded request reports, in report order."""
     return [f"{job}-{group.supply_v:.2f}-s{i}" for i in range(shards)]
 
 
 def make_report(group, *, lib_sha=LIB_SHA, mutate=None, job="klt-sim-test", elapsed=500,
-                shards=None):
+                shards=None, worker_envs=None):
     """`shards=N` gives the report the shape klt returns for a *sharded*
     request (issue #523): `environment.remote` carries a `fleet` list of
     per-shard entries and no top-level `job_id`, which is why every sharded
-    request used to record `job_id: null`."""
+    request used to record `job_id: null`.
+
+    `worker_envs` attaches klt's per-fleet-job `worker_environment` attestation
+    (issue #549): a list of blocks, cycled over the fleet entries, so
+    `[a]` gives every shard the same attestation and `[a, b]` alternates two.
+    `None` leaves it off entirely -- the shape every test predating #549
+    asserts on."""
     corners = [klt_corner(c, i) for i, c in enumerate(group.corners)]
     if mutate:
         corners = mutate(corners, group)
     if shards:
+        ids = shard_ids(group, job, shards)
         remote = {
             "provider": "aws-batch-fleet",
             "runner_compatibility": "match",
             "fleet": [
                 {"job_id": jid, "instance_type": "c7i.4xlarge", "ami_id": "ami-1",
-                 "lifecycle": "spot"}
-                for jid in shard_ids(group, job, shards)
+                 "lifecycle": "spot",
+                 **({"worker_environment": copy.deepcopy(worker_envs[i % len(worker_envs)])}
+                    if worker_envs else {})}
+                for i, jid in enumerate(ids)
             ],
         }
     else:
@@ -140,6 +174,7 @@ def make_report(group, *, lib_sha=LIB_SHA, mutate=None, job="klt-sim-test", elap
             "lifecycle": "spot",
             "elapsed_seconds": elapsed,
             "runner_compatibility": "match",
+            **({"worker_environment": copy.deepcopy(worker_envs[0])} if worker_envs else {}),
         }
     return {
         "schema_version": 3,
@@ -157,11 +192,13 @@ def make_report(group, *, lib_sha=LIB_SHA, mutate=None, job="klt-sim-test", elap
     }
 
 
-def fake_runner(*, mutate=None, lib_sha=LIB_SHA, fail_supply=None, reverse=False, shards=None):
+def fake_runner(*, mutate=None, lib_sha=LIB_SHA, fail_supply=None, reverse=False, shards=None,
+                worker_envs=None):
     def run(group):
         if fail_supply is not None and group.supply_v == fail_supply:
             return batch_sim.GroupOutcome(group, "t0", "t1", 1.0, 1, None, "klt sim exited 1: boom")
-        rep = make_report(group, lib_sha=lib_sha, mutate=mutate, shards=shards)
+        rep = make_report(group, lib_sha=lib_sha, mutate=mutate, shards=shards,
+                          worker_envs=worker_envs)
         if reverse:
             rep["corners"].reverse()
         (group.dir / "klt-report.json").write_text(json.dumps(rep))
@@ -873,6 +910,247 @@ class ResolveXschemExprTests(unittest.TestCase):
             cr.resolve_xschem_expr(["X1 a b m W=1 p=expr('__import__(1)') q=0"])
         with self.assertRaises(cr.HarnessError):
             cr.resolve_xschem_expr(["X1 a b m W=1 p=expr('@missing * 2') q=0"])
+
+
+class WorkerEnvironmentTable(unittest.TestCase):
+    """klt attaches a full `worker_environment` attestation to *every* fleet
+    job, so a sharded request re-serialized a byte-identical ~1.4 kB block
+    once per shard: 1.4 MB of the committed records, 1-2 distinct values each
+    (issue #549). The blocks now live once in a content-keyed
+    `execution.worker_environments` table with each fleet entry referencing
+    its own, and one reader resolves either shape -- committed records keep
+    the inline form and must go on resolving identically."""
+
+    def setUp(self):
+        self.env = _Env()
+        self.addCleanup(shutil.rmtree, self.env.tmp, True)
+        self.a = worker_env()
+        self.b = worker_env(banner="ngspice-45", cpu="AMD EPYC 9R14")
+
+    def _execution(self, *, shards=3, worker_envs=None, mutate=None, lib_sha=None):
+        (self.env.tmp / "sky130.lib.spice").write_text("lib")
+        sha = lib_sha or batch_sim.sha256_file(self.env.tmp / "sky130.lib.spice")
+        (_res, blockers, extra), _ = self.env.execute(runner=fake_runner(
+            lib_sha=sha, shards=shards, worker_envs=worker_envs, mutate=mutate))
+        return extra["execution"], blockers
+
+    # --- the writer -----------------------------------------------------
+
+    def test_a_repeated_attestation_is_stored_once_and_referenced_per_shard(self):
+        """The headline case: 3 shards x 3 supplies that ran the same image
+        used to write 9 copies of the block; now one table entry and 9 refs."""
+        execution, _ = self._execution(worker_envs=[self.a])
+        table = execution["worker_environments"]
+        self.assertEqual(len(table), 1)
+        self.assertEqual(list(table.values()), [self.a])
+        key = next(iter(table))
+        entries = [e for j in execution["jobs"] for e in batch_sim.fleet_jobs(j["remote"])]
+        self.assertEqual(len(entries), 9)
+        for entry in entries:
+            self.assertNotIn("worker_environment", entry)
+            self.assertEqual(entry["worker_environment_ref"], key)
+
+    def test_a_shard_that_ran_a_different_environment_keeps_its_own_entry(self):
+        """Dedup must never merge two attestations that differ -- that is the
+        provenance the block exists to carry."""
+        execution, _ = self._execution(worker_envs=[self.a, self.b])
+        table = execution["worker_environments"]
+        self.assertEqual(len(table), 2)
+        self.assertEqual(sorted(table.values(), key=lambda w: w["cpu_model"]),
+                         sorted([self.a, self.b], key=lambda w: w["cpu_model"]))
+        # shards alternate a, b, a -- each entry must point at its own block.
+        for job in execution["jobs"]:
+            entries = batch_sim.fleet_jobs(job["remote"])
+            resolved = [batch_sim.fleet_worker_environment(e, table) for e in entries]
+            self.assertEqual(resolved, [self.a, self.b, self.a])
+
+    def test_the_ref_sits_exactly_where_the_inline_block_sat(self):
+        """Key order is part of what a reader of append-only evidence diffs,
+        so the ref replaces the block in place rather than moving to the end."""
+        raw = {"job_id": "s0", "worker_environment": self.a, "lifecycle": "spot"}
+        jobs = [{"remote": {"fleet": [dict(raw)]}}]
+        table = batch_sim.hoist_worker_environments(jobs)
+        entry = jobs[0]["remote"]["fleet"][0]
+        self.assertEqual(list(entry), ["job_id", "worker_environment_ref", "lifecycle"])
+        self.assertEqual(entry["worker_environment_ref"], next(iter(table)))
+
+    def test_an_unsharded_report_is_hoisted_the_same_way(self):
+        """`fleet_jobs()` already unifies the two request shapes, so an
+        unsharded run's single attestation goes through the same table rather
+        than staying inline and splitting the reader's job in two."""
+        execution, _ = self._execution(shards=None, worker_envs=[self.a])
+        table = execution["worker_environments"]
+        self.assertEqual(list(table.values()), [self.a])
+        for job in execution["jobs"]:
+            self.assertNotIn("worker_environment", job["remote"])
+            self.assertEqual(job["remote"]["worker_environment_ref"], next(iter(table)))
+
+    def test_a_run_with_no_attestation_gets_an_empty_table_and_no_rewrite(self):
+        execution, _ = self._execution(worker_envs=None)
+        self.assertEqual(execution["worker_environments"], {})
+        for job in execution["jobs"]:
+            for entry in batch_sim.fleet_jobs(job["remote"]):
+                self.assertNotIn("worker_environment_ref", entry)
+
+    def test_hoisting_leaves_the_klt_report_itself_inline(self):
+        """The report is the fleet's own artifact, copied verbatim into
+        `corners/<id>/batch-*/klt-report.json`; hoisting the record's copy must
+        not reach back into it (or into the blocker checks reading it)."""
+        self._execution(worker_envs=[self.a])
+        report = json.loads(
+            (self.env.tmp / "corners" / "batch-v2.97" / "klt-report.json").read_text())
+        for entry in report["environment"]["remote"]["fleet"]:
+            self.assertEqual(entry["worker_environment"], self.a)
+            self.assertNotIn("worker_environment_ref", entry)
+
+    # --- the round trip: resolved values, not the serialization ---------
+
+    def test_resolved_attestations_are_exactly_the_inline_forms_set(self):
+        """The issue's acceptance check: the record reports the same set of
+        distinct attestations the inline shape would have carried."""
+        for envs in ([self.a], [self.a, self.b]):
+            with self.subTest(distinct=len(envs)):
+                execution, _ = self._execution(worker_envs=envs)
+                self.assertEqual(batch_sim.execution_worker_environments(execution), envs)
+
+    def test_a_committed_inline_record_resolves_through_the_same_reader(self):
+        """Records on disk predate the table and are append-only, so the
+        reader must return their inline blocks with no table at all."""
+        inline = {"execution": {"jobs": [{"remote": {"fleet": [
+            {"job_id": "s0", "worker_environment": self.a},
+            {"job_id": "s1", "worker_environment": self.b},
+            {"job_id": "s2", "worker_environment": self.a},
+        ]}}]}}
+        self.assertEqual(
+            batch_sim.execution_worker_environments(inline["execution"]), [self.a, self.b])
+        entry = inline["execution"]["jobs"][0]["remote"]["fleet"][0]
+        self.assertEqual(batch_sim.fleet_worker_environment(entry), self.a)
+        self.assertEqual(batch_sim.fleet_worker_environment(entry, {}), self.a)
+
+    def test_the_reader_needs_no_shape_check_at_the_call_site(self):
+        """Same call, both shapes, same answer -- the point of the helper."""
+        key = batch_sim.worker_environment_key(self.a)
+        table = {key: self.a}
+        self.assertEqual(
+            batch_sim.fleet_worker_environment({"worker_environment": self.a}, table),
+            batch_sim.fleet_worker_environment({"worker_environment_ref": key}, table))
+
+    def test_an_entry_carrying_no_attestation_resolves_to_none(self):
+        for entry in ({}, {"job_id": "s0"}, None, "junk", {"worker_environment": None}):
+            with self.subTest(entry=entry):
+                self.assertIsNone(batch_sim.fleet_worker_environment(entry, {}))
+
+    def test_a_dangling_ref_is_loud_never_silently_absent(self):
+        """A record claiming provenance it cannot produce is lost evidence;
+        reading it as "absent" would hide that in an append-only tree."""
+        for table in (None, {}, {"other": self.a}):
+            with self.subTest(table=table):
+                with self.assertRaises(batch_sim.BatchError) as cm:
+                    batch_sim.fleet_worker_environment({"worker_environment_ref": "nope"}, table)
+                self.assertIn("nope", str(cm.exception))
+                self.assertIn("worker_environments", str(cm.exception))
+
+    # --- the key --------------------------------------------------------
+
+    def test_the_key_is_content_addressed_not_position_addressed(self):
+        self.assertEqual(batch_sim.worker_environment_key(self.a),
+                         batch_sim.worker_environment_key(copy.deepcopy(self.a)))
+        self.assertNotEqual(batch_sim.worker_environment_key(self.a),
+                            batch_sim.worker_environment_key(self.b))
+        # insertion order is not content
+        reordered = dict(reversed(list(self.a.items())))
+        self.assertEqual(batch_sim.worker_environment_key(reordered),
+                         batch_sim.worker_environment_key(self.a))
+
+    def test_the_key_is_a_bare_sha256_from_the_one_hashing_module(self):
+        key = batch_sim.worker_environment_key(self.a)
+        self.assertRegex(key, r"^[0-9a-f]{64}$")
+
+    # --- what must NOT change -------------------------------------------
+
+    def test_a_mismatched_model_library_still_blocks_a_sharded_run(self):
+        """Step 3 of the proposal: the blockers in `job_meta()` read the
+        report, so hoisting the record's copy cannot soften them."""
+        execution, blockers = self._execution(worker_envs=[self.a], lib_sha="f" * 64)
+        self.assertTrue(any("model library sha256" in b for b in blockers), blockers)
+        self.assertFalse(execution["remote_pdk_matches_pin"])
+        # and the attestation is still recorded for the run that failed
+        self.assertEqual(batch_sim.execution_worker_environments(execution), [self.a])
+
+    def test_the_fleet_job_ids_and_instance_facts_survive_hoisting(self):
+        execution, _ = self._execution(worker_envs=[self.a])
+        for job, supply in zip(execution["jobs"], (2.97, 3.30, 3.63)):
+            self.assertEqual(job["job_ids"],
+                             [f"klt-sim-test-{supply:.2f}-s{i}" for i in range(3)])
+        self.assertEqual(execution["remote_instance_types"], ["None"])  # sharded: no top-level
+        self.assertNotIn("`None`", "\n".join(
+            cr.render_execution(execution, execution["blockers"])))
+
+    def test_the_table_removes_the_repetition_it_was_added_for(self):
+        """The measurement, not just the shape: 9 shards sharing one block."""
+        inline, _ = self._execution(worker_envs=None)
+        hoisted, _ = self._execution(worker_envs=[self.a])
+        # Reconstruct what the inline shape would have cost on the same run.
+        inflated = copy.deepcopy(hoisted)
+        del inflated["worker_environments"]
+        for job in inflated["jobs"]:
+            for entry in batch_sim.fleet_jobs(job["remote"]):
+                entry.pop("worker_environment_ref", None)
+                entry["worker_environment"] = self.a
+        before = len(json.dumps(inflated))
+        after = len(json.dumps(hoisted))
+        self.assertLess(after, before)
+        # 9 copies -> 1: the saving is at least 7 blocks' worth.
+        self.assertGreater(before - after, 7 * len(json.dumps(self.a)))
+        self.assertEqual(batch_sim.execution_worker_environments(inflated),
+                         batch_sim.execution_worker_environments(hoisted))
+        self.assertEqual(inline["worker_environments"], {})
+
+
+class CommittedRecordsStillResolve(unittest.TestCase):
+    """The records already on disk are append-only and keep the inline shape,
+    so the reader has to go on reporting their provenance unchanged. This runs
+    against the real evidence rather than a fixture of it (issue #549)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.records = []
+        for path in sorted(SIM_DIR.glob("*/records/*.json")):
+            text = path.read_text()
+            if '"worker_environment"' not in text:
+                continue
+            cls.records.append((path, json.loads(text)))
+
+    def test_every_committed_attestation_resolves_with_no_table(self):
+        if not self.records:
+            self.skipTest("no committed record carries fleet attestation")
+        for path, record in self.records:
+            execution = record.get("execution") or {}
+            with self.subTest(record=path.name):
+                resolved = batch_sim.execution_worker_environments(execution)
+                self.assertTrue(resolved, f"{path}: attestation present but nothing resolved")
+                inline = [e["worker_environment"]
+                          for j in execution.get("jobs") or []
+                          for e in batch_sim.fleet_jobs(j.get("remote"))
+                          if isinstance(e.get("worker_environment"), dict)]
+                distinct = []
+                for block in inline:
+                    if block not in distinct:
+                        distinct.append(block)
+                self.assertEqual(resolved, distinct)
+
+    def test_hoisting_a_committed_record_preserves_its_resolved_provenance(self):
+        """Proof the two shapes are interchangeable on real data: hoist a
+        committed record's jobs and the resolved set is unchanged."""
+        if not self.records:
+            self.skipTest("no committed record carries fleet attestation")
+        path, record = max(self.records, key=lambda pr: len(json.dumps(pr[1])))
+        execution = copy.deepcopy(record["execution"])
+        before = batch_sim.execution_worker_environments(execution)
+        execution["worker_environments"] = batch_sim.hoist_worker_environments(execution["jobs"])
+        self.assertEqual(batch_sim.execution_worker_environments(execution), before,
+                         f"{path}: provenance changed under hoisting")
+        self.assertEqual(len(execution["worker_environments"]), len(before))
 
 
 if __name__ == "__main__":

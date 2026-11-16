@@ -1583,6 +1583,7 @@ def run_all_batch(
             shutil.copyfile(o.group.netlist_path, gdir / "netlist.cir")
             if o.report_path:
                 shutil.copyfile(o.report_path, gdir / "klt-report.json")
+    worker_environments = batch_sim.hoist_worker_environments(jobs)
     versions = sorted({str(j["engine_version"]) for j in jobs})
     execution = {
         "backend": "batch",
@@ -1590,6 +1591,7 @@ def run_all_batch(
         "requests": len(groups),
         "max_concurrent_requests": request_workers,
         "jobs": jobs,
+        batch_sim.WORKER_ENVIRONMENTS_TABLE: worker_environments,
         "remote_engine_versions": versions,
         "remote_instance_types": sorted({str(j["remote"].get("instance_type")) for j in jobs}),
         "local_pinned_lib_sha256": lib_sha,

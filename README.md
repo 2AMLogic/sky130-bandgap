@@ -82,6 +82,10 @@ Bootstrapping the open-source flow (xschem + ngspice + sky130 PDK via
 ciel) on a dev machine, plus a smoke test proving the toolchain works
 end-to-end: see [`docs/environment-setup.md`](docs/environment-setup.md).
 
+Where the block stands and what work comes next:
+[`docs/ROADMAP.md`](docs/ROADMAP.md) (the verdict of record remains
+`signoff/signoff-report.json`).
+
 Operating the AI agent fleet against this repo — in particular keeping a
 dispatch host's checkout current so agents do not run stale role
 definitions: see

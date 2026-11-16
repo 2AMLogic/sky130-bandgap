@@ -140,10 +140,11 @@ MET1_BUS_NOTE = (
     "`metal2`/`via1` roles with via-drop bussing, and #508 (merged via "
     "#511) a third `metal3`/`via2` level, so the router *can* now plan "
     "wires above the pad layer. This flow has not moved its bussing onto "
-    "them (its own met2 escape plane is hand-drawn too, MET2_ESCAPE_NOTE): "
-    "the "
+    "them (its own met2 escape plane is hand-drawn too, "
+    "layout/generator-notes.md#met2-escape-note): the "
     "bussing here is a planar lane assignment derived from each block's own "
-    "reported geometry (MOS_COMB_NOTE), and swapping it for router-planned "
+    "reported geometry (layout/generator-notes.md#mos-comb-note), and "
+    "swapping it for router-planned "
     "routing is a rework to be measured on its own, not a parameter change "
     "to be slipped into an increment that is already changing the device "
     "topology. Hand-placing what a router could plan remains the residual "
@@ -161,7 +162,7 @@ RING_MARGIN_UM = 8.0  # clearance between the composed content and the outer rin
 #: deliberately left n_r1 fixed so the resize corrects K = R2/R1 without
 #: raising the branch current (and therefore the hot-corner headroom the
 #: ff/2.97V, fs/2.97V regulation-collapse margin depends on). See
-#: RES_RESIZE_NOTE.
+#: layout/generator-notes.md#res-resize-note.
 N_R1 = 7
 #: The R2 divider leg's **drawn** decomposition (issue #91, re-transcribed
 #: to the resized sizing by issue #108, then re-partitioned by issue #112
@@ -169,7 +170,8 @@ N_R1 = 7
 #: length per leg -- `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim` = 5*50 +
 #: 0.5*0 = 250 um at DR-002's untrimmed code 0 (n_r2=50 since issue #99/
 #: PR #105; r_lseg_trim halved 1 -> 0.5 by issue #106/PR #111, see
-#: RES_TRIM_LSB_NOTE) -- and the layout has to reproduce *that* number
+#: layout/generator-notes.md#res-trim-lsb-note) -- and the layout has to
+#: reproduce *that* number
 #: while still offering DR-002's downward-only trim codes. It does so by
 #: splitting the 250 um, not by adding to it: 48 coarse 5 um units
 #: (240 um) in `res_r2` plus 20 fine 0.5 um units (10 um) in `res_trim`.
@@ -189,8 +191,10 @@ N_R1 = 7
 #: certified 0..-16 downward range -- are still reachable), so
 #: `N_R2_COARSE` has to absorb the 0.5 um/unit reduction across all 20
 #: units (10 um) to keep `5*N_R2_COARSE + 0.5*20 == 250`: 46 -> 48. See
-#: RES_RESIZE_NOTE for why the leg length itself moved (issue #99) and
-#: RES_TRIM_LSB_NOTE for why the fine unit length itself halved
+#: layout/generator-notes.md#res-resize-note for why the leg length
+#: itself moved (issue #99) and
+#: layout/generator-notes.md#res-trim-lsb-note for why the fine unit
+#: length itself halved
 #: (issue #106).
 #: 48 -> 49 by issue #178 (n_r2 50 -> 51 re-centres the untrimmed VREF
 #: inside DR-005's ratified +/-2 % window once the schematic itself models
