@@ -269,35 +269,18 @@ def batch_netlist(body: list[str]) -> str:
     return "\n".join(head + body + [""])
 
 
-def batch_measurements() -> list[dict]:
-    return [{"name": name, "expr": expr} for name, expr in VECTOR_EXPRS]
-
-
 def build_batch_groups(pin, body, points, spiceinit_text, out_dir, args) -> list:
-    """One `klt sim` request per `MismatchPoint`: the point's `.lib` section is
-    the request's process, and `monte_carlo` `{n, seed}` replaces the `setseed`
-    / `reset` / `dowhile` loop. The `mismatch` and `seed-check` points stay
-    separate requests from the `control` (plain `tt`, sigma must be 0).
-
-    klt derives each sample's `.options seed=` from `monte_carlo.seed` itself, so
-    the draws are a different (equally valid) stream from `setseed N` -- the
-    statistics, not the samples, are what match the local record.
-
-    A refused `--timeout` (one whose per-shard job bound cannot fit the fleet's
-    whole-job ceiling, issue #528) is re-raised as the harness error every
-    other failure here uses, so it reaches the user as a normal error on both
-    the submit path and `--dry-run` rather than a traceback."""
+    """One `klt sim` request per `MismatchPoint`; the shared contract (request
+    layout, seed handling, the #528 timeout refusal) is
+    `batch_sim.build_mc_batch_groups`. This bench's netlist does not vary per
+    point, so it is built once here and returned for every point."""
     netlist = batch_netlist(body)
     try:
-        return [
-            batch_sim.build_mc_group(
-                p.corner_id, out_dir, netlist, pin, p.section, p.temp_c, SUPPLY_V, p.samples,
-                p.seed, batch_measurements(), spiceinit_text, args.timeout,
-                capacity_wait_s=args.batch_capacity_wait_s,
-                runner_version_check=args.batch_runner_version_check, poll_interval_s=30.0,
-            )
-            for p in points
-        ]
+        return batch_sim.build_mc_batch_groups(
+            pin, SUPPLY_V, points, spiceinit_text, out_dir, args,
+            netlist_for=lambda _p: netlist,
+            measurements=[{"name": n, "expr": e} for n, e in VECTOR_EXPRS],
+        )
     except batch_sim.BatchError as exc:
         raise cr.HarnessError(str(exc)) from exc
 

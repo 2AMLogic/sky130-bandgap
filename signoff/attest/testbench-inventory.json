@@ -83,7 +83,7 @@
         {
           "path": "sim/error-amp-offset-mc/run_amp_offset_mc.py",
           "role": "runner",
-          "content_hash": "sha256:ba8978438569a111f892f58a8ba4154f44ae4a60a594e28d751e5bafbf85decd"
+          "content_hash": "sha256:b36a5ed3a44e6587d1716aabec60b5053199f2971d5c4947be6ac8753dd43103"
         }
       ]
     },
@@ -121,7 +121,7 @@
         {
           "path": "sim/monte-carlo-untrimmed/run_mc_untrimmed.py",
           "role": "runner",
-          "content_hash": "sha256:7a972ef8a0a6738723d84b938af924fb9d08da062c794e6d2357bf798228a1f4"
+          "content_hash": "sha256:130e987feed956ca8e9a142fbdd5f4c9f3ffc1d68cf5228785d4dede32b06b65"
         }
       ]
     },
