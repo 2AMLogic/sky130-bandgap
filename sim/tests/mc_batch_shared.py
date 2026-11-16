@@ -133,6 +133,16 @@ class BatchRequestsShared:
                 g.request["options"]["timeout_s"], batch_sim.MC_BATCH_TIMEOUT_S
             )
 
+    def test_batch_flags_are_absent_from_a_default_request(self):
+        """Neither batch flag is set in the fixture's plain `ARGS`, so no bench's
+        default request may carry `batch.max_concurrent_jobs` and no group may
+        ask for `--resume`. amp-offset's argparse defines neither flag, so this
+        is its only lock on the emitted shape (issue #577)."""
+        for g in self.groups:
+            with self.subTest(label=g.label):
+                self.assertNotIn("max_concurrent_jobs", g.request["batch"])
+                self.assertIs(g.resume, False)
+
 
 class OverCeilingBudgetShared:
     """The bench's former per-point default (`LOCAL_TIMEOUT_S` seconds) is a
