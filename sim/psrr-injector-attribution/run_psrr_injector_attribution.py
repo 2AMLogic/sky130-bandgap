@@ -791,6 +791,8 @@ def parse_args(argv):
     p.add_argument("--allow-pdk-mismatch", action="store_true",
                    help="run even if the installed PDK differs from the sim/pdk.json pin")
     args = p.parse_args(argv)
+    if not args.variants:
+        p.error(f"empty --variants selection; known: {sorted(VARIANTS_BY_NAME)}")
     unknown = [v for v in args.variants if v not in VARIANTS_BY_NAME]
     if unknown:
         p.error(f"unknown variant(s) {unknown}; known: {sorted(VARIANTS_BY_NAME)}")
