@@ -1,0 +1,458 @@
+{
+  "limits_sha256": "31837ef030826b03501679a42b83cead52b761440c0e978a8b3d84d57d575122",
+  "missing": [],
+  "n_exceeded": 45,
+  "n_within": 0,
+  "rows": [
+    {
+      "abs_delta_max": 0.005,
+      "corner_id": "tt_27c_2.97v",
+      "delta": -0.0285,
+      "extracted": 1.182123,
+      "observable": "vref_27",
+      "schematic": 1.210623,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "tt_27c_2.97v",
+      "delta": -0.033644,
+      "extracted": 1.1529,
+      "observable": "vref_min",
+      "schematic": 1.186544,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "tt_27c_2.97v",
+      "delta": -0.02365,
+      "extracted": 1.193399,
+      "observable": "vref_max",
+      "schematic": 1.217049,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.005,
+      "corner_id": "tt_27c_3.30v",
+      "delta": -0.028493,
+      "extracted": 1.182242,
+      "observable": "vref_27",
+      "schematic": 1.210735,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "tt_27c_3.30v",
+      "delta": -0.033651,
+      "extracted": 1.153024,
+      "observable": "vref_min",
+      "schematic": 1.186675,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "tt_27c_3.30v",
+      "delta": -0.023639,
+      "extracted": 1.193543,
+      "observable": "vref_max",
+      "schematic": 1.217182,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.005,
+      "corner_id": "tt_27c_3.63v",
+      "delta": -0.028482,
+      "extracted": 1.182399,
+      "observable": "vref_27",
+      "schematic": 1.210881,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "tt_27c_3.63v",
+      "delta": -0.033883,
+      "extracted": 1.156143,
+      "observable": "vref_min",
+      "schematic": 1.190026,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "tt_27c_3.63v",
+      "delta": -0.023625,
+      "extracted": 1.193721,
+      "observable": "vref_max",
+      "schematic": 1.217346,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.005,
+      "corner_id": "ss_27c_2.97v",
+      "delta": -0.028936,
+      "extracted": 1.181874,
+      "observable": "vref_27",
+      "schematic": 1.21081,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "ss_27c_2.97v",
+      "delta": -0.034235,
+      "extracted": 1.15252,
+      "observable": "vref_min",
+      "schematic": 1.186755,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "ss_27c_2.97v",
+      "delta": -0.023893,
+      "extracted": 1.193603,
+      "observable": "vref_max",
+      "schematic": 1.217496,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.005,
+      "corner_id": "ss_27c_3.30v",
+      "delta": -0.028929,
+      "extracted": 1.181926,
+      "observable": "vref_27",
+      "schematic": 1.210855,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "ss_27c_3.30v",
+      "delta": -0.034228,
+      "extracted": 1.152555,
+      "observable": "vref_min",
+      "schematic": 1.186783,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "ss_27c_3.30v",
+      "delta": -0.023888,
+      "extracted": 1.193654,
+      "observable": "vref_max",
+      "schematic": 1.217542,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.005,
+      "corner_id": "ss_27c_3.63v",
+      "delta": -0.028923,
+      "extracted": 1.182,
+      "observable": "vref_27",
+      "schematic": 1.210923,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "ss_27c_3.63v",
+      "delta": -0.034305,
+      "extracted": 1.153075,
+      "observable": "vref_min",
+      "schematic": 1.18738,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "ss_27c_3.63v",
+      "delta": -0.023885,
+      "extracted": 1.193723,
+      "observable": "vref_max",
+      "schematic": 1.217608,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.005,
+      "corner_id": "ff_27c_2.97v",
+      "delta": -0.028052,
+      "extracted": 1.182848,
+      "observable": "vref_27",
+      "schematic": 1.2109,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "ff_27c_2.97v",
+      "delta": -0.033058,
+      "extracted": 1.153505,
+      "observable": "vref_min",
+      "schematic": 1.186563,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "ff_27c_2.97v",
+      "delta": -0.023439,
+      "extracted": 1.193594,
+      "observable": "vref_max",
+      "schematic": 1.217033,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.005,
+      "corner_id": "ff_27c_3.30v",
+      "delta": -0.028037,
+      "extracted": 1.183161,
+      "observable": "vref_27",
+      "schematic": 1.211198,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "ff_27c_3.30v",
+      "delta": -0.033377,
+      "extracted": 1.154375,
+      "observable": "vref_min",
+      "schematic": 1.187752,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "ff_27c_3.30v",
+      "delta": -0.023388,
+      "extracted": 1.194072,
+      "observable": "vref_max",
+      "schematic": 1.21746,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.005,
+      "corner_id": "ff_27c_3.63v",
+      "delta": -0.027956,
+      "extracted": 1.183869,
+      "observable": "vref_27",
+      "schematic": 1.211825,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "ff_27c_3.63v",
+      "delta": -0.033347,
+      "extracted": 1.167532,
+      "observable": "vref_min",
+      "schematic": 1.200879,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "ff_27c_3.63v",
+      "delta": -0.023312,
+      "extracted": 1.194659,
+      "observable": "vref_max",
+      "schematic": 1.217971,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.005,
+      "corner_id": "sf_27c_2.97v",
+      "delta": -0.028535,
+      "extracted": 1.185656,
+      "observable": "vref_27",
+      "schematic": 1.214191,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "sf_27c_2.97v",
+      "delta": -0.033789,
+      "extracted": 1.156012,
+      "observable": "vref_min",
+      "schematic": 1.189801,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "sf_27c_2.97v",
+      "delta": -0.024453,
+      "extracted": 1.194992,
+      "observable": "vref_max",
+      "schematic": 1.219445,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.005,
+      "corner_id": "sf_27c_3.30v",
+      "delta": -0.028494,
+      "extracted": 1.186456,
+      "observable": "vref_27",
+      "schematic": 1.21495,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "sf_27c_3.30v",
+      "delta": -0.033786,
+      "extracted": 1.156125,
+      "observable": "vref_min",
+      "schematic": 1.189911,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "sf_27c_3.30v",
+      "delta": -0.02413,
+      "extracted": 1.196529,
+      "observable": "vref_max",
+      "schematic": 1.220659,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.005,
+      "corner_id": "sf_27c_3.63v",
+      "delta": -0.028451,
+      "extracted": 1.187364,
+      "observable": "vref_27",
+      "schematic": 1.215815,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "sf_27c_3.63v",
+      "delta": -0.033907,
+      "extracted": 1.156725,
+      "observable": "vref_min",
+      "schematic": 1.190632,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "sf_27c_3.63v",
+      "delta": -0.023621,
+      "extracted": 1.198513,
+      "observable": "vref_max",
+      "schematic": 1.222134,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.005,
+      "corner_id": "fs_27c_2.97v",
+      "delta": -0.028506,
+      "extracted": 1.182088,
+      "observable": "vref_27",
+      "schematic": 1.210594,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "fs_27c_2.97v",
+      "delta": -0.033618,
+      "extracted": 1.152508,
+      "observable": "vref_min",
+      "schematic": 1.186126,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "fs_27c_2.97v",
+      "delta": -0.02347,
+      "extracted": 1.194312,
+      "observable": "vref_max",
+      "schematic": 1.217782,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.005,
+      "corner_id": "fs_27c_3.30v",
+      "delta": -0.028503,
+      "extracted": 1.182115,
+      "observable": "vref_27",
+      "schematic": 1.210618,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "fs_27c_3.30v",
+      "delta": -0.03366,
+      "extracted": 1.153071,
+      "observable": "vref_min",
+      "schematic": 1.186731,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "fs_27c_3.30v",
+      "delta": -0.023469,
+      "extracted": 1.194337,
+      "observable": "vref_max",
+      "schematic": 1.217806,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.005,
+      "corner_id": "fs_27c_3.63v",
+      "delta": -0.028489,
+      "extracted": 1.18224,
+      "observable": "vref_27",
+      "schematic": 1.210729,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "fs_27c_3.63v",
+      "delta": -0.033536,
+      "extracted": 1.155627,
+      "observable": "vref_min",
+      "schematic": 1.189163,
+      "unit": "V",
+      "within_limit": false
+    },
+    {
+      "abs_delta_max": 0.01,
+      "corner_id": "fs_27c_3.63v",
+      "delta": -0.023469,
+      "extracted": 1.194371,
+      "observable": "vref_max",
+      "schematic": 1.21784,
+      "unit": "V",
+      "within_limit": false
+    }
+  ]
+}
