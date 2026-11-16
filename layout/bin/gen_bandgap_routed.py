@@ -933,7 +933,7 @@ BLOCKS: list[dict[str, Any]] = [
         "VDD (drain+source) and GDRV (gate) so `combine_devices` folds "
         f"them into the schematic's single m={AMP_M_CC} device -- see "
         "layout/generator-notes.md#mcc-mim-infeasible-note for why a "
-    "`cap_mim` overlay (the "
+        "`cap_mim` overlay (the "
         "operator's primary-path ruling on issue #62) cannot close this "
         "device instead",
     },

@@ -12,9 +12,9 @@ geometry (see layout/generator-notes.md#met2-escape-note). The curated
 **DRC** deck (`klayout_tools.decks.sky130.DECK`) was not extended alongside
 it at first: through issue #62's twenty-third increment it carried
 `met1.width.1`, `met1.space.1` and `met1.enclosing.mcon.1`, and no `met2.*`
-or `via.*` rule at all. 2AMLogic/klayout-tools#513 (merged via #515) closed most of that gap
--- `klt drc --deck sky130` now checks `met2.width.1`, `met2.space.1`,
-`via.width.1`, `via.space.1`, `met1.enclosing.via.1` and
+or `via.*` rule at all. 2AMLogic/klayout-tools#513 (merged via #515) closed
+most of that gap -- `klt drc --deck sky130` now checks `met2.width.1`,
+`met2.space.1`, `via.width.1`, `via.space.1`, `met1.enclosing.via.1` and
 `met2.enclosing.via.1` -- but not the met2 min-area rule (`m2.6`): #515 left
 it out because the curated deck's rule vocabulary has no `area` check
 primitive. This flow's evidence discipline ("no claim without a testbench")

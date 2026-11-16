@@ -48,6 +48,7 @@ Standard library only (``unittest``), matching every other test under
 
 from __future__ import annotations
 
+import os
 import re
 import unittest
 from pathlib import Path
@@ -86,7 +87,7 @@ def guarded_files() -> list[Path]:
 
 def repo_text_files() -> list[Path]:
     paths: list[Path] = []
-    for dirpath, dirnames, filenames in Path(REPO_ROOT).walk():
+    for dirpath, dirnames, filenames in os.walk(REPO_ROOT):
         dirnames[:] = [d for d in dirnames if d not in PRUNED_DIRS]
         for filename in filenames:
             path = Path(dirpath) / filename
