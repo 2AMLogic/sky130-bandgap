@@ -589,7 +589,12 @@ npm run test:unit    # or: python3 -m unittest discover -s layout/tests
 
 `layout/tests/test_routed_flow_gates.py` covers those plus the gate
 composition, in milliseconds, with **no `klt` install and no PDK** — so they
-run in `npm run check:ci` on every push. Before these existed the three were
+run in `npm run check:ci` on every push. The router's own internals and drawn
+geometry live in sibling files, one concern each (issue #556):
+`test_bus_routing.py` (finger-bus/gate-contact geometry, the open-channel
+router, and the repair pass driven through the real router),
+`test_met2_escape.py` (the met2 escape plane), and `test_ladder_geometry.py`
+(the resistor-ladder scoreboard helpers). Before these existed the three were
 exercised only end-to-end, which meant their *failure* paths were never
 exercised at all: a passing flow run by construction never reaches them. The
 suite includes two regression cases read from this directory's own
