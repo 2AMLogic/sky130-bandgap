@@ -693,6 +693,48 @@ def build_mc_group(
     return Group(supply_v, gdir, netlist_path, request_path, [], request, label, resume)
 
 
+def build_mc_batch_groups(
+    pin, supply_v, points, spiceinit_text, out_dir, args, *, netlist_for, measurements
+) -> list[Group]:
+    """One `klt sim` request per Monte Carlo point: the point's `.lib` section is
+    the request's process and `monte_carlo` `{n, seed}` replaces the bespoke
+    `setseed` / `reset` / `dowhile` loop, so a point that must keep sigma == 0
+    (a plain-`tt` control) or pin its draw stream (a seed-check) stays its own
+    separate request. klt derives each sample's `.options seed=` from
+    `monte_carlo.seed` itself, so the draws are a different (equally valid)
+    stream from `setseed N` -- the statistics, not the samples, are what match
+    the local record. In particular `convergence_series()`'s "first K samples
+    of the N-sample run are the K-sample run" still holds: klt's per-sample
+    seeds are a function of `(seed, sample index)`, and the first 20 of a
+    300-sample `--dry-run` equal a 20-sample run's.
+
+    `netlist_for(point)` returns the point's complete pre-`.lib` netlist text:
+    a bench whose netlist varies per point (a `config` axis riding in as
+    `.param` overrides) builds it per point; one whose netlist is constant
+    hoists it and returns the same text for every point. `measurements` is the
+    bench's `[{"name", "expr"}]` list. `max_concurrent_jobs` / `resume` are
+    forwarded whenever `args` carries them (`--batch-max-concurrent-jobs` /
+    `--batch-resume`); a bench whose argparse defines neither keeps the
+    `build_mc_group` defaults, so its request is unchanged.
+
+    A refused `--timeout` (one whose per-shard job bound cannot fit the fleet's
+    whole-job ceiling, issue #528) is raised here as `BatchError`; each bench's
+    `build_batch_groups` wrapper re-raises it as its harness error so it
+    reaches the user as a normal error on both the submit path and `--dry-run`
+    rather than a traceback."""
+    return [
+        build_mc_group(
+            p.corner_id, out_dir, netlist_for(p), pin, p.section, p.temp_c, supply_v,
+            p.samples, p.seed, measurements, spiceinit_text, args.timeout,
+            capacity_wait_s=args.batch_capacity_wait_s,
+            runner_version_check=args.batch_runner_version_check, poll_interval_s=30.0,
+            max_concurrent_jobs=getattr(args, "batch_max_concurrent_jobs", None),
+            resume=getattr(args, "batch_resume", False),
+        )
+        for p in points
+    ]
+
+
 def _unique(values) -> list:
     out: list = []
     for v in values:

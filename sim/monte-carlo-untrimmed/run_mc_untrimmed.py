@@ -346,40 +346,17 @@ def batch_netlist(point: Point, body: list[str]) -> str:
     return "\n".join(head + kept + overrides + [""])
 
 
-def batch_measurements() -> list[dict]:
-    return [{"name": name, "expr": expr} for name, expr in VECTOR_EXPRS]
-
-
 def build_batch_groups(pin, body, points, spiceinit_text, out_dir, args) -> list:
-    """One `klt sim` request per `Point`: the point's `.lib` section is the
-    request's process, `monte_carlo` `{n, seed}` replaces the `setseed` / `reset`
-    / `dowhile` loop, and the `config` axis rides in the netlist as `.param`
-    overrides. The `control` (plain `tt`, sigma must be 0) and `seed-check` points
-    stay separate requests.
-
-    klt derives each sample's `.options seed=` from `monte_carlo.seed` itself, so
-    the draws are a different (equally valid) stream from `setseed N`: the
-    statistics, not the samples, match the local record. In particular
-    `convergence_series()`'s "first K samples of the N-sample run are the K-sample
-    run" still holds: klt's per-sample seeds are a function of `(seed, sample
-    index)`, and the first 20 of a 300-sample `--dry-run` equal a 20-sample run's.
-
-    A refused `--timeout` (one whose per-shard job bound cannot fit the fleet's
-    whole-job ceiling, issue #528) is re-raised as the harness error every
-    other failure here uses, so it reaches the user as a normal error on both
-    the submit path and `--dry-run` rather than a traceback."""
+    """One `klt sim` request per `Point`; the shared contract (request layout,
+    seed handling, the #528 timeout refusal) is
+    `batch_sim.build_mc_batch_groups`. The `config` axis rides in the netlist
+    as `.param` overrides, so the netlist is built per point."""
     try:
-        return [
-            batch_sim.build_mc_group(
-                p.corner_id, out_dir, batch_netlist(p, body), pin, p.section, p.temp_c, SUPPLY_V,
-                p.samples, p.seed, batch_measurements(), spiceinit_text, args.timeout,
-                capacity_wait_s=args.batch_capacity_wait_s,
-                runner_version_check=args.batch_runner_version_check, poll_interval_s=30.0,
-                max_concurrent_jobs=getattr(args, "batch_max_concurrent_jobs", None),
-                resume=getattr(args, "batch_resume", False),
-            )
-            for p in points
-        ]
+        return batch_sim.build_mc_batch_groups(
+            pin, SUPPLY_V, points, spiceinit_text, out_dir, args,
+            netlist_for=lambda p: batch_netlist(p, body),
+            measurements=[{"name": n, "expr": e} for n, e in VECTOR_EXPRS],
+        )
     except batch_sim.BatchError as exc:
         raise cr.HarnessError(str(exc)) from exc
 

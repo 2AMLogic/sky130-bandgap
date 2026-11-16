@@ -1,0 +1,60 @@
+{
+  "fingerprint": "698d705493b80232f4933a828abd09391254b15b6d9ff4f308383dbdadb487fb",
+  "hosts": 5,
+  "jobs_prefix": "jobs",
+  "profile": "batch-runner-submit",
+  "region": "us-east-1",
+  "schema_version": 1,
+  "shards": [
+    {
+      "collected_at": "2026-11-15T02:21:27.488722+00:00",
+      "index": 0,
+      "job_id": "klt-sim-1c61b438741f",
+      "launch_started_at": "2026-11-15T02:20:16.511406+00:00",
+      "launched_at": "2026-11-15T02:20:53.457231+00:00",
+      "state": "collected",
+      "submitted_at": "2026-11-15T02:20:16.507455+00:00",
+      "units_sha256": "c1200c7d88348c232ac3c4850c8aba13343633c9bde6827557055bf0517ef571"
+    },
+    {
+      "collected_at": "2026-11-15T02:21:26.977884+00:00",
+      "index": 1,
+      "job_id": "klt-sim-3400ed6bbd33",
+      "launch_started_at": "2026-11-15T02:20:15.749466+00:00",
+      "launched_at": "2026-11-15T02:20:53.036146+00:00",
+      "state": "collected",
+      "submitted_at": "2026-11-15T02:20:15.743789+00:00",
+      "units_sha256": "39aa6373681fb19cffdfffe8b263278097fcf4ac834339565ab9f193305f24f0"
+    },
+    {
+      "collected_at": "2026-11-15T02:21:28.056694+00:00",
+      "index": 2,
+      "job_id": "klt-sim-023a18782d21",
+      "launch_started_at": "2026-11-15T02:20:16.884511+00:00",
+      "launched_at": "2026-11-15T02:20:54.685443+00:00",
+      "state": "collected",
+      "submitted_at": "2026-11-15T02:20:16.884031+00:00",
+      "units_sha256": "95eef1853e4c20be31faa0f509aed99c7c115b1bdb4f0eb52c34ccffb9420726"
+    },
+    {
+      "collected_at": null,
+      "index": 3,
+      "job_id": "klt-sim-dbf2b2f2cd4d",
+      "launch_started_at": null,
+      "launched_at": null,
+      "state": "pending",
+      "submitted_at": null,
+      "units_sha256": "04470916b87a028c439bb2bc32ba5e3112beed7980b8ae2d73ab315d7c46c9dc"
+    },
+    {
+      "collected_at": null,
+      "index": 4,
+      "job_id": "klt-sim-6376eadede94",
+      "launch_started_at": null,
+      "launched_at": null,
+      "state": "pending",
+      "submitted_at": null,
+      "units_sha256": "eac96bff55757cd808c859a1ee3ae9c5db86b92c82e8d357c4e533d3890d2388"
+    }
+  ]
+}
