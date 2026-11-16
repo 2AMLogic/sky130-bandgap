@@ -7,6 +7,16 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 - [2026-09](work_log/WORK_LOG_2026-09.md)
 
+### 2026-11-14
+
+- **PR #531**: refactor(sim): build trim-lsb-chained requests with batch_sim.build_adhoc_group
+- **Issue #525** (closed): Dedup run_trim_lsb_chained.py's hand-rolled batch request onto batch_sim.build_adhoc_group (drifted: no remote.hosts, no ngspice_init)
+- **PR #535**: fix(sim): refuse an over-ceiling Monte Carlo batch budget and size the MC shard count
+- **Issue #528** (closed): Monte Carlo batch requests ask for one Spot host per sample, and nothing refuses a per-shard bound over the fleet ceiling
+- **PR #529**: docs(spec): re-confirm the reference set and measure the MC shard loss in DR-021
+- **PR #532**: refactor(sim): one Monte Carlo batch collector for both MC benches
+- **Issue #522** (closed): Dedup collect_batch/record_tools/samples_path between the two Monte Carlo runners into batch_sim
+
 ### 2026-11-13
 
 - **PR #530**: docs(layout): condense matching-plan Section 7, archive increments to a sibling file
@@ -247,10 +257,4 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 - **Issue #282** (closed): Commit a klt signoff block manifest so this block's T1 state is graded, not hand-read
 - **PR #289**: signoff: commit a klt signoff block manifest for this block's T1 state
-
-### 2026-09-14
-
-- **Issue #179** (closed): OPERATOR QUESTION: if the core's TC floor stays above the ratified < 50 ppm/°C, scope curvature correction or stand non-qualifying on item 5?
-- **PR #197**: spec: propose DR-009 — TC floor disposition (recommend disclosed-FAIL, not spec relaxation)
-- **PR #240**: fix(ratification): remove unwrapped private-repo reference from market-key/SKILL.md
 
