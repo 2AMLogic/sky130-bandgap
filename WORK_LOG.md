@@ -7,8 +7,52 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 - [2026-09](work_log/WORK_LOG_2026-09.md)
 
+### 2026-11-16
+
+- **PR #586**: docs(layout): retarget 25 stale *_NOTE citations to generator-notes anchors
+- **Issue #565** (closed): Retarget the 25 stale `*_NOTE` pointers left behind by the generator-notes.md move (#552)
+- **PR #584**: test: lock MC batch default-off request shape in the shared fixture
+- **Issue #577** (closed): Lock amp-offset's batch-flag default-off request shape in the shared MC fixture
+- **PR #581**: docs: link docs/ROADMAP.md from README and regenerate signoff attestations
+- **Issue #578** (closed): docs/ROADMAP.md is not reachable from the README
+- **Issue #580** (closed): Vendored Loom suite test-champion-premise-false-close.sh asserts against this repo's own CLAUDE.md and fails
+- **PR #576**: refactor: share the MC batch group builder across both Monte Carlo runners
+- **Issue #568** (closed): Dedup the last two duplicated MC batch helpers: batch_measurements and build_batch_groups
+- **PR #575**: bench: add --dry-run to the psrr-injector-candidates batch harness
+- **Issue #572** (closed): psrr-injector-candidates has no --dry-run path its sibling bench already has (plus a dead VARIANTS_BY_NAME rebinding)
+- **PR #574**: sim: re-run the five post-layout benches resolving the klt 0.8.0 parasitics snapshot
+- **Issue #560** (closed): Re-run the five post-layout benches that resolve the klt 0.8.0 parasitics snapshot
+- **PR #569**: refactor: route qualify_dr005.py file digests through content_hash.sha256_file
+- **Issue #547** (closed): Dedup the last bare file-hash copy: qualify_dr005._sha() duplicates content_hash.sha256_file()
+- **PR #564**: feat(pex-native): distributed-RC record refutes the star-allocation hypothesis
+- **Issue #541** (closed): pex-native: second record with --critical-net VB --critical-net VBQ --distributed-rc to split star-model allocation from the net total R
+- **PR #558**: refactor(sim): store each fleet worker_environment once in a record table
+- **Issue #549** (closed): batch_sim records 1149 copies of 2 distinct worker_environment blocks: 1.4 MB of redundant fleet attestation in sim/ records
+- **PR #539**: docs: roadmap as of 2026-11-14
+
+### 2026-11-15
+
+- **PR #570**: refactor(sim): hash the trim-lsb netlist body via content_hash.sha256_text
+- **Issue #562** (closed): Retire the last reachable HASHLIB_ALLOWED entry: run_trim_lsb_chained.py:270 hand-rolls content_hash.sha256_text()
+- **Issue #553** (closed): Retire the two remaining HASHLIB_ALLOWED Python entries — content_hash already covers both
+- **PR #566**: refactor(layout): move 13 never-loaded *_NOTE constants into anchored layout/generator-notes.md
+- **Issue #552** (closed): Consolidate 13 never-loaded *_NOTE constants (299 lines) out of layout/bin: the records that cite them by name never carry their text
+- **PR #563**: refactor(sim): share the MC batch-collector tests in mc_batch_shared
+- **Issue #536** (closed): Share the duplicated Monte Carlo batch-collector test fixture between the two MC bench test files
+- **PR #561**: refactor(tests): split test_routed_flow_gates.py into four per-concern files
+- **Issue #556** (closed): test_routed_flow_gates.py: a mid-file unittest.main() hides 85 of its 142 tests from the documented direct-run path
+- **PR #537**: refactor(sim): move the four batch/seed predicates into batch_sim
+- **Issue #533** (closed): Share the four duplicated batch/seed predicates between the two Monte Carlo runners
+- **Issue #571** (closed): No test pins the byte value of batch_sim.FLEET_JOB_OVERHEAD_S / FLEET_JOB_CEILING_S
+
 ### 2026-11-14
 
+- **PR #559**: measure row 1b on a klt 0.8.0 extraction: the #2359 attribution is refuted
+- **Issue #540** (closed): Re-extract parasitics at the pinned klt 0.8.0 and re-measure row 1b (klayout-tools#2359 is closed)
+- **PR #551**: feat(signoff): cite the failing klt pex pilot for T1 item 7
+- **Issue #542** (closed): T1 item 7: cite the klt pex pilot in the signoff manifest, or record why the pinned grader refuses it
+- **PR #546**: refactor: one sha256 helper, with a separate name per return convention
+- **Issue #538** (closed): Consolidate the 10 copies of sha256_file(): two incompatible return conventions share one name
 - **PR #531**: refactor(sim): build trim-lsb-chained requests with batch_sim.build_adhoc_group
 - **Issue #525** (closed): Dedup run_trim_lsb_chained.py's hand-rolled batch request onto batch_sim.build_adhoc_group (drifted: no remote.hosts, no ngspice_init)
 - **PR #535**: fix(sim): refuse an over-ceiling Monte Carlo batch budget and size the MC shard count
