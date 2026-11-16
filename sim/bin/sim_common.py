@@ -25,7 +25,6 @@ For the history of which issue added which helper, see
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
 import math
 import os
@@ -50,6 +49,7 @@ ARTIFACT_MANIFEST_DIR = Path("manifests") / "artifacts"
 sys.path.insert(0, str(REPO_DIR / "scripts" / "ci"))
 
 from content_hash import sha256_file  # noqa: E402
+from script_module import load_script_module  # noqa: E402
 
 
 @dataclass(frozen=True)
@@ -264,17 +264,7 @@ def load_corner_run() -> ModuleType:
     annotations through `sys.modules[cls.__module__]`, which fails on an
     unregistered module.
     """
-    cached = sys.modules.get("corner_run")
-    if cached is not None:
-        return cached
-    path = BIN_DIR / "corner-run.py"
-    spec = importlib.util.spec_from_file_location("corner_run", path)
-    if spec is None or spec.loader is None:  # pragma: no cover - defensive
-        raise RuntimeError(f"cannot load {path}")
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
+    return load_script_module(BIN_DIR / "corner-run.py", "corner_run")
 
 
 def check_pdk_and_ngspice(
@@ -388,11 +378,10 @@ def _tracked_hashes(repo_root: Path) -> dict[str, str]:
     `tracked_hashes()` (loaded from scripts/ci so there is one copy of the
     rule-4 hashing). Fails closed if git cannot list the files."""
     checker = REPO_DIR / "scripts" / "ci" / "check_artifact_manifests.py"
-    spec = importlib.util.spec_from_file_location("check_artifact_manifests", checker)
-    if spec is None or spec.loader is None:
-        raise EvidenceStoreError(f"cannot load {checker}")
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
+    try:
+        mod = load_script_module(checker, "check_artifact_manifests", cached=False)
+    except RuntimeError as err:
+        raise EvidenceStoreError(str(err)) from err
     try:
         return mod.tracked_hashes(repo_root)
     except (subprocess.CalledProcessError, OSError) as err:

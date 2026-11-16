@@ -14,7 +14,6 @@ Run directly (`python3 scripts/ci/tests/test_check_signoff_pins.py`) or via
 from __future__ import annotations
 
 import hashlib
-import importlib.util
 import io
 import json
 import sys
@@ -24,17 +23,12 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
 CHECK_PATH = Path(__file__).resolve().parents[1] / "check_signoff_pins.py"
-_spec = importlib.util.spec_from_file_location("check_signoff_pins", CHECK_PATH)
-assert _spec and _spec.loader
-check_signoff_pins = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(check_signoff_pins)
-
-
 FRESH_PATH = Path(__file__).resolve().parents[1] / "check_signoff_freshness.py"
-_fspec = importlib.util.spec_from_file_location("check_signoff_freshness", FRESH_PATH)
-assert _fspec and _fspec.loader
-check_signoff_freshness = importlib.util.module_from_spec(_fspec)
-_fspec.loader.exec_module(check_signoff_freshness)
+sys.path.insert(0, str(CHECK_PATH.parent))
+from script_module import load_script_module  # noqa: E402
+
+check_signoff_pins = load_script_module(CHECK_PATH, "check_signoff_pins")
+check_signoff_freshness = load_script_module(FRESH_PATH, "check_signoff_freshness")
 
 
 def sha256_of(text: str) -> str:
