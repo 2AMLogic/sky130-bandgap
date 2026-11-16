@@ -1,0 +1,9 @@
+{
+  "gds": "layout/bandgap-core/reports/20260923-070209-dbd57a9/bandgap_core_routed.gds",
+  "gds_sha256": "311c0f14cdd85aa5255018c590cbe755e31fd1ac81e04895d6302fea2146aae9",
+  "pitches_nm": [
+    40,
+    20
+  ],
+  "script_sha256": "5a045633c483b9139abb638a70f42b4cd4371a35b0cfbb9df389f0e927c2f941"
+}
