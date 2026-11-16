@@ -9,6 +9,14 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-16
 
+- **PR #591**: test: run local test:unit/test:compile under the Python 3.11 CI pin
+- **Issue #587** (closed): Dev hosts run Python 3.12 while CI pins 3.11, with no declared floor — newer-API use passes locally and fails in CI
+- **PR #588**: feat(pex-native): geometry check shows VB total is an extractor series-sum
+- **Issue #573** (closed): pex-native: settle whether VB's 5114.5 Ohm extracted total is physical (the question #541's ladder could not reach)
+- **PR #582**: refactor: dedupe the 15 importlib loader copies into scripts/ci/script_module.py
+- **Issue #555** (closed): Dedup the hand-rolled importlib loader: 15 copies across 13 files, only one honors the documented #267 contract
+- **PR #548**: refactor(sim): one shared batch CLI flag block for all six harnesses
+- **Issue #544** (closed): Dedup the batch CLI flag block onto sim_common.add_common_args() (6 harnesses, help text already drifted into 3 wordings)
 - **PR #586**: docs(layout): retarget 25 stale *_NOTE citations to generator-notes anchors
 - **Issue #565** (closed): Retarget the 25 stale `*_NOTE` pointers left behind by the generator-notes.md move (#552)
 - **PR #584**: test: lock MC batch default-off request shape in the shared fixture
