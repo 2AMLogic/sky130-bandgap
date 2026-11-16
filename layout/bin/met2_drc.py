@@ -8,11 +8,11 @@ Why this exists
 2AMLogic/klayout-tools#508 (merged via #511) added met2 to sky130's curated
 **extraction** deck as a third connectivity level, which is what makes
 `layout/bin/met1_bus.py`'s escape plane real connectivity rather than inert
-geometry (see `gen_bandgap_routed.py`'s MET2_ESCAPE_NOTE). The curated **DRC**
-deck (`klayout_tools.decks.sky130.DECK`) was not extended alongside it at
-first: through issue #62's twenty-third increment it carried `met1.width.1`,
-`met1.space.1` and `met1.enclosing.mcon.1`, and no `met2.*` or `via.*` rule
-at all. 2AMLogic/klayout-tools#513 (merged via #515) closed most of that gap
+geometry (see layout/generator-notes.md#met2-escape-note). The curated
+**DRC** deck (`klayout_tools.decks.sky130.DECK`) was not extended alongside
+it at first: through issue #62's twenty-third increment it carried
+`met1.width.1`, `met1.space.1` and `met1.enclosing.mcon.1`, and no `met2.*`
+or `via.*` rule at all. 2AMLogic/klayout-tools#513 (merged via #515) closed most of that gap
 -- `klt drc --deck sky130` now checks `met2.width.1`, `met2.space.1`,
 `via.width.1`, `via.space.1`, `met1.enclosing.via.1` and
 `met2.enclosing.via.1` -- but not the met2 min-area rule (`m2.6`): #515 left

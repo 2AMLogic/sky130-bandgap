@@ -30,9 +30,10 @@
 # < 0.05 mm^2 budget *at the real 108-unit ladder count*, every expected
 # device class (`pnp`/`nfet`/`pfet`/`res_generic_po`) present in the
 # extracted netlist, and a non-zero promoted `pin_count`. `klt lvs`-clean is
-# recorded but NOT gated -- see gen_bandgap_routed.py's RES_TRIM_TOPOLOGY_NOTE/
-# ROUTING_PLANE_NOTE and the generated record.md for why it is blocked
-# upstream.
+# recorded but NOT gated -- see
+# layout/generator-notes.md#res-trim-topology-note and
+# layout/generator-notes.md#routing-plane-note and the generated record.md
+# for why it is blocked upstream.
 set -euo pipefail
 
 LAYOUT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
