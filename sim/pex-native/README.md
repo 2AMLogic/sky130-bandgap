@@ -222,7 +222,8 @@ Two limits on that statement:
   (terminal position is a device-placement proxy, not true per-segment routing
   geometry)". Answering that needs per-segment routing geometry or
   `--resistance-graph` (refused together with `--distributed-rc` on this pin) —
-  a follow-up (#573), not part of this record.
+  answered afterwards in `records/20261116-geometry-r/` (#573, section
+  "Geometry check of the VB/VBQ totals" below); this record is unchanged.
 * **Mixed-model K.** Only VB and VBQ moved to a ladder. VOUT (979.6 Ω, 6
   terminals) and VA (5206.2 Ω, 17 terminals) stay star-modelled: R2A is
   bit-identical across the two records (116902.3 Ω), while R1 (VB→VBQ ends) and
@@ -232,3 +233,46 @@ Two limits on that statement:
 No klayout-tools gap is filed: the result does not show star allocation is the
 cause, so no defect is demonstrated — the pilot Disposition's "modelling
 approximation" note stands, now with the allocation term measured as ≈ 0.
+
+## Geometry check of the VB/VBQ totals (2026-11-16, issue #573)
+
+Record `records/20261116-geometry-r/` (`geometry_resistance.py`, `geometry_probe.py`,
+unit test `test_geometry_resistance.py`; input hashes in `inputs.json`, GDS sha256
+`311c0f14…`, klt pin not used for the numbers). `klt pex --resistance-graph` was
+**not** the route: on the 0.8.0 pin it is usable with `--extract-only` but all 156
+nets report `resistance_source: legacy` (VB 5114.5357 Ω unchanged).
+
+**Verdict: extractor approximation (disclose) — not a layout change.**
+
+* Why 5114.5 Ω: klt charges every conductor fragment of a net **in series**.
+  VB's fragments are 8 li1 straps (0.24 × 10.45 µm, ≈ 43.5 sq × 12.8 Ω ≈ 557 Ω each)
+  that tie 8 pfet gates to the met1 trunk, plus 2 short resistor-head stubs.
+  The gate straps carry no DC current, yet they are 4.5 kΩ of the 5.1 kΩ.
+  Only VB__t8 and VB__t9 (the two `res_high_po` terminals) carry current, and the
+  ladder puts seg8 = 998.987 Ω between them.
+* Geometry path between those two terminals (poly head to body edge + li1 + mcon
+  + met1 trunk, 2-D grid solve per fragment at 40 / 20 nm pitch; sky130A.tech
+  `allpolynonres` 48.2, `allli` 12.8, `allm1` 0.125 Ω/sq, mcon 9.3 Ω/cut, poly
+  licon `pc,xpc` 152 Ω/cut): **≈ 95–101 Ω without licon, ≈ 399–405 Ω with the
+  two 152 Ω licon cuts**. Whether the resistor model's head term already contains
+  the licon is not established, so both are reported; discretisation spread
+  between the two pitches is ≈ 6 %; the licon question dominates the uncertainty.
+  Branch treatment: the trunk is a tree, only the terminal-to-terminal path is
+  summed; gate straps are dead branches at DC.
+* VBQ: head arm + met1 to the emitter plates ≈ 50–52 Ω (≈ 202–204 Ω with the
+  licon) against 199.5 Ω extracted — VBQ's total is **consistent** with
+  geometry within that uncertainty (emitter-plate li1/licon spreading not modelled).
+* Effect on the failing row (`geometry_probe.py 95 399`, copy of the r2 extraction,
+  tt / 27 °C / 3.30 V, one `ngspice -b` per value, record untouched):
+
+| `RVB_seg8` | `vref_27` delta vs schematic |
+|---|---|
+| 998.987 Ω (record) | −28.494 mV |
+| 399 Ω (geometry, with licon) | −8.855 mV |
+| 95 Ω (geometry, no licon) | +1.695 mV |
+
+  So one mis-sized ladder segment explains ≈ 20–30 mV of the −28.5 mV, and the
+  limit is 5 mV. Not re-graded: other corners, other rows, and the star-modelled
+  VA/VOUT nets. Next step: a klt gap (series-sum of dead branches /
+  `--distributed-rc` segment sizing) filed as 2AMLogic/klayout-tools#5894; re-extraction
+  with a fixed tool is #540's business.
