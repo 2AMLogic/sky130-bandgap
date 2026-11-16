@@ -585,8 +585,15 @@ this flow's `connectivity[]` declaration) and also drives the router's
 ordering search, so a scoring bug silently changes which layout gets drawn.
 
 ```bash
-npm run test:unit    # or: python3 -m unittest discover -s layout/tests
+npm run test:unit    # or: scripts/ci/py311.sh -m unittest discover -s layout/tests
 ```
+
+CI pins Python 3.11 (`.github/workflows/ci.yml`) and is the authority — 3.11
+is the supported floor, so `npm run test:unit` and `npm run test:compile`
+resolve a 3.11 interpreter for local runs via `scripts/ci/py311.sh` (PATH,
+then a uv-managed `~/.local/share/uv/python` cpython-3.11, else `python3`
+with a warning), so a newer-only stdlib API can no longer pass locally and
+fail in CI (issue #587).
 
 `layout/tests/test_routed_flow_gates.py` covers those plus the gate
 composition, in milliseconds, with **no `klt` install and no PDK** — so they
