@@ -152,7 +152,7 @@ class TestMet2DrcCoverageNote(unittest.TestCase):
 #   * a met2 wire drawn across another node's met2 is a short that `klt drc`
 #     cannot see -- its met2 rules (klayout-tools#513/#515) are geometric,
 #     not net-aware, so two touching nets are not a spacing violation
-#     (MET2_ESCAPE_NOTE);
+#     (layout/generator-notes.md#met2-escape-note);
 #   * a via1 stack that misses its own met1 leaves the node in two floating
 #     pieces while every per-plane component count still reads 1.
 # ---------------------------------------------------------------------------

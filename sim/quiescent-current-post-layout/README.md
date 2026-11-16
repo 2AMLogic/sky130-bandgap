@@ -182,25 +182,69 @@ Moved verbatim from the "Experiments that do not go through the corner runner" t
 
 **Post-layout (`provenance: extracted`) re-run of `sim/quiescent-current`'s Iq claim (issue #16)**, same extracted-layout DUT body as the row above, wrapping `sim/quiescent-current/testbench/tb_vref_iq.sch` unmodified. Runs the FULL 45-point matrix (nothing swept inside the deck, so no axis is collapsed). Its `README.md` carries the divergence finding required by issue #16 — post-layout Iq is 35.8 % below the schematic-level record, attributed to R1 growing 55 % (the drawn chained array's per-unit head resistance, plus a `klt extract --parasitics` short/wide-fragment resistance overstatement on the array's internal nodes — klayout-tools#2359; previously mis-attributed to the since-refuted klayout-tools#800, corrected by issue #283)
 
-> **Row 6b's `#2359` attribution is now unsupported, and row 6b has NOT been re-measured (issue #540, 2026-11-14).**
+> **Row 6b's `#2359` attribution is unsupported, and the pending re-measurement has now happened (issue #560, 2026-11-15).**
 > klayout-tools#2359 closed `completed` 2026-09-23 and its fix is present in the ratified
 > `klayout-tools==0.8.0` pin. Issue #540 re-extracted the same routed GDS
 > (`20260923-070209-dbd57a9`) at that pin and re-ran **row 1b/3b only**: row 1b, which shared
 > this exact `#2359` cause claim, got **worse** (`vref_min` FAIL 14/15 → 15/15), so the
 > claim is refuted there. The parasitic resistance did not simply fall — it redistributed,
 > with `VSS` the one net that rose (+62 %, 16 013 → 25 948 Ω over 229 star arms) while
-> `VOUT`/`VBQ`/`VA`/`VB` all fell 24–65 %. Since row 6b's finding above rests on **R1 growing
-> 55 %** — a divider-leg claim, i.e. exactly the nets that went *down* at the new pin — its
-> stated magnitude is the one most likely to have moved, in the opposite direction from row 1b's.
-> **Status: pending its own re-measurement.** Until `sim/quiescent-current-post-layout/` is
-> re-run against the klt-0.8.0 snapshot, treat the 35.8 % divergence and the 55 % R1 growth
-> above as measurements at `klt` **0.5.0**, valid as append-only evidence of what was measured
-> then and *not* as current attributions. Re-running the other six post-layout benches is the
-> follow-up #540 explicitly scoped out; a residual-attribution model (`--critical-net` /
-> `--distributed-rc`) is issue #541.
+> `VOUT`/`VBQ`/`VA`/`VB` all fell 24–65 %. The re-measurement this pending status called for
+> is recorded in the dated update below; the numbers above stand as the klt-0.5.0
+> measurements they were.
 >
 > **Note on snapshot resolution:** this bench holds no local parasitics snapshot, so
-> `resolve_parasitics_snapshot`'s sibling glob now resolves #540's klt-0.8.0 snapshot
+> `resolve_parasitics_snapshot`'s sibling glob resolved #540's klt-0.8.0 snapshot
 > (`sim/output-voltage-tc-post-layout/parasitics-snapshot/20260923-070209-dbd57a9/`, which
-> sorts ahead of `sim/startup-time-post-layout/`'s). **The next run of this bench will
-> therefore measure the 0.8.0 extraction, not the 0.5.0 one its committed records used.**
+> sorts ahead of `sim/startup-time-post-layout/`'s). **The 2026-11-15 re-run below therefore
+> measured the 0.8.0 extraction, not the 0.5.0 one its committed records used.**
+
+## Update (2026-11-15, issue #560): re-measured at the klt-0.8.0 pin — the divergence narrows to −10.5 %, and the +55 % R1-growth figure does not survive
+
+Issue #560 re-ran this bench on the batch fleet against the klt-0.8.0 extraction that
+sibling resolution now serves for it (correction recorded above). New record:
+`records/20261115-185501-d4ae166e` (supersedes `20261112-172211-ffb50731`;
+`layout_provenance.parasitics_snapshot.source` =
+`reused:sim/output-voltage-tc-post-layout/parasitics-snapshot/20260923-070209-dbd57a9`,
+`total_resistance_ohm` 179 145.6648). `Overall: PASS`, 45/45 — the verdict does not move
+and stays well inside the ratified `< 50 µA` target (matrix `iq` 17.1–31.2 µA).
+
+The divergence moved **toward agreement**, as the pending status above anticipated for a
+divider-leg claim, against the same-cycle schematic record
+(`sim/quiescent-current/records/20261112-074405-f9871d93`):
+
+| | klt 0.5.0 (superseded record) | klt 0.8.0 (this record) |
+|---|---|---|
+| `iq` @ `tt/27 °C/3.30 V` | 19.637 µA (−24.4 %) | 22.988 µA (**−11.5 %**) |
+| mean per-corner divergence (45 points) | −23.5 % (−27.2 … −17.0) | **−10.5 %** (−14.8 … −3.5) |
+| post/schematic ratio cluster | — | 0.852 … 0.965, mean 0.895 |
+
+**Re-derived R1, same nodal method as the table above** (validated first: it reproduces
+this file's August rows exactly — 18 208 Ω for R1 and 138 650 Ω for an R2 leg on the
+`20260812-000420-2d88289` snapshot; the drawn-device-only figure lands on the same
+14 027 Ω in both extractions, since the drawn topology is unchanged and only the star-R
+values moved):
+
+| R1 (`VB`–`VBQ`) effective DC R | value | vs schematic 11 749 Ω |
+|---|---|---|
+| drawn chained array, device cards only | 14 027 Ω | +19.4 % — unchanged, both snapshots |
+| + klt 0.5.0 star-R network | 18 521 Ω | +57.6 % — what the "55 %" figure measured |
+| + klt 0.8.0 star-R network | **15 864 Ω** | **+35.0 %** |
+
+R2 legs move the same way: 141 253 / 141 441 Ω at 0.5.0 → 116 902 / 117 021 Ω at 0.8.0.
+
+**Verdict on the headline claim:** the *direction* survives — extracted R1 is still well
+above the schematic device, for the two separately-identifiable reasons already on file
+(chained-array head resistance, plus the star-R poly-body double-count). The *magnitude*
+does not: at the 0.8.0 pin the star-R term over the drawn array is +1 837 Ω (was
++4 494 Ω), consistent with the per-net falls the divider-leg parasitics shed
+(`VBQ` −64.7 %, `VA`/`VB` ≈ −24.5 %, `VOUT` −41.8 %, `PN` −27.8 %), so the measured R1
+growth is **+35.0 %, not +55 %**. Consistently, the divergence narrows but does not close:
+the 1/R1 resistance-scaling account that predicted the 0.5.0 measurement to 0.6 % now
+over-predicts the drop (head-only 21.8 µA, with-star-R 19.2 µA, measured 23.0 µA at the
+tt corner), so resistance scaling alone no longer explains the residual −10.5 %. Re-fitting
+that residual is issue #541's `--critical-net`/`--distributed-rc` work, deliberately out of
+scope here; no ratified limit is touched by any of this.
+
+Per the append-only convention, everything above is left exactly as written — this is a
+dated addendum, not a rewrite.

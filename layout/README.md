@@ -390,8 +390,9 @@ realizing it — a `cap_mim` MIM-cap overlay if feasible, or the MOS cap the
 schematic already states otherwise. Checked and found infeasible on two
 independent grounds (tooling: PR #124, `layout/matching-plan.md` Section
 7bb, filed as [klayout-tools#775](https://github.com/2AMLogic/klayout-tools/issues/775);
-LVS device-class matching: Section 7cc, `MCC_MIM_INFEASIBLE_NOTE` in
-`gen_bandgap_routed.py`). `MCC` is now drawn as the `pfet` MOS-as-capacitor
+LVS device-class matching: Section 7cc,
+`layout/generator-notes.md#mcc-mim-infeasible-note`). `MCC` is now drawn as
+the `pfet` MOS-as-capacitor
 device the schematic already specifies (block `amp_cc`), and `klt lvs`
 reports **`mismatch_count: 0`** — the cause above is retired. The composed
 cell now measures 73,989 µm². The Area budget was relaxed from 50,000 µm² to

@@ -334,10 +334,12 @@ _R_RE = re.compile(
 # than from `_R_RE`, so an exponent-form value parses on this path too.
 #
 # Matched ADDITIVELY, as a second pattern rather than a rewrite of `_R_RE`:
-# the other six post-layout benches still read committed klt 0.5.0
-# snapshots, so the old shape has to keep translating byte-identically.
-# A 0.5.0 snapshot contains no `X$` cards at all and a 0.8.0 snapshot no
-# `R$` cards, so the two patterns are mutually exclusive by construction.
+# `sim/startup-time-post-layout/` still reads its committed klt 0.5.0
+# snapshot (it resolves its own local snapshot at step 1, before the
+# sibling glob; issue #560 moved the other five and disclosed it there), so
+# the old shape has to keep translating byte-identically. A 0.5.0 snapshot
+# contains no `X$` cards at all and a 0.8.0 snapshot no `R$` cards, so the
+# two patterns are mutually exclusive by construction.
 # Device-instance numbers are unique across classes, so renaming `X$98` to
 # `R$98` cannot collide with the `X$`-prefixed MOS/PNP cards this function
 # emits. The dropped bulk terminal and the discarded L/W are the same

@@ -49,7 +49,8 @@ import bus_routing  # noqa: E402  -- issue #221: split out of gen_bandgap_routed
 def met1_only():
     """Disable `_connect`'s met2 escape for the duration of the block.
 
-    The met2 escape plane (MET2_ESCAPE_NOTE) is a last-resort fallback that
+    The met2 escape plane (layout/generator-notes.md#met2-escape-note) is a
+    last-resort fallback that
     is available to essentially every hop, because met2 starts empty -- so
     with it on, "the met1 search ran out of options" and "the router gave
     up" stop being the same question. Every test below that asserts what the
@@ -238,7 +239,7 @@ class TestMosCombPlan(unittest.TestCase):
     `MOS_HALVES`, and the per-block net set has to be exactly the set of
     schematic nodes that block participates in. A typo here is a topology
     error neither DRC nor the drawn-short check can see -- the same class of
-    defect MOS_HALF_NOTE was written for.
+    defect layout/generator-notes.md#mos-half-note was written for.
     """
 
     def _combs(self):
@@ -724,8 +725,9 @@ class TestCandidateAssignments(unittest.TestCase):
         self,
     ) -> None:
         """A `comb` terminal's escape point is already on drawn metal with no
-        pad of its own (MOS_COMB_NOTE) -- claiming it would falsely reserve a
-        pad no other net could then legally use."""
+        pad of its own (layout/generator-notes.md#mos-comb-note) -- claiming
+        it would falsely reserve a pad no other net could then legally
+        use."""
         point = {
             "block": "b",
             "via": False,

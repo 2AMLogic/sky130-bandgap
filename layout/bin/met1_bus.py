@@ -47,7 +47,8 @@ corridor left at all, whatever lane/margin/placement lever was pulled at them
 (`layout/matching-plan.md` Sections 7d-7o). Until #511 there was no other
 plane -- sky130's curated deck stopped at met1, so klayout-tools#454/#468's
 `"metal2"` role resolved to the *same* met1 layer this module already fills
-(ROUTING_PLANE_NOTE). #511 adds met2 as a genuine third connectivity level.
+(layout/generator-notes.md#routing-plane-note). #511 adds met2 as a
+genuine third connectivity level.
 
 :meth:`Met1Bus.via1` and :meth:`Met1Bus.hseg2`/:meth:`Met1Bus.vseg2` draw on
 it: a met1 landing pad, a `via.drawing` (68/44) cut, a met2 landing pad, and
