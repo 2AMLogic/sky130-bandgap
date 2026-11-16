@@ -466,6 +466,11 @@ def main(argv: list[str]) -> int:
         result["rtc"] = rtc
         result["K_schematic"] = k_s
         result["decomposition"] = decompose(result["probe"], result["legs"], k_s)
+        p = result["probe"]
+        result["K_operating"] = {
+            "schematic": (p["schematic"]["VREF"] - p["schematic"]["VB"]) / p["schematic"]["dVBE"],
+            "extracted": (p["extracted"]["VREF"] - p["extracted"]["VB"]) / p["extracted"]["dVBE"],
+        }
     if args.json:
         print(json.dumps(result, indent=2, sort_keys=True))
         return 0
@@ -476,6 +481,10 @@ def main(argv: list[str]) -> int:
     if "probe" in result:
         print(f"### Probe {PROBE_CORNER[0]} / 27 C / {PROBE_CORNER[1]:.2f} V (V)\n\n" + md_probe(result["probe"]) + "\n")
         print(f"K schematic (model R2B/R1 at 27 C) = {result['K_schematic']:.4f}\n")
+        ko = result["K_operating"]
+        print(f"K operating ((VREF-VB)/dVBE): schematic {ko['schematic']:.4f}, "
+              f"extracted {ko['extracted']:.4f} ({100 * (ko['extracted'] / ko['schematic'] - 1):+.2f} %) "
+              "-- the leg-network K above equals this only under the star model.\n")
         print("### Attribution\n\n" + md_decomp(result["decomposition"]))
     return 0
 
