@@ -30,7 +30,7 @@
     {
       "path": "sim/bin/sim_common.py",
       "role": "harness",
-      "content_hash": "sha256:0d07d083111ba100ac1baaa541130de701df69ab19a3000ba7391f3f34b88970"
+      "content_hash": "sha256:3f127ea223f54d39179731d93adcc1b99f5c923cdbce1cede0d75935a39b1a66"
     },
     {
       "path": "sim/spiceinit",

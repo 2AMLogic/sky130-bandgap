@@ -15,7 +15,6 @@ itself otherwise. To run it against a klayout-tools checkout:
 from __future__ import annotations
 
 import contextlib
-import importlib.util
 import io
 import json
 import os
@@ -29,9 +28,11 @@ from types import SimpleNamespace
 
 SIM_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SIM_DIR / "bin"))
+sys.path.insert(0, str(SIM_DIR.parent / "scripts" / "ci"))
 
 import batch_sim  # noqa: E402
 import sim_common  # noqa: E402
+from script_module import load_script_module  # noqa: E402
 
 cr = sim_common.load_corner_run()
 PIN = json.loads((SIM_DIR / "pdk.json").read_text())
@@ -42,11 +43,7 @@ SPICEINIT = (SIM_DIR / "spiceinit").read_text()
 
 def _load_harness():
     path = SIM_DIR / "psrr-injector-candidates" / "run_psrr_injector_candidates.py"
-    spec = importlib.util.spec_from_file_location("psrr_candidates", path)
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules["psrr_candidates"] = mod
-    spec.loader.exec_module(mod)
-    return mod
+    return load_script_module(path, "psrr_candidates")
 
 
 H = _load_harness()

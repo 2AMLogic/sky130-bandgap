@@ -12,10 +12,10 @@ Run directly (`python3 scripts/ci/tests/test_attest_inventories.py`) or via
 
 from __future__ import annotations
 
-import importlib.util
 import io
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
@@ -24,13 +24,12 @@ from pathlib import Path
 CI_DIR = Path(__file__).resolve().parents[1]
 REAL_ROOT = CI_DIR.parents[1]
 
+sys.path.insert(0, str(CI_DIR))
+from script_module import load_script_module  # noqa: E402
+
 
 def load(name: str):
-    spec = importlib.util.spec_from_file_location(name, CI_DIR / f"{name}.py")
-    assert spec and spec.loader
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    return load_script_module(CI_DIR / f"{name}.py", name)
 
 
 attest = load("attest_inventories")
