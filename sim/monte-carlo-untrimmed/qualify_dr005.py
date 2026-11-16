@@ -41,13 +41,13 @@ Usage
     sim/monte-carlo-untrimmed/qualify_dr005.py <record_id>
 
 Writes ``records/<record_id>-dr005-qualification.{json,md}`` (append-only: refuses
-to overwrite). Stdlib + the sibling ``emit_klt_yield`` sample loader only.
+to overwrite). Stdlib + the sibling ``emit_klt_yield`` sample loader and
+``scripts/ci/content_hash`` only.
 """
 
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import math
 import statistics
@@ -60,7 +60,9 @@ HERE = Path(__file__).resolve().parent
 SIM_DIR = HERE.parent
 REPO_ROOT = SIM_DIR.parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci"))
 import emit_klt_yield as eky  # noqa: E402
+from content_hash import sha256_file  # noqa: E402
 
 WINDOW_V = (1.176, 1.224)
 N_REQUIRED = 300
@@ -185,10 +187,6 @@ def qualify(per_temp: list[dict], *, joint_process_mismatch_available: bool = Fa
 # --------------------------------------------------------------------------
 # record minting
 # --------------------------------------------------------------------------
-def _sha(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
 def _rel(p: Path) -> str:
     return str(p.resolve().relative_to(REPO_ROOT))
 
@@ -209,8 +207,8 @@ def collect(record_id: str) -> tuple[list[dict], dict]:
         log = HERE / "corners" / record_id / f"{eky.corner_id_for(t)}.log"
         per_temp.append({"temperature_c": t, "requested_n": reqs.get(t),
                          "samples": eky.load_vout_samples(log)})
-        logs[eky.corner_id_for(t)] = {"path": _rel(log), "sha256": _sha(log)}
-    return per_temp, {"source_record": _rel(src), "source_sha256": _sha(src), "logs": logs}
+        logs[eky.corner_id_for(t)] = {"path": _rel(log), "sha256": sha256_file(log)}
+    return per_temp, {"source_record": _rel(src), "source_sha256": sha256_file(src), "logs": logs}
 
 
 def render_md(rec: dict) -> str:
@@ -298,7 +296,7 @@ def mint(record_id: str, author: str = "loom-builder (issue #334)") -> tuple[Pat
     src["record_id"] = record_id
     ky = HERE / "records" / "20260923-062524-1e38c62-klt-yield-input.json"
     if ky.is_file():
-        src["klt_yield_input"] = {"path": _rel(ky), "sha256": _sha(ky)}
+        src["klt_yield_input"] = {"path": _rel(ky), "sha256": sha256_file(ky)}
     q = qualify(per_temp)
     sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True,
                          cwd=REPO_ROOT).stdout.strip()

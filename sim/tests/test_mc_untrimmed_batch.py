@@ -55,9 +55,10 @@ class _UntrimmedBench:
 
 
 class BatchRequests(_UntrimmedBench, mc_batch_shared.BatchRequestsShared, unittest.TestCase):
-    def test_max_concurrent_jobs_is_off_by_default_and_passed_through(self):
-        for g in self.groups:
-            self.assertNotIn("max_concurrent_jobs", g.request["batch"])
+    def test_max_concurrent_jobs_is_passed_through(self):
+        # The default-off half lives in the shared fixture (issue #577); only
+        # this bench's argparse defines the flag, so the pass-through half
+        # stays bench-local.
         args = SimpleNamespace(**vars(ARGS), batch_max_concurrent_jobs=20)
         with tempfile.TemporaryDirectory() as tmp:
             groups = R.build_batch_groups(PIN, BODY, self.points, SPICEINIT, Path(tmp), args)
@@ -65,8 +66,10 @@ class BatchRequests(_UntrimmedBench, mc_batch_shared.BatchRequestsShared, unitte
                 self.assertEqual(g.request["batch"]["max_concurrent_jobs"], 20)
                 self.assertEqual(json.loads(g.request_path.read_text()), g.request)
 
-    def test_resume_is_off_by_default_and_reaches_the_klt_command_line(self):
-        self.assertFalse(any(g.resume for g in self.groups))
+    def test_resume_reaches_the_klt_command_line(self):
+        # The default-off half lives in the shared fixture (issue #577); only
+        # this bench's argparse defines the flag, so the pass-through half
+        # stays bench-local.
         args = SimpleNamespace(**vars(ARGS), batch_resume=True)
         with tempfile.TemporaryDirectory() as tmp:
             groups = R.build_batch_groups(PIN, BODY, self.points[:1], SPICEINIT, Path(tmp), args)
