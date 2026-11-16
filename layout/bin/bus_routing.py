@@ -223,7 +223,7 @@ def bus_bjt_parallel(
 #: generator's S/D naming maps onto the schematic's. Both halves of a pair are
 #: geometrically interchangeable, so this binding is a *declaration* -- but it
 #: has to be made once and obeyed everywhere, or two nodes end up on one
-#: transistor (MOS_HALF_NOTE).
+#: transistor (layout/generator-notes.md#mos-half-note).
 #:
 #: `drain_suffix` records the second half of the mapping. `klt gen`'s
 #: `diff_pair` reports `_S` on the west edge and `_D` on the east edge of each
@@ -264,9 +264,9 @@ MOS_HALVES: dict[str, dict[str, Any]] = {
         # both drain and source, GDRV on gate) -- MCC is one schematic
         # device, not two, and `combine_devices` is what folds the two
         # mult=AMP_M_CC//2 groups back into the schematic's single m=16
-        # device (MCC_MIM_INFEASIBLE_NOTE). The drain/source suffix
-        # choice is arbitrary here (both terminals land on VDD either
-        # way) -- kept consistent with the other "W"-spine PMOS blocks.
+        # device (layout/generator-notes.md#mcc-mim-infeasible-note). The
+        # drain/source suffix choice is arbitrary here (both terminals land
+        # on VDD either way) -- kept consistent with the other "W"-spine PMOS blocks.
         "drain_suffix": "_D", "drain_facing": DIRECTION_EAST,
         "source_suffix": "_S", "source_facing": DIRECTION_WEST,
         "devices": {"MCC_A": "M1", "MCC_B": "M2"},
@@ -277,7 +277,8 @@ MOS_HALVES: dict[str, dict[str, Any]] = {
         # electrically: MPC1's source is GDRV and MPC2's is NC1, so binding
         # them the wrong way round draws the two-high diode stack upside
         # down -- a topology error DRC and the drawn-short check are both
-        # blind to, which is exactly what MOS_HALF_NOTE exists for.
+        # blind to, which is exactly what
+        # layout/generator-notes.md#mos-half-note exists for.
         "drain_suffix": "_D", "drain_facing": DIRECTION_EAST,
         "source_suffix": "_S", "source_facing": DIRECTION_WEST,
         "devices": {"MPC1": "M1", "MPC2": "M2"},
@@ -325,22 +326,6 @@ MOS_LANE_PITCH_UM = 0.4
 #: fans hugging their own block leaves the middle of each placement channel
 #: open, which is what those channels are for.
 MOS_ESCAPE_UM = (1.2, 1.6, 2.0, 0.8, 2.4)
-
-MOS_COMB_NOTE = (
-    "Every split MOS group's fingers are bussed into the one m=N device the "
-    "schematic states, on met1, with the trunk of each node running *inside* "
-    "the device row rather than around it. That is deliberate and is what "
-    "makes the bus crossing-free on a single routing metal: a source/drain "
-    "pad is a full-height li1 strip, so a trunk may drop its via anywhere "
-    "along the pad's height, and a gate reaches the same track through the "
-    "li1 riser met1_bus.gate_contact draws down its own column gap. With "
-    "every node's via on its own horizontal track, no node ever needs a stub "
-    "that would cross another node's trunk. Each node then leaves the block "
-    "on its own vertical spine, and the spines are ordered so that the "
-    "further out a spine sits, the further from the row's edge its trunk is "
-    "-- which is what keeps a trunk from crossing an outer spine on its way "
-    "past."
-)
 
 
 def _mos_rows(
@@ -399,7 +384,7 @@ def mos_group_pads(
     node is what lets `klt lvs`'s `combine_devices` collapse them into the
     `m=N` device the schematic states. The half binding still goes through
     MOS_HALVES, so a node can only land on the transistor the schematic
-    names (MOS_HALF_NOTE).
+    names (layout/generator-notes.md#mos-half-note).
     """
     entry = MOS_HALVES[block_id]
     half = entry["devices"][device]
@@ -448,7 +433,8 @@ def bus_mos_comb(
     """Bus every finger of every schematic device in one MOS block, one comb
     per electrical node, and return each node's off-block escape points.
 
-    See MOS_COMB_NOTE for why the trunks run inside the device rows. The rest
+    See layout/generator-notes.md#mos-comb-note for why the trunks run
+    inside the device rows. The rest
     of the structure exists to make the whole comb set **planar on one metal
     layer**, which is the only way it can be drawn at all without a second
     routing metal the extraction deck would model:
@@ -631,8 +617,9 @@ def bus_mos_comb(
 #: bulk terminal on a supply (`... VDD VDD pfet` / `... VSS VSS nfet`), so
 #: leaving these unconnected is not a neutral omission: it leaves each group's
 #: bulk as an anonymous floating net in the extracted netlist. They are
-#: contactable ordinary li1 pads -- nothing about MOS_GATE_NOTE applies -- and
-#: are drawn from this increment on.
+#: contactable ordinary li1 pads -- nothing about
+#: layout/generator-notes.md#mos-gate-note applies -- and are drawn from
+#: this increment on.
 #:
 #: All three taps are offered as *candidates*, not just `TAP_S`. Pinning every
 #: block to its south tap was the previous increment's choice ("it faces the
@@ -677,13 +664,14 @@ def mos_comb(block: str, net: str) -> dict[str, Any]:
 def mos_unit(block: str, terminal: str, escape: bool = True) -> dict[str, Any]:
     """One INTER_BLOCK_MET1 terminal naming a single-unit `mos_array` block's
     own source/drain/gate pad -- the startup injector's MNS/MNI/MNC (issue
-    #285, STARTUP_INJECTOR_NOTE).
+    #285, layout/generator-notes.md#startup-injector-note).
 
     A one-unit array has nothing to bus, so unlike :func:`mos_comb` there is
     no spine to reach: the generator's `U0_S`/`U0_D`/`U0_G` pads *are* the
     node's only geometry, and each is a plain li1 pad the general router vias
     down to. `gate_contact` in the block's own params is what makes `U0_G`
-    one of them rather than the bare poly a `diff_pair` reports (MOS_GATE_NOTE).
+    one of them rather than the bare poly a `diff_pair` reports
+    (layout/generator-notes.md#mos-gate-note).
     """
     suffix = {"drain": "D", "source": "S", "gate": "G"}[terminal]
     return {"block": block, "port": f"U0_{suffix}", "escape": escape}
@@ -721,7 +709,7 @@ def trim_tap_port(leg: int, code: int) -> str:
 #:
 #: Declared rather than inferred. "A comb node that no inter-block route names
 #: is a typo" was a true invariant for every block drawn before issue #285 and
-#: `layout/tests/test_routed_flow_gates.py` asserts it, so a node that really
+#: `layout/tests/test_bus_routing.py` asserts it, so a node that really
 #: is block-internal has to say so here instead of quietly weakening the
 #: check: an un-declared comb net is still a typo, and still fails that test.
 #: These nets get no met1 label either (labels come from INTER_BLOCK_MET1), so
@@ -738,7 +726,8 @@ BLOCK_INTERNAL_COMB_NETS: dict[str, set[str]] = {
 #: The bandgap core's inter-block nodes that this flow draws on met1.
 #:
 #: This is now the *complete* node list of design/bandgap_core.sch (with
-#: design/error_amp.sch expanded): with MOS gates contactable (MOS_GATE_NOTE)
+#: design/error_amp.sch expanded): with MOS gates contactable
+#: (layout/generator-notes.md#mos-gate-note)
 #: every schematic node is expressible, so nothing is omitted here and scored
 #: as "labelled only" in the coverage table below.
 #:
@@ -998,14 +987,16 @@ def _li1_ports(
 
     Poly ports are filtered out here rather than at the call site: a gate port
     is reported on `poly` (66/20), and there is no contactable poly landing
-    area outside the channel to place a via on (MOS_GATE_NOTE), so a gate can
+    area outside the channel to place a via on
+    (layout/generator-notes.md#mos-gate-note), so a gate can
     never be a met1 terminal.
 
     `half` restricts the result to one of a `diff_pair`'s two devices (`"M1"` /
     `"M2"`, the generator's own port-name prefix). Without it the caller gets
     both, and the centroid-nearest pick below can hand a node a finger of the
     *wrong* transistor -- geometrically plausible, electrically a different
-    device than the schematic names. See MOS_HALF_NOTE.
+    device than the schematic names. See
+    layout/generator-notes.md#mos-half-note.
     """
     out: list[tuple[str, float, float]] = []
     for port in report["ports"]:
@@ -1305,7 +1296,7 @@ def _connect(
                     "points": [[round(x, 3), round(y, 3)] for x, y in points],
                 }
     # Last resort: lift the hop onto the met2 escape plane. Deliberately last,
-    # not first -- see MET2_ESCAPE_NOTE.
+    # not first -- see layout/generator-notes.md#met2-escape-note.
     if MET2_ESCAPE_ENABLED:
         return _connect_met2(bus, net, a, b)
     return None
