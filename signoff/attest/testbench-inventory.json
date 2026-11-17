@@ -23,19 +23,34 @@
       "content_hash": "sha256:720eb7f55cd9bb77a73d10fda45811a448c8deb3b5e8ea5ef8928348da3357a7"
     },
     {
+      "path": "sim/spiceinit",
+      "role": "harness",
+      "content_hash": "sha256:7b5350d05d41130e5473ca284e89fbb2cac330e7ac023ab0226190acd961d917"
+    },
+    {
+      "path": "sim/bin/batch_sim.py",
+      "role": "harness",
+      "content_hash": "sha256:2a78ffe1d881a9839a51d468c0eb93ba52292a3e7b7a26fe0d0031b7565fadc9"
+    },
+    {
       "path": "sim/bin/corner-run.py",
       "role": "harness",
       "content_hash": "sha256:eb41147f064138f8d0aab349f9749c8e9b57401d7207373bd9df9bc3e5ee15a3"
     },
     {
+      "path": "sim/bin/injector_common.py",
+      "role": "harness",
+      "content_hash": "sha256:ccd5627b5350b0da8d3dc6287e1f4af95c163de835bd8f0631ed7aad6849476d"
+    },
+    {
+      "path": "sim/bin/post_layout_common.py",
+      "role": "harness",
+      "content_hash": "sha256:5a3bd118b96cb0ed26347d45590259732543409e8dd83ce955b65c30505a08d9"
+    },
+    {
       "path": "sim/bin/sim_common.py",
       "role": "harness",
       "content_hash": "sha256:1470eddba3976ae021ea1f1225ba3acca427e8db181a714081083ed25b419c7e"
-    },
-    {
-      "path": "sim/spiceinit",
-      "role": "harness",
-      "content_hash": "sha256:7b5350d05d41130e5473ca284e89fbb2cac330e7ac023ab0226190acd961d917"
     }
   ],
   "testbenches": [
