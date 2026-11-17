@@ -24,7 +24,7 @@ entry is authoritative for its own claim.
 |---|---|---|
 | Output reference, ±2% untrimmed | Schematic **PASS 45/45**; mismatch MC graded on three separate layers — evidence **present**, ≥50% harness sanity floor **PASS** (79–96% yield inside the window, N=300 requested), **DR-005 3σ spec FAIL** (mean±3σ falls outside [1.176, 1.224] V at all three temperatures; −40 °C has only 238 converged draws; `tt_mm` is local-mismatch only, no joint process×mismatch evidence; see `sim/monte-carlo-untrimmed/records/20260817-121131-d7d85b6-dr005-qualification.md`); post-layout **FAIL 15/15** (`vref_min` 1.1535–1.1685 V, below the 1.176 V floor at every corner; measured 2026-11-14 on an extraction at the ratified `klayout-tools==0.8.0` pin, which **carries** klayout-tools#2359's fix — so that long-standing attribution is **refuted**, and the residual tracks the extractor's default lumped-star `VSS` return allocation (klayout-tools#2458, opt-in fix) rather than a confirmed design defect; a distributed/in-path model is issue #541) | report rows 1a–1c |
 | Trim | Two layers, graded separately. **DR-002 engineering checks: PASS** (schematic-level, 15/15 corners) — monotonic, downward span 38.46–38.75 mV, LSB 2.404–2.422 mV/code (≤ 3.000), re-derived at the current `n_r2=51` design. **DR-005 ratified-spec qualification: FAIL** — range ≥ ±5% not demonstrated (0 mV up, 38.46–38.75 mV = 3.2% down, vs 60 mV each way; DR-002 certifies downward trim only), ≥ 5-bit coverage not demonstrated (17 codes = 4.09 bits); resolution ≤ 0.25%/step passes (0.2025%). The "magnitude only" wording is undefined in DR-005 (narrow operator question disclosed, range not waived). A post-layout extracted-chain trim check is not yet done | report row 2; `sim/trim-lsb-chained/records/20261008-163545-ffa415c-dr005-qualification.md` |
-| Temp coefficient, `< 50 ppm/°C` | **FAIL at every corner** — 142–159 ppm/°C schematic, 90–186 ppm/°C post-layout; disposition (keep the row, disclose the FAIL, defer curvature correction) in [DR-009](spec/decision-records/DR-009-tc-floor-disposition-defer-curvature-correction.md) | report rows 3a–3b |
+| Temp coefficient, `< 50 ppm/°C` | **FAIL at every corner** — 142–159 ppm/°C schematic, 136.5–212.0 ppm/°C post-layout; disposition (keep the row, disclose the FAIL, defer curvature correction) in [DR-009](spec/decision-records/DR-009-tc-floor-disposition-defer-curvature-correction.md) | report rows 3a–3b |
 | PSRR, `> 60 dB` DC–1 kHz | Schematic **PASS 45/45**; post-layout **FAIL 25/45** since the startup injector was drawn in (worst 22.75 dB); resize cannot fix it, [DR-011](spec/decision-records/DR-011-startup-injector-psrr-fix-infeasible-by-resize.md), issues #300/#315 | report rows 4a–4f |
 | Supply, 3.3 V ±10% | **PASS** (operability; line regulation PASS, post-layout margin eroded by the injector) | report rows 5–5c |
 | Iq, `< 50 µA` | **PASS 45/45** schematic and post-layout (the `< 20 µA` stretch is not met) | report rows 6a–6c |
@@ -35,8 +35,11 @@ LVS determinism, the `combine_devices` resistor accounting, the `MCC` cap and
 the pinned `klt` build are explained in
 [`layout/README.md`](layout/README.md#routing-the-core-and-closing-on-lvs-issue-62)
 and `layout/matching-plan.md` (Sections 7bb/7cc/7ff); the `klt` pin is
-deliberately not bumped past the nondeterministic combine step
-([klayout-tools#2374](https://github.com/2AMLogic/klayout-tools/issues/2374)).
+`klayout-tools==0.8.0` (`layout/requirements.txt`), and
+[klayout-tools#2374](https://github.com/2AMLogic/klayout-tools/issues/2374)
+no longer holds it back: the 1000-repeat re-measure in
+`layout/bandgap-core/combine-determinism/20261022-070000-e6e4be0/` shows the
+combine nondeterminism does not occur from 0.7.0 on.
 What remains: curvature correction (the TC row stays a disclosed FAIL until it
 lands), the injector PSRR fix, and the operator tier award.
 
