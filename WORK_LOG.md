@@ -9,6 +9,7 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-17
 
+- **PR #599**: chore(loom): resync installed Loom to v0.19.1306
 - **PR #597**: fix: compare script_module origin on uncached lookups too
 - **Issue #596** (closed): load_script_module(cached=False) still rebinds a name registered from a different file silently
 - **PR #589**: fix: refuse an empty --variants selection in both psrr-injector benches
@@ -18,6 +19,7 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-16
 
+- **PR #579**: chore(loom): resync installed Loom to v0.19.1302
 - **PR #591**: test: run local test:unit/test:compile under the Python 3.11 CI pin
 - **Issue #587** (closed): Dev hosts run Python 3.12 while CI pins 3.11, with no declared floor — newer-API use passes locally and fails in CI
 - **PR #588**: feat(pex-native): geometry check shows VB total is an extractor series-sum
