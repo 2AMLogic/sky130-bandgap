@@ -10,7 +10,11 @@ keep straight, directly against the one helper that now owns them:
   `except`-by-identity half of #267);
 * the guard -- a path importlib cannot build a spec for raises a
   `RuntimeError` naming it, and a missing file raises `FileNotFoundError`
-  rather than something indirect.
+  rather than something indirect;
+* the #592 hazards -- a name already registered from a different file
+  raises instead of silently returning the wrong module (resolved paths, so
+  a symlink to the same file still hits the cache), and a raising
+  `exec_module` leaves no half-initialized registration behind.
 
 Run directly (`python3 scripts/ci/tests/test_script_module.py`) or via
 `npm run test:unit`.
@@ -22,6 +26,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import ModuleType
 
 CI_DIR = Path(__file__).resolve().parents[1]
 
@@ -90,8 +95,74 @@ class LoadScriptModuleTest(unittest.TestCase):
             load_script_module(self.dir, "sm_probe_no_spec")
 
     def test_a_missing_file_raises_file_not_found(self) -> None:
+        self.addCleanup(sys.modules.pop, "sm_probe_missing", None)
         with self.assertRaises(FileNotFoundError):
             load_script_module(self.dir / "no_such_module.py", "sm_probe_missing")
+        self.assertNotIn("sm_probe_missing", sys.modules)
+
+    def test_a_name_reused_for_a_different_file_raises(self) -> None:
+        """The cache is keyed on `name` alone; without the origin check a
+        repeat call for a different file would return the first file's module
+        without ever reading the second (issue #592)."""
+        first = self.load("sm_probe_reused", "VALUE = 1\n")
+        other = self.dir / "sm_probe_other.py"
+        other.write_text("VALUE = 2\n")
+        with self.assertRaises(RuntimeError) as ctx:
+            load_script_module(other, "sm_probe_reused")
+        message = str(ctx.exception)
+        self.assertIn("sm_probe_reused.py", message)
+        self.assertIn("sm_probe_other.py", message)
+        self.assertIs(sys.modules["sm_probe_reused"], first)
+
+    def test_a_symlink_to_the_same_file_still_hits_the_cache(self) -> None:
+        """Resolved paths are compared, so a differently-spelled path to the
+        same file is a cache hit, not a false mismatch."""
+        real = self.dir / "sm_probe_real.py"
+        real.write_text("VALUE = 7\n")
+        self.addCleanup(sys.modules.pop, "sm_probe_symlinked", None)
+        first = load_script_module(real, "sm_probe_symlinked")
+        link = self.dir / "sm_probe_link.py"
+        link.symlink_to(real)
+        again = load_script_module(link, "sm_probe_symlinked")
+        self.assertIs(first, again)
+
+    def test_a_cached_entry_without_a_usable_origin_is_returned(self) -> None:
+        """A namespace package or ad-hoc module registered under `name`
+        carries no `__spec__.origin`; there is nothing to compare, so it is
+        returned as-is (the pre-#582 behaviour of `load_corner_run`)."""
+        marker = ModuleType("sm_probe_foreign")
+        sys.modules["sm_probe_foreign"] = marker
+        self.addCleanup(sys.modules.pop, "sm_probe_foreign", None)
+        other = self.dir / "sm_probe_foreign_file.py"
+        other.write_text("VALUE = 3\n")
+        self.assertIs(load_script_module(other, "sm_probe_foreign"), marker)
+
+    def test_a_failed_exec_leaves_no_registration(self) -> None:
+        """`exec_module` runs with the module already registered; when it
+        raises, the entry must be removed before the exception propagates,
+        and the next `cached=True` call re-executes rather than returning
+        the broken module (issue #592)."""
+        path = self.dir / "sm_probe_boom.py"
+        path.write_text("raise ValueError('boom')\n")
+        self.addCleanup(sys.modules.pop, "sm_probe_boom", None)
+        with self.assertRaises(ValueError):
+            load_script_module(path, "sm_probe_boom")
+        self.assertNotIn("sm_probe_boom", sys.modules)
+        path.write_text("VALUE = 5\n")
+        mod = load_script_module(path, "sm_probe_boom")
+        self.assertEqual(mod.VALUE, 5)
+
+    def test_a_failed_cached_false_reload_restores_the_prior_module(self) -> None:
+        """Only `cached=False` reaches `exec_module` with a registration
+        already present; a failed reload puts that prior module back."""
+        path = self.dir / "sm_probe_reload.py"
+        path.write_text("VALUE = 1\n")
+        self.addCleanup(sys.modules.pop, "sm_probe_reload", None)
+        first = load_script_module(path, "sm_probe_reload")
+        path.write_text("raise RuntimeError('boom')\n")
+        with self.assertRaises(RuntimeError):
+            load_script_module(path, "sm_probe_reload", cached=False)
+        self.assertIs(sys.modules["sm_probe_reload"], first)
 
 
 if __name__ == "__main__":
