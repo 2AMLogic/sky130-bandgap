@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "status": "pass",
-  "netlist": "sim/line-regulation-post-layout/netlist-snapshots/20261113-110852-7efdcf3b.spice",
+  "netlist": "sim/line-regulation-post-layout/netlist-snapshots/20261115-185945-d4ae166e.spice",
   "corner_count": 15,
   "passed": 15,
   "failed": 0,
@@ -24,8 +24,8 @@
     ],
     "recorded_from": [
       {
-        "file": "sim/line-regulation-post-layout/records/20261113-110852-7efdcf3b.json",
-        "sha256": "c239ca337e3a6ddc38c4f52f1a40b018b6500bcc9b1f7625dc139ae3ca271d7a"
+        "file": "sim/line-regulation-post-layout/records/20261115-185945-d4ae166e.json",
+        "sha256": "83077877aa54e54882ec3b0db25de73db51608ac004f8d30da53468d5bba2aa1"
       }
     ],
     "excluded_measurements": {
@@ -37,10 +37,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:af531eb1e4833a4b285a183fbbb699f6080841b45a00f3823b81e4a731cc5506",
+      "content_hash": "sha256:3bae69305846e215368051e5065279e78000b1eed32df96cd25245382472be7b",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/line-regulation-post-layout/netlist-snapshots/20261113-110852-7efdcf3b.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/line-regulation-post-layout/netlist-snapshots/20261115-185945-d4ae166e.spice)"
   },
   "measurements": [
     {
@@ -52,8 +52,8 @@
       },
       "worst_case": {
         "corner_id": "ff_125c_3.30v",
-        "value": 18.47265,
-        "margin": 29.52735
+        "value": 14.04002,
+        "margin": 33.95998
       },
       "status": "pass"
     },
@@ -101,9 +101,9 @@
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 0.3698601,
+          "value": 0.321829,
           "status": "pass",
-          "margin": 47.6301399
+          "margin": 47.678171
         },
         {
           "name": "sweep_start_v",
@@ -133,9 +133,9 @@
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 0.3215409,
+          "value": 0.2731951,
           "status": "pass",
-          "margin": 47.6784591
+          "margin": 47.7268049
         },
         {
           "name": "sweep_start_v",
@@ -165,9 +165,9 @@
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 4.681021,
+          "value": 3.248132,
           "status": "pass",
-          "margin": 43.318979
+          "margin": 44.751868
         },
         {
           "name": "sweep_start_v",
@@ -197,9 +197,9 @@
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 0.1385298,
+          "value": 0.1206871,
           "status": "pass",
-          "margin": 47.8614702
+          "margin": 47.8793129
         },
         {
           "name": "sweep_start_v",
@@ -229,9 +229,9 @@
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 0.1451973,
+          "value": 0.1254588,
           "status": "pass",
-          "margin": 47.8548027
+          "margin": 47.8745412
         },
         {
           "name": "sweep_start_v",
@@ -261,9 +261,9 @@
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 0.9103531,
+          "value": 0.5557728,
           "status": "pass",
-          "margin": 47.0896469
+          "margin": 47.4442272
         },
         {
           "name": "sweep_start_v",
@@ -293,9 +293,9 @@
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 1.229662,
+          "value": 1.064355,
           "status": "pass",
-          "margin": 46.770338
+          "margin": 46.935645
         },
         {
           "name": "sweep_start_v",
@@ -325,9 +325,9 @@
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 1.331427,
+          "value": 1.006784,
           "status": "pass",
-          "margin": 46.668573
+          "margin": 46.993216
         },
         {
           "name": "sweep_start_v",
@@ -357,9 +357,9 @@
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 18.47265,
+          "value": 14.04002,
           "status": "pass",
-          "margin": 29.52735
+          "margin": 33.95998
         },
         {
           "name": "sweep_start_v",
@@ -389,9 +389,9 @@
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 4.148273,
+          "value": 3.58818,
           "status": "pass",
-          "margin": 43.851727
+          "margin": 44.41182
         },
         {
           "name": "sweep_start_v",
@@ -421,9 +421,9 @@
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 1.961273,
+          "value": 1.707125,
           "status": "pass",
-          "margin": 46.038727
+          "margin": 46.292875
         },
         {
           "name": "sweep_start_v",
@@ -453,9 +453,9 @@
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 1.108364,
+          "value": 0.7144038,
           "status": "pass",
-          "margin": 46.891636
+          "margin": 47.2855962
         },
         {
           "name": "sweep_start_v",
@@ -485,9 +485,9 @@
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 0.06460429,
+          "value": 0.05915937,
           "status": "pass",
-          "margin": 47.93539571
+          "margin": 47.94084063
         },
         {
           "name": "sweep_start_v",
@@ -517,9 +517,9 @@
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 0.1946645,
+          "value": 0.1501765,
           "status": "pass",
-          "margin": 47.8053355
+          "margin": 47.8498235
         },
         {
           "name": "sweep_start_v",
@@ -549,9 +549,9 @@
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 4.051538,
+          "value": 3.122241,
           "status": "pass",
-          "margin": 43.948462
+          "margin": 44.877759
         },
         {
           "name": "sweep_start_v",

@@ -179,7 +179,8 @@ RES_BULK_ARITY_NOTE = (
     "`mismatch_count`, `category_counts`, and the identical "
     "`device.unmatched` entry list -- the arity mismatch was real and is "
     "now retired, but was never the operative blocker for these three "
-    "devices; RES_TRIM_TOPOLOGY_NOTE's structural gap is. See "
+    "devices; layout/generator-notes.md#res-trim-topology-note's "
+    "structural gap is. See "
     "layout/matching-plan.md Section 7n."
 )
 #: Fixed in issue #62's twenty-first increment: the same transcription-gap shape
@@ -308,7 +309,8 @@ RES_TRIM_LENGTH_NOTE = (
 #: chained topology layout/generator-notes.md#res-head-resistance-note
 #: quantifies instead of sizing around it.
 RES_HEAD_SIZING_NOTE = (
-    "DR-003 (RES_HEAD_RESISTANCE_NOTE) established that this flow's drawn "
+    "DR-003 (layout/generator-notes.md#res-head-resistance-note) "
+    "established that this flow's drawn "
     "decomposition pays the model card's per-instance head/end resistance "
     "once per separately-contacted primitive, and issue #99 resized n_r2 "
     "54 -> 50 so the DRAWN part's K = R2/R1 landed in spec. What it did "
@@ -327,7 +329,8 @@ RES_HEAD_SIZING_NOTE = (
     "ceiling at 6 of 15 (process, supply) points, and n_r2=51 sits inside "
     "with 10.0 mV bottom / 6.2 mV top margin at all 15 while cutting box "
     "TC from 175-182 to 142-159 ppm/degC. n_r1 stays at 7 for "
-    "RES_RESIZE_NOTE's reason (branch current, hot-corner headroom); no "
+    "layout/generator-notes.md#res-resize-note's reason (branch current, "
+    "hot-corner headroom); no "
     "operating-point collapse is seen at ff/2.97 V or fs/2.97 V at either "
     "n_r2=51 or 52. Drawn-side consequence, and the only one: holding "
     "`5*N_R2_COARSE + 0.5*N_R2_TRIM_UNITS == 5*SCH_N_R2` at the new "
@@ -929,7 +932,8 @@ BLOCKS: list[dict[str, Any]] = [
         f"{AMP_M_CC // 2} groups (`MCC_A`/`MCC_B`) tied identically to "
         "VDD (drain+source) and GDRV (gate) so `combine_devices` folds "
         f"them into the schematic's single m={AMP_M_CC} device -- see "
-        "MCC_MIM_INFEASIBLE_NOTE for why a `cap_mim` overlay (the "
+        "layout/generator-notes.md#mcc-mim-infeasible-note for why a "
+        "`cap_mim` overlay (the "
         "operator's primary-path ruling on issue #62) cannot close this "
         "device instead",
     },
@@ -956,7 +960,8 @@ SUBSTRATE_SAME_NETS: list[list[str]] = []
 MCC_AREA_UM2_NOTE = (
     "MCC (amp compensation cap, amp_m_cc=16 x W=30 x L=20 = 9600 um^2 "
     "analytic) is now drawn, as of issue #62's thirtieth increment -- see "
-    "the `amp_cc` block above and MCC_MIM_INFEASIBLE_NOTE for why it is a "
+    "the `amp_cc` block above and "
+    "layout/generator-notes.md#mcc-mim-infeasible-note for why it is a "
     "MOS-as-capacitor block rather than a cap_mim overlay. Drawing it pushes "
     "the composed cell over the ratified 50,000 um^2 (DR-005) Area budget; "
     "see spec/decision-records/DR-007-mcc-area-budget.md (proposed, not "

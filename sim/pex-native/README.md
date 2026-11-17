@@ -113,11 +113,166 @@ The divider gives `VREF = VB + K·ΔVBE` (checks to < 1 µV on both sides), so
 
 ### Disposition
 
-Still open: whether the 1136 Ω / 88 Ω pin-net arms are physical routing
-resistance or the klt star model's allocation (it splits each net's single lumped
-R over every terminal, including DC-idle gate terminals — a documented
-approximation in the extractor's own header, `--distributed-rc` refines it only
-for `--critical-net` nets). Separating the two needs per-segment geometry or a
-`--critical-net VB,VBQ --distributed-rc` rerun, which is a new pex record and out
-of scope here. No klayout-tools gap is filed: no defect is shown, only a
-modelling approximation. Not done: changing limits or `n_r2` (out of scope).
+Answered 2026-11-15 by the distributed-RC rerun below (issue #541): the 1136 Ω /
+88 Ω pin-net arms are **not** a star-allocation artefact. Re-allocating the same
+total VB/VBQ resistance as a ladder moves the tt `vref_27` delta from −27.753 mV
+to −28.493 mV — nothing survives *removal* of the star allocation because there
+was nothing to remove: ~103 % of the delta is still there, so it tracks the
+nets' conserved **total** R, not how that R is split over terminals. Details and
+limits: see the next section. No klayout-tools gap is filed (no defect is
+shown); not done: changing limits or `n_r2` (out of scope).
+
+## Distributed-RC rerun (2026-11-15, issue #541)
+
+The experiment the pilot's Disposition named, now run: `run.sh
+20261115-distributed-rc-r2 --critical-net VB --critical-net VBQ
+--distributed-rc` (repeated flags — klt never splits a comma-joined value).
+Same pin (klt 0.8.0), same `delta-limits.json` (both records' `inputs.json`
+carry the same `delta_limits_sha256`), same GDS and reference hashes, batch
+fleet, 15 corners × 2 sides, receipts committed under the record. The record
+proves the ladder applied by both checks: `extraction.distributed_rc == true`,
+`extraction.critical_nets == ["VB","VBQ"]`, and 7 `RVB_seg` cards whose both
+nodes are `VB__t<n>` leg nets (the pilot has 0 — a silently-unmatched net name
+cannot produce them). Segment sums conserve the star totals exactly: VB
+5114.5 Ω (9 segments; the middle leg is the net itself, feeding `RVB_seg4
+VB__t5 VB` / `RVB_seg5 VB VB__t6`), VBQ 199.5 Ω (8 segments). First attempt
+`20261115-distributed-rc/` lost two schematic-side 2.97 V shards to an S3
+upload failure (`lost_shard`, 10 of 75 rows errored, `pex.rc` 4); it is kept
+as append-only evidence of that transient, and the r2 record is the graded one.
+
+Reproduce the tables: `python3 -I sim/pex-native/attribute_delta.py all
+--record sim/pex-native/records/20261115-distributed-rc-r2` (same budget as the
+pilot's: `legs` pure Python, `rtc` one `ngspice -b`, `probe` five sequential
+single-corner runs — no grid).
+
+### Leg resistance
+
+| leg | units | device sum (ohm) | extracted incl. parasitics (ohm) | delta | internal-link parasitic (ohm) | pin-net/other (ohm) |
+|---|---|---|---|---|---|---|
+| `R1` (VB->VBQ) | 7 | 14026.89 | 17479.2 | +24.6 % | 612.3 | 2840.0 |
+| `R2A` (VOUT->VA) | 69 | 109030.60 | 116902.3 | +7.2 % | 7276.6 | 595.1 |
+| `R2B` (VOUT->VB) | 69 | 109030.60 | 118121.8 | +8.3 % | 7192.6 | 1898.6 |
+
+K = R2B/R1: device 7.7730, extracted 6.7579 (-13.06 %).
+142 chain-internal links: 102.0 / 105.3 / 187.3 ohm (min/median/max); 0 within 5 % of the old 2 x 229.7 = 459.5 ohm star.
+
+The leg table's `K_extracted` is a **two-terminal network** value. On this
+record it is not the divider's operating point: a ladder net is shared by more
+than one current path, so leg K (−13.06 %) and operating K (−5.05 %, below)
+differ — under the pilot's star model the two coincided (7.3766 both ways),
+which is why the pilot's identity closed and this one does not. The probe's
+`schematic` column and every `rtc` number are unchanged from the pilot's section
+(same schematic netlist, same zero normaliser); the extracted columns move with
+the extraction, which is the result reported below. `attribute_delta.py` now
+prints the operating K so the two records are comparable on that line. The
+`array_parasitics_only` memo
+is likewise not apples-to-apples across the two records: the ablation classifies
+a card by whether either node is a resistor-array terminal, and a mid-chain
+ladder segment between two non-array terminals shorts where the star arm
+carried no current.
+
+### Probe tt / 27 C / 3.30 V (V)
+
+| node | schematic | extracted | extracted_model_R | array_parasitics_only | no_parasitics |
+|---|---|---|---|---|---|
+| `VREF` | 1.210747 | 1.182253 | 1.182253 | 1.181781 | 1.210673 |
+| `VA` | 0.726301 | 0.723085 | 0.723085 | 0.722908 | 0.726296 |
+| `VB` | 0.726473 | 0.723249 | 0.723249 | 0.723071 | 0.726460 |
+| `VBQ` | 0.664171 | 0.661059 | 0.661059 | 0.661033 | 0.664167 |
+| `dVBE` | 0.062302 | 0.062190 | 0.062190 | 0.062038 | 0.062293 |
+
+K schematic (model R2B/R1 at 27 C) = 7.7730
+
+K operating ((VREF-VB)/dVBE): schematic 7.7730, extracted 7.3807 (-5.05 %) -- the leg-network K above equals this only under the star model.
+
+### Attribution
+
+| share of extracted - schematic `VREF` | mV |
+|---|---|
+| total | -28.494 |
+| K-ratio change at fixed dVBE | -63.243 |
+| branch-current change (shift of VB) | -3.224 |
+| dVBE change x K | -0.758 |
+| unexplained (identity residual) | +38.732 |
+| normaliser (extracted vs model-R, measured) | +0.000 |
+| memo: resistor-array parasitics | -28.892 |
+| memo: all other-net parasitics | +0.472 |
+| memo: no-parasitic extracted - schematic | -0.074 |
+
+(The −63.243 mV K-ratio share and the +38.732 mV residual are the leg-network
+K artefact described above — the identity closes exactly when recomputed with
+the operating K: −3.224 mV + (7.3807 − 7.7730)·62.302 mV + 7.3807·(−0.112 mV)
+≈ −28.49 mV.)
+
+### What the rerun settles
+
+**Star allocation is not the cause.** tt / 27 °C / 3.30 V `vref_27` delta:
+−27.753 mV (star, pilot) → −28.493 mV (ladder, this record, unchanged limits).
+Removing the star allocation recovered nothing — the delta is 0.740 mV *worse*
+under the ladder — so the failing deltas track the nets' **total** R, which the
+ladder conserves, not its allocation across terminals. On the operating-K view
+the two records agree: −5.10 % (star) vs −5.05 % (ladder).
+
+Two limits on that statement:
+
+* **Not a physicality verdict.** `--distributed-rc` conserves each net's total
+  R exactly (VB 5114.5 Ω, VBQ 199.5 Ω, both models). Whether 5114.5 Ω is the
+  physically right total for VB's routing is untouched by this record; the
+  extractor's own netlist header calls the ladder "still an approximation
+  (terminal position is a device-placement proxy, not true per-segment routing
+  geometry)". Answering that needs per-segment routing geometry or
+  `--resistance-graph` (refused together with `--distributed-rc` on this pin) —
+  answered afterwards in `records/20261116-geometry-r/` (#573, section
+  "Geometry check of the VB/VBQ totals" below); this record is unchanged.
+* **Mixed-model K.** Only VB and VBQ moved to a ladder. VOUT (979.6 Ω, 6
+  terminals) and VA (5206.2 Ω, 17 terminals) stay star-modelled: R2A is
+  bit-identical across the two records (116902.3 Ω), while R1 (VB→VBQ ends) and
+  R2B (VB end) changed. The new K is computed from a netlist whose critical
+  nets are laddered and whose remaining nets are star-modelled.
+
+No klayout-tools gap is filed: the result does not show star allocation is the
+cause, so no defect is demonstrated — the pilot Disposition's "modelling
+approximation" note stands, now with the allocation term measured as ≈ 0.
+
+## Geometry check of the VB/VBQ totals (2026-11-16, issue #573)
+
+Record `records/20261116-geometry-r/` (`geometry_resistance.py`, `geometry_probe.py`,
+unit test `test_geometry_resistance.py`; input hashes in `inputs.json`, GDS sha256
+`311c0f14…`, klt pin not used for the numbers). `klt pex --resistance-graph` was
+**not** the route: on the 0.8.0 pin it is usable with `--extract-only` but all 156
+nets report `resistance_source: legacy` (VB 5114.5357 Ω unchanged).
+
+**Verdict: extractor approximation (disclose) — not a layout change.**
+
+* Why 5114.5 Ω: klt charges every conductor fragment of a net **in series**.
+  VB's fragments are 8 li1 straps (0.24 × 10.45 µm, ≈ 43.5 sq × 12.8 Ω ≈ 557 Ω each)
+  that tie 8 pfet gates to the met1 trunk, plus 2 short resistor-head stubs.
+  The gate straps carry no DC current, yet they are 4.5 kΩ of the 5.1 kΩ.
+  Only VB__t8 and VB__t9 (the two `res_high_po` terminals) carry current, and the
+  ladder puts seg8 = 998.987 Ω between them.
+* Geometry path between those two terminals (poly head to body edge + li1 + mcon
+  + met1 trunk, 2-D grid solve per fragment at 40 / 20 nm pitch; sky130A.tech
+  `allpolynonres` 48.2, `allli` 12.8, `allm1` 0.125 Ω/sq, mcon 9.3 Ω/cut, poly
+  licon `pc,xpc` 152 Ω/cut): **≈ 95–101 Ω without licon, ≈ 399–405 Ω with the
+  two 152 Ω licon cuts**. Whether the resistor model's head term already contains
+  the licon is not established, so both are reported; discretisation spread
+  between the two pitches is ≈ 6 %; the licon question dominates the uncertainty.
+  Branch treatment: the trunk is a tree, only the terminal-to-terminal path is
+  summed; gate straps are dead branches at DC.
+* VBQ: head arm + met1 to the emitter plates ≈ 50–52 Ω (≈ 202–204 Ω with the
+  licon) against 199.5 Ω extracted — VBQ's total is **consistent** with
+  geometry within that uncertainty (emitter-plate li1/licon spreading not modelled).
+* Effect on the failing row (`geometry_probe.py 95 399`, copy of the r2 extraction,
+  tt / 27 °C / 3.30 V, one `ngspice -b` per value, record untouched):
+
+| `RVB_seg8` | `vref_27` delta vs schematic |
+|---|---|
+| 998.987 Ω (record) | −28.494 mV |
+| 399 Ω (geometry, with licon) | −8.855 mV |
+| 95 Ω (geometry, no licon) | +1.695 mV |
+
+  So one mis-sized ladder segment explains ≈ 20–30 mV of the −28.5 mV, and the
+  limit is 5 mV. Not re-graded: other corners, other rows, and the star-modelled
+  VA/VOUT nets. Next step: a klt gap (series-sum of dead branches /
+  `--distributed-rc` segment sizing) filed as 2AMLogic/klayout-tools#5894; re-extraction
+  with a fixed tool is #540's business.

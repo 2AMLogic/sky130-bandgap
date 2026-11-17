@@ -14,7 +14,8 @@ itself otherwise. To run it against a klayout-tools checkout:
 
 from __future__ import annotations
 
-import importlib.util
+import contextlib
+import io
 import json
 import os
 import shutil
@@ -27,9 +28,11 @@ from types import SimpleNamespace
 
 SIM_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SIM_DIR / "bin"))
+sys.path.insert(0, str(SIM_DIR.parent / "scripts" / "ci"))
 
 import batch_sim  # noqa: E402
 import sim_common  # noqa: E402
+from script_module import load_script_module  # noqa: E402
 
 cr = sim_common.load_corner_run()
 PIN = json.loads((SIM_DIR / "pdk.json").read_text())
@@ -40,11 +43,7 @@ SPICEINIT = (SIM_DIR / "spiceinit").read_text()
 
 def _load_harness():
     path = SIM_DIR / "psrr-injector-candidates" / "run_psrr_injector_candidates.py"
-    spec = importlib.util.spec_from_file_location("psrr_candidates", path)
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules["psrr_candidates"] = mod
-    spec.loader.exec_module(mod)
-    return mod
+    return load_script_module(path, "psrr_candidates")
 
 
 H = _load_harness()
@@ -293,6 +292,88 @@ class CandidatesBatchRequests(unittest.TestCase):
         args = H.parse_args(["--backend", "batch"])
         self.assertEqual(args.backend, "batch")
         self.assertEqual(H.parse_args([]).jobs, 2)
+
+
+class CandidatesDryRun(unittest.TestCase):
+    """`--dry-run` builds and prints the batch requests and submits nothing
+    (issue #572): no `klt sim` invocation, no ngspice, no write under
+    `sim/psrr-injector-candidates/`, no record_id allocated."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.base = H.load_base_body()
+        self.pdk = SimpleNamespace(lib_file=self.tmp / "sky130.lib.spice")
+        self.pdk.lib_file.write_text("lib")
+        H.BUILD_DIR = self.tmp / "build"
+        self.records_before = set(os.listdir(H.HERE / "records"))
+        self.corners_before = set(os.listdir(H.HERE / "corners"))
+
+    def assert_wrote_nothing_under_here(self):
+        self.assertEqual(set(os.listdir(H.HERE / "records")), self.records_before)
+        self.assertEqual(set(os.listdir(H.HERE / "corners")), self.corners_before)
+
+    def args(self, **kw):
+        return SimpleNamespace(
+            backend="batch", dry_run=True, allow_pdk_mismatch=True, timeout=60,
+            batch_capacity_wait_s=60, batch_runner_version_check="enforce",
+            batch_max_jobs=4, batch_hosts=1, **kw)
+
+    def captured(self, fn, *a):
+        from unittest import mock
+        with mock.patch.object(batch_sim, "collect",
+                               side_effect=AssertionError("dry run submitted a request")):
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = fn(*a)
+        return rc, buf.getvalue()
+
+    def test_dry_run_flag_requires_the_batch_backend(self):
+        with self.assertRaises(SystemExit):
+            H.parse_args(["--dry-run"])
+        self.assertTrue(H.parse_args(["--backend", "batch", "--dry-run"]).dry_run)
+        self.assertFalse(H.parse_args(["--backend", "batch"]).dry_run)
+
+    def test_dry_run_prints_variants_x_supplies_x_requests_and_submits_nothing(self):
+        variants = [H.VARIANTS_BY_NAME[n] for n in ("base", "mpc2_vs")]
+        rc, out = self.captured(H.dry_run, self.args(), PIN, self.base, variants, H.matrix())
+        self.assertEqual(rc, 0)
+        # 2 variants x 3 supplies x (ac, op)
+        self.assertIn("12 requests built", out)
+        kinds = [ln.split("(")[1].split(",")[0] for ln in out.splitlines()
+                 if "(ac," in ln or "(op," in ln]
+        self.assertEqual(kinds.count("ac"), 6)
+        self.assertEqual(kinds.count("op"), 6)
+        self.assertIn("nothing submitted", out)
+        requests = list((self.tmp / "build" / "dry-run" / "batch").rglob("request.json"))
+        self.assertEqual(len(requests), 12)
+        self.assert_wrote_nothing_under_here()
+
+    def test_explore_dry_run_builds_requests_for_the_selected_corners(self):
+        from unittest import mock
+        args = self.args(variants=["base"], corners="ff,125,3.63;ss,-40,2.97")
+        with mock.patch.object(H, "check_pdk_and_ngspice", lambda *a, **k: self.pdk):
+            rc, out = self.captured(H.explore, args)
+        self.assertEqual(rc, 0)
+        # 1 variant x 2 supplies (ff@3.63, ss@2.97) x (ac, op)
+        self.assertIn("4 requests built", out)
+        self.assert_wrote_nothing_under_here()
+
+    def test_verify_dry_run_returns_before_allocating_a_record(self):
+        from unittest import mock
+        args = self.args(variants=["base"])
+
+        def forbidden(name):
+            raise AssertionError(f"dry run reached {name}")
+
+        with mock.patch.object(H, "new_record_id", lambda *a: forbidden("new_record_id")), \
+             mock.patch.object(H, "setup_record_paths",
+                               lambda *a, **k: forbidden("setup_record_paths")), \
+             mock.patch.object(H, "check_pdk_and_ngspice", lambda *a, **k: self.pdk):
+            rc, out = self.captured(H.verify, args)
+        self.assertEqual(rc, 0)
+        self.assertIn("6 requests built", out)  # 1 variant x 3 supplies x (ac, op)
+        self.assert_wrote_nothing_under_here()
 
 
 class KltVsLocal(unittest.TestCase):

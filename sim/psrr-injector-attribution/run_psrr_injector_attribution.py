@@ -90,6 +90,7 @@ BUILD_DIR = SIM_DIR / "build" / "psrr-injector-attribution"
 sys.path.insert(0, str(SIM_DIR / "bin"))
 import batch_sim  # noqa: E402
 from sim_common import (  # noqa: E402
+    add_batch_args,
     batch_netlist as _batch_netlist,
     build_batch_groups as _build_batch_groups,
     check_pdk_and_ngspice,
@@ -771,18 +772,16 @@ def parse_args(argv):
     p.add_argument("--jobs", type=int, default=None,
                    help="local backend only: concurrent ngspice processes (default 2 -- these "
                         "hosts are shared)")
-    p.add_argument("--backend", choices=("local", "batch"), default="local",
-                   help="where points run: 'local' (default; one ngspice per point on this host, "
-                        "for single-corner probes) or 'batch' (klt sim --backend batch on the Spot "
-                        "batch fleet -- use this for the full grid on a dispatch host). A failed "
-                        "batch submission is an error, never a local fallback")
+    add_batch_args(
+        p,
+        backend_help="where points run: 'local' (default; one ngspice per point on this host, "
+                     "for single-corner probes) or 'batch' (klt sim --backend batch on the Spot "
+                     "batch fleet -- use this for the full grid on a dispatch host). A failed "
+                     "batch submission is an error, never a local fallback",
+    )
     p.add_argument("--dry-run", action="store_true",
                    help="--backend batch only: build and print the klt requests, submit nothing, "
                         "run no ngspice, write nothing under sim/<experiment>/")
-    p.add_argument("--batch-capacity-wait-s", type=float, default=3600.0,
-                   help="batch only: wait this long for Spot capacity per submission (default 3600)")
-    p.add_argument("--batch-runner-version-check", choices=("enforce", "warn"), default="enforce",
-                   help="batch only: klt runner/client version-skew policy (default enforce)")
     p.add_argument("--batch-hosts", type=int, default=1,
                    help="batch only: shard each request across this many fleet hosts "
                         "(request remote.hosts; default 1 = unsharded)")
@@ -793,6 +792,8 @@ def parse_args(argv):
     p.add_argument("--allow-pdk-mismatch", action="store_true",
                    help="run even if the installed PDK differs from the sim/pdk.json pin")
     args = p.parse_args(argv)
+    if not args.variants:
+        p.error(f"empty --variants selection; known: {sorted(VARIANTS_BY_NAME)}")
     unknown = [v for v in args.variants if v not in VARIANTS_BY_NAME]
     if unknown:
         p.error(f"unknown variant(s) {unknown}; known: {sorted(VARIANTS_BY_NAME)}")

@@ -95,6 +95,7 @@ BUILD_DIR = SIM_DIR / "build" / "psrr-injector-candidates"
 sys.path.insert(0, str(SIM_DIR / "bin"))
 import batch_sim  # noqa: E402
 from sim_common import (  # noqa: E402
+    add_batch_args,
     batch_netlist as _batch_netlist,
     build_batch_groups as _build_batch_groups,
     check_pdk_and_ngspice,
@@ -309,7 +310,6 @@ EXTRA_VARIANTS = (
               "`startup-stability` at 125 C (DR-018)",
     ),
 )
-VARIANTS_BY_NAME = {v.name: v for v in VARIANTS + EXTRA_VARIANTS}
 
 #: Issue #368: `MPC2` (the lower reference-stack device) with its gate on `VSENSE` instead of its
 #: own drain. At the startup window edge `NC1` sits ~1.3-2 V above `VSENSE` (~0.2-0.5 V), so it
@@ -474,6 +474,23 @@ def run_all_batch(pdk, pin, base_body, variants, points, timeout, corners_dir, r
         pdk, pin, base_body, variants, points, timeout, corners_dir, record_id, args, runner,
         batch_sim=batch_sim, run_dir=BUILD_DIR / record_id / "batch",
         kinds=tuple(k for k, _a, _m in BATCH_REQUESTS), build_groups=build_batch_groups)
+
+
+def dry_run(args, pin, base_body, variants, points) -> int:
+    """Build and print the batch requests; submit nothing, run no ngspice."""
+    groups = build_batch_groups(
+        pin, base_body, variants, points, BUILD_DIR / "dry-run" / "batch", args.timeout, args)
+    print("\n-- batch requests (one klt sim request per variant x supply x analysis) --")
+    for g in groups:
+        r = g.request
+        print(f"  {g.request_path}  ({r['analysis']['kind']}, "
+              f"{len(r['corners']['process'])} processes x {len(r['corners']['temperature_c'])} "
+              f"temperatures, {len(r['measurements'])} measurements)")
+    print(f"\n-- request for {groups[0].label} --")
+    print(groups[0].request_path.read_text())
+    print(f"(dry run: {len(groups)} requests built, nothing submitted, "
+          f"nothing written under sim/{SLUG}/)")
+    return 0
 
 
 # --------------------------------------------------------------------------
@@ -787,6 +804,8 @@ def explore(args) -> int:
     base_body = load_base_body()
     variants = [VARIANTS_BY_NAME[n] for n in args.variants]
     points = parse_corner_spec(args.corners)
+    if args.dry_run:
+        return dry_run(args, pin, base_body, variants, points)
     return injector_explore(
         args, pdk, pin, base_body, variants, points, base_snapshot=BASE_SNAPSHOT,
         label_width=LABEL_WIDTH, run_all=run_all, run_all_batch=run_all_batch)
@@ -800,13 +819,16 @@ def verify(args) -> int:
     cited = cited_band_min()
     ceiling = ceiling_band_min()
 
+    points = matrix()
+    variants = [VARIANTS_BY_NAME[n] for n in args.variants]
+    if args.dry_run:
+        return dry_run(args, pin, base_body, variants, points)
+
     record_id, git_info, now = new_record_id()
     records_dir, _, corners_dir, record_md, record_json, _ = setup_record_paths(
         HERE, record_id, with_snapshot=False
     )
 
-    points = matrix()
-    variants = [VARIANTS_BY_NAME[n] for n in args.variants]
     injector_banner(args, pdk, variants, points, record_id,
                     slug=SLUG, base_snapshot=BASE_SNAPSHOT)
 
@@ -857,15 +879,16 @@ def parse_args(argv):
     p.add_argument("--jobs", type=int, default=None,
                    help="local backend only: concurrent ngspice processes (default 2 -- these "
                         "hosts are shared)")
-    p.add_argument("--backend", choices=("local", "batch"), default="local",
-                   help="where points run: 'local' (default; one ngspice per point on this host, "
-                        "for single-corner probes) or 'batch' (klt sim --backend batch on the Spot "
-                        "batch fleet -- use this for the full grid on a dispatch host). A failed "
-                        "batch submission is an error, never a local fallback")
-    p.add_argument("--batch-capacity-wait-s", type=float, default=3600.0,
-                   help="batch only: wait this long for Spot capacity per submission (default 3600)")
-    p.add_argument("--batch-runner-version-check", choices=("enforce", "warn"), default="enforce",
-                   help="batch only: klt runner/client version-skew policy (default enforce)")
+    add_batch_args(
+        p,
+        backend_help="where points run: 'local' (default; one ngspice per point on this host, "
+                     "for single-corner probes) or 'batch' (klt sim --backend batch on the Spot "
+                     "batch fleet -- use this for the full grid on a dispatch host). A failed "
+                     "batch submission is an error, never a local fallback",
+    )
+    p.add_argument("--dry-run", action="store_true",
+                   help="--backend batch only: build and print the klt requests, submit nothing, "
+                        "run no ngspice, write nothing under sim/<experiment>/")
     p.add_argument("--batch-hosts", type=int, default=1,
                    help="batch only: shard each request across this many fleet hosts "
                         "(request remote.hosts; default 1 = unsharded)")
@@ -876,9 +899,13 @@ def parse_args(argv):
     p.add_argument("--allow-pdk-mismatch", action="store_true",
                    help="run even if the installed PDK differs from the sim/pdk.json pin")
     args = p.parse_args(argv)
+    if not args.variants:
+        p.error(f"empty --variants selection; known: {sorted(VARIANTS_BY_NAME)}")
     unknown = [v for v in args.variants if v not in VARIANTS_BY_NAME]
     if unknown:
         p.error(f"unknown variant(s) {unknown}; known: {sorted(VARIANTS_BY_NAME)}")
+    if args.dry_run and args.backend != "batch":
+        p.error("--dry-run is only meaningful with --backend batch")
     if args.backend == "batch" and args.jobs is not None:
         p.error("--jobs is a local-concurrency flag; --backend batch ignores it, drop it "
                 "(use --batch-max-jobs)")

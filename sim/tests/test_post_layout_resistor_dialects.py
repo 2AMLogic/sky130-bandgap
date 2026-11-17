@@ -7,13 +7,17 @@ three different ways, and the shared translator has to recognise every shape
 that a COMMITTED snapshot under `sim/*/parasitics-snapshot/` actually uses:
 
   * klt 0.5.0 (and 0.2.0):  `R$n <a> <b> <bulk> <value> res_high_po [L=.. W=..]`
-    -- what the six other post-layout benches' committed snapshots carry.
+    -- what `sim/startup-time-post-layout/`'s committed snapshot carries (the
+    only 0.5.0 consumer left: issue #560 re-ran the other five onto the 0.8.0
+    extraction on 2026-11-15; startup-time resolves its own local snapshot at
+    step 1 and is disclosed in its README, not moved).
   * klt 0.8.0 (issue #540): `X$n <a> <b> <bulk> res_high_po r=<value> [L=.. W=..]`
-    -- what `sim/output-voltage-tc-post-layout/`'s snapshot carries.
+    -- what `sim/output-voltage-tc-post-layout/`'s snapshot carries, and what
+    the five re-run benches' snapshots resolve to since issue #560.
 
-Both are live simultaneously: issue #540 re-extracted ONE bench at the
-pinned 0.8.0 while the other six keep reading their 0.5.0 snapshots, so a
-regression on either dialect silently zeroes that bench's resistor coverage.
+Both are live simultaneously: `SNAPSHOT_050` and `SNAPSHOT_080` below both
+resolve under sibling glob, so a regression on either dialect silently zeroes
+that bench's resistor coverage.
 `build_extracted_body`'s `device_counts` cross-check turns that into a loud
 abort rather than a wrong netlist -- these tests keep it from getting that
 far, and pin the invariant that the two shapes translate to the SAME card.

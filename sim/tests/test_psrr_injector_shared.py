@@ -14,7 +14,6 @@ the committed ones no one can go back and fix.
 from __future__ import annotations
 
 import contextlib
-import importlib.util
 import io
 import json
 import sys
@@ -26,8 +25,10 @@ from unittest import mock
 
 SIM_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SIM_DIR / "bin"))
+sys.path.insert(0, str(SIM_DIR.parent / "scripts" / "ci"))
 import injector_common  # noqa: E402
 import sim_common  # noqa: E402
+from script_module import load_script_module  # noqa: E402
 
 RUNNERS = {
     "attribution": SIM_DIR / "psrr-injector-attribution" / "run_psrr_injector_attribution.py",
@@ -38,15 +39,7 @@ RUNNERS = {
 def load_runner(name: str):
     """Import one bench's runner under its own module name (these tests load
     both, and `test_psrr_attribution_batch.py` loads one of them too)."""
-    mod_name = f"psrr_injector_shared_{name}"
-    cached = sys.modules.get(mod_name)
-    if cached is not None:
-        return cached
-    spec = importlib.util.spec_from_file_location(mod_name, RUNNERS[name])
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules[mod_name] = mod
-    spec.loader.exec_module(mod)
-    return mod
+    return load_script_module(RUNNERS[name], f"psrr_injector_shared_{name}")
 
 
 def newest_committed_record(name: str) -> dict:

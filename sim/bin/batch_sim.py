@@ -33,6 +33,7 @@ can never yield an overall PASS.
 
 from __future__ import annotations
 
+import copy
 import json
 import re
 import shutil
@@ -692,6 +693,48 @@ def build_mc_group(
     return Group(supply_v, gdir, netlist_path, request_path, [], request, label, resume)
 
 
+def build_mc_batch_groups(
+    pin, supply_v, points, spiceinit_text, out_dir, args, *, netlist_for, measurements
+) -> list[Group]:
+    """One `klt sim` request per Monte Carlo point: the point's `.lib` section is
+    the request's process and `monte_carlo` `{n, seed}` replaces the bespoke
+    `setseed` / `reset` / `dowhile` loop, so a point that must keep sigma == 0
+    (a plain-`tt` control) or pin its draw stream (a seed-check) stays its own
+    separate request. klt derives each sample's `.options seed=` from
+    `monte_carlo.seed` itself, so the draws are a different (equally valid)
+    stream from `setseed N` -- the statistics, not the samples, are what match
+    the local record. In particular `convergence_series()`'s "first K samples
+    of the N-sample run are the K-sample run" still holds: klt's per-sample
+    seeds are a function of `(seed, sample index)`, and the first 20 of a
+    300-sample `--dry-run` equal a 20-sample run's.
+
+    `netlist_for(point)` returns the point's complete pre-`.lib` netlist text:
+    a bench whose netlist varies per point (a `config` axis riding in as
+    `.param` overrides) builds it per point; one whose netlist is constant
+    hoists it and returns the same text for every point. `measurements` is the
+    bench's `[{"name", "expr"}]` list. `max_concurrent_jobs` / `resume` are
+    forwarded whenever `args` carries them (`--batch-max-concurrent-jobs` /
+    `--batch-resume`); a bench whose argparse defines neither keeps the
+    `build_mc_group` defaults, so its request is unchanged.
+
+    A refused `--timeout` (one whose per-shard job bound cannot fit the fleet's
+    whole-job ceiling, issue #528) is raised here as `BatchError`; each bench's
+    `build_batch_groups` wrapper re-raises it as its harness error so it
+    reaches the user as a normal error on both the submit path and `--dry-run`
+    rather than a traceback."""
+    return [
+        build_mc_group(
+            p.corner_id, out_dir, netlist_for(p), pin, p.section, p.temp_c, supply_v,
+            p.samples, p.seed, measurements, spiceinit_text, args.timeout,
+            capacity_wait_s=args.batch_capacity_wait_s,
+            runner_version_check=args.batch_runner_version_check, poll_interval_s=30.0,
+            max_concurrent_jobs=getattr(args, "batch_max_concurrent_jobs", None),
+            resume=getattr(args, "batch_resume", False),
+        )
+        for p in points
+    ]
+
+
 def _unique(values) -> list:
     out: list = []
     for v in values:
@@ -984,6 +1027,130 @@ def fleet_job_ids(remote: dict | None) -> list[str]:
     return [j["job_id"] for j in fleet_jobs(remote) if j.get("job_id")]
 
 
+#: Field a record's fleet entry carries in place of an inline
+#: `worker_environment`, naming that block in `execution.worker_environments`.
+WORKER_ENVIRONMENT_REF = "worker_environment_ref"
+
+#: Where `hoist_worker_environments()` parks the blocks, and where
+#: `fleet_worker_environment()` resolves a ref from.
+WORKER_ENVIRONMENTS_TABLE = "worker_environments"
+
+
+def worker_environment_key(worker_environment: dict) -> str:
+    """Content key of one worker attestation block: sha256 of its canonical
+    JSON. Two fleet jobs that ran the same image share a key; one that ran a
+    different ngspice build, PDK stamp or CPU gets its own, so keying by
+    content can never merge two attestations that differ."""
+    return sha256_text(json.dumps(worker_environment, sort_keys=True, separators=(",", ":")))
+
+
+def hoist_worker_environments(jobs: list[dict]) -> dict[str, dict]:
+    """Move every fleet entry's `worker_environment` into one content-keyed
+    table, leaving each entry a `WORKER_ENVIRONMENT_REF` to its own block.
+
+    klt reports one full attestation per fleet job -- the worker's ngspice
+    `version_banner`, PDK stamp, engine-build comparison and CPU model, around
+    1.4 kB -- so a sharded request re-serializes a byte-identical block once
+    per shard. At issue #549 that repetition was 1.4 MB of the records on
+    disk, with only 1-2 distinct values per record (worst case: 360 fleet
+    entries, 2 distinct blocks, one of them written 341 times).
+
+    Every distinct block is kept and each entry still references *its own*, so
+    a shard that genuinely ran a different environment stays exactly as
+    visible as before; only byte-identical repeats stop being written.
+
+    `jobs` is a `job_meta()` list, mutated in place. A rewritten job's
+    `remote` is replaced with a *copy*, so the klt report it was read from --
+    and every other consumer of that report, including the blocker checks in
+    `job_meta()` -- still sees the inline shape. Returns the table for
+    `execution[WORKER_ENVIRONMENTS_TABLE]`, `{}` when no entry carried an
+    attestation at all, in which case no entry is rewritten either.
+
+    Read a table back with `fleet_worker_environment()`: records committed
+    before this change keep the inline shape, which that reader also accepts.
+    """
+    table: dict[str, dict] = {}
+    for job in jobs:
+        if not isinstance(job, dict):
+            continue
+        remote = job.get("remote")
+        if not isinstance(remote, dict):
+            continue
+        candidate = copy.deepcopy(remote)
+        rewrote = False
+        for entry in fleet_jobs(candidate):
+            block = entry.get("worker_environment")
+            if not isinstance(block, dict):
+                continue
+            key = worker_environment_key(block)
+            if table.setdefault(key, block) != block:
+                raise BatchError(
+                    f"worker_environment content key collision on {key}: two attestation "
+                    "blocks that differ hash alike, so the record cannot name them apart"
+                )
+            # Rebuild in place so the ref sits exactly where the block sat.
+            rebuilt = [(WORKER_ENVIRONMENT_REF, key) if k == "worker_environment" else (k, v)
+                       for k, v in entry.items()]
+            entry.clear()
+            entry.update(rebuilt)
+            rewrote = True
+        if rewrote:
+            job["remote"] = candidate
+    return table
+
+
+def fleet_worker_environment(entry: dict, worker_environments: dict | None = None) -> dict | None:
+    """One fleet entry's worker attestation, resolved from either record shape.
+
+    Records committed before issue #549 carry the block inline on the entry;
+    records written after it carry a `WORKER_ENVIRONMENT_REF` into the
+    record's `execution.worker_environments` table. Pass that table (absent on
+    an older record, hence the default) and the same block comes back either
+    way, so no consumer needs a shape check at the call site.
+
+    `None` when the entry carried no attestation at all -- the pre-#523 fleet
+    shape, a hand-written fixture, an unsharded report klt gave no worker
+    block. A ref with no matching table entry is a `BatchError`: the record
+    claims provenance it cannot produce, and silently reading that as "absent"
+    would hide lost evidence in an append-only tree.
+    """
+    if not isinstance(entry, dict):
+        return None
+    inline = entry.get("worker_environment")
+    if isinstance(inline, dict):
+        return inline
+    ref = entry.get(WORKER_ENVIRONMENT_REF)
+    if ref is None:
+        return None
+    block = (worker_environments or {}).get(ref)
+    if not isinstance(block, dict):
+        raise BatchError(
+            f"fleet entry references worker_environment {ref!r}, which is absent from the "
+            f"record's `execution.{WORKER_ENVIRONMENTS_TABLE}` table"
+        )
+    return block
+
+
+def execution_worker_environments(execution: dict | None) -> list[dict]:
+    """Every distinct worker attestation one record's `execution` block
+    carries, in first-seen order, resolved from either shape.
+
+    The provenance question a reader actually asks ("which environments ran
+    this record?"), answered identically for a record that inlined its blocks
+    and one that referenced them."""
+    if not isinstance(execution, dict):
+        return []
+    table = execution.get(WORKER_ENVIRONMENTS_TABLE) or {}
+    found: list[dict] = []
+    for job in execution.get("jobs") or []:
+        remote = job.get("remote") if isinstance(job, dict) else None
+        for entry in fleet_jobs(remote):
+            block = fleet_worker_environment(entry, table)
+            if block is not None and block not in found:
+                found.append(block)
+    return found
+
+
 def meta_job_ids(job: dict) -> list[str]:
     """One `job_meta()` entry's ids, tolerating an entry built before
     `job_ids` existed (a hand-written fixture, an older record read back)."""
@@ -1161,11 +1328,13 @@ def collect_mc_batch(
             "vectors": list(vectors), "samples": parsed,
         }, indent=1) + "\n")
         shutil.copyfile(o.group.request_path, corners_dir / f"{point.corner_id}.request.json")
+    worker_environments = hoist_worker_environments(jobs)
     return parsed_by_point, {
         "backend": "batch",
         "mechanism": "klt sim --backend batch (2am EDA batch fleet, Spot)",
         "local_pinned_lib_sha256": lib_sha,
         "jobs": jobs,
+        WORKER_ENVIRONMENTS_TABLE: worker_environments,
         "note": (
             "per-sample seeds come from klt's monte_carlo seed contract, not `setseed`: the "
             "statistics, not the individual draws, match a local run of the same seed"
@@ -1426,6 +1595,7 @@ def execute(
     write_corner_logs(results, matrix, outcomes, corners_dir, repo_root)
 
     jobs = extra["jobs"]
+    worker_environments = hoist_worker_environments(jobs)
     versions = sorted({str(j["engine_version"]) for j in jobs})
     types = sorted({str(j["remote"].get("instance_type")) for j in jobs})
     amis = sorted({str(j["remote"].get("ami_id")) for j in jobs})
@@ -1438,6 +1608,7 @@ def execute(
         "collected_at": finished,
         "submit_to_collect_wall_s": round(total_wall, 1),
         "jobs": jobs,
+        WORKER_ENVIRONMENTS_TABLE: worker_environments,
         "corner_runtime_sum_s": round(sum(runtimes), 1),
         "corner_runtime_min_s": round(min(runtimes), 1) if runtimes else None,
         "corner_runtime_max_s": round(max(runtimes), 1) if runtimes else None,
