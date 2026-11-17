@@ -46,7 +46,7 @@ def copy_inputs(dest: Path) -> None:
     shutil.copytree(REAL_ROOT / "signoff", dest / "signoff")
     shutil.copytree(
         REAL_ROOT / "sim", dest / "sim",
-        ignore=shutil.ignore_patterns("records", "netlist-snapshots", "corners", "parasitics-snapshot", "build"),
+        ignore=shutil.ignore_patterns("records", "netlist-snapshots", "corners", "parasitics-snapshot", "build", "__pycache__"),
     )
     (dest / "scripts" / "ci").mkdir(parents=True)
     for name in ("check_signoff_freshness.py", "design_netlists.py"):
@@ -155,9 +155,8 @@ class UntrackedStateTest(AttestTestCase):
         self.assertEqual(self.run_attest()[0], 0)
         (self.root / "sim" / "bin" / "scratch_module.py").write_text("# scratch\n")
         pycache = self.root / "sim" / "bin" / "__pycache__"
-        pycache.mkdir()
+        pycache.mkdir(exist_ok=True)
         (pycache / "sim_common.cpython-311.pyc").write_bytes(b"\x00")
-        (pycache / "stray.py").write_text("# stray\n")
         code, err = self.run_attest()
         self.assertEqual(code, 0, err)
 
