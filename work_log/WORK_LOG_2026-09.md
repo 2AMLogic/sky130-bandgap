@@ -2,6 +2,12 @@
 
 Sections moved byte-for-byte from [WORK_LOG.md](../WORK_LOG.md) by `loom-daemon work-docs archive`.
 
+### 2026-09-14
+
+- **Issue #179** (closed): OPERATOR QUESTION: if the core's TC floor stays above the ratified < 50 ppm/°C, scope curvature correction or stand non-qualifying on item 5?
+- **PR #197**: spec: propose DR-009 — TC floor disposition (recommend disclosed-FAIL, not spec relaxation)
+- **PR #240**: fix(ratification): remove unwrapped private-repo reference from market-key/SKILL.md
+
 ### 2026-09-10
 
 - **Issue #279** (closed): sim: re-run the PSRR / Iq / startup benches (schematic + post-layout) against the post-#193 design and layout, then regenerate the block characterization report (T1 items 5, 7, 8)

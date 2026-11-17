@@ -8,7 +8,6 @@ on synthetic fixtures.
 
 from __future__ import annotations
 
-import importlib.util
 import json
 import sys
 import tempfile
@@ -17,13 +16,13 @@ from pathlib import Path
 
 SIM_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SIM_DIR / "bin"))
+sys.path.insert(0, str(SIM_DIR.parent / "scripts" / "ci"))
 
-_spec = importlib.util.spec_from_file_location(
-    "run_trim_lsb_chained", SIM_DIR / "trim-lsb-chained" / "run_trim_lsb_chained.py"
+from script_module import load_script_module  # noqa: E402
+
+rt = load_script_module(
+    SIM_DIR / "trim-lsb-chained" / "run_trim_lsb_chained.py", "run_trim_lsb_chained"
 )
-rt = importlib.util.module_from_spec(_spec)
-sys.modules["run_trim_lsb_chained"] = rt
-_spec.loader.exec_module(rt)
 
 PIN = {"variant": "sky130A", "ngspice_lib": "sky130.lib.spice"}
 

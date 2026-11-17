@@ -23,8 +23,8 @@ Run directly (`python3 scripts/ci/tests/test_content_hash.py`) or via
 from __future__ import annotations
 
 import hashlib
-import importlib.util
 import re
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -32,10 +32,10 @@ from pathlib import Path
 CI_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = CI_DIR.parents[1]
 
-_spec = importlib.util.spec_from_file_location("content_hash", CI_DIR / "content_hash.py")
-assert _spec and _spec.loader
-ch = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(ch)
+sys.path.insert(0, str(CI_DIR))
+from script_module import load_script_module  # noqa: E402
+
+ch = load_script_module(CI_DIR / "content_hash.py", "content_hash")
 
 #: Trees whose non-test Python is expected to hash through `content_hash`.
 SCANNED_TREES = ("sim", "layout", "scripts")

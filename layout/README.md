@@ -390,8 +390,9 @@ realizing it — a `cap_mim` MIM-cap overlay if feasible, or the MOS cap the
 schematic already states otherwise. Checked and found infeasible on two
 independent grounds (tooling: PR #124, `layout/matching-plan.md` Section
 7bb, filed as [klayout-tools#775](https://github.com/2AMLogic/klayout-tools/issues/775);
-LVS device-class matching: Section 7cc, `MCC_MIM_INFEASIBLE_NOTE` in
-`gen_bandgap_routed.py`). `MCC` is now drawn as the `pfet` MOS-as-capacitor
+LVS device-class matching: Section 7cc,
+`layout/generator-notes.md#mcc-mim-infeasible-note`). `MCC` is now drawn as
+the `pfet` MOS-as-capacitor
 device the schematic already specifies (block `amp_cc`), and `klt lvs`
 reports **`mismatch_count: 0`** — the cause above is retired. The composed
 cell now measures 73,989 µm². The Area budget was relaxed from 50,000 µm² to
@@ -584,8 +585,15 @@ this flow's `connectivity[]` declaration) and also drives the router's
 ordering search, so a scoring bug silently changes which layout gets drawn.
 
 ```bash
-npm run test:unit    # or: python3 -m unittest discover -s layout/tests
+npm run test:unit    # or: scripts/ci/py311.sh -m unittest discover -s layout/tests
 ```
+
+CI pins Python 3.11 (`.github/workflows/ci.yml`) and is the authority — 3.11
+is the supported floor, so `npm run test:unit` and `npm run test:compile`
+resolve a 3.11 interpreter for local runs via `scripts/ci/py311.sh` (PATH,
+then a uv-managed `~/.local/share/uv/python` cpython-3.11, else `python3`
+with a warning), so a newer-only stdlib API can no longer pass locally and
+fail in CI (issue #587).
 
 `layout/tests/test_routed_flow_gates.py` covers those plus the gate
 composition, in milliseconds, with **no `klt` install and no PDK** — so they

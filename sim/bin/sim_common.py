@@ -25,7 +25,6 @@ For the history of which issue added which helper, see
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
 import math
 import os
@@ -50,6 +49,7 @@ ARTIFACT_MANIFEST_DIR = Path("manifests") / "artifacts"
 sys.path.insert(0, str(REPO_DIR / "scripts" / "ci"))
 
 from content_hash import sha256_file  # noqa: E402
+from script_module import load_script_module  # noqa: E402
 
 
 @dataclass(frozen=True)
@@ -130,6 +130,88 @@ def add_common_args(
         help="run even if the installed PDK differs from the sim/pdk.json pin",
     )
     parser.add_argument("--dry-run", action="store_true", help="print the plan, write nothing under sim/")
+
+
+#: `--batch-capacity-wait-s` default for every harness that can submit to the
+#: Spot batch fleet: how long one `klt sim` submission waits for Spot capacity
+#: (with backoff) before failing instead. The fleet is vCPU-budgeted, so a burst
+#: of submissions gets `batch_no_capacity` and this is what keeps a submit
+#: waiting rather than failing the step outright.
+DEFAULT_BATCH_CAPACITY_WAIT_S = 3600.0
+
+#: `--batch-runner-version-check` default: `klt`'s runner/client version-skew
+#: policy. `"enforce"` refuses a run against a skewed fleet runner; `"warn"`
+#: proceeds and says so.
+DEFAULT_BATCH_RUNNER_VERSION_CHECK = "enforce"
+
+#: The canonical `--help` text for the two batch flags whose wording is the same
+#: for every bench. Before issue #544 each of the six harnesses carried its own
+#: copy of these two strings and they had drifted into three wordings apiece, so
+#: `--help` for the same flag read differently depending on which bench you
+#: asked. They are module constants rather than literals inside
+#: `add_batch_args()` so a test can assert the rendered `--help` of every bench
+#: against the one source (`sim/tests/test_batch_cli_flags.py`).
+BATCH_CAPACITY_WAIT_HELP = (
+    "batch only: wait this long for Spot capacity per submission "
+    f"(default {DEFAULT_BATCH_CAPACITY_WAIT_S:g})"
+)
+BATCH_RUNNER_VERSION_CHECK_HELP = (
+    "batch only: klt runner/client version-skew policy "
+    f"(default {DEFAULT_BATCH_RUNNER_VERSION_CHECK})"
+)
+
+
+def add_batch_args(parser: argparse.ArgumentParser, *, backend_help: str) -> None:
+    """Add the `--backend`/`--batch-capacity-wait-s`/`--batch-runner-version-check`
+    flag block that six production harnesses each hand-rolled identically in
+    their own `parse_args()` -- `corner-run.py`, `post_layout_common.py`, both
+    Monte Carlo runners and both PSRR injector benches (issue #544).
+
+    This finishes for the batch flag set what `add_common_args()` above did for
+    `--author`/`--timeout`/... in issue #207: the batch flags landed *beside*
+    that helper instead of inside it, and by six copies in they had drifted --
+    `type`/`default`/`choices` still agreed but the help text had split into
+    three wordings for each of the two flags canonicalised here.
+
+    It is a sibling of `add_common_args()` rather than an `add_common_args(...,
+    batch_flags=True)` parameter because only two of those six callers (the two
+    Monte Carlo runners) call `add_common_args()` at all -- the other four
+    hand-roll their own `--author`/`--timeout`/`--dry-run` set with per-bench
+    help text and per-bench extra flags interleaved, so a parameter on that
+    helper would have been unusable by four of the six. Flags are listed in
+    `--help` in the order they are added, so callers put this call exactly where
+    their `--backend` block already was.
+
+    `backend_help` is required and has no default because `--backend`'s help
+    legitimately differs per bench: `corner-run.py` and `post_layout_common.py`
+    each name their own enabled-slug set, the Monte Carlo runners describe a
+    per-point `klt sim` Monte Carlo request, and the PSRR benches describe a
+    per-point grid. Only the two flags whose text was identical in intent across
+    all six are canonicalised here.
+
+    The genuinely per-bench batch flags (`--batch-hosts`,
+    `--batch-max-concurrent-jobs`, `--batch-max-jobs`, `--batch-resume`) stay in
+    the benches that implement them -- no bench should advertise a flag its own
+    backend ignores -- so callers add those around this call.
+    """
+    parser.add_argument(
+        "--backend",
+        choices=("local", "batch"),
+        default="local",
+        help=backend_help,
+    )
+    parser.add_argument(
+        "--batch-capacity-wait-s",
+        type=float,
+        default=DEFAULT_BATCH_CAPACITY_WAIT_S,
+        help=BATCH_CAPACITY_WAIT_HELP,
+    )
+    parser.add_argument(
+        "--batch-runner-version-check",
+        choices=("enforce", "warn"),
+        default=DEFAULT_BATCH_RUNNER_VERSION_CHECK,
+        help=BATCH_RUNNER_VERSION_CHECK_HELP,
+    )
 
 
 def build_mismatch_points(
@@ -264,17 +346,7 @@ def load_corner_run() -> ModuleType:
     annotations through `sys.modules[cls.__module__]`, which fails on an
     unregistered module.
     """
-    cached = sys.modules.get("corner_run")
-    if cached is not None:
-        return cached
-    path = BIN_DIR / "corner-run.py"
-    spec = importlib.util.spec_from_file_location("corner_run", path)
-    if spec is None or spec.loader is None:  # pragma: no cover - defensive
-        raise RuntimeError(f"cannot load {path}")
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
+    return load_script_module(BIN_DIR / "corner-run.py", "corner_run")
 
 
 def check_pdk_and_ngspice(
@@ -388,11 +460,10 @@ def _tracked_hashes(repo_root: Path) -> dict[str, str]:
     `tracked_hashes()` (loaded from scripts/ci so there is one copy of the
     rule-4 hashing). Fails closed if git cannot list the files."""
     checker = REPO_DIR / "scripts" / "ci" / "check_artifact_manifests.py"
-    spec = importlib.util.spec_from_file_location("check_artifact_manifests", checker)
-    if spec is None or spec.loader is None:
-        raise EvidenceStoreError(f"cannot load {checker}")
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
+    try:
+        mod = load_script_module(checker, "check_artifact_manifests", cached=False)
+    except RuntimeError as err:
+        raise EvidenceStoreError(str(err)) from err
     try:
         return mod.tracked_hashes(repo_root)
     except (subprocess.CalledProcessError, OSError) as err:

@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "status": "pass",
-  "netlist": "sim/startup-ramp-post-layout/netlist-snapshots/20261113-111230-7efdcf3b.spice",
+  "netlist": "sim/startup-ramp-post-layout/netlist-snapshots/20261115-185945-d4ae166e.spice",
   "corner_count": 45,
   "passed": 45,
   "failed": 0,
@@ -24,8 +24,8 @@
     ],
     "recorded_from": [
       {
-        "file": "sim/startup-ramp-post-layout/records/20261113-111230-7efdcf3b.json",
-        "sha256": "f82d556daefff05c7bd37d49534c5970e652bcd567bcaca2ecd98e978c9a6bfe"
+        "file": "sim/startup-ramp-post-layout/records/20261115-185945-d4ae166e.json",
+        "sha256": "b590ac719310c111aa942b3dbb622b55a53cdd1b52c1f624a341935d3f502bb4"
       }
     ],
     "excluded_measurements": {
@@ -41,10 +41,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:8c5fbc0e4fbd9dc15d3bad25ec8236e9d6665cf56dd4be5868bb036ca585bd74",
+      "content_hash": "sha256:ea6b511e1b04a90280ee91da32233879bf44b0871c1b3df0bd28af31c5c2bcfd",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/startup-ramp-post-layout/netlist-snapshots/20261113-111230-7efdcf3b.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/startup-ramp-post-layout/netlist-snapshots/20261115-185945-d4ae166e.spice)"
   },
   "measurements": [
     {
@@ -56,8 +56,8 @@
       },
       "worst_case": {
         "corner_id": "ss_125c_2.97v",
-        "value": 0.000169149,
-        "margin": 0.0008308510000000001
+        "value": 0.000171989,
+        "margin": 0.000828011
       },
       "status": "pass"
     },
@@ -70,8 +70,8 @@
       },
       "worst_case": {
         "corner_id": "fs_-40c_2.97v",
-        "value": 2.712755e-05,
-        "margin": 0.00097287245
+        "value": 2.734691e-05,
+        "margin": 0.00097265309
       },
       "status": "pass"
     },
@@ -83,9 +83,9 @@
         "max": 0.001
       },
       "worst_case": {
-        "corner_id": "sf_125c_2.97v",
-        "value": 4.564099e-05,
-        "margin": 0.0009543590100000001
+        "corner_id": "ff_125c_2.97v",
+        "value": 4.468266e-06,
+        "margin": 0.0009955317340000001
       },
       "status": "pass"
     }
@@ -103,23 +103,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000102976,
+          "value": -0.000102644,
           "status": "pass",
-          "margin": 0.001102976
+          "margin": 0.001102644
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.546368e-06,
+          "value": 1.613405e-06,
           "status": "pass",
-          "margin": 0.000998453632
+          "margin": 0.000998386595
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.026964e-08,
+          "value": 7.824846e-09,
           "status": "pass",
-          "margin": 0.00099998973036
+          "margin": 0.000999992175154
         }
       ]
     },
@@ -135,23 +135,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -8.89721e-05,
+          "value": -8.86432e-05,
           "status": "pass",
-          "margin": 0.0010889721
+          "margin": 0.0010886432
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 3.903801e-07,
+          "value": 4.197551e-07,
           "status": "pass",
-          "margin": 0.0009996096199
+          "margin": 0.0009995802449
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 8.735191e-09,
+          "value": 6.811122e-09,
           "status": "pass",
-          "margin": 0.000999991264809
+          "margin": 0.000999993188878
         }
       ]
     },
@@ -167,23 +167,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -7.78011e-05,
+          "value": -7.74863e-05,
           "status": "pass",
-          "margin": 0.0010778011
+          "margin": 0.0010774863
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 2.469899e-07,
+          "value": 2.566999e-07,
           "status": "pass",
-          "margin": 0.0009997530101
+          "margin": 0.0009997433001
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 7.668642e-09,
+          "value": 5.991398e-09,
           "status": "pass",
-          "margin": 0.000999992331358
+          "margin": 0.0009999940086020001
         }
       ]
     },
@@ -199,23 +199,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000162953,
+          "value": -0.000162619,
           "status": "pass",
-          "margin": 0.001162953
+          "margin": 0.001162619
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.55309e-06,
+          "value": 1.59044e-06,
           "status": "pass",
-          "margin": 0.00099844691
+          "margin": 0.00099840956
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.137287e-08,
+          "value": 9.007413e-09,
           "status": "pass",
-          "margin": 0.00099998862713
+          "margin": 0.000999990992587
         }
       ]
     },
@@ -231,23 +231,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000141571,
+          "value": -0.000141238,
           "status": "pass",
-          "margin": 0.001141571
+          "margin": 0.001141238
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.979301e-07,
+          "value": 5.121371e-07,
           "status": "pass",
-          "margin": 0.0009995020699
+          "margin": 0.0009994878629
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 9.583182e-09,
+          "value": 7.425311e-09,
           "status": "pass",
-          "margin": 0.0009999904168180001
+          "margin": 0.000999992574689
         }
       ]
     },
@@ -263,23 +263,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000124455,
+          "value": -0.000124138,
           "status": "pass",
-          "margin": 0.001124455
+          "margin": 0.001124138
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 2.947419e-07,
+          "value": 3.022779e-07,
           "status": "pass",
-          "margin": 0.0009997052581
+          "margin": 0.0009996977221
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 8.17573e-09,
+          "value": 6.403565e-09,
           "status": "pass",
-          "margin": 0.0009999918242700001
+          "margin": 0.000999993596435
         }
       ]
     },
@@ -295,23 +295,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 5.3776e-05,
+          "value": 5.4813e-05,
           "status": "pass",
-          "margin": 0.0009462240000000001
+          "margin": 0.000945187
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 2.830242e-06,
+          "value": 2.78916e-06,
           "status": "pass",
-          "margin": 0.000997169758
+          "margin": 0.00099721084
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 5.246907e-06,
+          "value": 1.477106e-08,
           "status": "pass",
-          "margin": 0.000994753093
+          "margin": 0.00099998522894
         }
       ]
     },
@@ -327,23 +327,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 5.4423e-05,
+          "value": 5.52754e-05,
           "status": "pass",
-          "margin": 0.0009455770000000001
+          "margin": 0.0009447246000000001
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.32664e-06,
+          "value": 1.304265e-06,
           "status": "pass",
-          "margin": 0.00099867336
+          "margin": 0.000998695735
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.127129e-08,
+          "value": 8.929266e-09,
           "status": "pass",
-          "margin": 0.00099998872871
+          "margin": 0.000999991070734
         }
       ]
     },
@@ -359,23 +359,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 5.528e-05,
+          "value": 5.60611e-05,
           "status": "pass",
-          "margin": 0.00094472
+          "margin": 0.0009439389
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.135989e-07,
+          "value": 4.330489e-07,
           "status": "pass",
-          "margin": 0.0009995864011
+          "margin": 0.0009995669511
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 9.414322e-09,
+          "value": 7.164731e-09,
           "status": "pass",
-          "margin": 0.000999990585678
+          "margin": 0.0009999928352690001
         }
       ]
     },
@@ -391,23 +391,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -2.98215e-05,
+          "value": -2.95015e-05,
           "status": "pass",
-          "margin": 0.0010298215
+          "margin": 0.0010295015000000001
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 7.340233e-06,
+          "value": 7.46479e-06,
           "status": "pass",
-          "margin": 0.000992659767
+          "margin": 0.00099253521
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.011661e-08,
+          "value": 7.720076e-09,
           "status": "pass",
-          "margin": 0.00099998988339
+          "margin": 0.000999992279924
         }
       ]
     },
@@ -423,23 +423,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -2.27927e-05,
+          "value": -2.24765e-05,
           "status": "pass",
-          "margin": 0.0010227927
+          "margin": 0.0010224765
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.237549e-06,
+          "value": 1.253126e-06,
           "status": "pass",
-          "margin": 0.000998762451
+          "margin": 0.000998746874
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 8.63613e-09,
+          "value": 6.676433e-09,
           "status": "pass",
-          "margin": 0.00099999136387
+          "margin": 0.000999993323567
         }
       ]
     },
@@ -455,23 +455,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -1.73564e-05,
+          "value": -1.70507e-05,
           "status": "pass",
-          "margin": 0.0010173564
+          "margin": 0.0010170507
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.522279e-07,
+          "value": 4.558089e-07,
           "status": "pass",
-          "margin": 0.0009995477721
+          "margin": 0.0009995441911
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 7.525351e-09,
+          "value": 5.928849e-09,
           "status": "pass",
-          "margin": 0.0009999924746490001
+          "margin": 0.000999994071151
         }
       ]
     },
@@ -487,23 +487,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -8.63629e-05,
+          "value": -8.60326e-05,
           "status": "pass",
-          "margin": 0.0010863629
+          "margin": 0.0010860326
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 5.192772e-06,
+          "value": 5.343895e-06,
           "status": "pass",
-          "margin": 0.000994807228
+          "margin": 0.000994656105
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.120397e-08,
+          "value": 8.865344e-09,
           "status": "pass",
-          "margin": 0.00099998879603
+          "margin": 0.000999991134656
         }
       ]
     },
@@ -519,23 +519,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -7.22411e-05,
+          "value": -7.19232e-05,
           "status": "pass",
-          "margin": 0.0010722411
+          "margin": 0.0010719232
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.274515e-06,
+          "value": 1.311653e-06,
           "status": "pass",
-          "margin": 0.000998725485
+          "margin": 0.000998688347
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 9.442292e-09,
+          "value": 7.281213e-09,
           "status": "pass",
-          "margin": 0.000999990557708
+          "margin": 0.000999992718787
         }
       ]
     },
@@ -551,23 +551,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -6.11228e-05,
+          "value": -6.08176e-05,
           "status": "pass",
-          "margin": 0.0010611228000000001
+          "margin": 0.0010608176000000001
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 5.278929e-07,
+          "value": 5.476189e-07,
           "status": "pass",
-          "margin": 0.0009994721071
+          "margin": 0.0009994523811
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 8.025013e-09,
+          "value": 6.337418e-09,
           "status": "pass",
-          "margin": 0.000999991974987
+          "margin": 0.000999993662582
         }
       ]
     },
@@ -583,23 +583,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 0.000169149,
+          "value": 0.000171989,
           "status": "pass",
-          "margin": 0.0008308510000000001
+          "margin": 0.000828011
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 5.052505e-06,
+          "value": 5.029205e-06,
           "status": "pass",
-          "margin": 0.0009949474950000001
+          "margin": 0.000994970795
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.730902e-08,
+          "value": 1.156452e-08,
           "status": "pass",
-          "margin": 0.00099998269098
+          "margin": 0.00099998843548
         }
       ]
     },
@@ -615,23 +615,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 0.0001147696,
+          "value": 0.0001155765,
           "status": "pass",
-          "margin": 0.0008852304
+          "margin": 0.0008844235
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 2.010698e-06,
+          "value": 1.972193e-06,
           "status": "pass",
-          "margin": 0.000997989302
+          "margin": 0.000998027807
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.103698e-08,
+          "value": 8.734904e-09,
           "status": "pass",
-          "margin": 0.00099998896302
+          "margin": 0.000999991265096
         }
       ]
     },
@@ -647,23 +647,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 0.0001096197,
+          "value": 0.0001103558,
           "status": "pass",
-          "margin": 0.0008903803
+          "margin": 0.0008896442
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 6.245259e-07,
+          "value": 7.200509e-07,
           "status": "pass",
-          "margin": 0.0009993754741
+          "margin": 0.0009992799491
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 9.248472e-09,
+          "value": 7.071323e-09,
           "status": "pass",
-          "margin": 0.000999990751528
+          "margin": 0.000999992928677
         }
       ]
     },
@@ -679,23 +679,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000179517,
+          "value": -0.000179166,
           "status": "pass",
-          "margin": 0.001179517
+          "margin": 0.001179166
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 3.36835e-07,
+          "value": 3.65511e-07,
           "status": "pass",
-          "margin": 0.000999663165
+          "margin": 0.0009996344890000001
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.042632e-08,
+          "value": 7.892585e-09,
           "status": "pass",
-          "margin": 0.00099998957368
+          "margin": 0.000999992107415
         }
       ]
     },
@@ -711,23 +711,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000158166,
+          "value": -0.000157832,
           "status": "pass",
-          "margin": 0.001158166
+          "margin": 0.0011578320000000001
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.648631e-07,
+          "value": 1.720171e-07,
           "status": "pass",
-          "margin": 0.0009998351369
+          "margin": 0.0009998279829000001
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 8.841258e-09,
+          "value": 6.901352e-09,
           "status": "pass",
-          "margin": 0.000999991158742
+          "margin": 0.000999993098648
         }
       ]
     },
@@ -743,23 +743,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000140954,
+          "value": -0.000140622,
           "status": "pass",
-          "margin": 0.001140954
+          "margin": 0.001140622
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.216668e-07,
+          "value": 1.522779e-07,
           "status": "pass",
-          "margin": 0.0009998783332
+          "margin": 0.0009998477221000001
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 7.764973e-09,
+          "value": 6.047651e-09,
           "status": "pass",
-          "margin": 0.000999992235027
+          "margin": 0.000999993952349
         }
       ]
     },
@@ -775,23 +775,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000243235,
+          "value": -0.000242884,
           "status": "pass",
-          "margin": 0.001243235
+          "margin": 0.001242884
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.62292e-07,
+          "value": 4.74935e-07,
           "status": "pass",
-          "margin": 0.000999537708
+          "margin": 0.000999525065
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.15178e-08,
+          "value": 9.149089e-09,
           "status": "pass",
-          "margin": 0.0009999884822
+          "margin": 0.000999990850911
         }
       ]
     },
@@ -807,23 +807,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000214034,
+          "value": -0.000213694,
           "status": "pass",
-          "margin": 0.0012140340000000001
+          "margin": 0.001213694
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 2.148501e-07,
+          "value": 2.235101e-07,
           "status": "pass",
-          "margin": 0.0009997851499
+          "margin": 0.0009997764899
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 9.609992e-09,
+          "value": 7.477258e-09,
           "status": "pass",
-          "margin": 0.000999990390008
+          "margin": 0.000999992522742
         }
       ]
     },
@@ -839,23 +839,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000190523,
+          "value": -0.000190198,
           "status": "pass",
-          "margin": 0.001190523
+          "margin": 0.001190198
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.680783e-07,
+          "value": 1.647225e-07,
           "status": "pass",
-          "margin": 0.0009998319217
+          "margin": 0.0009998352775000001
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 8.262354e-09,
+          "value": 6.463476e-09,
           "status": "pass",
-          "margin": 0.000999991737646
+          "margin": 0.000999993536524
         }
       ]
     },
@@ -871,23 +871,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -2.27447e-05,
+          "value": -2.17777e-05,
           "status": "pass",
-          "margin": 0.0010227447
+          "margin": 0.0010217777
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.738177e-06,
+          "value": 1.700912e-06,
           "status": "pass",
-          "margin": 0.000998261823
+          "margin": 0.000998299088
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 4.876135e-06,
+          "value": 4.468266e-06,
           "status": "pass",
-          "margin": 0.0009951238650000001
+          "margin": 0.0009955317340000001
         }
       ]
     },
@@ -903,23 +903,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -1.38687e-05,
+          "value": -1.29981e-05,
           "status": "pass",
-          "margin": 0.0010138687
+          "margin": 0.0010129981
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.076781e-07,
+          "value": 4.287091e-07,
           "status": "pass",
-          "margin": 0.0009995923219
+          "margin": 0.0009995712909
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.158492e-08,
+          "value": 9.200392e-09,
           "status": "pass",
-          "margin": 0.00099998841508
+          "margin": 0.0009999907996080001
         }
       ]
     },
@@ -935,23 +935,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -7.0257e-06,
+          "value": -6.2279e-06,
           "status": "pass",
-          "margin": 0.0010070257
+          "margin": 0.0010062279
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 2.648109e-07,
+          "value": 2.712829e-07,
           "status": "pass",
-          "margin": 0.0009997351891
+          "margin": 0.0009997287171000001
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 9.646842e-09,
+          "value": 7.313915e-09,
           "status": "pass",
-          "margin": 0.000999990353158
+          "margin": 0.0009999926860850001
         }
       ]
     },
@@ -967,23 +967,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000222574,
+          "value": -0.000222225,
           "status": "pass",
-          "margin": 0.001222574
+          "margin": 0.001222225
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.33198e-07,
+          "value": 1.45735e-07,
           "status": "pass",
-          "margin": 0.0009998668020000001
+          "margin": 0.000999854265
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 9.806879e-09,
+          "value": 7.663931e-09,
           "status": "pass",
-          "margin": 0.000999990193121
+          "margin": 0.000999992336069
         }
       ]
     },
@@ -999,23 +999,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000197202,
+          "value": -0.000196859,
           "status": "pass",
-          "margin": 0.001197202
+          "margin": 0.001196859
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.7642e-08,
+          "value": 5.37258e-08,
           "status": "pass",
-          "margin": 0.000999952358
+          "margin": 0.0009999462742
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 8.475494e-09,
+          "value": 6.5389e-09,
           "status": "pass",
-          "margin": 0.000999991524506
+          "margin": 0.0009999934611
         }
       ]
     },
@@ -1031,23 +1031,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.00017666,
+          "value": -0.000176329,
           "status": "pass",
-          "margin": 0.00117666
+          "margin": 0.001176329
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.53443e-08,
+          "value": 4.3458e-08,
           "status": "pass",
-          "margin": 0.0009999546557
+          "margin": 0.000999956542
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 7.400998e-09,
+          "value": 5.790208e-09,
           "status": "pass",
-          "margin": 0.000999992599002
+          "margin": 0.000999994209792
         }
       ]
     },
@@ -1063,23 +1063,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.00028602,
+          "value": -0.000285655,
           "status": "pass",
-          "margin": 0.0012860200000000001
+          "margin": 0.0012856550000000001
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 2.56434e-07,
+          "value": 2.83688e-07,
           "status": "pass",
-          "margin": 0.0009997435660000001
+          "margin": 0.000999716312
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.10629e-08,
+          "value": 8.465997e-09,
           "status": "pass",
-          "margin": 0.0009999889371
+          "margin": 0.000999991534003
         }
       ]
     },
@@ -1095,23 +1095,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000252107,
+          "value": -0.00025175,
           "status": "pass",
-          "margin": 0.0012521070000000001
+          "margin": 0.00125175
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.515961e-07,
+          "value": 1.594381e-07,
           "status": "pass",
-          "margin": 0.0009998484039
+          "margin": 0.0009998405619
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 9.215572e-09,
+          "value": 7.146572e-09,
           "status": "pass",
-          "margin": 0.000999990784428
+          "margin": 0.000999992853428
         }
       ]
     },
@@ -1127,23 +1127,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000224836,
+          "value": -0.00022449,
           "status": "pass",
-          "margin": 0.001224836
+          "margin": 0.00122449
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.537956e-07,
+          "value": 1.437514e-07,
           "status": "pass",
-          "margin": 0.0009998462044
+          "margin": 0.0009998562486
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 7.954531e-09,
+          "value": 6.158698e-09,
           "status": "pass",
-          "margin": 0.000999992045469
+          "margin": 0.000999993841302
         }
       ]
     },
@@ -1159,23 +1159,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 0.000114192,
+          "value": 0.000115646,
           "status": "pass",
-          "margin": 0.0008858080000000001
+          "margin": 0.0008843540000000001
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.999668e-06,
+          "value": 1.954776e-06,
           "status": "pass",
-          "margin": 0.000998000332
+          "margin": 0.0009980452240000001
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 4.564099e-05,
+          "value": 1.173467e-08,
           "status": "pass",
-          "margin": 0.0009543590100000001
+          "margin": 0.00099998826533
         }
       ]
     },
@@ -1191,23 +1191,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 9.24626e-05,
+          "value": 9.3283e-05,
           "status": "pass",
-          "margin": 0.0009075374000000001
+          "margin": 0.000906717
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 5.115891e-07,
+          "value": 9.214561e-07,
           "status": "pass",
-          "margin": 0.0009994884109
+          "margin": 0.0009990785439
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.107911e-08,
+          "value": 8.294435e-09,
           "status": "pass",
-          "margin": 0.00099998892089
+          "margin": 0.000999991705565
         }
       ]
     },
@@ -1223,23 +1223,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 8.89839e-05,
+          "value": 8.97537e-05,
           "status": "pass",
-          "margin": 0.0009110161
+          "margin": 0.0009102463000000001
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 2.846349e-07,
+          "value": 2.923389e-07,
           "status": "pass",
-          "margin": 0.0009997153651000001
+          "margin": 0.0009997076611000001
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 8.936536e-09,
+          "value": 6.861108e-09,
           "status": "pass",
-          "margin": 0.000999991063464
+          "margin": 0.000999993138892
         }
       ]
     },
@@ -1255,23 +1255,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 1.97119e-05,
+          "value": 2.00385e-05,
           "status": "pass",
-          "margin": 0.0009802881
+          "margin": 0.0009799615
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 2.712755e-05,
+          "value": 2.734691e-05,
           "status": "pass",
-          "margin": 0.00097287245
+          "margin": 0.00097265309
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.057725e-08,
+          "value": 8.248498e-09,
           "status": "pass",
-          "margin": 0.0009999894227500001
+          "margin": 0.000999991751502
         }
       ]
     },
@@ -1287,23 +1287,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 2.23608e-05,
+          "value": 2.26787e-05,
           "status": "pass",
-          "margin": 0.0009776392
+          "margin": 0.0009773213
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.093923e-06,
+          "value": 4.196107e-06,
           "status": "pass",
-          "margin": 0.000995906077
+          "margin": 0.000995803893
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 8.854128e-09,
+          "value": 6.987016e-09,
           "status": "pass",
-          "margin": 0.000999991145872
+          "margin": 0.000999993012984
         }
       ]
     },
@@ -1319,23 +1319,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 2.41358e-05,
+          "value": 2.44449e-05,
           "status": "pass",
-          "margin": 0.0009758642
+          "margin": 0.0009755551000000001
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 8.802439e-07,
+          "value": 9.129179e-07,
           "status": "pass",
-          "margin": 0.0009991197561
+          "margin": 0.0009990870821
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 7.813875e-09,
+          "value": 6.174e-09,
           "status": "pass",
-          "margin": 0.000999992186125
+          "margin": 0.000999993826
         }
       ]
     },
@@ -1351,23 +1351,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -5.95084e-05,
+          "value": -5.91735e-05,
           "status": "pass",
-          "margin": 0.0010595084
+          "margin": 0.0010591735
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 9.109989e-06,
+          "value": 9.236649e-06,
           "status": "pass",
-          "margin": 0.000990890011
+          "margin": 0.000990763351
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.16753e-08,
+          "value": 9.419189e-09,
           "status": "pass",
-          "margin": 0.0009999883247
+          "margin": 0.000999990580811
         }
       ]
     },
@@ -1383,23 +1383,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -4.77156e-05,
+          "value": -4.7385e-05,
           "status": "pass",
-          "margin": 0.0010477156
+          "margin": 0.001047385
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 2.052112e-06,
+          "value": 2.102768e-06,
           "status": "pass",
-          "margin": 0.000997947888
+          "margin": 0.000997897232
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 9.926332e-09,
+          "value": 7.604089e-09,
           "status": "pass",
-          "margin": 0.000999990073668
+          "margin": 0.000999992395911
         }
       ]
     },
@@ -1415,23 +1415,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -3.8552e-05,
+          "value": -3.82372e-05,
           "status": "pass",
-          "margin": 0.001038552
+          "margin": 0.0010382372
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 7.401539e-07,
+          "value": 7.684169e-07,
           "status": "pass",
-          "margin": 0.0009992598461
+          "margin": 0.0009992315831
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 8.499653e-09,
+          "value": 6.590736e-09,
           "status": "pass",
-          "margin": 0.000999991500347
+          "margin": 0.000999993409264
         }
       ]
     },
@@ -1447,23 +1447,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -1.11967e-05,
+          "value": -1.01579e-05,
           "status": "pass",
-          "margin": 0.0010111967
+          "margin": 0.0010101579000000001
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 2.855909e-06,
+          "value": 2.844238e-06,
           "status": "pass",
-          "margin": 0.000997144091
+          "margin": 0.000997155762
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 2.679484e-06,
+          "value": 2.642922e-06,
           "status": "pass",
-          "margin": 0.000997320516
+          "margin": 0.000997357078
         }
       ]
     },
@@ -1479,23 +1479,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -4.2153e-06,
+          "value": -3.3208e-06,
           "status": "pass",
-          "margin": 0.0010042153
+          "margin": 0.0010033208
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 9.480851e-07,
+          "value": 9.891461e-07,
           "status": "pass",
-          "margin": 0.0009990519149
+          "margin": 0.0009990108539
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.232966e-08,
+          "value": 9.434352e-09,
           "status": "pass",
-          "margin": 0.00099998767034
+          "margin": 0.000999990565648
         }
       ]
     },
@@ -1511,23 +1511,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 1.034e-06,
+          "value": 1.8311e-06,
           "status": "pass",
-          "margin": 0.000998966
+          "margin": 0.0009981689
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.920819e-07,
+          "value": 4.988269e-07,
           "status": "pass",
-          "margin": 0.0009995079181
+          "margin": 0.0009995011731000001
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 9.799392e-09,
+          "value": 7.42029e-09,
           "status": "pass",
-          "margin": 0.0009999902006080001
+          "margin": 0.00099999257971
         }
       ]
     }

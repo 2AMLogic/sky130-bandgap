@@ -23,7 +23,6 @@ importing this module, and this module does the same for `sim/bin`.
 from __future__ import annotations
 
 import hashlib
-import importlib.util
 import json
 import sys
 import tempfile
@@ -32,20 +31,18 @@ from types import SimpleNamespace
 
 SIM_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SIM_DIR / "bin"))
+sys.path.insert(0, str(SIM_DIR.parent / "scripts" / "ci"))
 
 import batch_sim  # noqa: E402
 import sim_common  # noqa: E402
+from script_module import load_script_module  # noqa: E402
 
 cr = sim_common.load_corner_run()
 
 
 def _load_runner(path, name):
     """Import one bench's runner under its own module name."""
-    spec = importlib.util.spec_from_file_location(name, path)
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules[name] = mod
-    spec.loader.exec_module(mod)
-    return mod
+    return load_script_module(path, name)
 
 
 def _shard_ids(point, shards):
