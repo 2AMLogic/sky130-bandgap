@@ -151,6 +151,40 @@ class UntrackedStateTest(AttestTestCase):
         self.assertEqual(code, 1)
         self.assertIn("testbench-inventory.json: stale", err)
 
+    def test_untracked_bin_module_and_pycache_do_not_change_the_inventory(self) -> None:
+        self.assertEqual(self.run_attest()[0], 0)
+        (self.root / "sim" / "bin" / "scratch_module.py").write_text("# scratch\n")
+        pycache = self.root / "sim" / "bin" / "__pycache__"
+        pycache.mkdir()
+        (pycache / "sim_common.cpython-311.pyc").write_bytes(b"\x00")
+        (pycache / "stray.py").write_text("# stray\n")
+        code, err = self.run_attest()
+        self.assertEqual(code, 0, err)
+
+
+class HarnessScopeTest(AttestTestCase):
+    """The item-9 harness list is every sim/bin/*.py module, derived (issue #602)."""
+
+    def test_every_bin_module_is_inventoried_as_harness(self) -> None:
+        roles = {e["path"]: e["role"] for e in attest.testbench_inventory()["harness"]}
+        for module in (self.root / "sim" / "bin").glob("*.py"):
+            path = module.relative_to(self.root).as_posix()
+            self.assertEqual(roles.pop(path, None), "harness", path)
+        self.assertEqual(
+            roles, {"sim/pdk.json": "pdk-pin", "sim/spiceinit": "harness"}
+        )
+
+    def test_editing_a_shared_bin_module_fails(self) -> None:
+        for name in ("batch_sim.py", "post_layout_common.py", "injector_common.py"):
+            with self.subTest(name=name):
+                module = self.root / "sim" / "bin" / name
+                original = module.read_text()
+                module.write_text(original + "\n# edited\n")
+                code, err = self.run_attest()
+                module.write_text(original)
+                self.assertEqual(code, 1)
+                self.assertIn("testbench-inventory.json: stale", err)
+
 
 class NegativeControlTest(AttestTestCase):
     def test_editing_a_schematic_fails_attest_and_netlist_lock(self) -> None:

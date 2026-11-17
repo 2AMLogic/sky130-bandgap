@@ -184,17 +184,30 @@ def testbench_dirs() -> tuple[list[dict], list[str]]:
     return rows, record_only
 
 
+def harness_roles() -> list[tuple[str, str]]:
+    """The shared harness: the PDK pin, the ngspice config, every sim/bin/*.py.
+
+    The module list is derived from the tree -- git-tracked files only, so
+    local scratch under sim/bin/ cannot move the inventory -- rather than
+    hard-coded: bench families keep growing sibling shared modules
+    (post_layout_common.py, injector_common.py), and a literal list left each
+    new one outside the item-9 freshness gate (issue #602). pdk-env.sh is
+    shell setup, not a bench driver; per-bench runners are inventoried under
+    `testbenches`.
+    """
+    git_files = tracked_under("sim/bin")
+    roles = [("sim/pdk.json", "pdk-pin"), ("sim/spiceinit", "harness")]
+    for path in sorted((REPO_ROOT / "sim" / "bin").glob("*.py")):
+        if not path.is_file() or (git_files is not None and path not in git_files):
+            continue
+        roles.append((path.relative_to(REPO_ROOT).as_posix(), "harness"))
+    return roles
+
+
 def testbench_inventory() -> dict:
     rows, record_only = testbench_dirs()
     pdk = json.loads((REPO_ROOT / "sim/pdk.json").read_text())
-    harness = entries(
-        [
-            ("sim/pdk.json", "pdk-pin"),
-            ("sim/bin/corner-run.py", "harness"),
-            ("sim/bin/sim_common.py", "harness"),
-            ("sim/spiceinit", "harness"),
-        ]
-    )
+    harness = entries(harness_roles())
     benches = []
     for row in rows:
         benches.append(
