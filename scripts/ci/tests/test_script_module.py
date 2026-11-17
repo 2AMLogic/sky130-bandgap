@@ -90,6 +90,51 @@ class LoadScriptModuleTest(unittest.TestCase):
         self.assertIsNot(first.MARK, again.MARK)
         self.assertIs(sys.modules["sm_probe_fresh"], again)
 
+    def test_a_name_reused_for_a_different_file_raises_even_uncached(self) -> None:
+        """The origin guard runs on every call that finds an existing
+        registration, not only cached ones: `cached=False` must not
+        silently re-execute a different file under an occupied name, and
+        the raise must leave the prior registration untouched."""
+        first = self.load("sm_probe_reused_fresh", "VALUE = 1\n")
+        other = self.dir / "sm_probe_other_fresh.py"
+        other.write_text("VALUE = 2\n")
+        with self.assertRaises(RuntimeError) as ctx:
+            load_script_module(other, "sm_probe_reused_fresh", cached=False)
+        message = str(ctx.exception)
+        self.assertIn("sm_probe_reused_fresh", message)
+        self.assertIn("sm_probe_reused_fresh.py", message)
+        self.assertIn("sm_probe_other_fresh.py", message)
+        self.assertIs(sys.modules["sm_probe_reused_fresh"], first)
+
+    def test_symlinked_same_file_reload_reexecutes_uncached(self) -> None:
+        """`cached=False` through a differently-spelled path to the same
+        file passes the origin guard (resolved comparison) and re-executes
+        instead of raising."""
+        real = self.dir / "sm_probe_link_fresh.py"
+        real.write_text("MARK = object()\n")
+        self.addCleanup(sys.modules.pop, "sm_probe_link_fresh", None)
+        first = load_script_module(real, "sm_probe_link_fresh")
+        link = self.dir / "sm_probe_link_alias.py"
+        link.symlink_to(real)
+        again = load_script_module(link, "sm_probe_link_fresh", cached=False)
+        self.assertIsNot(first, again)
+        self.assertIs(sys.modules["sm_probe_link_fresh"], again)
+
+    def test_path_spellings_resolve_for_the_origin_check(self) -> None:
+        """`str` vs `Path` and redundant-`..` spellings compare resolved:
+        spellings of the same file are a cache hit, a `str` path to a
+        different file still raises."""
+        first = self.load("sm_probe_spelling", "VALUE = 9\n")
+        plain = str(self.dir / "sm_probe_spelling.py")
+        self.assertIs(load_script_module(plain, "sm_probe_spelling"), first)
+        roundabout = str(self.dir / "sub" / ".." / "sm_probe_spelling.py")
+        self.assertIs(load_script_module(roundabout, "sm_probe_spelling"), first)
+        other = self.dir / "sm_probe_spelling_other.py"
+        other.write_text("VALUE = 10\n")
+        with self.assertRaises(RuntimeError):
+            load_script_module(str(other), "sm_probe_spelling")
+        self.assertIs(sys.modules["sm_probe_spelling"], first)
+
     def test_a_spec_less_path_raises_runtime_error(self) -> None:
         with self.assertRaises(RuntimeError):
             load_script_module(self.dir, "sm_probe_no_spec")
