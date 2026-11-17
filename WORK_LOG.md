@@ -7,6 +7,15 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 - [2026-09](work_log/WORK_LOG_2026-09.md)
 
+### 2026-11-17
+
+- **PR #597**: fix: compare script_module origin on uncached lookups too
+- **Issue #596** (closed): load_script_module(cached=False) still rebinds a name registered from a different file silently
+- **PR #589**: fix: refuse an empty --variants selection in both psrr-injector benches
+- **Issue #583** (closed): psrr-injector benches: --dry-run tracebacks with IndexError on an empty --variants selection
+- **PR #595**: fix: refuse cross-file cache hits and clean up failed execs in load_script_module
+- **Issue #592** (closed): load_script_module caches on the module name alone, so a name reused for a different file silently returns the wrong module
+
 ### 2026-11-16
 
 - **PR #591**: test: run local test:unit/test:compile under the Python 3.11 CI pin
