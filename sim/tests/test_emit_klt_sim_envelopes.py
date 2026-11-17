@@ -3,17 +3,17 @@
 
 from __future__ import annotations
 
-import importlib.util
 import json
+import sys
 import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 _path = REPO_ROOT / "sim" / "signoff-envelopes" / "emit_klt_sim_envelopes.py"
-_spec = importlib.util.spec_from_file_location("emit_klt_sim_envelopes", _path)
-assert _spec and _spec.loader
-emit = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(emit)
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci"))
+from script_module import load_script_module  # noqa: E402
+
+emit = load_script_module(_path, "emit_klt_sim_envelopes")
 
 
 class EmitTest(unittest.TestCase):

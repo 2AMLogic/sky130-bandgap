@@ -6,7 +6,7 @@
     {
       "path": "README.md",
       "role": "readme",
-      "content_hash": "sha256:6b7be399d22443386346071c7fc1319e815eeab3f57ed4e38f99a3013e01c03c"
+      "content_hash": "sha256:da91189bbf25638b05dfc1e9e5e16189e0d034b113986de82f732ab60f9a9987"
     },
     {
       "path": "LICENSE",
@@ -21,7 +21,7 @@
     {
       "path": "package.json",
       "role": "ci-entry-points",
-      "content_hash": "sha256:74b7a287c673e1a2e328572eebf9ebf21fef68772101a2bc56d75c144c2a190d"
+      "content_hash": "sha256:c89789624e09cccd946981aa07f01723c84400e5a32c38b9a81d27169e90ef2c"
     }
   ],
   "ci": {

@@ -41,18 +41,16 @@ from __future__ import annotations
 
 import copy
 import hashlib
-import importlib.util
 import pathlib
+import sys
 import tempfile
 import unittest
 
 _BIN = pathlib.Path(__file__).resolve().parent.parent / "bin"
-_SPEC = importlib.util.spec_from_file_location(
-    "erc_supply_record", _BIN / "erc_supply_record.py"
-)
-assert _SPEC is not None and _SPEC.loader is not None
-erc_supply_record = importlib.util.module_from_spec(_SPEC)
-_SPEC.loader.exec_module(erc_supply_record)
+sys.path.insert(0, str(_BIN.parent.parent / "scripts" / "ci"))
+from script_module import load_script_module  # noqa: E402
+
+erc_supply_record = load_script_module(_BIN / "erc_supply_record.py", "erc_supply_record")
 
 
 def clean_report(gds_sha: str) -> dict:

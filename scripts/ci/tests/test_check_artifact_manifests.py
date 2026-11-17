@@ -5,20 +5,20 @@ the passing case plus one failing fixture per rule."""
 from __future__ import annotations
 
 import hashlib
-import importlib.util
 import io
 import json
 import subprocess
+import sys
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
 CHECK = Path(__file__).resolve().parents[1] / "check_artifact_manifests.py"
-_spec = importlib.util.spec_from_file_location("check_artifact_manifests", CHECK)
-assert _spec and _spec.loader
-cam = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(cam)
+sys.path.insert(0, str(CHECK.parent))
+from script_module import load_script_module  # noqa: E402
+
+cam = load_script_module(CHECK, "check_artifact_manifests")
 
 GOOD_SHA = hashlib.sha256(b"stored elsewhere").hexdigest()
 

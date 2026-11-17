@@ -325,14 +325,19 @@ The consequence is disclosed, not hidden — no resolver change was made
 resolution keys on the layout record id, so a fresh-timestamp name would
 never be read by anything.
 
-**The other six post-layout benches' committed records remain measurements
-at `klt` 0.5.0** and stay valid as append-only evidence of what was measured
-then. They are *not* re-graded by this record. Until they are re-run, the
-module's own invariant that every post-layout record for a given layout
-record measures the same extracted netlist no longer holds across benches —
-re-running them is the follow-up this issue scoped out, and row 6b
-(`sim/quiescent-current-post-layout/`, which shares row 1b's #2359 cause
-claim) is the most affected: its prose is reconciled, its measurement is not.
+**Update (2026-11-15, issue #560): the follow-up has landed.** The five benches with no
+local snapshot for this layout record — `quiescent-current`, `psrr-dc`, `startup-ramp`,
+`line-regulation`, `startup-stability` (all `-post-layout`) — have been re-run and now
+measure **this klt-0.8.0 extraction** (their newest records cite
+`total_resistance_ohm` 179 145.6648 from this snapshot via `resolve_parasitics_snapshot`
+step 2). The one bench this did not reach is `sim/startup-time-post-layout/`, which
+resolves its **own** local klt-0.5.0 snapshot at step 1 before the sibling glob ever runs;
+it is disclosed in its own README and deliberately left there (append-only forbids
+re-extracting over its committed snapshot, and it is bound to no ratified spec row).
+
+The superseded records below remain valid as append-only evidence of what was measured
+then; the module's cross-bench invariant now holds for every post-layout bench except
+`startup-time-post-layout`, whose residual 0.5.0 divergence is disclosed, not hidden.
 
 ### A third `klt` resistor card dialect, and a new tool-gap filing
 

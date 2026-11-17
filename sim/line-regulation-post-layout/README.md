@@ -25,7 +25,9 @@ in the overall verdict alone:
    elements shows this is the **drawn chained array**, not the parasitics
    (which move `K = R2/R1` by only −0.2 %): a different mechanism, on the
    very same extracted netlist, from the one
-   `sim/quiescent-current-post-layout/` attributed its −35.8 % Iq shift to.
+   `sim/quiescent-current-post-layout/` attributed its −35.8 % Iq shift to at the klt-0.5.0
+   pin (re-measured at the klt-0.8.0 pin by issue #560 on 2026-11-15, the divergence is now
+   −10.5 % mean / −11.5 % at `tt/27 °C/3.30 V`; see that bench's `README.md`).
 
 ## What the records say
 
@@ -241,8 +243,8 @@ Applying it in two steps isolates the two mechanisms above:
 | residual (measured − A − B) | **−1.99 mV** (sd 0.50) | −2.83 … −1.15 |
 
 So the drawn array raises VREF by ~40 mV, the parasitics pull ~8 mV of that
-back (via the −35.8 % branch current the sibling Iq record measured, not via
-K), and the model lands within 2 mV — **93 % of the divergence accounted
+back (via the −35.8 % branch current the sibling Iq record measured at the klt-0.5.0 pin, not via
+K; re-measured to −10.5 % mean at the klt-0.8.0 pin by issue #560, 2026-11-15), and the model lands within 2 mV — **93 % of the divergence accounted
 for**, with a residual that is itself nearly constant across process and
 temperature rather than scattered.
 
