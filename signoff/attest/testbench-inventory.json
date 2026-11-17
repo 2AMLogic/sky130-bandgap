@@ -277,7 +277,7 @@
         {
           "path": "sim/psrr-injector-attribution/run_psrr_injector_attribution.py",
           "role": "runner",
-          "content_hash": "sha256:d01d2c5058f2cea6caba2e1cd95a40b107242c599e12ad5ac4317b509bbe9169"
+          "content_hash": "sha256:4da77be43f950bebaab48454950827a805bccc5c5b7d5ec9704ef4544bb35e89"
         }
       ]
     },
@@ -288,7 +288,7 @@
         {
           "path": "sim/psrr-injector-candidates/run_psrr_injector_candidates.py",
           "role": "runner",
-          "content_hash": "sha256:0a821deeade6ed21f4d9b6f5431168b83a1e97141eca45e8eb34a0fa72b81727"
+          "content_hash": "sha256:c4ffa4b32d302df3c480d38f63ae61bf60542c909561888eecd2e8d00f65009d"
         }
       ]
     },
