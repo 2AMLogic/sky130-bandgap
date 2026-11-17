@@ -9,6 +9,8 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-17
 
+- **PR #604**: fix(signoff): derive item-9 harness list from tracked sim/bin/*.py
+- **Issue #602** (closed): T1 item-9 harness attestation hashes only 2 of 5 sim/bin modules; bench-family shared modules are uncovered
 - **PR #567**: refactor(sim): split the psrr-injector-only surface out of sim_common into injector_common.py
 - **Issue #557** (closed): Split the psrr-injector-only surface out of sim_common.py: 359 of its 1776 lines serve exactly two benches
 - **PR #599**: chore(loom): resync installed Loom to v0.19.1306
