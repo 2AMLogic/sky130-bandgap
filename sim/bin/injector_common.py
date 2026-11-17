@@ -21,10 +21,12 @@ attribution bench's `--dry-run`, the candidates bench's ceiling load).
 
 What this module needs from `sim_common` it imports rather than copies
 (`_cr`, `REPO_DIR`, `corner_id`, `parse_measurements`, `run_ngspice`,
-`write_log`, `publish_run_evidence`); the genuinely generic batch-request
-builders (`batch_netlist`, `build_batch_groups`) stay in `sim_common`
-because the Monte Carlo benches share them too. For the history of which
-issue added which helper, see
+`write_log`, `publish_run_evidence`); the generic batch-request builders
+(`batch_netlist`, `build_batch_groups`) stay in `sim_common` (issue #557
+scoped the move out) -- these two injector benches are their only callers;
+the Monte Carlo runners' same-named `batch_netlist` / `build_batch_groups`
+are independent locals with different signatures, not users of these.
+For the history of which issue added which helper, see
 `git log -p -- sim/bin/injector_common.py sim/bin/sim_common.py`.
 """
 

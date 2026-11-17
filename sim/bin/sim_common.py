@@ -1393,10 +1393,12 @@ def seed_stability_checks(
 
 
 # --------------------------------------------------------------------------
-# batch-fleet request builders shared by several of the bespoke benches --
-# the psrr-injector scripts (issue #410) and the Monte Carlo runners
+# batch-fleet request builders whose only callers are the psrr-injector
+# scripts (issue #410). The Monte Carlo runners
 # (`sim/monte-carlo-untrimmed/run_mc_untrimmed.py`,
-# `sim/error-amp-offset-mc/run_amp_offset_mc.py`). The psrr-injector-only
+# `sim/error-amp-offset-mc/run_amp_offset_mc.py`) define their own
+# same-named `batch_netlist` / `build_batch_groups` locals, with different
+# signatures and jobs, and do not use these. The psrr-injector-only
 # batch/log/record surface lives in `injector_common.py` (issue #557).
 # --------------------------------------------------------------------------
 
