@@ -9,6 +9,8 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-17
 
+- **PR #567**: refactor(sim): split the psrr-injector-only surface out of sim_common into injector_common.py
+- **Issue #557** (closed): Split the psrr-injector-only surface out of sim_common.py: 359 of its 1776 lines serve exactly two benches
 - **PR #599**: chore(loom): resync installed Loom to v0.19.1306
 - **PR #597**: fix: compare script_module origin on uncached lookups too
 - **Issue #596** (closed): load_script_module(cached=False) still rebinds a name registered from a different file silently
