@@ -29,7 +29,16 @@ Both halves of that contract live here, for every call site:
   identity, so two independently-loaded copies of one harness script would
   give a caller's `except SomeHarnessError` a chance of not matching an error
   raised through a differently-loaded copy. One name, one module object, one
-  exception class per process (issue #267).
+  exception class per process (issue #267). The cache is keyed on `name`
+  alone, so before a cached entry is returned its `__spec__.origin` is
+  compared (resolved) against the requested `path`: a name already registered
+  from a *different* file raises rather than silently returning the wrong
+  module, while an entry with no usable origin (a namespace package, an
+  ad-hoc module) is returned as-is (issue #592).
+* A raising `exec_module` removes the registration again (restoring any
+  previous one, which only `cached=False` can have replaced) before the
+  exception propagates, so no half-initialized module stays reachable through
+  `sys.modules` (issue #592).
 * A path importlib cannot build a spec/loader for raises `RuntimeError`
   naming the path, instead of failing later on a `None` spec.
 
@@ -62,15 +71,41 @@ def load_script_module(path: Path | str, name: str, *, cached: bool = True) -> M
     for it; callers that must fail closed with their own error type wrap this
     call rather than letting the `RuntimeError` escape (see
     `sim_common._tracked_hashes`).
+
+    With `cached=True`, a repeat call whose resolved `path` differs from the
+    one the registered module was loaded from raises `RuntimeError` naming
+    both paths (issue #592) -- the name-keyed cache would otherwise return
+    the wrong module without reading the file at all. An entry with no usable
+    `__spec__.origin` (a namespace package, a module registered by other
+    means) is returned as-is, since there is nothing to compare. If
+    `exec_module` raises, whatever registration was present before the call
+    is restored (for `cached=False`) or the entry is removed (nothing was
+    there), so no half-initialized module stays registered.
     """
     if cached:
         cached_module = sys.modules.get(name)
         if cached_module is not None:
+            spec = getattr(cached_module, "__spec__", None)
+            cached_origin = getattr(spec, "origin", None)
+            if cached_origin and Path(cached_origin).resolve() != Path(path).resolve():
+                raise RuntimeError(
+                    f"module name {name!r} is already registered from"
+                    f" {cached_origin} but was asked for {path}; load {path}"
+                    " under a different name"
+                )
             return cached_module
     spec = importlib.util.spec_from_file_location(name, path)
     if spec is None or spec.loader is None:
         raise RuntimeError(f"cannot load {path}")
+    previous = sys.modules.get(name)
     module = importlib.util.module_from_spec(spec)
     sys.modules[name] = module
-    spec.loader.exec_module(module)
+    try:
+        spec.loader.exec_module(module)
+    except BaseException:
+        if previous is None:
+            sys.modules.pop(name, None)
+        else:
+            sys.modules[name] = previous
+        raise
     return module
