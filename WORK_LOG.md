@@ -7,6 +7,11 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 - [2026-09](work_log/WORK_LOG_2026-09.md)
 
+### 2026-11-18
+
+- **PR #610**: ci: add the merge_group trigger and gate merge-queue readiness
+- **Issue #609** (closed): Merge queue: add the merge_group trigger and adapt the PR-metadata gates
+
 ### 2026-11-17
 
 - **PR #585**: docs(signoff): sync status prose with the graded report and pins
