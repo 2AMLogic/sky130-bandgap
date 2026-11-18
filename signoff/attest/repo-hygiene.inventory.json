@@ -16,7 +16,7 @@
     {
       "path": ".github/workflows/ci.yml",
       "role": "ci-workflow",
-      "content_hash": "sha256:ad0102a2bee50a25ffd2af4e31a9e852dd2c646c5c8537364beb368160a0d96e"
+      "content_hash": "sha256:023f21d5d79faa67d437415cc95c08d8f52f2288a77f79f12098a81a3bfb7ddc"
     },
     {
       "path": "package.json",
