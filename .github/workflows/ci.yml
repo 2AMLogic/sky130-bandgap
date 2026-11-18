@@ -16,7 +16,8 @@ name: CI
 #     and `sim/tests/`'s coverage of the evidence-minting harnesses, which
 #     guards the provenance-hygiene invariants a committed, append-only
 #     record can never be repaired for afterwards, issue #288)
-#     -> `checks` job below, every push/PR. Headless, no PDK needed.
+#     -> `checks` job below, every push/PR/merge-group entry. Headless, no
+#     PDK needed.
 #   - `scripts/ci/check_signoff_pins.py` (issue #292), run by that same
 #     `check:ci` — re-hashes the committed artifact behind every
 #     `content_hash` in signoff/block-manifest.json and fails when one has
@@ -24,7 +25,8 @@ name: CI
 #     it compares each pin against the hash the cited *envelope* recorded and
 #     never opens the artifact, so `citation.input_verified` is null on every
 #     row and a re-grade of a rewritten GDS renders byte-identically.
-#     Stdlib-only, no klt/PDK/network. -> `checks` job, every push/PR.
+#     Stdlib-only, no klt/PDK/network. -> `checks` job, every push/PR and
+#     merge-group entry.
 #   - `sim/bin/corner-run.py sim/pdk-smoke` (the harness's own liveness test:
 #     proves the pinned sky130 PDK models load in ngspice, xschem netlists
 #     headlessly, and the PVT knobs actually reach the simulator) -> requires
@@ -42,16 +44,18 @@ name: CI
 #     re-grades this block's T1 checklist manifest and requires the result to
 #     stay byte-identical to the committed signoff/signoff-report.json, so a
 #     manifest/citation/grader change fails here instead of rotting silently.
-#     -> `signoff` job below, every push/PR. Headless, no PDK needed
-#     (PyPI-only `klayout-tools` install). See signoff/README.md. This is the
-#     *grading* half only: a change to the cited artifact itself is caught by
-#     the pin check in the `checks` job above, not here (issue #292).
+#     -> `signoff` job below, every push/PR/merge-group entry. Headless, no
+#     PDK needed (PyPI-only `klayout-tools` install). See signoff/README.md.
+#     This is the *grading* half only: a change to the cited artifact itself
+#     is caught by the pin check in the `checks` job above, not here
+#     (issue #292).
 
 on:
   push:
     branches: [main]
   pull_request:
     types: [opened, synchronize, reopened, labeled]
+  merge_group:
   schedule:
     # 06:00 UTC daily
     - cron: "0 6 * * *"
@@ -105,6 +109,8 @@ jobs:
   pdk-smoke:
     name: PDK-gated harness smoke test (nightly / workflow_dispatch / 'run-pdk-smoke' label)
     runs-on: ubuntu-latest
+    # merge_group entries intentionally skip this job: opt-in/nightly only, not
+    # a required queue context (issue #609).
     if: >-
       github.event_name == 'schedule' ||
       github.event_name == 'workflow_dispatch' ||
