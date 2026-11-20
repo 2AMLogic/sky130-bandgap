@@ -97,6 +97,12 @@ def run(argv: list[str]) -> int:
         claim_tail=CLAIM_TAIL,
         argv=argv,
         claim_split=CLAIM_SPLIT,
+        # This bench alone still measures its committed klt-0.5.0 extraction
+        # (issue #560's disclosed exception): keep the pre-#614 unbound
+        # snapshot resolution and legacy generic-card translation, so the
+        # bound snapshot another bench commits does not silently move this
+        # bench's DUT (issue #614).
+        parasitics_legacy=True,
     )
 
 

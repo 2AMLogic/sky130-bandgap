@@ -14,7 +14,13 @@
 # star parasitic model for a distributed ladder on the named nets. They are
 # threaded into BOTH klt pex steps so the graded and comparable netlists come
 # from the same extraction, and are recorded in the record's inputs.json. With
-# no flags the klt pex argv is exactly what it always was.
+# no flags the klt pex argv is exactly what it always was, plus the pinned PDK
+# binding flags (issue #614): --pdk/--pdk-root resolve the same variant
+# sim/pdk.json pins ($PDK/$PDK_ROOT override), so device cards come out bound
+# to their PDK subcircuits -- resistors as sky130_fd_pr__res_high_po with
+# geometry and bulk (temperature-behaved, retiring the hand fixed-R rewrite),
+# PNPs as the fixed macros, MOS as the flavour-keyed wrappers (see
+# sim/bin/post_layout_common.py's bound-dialect notes for the MOS class).
 set -euo pipefail
 
 KLT_PIN="klayout-tools==0.8.0"
@@ -41,6 +47,21 @@ done
 EXTRACT_FLAGS=()
 for net in "${CRITICAL_NETS[@]}"; do EXTRACT_FLAGS+=(--critical-net "$net"); done
 [[ $DISTRIBUTED_RC -eq 1 ]] && EXTRACT_FLAGS+=(--distributed-rc)
+# PDK model binding (issue #614): pass the pinned PDK variant (same pin as
+# sim/pex.json; $PDK/$PDK_ROOT override exactly as sim_common.resolve_pdk
+# reads them) so klt binds every device card to its PDK subcircuit instead
+# of a generic class card the hand translation then has to rewrite. The
+# variant/root are recorded by klt itself in each record's provenance.pdk.
+PDK_JSON_FLAGS=(python3 -I -c '
+import json, os, sys
+pin = json.load(open(sys.argv[1]))
+print(os.environ.get("PDK", "").strip() or pin["variant"])
+print(os.environ.get("PDK_ROOT", "").strip() or pin["default_pdk_root"])
+' "$ROOT/sim/pdk.json")
+readarray -t PDK_LINES < <("${PDK_JSON_FLAGS[@]}")
+PDK_VARIANT="${PDK_LINES[0]}"
+PDK_ROOT_PATH="${PDK_LINES[1]}"
+EXTRACT_FLAGS+=(--pdk "$PDK_VARIANT" --pdk-root "${PDK_ROOT_PATH/#\~/$HOME}")
 LAYOUT_ID="$(cat "$ROOT/layout/bandgap-core/reports/LATEST")"
 GDS="$ROOT/layout/bandgap-core/reports/$LAYOUT_ID/bandgap_core_routed.gds"
 OUT="$ROOT/sim/pex-native/records/$STAMP"
