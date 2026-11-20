@@ -22,18 +22,19 @@ _None._
 - **#368**: Design a state-dependent startup-injector reference-stack element that clears the 60 dB PSRR floor at ff/125/3.63 and sf/27/2.97 *(held)*
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(held)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(held)*
+- **#614**: Post-layout benches simulate temperature-flat resistors: extract with klt's --pdk model binding and retire the hand resistor translation
 
 ## Ready
 
 Human-approved issues (`loom:issue`) ready for implementation — excluding held (`loom:blocked`/`loom:operator`/`loom:frozen`), `loom:building`, and issues closed by an open `loom:pr` PR (listed under Approved).
 
-_None._
+- **#614**: Post-layout benches simulate temperature-flat resistors: extract with klt's --pdk model binding and retire the hand resistor translation
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
-_None._
+- **#615**: T1 item 5 rows 3a/3b: schematic-level study of which temperature-coefficient correction fits the remaining area (the roadmap's "question first")
 
 ## PRs Awaiting Review
 
@@ -45,7 +46,7 @@ PRs waiting on Judge (`loom:review-requested`).
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
-_None._
+- **#616**: feat: screen three bandgap temperature corrections on batch
 
 ## Proposed
 
@@ -58,12 +59,15 @@ Issues carrying `loom:curated`.
 - **#432**: Follow-on from PR #431: first live routed-flow run with artifact broker *(curated)* *(held)*
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(curated)* *(held)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(curated)* *(held)*
+- **#614**: Post-layout benches simulate temperature-flat resistors: extract with klt's --pdk model binding and retire the hand resistor translation *(curated)*
+- **#615**: T1 item 5 rows 3a/3b: schematic-level study of which temperature-coefficient correction fits the remaining area (the roadmap's "question first") *(curated)*
 
 ## Proposed (Architect / Hermit)
 
 - **#517**: Shrink layout/bin/met2_drc.py to its orphan-via check: pinned klt 0.8.0 already checks the met2/via rules it duplicates *(hermit)* *(held)*
 - **#545**: Consolidate the VREF accuracy window: 4 copies of DR-005's ratified band under 4 names, plus 2 live gates still on the superseded draft band *(hermit)* *(held)*
 - **#554**: Dedup pex-native's three duck-type shims onto corner-run's Corner/Experiment/Measurement dataclasses (_C has no .id, blocking batch_sim's collectors) *(hermit)* *(held)*
+- **#617**: Reuse the shared resistor-chain substitution and temperature sweep in the head-resistance bench *(hermit)*
 
 ## Epics
 
@@ -75,12 +79,12 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Very important | 0 |
-| Important | 5 |
-| Ready (`loom:issue`, net of holds/building/merge-pending) | 0 |
-| In Progress (`loom:building`) | 0 |
+| Important | 6 |
+| Ready (`loom:issue`, net of holds/building/merge-pending) | 1 |
+| In Progress (`loom:building`) | 1 |
 | PRs awaiting review | 1 |
-| Approved PRs awaiting merge | 0 |
-| Curated | 7 |
-| Architect / Hermit proposals | 3 |
+| Approved PRs awaiting merge | 1 |
+| Curated | 9 |
+| Architect / Hermit proposals | 4 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
