@@ -30,7 +30,7 @@
     {
       "path": "sim/bin/batch_sim.py",
       "role": "harness",
-      "content_hash": "sha256:2a78ffe1d881a9839a51d468c0eb93ba52292a3e7b7a26fe0d0031b7565fadc9"
+      "content_hash": "sha256:c427f730cbf8fe31cb252b3bc47b5e82afcbbdf24488649133447a25e6541db5"
     },
     {
       "path": "sim/bin/corner-run.py",
@@ -486,6 +486,17 @@
           "path": "sim/startup-time-post-layout/run_post_layout_startup_time.py",
           "role": "runner",
           "content_hash": "sha256:d20736862eb0e63c2a9c16aebd8965ceb77ed949aa19cd96adc842863dd489ad"
+        }
+      ]
+    },
+    {
+      "directory": "sim/tc-curvature-candidates",
+      "cold_start": "python3 sim/tc-curvature-candidates/run_candidates.py",
+      "files": [
+        {
+          "path": "sim/tc-curvature-candidates/run_candidates.py",
+          "role": "runner",
+          "content_hash": "sha256:aa98589683503f6976e28fbb6a7b4b583ffe6501bbbc3d52b4208ec923912b24"
         }
       ]
     },
