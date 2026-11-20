@@ -108,8 +108,6 @@ design defect; whether a distributed/in-path model removes it is Now item 1
 
 ## Later
 
-- **Curvature correction for rows 3a/3b.** Question first: which correction
-  topology fits the area left under DR-007's 0.08 mm² budget (70,360 µm² used).
 - **Trim range.** The ratified row asks for ±5 %; the design trims 3.2 % down
   and 0 up. Question first: what "magnitude only" means in DR-005, which the
   report discloses as an open question that agents may not settle.
@@ -121,6 +119,7 @@ design defect; whether a distributed/in-path model removes it is Now item 1
 
 | Item | Waiting on |
 |---|---|
+| #615 TC correction for rows 3a/3b | Three schematic candidates are sized. Selection awaits the 45-corner batch measurements and binding-corner regressions for survivors. [Sizing record](../sim/tc-curvature-candidates/records/20261120-sizing.md) |
 | #368 injector PSRR | A ruling on the standing-current budget or a further design iteration; PR #509 (DR-022) records that the flag candidate clears PSRR and fails `i_su_standing` |
 | #444 | The ruling on its decision block; the #528 bound (PR #535) has changed the cost picture |
 | #435, #370; #306, #315 | #444; #368 |
