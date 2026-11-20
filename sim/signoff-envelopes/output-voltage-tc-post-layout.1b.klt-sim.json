@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "status": "fail",
-  "netlist": "sim/output-voltage-tc-post-layout/netlist-snapshots/20261114-184650-4a9f2c97.spice",
+  "netlist": "sim/output-voltage-tc-post-layout/netlist-snapshots/20261120-230509-7d59542.spice",
   "corner_count": 15,
   "passed": 0,
   "failed": 15,
@@ -24,8 +24,8 @@
     ],
     "recorded_from": [
       {
-        "file": "sim/output-voltage-tc-post-layout/records/20261114-184650-4a9f2c97.json",
-        "sha256": "54975bc109d623d70688cf3441b9adba7e1031eaa4979e46f1b5ca7f2ac9960e"
+        "file": "sim/output-voltage-tc-post-layout/records/20261120-230509-7d59542.json",
+        "sha256": "e668211046b47beefb4b69281db1205b2aa1897aa22e851abdc88cc88ddb46f2"
       }
     ],
     "excluded_measurements": {
@@ -34,10 +34,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:50c3afab1476dcc8876047560a165d9b36549a12a6147bd77e3e0dd2f6a650b9",
+      "content_hash": "sha256:a3721199dcba07805fbda53a99a1ef899ecb8d9254fe4681725262df29ec3b60",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/output-voltage-tc-post-layout/netlist-snapshots/20261114-184650-4a9f2c97.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/output-voltage-tc-post-layout/netlist-snapshots/20261120-230509-7d59542.spice)"
   },
   "measurements": [
     {
@@ -50,8 +50,8 @@
       },
       "worst_case": {
         "corner_id": "ss_27c_2.97v",
-        "value": 1.182614,
-        "margin": 0.00661400000000012
+        "value": 1.182769,
+        "margin": 0.006769000000000025
       },
       "status": "pass"
     },
@@ -65,8 +65,8 @@
       },
       "worst_case": {
         "corner_id": "fs_27c_2.97v",
-        "value": 1.153502,
-        "margin": -0.022497999999999907
+        "value": 1.151191,
+        "margin": -0.02480899999999986
       },
       "status": "fail"
     },
@@ -80,8 +80,8 @@
       },
       "worst_case": {
         "corner_id": "tt_27c_2.97v",
-        "value": 1.193968,
-        "margin": 0.017967999999999984
+        "value": 1.194541,
+        "margin": 0.01854100000000014
       },
       "status": "pass"
     }
@@ -99,23 +99,23 @@
         {
           "name": "vref_27",
           "unit": "V",
-          "value": 1.182863,
+          "value": 1.182862,
           "status": "pass",
-          "margin": 0.0068630000000000635
+          "margin": 0.006862000000000146
         },
         {
           "name": "vref_min",
           "unit": "V",
-          "value": 1.153893,
+          "value": 1.151592,
           "status": "fail",
-          "margin": -0.022106999999999877
+          "margin": -0.024407999999999985
         },
         {
           "name": "vref_max",
           "unit": "V",
-          "value": 1.193968,
+          "value": 1.194541,
           "status": "pass",
-          "margin": 0.017967999999999984
+          "margin": 0.01854100000000014
         }
       ]
     },
@@ -138,16 +138,16 @@
         {
           "name": "vref_min",
           "unit": "V",
-          "value": 1.154017,
+          "value": 1.151732,
           "status": "fail",
-          "margin": -0.021982999999999864
+          "margin": -0.024267999999999956
         },
         {
           "name": "vref_max",
           "unit": "V",
-          "value": 1.194112,
+          "value": 1.194683,
           "status": "pass",
-          "margin": 0.018112000000000128
+          "margin": 0.018683000000000005
         }
       ]
     },
@@ -163,23 +163,23 @@
         {
           "name": "vref_27",
           "unit": "V",
-          "value": 1.183139,
+          "value": 1.183138,
           "status": "pass",
-          "margin": 0.0071390000000000065
+          "margin": 0.007138000000000089
         },
         {
           "name": "vref_min",
           "unit": "V",
-          "value": 1.157141,
+          "value": 1.155203,
           "status": "fail",
-          "margin": -0.01885899999999996
+          "margin": -0.020796999999999954
         },
         {
           "name": "vref_max",
           "unit": "V",
-          "value": 1.19429,
+          "value": 1.194858,
           "status": "pass",
-          "margin": 0.01829000000000014
+          "margin": 0.01885800000000004
         }
       ]
     },
@@ -195,23 +195,23 @@
         {
           "name": "vref_27",
           "unit": "V",
-          "value": 1.182614,
+          "value": 1.182769,
           "status": "pass",
-          "margin": 0.00661400000000012
+          "margin": 0.006769000000000025
         },
         {
           "name": "vref_min",
           "unit": "V",
-          "value": 1.153514,
+          "value": 1.15145,
           "status": "fail",
-          "margin": -0.022486000000000006
+          "margin": -0.02454999999999985
         },
         {
           "name": "vref_max",
           "unit": "V",
-          "value": 1.194172,
+          "value": 1.194845,
           "status": "pass",
-          "margin": 0.018172000000000077
+          "margin": 0.018845
         }
       ]
     },
@@ -227,23 +227,23 @@
         {
           "name": "vref_27",
           "unit": "V",
-          "value": 1.182666,
+          "value": 1.18282,
           "status": "pass",
-          "margin": 0.006666000000000061
+          "margin": 0.006820000000000048
         },
         {
           "name": "vref_min",
           "unit": "V",
-          "value": 1.153549,
+          "value": 1.151489,
           "status": "fail",
-          "margin": -0.022451
+          "margin": -0.02451099999999995
         },
         {
           "name": "vref_max",
           "unit": "V",
-          "value": 1.194222,
+          "value": 1.194895,
           "status": "pass",
-          "margin": 0.01822199999999996
+          "margin": 0.018895000000000106
         }
       ]
     },
@@ -259,23 +259,23 @@
         {
           "name": "vref_27",
           "unit": "V",
-          "value": 1.18274,
+          "value": 1.182894,
           "status": "pass",
-          "margin": 0.006739999999999968
+          "margin": 0.006893999999999956
         },
         {
           "name": "vref_min",
           "unit": "V",
-          "value": 1.15407,
+          "value": 1.152072,
           "status": "fail",
-          "margin": -0.021930000000000005
+          "margin": -0.02392799999999995
         },
         {
           "name": "vref_max",
           "unit": "V",
-          "value": 1.194292,
+          "value": 1.194963,
           "status": "pass",
-          "margin": 0.018291999999999975
+          "margin": 0.018963000000000063
         }
       ]
     },
@@ -291,23 +291,23 @@
         {
           "name": "vref_27",
           "unit": "V",
-          "value": 1.183587,
+          "value": 1.183434,
           "status": "pass",
-          "margin": 0.00758700000000001
+          "margin": 0.007434000000000163
         },
         {
           "name": "vref_min",
           "unit": "V",
-          "value": 1.154498,
+          "value": 1.151966,
           "status": "fail",
-          "margin": -0.02150199999999991
+          "margin": -0.02403399999999989
         },
         {
           "name": "vref_max",
           "unit": "V",
-          "value": 1.194163,
+          "value": 1.194633,
           "status": "pass",
-          "margin": 0.01816300000000015
+          "margin": 0.01863300000000012
         }
       ]
     },
@@ -323,23 +323,23 @@
         {
           "name": "vref_27",
           "unit": "V",
-          "value": 1.1839,
+          "value": 1.183749,
           "status": "pass",
-          "margin": 0.007900000000000018
+          "margin": 0.007749000000000006
         },
         {
           "name": "vref_min",
           "unit": "V",
-          "value": 1.15537,
+          "value": 1.153036,
           "status": "fail",
-          "margin": -0.020629999999999926
+          "margin": -0.022963999999999984
         },
         {
           "name": "vref_max",
           "unit": "V",
-          "value": 1.19464,
+          "value": 1.195106,
           "status": "pass",
-          "margin": 0.01863999999999999
+          "margin": 0.019106000000000067
         }
       ]
     },
@@ -355,23 +355,23 @@
         {
           "name": "vref_27",
           "unit": "V",
-          "value": 1.184609,
+          "value": 1.184473,
           "status": "pass",
-          "margin": 0.008609000000000089
+          "margin": 0.008473000000000175
         },
         {
           "name": "vref_min",
           "unit": "V",
-          "value": 1.168538,
+          "value": 1.16735,
           "status": "fail",
-          "margin": -0.007461999999999858
+          "margin": -0.008649999999999824
         },
         {
           "name": "vref_max",
           "unit": "V",
-          "value": 1.195227,
+          "value": 1.195688,
           "status": "pass",
-          "margin": 0.019227000000000105
+          "margin": 0.01968800000000015
         }
       ]
     },
@@ -387,23 +387,23 @@
         {
           "name": "vref_27",
           "unit": "V",
-          "value": 1.186392,
+          "value": 1.186391,
           "status": "pass",
-          "margin": 0.010391999999999957
+          "margin": 0.010391000000000039
         },
         {
           "name": "vref_min",
           "unit": "V",
-          "value": 1.157001,
+          "value": 1.154738,
           "status": "fail",
-          "margin": -0.018998999999999988
+          "margin": -0.021261999999999892
         },
         {
           "name": "vref_max",
           "unit": "V",
-          "value": 1.195586,
+          "value": 1.196083,
           "status": "pass",
-          "margin": 0.019586000000000103
+          "margin": 0.020083000000000073
         }
       ]
     },
@@ -426,16 +426,16 @@
         {
           "name": "vref_min",
           "unit": "V",
-          "value": 1.157114,
+          "value": 1.154859,
           "status": "fail",
-          "margin": -0.01888599999999996
+          "margin": -0.021140999999999854
         },
         {
           "name": "vref_max",
           "unit": "V",
-          "value": 1.197096,
+          "value": 1.197616,
           "status": "pass",
-          "margin": 0.021096000000000004
+          "margin": 0.02161600000000008
         }
       ]
     },
@@ -451,23 +451,23 @@
         {
           "name": "vref_27",
           "unit": "V",
-          "value": 1.1881,
+          "value": 1.188099,
           "status": "pass",
-          "margin": 0.0121
+          "margin": 0.012099000000000082
         },
         {
           "name": "vref_min",
           "unit": "V",
-          "value": 1.157715,
+          "value": 1.155543,
           "status": "fail",
-          "margin": -0.018284999999999885
+          "margin": -0.020456999999999947
         },
         {
           "name": "vref_max",
           "unit": "V",
-          "value": 1.199079,
+          "value": 1.199568,
           "status": "pass",
-          "margin": 0.02307900000000007
+          "margin": 0.023568000000000033
         }
       ]
     },
@@ -483,23 +483,23 @@
         {
           "name": "vref_27",
           "unit": "V",
-          "value": 1.182829,
+          "value": 1.182828,
           "status": "pass",
-          "margin": 0.006828999999999974
+          "margin": 0.006828000000000056
         },
         {
           "name": "vref_min",
           "unit": "V",
-          "value": 1.153502,
+          "value": 1.151191,
           "status": "fail",
-          "margin": -0.022497999999999907
+          "margin": -0.02480899999999986
         },
         {
           "name": "vref_max",
           "unit": "V",
-          "value": 1.194881,
+          "value": 1.195458,
           "status": "pass",
-          "margin": 0.018881000000000148
+          "margin": 0.019457999999999975
         }
       ]
     },
@@ -522,16 +522,16 @@
         {
           "name": "vref_min",
           "unit": "V",
-          "value": 1.154066,
+          "value": 1.151823,
           "status": "fail",
-          "margin": -0.021933999999999898
+          "margin": -0.024176999999999893
         },
         {
           "name": "vref_max",
           "unit": "V",
-          "value": 1.194906,
+          "value": 1.195483,
           "status": "pass",
-          "margin": 0.01890600000000009
+          "margin": 0.01948300000000014
         }
       ]
     },
@@ -547,23 +547,23 @@
         {
           "name": "vref_27",
           "unit": "V",
-          "value": 1.182981,
+          "value": 1.18298,
           "status": "pass",
-          "margin": 0.006981000000000126
+          "margin": 0.006979999999999986
         },
         {
           "name": "vref_min",
           "unit": "V",
-          "value": 1.156624,
+          "value": 1.154541,
           "status": "fail",
-          "margin": -0.019375999999999838
+          "margin": -0.021458999999999895
         },
         {
           "name": "vref_max",
           "unit": "V",
-          "value": 1.19494,
+          "value": 1.195517,
           "status": "pass",
-          "margin": 0.018939999999999957
+          "margin": 0.019517000000000007
         }
       ]
     }

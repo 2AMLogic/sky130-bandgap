@@ -14,9 +14,15 @@ submit fails the run, nothing is retried locally). Then
 | `check_inputs.py` / `pexlib.py` | refuses pin mismatch, injector-less reference, incomplete matrix |
 | `records/` | append-only runs: klt report (`pex-stdout.json`), `inputs.json` hashes, per-job fleet receipts |
 
-Notes: klt 0.8.0 writes resistors as `X$n … res_high_po r=V` cards, which
-`post_layout_common.translate_extracted_netlist` does not match; `pexlib.normalize_klt_resistors`
-rewrites them (value-preserving) rather than editing the shared translator.
+Notes: klt 0.8.0 *without* `--pdk` writes resistors as `X$n … res_high_po r=V` cards,
+which `post_layout_common.translate_extracted_netlist` does not match;
+`pexlib.normalize_klt_resistors` rewrites them (value-preserving) rather than
+editing the shared translator — the pre-#614 records below were graded through
+that path and it stays for them. Since issue #614 `run.sh` extracts with the
+pinned `--pdk sky130A`, so device cards come out PDK-bound (resistors as
+`sky130_fd_pr__res_high_po l=.. w=..` with bulk and geometry, PNPs as the fixed
+macros, MOS as flavour-keyed wrappers — see the 2026-11-20 section below) and
+the resistor rewrite no longer applies to new records.
 `pex-netlist.spice` in a record is klt's `-o` file: with klt 0.8.0 it holds the extracted SPICE netlist, not a JSON report (written before the final stdout report);
 `pex-stdout.json` is the complete report.
 
@@ -73,10 +79,18 @@ device) versus the fixed `R` card that `normalize_klt_resistors` +
 **The normaliser preserves the value at 27 °C (to 2 mΩ) and does not preserve
 temperature behaviour**: the rewritten card is a plain resistor with no TC, while
 the model rises +5.2 % from 27 to 125 °C and falls −2.4 % to −40 °C. It cannot be
-the cause of the 27 °C delta (next table, "normaliser" = 0), but the extracted
-side's `vref_min` / `vref_max` / TC are evaluated with temperature-flat resistors,
-so those three observables are not a like-for-like comparison. This is a
-pilot-bench limitation of `pexlib`, not an extraction defect; not changed here.
+the cause of the 27 °C delta (next table, "normaliser" = 0), and the
+like-for-like gap it described **is closed on the graded path since issue #614**
+(2026-11-20): `run.sh` extracts with `--pdk`, the extracted side's 145 resistors
+are the PDK model itself (the same numbers as the "model" rows above, re-probed
+at the 0.8.0 pin on the bound card `sky130_fd_pr__res_high_po l=5 w=1`:
+1955.24 / 2003.84 / 2108.60 Ω at −40 / 27 / 125 °C, tt), and the fixed-card
+rewrite no longer runs for new records. What is left of the limitation, and
+deliberately so: the **MOS class stays hand-translated** — the layout draws no
+`hvi` marker, so klt's binding picks the thin-oxide `_01v8` pair while the
+design instantiates `g5v0d10v5` (#619; the binding override and LVS flavour
+gaps are klayout-tools#6965 / #6966) — and this historical `rtc` table plus
+`attribute_delta.py` still describe the pre-#614 records they were measured on.
 
 ### Probe tt / 27 °C / 3.30 V (V)
 
@@ -276,3 +290,50 @@ nets report `resistance_source: legacy` (VB 5114.5357 Ω unchanged).
   VA/VOUT nets. Next step: a klt gap (series-sum of dead branches /
   `--distributed-rc` segment sizing) filed as 2AMLogic/klayout-tools#5894; re-extraction
   with a fixed tool is #540's business.
+
+## PDK-bound re-run (2026-11-20, issue #614)
+
+Record `records/20261120-pdk-bound/` (`run.sh 20261120-pdk-bound`): same GDS,
+same reference, same `delta-limits.json` (`inputs.json` hash-identical to the
+pilot's), same pinned klt 0.8.0 and batch fleet — the single variable is the
+extraction flag set: `--pdk sky130A` (plus `--pdk-root`), threaded into both
+`klt pex` steps by `run.sh`. Device cards therefore come out PDK-bound instead
+of generic: 145 × `sky130_fd_pr__res_high_po l=.. w=..` (bulk terminal and
+drawn geometry kept, model temperature behaviour live), 24 × the two fixed PNP
+macros (16 small + 8 large — the same split the hand `AE` threshold made), and
+73 × MOS wrappers. The parasitic network is bit-identical to the pilot's
+(total R 179145.6648 Ω); `measure_command.py`'s resistor rewrite no longer
+fires (nothing matches it), and the record's `pex-stdout.json` carries
+`provenance.pdk` for the first time.
+
+**The MOS class is the one hand translation kept** (issue step 4): the routed
+GDS draws no `hvi` (75/20) geometry, so klt's flavour-keyed binding writes the
+thin-oxide `_01v8` pair for all 73 MOS while the design instantiates
+`g5v0d10v5`. Simulating `_01v8` as-drawn would swap the extracted side to a
+different oxide flavour than the schematic side — a far larger like-for-like
+artefact than the one this re-run removes. The bound MOS cards are rewritten
+to `g5v0d10v5` (geometry preserved; the `nrd`/`nrs = 0.29/W` and
+`sa=sb=sd=0` terms the generic path adds are kept, since the bound card
+carries neither and the PDK wrapper's own `nrd/nrs` default differs from the
+design's convention). Layout finding: #619; tool gaps: klayout-tools#6965
+(binding has no flavour override) and #6966 (LVS collapses flavours, which is
+how the missing marker passed LVS).
+
+### Per-observable movement (pilot → bound, 15 corners)
+
+| observable | pilot (fixed-R extracted side) | bound (model-R extracted side) | movement |
+|---|---|---|---|
+| `vref_27` delta | −28.196…−27.216 mV (mean −27.747) | −28.041…−27.352 mV (mean −27.745) | ≈ 0 (the model equals the extracted value at 27 °C to 2 mΩ) |
+| `vref_min` delta | −33.310…−32.065 mV (mean −32.741) | −35.308…−33.529 mV (mean −34.876) | cold end 2.1 mV lower: the model is −2.4 % at −40 °C where the card was flat |
+| `vref_max` delta | −23.859…−22.744 mV (mean −23.119) | −23.362…−22.283 mV (mean −22.561) | hot end 0.6 mV higher: the model is +5.2 % at 125 °C |
+| box TC, extracted side | 136.5…212.0 ppm/°C (mean 199.6) | 145.0…226.8 ppm/°C (mean 213.4) | now includes the resistor TC; schematic side unchanged (85.5…158.5 ppm/°C, both records) |
+
+So the temperature-flat-resistor harness artefact was worth ≈ 2 mV at the cold
+end and ≈ 14 ppm/°C of box TC on the extracted side. The `vref_27` deltas are
+untouched by construction, and every one of the 45 graded deltas still exceeds
+its limit (`graded-deltas.json`: `n_exceeded: 45`, `n_within: 0`) — the
+−27.7 mV 27 °C delta is the separate extractor-approximation matter of #573 /
+klayout-tools#5894, expected to stay after this issue. The pilot and the other
+pre-#614 records are untouched; `attribute_delta.py` still reads them by
+default (its `legs` parser expects the `res_high_po r=` dialect and does not
+parse bound records).
