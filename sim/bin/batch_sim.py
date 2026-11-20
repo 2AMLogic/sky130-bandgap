@@ -806,7 +806,9 @@ def _now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def run_klt(group: Group, klt: str = "klt") -> GroupOutcome:
+def run_klt(
+    group: Group, klt: str = "klt", *, wait_for_capacity: int | None = None
+) -> GroupOutcome:
     """Submit one request through `klt sim --backend batch` and wait for it.
 
     The only thing this runs locally is the klt client (S3 put/get + polling).
@@ -818,6 +820,8 @@ def run_klt(group: Group, klt: str = "klt") -> GroupOutcome:
         klt, "sim", str(group.request_path),
         "--backend", "batch", "--format", "json", "-o", str(outdir),
     ]
+    if wait_for_capacity is not None:
+        cmd.extend(["--wait-for-capacity", str(wait_for_capacity)])
     if getattr(group, "resume", False):
         cmd.append("--resume")
     started, t0 = _now(), time.monotonic()
