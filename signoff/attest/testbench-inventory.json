@@ -50,7 +50,7 @@
     {
       "path": "sim/bin/sim_common.py",
       "role": "harness",
-      "content_hash": "sha256:1470eddba3976ae021ea1f1225ba3acca427e8db181a714081083ed25b419c7e"
+      "content_hash": "sha256:d7ed9be76c3b468697bc31b3a3e26335ab5815a1cd1eb4c149fafda5254a74f9"
     }
   ],
   "testbenches": [
@@ -341,7 +341,7 @@
         {
           "path": "sim/res-array-head-resistance/run_res_array_head_resistance.py",
           "role": "runner",
-          "content_hash": "sha256:a1839493eb5989f762d54877dd150a89fa295fd8a367814911dd4ff3e5cb4054"
+          "content_hash": "sha256:24db4528f2092cb29f6f6752dcbab38a69df7e4b2a855600787e757c5b591b0f"
         }
       ]
     },
