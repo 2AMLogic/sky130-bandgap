@@ -79,6 +79,40 @@ class PexNative(unittest.TestCase):
         translated, counts = plc.translate_extracted_netlist(text)
         self.assertTrue(counts["res"] == 1 and "R$98 A__t0 B__t0 2003.841367" in translated)
 
+    def test_normalize_klt_resistors_is_noop_on_bound_netlist(self):
+        """A `--pdk`-bound extraction (issue #614) carries no `res_high_po
+        r=` cards for the normaliser to claim -- it must rewrite nothing."""
+        raw = "X$98 A__t0 B__t0 VSS__t24 sky130_fd_pr__res_high_po l=5 w=1\n"
+        text, n = pexlib.normalize_klt_resistors(raw)
+        self.assertEqual(n, 0)
+        self.assertEqual(text.strip(), raw.strip())
+
+    def test_side_block_passes_bound_cards_through(self):
+        """Issue #614: the extracted side klt pex hands over under `--pdk`
+        keeps its PDK-bound resistor/PNP cards verbatim (temperature-behaved
+        models, no fixed-value rewrite) and rewrites only the MOS class to
+        the design's `g5v0d10v5` flavour."""
+        import measure_command
+
+        bound = "\n".join(
+            [
+                f".SUBCKT {pexlib.TOP} {' '.join(pexlib.ROUTED_PORTS)}",
+                "X$98 VOUT__t0 \\$7__t0 VSS__t24 sky130_fd_pr__res_high_po l=5 w=1",
+                "X$74 VSS__t0 VSS__t188 VA__t0 sky130_fd_pr__pnp_05v5_W0p68L0p68",
+                "X$1 VSS__t190 D1__t5 D1__t10 VSS__t169 sky130_fd_pr__nfet_01v8 L=20 W=8",
+                f".ENDS {pexlib.TOP}",
+                "",
+            ]
+        )
+        block = measure_command.side_block("extracted", bound)
+        self.assertIn(
+            "X$98 VOUT__t0 \\$7__t0 VSS__t24 sky130_fd_pr__res_high_po l=5 w=1", block
+        )
+        self.assertIn("sky130_fd_pr__pnp_05v5_W0p68L0p68", block)
+        self.assertIn("sky130_fd_pr__nfet_g5v0d10v5", block)
+        self.assertNotIn("_01v8", block)
+        self.assertNotIn("\nR$98 ", block)
+
     def test_delta_limits_declared_for_pilot_observables(self):
         lim = json.loads((PEX / "delta-limits.json").read_text())
         got = {o["name"]: o for o in lim["observables"]}

@@ -1,0 +1,70 @@
+* pex-native batch netlist -- generated, do not edit
+.param vsup=3.63
+.option wnflag=1
+.option reltol=1e-6
+.option vntol=1e-9
+.option abstol=1e-15
+V1 VDD 0 'vsup'
+.save i(v1)
+XBG VREF GDRV VDD 0 bandgap_core
+.nodeset v(vref)=1.2 v(gdrv)=2.2
+
+.subckt bandgap_core VOUT GDRV VDD VSS
+XCORE D1_INT D2_INT GDRV NE_INT NG_INT PN_INT TAIL_INT VA_INT VB_INT VBQ_INT VDD VOUT VSS bandgap_core_routed
+.ends bandgap_core
+
+.param n_pnp_ctat=8
+.param n_pnp_ptat=8
+.param r_w=1
+.param r_lseg=5
+.param n_r1=7
+.param n_r2=51
+.param m_out=2
+.param m_ampbias=2
+.param n_r2_trim=0
+.param r_lseg_trim=0.5
+.param n_r2_fine=20
+.param n_r2_coarse='n_r2-r_lseg_trim*n_r2_fine/r_lseg'
+.param n_r2_inst='n_r2_coarse+n_r2_fine+n_r2_trim'
+.param n_r2_ov='n_r2_inst-1'
+.param n_r1_ov='n_r1-1'
+.param r_ov_seg=0.5
+.param amp_m_in=8
+.param amp_m_nmirr=4
+.param amp_m_pmirr=8
+.param amp_m_cc=16
+.param m_ref=1
+.param m_sense=1
+.param m_pnp=8
+.param m_inj=1
+.param m_clamp=1
+.subckt bandgap_core_routed D1 D2 GDRV NE NG PN TAIL VA VB VBQ VDD VOUT VSS
+XMPOUT VOUT GDRV VDD VDD sky130_fd_pr__pfet_g5v0d10v5 L=2 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 nrd=0.03625 nrs=0.03625 sa=0 sb=0 sd=0 mult='m_out' m='m_out'
+XMPAMP TAIL GDRV VDD VDD sky130_fd_pr__pfet_g5v0d10v5 L=2 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 nrd=0.03625 nrs=0.03625 sa=0 sb=0 sd=0 mult='m_ampbias' m='m_ampbias'
+XR2A R2A_HD2 VOUT VSS sky130_fd_pr__res_high_po W='r_w' L='r_lseg*n_r2+r_lseg_trim*n_r2_trim-n_r2_ov*r_ov_seg' mult=1 m=1
+XR2B R2B_HD2 VOUT VSS sky130_fd_pr__res_high_po W='r_w' L='r_lseg*n_r2+r_lseg_trim*n_r2_trim-n_r2_ov*r_ov_seg' mult=1 m=1
+XQ1 VSS VSS VA sky130_fd_pr__pnp_05v5_W0p68L0p68 m='n_pnp_ctat' mult='n_pnp_ctat'
+XR1 R1_HD2 VB VSS sky130_fd_pr__res_high_po W='r_w' L='r_lseg*n_r1-n_r1_ov*r_ov_seg' mult=1 m=1
+XQ2 VSS VSS VBQ sky130_fd_pr__pnp_05v5_W3p40L3p40 m='n_pnp_ptat' mult='n_pnp_ptat'
+XR2A_HD VA R2A_HD1 VSS sky130_fd_pr__res_high_po W='r_w' L='r_ov_seg' mult='n_r2_ov' m=1
+ER2A_HD R2A_HD1 R2A_HD2 VA R2A_HD1 'n_r2_ov-1'
+XR2B_HD VB R2B_HD1 VSS sky130_fd_pr__res_high_po W='r_w' L='r_ov_seg' mult='n_r2_ov' m=1
+ER2B_HD R2B_HD1 R2B_HD2 VB R2B_HD1 'n_r2_ov-1'
+XR1_HD VBQ R1_HD1 VSS sky130_fd_pr__res_high_po W='r_w' L='r_ov_seg' mult='n_r1_ov' m=1
+ER1_HD R1_HD1 R1_HD2 VBQ R1_HD1 'n_r1_ov-1'
+XMP1 D1 VB TAIL VDD sky130_fd_pr__pfet_g5v0d10v5 L=10 W=20 nf=1 ad=5.8 as=5.8 pd=40.58 ps=40.58 nrd=0.0145 nrs=0.0145 sa=0 sb=0 sd=0 mult='amp_m_in' m='amp_m_in'
+XMP2 D2 VA TAIL VDD sky130_fd_pr__pfet_g5v0d10v5 L=10 W=20 nf=1 ad=5.8 as=5.8 pd=40.58 ps=40.58 nrd=0.0145 nrs=0.0145 sa=0 sb=0 sd=0 mult='amp_m_in' m='amp_m_in'
+XMN1 D1 D1 VSS VSS sky130_fd_pr__nfet_g5v0d10v5 L=20 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 nrd=0.03625 nrs=0.03625 sa=0 sb=0 sd=0 mult='amp_m_nmirr' m='amp_m_nmirr'
+XMN2 D2 D2 VSS VSS sky130_fd_pr__nfet_g5v0d10v5 L=20 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 nrd=0.03625 nrs=0.03625 sa=0 sb=0 sd=0 mult='amp_m_nmirr' m='amp_m_nmirr'
+XMN3 GDRV D1 VSS VSS sky130_fd_pr__nfet_g5v0d10v5 L=20 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 nrd=0.03625 nrs=0.03625 sa=0 sb=0 sd=0 mult='amp_m_nmirr' m='amp_m_nmirr'
+XMN4 PN D2 VSS VSS sky130_fd_pr__nfet_g5v0d10v5 L=20 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 nrd=0.03625 nrs=0.03625 sa=0 sb=0 sd=0 mult='amp_m_nmirr' m='amp_m_nmirr'
+XMP4 GDRV PN VDD VDD sky130_fd_pr__pfet_g5v0d10v5 L=20 W=6 nf=1 ad=1.74 as=1.74 pd=12.58 ps=12.58 nrd=0.0483333333333333 nrs=0.0483333333333333 sa=0 sb=0 sd=0 mult='amp_m_pmirr' m='amp_m_pmirr'
+XMP3 PN PN VDD VDD sky130_fd_pr__pfet_g5v0d10v5 L=20 W=6 nf=1 ad=1.74 as=1.74 pd=12.58 ps=12.58 nrd=0.0483333333333333 nrs=0.0483333333333333 sa=0 sb=0 sd=0 mult='amp_m_pmirr' m='amp_m_pmirr'
+XMCC VDD GDRV VDD VDD sky130_fd_pr__pfet_g5v0d10v5 L=20 W=30 nf=1 ad=8.7 as=8.7 pd=60.58 ps=60.58 nrd=0.00966666666666667 nrs=0.00966666666666667 sa=0 sb=0 sd=0 mult='amp_m_cc' m='amp_m_cc'
+XMPC1 NC1 NC1 GDRV VDD sky130_fd_pr__pfet_g5v0d10v5 L=20 W=1 nf=1 ad=0.29 as=0.29 pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0 mult='m_ref' m='m_ref'
+XMPC2 NG NG NC1 VDD sky130_fd_pr__pfet_g5v0d10v5 L=20 W=1 nf=1 ad=0.29 as=0.29 pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0 mult='m_ref' m='m_ref'
+XMNS NG VOUT NE VSS sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=48 nf=1 ad=13.92 as=13.92 pd=96.58 ps=96.58 nrd=0.00604166666666667 nrs=0.00604166666666667 sa=0 sb=0 sd=0 mult='m_sense' m='m_sense'
+XQS VSS VSS NE sky130_fd_pr__pnp_05v5_W0p68L0p68 m='m_pnp' mult='m_pnp'
+XMNI GDRV NG VSS VSS sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=10 nf=1 ad=2.9 as=2.9 pd=20.58 ps=20.58 nrd=0.029 nrs=0.029 sa=0 sb=0 sd=0 mult='m_inj' m='m_inj'
+XMNC VDD VOUT GDRV VSS sky130_fd_pr__nfet_g5v0d10v5 L=1 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0 sb=0 sd=0 mult='m_clamp' m='m_clamp'
+.ends bandgap_core_routed
