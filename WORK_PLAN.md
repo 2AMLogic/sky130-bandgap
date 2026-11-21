@@ -23,18 +23,20 @@ _None._
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(held)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(held)*
 - **#614**: Post-layout benches simulate temperature-flat resistors: extract with klt's --pdk model binding and retire the hand resistor translation
+- **#620**: Generate and verify the thick-oxide MOS geometry in the routed bandgap core
 
 ## Ready
 
 Human-approved issues (`loom:issue`) ready for implementation — excluding held (`loom:blocked`/`loom:operator`/`loom:frozen`), `loom:building`, and issues closed by an open `loom:pr` PR (listed under Approved).
 
-- **#614**: Post-layout benches simulate temperature-flat resistors: extract with klt's --pdk model binding and retire the hand resistor translation
+_None._
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
-- **#615**: T1 item 5 rows 3a/3b: schematic-level study of which temperature-coefficient correction fits the remaining area (the roadmap's "question first")
+- **#614**: Post-layout benches simulate temperature-flat resistors: extract with klt's --pdk model binding and retire the hand resistor translation
+- **#620**: Generate and verify the thick-oxide MOS geometry in the routed bandgap core
 
 ## PRs Awaiting Review
 
@@ -46,7 +48,7 @@ PRs waiting on Judge (`loom:review-requested`).
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
-- **#616**: feat: screen three bandgap temperature corrections on batch
+_None._
 
 ## Proposed
 
@@ -60,14 +62,14 @@ Issues carrying `loom:curated`.
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(curated)* *(held)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(curated)* *(held)*
 - **#614**: Post-layout benches simulate temperature-flat resistors: extract with klt's --pdk model binding and retire the hand resistor translation *(curated)*
-- **#615**: T1 item 5 rows 3a/3b: schematic-level study of which temperature-coefficient correction fits the remaining area (the roadmap's "question first") *(curated)*
+- **#615**: T1 item 5 rows 3a/3b: schematic-level study of which temperature-coefficient correction fits the remaining area (the roadmap's "question first") *(curated)* *(held)*
+- **#620**: Generate and verify the thick-oxide MOS geometry in the routed bandgap core *(curated)*
 
 ## Proposed (Architect / Hermit)
 
 - **#517**: Shrink layout/bin/met2_drc.py to its orphan-via check: pinned klt 0.8.0 already checks the met2/via rules it duplicates *(hermit)* *(held)*
 - **#545**: Consolidate the VREF accuracy window: 4 copies of DR-005's ratified band under 4 names, plus 2 live gates still on the superseded draft band *(hermit)* *(held)*
 - **#554**: Dedup pex-native's three duck-type shims onto corner-run's Corner/Experiment/Measurement dataclasses (_C has no .id, blocking batch_sim's collectors) *(hermit)* *(held)*
-- **#617**: Reuse the shared resistor-chain substitution and temperature sweep in the head-resistance bench *(hermit)*
 
 ## Epics
 
@@ -79,12 +81,12 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Very important | 0 |
-| Important | 6 |
-| Ready (`loom:issue`, net of holds/building/merge-pending) | 1 |
-| In Progress (`loom:building`) | 1 |
+| Important | 7 |
+| Ready (`loom:issue`, net of holds/building/merge-pending) | 0 |
+| In Progress (`loom:building`) | 2 |
 | PRs awaiting review | 1 |
-| Approved PRs awaiting merge | 1 |
-| Curated | 9 |
-| Architect / Hermit proposals | 4 |
+| Approved PRs awaiting merge | 0 |
+| Curated | 10 |
+| Architect / Hermit proposals | 3 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->

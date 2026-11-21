@@ -7,6 +7,17 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 - [2026-09](work_log/WORK_LOG_2026-09.md)
 
+### 2026-11-21
+
+- **Issue #624** (closed): Unit-test the shared resistor-chain substitution loop (sim_common.substitute_chained_arrays)
+- **PR #625**: test: pin substitute_chained_arrays ordering, diagnostics, and wrapper delegation
+- **Issue #617** (closed): Reuse the shared resistor-chain substitution and temperature sweep in the head-resistance bench
+- **PR #623**: refactor(sim): reuse shared resistor-chain substitution and temp-sweep control in head-resistance bench
+
+### 2026-11-20
+
+- **PR #616**: feat: screen three bandgap temperature corrections on batch
+
 ### 2026-11-18
 
 - **PR #610**: ci: add the merge_group trigger and gate merge-queue readiness
