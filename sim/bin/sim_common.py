@@ -903,29 +903,25 @@ def r2_segments_um(
     return [r_lseg_um] * coarse_units + [trim_unit_um] * active_fine
 
 
-def substitute_arrays(
+def substitute_chained_arrays(
     body: list[str],
-    n_r1: int,
-    n_r2: int,
-    trim_code: int,
-    trim_unit_um: float = 1.0,
+    r1_seg: list[float],
+    r2_seg: list[float],
     *,
     base_snapshot: Path,
-    r_lseg_um: float = 5.0,
 ) -> list[str]:
     """Replace the three `TARGET_LINES` single-device lines in `body` with
-    chained unit-instance arrays (issue #198 -- consolidated from the two
-    byte-for-byte-identical (module constants aside) copies this function
-    previously had in `run_res_array_resize.py` and
-    `run_trim_lsb_chained.py`).
+    chained unit-instance arrays at the explicit `r1_seg`/`r2_seg` unit
+    lengths (issue #617 -- factored out of `substitute_arrays` so callers
+    with their own segment lists, e.g. the head-resistance bench's
+    layout-transcribed geometry, share the same replacement loop and
+    missing-card diagnostics).
 
     `base_snapshot` is included in the "missing expected line" error message
     only -- callers pass their own `BASE_SNAPSHOT` constant so the error
     still names the exact netlist snapshot involved.
     """
     cr = _cr()
-    r1_seg = r1_segments_um(n_r1, r_lseg_um)
-    r2_seg = r2_segments_um(n_r2, trim_code, trim_unit_um)
     out: list[str] = []
     found: set[str] = set()
     for line in body:
@@ -952,6 +948,32 @@ def substitute_arrays(
             f"expected line(s) for {sorted(missing)} not found exactly once in {base_snapshot}"
         )
     return out
+
+
+def substitute_arrays(
+    body: list[str],
+    n_r1: int,
+    n_r2: int,
+    trim_code: int,
+    trim_unit_um: float = 1.0,
+    *,
+    base_snapshot: Path,
+    r_lseg_um: float = 5.0,
+) -> list[str]:
+    """Replace the three `TARGET_LINES` single-device lines in `body` with
+    chained unit-instance arrays at the sizing given by `n_r1`/`n_r2`/
+    `trim_code` (issue #198 -- consolidated from the two
+    byte-for-byte-identical (module constants aside) copies this function
+    previously had in `run_res_array_resize.py` and
+    `run_trim_lsb_chained.py`); the replacement loop itself lives in
+    `substitute_chained_arrays()`.
+    """
+    return substitute_chained_arrays(
+        body,
+        r1_segments_um(n_r1, r_lseg_um),
+        r2_segments_um(n_r2, trim_code, trim_unit_um),
+        base_snapshot=base_snapshot,
+    )
 
 
 def dc_temp_sweep_control() -> list[str]:
