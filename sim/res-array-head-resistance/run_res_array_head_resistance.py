@@ -89,6 +89,7 @@ from sim_common import (  # noqa: E402
     add_common_args,
     chain_lines,
     check_pdk_and_ngspice,
+    dc_temp_sweep_control,
     load_base_body,
     load_corner_run,
     parse_measurements,
@@ -97,6 +98,7 @@ from sim_common import (  # noqa: E402
     run_ngspice,
     publish_run_evidence,
     setup_record_paths,
+    substitute_chained_arrays,
     write_log,
 )
 
@@ -227,20 +229,6 @@ def phase_a_deck(pdk) -> str:
 # Phase B -- materiality: wrap the real core, substitute the chained arrays
 # --------------------------------------------------------------------------
 
-# The exact single-device lines this script replaces (verified present,
-# exactly once each, in BASE_SNAPSHOT before substitution).
-PHASE_B_TARGET_LINES = {
-    "XR2A": (
-        "XR2A VA VOUT VSS sky130_fd_pr__res_high_po W='r_w' "
-        "L='r_lseg*n_r2+r_lseg_trim*n_r2_trim' mult=1 m=1"
-    ),
-    "XR2B": (
-        "XR2B VB VOUT VSS sky130_fd_pr__res_high_po W='r_w' "
-        "L='r_lseg*n_r2+r_lseg_trim*n_r2_trim' mult=1 m=1"
-    ),
-    "XR1": "XR1 VBQ VB VSS sky130_fd_pr__res_high_po W='r_w' L='r_lseg*n_r1' mult=1 m=1",
-}
-
 # The current schematic's .param values that must match BASE_SNAPSHOT's own
 # .param lines byte-for-byte -- guards against silent drift between the
 # snapshot (last taken 2026-08-03) and design/bandgap_core.sch's present
@@ -260,36 +248,6 @@ EXPECTED_PARAMS = {
 }
 
 
-def substitute_chained_arrays(body: list[str]) -> list[str]:
-    out: list[str] = []
-    found: set[str] = set()
-    for line in body:
-        stripped = line.strip()
-        replaced = False
-        for key, target in PHASE_B_TARGET_LINES.items():
-            if stripped == target:
-                if key in found:
-                    raise cr.HarnessError(f"{key} line appears more than once in base body")
-                found.add(key)
-                if key == "XR2A":
-                    out.extend(chain_lines("R2A", "VA", "VOUT", R2_SEGMENTS_UM, "VSS"))
-                elif key == "XR2B":
-                    out.extend(chain_lines("R2B", "VB", "VOUT", R2_SEGMENTS_UM, "VSS"))
-                elif key == "XR1":
-                    out.extend(chain_lines("R1", "VBQ", "VB", R1_SEGMENTS_UM, "VSS"))
-                replaced = True
-                break
-        if not replaced:
-            out.append(line)
-    missing = set(PHASE_B_TARGET_LINES) - found
-    if missing:
-        raise cr.HarnessError(
-            f"expected line(s) for {sorted(missing)} not found (exactly once each) in "
-            f"{BASE_SNAPSHOT} -- schematic may have changed out from under this script"
-        )
-    return out
-
-
 def phase_b_deck(pdk, process: str, supply_v: float, body: list[str]) -> str:
     head = [
         f"* {SLUG} Phase B deck (process={process}, supply={supply_v}) -- "
@@ -298,28 +256,7 @@ def phase_b_deck(pdk, process: str, supply_v: float, body: list[str]) -> str:
         f".param vsup={supply_v}",
         f'.lib "{pdk.lib_file}" {process}',
     ]
-    control = [
-        ".control",
-        "save all",
-        "dc temp -40 125 11",
-        "meas dc vref27 FIND v(vref) AT=27",
-        "let vspan = 165",
-        "let meas_vref_27 = vref27",
-        "let meas_vref_min = minimum(v(vref))",
-        "let meas_vref_max = maximum(v(vref))",
-        "let meas_tc_ppm = (maximum(v(vref))-minimum(v(vref)))/(vref27*vspan)*1e6",
-        "let meas_n_temp_points = length(v(vref))",
-        "print meas_vref_27",
-        "print meas_vref_min",
-        "print meas_vref_max",
-        "print meas_tc_ppm",
-        "print meas_n_temp_points",
-        "quit",
-        ".endc",
-        ".end",
-        "",
-    ]
-    return "\n".join(head + body + control)
+    return "\n".join(head + body + dc_temp_sweep_control())
 
 
 def load_phase_b_baseline() -> dict[tuple[str, float], dict]:
@@ -624,7 +561,9 @@ def main(argv: list[str]) -> int:
     # trusting Phase B's comparison against the trim-range-monotonicity
     # baseline (see BASE_SNAPSHOT's docstring above).
     base_body = load_base_body(BASE_SNAPSHOT, EXPECTED_PARAMS)
-    substituted_body = substitute_chained_arrays(base_body)
+    substituted_body = substitute_chained_arrays(
+        base_body, R1_SEGMENTS_UM, R2_SEGMENTS_UM, base_snapshot=BASE_SNAPSHOT
+    )
     baseline = load_phase_b_baseline()
 
     git_info = cr.git_state()
