@@ -106,7 +106,7 @@ def doc_corner(cid: str, values: dict, manifest: dict, error: str | None = None)
 def measure_batch(block: str, corners, manifest: dict, pdk, workdir: Path) -> list[dict]:
     import batch_sim
 
-    pin = pdk.pin
+    pin = {**pdk.pin, "variant": pdk.variant}  # request must name the resolved variant (PDK override)
     exp_like = _ExpLike(manifest)
     analysis, lets, meas_cards = batch_sim.split_analyses(list(manifest["deck"]["analyses"]))
     measurements = batch_sim.request_measurements(exp_like, lets, meas_cards)

@@ -689,6 +689,7 @@ def resolve_parasitics_snapshot(
     pdk_variant: str | None = None,
     pdk_root: str | None = None,
     legacy_layout_record_id: str | None = None,
+    pinned_variant: str | None = None,
 ) -> tuple[Path, dict, str]:
     """Find (or produce) the `klt extract --parasitics --pdk` snapshot for one
     layout record. Returns (snapshot_dir, summary, source).
@@ -724,16 +725,33 @@ def resolve_parasitics_snapshot(
             summary = json.loads((local / PEX_JSON_NAME).read_text())
             return local, summary, "local"
 
-    bound_key = f"{layout_record_id}-pdk"
+    # The default key `<id>-pdk` belongs to the PINNED variant. A snapshot is
+    # only reusable when its recorded provenance.pdk.name is the variant this
+    # run simulates with; under a `PDK=<other>` override the lookup moves to
+    # `<id>-pdk-<variant>` so the committed pinned-variant snapshots stay put.
+    default_key = f"{layout_record_id}-pdk"
+    if pdk_variant and pinned_variant and pdk_variant != pinned_variant:
+        bound_key = f"{default_key}-{pdk_variant}"
+    else:
+        bound_key = default_key
+
+    def _variant_ok(summary: dict) -> bool:
+        if not pdk_variant:
+            return True
+        recorded = ((summary.get("provenance") or {}).get("pdk") or {}).get("name")
+        return recorded == pdk_variant
+
     local = local_snapshot_root / bound_key
-    if (local / PEX_SPICE_NAME).is_file():
+    if (local / PEX_SPICE_NAME).is_file() and (local / PEX_JSON_NAME).is_file():
         summary = json.loads((local / PEX_JSON_NAME).read_text())
-        return local, summary, "local"
+        if _variant_ok(summary):
+            return local, summary, "local"
 
     for candidate in sorted(SIM_DIR.glob(f"*/parasitics-snapshot/{bound_key}")):
         if (candidate / PEX_SPICE_NAME).is_file() and (candidate / PEX_JSON_NAME).is_file():
             summary = json.loads((candidate / PEX_JSON_NAME).read_text())
-            return candidate, summary, f"reused:{candidate.relative_to(REPO_ROOT)}"
+            if _variant_ok(summary):
+                return candidate, summary, f"reused:{candidate.relative_to(REPO_ROOT)}"
 
     if not pdk_variant:
         raise PostLayoutError(
@@ -741,6 +759,11 @@ def resolve_parasitics_snapshot(
             f"under any sim/*/parasitics-snapshot/{bound_key}/, and no PDK variant "
             "was passed to extract one (issue #614: the post-layout path extracts "
             "with --pdk so device cards bind to the PDK models)"
+        )
+    if local.exists():
+        raise PostLayoutError(
+            f"{local} exists but its provenance.pdk.name is not {pdk_variant}; "
+            "snapshots are append-only, refusing to extract over it"
         )
     _spice, summary = run_klt_extract_parasitics(
         gds, local, top=PEX_TOP, pdk_variant=pdk_variant, pdk_root=pdk_root
@@ -768,6 +791,7 @@ def build_extracted_body(
         pdk_variant=pdk.variant,
         pdk_root=str(pdk.root),
         legacy_layout_record_id=legacy_layout_record_id,
+        pinned_variant=pdk.pin["variant"],
     )
     spice_path = pex_dir / PEX_SPICE_NAME
 
@@ -1127,6 +1151,9 @@ def run_post_layout_experiment(
 
     pin = cr.load_pin()
     pdk = cr.resolve_pdk(pin)
+    # Batch requests name `models.pdk` from the pin dict: hand them the RESOLVED
+    # variant so a `PDK=` override reaches the fleet, same as extraction.
+    batch_pin = {**pin, "variant": pdk.variant}
     if not pdk.matches_pin and not args.allow_pdk_mismatch:
         raise cr.HarnessError(
             f"installed PDK {pdk.variant} is open_pdks {pdk.installed_commit}, but "
@@ -1197,7 +1224,7 @@ def run_post_layout_experiment(
     if args.dry_run and batch:
         try:
             groups = batch_sim.build_groups(
-                exp, pin, matrix, body, spiceinit_text, run_dir / "batch", args.timeout,
+                exp, batch_pin, matrix, body, spiceinit_text, run_dir / "batch", args.timeout,
                 capacity_wait_s=args.batch_capacity_wait_s,
                 runner_version_check=args.batch_runner_version_check,
                 poll_interval_s=30.0, gate_slug=slug, allow_step_requests=True,
@@ -1244,7 +1271,7 @@ def run_post_layout_experiment(
         def execute_matrix(matrix_, corners_dir_):
             try:
                 return batch_sim.execute(
-                    exp, pin, pdk, matrix_, body, spiceinit_text,
+                    exp, batch_pin, pdk, matrix_, body, spiceinit_text,
                     run_dir / "batch", corners_dir_, REPO_ROOT, args.timeout,
                     cr.evaluate_measurements, local_tools,
                     capacity_wait_s=args.batch_capacity_wait_s,

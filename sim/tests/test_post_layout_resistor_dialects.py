@@ -357,5 +357,49 @@ class StartupSnapshotResolution(unittest.TestCase):
             )
 
 
+class AlternatePdkVariant(unittest.TestCase):
+    """A `PDK=sky130B` override must not reuse sky130A-recorded snapshots."""
+
+    def test_pinned_snapshots_not_reused_for_other_variant(self):
+        record_id = SNAPSHOT_PDK.parent.name.removesuffix("-pdk")
+        with TemporaryDirectory() as tmp:
+            local = Path(tmp)
+            bound = local / f"{record_id}-pdk-sky130B"
+            with patch.object(plc, "run_klt_extract_parasitics") as extract:
+                extract.return_value = (bound / plc.PEX_SPICE_NAME, {})
+                directory, _, source = plc.resolve_parasitics_snapshot(
+                    local, Path("x.gds"), record_id, pdk_variant="sky130B",
+                    pdk_root="/pdks", pinned_variant="sky130A",
+                )
+            self.assertEqual((directory, source), (bound, "extracted"))
+            extract.assert_called_once_with(
+                Path("x.gds"), bound, top=plc.PEX_TOP, pdk_variant="sky130B", pdk_root="/pdks",
+            )
+
+    def test_pinned_variant_still_reuses_committed_snapshot(self):
+        record_id = SNAPSHOT_PDK.parent.name.removesuffix("-pdk")
+        with TemporaryDirectory() as tmp:
+            directory, summary, source = plc.resolve_parasitics_snapshot(
+                Path(tmp), Path("x.gds"), record_id, pdk_variant="sky130A",
+                pinned_variant="sky130A",
+            )
+        self.assertTrue(source.startswith("reused:"))
+        self.assertEqual(summary["provenance"]["pdk"]["name"], "sky130A")
+
+    def test_provenance_mismatch_on_default_key_is_not_a_hit(self):
+        with TemporaryDirectory() as tmp, patch.object(plc, "SIM_DIR", Path(tmp)):
+            local = Path(tmp) / "b" / "parasitics-snapshot"
+            snap = local / "rid-pdk"
+            snap.mkdir(parents=True)
+            (snap / plc.PEX_SPICE_NAME).touch()
+            (snap / plc.PEX_JSON_NAME).write_text('{"provenance": {"pdk": {"name": "sky130A"}}}')
+            with patch.object(plc, "run_klt_extract_parasitics") as extract:
+                with self.assertRaises(plc.PostLayoutError):
+                    plc.resolve_parasitics_snapshot(
+                        local, Path("x.gds"), "rid", pdk_variant="sky130B",
+                    )
+                extract.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()
