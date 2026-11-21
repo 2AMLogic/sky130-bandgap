@@ -1,0 +1,23 @@
+{
+  "clean": true,
+  "expected": {
+    "nfet": 19,
+    "pfet": 54
+  },
+  "observed": {
+    "nfet": 19,
+    "pfet": 54
+  },
+  "unexpected_mos_models": {},
+  "mismatches": {},
+  "expected_source": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-620/layout/bandgap-core/reference.spice",
+  "extract": {
+    "device_count": 242,
+    "device_counts": {
+      "nfet": 19,
+      "pfet": 54,
+      "pnp": 24,
+      "res_high_po": 145
+    }
+  }
+}

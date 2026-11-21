@@ -928,6 +928,265 @@ class TestCoverageScoringGate(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
+# Gate 5 (issue #620): the MOS flavour gate -- the raw, pre-translation
+# output of a PDK-bound extraction must bind every schematic MOS finger to
+# the 5 V thick-oxide wrapper of its polarity.
+# ---------------------------------------------------------------------------
+class TestMosFlavourGate(unittest.TestCase):
+    """`check_mos_flavour()` scores the raw PDK-bound netlist against the
+    finger counts summed out of `reference.spice`. The layout could bind a
+    thin-oxide card for every device and the curated-deck LVS path would
+    never see it -- the curated deck maps both flavours to one generic
+    class -- so this census is the only place the oxide flavour is
+    observable, and it must fail on a single wrong card.
+    """
+
+    EXPECTED = {"nfet": 19, "pfet": 54}
+
+    def test_reference_spice_sums_to_the_schematic_fingers(self) -> None:
+        """The expectation is derived, not asserted: summing `m=` over the
+        committed reference's MOS cards gives 19 NFET / 54 PFET fingers
+        (16 of the PFET fingers are MMCC, the compensation cap)."""
+        reference = (
+            REPO_ROOT / "layout/bandgap-core/reference.spice"
+        ).read_text()
+        self.assertEqual(
+            gen_bandgap_routed.expected_mos_fingers(reference),
+            self.EXPECTED,
+        )
+
+    def test_m_multiplier_defaults_to_one(self) -> None:
+        """A card with no `m=` is one finger, not zero or an error."""
+        self.assertEqual(
+            gen_bandgap_routed.expected_mos_fingers(
+                "MMPC2 NG NG NC1 VDD pfet L=20U W=1U\n"
+            ),
+            {"nfet": 0, "pfet": 1},
+        )
+
+    def test_non_mos_cards_are_ignored(self) -> None:
+        """Q cards, R cards, comments and continuations carry no finger."""
+        self.assertEqual(
+            gen_bandgap_routed.expected_mos_fingers(
+                "* comment\n"
+                "Q$1 (C=VSS,B=VSS,E=VA) PNP\n"
+                "XR2A VA VOUT VSS sky130_fd_pr__res_high_po w=1.05 l=255\n"
+                "+ N=49\n"
+            ),
+            {"nfet": 0, "pfet": 0},
+        )
+
+    @staticmethod
+    def _raw_netlist(nfet_hvi: int, pfet_hvi: int, extra: str = "") -> str:
+        lines = [
+            "* extracted by klt extract --deck sky130",
+            "",
+            f".SUBCKT bandgap_core_routed VDD VSS VOUT",
+        ]
+        lines += [
+            f"X$N{i} VSS GDRV VSS VSS sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=10"
+            for i in range(nfet_hvi)
+        ]
+        lines += [
+            f"X$P{i} VDD GDRV VDD VDD sky130_fd_pr__pfet_g5v0d10v5 L=20 W=30"
+            for i in range(pfet_hvi)
+        ]
+        lines.append(extra)
+        lines.append(".ENDS bandgap_core_routed")
+        return "\n".join(lines) + "\n"
+
+    def test_all_fingers_on_the_5v_wrappers_passes(self) -> None:
+        verdict = gen_bandgap_routed.check_mos_flavour(
+            self._raw_netlist(19, 54), self.EXPECTED
+        )
+        self.assertTrue(verdict["clean"], verdict)
+        self.assertEqual(
+            verdict["observed"],
+            {"nfet": 19, "pfet": 54},
+        )
+
+    def test_a_single_thin_oxide_card_fails_twice_over(self) -> None:
+        """The mixed-flavour negative control: total NFET/PFET counts held
+        constant, exactly one card swapped to its thin-oxide counterpart.
+        The gate must fail, naming both the short count and the unexpected
+        model -- 'the rest bind correctly' must not be enough."""
+        netlist = self._raw_netlist(
+            18,
+            54,
+            extra=(
+                "X$BAD VSS GDRV VSS VSS sky130_fd_pr__nfet_01v8 L=0.5 W=10"
+            ),
+        )
+        verdict = gen_bandgap_routed.check_mos_flavour(netlist, self.EXPECTED)
+        self.assertFalse(verdict["clean"])
+        self.assertIn("nfet", verdict["mismatches"])
+        self.assertEqual(verdict["mismatches"]["nfet"]["observed"], 18)
+        self.assertEqual(
+            verdict["unexpected_mos_models"],
+            {"sky130_fd_pr__nfet_01v8": 1},
+        )
+
+    def test_one_missing_card_fails(self) -> None:
+        """A gate that only checked 'no unexpected models' would pass a
+        layout that simply dropped a device; the exact-count half catches
+        it."""
+        verdict = gen_bandgap_routed.check_mos_flavour(
+            self._raw_netlist(18, 54), self.EXPECTED
+        )
+        self.assertFalse(verdict["clean"])
+        self.assertEqual(verdict["mismatches"]["nfet"]["expected"], 19)
+
+    def test_one_extra_card_fails(self) -> None:
+        verdict = gen_bandgap_routed.check_mos_flavour(
+            self._raw_netlist(20, 54), self.EXPECTED
+        )
+        self.assertFalse(verdict["clean"])
+
+    def test_resistor_and_pnp_wrapper_cards_are_not_counted(self) -> None:
+        """A PDK-bound extraction of this cell also emits X cards with
+        empty/param models for resistors and PNPs; the census is a MOS-only
+        census (`*fet*` match) and must not choke or count them."""
+        counts = gen_bandgap_routed.raw_mos_card_counts(
+            "X$1 VOUT TRIM_A VSS l=5 w=1.05 N=1\n"
+            "+ sky130_fd_pr__res_high_po\n"
+            "X$2 (C=VSS,B=VSS,E=VA) sky130_fd_pr__pnp_05v5_W0p68L0p68\n"
+        )
+        self.assertEqual(counts, {})
+
+    # -- regression corpus: the original thin-oxide GDS ---------------------
+    def test_fails_on_the_original_gds_raw_extraction(self) -> None:
+        """The committed raw PDK-bound extraction of record
+        `20260923-070209-dbd57a9`'s GDS (see
+        `layout/tests/fixtures/README.md` for the byte-exact reproduction):
+        19 + 54 thin-oxide `*_01v8` cards, zero 5 V cards. The gate this
+        issue adds must fail on exactly the layout that motivated it."""
+        netlist = (
+            REPO_ROOT
+            / "layout/tests/fixtures/20260923-070209-dbd57a9.pdk-extract.spice"
+        ).read_text()
+        verdict = gen_bandgap_routed.check_mos_flavour(netlist, self.EXPECTED)
+        self.assertFalse(verdict["clean"])
+        self.assertEqual(
+            verdict["observed"], {"nfet": 0, "pfet": 0}
+        )
+        self.assertEqual(
+            verdict["unexpected_mos_models"],
+            {
+                "sky130_fd_pr__nfet_01v8": 19,
+                "sky130_fd_pr__pfet_01v8": 54,
+            },
+        )
+
+    def test_every_hvi_block_declares_the_flavour(self) -> None:
+        """Every MOS block (core, amplifier including the PMOS compensation
+        capacitor, startup injector, both polarities) draws the thick-oxide
+        flavour; a block added without it is a 1.8 V device in a 5 V
+        schematic."""
+        hvi = gen_bandgap_routed.mos_hvi_blocks()
+        self.assertEqual(
+            {b["id"] for b in hvi},
+            {
+                "core_mirror", "amp_input_pair", "amp_nload", "amp_pmirr",
+                "amp_nmirr", "amp_cc", "su_clamp", "su_sense", "su_ref",
+                "su_inj",
+            },
+        )
+        for block in hvi:
+            with self.subTest(block=block["id"]):
+                self.assertIn(block["params"]["flavor"], ("nfet", "pfet"))
+
+
+# ---------------------------------------------------------------------------
+# Gate 6 (issue #620): the HV rule group of the pinned PDK's own source
+# deck, zero applicable violations on the composed GDS.
+# ---------------------------------------------------------------------------
+class TestHvRuleScoring(unittest.TestCase):
+    """`score_hv_rule_counts()` splits one DRC run's per-category counts
+    into the HV group (gated) and the rest (reported), so a thick-oxide
+    enclosure violation fails the flow while the same run's pre-existing
+    non-HV FEOL findings stay evidence, not gate rows.
+    """
+
+    def test_su_inj_shaped_counts_are_not_clean(self) -> None:
+        """The isolated injector control's own marker shape: three
+        `hvdifftap.22` (hvi enclosure of diffusion) plus non-HV findings.
+        This is the failing-enclosure shape the flow's negative control
+        must produce from the raw generator output."""
+        scored = gen_bandgap_routed.score_hv_rule_counts(
+            {"hvdifftap.22": 3, "licon.15": 4}
+        )
+        self.assertFalse(scored["clean"])
+        self.assertEqual(scored["hv_violation_count"], 3)
+        self.assertEqual(scored["hv_violations"], {"hvdifftap.22": 3})
+        self.assertEqual(scored["non_hv_violation_count"], 4)
+
+    def test_non_hv_findings_alone_are_clean(self) -> None:
+        """The composed cell's pre-existing FEOL/BEOL findings (licon,
+        rpm, OFFGRID, ...) are the same findings the curated deck reports
+        or the generator geometry triggers regardless of oxide flavour --
+        they do not gate this check."""
+        scored = gen_bandgap_routed.score_hv_rule_counts(
+            {"licon.1": 2676, "rpm.2": 120, "ct_OFFGRID": 240}
+        )
+        self.assertTrue(scored["clean"])
+        self.assertEqual(scored["non_hv_violation_count"], 3036)
+
+    def test_every_hv_prefix_is_gated(self) -> None:
+        """hvi.*, hvdifftap.*, hvnwell.*/hvnwel.*, hvpoly.*, hvntm.* --
+        one marker in any of them is a violation."""
+        for cat in (
+            "hvi.1", "hvi.2", "hvdifftap.19", "hvnwell.8", "hvnwel.9",
+            "hvpoly.13", "hvntm.3",
+        ):
+            with self.subTest(category=cat):
+                self.assertFalse(
+                    gen_bandgap_routed.score_hv_rule_counts({cat: 1})["clean"]
+                )
+
+    def test_empty_counts_are_clean(self) -> None:
+        scored = gen_bandgap_routed.score_hv_rule_counts({})
+        self.assertTrue(scored["clean"])
+        self.assertEqual(scored["hv_violations"], {})
+
+
+class TestWellBoxClassification(unittest.TestCase):
+    """`classify_well_boxes()` assigns the composed GDS's merged n-wells to
+    the tie nets that own them, for the ERC specs re-derived per run. A
+    well matched by neither net (or both) is an error -- a tie declaration
+    that guessed would silently under-report exactly the way the ERC
+    negative control exists to catch."""
+
+    BOXES = [
+        {"bbox_um": [0.0, 0.0, 10.0, 10.0]},
+        {"bbox_um": [20.0, 0.0, 30.0, 10.0]},
+        {"bbox_um": [40.0, 0.0, 50.0, 10.0]},
+    ]
+
+    def test_vdd_and_vss_points_split_the_wells(self) -> None:
+        assigned = gen_bandgap_routed.classify_well_boxes(
+            self.BOXES,
+            vdd_points=[(5.0, 5.0), (25.0, 5.0)],
+            vss_points=[(45.0, 5.0)],
+        )
+        self.assertEqual(len(assigned["VDD"]), 2)
+        self.assertEqual(len(assigned["VSS"]), 1)
+
+    def test_a_well_matching_neither_net_raises(self) -> None:
+        with self.assertRaises(RuntimeError):
+            gen_bandgap_routed.classify_well_boxes(
+                self.BOXES, vdd_points=[(5.0, 5.0)], vss_points=[(25.0, 5.0)]
+            )
+
+    def test_a_well_matching_both_nets_raises(self) -> None:
+        with self.assertRaises(RuntimeError):
+            gen_bandgap_routed.classify_well_boxes(
+                self.BOXES,
+                vdd_points=[(5.0, 5.0), (25.0, 5.0), (45.0, 5.0)],
+                vss_points=[(5.0, 5.0), (25.0, 5.0), (45.0, 5.0)],
+            )
+
+
+# ---------------------------------------------------------------------------
 # The gate composition itself
 # ---------------------------------------------------------------------------
 class TestFlowGate(unittest.TestCase):
@@ -947,6 +1206,9 @@ class TestFlowGate(unittest.TestCase):
         "merged_pin_names": [],
         "split_routed": {},
         "met2_drc_clean": True,
+        "mos_flavour_clean": True,
+        "hv_drc_clean": True,
+        "erc_supply_clean": True,
     }
 
     def test_all_conditions_met_passes(self) -> None:
@@ -978,6 +1240,18 @@ class TestFlowGate(unittest.TestCase):
             # so without this row an undersized met2 area would pass the
             # whole flow (layout/generator-notes.md#met2-escape-note).
             "met2_drc_clean": {"met2_drc_clean": False},
+            # Issue #620: the schematic's MOS cards are all 5 V thick-oxide
+            # devices -- one thin-oxide binding among 72 correct ones fails
+            # this row, because the curated LVS path cannot see the
+            # difference at all.
+            "mos_flavour_bound": {"mos_flavour_clean": False},
+            # The HV rule group of the pinned PDK's own source deck (FEOL
+            # enabled, negative enclosure control included): the hvi/npc/
+            # nwell enclosures the curated deck carries no rule for.
+            "hv_drc_clean": {"hv_drc_clean": False},
+            # Supply/tie ERC on the exact composed GDS, gated exactly like
+            # run-erc-supply-flow.sh gates the committed records.
+            "erc_supply_clean": {"erc_supply_clean": False},
         }
         self.assertEqual(
             set(failures), set(gen_bandgap_routed.flow_gate(**self.PASSING)),
