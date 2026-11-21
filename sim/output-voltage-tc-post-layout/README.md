@@ -18,12 +18,30 @@ carries the current verdict.
 
 | Record | Layout record measured | Status |
 |---|---|---|
-| `20261120-230509-7d59542` | `20260923-070209-dbd57a9` (same routed GDS; **PDK-bound** snapshot `…-pdk`) | **Standing post-layout result (issue #614).** First record on a `klt extract --parasitics --pdk sky130A` extraction: the 145 `res_high_po` devices simulate as the PDK model itself (bulk + geometry + temperature behaviour), not the hand-written fixed-`R` card the older records used — closing the not-like-for-like gap that artefact made for `vref_min`/`vref_max`/box TC. Movement vs `20261114-184650-4a9f2c97`: `vref_min` mean 1.156041 → 1.153906 V (cold end ≈ 2.1 mV lower; the model is −2.4 % at −40 °C where the card was flat), `vref_max` mean 1.195038 → 1.195596 V (+0.6 mV; +5.2 % at 125 °C), box TC 136.5–212.0 → 145.0–226.8 ppm/degC (now includes the resistor TC), `vref_27` unchanged by construction (mean 1.183963 → 1.183964 V). Verdicts do not move: `vref_min` **FAIL 15/15**, box TC **FAIL 15/15** — the −27.7 mV 27 °C-side delta is #573/klayout-tools#5894's matter, out of #614's scope. The MOS class keeps the local `g5v0d10v5` translation (the layout draws no `hvi` marker — #619, klayout-tools#6965/#6966); `sim/startup-time-post-layout/` stays on its 0.5.0 snapshot (`parasitics_legacy=True`). Supersedes `20261114-184650-4a9f2c97`. |
+| `20261120-230509-7d59542` | `20260923-070209-dbd57a9` (PDK-bound snapshot `…-pdk`) | **Standing post-layout result (#614).** The 145 `res_high_po` devices use PDK resistor models. Both `vref_min` and box TC **fail at all 15 corners**. Supersedes `20261114-184650-4a9f2c97`. |
 | `20261114-184650-4a9f2c97` | `20260923-070209-dbd57a9` (same routed GDS as the record it supersedes — `layout/bandgap-core/reports/LATEST`) | **Superseded 2026-11-20 (issue #614, PDK-bound re-run above).** First record measured on a `klt extract --parasitics` snapshot produced by the **pinned `klayout-tools==0.8.0`**, which carries klayout-tools#2359's fix. `vref_min` 1.153502–1.168538 V — **FAIL 15/15**, i.e. *worse* than the 14/15 it superseded, and the one corner that used to clear the 1.176 V floor (`ff_27c_3.63v`) no longer does. Box TC 136.5–212.0 ppm/degC, **FAIL 15/15**. `Overall: FAIL`. **This refuted this bench's own standing attribution of row 1b to klayout-tools#2359** — see "The #2359 attribution is refuted" below. Supersedes `20261113-111050-7efdcf3b`. |
 | `20260817-020357-13476b7` | `20260817-020222-13476b7` (`n_r2=51`, 49 coarse + 20 fine units/leg; DRC 0, LVS `match`, `mismatch_count=0`) | Earlier standing result, with a stated tool caveat (**the caveat is now refuted — see below**). 15/15 corners. `vref_27` 1.19291–1.19477 V (inside DR-005's 1.176–1.224 V window), but `vref_min` 1.16658–1.16970 V — 8.5…9.4 mV **below** the 1.176 V floor at every corner. Box TC 167.9–186.9 ppm/degC, binding corner `fs`. `Overall: FAIL`. The miss is **not** a sizing error: it is the `klt extract --parasitics` poly double-count of klayout-tools#800 (fixed upstream 2026-08-12, absent from the build that produced this snapshot) — see below. |
 | `20260816-100445-6ea30d8` | `20260815-034022-001d1b7` | **Do not cite for the resistor legs.** Reused `sim/psrr-dc-post-layout/parasitics-snapshot/20260815-034022-001d1b7`, whose `res_high_po` cards carry **1599 Ω / 5 µm** and **159.9 Ω / 0.5 µm** — i.e. a pure `L/W · sheet_rho` value with **no** per-instance head/end term, unlike the same layout record's own `klt extract` output (2003.841367 / 542.118769 Ω) and unlike a fresh `klt extract --parasitics` at the pinned `klt`. That snapshot's `K = R2/R1` is exactly the drawn length ratio 7.1429 instead of the chained 7.6301, which is why this record reads `vref_27` ≈ 1.1797 V. The snapshot is left in place (append-only) but is a stale-tooling artifact, not a measurement of the drawn part. |
 | `20260815-035841-001d1b7` | `20260815-034022-001d1b7` | Same stale snapshot as the row above; same caveat. |
 | `20260811-231900-84ef136` | `20260811-221633-a0ee5e7` | Pre-#170 amp, pre-#178 sizing. Head-aware snapshot. `vref_27` 1.19328–1.19513 V. Superseded. |
+
+### Effect of binding the extracted resistors to the PDK (#614)
+
+Across the 15 matched process and supply corners, mean `vref_min` fell
+from 1.156041 to 1.153906 V (−2.135 mV) and mean `vref_max` rose from
+1.195038 to 1.195596 V (+0.558 mV). In the bound TT / 3.30 V sweep,
+the maximum was 1.194683 V at −40 °C and the minimum was 1.151732 V at
+125 °C. Extracted box TC spanned 136.5–212.0 ppm/°C with fixed resistors
+and 145.0–226.8 ppm/°C with the PDK models.
+
+Mean `vref_27` rose from 1.183963 to 1.183964 V. The paired changes ranged
+from −0.153 to +0.155 mV, averaging +0.0011 mV. The mean extracted-to-schematic
+difference at 27 °C is still about −27.7 mV (#573, klayout-tools#5894).
+
+The routed layout lacks the `hvi` marker (#619), so this record uses the
+local MOS translation to `g5v0d10v5` (klayout-tools#6965/#6966). The
+startup-time bench pins its own klt-0.5.0 snapshot for this layout record.
+Other layout IDs use the PDK-bound resolver.
 
 ## The divergence: schematic vs extracted, at the same sizing
 

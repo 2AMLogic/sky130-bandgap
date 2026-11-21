@@ -85,7 +85,7 @@ non-obvious wrinkle this module documents and handles once:
   design instantiates `g5v0d10v5` -- see `_X_BOUND_RES_RE`'s block comment
   for the full story and the filed issues. The generic-card translation
   above stays live for the committed klt-0.5.0 snapshot
-  `sim/startup-time-post-layout/` still measures (`parasitics_legacy=True`).
+  `sim/startup-time-post-layout/` pins for layout record 20260923-070209-dbd57a9.
 
 3. **A discovered ngspice/sky130-model quirk this module works around**:
    sky130's `g5v0d10v5` MOS models are BSIM4 BINNED models
@@ -136,7 +136,7 @@ without re-deriving any of the above.
    netlist, otherwise cross-bench comparisons (Iq at the operating point
    `output-voltage-tc` reported, say) would silently be against different
    DUTs. The first bench to run for a layout record commits the snapshot
-   under its own `parasitics-snapshot/<layout-record-id>/`; later benches
+   under its own `parasitics-snapshot/<layout-record-id>-pdk/`; later benches
    find and reuse it in place rather than re-extracting a second copy.
 """
 
@@ -312,7 +312,10 @@ def run_klt_extract_parasitics(
 # device-class translation (generic LVS placeholders -> simulatable vendor models)
 # --------------------------------------------------------------------------
 
-_UNIT_SUFFIX_RE = re.compile(r"(-?\d+\.?\d*)[UP]\b")
+_MOS_GEOMETRY_UNIT_RE = re.compile(
+    r"(?<!\S)((?:L|W|AS|AD|PS|PD)\s*=\s*[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?)[UP]\b",
+    re.I,
+)
 _M_RE = re.compile(r"^(M\$\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(nfet|pfet)\s+(.*)$")
 _Q_RE = re.compile(r"^(Q\$\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+pnp\s+AE=([0-9.]+)P.*$")
 # Trailing device parameters after the model name are OPTIONAL and ignored.
@@ -402,10 +405,9 @@ _R_SUBCKT_RE = re.compile(
 # swap the extracted side's transistors to a different oxide flavour than
 # the schematic side's, a far larger like-for-like artefact than the one
 # this issue removes -- so per the issue's step 4 the MOS class keeps the
-# local translation: model swapped to `g5v0d10v5`, geometry preserved, and
-# the same nrd/nrs + sa=sb=sd=0 terms the generic path adds (the bound card
-# carries neither; the PDK wrapper's own nrd/nrs default `0.14/w` differs
-# from this design's `0.29/w` convention, so the explicit terms stay).
+# local translation. A marked device already has the intended model. Both
+# dialects preserve geometry and explicit parameters. Missing nrd/nrs take
+# this design's `0.29/w` convention (the PDK wrapper defaults to `0.14/w`).
 #
 # The `l=`/`w=` parameter names (lowercase, no unit suffix) are the
 # convention `sky130_fd_pr__res_high_po`'s own `.subckt` declares; the
@@ -427,12 +429,8 @@ _X_BOUND_PNP_RE = re.compile(
 )
 _X_BOUND_M_RE = re.compile(
     r"^(X\$\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+"
-    r"sky130_fd_pr__(n|p)fet_01v8\s+(.*)$"
+    r"sky130_fd_pr__(nfet|pfet)_(?:01v8|g5v0d10v5)\s+(.*)$"
 )
-_BOUND_MOS_MODEL = {
-    "n": "sky130_fd_pr__nfet_g5v0d10v5",
-    "p": "sky130_fd_pr__pfet_g5v0d10v5",
-}
 
 # Boundary between the two PNP unit sizes this design draws (0.4624 um^2
 # small/CTAT vs 11.56 um^2 large/PTAT) -- see module docstring point 2.
@@ -443,10 +441,6 @@ _PNP_AE_SMALL_LARGE_BOUNDARY_UM2 = 1.0
 # XM* line in both schematics: 0.03625 @ W=8, 0.0145 @ W=20, 0.048333 @ W=6,
 # 0.0096667 @ W=30 all solve k=0.29 exactly).
 _NRD_NRS_K = 0.29
-
-
-def _strip_unit_suffix(match: re.Match) -> str:
-    return match.group(1)
 
 
 def translate_extracted_netlist(text: str) -> tuple[str, dict[str, int]]:
@@ -475,32 +469,19 @@ def translate_extracted_netlist(text: str) -> tuple[str, dict[str, int]]:
     for ln in joined:
         s = ln.strip()
 
-        m = _M_RE.match(s)
+        m = _M_RE.match(s) or _X_BOUND_M_RE.match(s)
         if m:
             name, d, g, src, b, cls, rest = m.groups()
-            model = "sky130_fd_pr__nfet_g5v0d10v5" if cls == "nfet" else "sky130_fd_pr__pfet_g5v0d10v5"
-            rest2 = _UNIT_SUFFIX_RE.sub(_strip_unit_suffix, rest)
-            wm = re.search(r"[Ww]=([0-9.]+)\b", rest2)
-            w_um = float(wm.group(1)) if wm else 1.0
-            nrd_nrs = _NRD_NRS_K / w_um
-            out.append(
-                f"X{name[1:]} {d} {g} {src} {b} {model} {rest2} "
-                f"nrd={nrd_nrs:.6f} nrs={nrd_nrs:.6f} nf=1 mult=1 sa=0 sb=0 sd=0"
-            )
-            counts["mos"] += 1
-            continue
-
-        m = _X_BOUND_M_RE.match(s)
-        if m:
-            name, d, g, src, b, flavour, rest = m.groups()
-            rest2 = _UNIT_SUFFIX_RE.sub(_strip_unit_suffix, rest)
-            wm = re.search(r"[Ww]=([0-9.]+)\b", rest2)
-            w_um = float(wm.group(1)) if wm else 1.0
-            nrd_nrs = _NRD_NRS_K / w_um
-            out.append(
-                f"{name} {d} {g} {src} {b} {_BOUND_MOS_MODEL[flavour]} {rest2} "
-                f"nrd={nrd_nrs:.6f} nrs={nrd_nrs:.6f} nf=1 mult=1 sa=0 sb=0 sd=0"
-            )
+            model = f"sky130_fd_pr__{cls}_g5v0d10v5"
+            geometry = _MOS_GEOMETRY_UNIT_RE.sub(r"\1", rest)
+            supplied = dict(re.findall(r"(?<!\S)(\w+)\s*=\s*(\S+)", geometry.lower()))
+            defaults = {}
+            if "nrd" not in supplied or "nrs" not in supplied:
+                squares = _NRD_NRS_K / float(supplied.get("w", "1"))
+                defaults.update(nrd=f"{squares:.6f}", nrs=f"{squares:.6f}")
+            defaults.update(nf=1, mult=1, sa=0, sb=0, sd=0)
+            missing = [f"{key}={value}" for key, value in defaults.items() if key not in supplied]
+            out.append(" ".join([f"X{name[1:]} {d} {g} {src} {b} {model}", geometry, *missing]))
             counts["mos"] += 1
             continue
 
@@ -707,17 +688,14 @@ def resolve_parasitics_snapshot(
     layout_record_id: str,
     pdk_variant: str | None = None,
     pdk_root: str | None = None,
-    prefer_legacy_local: bool = False,
+    legacy_layout_record_id: str | None = None,
 ) -> tuple[Path, dict, str]:
     """Find (or produce) the `klt extract --parasitics --pdk` snapshot for one
     layout record. Returns (snapshot_dir, summary, source).
 
-    `prefer_legacy_local=True` (issue #614's one deliberate exception,
-    `sim/startup-time-post-layout/`) selects the PRE-#614 resolution instead:
-    the bench's own local unbound snapshot first, the sibling unbound
-    snapshots second, a fresh `--pdk`-less extraction last -- so that bench
-    keeps measuring its committed klt-0.5.0 extraction (its README discloses
-    why it was not moved) while every other bench moves to the bound key.
+    Startup passes its committed klt-0.5.0 layout record ID to reuse that
+    specific local snapshot. A missing snapshot or a different layout ID
+    follows the normal PDK-bound resolution below.
 
     Default resolution order, per module docstring point 5, over the PDK-BOUND
     snapshot key `<layout_record_id>-pdk` (issue #614):
@@ -736,22 +714,15 @@ def resolve_parasitics_snapshot(
     The `-pdk` suffix keeps the bound snapshot a DISTINCT append-only artifact
     from the unbound snapshots the committed records cite: reusing the bare
     `<layout_record_id>` key would either overwrite a committed snapshot
-    (refused by `sim/`'s append-only rule) or silently hand the bound-path
-    translation an unbound netlist (caught by the coverage guard, but only
-    after wasted work). The pre-#614 unbound snapshots stay where they are:
+    (refused by `sim/`'s append-only rule) or silently simulate fixed
+    resistor cards from an unbound netlist. The pre-#614 unbound snapshots stay where they are:
     the committed records that measured them keep pointing at them.
     """
-    if prefer_legacy_local:
+    if layout_record_id == legacy_layout_record_id:
         local = local_snapshot_root / layout_record_id
-        if (local / PEX_SPICE_NAME).is_file():
+        if (local / PEX_SPICE_NAME).is_file() and (local / PEX_JSON_NAME).is_file():
             summary = json.loads((local / PEX_JSON_NAME).read_text())
             return local, summary, "local"
-        for candidate in sorted(SIM_DIR.glob(f"*/parasitics-snapshot/{layout_record_id}")):
-            if (candidate / PEX_SPICE_NAME).is_file() and (candidate / PEX_JSON_NAME).is_file():
-                summary = json.loads((candidate / PEX_JSON_NAME).read_text())
-                return candidate, summary, f"reused:{candidate.relative_to(REPO_ROOT)}"
-        _spice, summary = run_klt_extract_parasitics(gds, local, top=PEX_TOP)
-        return local, summary, "extracted"
 
     bound_key = f"{layout_record_id}-pdk"
     local = local_snapshot_root / bound_key
@@ -783,7 +754,7 @@ def build_extracted_body(
     run_dir: Path,
     local_snapshot_root: Path,
     wrapped_schematic: str,
-    prefer_legacy_local: bool = False,
+    legacy_layout_record_id: str | None = None,
 ) -> tuple[list[str], dict]:
     """Netlist the (unmodified) schematic testbench, then swap its
     `bandgap_core`/`error_amp` subckt definitions for the translated,
@@ -794,9 +765,9 @@ def build_extracted_body(
         local_snapshot_root,
         gds,
         layout_record_id,
-        pdk_variant=None if prefer_legacy_local else pdk.variant,
-        pdk_root=None if prefer_legacy_local else str(pdk.root),
-        prefer_legacy_local=prefer_legacy_local,
+        pdk_variant=pdk.variant,
+        pdk_root=str(pdk.root),
+        legacy_layout_record_id=legacy_layout_record_id,
     )
     spice_path = pex_dir / PEX_SPICE_NAME
 
@@ -1027,7 +998,7 @@ def run_post_layout_experiment(
     process_override: list[str] | None = None,
     subset_reason: str = "",
     claim_split: str | None = None,
-    parasitics_legacy: bool = False,
+    legacy_layout_record_id: str | None = None,
 ) -> int:
     """Run one bench's whole post-layout re-verification and write its record.
 
@@ -1077,15 +1048,9 @@ def run_post_layout_experiment(
     "... design/bandgap_core.sch ..." sentence in an `extracted`-provenance
     record, which is exactly the mislabeling issue #16 is guarding against.
 
-    `parasitics_legacy=True` (issue #614) keeps this bench on the PRE-#614
-    unbound snapshot resolution and translation (local unbound snapshot
-    first, sibling unbound second, fresh `--pdk`-less extraction last).
-    Exactly one bench passes it: `sim/startup-time-post-layout/`, which
-    still measures its committed klt-0.5.0 extraction on purpose (its README
-    discloses why it was not moved). Every other bench resolves the PDK-bound
-    snapshot key `<layout-record-id>-pdk` and simulates PDK-bound device
-    cards -- see `resolve_parasitics_snapshot` and the bound-dialect notes at
-    `_X_BOUND_RES_RE`.
+    `legacy_layout_record_id` allows the startup-time bench to reuse its
+    committed klt-0.5.0 snapshot for that layout. Other layouts use the
+    PDK-bound snapshot key `<layout-record-id>-pdk`.
 
     `claim_tail=None` selects the OTHER manifest shape this runner supports
     (issue #299): a bench that owns its own post-layout manifest instead of
@@ -1218,7 +1183,7 @@ def run_post_layout_experiment(
 
     body, layout_provenance = build_extracted_body(
         cr, pdk, run_dir, here / "parasitics-snapshot", wrapped_schematic,
-        prefer_legacy_local=parasitics_legacy,
+        legacy_layout_record_id=legacy_layout_record_id,
     )
 
     print(f"experiment      : {slug}")

@@ -45,7 +45,7 @@
     {
       "path": "sim/bin/post_layout_common.py",
       "role": "harness",
-      "content_hash": "sha256:c69a8f562ab19cf2fe1abbe2211e09f3e050de43809415c7cf1a4995521d0646"
+      "content_hash": "sha256:428c5fa0b1bef380607e7823043ade9b39a1fb5a7e3dbca48e402019fc68da3d"
     },
     {
       "path": "sim/bin/sim_common.py",
@@ -485,7 +485,7 @@
         {
           "path": "sim/startup-time-post-layout/run_post_layout_startup_time.py",
           "role": "runner",
-          "content_hash": "sha256:f61282d80e1f6869ead70800498ccd957d13a4d6bbc3824ca08238f56345f01b"
+          "content_hash": "sha256:c4243a1789691a112268c53340927b5db06b851b53d7d8b50f49bd26c80afdbd"
         }
       ]
     },

@@ -41,6 +41,8 @@ from __future__ import annotations
 import sys
 import unittest
 from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 SIM_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SIM_DIR / "bin"))
@@ -215,6 +217,28 @@ class PdkBoundDialects(unittest.TestCase):
         self.assertEqual(counts["mos"], 1)
         self.assertIn("L=20 W=8 AS=3.36", text)
 
+    def test_correctly_bound_mos_flavours_count_at_full_coverage(self):
+        marked = SNAPSHOT_PDK.read_text().replace("fet_01v8 ", "fet_g5v0d10v5 ")
+        translated, counts = plc.translate_extracted_netlist(marked)
+        self.assertEqual(counts, {"mos": 73, "pnp": 24, "res": 145})
+        self.assertEqual(translated.count("sky130_fd_pr__nfet_g5v0d10v5 "), 19)
+        self.assertEqual(translated.count("sky130_fd_pr__pfet_g5v0d10v5 "), 54)
+
+    def test_mos_defaults_fill_only_missing_parameters(self):
+        for flavour in ("01v8", "g5v0d10v5"):
+            with self.subTest(flavour=flavour):
+                card = (
+                    f"X$1 d g s b sky130_fd_pr__pfet_{flavour} L=20 W=8 "
+                    "NRD=0.5 nf=2\n+ Sb=1U mult=3"
+                )
+                translated, counts = plc.translate_extracted_netlist(card)
+                expected = (
+                    "X$1 d g s b sky130_fd_pr__pfet_g5v0d10v5 L=20 W=8 "
+                    "NRD=0.5 nf=2 Sb=1U mult=3 nrs=0.036250 sa=0 sd=0"
+                )
+                self.assertEqual((translated, counts["mos"]), (expected, 1))
+                self.assertEqual(plc.translate_extracted_netlist(expected), (expected, counts))
+
     def test_bound_dialect_is_mutually_exclusive_with_legacy(self):
         """Neither the legacy resistor patterns nor the bound patterns may
         claim the other dialect's card, or a snapshot would double-count and
@@ -289,6 +313,48 @@ class PdkBoundDialects(unittest.TestCase):
         self.assertEqual(
             parasitic_lines(SNAPSHOT_PDK), parasitic_lines(SNAPSHOT_080)
         )
+
+
+class StartupSnapshotResolution(unittest.TestCase):
+    def test_startup_reuses_its_committed_legacy_snapshot(self):
+        record_id = SNAPSHOT_050.parent.name
+        directory, summary, source = plc.resolve_parasitics_snapshot(
+            SNAPSHOT_050.parent.parent, Path("unused.gds"), record_id,
+            pdk_variant="sky130A", legacy_layout_record_id=record_id,
+        )
+        self.assertEqual((directory, source), (SNAPSHOT_050.parent, "local"))
+        self.assertEqual(summary["provenance"]["klt_version"], "0.5.0")
+
+    def test_missing_local_pin_reuses_bound_sibling(self):
+        with TemporaryDirectory() as tmp:
+            directory, summary, source = plc.resolve_parasitics_snapshot(
+                Path(tmp), Path("unused.gds"), SNAPSHOT_050.parent.name,
+                pdk_variant="sky130A", legacy_layout_record_id=SNAPSHOT_050.parent.name,
+            )
+        self.assertEqual(directory, SNAPSHOT_PDK.parent)
+        self.assertTrue(source.startswith("reused:"))
+        self.assertEqual(summary["provenance"]["pdk"]["name"], "sky130A")
+
+    def test_new_layout_ignores_unbound_snapshots_and_extracts_with_pdk(self):
+        with TemporaryDirectory() as tmp, patch.object(plc, "SIM_DIR", Path(tmp)):
+            local = Path(tmp) / "startup-time-post-layout" / "parasitics-snapshot"
+            sibling = Path(tmp) / "other-bench" / "parasitics-snapshot"
+            for root in (local, sibling):
+                (root / "new-layout").mkdir(parents=True)
+                (root / "new-layout" / plc.PEX_SPICE_NAME).touch()
+                (root / "new-layout" / plc.PEX_JSON_NAME).write_text("{}")
+            gds = Path(tmp) / "new.gds"
+            bound = local / "new-layout-pdk"
+            with patch.object(plc, "run_klt_extract_parasitics") as extract:
+                extract.return_value = (bound / plc.PEX_SPICE_NAME, {})
+                directory, _, source = plc.resolve_parasitics_snapshot(
+                    local, gds, "new-layout", pdk_variant="sky130A",
+                    pdk_root="/test/pdks", legacy_layout_record_id=SNAPSHOT_050.parent.name,
+                )
+            self.assertEqual((directory, source), (bound, "extracted"))
+            extract.assert_called_once_with(
+                gds, bound, top=plc.PEX_TOP, pdk_variant="sky130A", pdk_root="/test/pdks",
+            )
 
 
 if __name__ == "__main__":

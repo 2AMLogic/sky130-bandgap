@@ -79,7 +79,7 @@ device) versus the fixed `R` card that `normalize_klt_resistors` +
 **The normaliser preserves the value at 27 °C (to 2 mΩ) and does not preserve
 temperature behaviour**: the rewritten card is a plain resistor with no TC, while
 the model rises +5.2 % from 27 to 125 °C and falls −2.4 % to −40 °C. It cannot be
-the cause of the 27 °C delta (next table, "normaliser" = 0), and the
+account for the ≈ 27.7 mV mean `vref_27` delta (see the paired measurements below), and the
 like-for-like gap it described **is closed on the graded path since issue #614**
 (2026-11-20): `run.sh` extracts with `--pdk`, the extracted side's 145 resistors
 are the PDK model itself (the same numbers as the "model" rows above, re-probed
@@ -293,11 +293,11 @@ nets report `resistance_source: legacy` (VB 5114.5357 Ω unchanged).
 
 ## PDK-bound re-run (2026-11-20, issue #614)
 
-Record `records/20261120-pdk-bound/` (`run.sh 20261120-pdk-bound`): same GDS,
-same reference, same `delta-limits.json` (`inputs.json` hash-identical to the
-pilot's), same pinned klt 0.8.0 and batch fleet — the single variable is the
-extraction flag set: `--pdk sky130A` (plus `--pdk-root`), threaded into both
-`klt pex` steps by `run.sh`. Device cards therefore come out PDK-bound instead
+Record `records/20261120-pdk-bound/` used the same GDS, reference netlist and
+`delta-limits.json` as the pilot. Their hashes match in the two `inputs.json`
+files. The `extracted_sha256` values differ. Both runs used pinned klt 0.8.0
+and the batch fleet. For the bound run, `run.sh` passed `--pdk sky130A` and
+`--pdk-root` to both `klt pex` steps. Device cards therefore come out PDK-bound instead
 of generic: 145 × `sky130_fd_pr__res_high_po l=.. w=..` (bulk terminal and
 drawn geometry kept, model temperature behaviour live), 24 × the two fixed PNP
 macros (16 small + 8 large — the same split the hand `AE` threshold made), and
@@ -323,17 +323,17 @@ how the missing marker passed LVS).
 
 | observable | pilot (fixed-R extracted side) | bound (model-R extracted side) | movement |
 |---|---|---|---|
-| `vref_27` delta | −28.196…−27.216 mV (mean −27.747) | −28.041…−27.352 mV (mean −27.745) | ≈ 0 (the model equals the extracted value at 27 °C to 2 mΩ) |
-| `vref_min` delta | −33.310…−32.065 mV (mean −32.741) | −35.308…−33.529 mV (mean −34.876) | cold end 2.1 mV lower: the model is −2.4 % at −40 °C where the card was flat |
-| `vref_max` delta | −23.859…−22.744 mV (mean −23.119) | −23.362…−22.283 mV (mean −22.561) | hot end 0.6 mV higher: the model is +5.2 % at 125 °C |
-| box TC, extracted side | 136.5…212.0 ppm/°C (mean 199.6) | 145.0…226.8 ppm/°C (mean 213.4) | now includes the resistor TC; schematic side unchanged (85.5…158.5 ppm/°C, both records) |
+| `vref_27` delta | −28.196…−27.216 mV (mean −27.747) | −28.041…−27.352 mV (mean −27.745) | −0.153 to +0.155 mV across paired corners, mean +0.0011 mV |
+| `vref_min` delta | −33.310…−32.065 mV (mean −32.741) | −35.308…−33.529 mV (mean −34.876) | mean −2.135 mV |
+| `vref_max` delta | −23.859…−22.744 mV (mean −23.119) | −23.362…−22.283 mV (mean −22.561) | mean +0.558 mV |
+| box TC, extracted side | 136.5…212.0 ppm/°C (mean 199.6) | 145.0…226.8 ppm/°C (mean 213.4) | mean +13.8 ppm/°C |
 
-So the temperature-flat-resistor harness artefact was worth ≈ 2 mV at the cold
-end and ≈ 14 ppm/°C of box TC on the extracted side. The `vref_27` deltas are
-untouched by construction, and every one of the 45 graded deltas still exceeds
-its limit (`graded-deltas.json`: `n_exceeded: 45`, `n_within: 0`) — the
-−27.7 mV 27 °C delta is the separate extractor-approximation matter of #573 /
-klayout-tools#5894, expected to stay after this issue. The pilot and the other
+The deltas compare extracted VREF with schematic VREF for each observable.
+At TT and 3.30 V the bound extracted sweep reached its maximum of 1.194683 V
+at −40 °C and its minimum of 1.151732 V at 125 °C. The schematic box TC spans
+85.5…158.5 ppm/°C in both records. All 45 graded deltas exceed their limits in
+the bound run (`graded-deltas.json`). The ≈ −27.7 mV mean `vref_27` delta
+is tracked in #573 and klayout-tools#5894. The pilot and the other
 pre-#614 records are untouched; `attribute_delta.py` still reads them by
 default (its `legs` parser expects the `res_high_po r=` dialect and does not
 parse bound records).
