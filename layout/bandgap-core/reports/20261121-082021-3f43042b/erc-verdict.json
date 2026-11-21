@@ -1,0 +1,83 @@
+{
+  "gds": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-620/layout/bandgap-core/staging/20261121-082021-3f43042b/bandgap_core_routed.gds",
+  "gds_sha256": "1eccb2e2982ed238b52d35641c2c8a3786b0301db39d483aa8887c9544290f78",
+  "well_boxes": {
+    "VDD": [
+      [
+        9.5,
+        115.805,
+        181.66,
+        132.285
+      ],
+      [
+        37.34,
+        59.800000000000004,
+        46.06,
+        80.28
+      ],
+      [
+        61.660000000000004,
+        47.800000000000004,
+        153.82,
+        92.28
+      ],
+      [
+        65.13,
+        184.81,
+        88.61,
+        191.29
+      ],
+      [
+        121.85000000000001,
+        155.81,
+        294.01,
+        220.29
+      ]
+    ],
+    "VSS": [
+      [
+        11.42,
+        1.125,
+        22.72,
+        3.185
+      ],
+      [
+        36.905,
+        157.135,
+        48.205,
+        159.195
+      ],
+      [
+        254.77,
+        1.125,
+        282.39,
+        8.625
+      ]
+    ]
+  },
+  "well_box_count": {
+    "VDD": 5,
+    "VSS": 3
+  },
+  "supply": {
+    "spec_source": "erc-supply-spec.json",
+    "spec_derived": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-620/layout/bandgap-core/staging/20261121-082021-3f43042b/erc-supply-spec.this-gds.json",
+    "report": "erc.json",
+    "exit": 0,
+    "passed": true,
+    "reasons": [],
+    "erc_status": "clean",
+    "finding_count": 0
+  },
+  "negative_control": {
+    "spec_source": "erc-nwell-tie-spec.negative-control.json",
+    "spec_derived": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-620/layout/bandgap-core/staging/20261121-082021-3f43042b/erc-nwell-tie-spec.negative-control.this-gds.json",
+    "report": "erc.negative-control.json",
+    "exit": 3,
+    "passed": true,
+    "reasons": [],
+    "erc_status": "violations",
+    "finding_count": 8
+  },
+  "clean": true
+}

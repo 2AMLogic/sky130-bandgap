@@ -454,6 +454,101 @@ M_SU_CLAMP = 1
 N_PNP_SU = 8
 
 # ---------------------------------------------------------------------------
+# Thick-oxide (5 V) device flavour (issue #620). DR-005 runs the block from
+# 3.3 V +/-10% and every schematic MOS card is a `*_g5v0d10v5` (5 V
+# thick-oxide) device -- through the thirty-sixth increment this layout drew
+# every one of them as thin-oxide 1.8 V geometry, and nothing checked the
+# difference: the curated deck's extraction binds both flavours to the same
+# generic `nfet`/`pfet` class, so LVS passed either way. The constants below
+# drive the three halves of the correction: the generator flavour marker
+# (every MOS block's `voltage_flavor` param), the legality overlay
+# (:func:`build_hv_fixup_overlay` -- see HV_FIXUP_NOTE), and the PDK-bound
+# flavour gate (:func:`check_mos_flavour`).
+# ---------------------------------------------------------------------------
+#: The `klt gen` `mos_array`/`diff_pair` thick-oxide marker name on sky130.
+#: Draws the 75/20 `hvi` voltage-class marker (plus the implant/npc shapes
+#: the flavour needs) over each unit device; `drc_hints.voltage_flavor`
+#: echoes it back and `voltage_flavor_mark_present` confirms the marker
+#: landed. Both pinned-klt PCells support it (verified against klt 0.8.0).
+MOS_VOLTAGE_FLAVOUR = "hvi"
+#: The wrapper cards a PDK-bound `klt extract --pdk sky130A` must emit for
+#: every MOS finger once the geometry is thick-oxide, by polarity -- the
+#: exact model names of design/bandgap_core.sch's own device library.
+HVI_MOS_MODELS: dict[str, str] = {
+    "nfet": "sky130_fd_pr__nfet_g5v0d10v5",
+    "pfet": "sky130_fd_pr__pfet_g5v0d10v5",
+}
+#: The raw-netlist model-name field of a subckt-wrapper `X` card (`X<name>
+#: d g s b <model> ...`), 0-based index 5 -- the same field the issue #620
+#: baseline awk reads as `$6`.
+X_CARD_MODEL_FIELD = 5
+#: Margins of the legality overlay (:func:`build_hv_fixup_overlay`), all
+#: derived from the pinned PDK's own source-deck thresholds -- see
+#: HV_FIXUP_NOTE for why each is what it is.
+#: hvi/nwell rect margin around each MOS block's own reported bbox (um):
+#: puts the drawn hvi 0.35+ beyond every diff/tap edge (hvdifftap.22 needs
+#: 0.18, hvdifftap.19 needs 0.33 from the tap ring once hvi covers the
+#: nwell), and keeps the enlarged pfet nwell 0.4 beyond its tap ring.
+HVI_FIXUP_MARGIN_UM = 0.2
+#: npc square half-side margin around each `mos_array` gate-contact licon
+#: (um): the generator draws a 0.36 um npc over the 0.17 um licon (0.095
+#: enclosure); the deck's `licon.15` wants 0.1. A 0.11 margin (0.39 square)
+#: clears it and still lands inside the 0.42 um poly landing pad.
+NPC_GATE_ENCLOSURE_UM = 0.11
+#: licon drawn size (um), the same fixed square met1_bus draws.
+LICON_UM = 0.17
+
+#: Rule-category prefixes of the sky130A source deck's HV group -- the
+#: categories the flow's HV DRC step (:func:`run_hv_drc`) gates on. Every
+#: rule that names hvi (75/20) or its well/tap/poly interactions lands in
+#: one of these (`hvi.*`, `hvdifftap.*`, `hvnwell.*`/`hvnwel.*`,
+#: `hvpoly.*`, `hvntm.*`); the rest of the FEOL group the run *reports*
+#: but does not gate on, exactly like the curated deck's own findings.
+HV_RULE_PREFIXES: tuple[str, ...] = (
+    "hvi.",
+    "hvdifftap.",
+    "hvnwell.",
+    "hvnwel.",
+    "hvpoly.",
+    "hvntm.",
+)
+#: The isolated enclosure control :func:`run_hv_drc` regenerates from
+#: BLOCKS and feeds `klt drc --negative-control`: the raw generator output
+#: for the injector NMOS, whose un-corrected hvi marker sits 0.15 um off its
+#: diffusion -- 0.03 um short of `hvdifftap.22`. A run whose control comes
+#: back clean has not executed the HV group and must not be trusted.
+HV_DRC_CONTROL_BLOCK = "su_inj"
+HV_DRC_CONTROL_CATEGORIES = ("hvdifftap.22",)
+
+HV_FIXUP_NOTE = (
+    "The pinned `klt`'s `voltage_flavor='hvi'` marker is necessary for a "
+    "5 V device but not sufficient for a legal one, and the overlay this "
+    "flow draws is what makes the geometry PDK-legal. Measured on the "
+    "isolated blocks with the pinned PDK's own source deck (FEOL enabled, "
+    "issue #620): the generator draws its 75/20 `hvi` marker 0.15 um past "
+    "each block's diffusion -- 0.03 um short of `hvdifftap.22` (min. hvi "
+    "enclosure of diff or tap, 0.18 um); on the PMOS blocks the marker "
+    "additionally fails `hvdifftap.17` (0.15 < 0.33 hvnwell enclosure of "
+    "diff) and `hvdifftap.20` (0.30 < 0.43 hvnwell spacing to the well "
+    "tap ring), and no hvi shape alone can fix those two -- the tap ring "
+    "either sits inside hvi (then `hvdifftap.19` binds and the generator's "
+    "nwell, only 0.2 um beyond the ring, fails its 0.33 um enclosure) or "
+    "outside it (then `.20` binds). `mos_array`'s own gate contact draws "
+    "its 95/20 npc with 0.095 um enclosure where `licon.15` wants 0.1. "
+    "The overlay therefore draws, per MOS block: an `hvi` rect at the "
+    "block's reported bbox + 0.2 um (covering diff, poly, implant and the "
+    "tap ring with margin over every threshold above), the *same* rect on "
+    "64/20 `nwell` for the pfet blocks (extending the generator's well "
+    "0.4 um past the ring, which is what closes `.19`/`.20` without "
+    "moving a device), and a 0.39 um npc square over each `mos_array` "
+    "gate licon (0.11 enclosure, still inside the 0.42 um poly landing "
+    "pad). Verified per block type against the FEOL-enabled deck: zero "
+    "HV-category markers on every corrected block. The generator-side "
+    "half of this (markers sized to the PDK's own enclosure thresholds) "
+    "is filed upstream as 2AMLogic/klayout-tools#7061."
+)
+
+# ---------------------------------------------------------------------------
 # Block definitions. Each maps to one `klt gen` call. `row` groups blocks into
 # stacked bands; blocks within a row are placed left-to-right in the order
 # listed. Relative to gen_bandgap_floorplan.py's BLOCKS this list differs in
@@ -625,6 +720,7 @@ BLOCKS: list[dict[str, Any]] = [
             "l_um": 2.0,
             "splits": M_OUT,
             "flavor": "pfet",
+            "voltage_flavor": MOS_VOLTAGE_FLAVOUR,
             "mirror": True,
             "add_guard_ring": True,
             "ring_gap_side": "W",
@@ -655,6 +751,7 @@ BLOCKS: list[dict[str, Any]] = [
             "l_um": 10.0,
             "splits": AMP_M_IN,
             "flavor": "pfet",
+            "voltage_flavor": MOS_VOLTAGE_FLAVOUR,
             "mirror": False,
             "add_guard_ring": True,
             "ring_gap_side": "W",
@@ -686,6 +783,7 @@ BLOCKS: list[dict[str, Any]] = [
             "l_um": 20.0,
             "splits": AMP_M_NMIRR,
             "flavor": "nfet",
+            "voltage_flavor": MOS_VOLTAGE_FLAVOUR,
             "mirror": True,
             "add_guard_ring": True,
             "ring_gap_side": "W",
@@ -716,6 +814,7 @@ BLOCKS: list[dict[str, Any]] = [
             "l_um": 20.0,
             "splits": AMP_M_PMIRR,
             "flavor": "pfet",
+            "voltage_flavor": MOS_VOLTAGE_FLAVOUR,
             "mirror": True,
             "add_guard_ring": True,
             "ring_gap_side": "W",
@@ -746,6 +845,7 @@ BLOCKS: list[dict[str, Any]] = [
             "l_um": 20.0,
             "splits": AMP_M_NMIRR,
             "flavor": "nfet",
+            "voltage_flavor": MOS_VOLTAGE_FLAVOUR,
             "mirror": True,
             "add_guard_ring": True,
             "ring_gap_side": "W",
@@ -791,6 +891,7 @@ BLOCKS: list[dict[str, Any]] = [
             "cols": 1,
             "dummy": 0,
             "flavor": "nfet",
+            "voltage_flavor": MOS_VOLTAGE_FLAVOUR,
             "gate_contact": True,
         },
         "matched_group_label": "MNC (railed-branch clamp NMOS, issue #52)",
@@ -809,6 +910,7 @@ BLOCKS: list[dict[str, Any]] = [
             "cols": 1,
             "dummy": 0,
             "flavor": "nfet",
+            "voltage_flavor": MOS_VOLTAGE_FLAVOUR,
             "gate_contact": True,
         },
         "matched_group_label": "MNS (VBE-referenced sense NMOS)",
@@ -850,6 +952,7 @@ BLOCKS: list[dict[str, Any]] = [
             "l_um": SU_L_REF_UM,
             "splits": M_SU_REF,
             "flavor": "pfet",
+            "voltage_flavor": MOS_VOLTAGE_FLAVOUR,
             "mirror": True,
             "add_guard_ring": True,
             "ring_gap_side": "W",
@@ -893,6 +996,7 @@ BLOCKS: list[dict[str, Any]] = [
             "cols": 1,
             "dummy": 0,
             "flavor": "nfet",
+            "voltage_flavor": MOS_VOLTAGE_FLAVOUR,
             "gate_contact": True,
         },
         "matched_group_label": "MNI (degenerate-state eviction NMOS)",
@@ -909,6 +1013,7 @@ BLOCKS: list[dict[str, Any]] = [
             "l_um": 20.0,
             "splits": AMP_M_CC // 2,
             "flavor": "pfet",
+            "voltage_flavor": MOS_VOLTAGE_FLAVOUR,
             "mirror": True,
             "add_guard_ring": True,
             "ring_gap_side": "W",
@@ -1344,6 +1449,143 @@ def run_met2_drc(
     return json.loads(report_path.read_text())
 
 
+# ---------------------------------------------------------------------------
+# Thick-oxide legality overlay (issue #620) -- see HV_FIXUP_NOTE.
+# ---------------------------------------------------------------------------
+#: sky130 layers the overlay draws (same `[layer, datatype]` list shape
+#: `klt draw` params and met1_bus use).
+HVI_LAYER = [75, 20]
+NWELL_LAYER = [64, 20]
+NPC_LAYER = [95, 20]
+
+
+def mos_hvi_blocks(
+    blocks: list[dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    """Every MOS block drawn at the thick-oxide flavour (issue #620)."""
+    src = BLOCKS if blocks is None else blocks
+    return [
+        b
+        for b in src
+        if b["generator"] in ("mos_array", "diff_pair")
+        and b["params"].get("voltage_flavor") == MOS_VOLTAGE_FLAVOUR
+    ]
+
+
+def build_hv_fixup_overlay(
+    klt: str,
+    out_dir: Path,
+    pdk_info: dict[str, Any],
+    reports: dict[str, dict[str, Any]],
+    origins: dict[str, dict[str, float]],
+) -> dict[str, Any]:
+    """Draw the thick-oxide legality overlay for every `hvi` MOS block.
+
+    One `klt draw` cell (`bandgap_core_hv_fixup`), composed into the inner
+    cell alongside the bus overlay at origin (0,0) with shapes in absolute
+    floorplan coordinates. Three shape families only, all derived from the
+    blocks' own reported bboxes/ports (never a hand-placed coordinate), all
+    snapped to the 5 nm grid -- see HV_FIXUP_NOTE for the threshold each
+    one closes:
+
+    * `hvi` (75/20) at each block's placed bbox + HVI_FIXUP_MARGIN_UM;
+    * the same rect on `nwell` (64/20) for the pfet blocks, whose tap
+      rings the hvi covers;
+    * `npc` (95/20) at 2*NPC_GATE_ENCLOSURE_UM + LICON_UM around each
+      `mos_array` gate-contact licon (the `U<i>_G` ports).
+
+    Returns a `klt gen`-shaped report with a degenerate bbox, for the same
+    reason :meth:`met1_bus.Met1Bus.emit` declares one: a real bbox would
+    make `gen-compose`'s router treat the whole floorplan as an obstacle.
+    """
+    cell_name = "bandgap_core_hv_fixup"
+    shapes: list[dict[str, Any]] = []
+    summary: list[dict[str, Any]] = []
+    for block in mos_hvi_blocks():
+        bid = block["id"]
+        bbox = reports[bid]["bbox_um"]
+        ox, oy = origins[bid]["x"], origins[bid]["y"]
+        x0, y0 = met1_bus.snap_to_grid(
+            bbox["x0"] + ox - HVI_FIXUP_MARGIN_UM
+        ), met1_bus.snap_to_grid(bbox["y0"] + oy - HVI_FIXUP_MARGIN_UM)
+        x1, y1 = met1_bus.snap_to_grid(
+            bbox["x1"] + ox + HVI_FIXUP_MARGIN_UM
+        ), met1_bus.snap_to_grid(bbox["y1"] + oy + HVI_FIXUP_MARGIN_UM)
+        entry: dict[str, Any] = {
+            "block": bid,
+            "hvi_rect_um": [x0, y0, x1, y1],
+            "nwell_rect_um": None,
+            "npc_squares_um": [],
+        }
+        shapes.append({"layer": HVI_LAYER, "rect_um": [x0, y0, x1, y1]})
+        if block["params"]["flavor"] == "pfet":
+            # The pfet tap ring must end up inside hvi AND inside an nwell
+            # that encloses it by 0.33 (hvdifftap.19/.20) -- the generator's
+            # own nwell is 0.2 short, so the overlay extends it by the same
+            # rect. The generator's nwell merges with this on 64/20.
+            shapes.append({"layer": NWELL_LAYER, "rect_um": [x0, y0, x1, y1]})
+            entry["nwell_rect_um"] = [x0, y0, x1, y1]
+        if block["generator"] == "mos_array":
+            half = LICON_UM / 2.0 + NPC_GATE_ENCLOSURE_UM
+            for port in reports[bid]["ports"]:
+                if not port["name"].endswith("_G"):
+                    continue
+                px = met1_bus.snap_to_grid(port["x_um"] + ox)
+                py = met1_bus.snap_to_grid(port["y_um"] + oy)
+                entry["npc_squares_um"].append(
+                    [px - half, py - half, px + half, py + half]
+                )
+                shapes.append(
+                    {
+                        "layer": NPC_LAYER,
+                        "rect_um": [px - half, py - half, px + half, py + half],
+                    }
+                )
+        summary.append(entry)
+
+    params_path = out_dir / f"{cell_name}.draw.json"
+    params_path.write_text(
+        json.dumps({"shapes": shapes, "labels": []}, indent=2) + "\n"
+    )
+    gds_path = out_dir / f"{cell_name}.gds"
+    run_klt_json(
+        klt,
+        "draw",
+        "--params",
+        str(params_path),
+        "--cell-name",
+        cell_name,
+        "-o",
+        str(gds_path),
+    )
+    report = {
+        "schema_version": 1,
+        "generator": "draw",
+        "cell_name": cell_name,
+        "gds_path": str(gds_path.resolve()),
+        "pdk": pdk_info,
+        "bbox_um": {"x0": 0.0, "y0": 0.0, "x1": 0.0, "y1": 0.0},
+        "device_count": 0,
+        "ports": [],
+        "drc_hints": {
+            "min_spacing_um": None,
+            "matched_group_id": None,
+            "snapped_to_grid": False,
+            "notes": ["thick-oxide legality overlay (issue #620)"],
+        },
+        "warnings": [],
+        "shape_count": len(shapes),
+        "blocks": summary,
+    }
+    (out_dir / f"{cell_name}.gen.json").write_text(
+        json.dumps(report, indent=2) + "\n"
+    )
+    (out_dir / f"{cell_name}.summary.json").write_text(
+        json.dumps(summary, indent=2) + "\n"
+    )
+    return report
+
+
 def flow_gate(
     *,
     drc_clean: bool,
@@ -1356,6 +1598,9 @@ def flow_gate(
     merged_pin_names: list[str],
     split_routed: dict[str, int],
     met2_drc_clean: bool = True,
+    mos_flavour_clean: bool = True,
+    hv_drc_clean: bool = True,
+    erc_supply_clean: bool = True,
 ) -> dict[str, bool]:
     """The flow's pass/fail gate, as a named condition per row.
 
@@ -1419,7 +1664,544 @@ def flow_gate(
         "no_drawn_shorts": not met1_conflicts,
         "no_merged_pin_names": not merged_pin_names,
         "no_split_routed_nets": not split_routed,
+        # Issue #620: the schematic's MOS cards are all 5 V thick-oxide
+        # devices, so the layout must bind every finger to the matching
+        # `*_g5v0d10v5` wrapper in a PDK-bound extraction -- one thin-oxide
+        # card among 73 correct ones fails this row (see check_mos_flavour).
+        "mos_flavour_bound": mos_flavour_clean,
+        # The HV rule group of the pinned PDK's own source deck (FEOL on),
+        # run with a failing enclosure control: zero applicable HV
+        # violations on the composed GDS (see run_hv_drc).
+        "hv_drc_clean": hv_drc_clean,
+        # Supply/n-well-tie ERC on this exact GDS, gated exactly like
+        # run-erc-supply-flow.sh gates it, negative control included (see
+        # run_supply_erc).
+        "erc_supply_clean": erc_supply_clean,
     }
+
+
+# ---------------------------------------------------------------------------
+# Thick-oxide flavour gate (issue #620): the raw, pre-translation output of
+# a PDK-bound extraction must bind every schematic MOS finger to the 5 V
+# wrapper card of its polarity.
+# ---------------------------------------------------------------------------
+#: `M<name> d g s b <model> [param=val ...]` -- the model field of a
+#: reference M card, 0-based index 5.
+M_CARD_MODEL_FIELD = 5
+
+
+def expected_mos_fingers(reference_text: str) -> dict[str, int]:
+    """Sum the parallel multiplier `m` of every MOS card, per polarity.
+
+    The reference netlist is the schematic-side truth: each `M` card states
+    one device's polarity (its model name) and its finger count (`m=`,
+    default 1). Summing per polarity gives exactly the number of unit
+    devices the layout must draw -- for this reference, 19 NFET and 54 PFET
+    fingers (16 of the PFET fingers are MMCC, the compensation cap). A
+    layout that binds a different number of raw wrapper cards is a layout
+    that changed multiplicity, whatever its schematic transcription says.
+    """
+    counts = {"nfet": 0, "pfet": 0}
+    for line in reference_text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("*") or stripped[0] not in "Mm":
+            continue
+        tokens = stripped.split()
+        if len(tokens) <= M_CARD_MODEL_FIELD:
+            continue
+        model = tokens[M_CARD_MODEL_FIELD]
+        if model not in counts:
+            continue
+        m = 1
+        for token in tokens[M_CARD_MODEL_FIELD + 1 :]:
+            key, _, value = token.partition("=")
+            if key.lower() == "m" and value:
+                try:
+                    m = int(float(value))
+                except ValueError:
+                    m = 1
+        counts[model] += m
+    return counts
+
+
+def raw_mos_card_counts(netlist_text: str) -> dict[str, int]:
+    """Count subckt-wrapper `X` cards per `sky130_fd_pr__*fet*` model name.
+
+    A PDK-bound `klt extract --pdk sky130A` writes every extracted device
+    as an `X` card naming the PDK wrapper it bound (`X$1 d g s b
+    sky130_fd_pr__nfet_g5v0d10v5 L=... W=...`), *before* any translation to
+    the generic classes the curated deck/LVS path compares -- this is the
+    raw binding, which is exactly why it can see the oxide flavour the
+    curated netlist cannot. Resistors and PNPs never match `*fet*`, so the
+    count is a MOS-only census by construction (verified on this cell's own
+    extraction: 73 fet cards, 0 other matches).
+    """
+    counts: dict[str, int] = {}
+    for line in netlist_text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped[0] not in "Xx":
+            continue  # '+' continuation lines never carry another card
+        tokens = stripped.split()
+        if len(tokens) <= X_CARD_MODEL_FIELD:
+            continue
+        model = tokens[X_CARD_MODEL_FIELD]
+        if "sky130_fd_pr__" in model and "fet" in model:
+            counts[model] = counts.get(model, 0) + 1
+    return counts
+
+
+def check_mos_flavour(
+    netlist_text: str, expected: dict[str, int]
+) -> dict[str, Any]:
+    """Score the raw PDK-bound netlist against the schematic's fingers.
+
+    Passes only when every polarity's finger count binds to the 5 V
+    thick-oxide wrapper exactly and no MOS card binds anywhere else. Both
+    halves are needed to catch a *single* wrong card: one thin-oxide card
+    among otherwise-correct devices leaves the HVI count one short (caught
+    by the exact-count comparison) and adds one unexpected model (caught by
+    the census), so the failure names both.
+    """
+    census = raw_mos_card_counts(netlist_text)
+    observed = {
+        polarity: census.get(model, 0)
+        for polarity, model in HVI_MOS_MODELS.items()
+    }
+    unexpected = {
+        model: n
+        for model, n in sorted(census.items())
+        if model not in HVI_MOS_MODELS.values()
+    }
+    mismatches = {
+        polarity: {
+            "expected": expected[polarity],
+            "observed": observed[polarity],
+        }
+        for polarity in HVI_MOS_MODELS
+        if observed[polarity] != expected[polarity]
+    }
+    return {
+        "clean": not mismatches and not unexpected,
+        "expected": dict(expected),
+        "observed": observed,
+        "unexpected_mos_models": unexpected,
+        "mismatches": mismatches,
+    }
+
+
+def run_pdk_bound_extract(
+    klt: str, gds_path: str, top: str, out_dir: Path, cell: str
+) -> tuple[str, dict[str, Any]]:
+    """Run the PDK-bound extraction whose raw netlist the flavour gate reads.
+
+    A separate run from the curated-deck extraction the flow's LVS uses:
+    `--pdk` is what makes `klt extract` bind devices to the PDK's own
+    wrapper cards (the curated run's generic `nfet`/`pfet` M cards carry no
+    flavour and never could). The generic extract stays the LVS input;
+    nothing about it changes.
+    """
+    netlist_path = out_dir / f"{cell}.pdk.spice"
+    extract = run_klt_json(
+        klt,
+        "extract",
+        gds_path,
+        "--deck",
+        "sky130",
+        "--pdk",
+        "sky130A",
+        "--top",
+        top,
+        "-o",
+        str(netlist_path),
+    )
+    (out_dir / "extract.pdk.json").write_text(
+        json.dumps(extract, indent=2) + "\n"
+    )
+    return netlist_path.read_text(), extract
+
+
+def sha256_of(path: str | Path) -> str:
+    """Bare sha256 of a file, via the repo's one implementation.
+
+    `scripts/ci/content_hash.py` owns every SHA-256 call site (issue #538
+    consolidated ten drifting copies into it), so this delegates rather
+    than re-implementing -- the digest convention (bare hex here, the
+    `sha256:`-tagged form where a contract needs it) stays visible in the
+    helper's name at the call site. Imported lazily so unit tests that
+    import this module never touch the path dance.
+    """
+    ci_dir = str(Path(__file__).resolve().parents[2] / "scripts" / "ci")
+    if ci_dir not in sys.path:
+        sys.path.insert(0, ci_dir)
+    from content_hash import sha256_file  # noqa: E402  -- repo-owned helper
+
+    return sha256_file(str(path))
+
+
+# ---------------------------------------------------------------------------
+# HV DRC (issue #620): the pinned PDK's own source deck with FEOL enabled,
+# the HV rule group gated, the raw generator output as the failing control.
+# ---------------------------------------------------------------------------
+def pdk_klayout_dir(klt: str, pdk: str) -> Path:
+    """`libs.tech/klayout` of the PDK install `klt pdk find` resolves."""
+    info = run_klt_json(klt, "pdk", "find", "--pdk", pdk)
+    klayout = Path(info["assets"]["klayout"])
+    if not klayout.is_dir():
+        raise RuntimeError(
+            f"pdk find resolved no klayout assets for {pdk} "
+            f"(got {klayout})"
+        )
+    return klayout
+
+
+def score_hv_rule_counts(rule_counts: dict[str, int]) -> dict[str, Any]:
+    """Split one DRC run's per-category counts into HV vs rest (issue #620).
+
+    Pure function of the report's own `rule_counts` so the gate is
+    unit-testable without a PDK: `hv_violations` is the HV-prefixed subset
+    (only categories with markers), `non_hv_violation_count` sums the rest,
+    and `clean` means zero HV markers -- the non-HV FEOL/BEOL findings are
+    reported exactly like the curated deck's, never gated here.
+    """
+    hv = {
+        cat: n
+        for cat, n in sorted(rule_counts.items())
+        if cat.startswith(HV_RULE_PREFIXES)
+    }
+    non_hv = sum(
+        n
+        for cat, n in rule_counts.items()
+        if not cat.startswith(HV_RULE_PREFIXES)
+    )
+    return {
+        "hv_violations": hv,
+        "hv_violation_count": sum(hv.values()),
+        "non_hv_violation_count": non_hv,
+        "clean": not hv,
+    }
+
+
+def run_hv_drc(
+    klt: str,
+    gds_path: str,
+    out_dir: Path,
+    pdk: str,
+) -> dict[str, Any]:
+    """Run the HV rule group on the composed GDS, with a failing control.
+
+    The curated deck `klt drc --deck sky130` runs carries no hvi/npc/nwell
+    rule at all (its coverage block lists 75/20 among the stream layers it
+    has no rules for), so thick-oxide legality is invisible to step 6. This
+    step runs the *pinned PDK's own source deck* with its FEOL group
+    enabled -- the HVI/HVDIFFTAP/HVPOLY/HVNTM checks the stock deck gates
+    behind `FEOL = false` -- and gates on the HV subset. Two things make a
+    zero-marker verdict evidence rather than an absence:
+
+    * `--negative-control`: the raw generator output for the injector NMOS
+      (regenerated from BLOCKS every run, before any overlay is composed)
+      must produce `hvdifftap.22` markers -- the enclosure failure the
+      legality overlay exists to fix. A deck run that cannot fail has not
+      run.
+    * the report's own `coverage.rule_categories` must declare the HV
+      categories, so a deck revision that silently dropped the group fails
+      the gate instead of passing it.
+
+    ``--top`` is deliberately not passed: `--negative-control` reruns the
+    deck on the control with identical options, and the control's top cell
+    is not the composed cell's name. Both streams have exactly one top
+    cell (the flow composes one; `klt gen` emits one), so omitting it
+    checks the same thing.
+    """
+    deck_src = pdk_klayout_dir(klt, pdk) / "drc" / f"{pdk}.lydrc"
+    if not deck_src.is_file():
+        raise RuntimeError(f"no PDK DRC deck at {deck_src}")
+    deck_text = deck_src.read_text()
+    # FEOL    = false -> true: only the value of the deck's own switch
+    # changes, so the copy stays the pinned deck in every other respect.
+    feol_deck_text, n = re.subn(
+        r"(?m)^(FEOL\s*=\s*)false", r"\g<1>true", deck_text, count=1
+    )
+    if n != 1:
+        raise RuntimeError(
+            f"{deck_src} carries no 'FEOL = false' assignment to enable"
+        )
+    deck_copy = out_dir / "sky130A.feol.lydrc"
+    deck_copy.write_text(feol_deck_text)
+
+    control_block = next(b for b in BLOCKS if b["id"] == HV_DRC_CONTROL_BLOCK)
+    control_id = f"{HV_DRC_CONTROL_BLOCK}_hvi_control"
+    klt_gen(
+        klt,
+        pdk,
+        out_dir,
+        {
+            "id": control_id,
+            "generator": control_block["generator"],
+            "params": dict(control_block["params"]),
+        },
+    )
+    control_gds = str((out_dir / f"{control_id}.gds").resolve())
+
+    report = run_klt_json(
+        klt,
+        "drc",
+        gds_path,
+        "--engine",
+        "klayout",
+        "--deck-file",
+        str(deck_copy),
+        "--pdk",
+        pdk,
+        "--min-klayout-version",
+        "0.30.12",
+        "--negative-control",
+        control_gds,
+        "--negative-control-categories",
+        ",".join(HV_DRC_CONTROL_CATEGORIES),
+        allow_exit=(0, 3),
+    )
+    declared = set(report.get("coverage", {}).get("rule_categories", []))
+    hv_declared = sorted(c for c in declared if c.startswith(HV_RULE_PREFIXES))
+    control = report.get("negative_control", {})
+    control_ok = control.get("status") == "passed" and all(
+        cat in (control.get("rules_found") or [])
+        for cat in HV_DRC_CONTROL_CATEGORIES
+    )
+    scores = score_hv_rule_counts(report.get("rule_counts", {}))
+    verdict = {
+        "deck": {
+            "source": str(deck_src),
+            "source_sha256": sha256_of(deck_src),
+            "feol_enabled_copy": str(deck_copy),
+            "feol_copy_sha256": sha256_of(deck_copy),
+        },
+        "control": {
+            "block": HV_DRC_CONTROL_BLOCK,
+            "gds": control_gds,
+            "required_categories": list(HV_DRC_CONTROL_CATEGORIES),
+            "report": control,
+            "passed": control_ok,
+        },
+        "hv_categories_declared": hv_declared,
+        "hv_categories_declared_count": len(hv_declared),
+        "rule_counts": report.get("rule_counts", {}),
+        "provenance": report.get("provenance", {}),
+        **scores,
+        "status": "clean" if scores["clean"] else "violations",
+        "clean": scores["clean"] and control_ok and bool(hv_declared),
+    }
+    (out_dir / "hv-drc.json").write_text(json.dumps(verdict, indent=2) + "\n")
+    return verdict
+
+
+# ---------------------------------------------------------------------------
+# Supply/tie ERC on the exact composed GDS (issue #620) -- the two specs
+# run-erc-supply-flow.sh invokes, with the well boxes this GDS actually has.
+# ---------------------------------------------------------------------------
+def classify_well_boxes(
+    boxes: list[dict[str, Any]],
+    vdd_points: list[tuple[float, float]],
+    vss_points: list[tuple[float, float]],
+) -> dict[str, list[list[float]]]:
+    """Assign each merged n-well box to the tie net owning its block.
+
+    A box is a VDD well iff it contains the centre of one of the pfet MOS
+    blocks (their drawn wells, which the legality overlay extends), and a
+    VSS well iff it contains the centre of one of the PNP arrays' bboxes
+    (their base tubs) -- the same five + three split the committed supply
+    spec encodes for the pre-HVI GDS. A well matched by neither or by both
+    is an error, not a guess: the tie declaration must account for every
+    well the GDS draws.
+    """
+    assigned: dict[str, list[list[float]]] = {"VDD": [], "VSS": []}
+    for box in boxes:
+        x0, y0, x1, y1 = box["bbox_um"]
+        vdd = any(
+            x0 <= px <= x1 and y0 <= py <= y1 for px, py in vdd_points
+        )
+        vss = any(
+            x0 <= px <= x1 and y0 <= py <= y1 for px, py in vss_points
+        )
+        if vdd and not vss:
+            assigned["VDD"].append(box["bbox_um"])
+        elif vss and not vdd:
+            assigned["VSS"].append(box["bbox_um"])
+        else:
+            raise RuntimeError(
+                f"n-well box [{x0}, {y0}, {x1}, {y1}] matched "
+                f"{'both' if vdd and vss else 'neither'} tie nets"
+            )
+    return assigned
+
+
+def run_supply_erc(
+    klt: str,
+    gds_path: str,
+    out_dir: Path,
+    repo_root: Path,
+    reports: dict[str, dict[str, Any]],
+    origins: dict[str, dict[str, float]],
+) -> dict[str, Any]:
+    """Run the two supply specs on the exact composed GDS and gate them.
+
+    `layout/bin/run-erc-supply-flow.sh` runs `klt erc` with
+    `erc-supply-spec.json` and the swapped-net
+    `erc-nwell-tie-spec.negative-control.json` -- but their `ties[]` carry
+    the *previous* GDS's absolute well boxes, and this flow's HVI overlay
+    enlarges the five PMOS wells, so those boxes would mis-describe this
+    GDS. Both specs are therefore re-derived into the record: same
+    stackup/nets/ties, with `well_requires_boxes` read back from this
+    GDS's merged 64/20 region (via `gds_layer_boxes.py`, the same
+    venv-klayout shell-out pattern `met2_drc.py` uses) and classified per
+    tie net. Gating is erc_supply_record's own -- the same gate the
+    committed item-11 evidence passes, negative control included.
+    """
+    from erc_supply_record import (  # local: shares layout/bin
+        gate_negative_control,
+        gate_supply_report,
+        gate_tie_report,
+    )
+
+    python = Path(klt).with_name("python")
+    if not python.exists():  # pragma: no cover -- non-venv klt on PATH
+        python = Path(sys.executable)
+    boxes_path = out_dir / "nwell-boxes.json"
+    result = subprocess.run(
+        [
+            str(python),
+            str(Path(__file__).resolve().parent / "gds_layer_boxes.py"),
+            gds_path,
+            "--layer",
+            "64",
+            "--datatype",
+            "20",
+            "-o",
+            str(boxes_path),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"gds_layer_boxes.py failed ({result.returncode}):\n"
+            f"{result.stderr[-2000:]}"
+        )
+    boxes = json.loads(boxes_path.read_text())["shapes"]
+
+    def block_centre(bid: str) -> tuple[float, float]:
+        bbox = reports[bid]["bbox_um"]
+        return (
+            (bbox["x0"] + bbox["x1"]) / 2.0 + origins[bid]["x"],
+            (bbox["y0"] + bbox["y1"]) / 2.0 + origins[bid]["y"],
+        )
+
+    vdd_points = [
+        block_centre(b["id"])
+        for b in mos_hvi_blocks()
+        if b["params"]["flavor"] == "pfet"
+    ]
+    vss_points = [
+        block_centre(b["id"]) for b in BLOCKS if b["generator"] == "bjt_array"
+    ]
+    assigned = classify_well_boxes(boxes, vdd_points, vss_points)
+
+    cell_dir = repo_root / "layout" / "bandgap-core"
+    specs: dict[str, dict[str, Any]] = {}
+    for kind, src_name, out_name in (
+        ("supply", "erc-supply-spec.json", "erc-supply-spec.this-gds.json"),
+        (
+            "negative_control",
+            "erc-nwell-tie-spec.negative-control.json",
+            "erc-nwell-tie-spec.negative-control.this-gds.json",
+        ),
+    ):
+        spec = json.loads((cell_dir / src_name).read_text())
+        for tie in spec.get("ties", []):
+            # Key the boxes by the net the tie's NAME declares, never its
+            # `net` field: the negative-control spec is the supply spec
+            # with the `net` fields swapped on the SAME boxes (its ties
+            # are named `swapped_<net>_boxes_to_<other>`), so keying by
+            # `net` there would hand each tie the other net's real boxes
+            # and the control would pass instead of flag every well. The
+            # first VDD/VSS token of the name is the box class in both
+            # specs' naming convention.
+            name_net = next(
+                (
+                    token.upper()
+                    for token in tie["name"].split("_")
+                    if token.upper() in assigned
+                ),
+                None,
+            )
+            if name_net is None:
+                raise RuntimeError(
+                    f"tie '{tie['name']}' names no VDD/VSS box class"
+                )
+            tie["well_requires_boxes"] = assigned[name_net]
+        spec_path = out_dir / out_name
+        spec_path.write_text(json.dumps(spec, indent=2) + "\n")
+        specs[kind] = {"spec": spec, "path": spec_path, "source": src_name}
+
+    verdict: dict[str, Any] = {
+        "gds": str(gds_path),
+        "gds_sha256": sha256_of(gds_path),
+        "well_boxes": assigned,
+        "well_box_count": {net: len(v) for net, v in assigned.items()},
+    }
+    overall_ok = True
+    for kind in ("supply", "negative_control"):
+        payload_path = out_dir / (
+            "erc.json" if kind == "supply" else "erc.negative-control.json"
+        )
+        proc = subprocess.run(
+            [
+                klt,
+                "erc",
+                gds_path,
+                str(specs[kind]["path"]),
+                "--deck",
+                "sky130",
+                "--pdk",
+                "sky130",
+                "--format",
+                "json",
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if proc.returncode not in (0, 3, 4):
+            raise RuntimeError(
+                f"klt erc ({kind}) exited {proc.returncode}:\n"
+                f"{proc.stderr[-2000:]}"
+            )
+        payload_path.write_text(proc.stdout)
+        report = json.loads(proc.stdout)
+        if kind == "supply":
+            ok, reasons = gate_supply_report(report, Path(gds_path))
+            tie_ok, tie_reasons = gate_tie_report(report)
+            ok = ok and tie_ok
+            reasons = reasons + tie_reasons
+        else:
+            well_shapes = sum(len(v) for v in assigned.values())
+            ok, reasons = gate_negative_control(report, well_shapes)
+        verdict[kind] = {
+            "spec_source": specs[kind]["source"],
+            "spec_derived": str(specs[kind]["path"]),
+            "report": payload_path.name,
+            "exit": proc.returncode,
+            "passed": ok,
+            "reasons": reasons,
+            "erc_status": report.get("erc_status"),
+            "finding_count": report.get("erc_finding_count"),
+        }
+        overall_ok = overall_ok and ok
+    verdict["clean"] = overall_ok
+    (out_dir / "erc-verdict.json").write_text(
+        json.dumps(verdict, indent=2) + "\n"
+    )
+    return verdict
 
 
 #: The escape plane's two layers, in the (gds-label, role-layer-tuple) shape
@@ -1622,6 +2404,19 @@ def main() -> int:
     all_reports[bus_report["cell_name"]] = bus_report
     all_origins[bus_report["cell_name"]] = {"x": 0.0, "y": 0.0}
 
+    # --- 3b. Thick-oxide legality overlay (issue #620) ---------------------
+    # Drawn after the bus overlay so both sit at absolute floorplan
+    # coordinates and are composed into the inner cell together. Not part
+    # of the bus: these shapes carry no electrical node -- they are the
+    # hvi/nwell/npc markers that make the generators' thick-oxide geometry
+    # PDK-legal (HV_FIXUP_NOTE).
+    hv_fixup_report = build_hv_fixup_overlay(
+        klt, out_dir, reports[BLOCKS[0]["id"]]["pdk"], reports, origins
+    )
+    overlays["hv_fixup"] = hv_fixup_report
+    all_reports[hv_fixup_report["cell_name"]] = hv_fixup_report
+    all_origins[hv_fixup_report["cell_name"]] = {"x": 0.0, "y": 0.0}
+
     content_bbox = union_bbox([b["id"] for b in BLOCKS], reports, origins)
 
     # --- 4. Route the inner cell (blocks + overlays, no ring) ---------------
@@ -1757,6 +2552,14 @@ def main() -> int:
     # layout/generator-notes.md#met2-escape-note and layout/bin/met2_drc.py.
     met2_drc = run_met2_drc(klt, Path(compose["gds_path"]), cell, out_dir)
 
+    # --- 6c. HV DRC on the pinned PDK's own source deck (issue #620) --------
+    # The curated deck above carries no hvi/npc/nwell rule, so it is silent
+    # about the one thing thick-oxide geometry must satisfy. This runs the
+    # PDK's source deck with FEOL enabled and gates on the HV rule group,
+    # with the raw injector NMOS as the failing enclosure control. Gated:
+    # a 5 V device that violates its own oxide rules is not a 5 V device.
+    hv_drc = run_hv_drc(klt, compose["gds_path"], out_dir, pdk)
+
     # --- 7. Extract ---------------------------------------------------------
     extract = run_klt_json(
         klt,
@@ -1779,6 +2582,33 @@ def main() -> int:
     # nodes are the same node. Gated, never warned.
     merged_pin_names = assert_no_merged_pin_names(
         out_dir / f"{cell}.extract.spice"
+    )
+
+    # --- 7b. PDK-bound extraction + flavour gate (issue #620) ---------------
+    # A second, separate extraction (`--pdk`), whose raw X cards name the
+    # PDK wrapper each device bound -- the one place the oxide flavour is
+    # observable. Every schematic MOS finger must bind to the 5 V wrapper
+    # of its polarity; a single thin-oxide card among correct ones fails.
+    # The curated extraction above stays the LVS input, unchanged.
+    pdk_netlist_text, pdk_extract = run_pdk_bound_extract(
+        klt, compose["gds_path"], cell, out_dir, cell
+    )
+    expected_fingers = expected_mos_fingers(args.reference.read_text())
+    flavour = check_mos_flavour(pdk_netlist_text, expected_fingers)
+    flavour["expected_source"] = str(args.reference)
+    flavour["extract"] = {
+        "device_count": pdk_extract.get("device_count"),
+        "device_counts": pdk_extract.get("device_counts"),
+    }
+    (out_dir / "flavour.json").write_text(json.dumps(flavour, indent=2) + "\n")
+
+    # --- 7c. Supply/tie ERC on this exact GDS (issue #620) ------------------
+    # The two specs run-erc-supply-flow.sh invokes, with the well boxes
+    # this GDS draws (the committed spec's boxes describe the pre-HVI
+    # GDS). Gated with erc_supply_record's own item-11 gate, negative
+    # control included.
+    erc = run_supply_erc(
+        klt, compose["gds_path"], out_dir, args.repo_root, reports, origins
     )
 
     # --- 8. LVS against the xschem-derived reference ------------------------
@@ -1888,6 +2718,10 @@ def main() -> int:
         merged_pin_names=merged_pin_names,
         reports=reports,
         bus_summary=bus_summary,
+        gds_digest=sha256_of(compose["gds_path"]),
+        flavour=flavour,
+        hv_drc=hv_drc,
+        erc=erc,
     )
     print(record.text)
 
@@ -1906,6 +2740,10 @@ def main() -> int:
     # the split-node check, the inverse of the drawn-short one: a node this
     # router reports as fully routed whose metal is still in two pieces (see
     # split_routed_nets).
+    # Issue #620 adds three gates: every MOS finger must bind its 5 V
+    # wrapper (flavour), the HV rule group must be clean on the composed
+    # GDS with a failing control (hv_drc), and the supply/tie ERC must
+    # pass on this exact GDS (erc).
     gate = flow_gate(
         drc_clean=record.drc_clean,
         within_budget=record.within_budget,
@@ -1917,6 +2755,9 @@ def main() -> int:
         merged_pin_names=merged_pin_names,
         split_routed=met1_split_routed,
         met2_drc_clean=met2_drc.get("status") == "clean",
+        mos_flavour_clean=flavour["clean"],
+        hv_drc_clean=hv_drc["clean"],
+        erc_supply_clean=erc["clean"],
     )
     failed = [name for name, passed in gate.items() if not passed]
     if failed:

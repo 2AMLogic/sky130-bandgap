@@ -29,8 +29,12 @@
 # Gate (the script's exit status): DRC clean, composed area within the
 # < 0.05 mm^2 budget *at the real 108-unit ladder count*, every expected
 # device class (`pnp`/`nfet`/`pfet`/`res_generic_po`) present in the
-# extracted netlist, and a non-zero promoted `pin_count`. `klt lvs`-clean is
-# recorded but NOT gated -- see
+# extracted netlist, and a non-zero promoted `pin_count`; plus, since
+# issue #620: every MOS finger bound to its 5 V thick-oxide wrapper in a
+# raw PDK-bound extraction, zero applicable HV violations from the pinned
+# PDK's FEOL-enabled source deck (negative enclosure control included),
+# and the supply/tie ERC gate passing on the exact composed GDS. `klt
+# lvs`-clean is recorded but NOT gated -- see
 # layout/generator-notes.md#res-trim-topology-note and
 # layout/generator-notes.md#routing-plane-note and the generated record.md
 # for why it is blocked upstream.
@@ -77,7 +81,9 @@ python3 "$LAYOUT_DIR/bin/publish_layout_evidence.py" publish "$OUT_DIR" \
   --bench layout-bandgap-core --run-id "$RECORD_ID" || exit 1
 
 mkdir -p "$SUMMARY_DIR"
-for f in record.md drc.json extract.json lvs.json lvs.combined.json met2-drc.json; do
+for f in record.md drc.json extract.json lvs.json lvs.combined.json met2-drc.json \
+         hv-drc.json flavour.json erc.json erc.negative-control.json \
+         erc-verdict.json nwell-boxes.json; do
   [[ -f "$OUT_DIR/$f" ]] && cp "$OUT_DIR/$f" "$SUMMARY_DIR/$f"
 done
 
