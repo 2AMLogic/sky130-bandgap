@@ -1475,7 +1475,6 @@ def main() -> int:
     # retired rather than carried. The PNP device count below now comes from
     # the generator's own geometry.)
     origins = place_blocks(BLOCKS, reports)
-    all_reports: dict[str, dict[str, Any]] = dict(reports)
     all_origins: dict[str, dict[str, float]] = dict(origins)
 
     # --- 3. Intra-block busses on met1 (MET1_BUS_NOTE) ----------------------
@@ -1483,7 +1482,6 @@ def main() -> int:
         klt, out_dir, reports[BLOCKS[0]["id"]]["pdk"], BLOCKS, reports, origins
     )
     overlays: dict[str, dict[str, Any]] = {"bus": bus_report}
-    all_reports[bus_report["cell_name"]] = bus_report
     all_origins[bus_report["cell_name"]] = {"x": 0.0, "y": 0.0}
 
     content_bbox = union_bbox([b["id"] for b in BLOCKS], reports, origins)
@@ -1563,7 +1561,6 @@ def main() -> int:
             },
         },
     )
-    all_reports["guard_ring_outer"] = ring_report
     ring_bbox = ring_report["bbox_um"]
     all_origins["guard_ring_outer"] = {
         "x": (content_bbox["x0"] + content_bbox["x1"]) / 2.0
