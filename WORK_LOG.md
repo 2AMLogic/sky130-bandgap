@@ -7,6 +7,11 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 - [2026-09](work_log/WORK_LOG_2026-09.md)
 
+### 2026-11-22
+
+- **PR #629**: refactor(layout): emit the empty inner-compose pins array directly
+- **Issue #628** (closed): Remove the retired MOS gate label selector from inner compose
+
 ### 2026-11-21
 
 - **Issue #624** (closed): Unit-test the shared resistor-chain substitution loop (sim_common.substitute_chained_arrays)
@@ -337,9 +342,4 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 - **PR #295**: README: embed the fleet burndown chart
 - **Issue #281** (closed): T1 item 11 (power delivery, structural): no klt erc supply spec or report in this repo
 - **PR #290**: layout: klt erc supply spec + report for T1 item 11 (power delivery, structural)
-
-### 2026-09-22
-
-- **Issue #282** (closed): Commit a klt signoff block manifest so this block's T1 state is graded, not hand-read
-- **PR #289**: signoff: commit a klt signoff block manifest for this block's T1 state
 
