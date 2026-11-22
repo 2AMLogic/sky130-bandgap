@@ -49,9 +49,8 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import met1_bus  # noqa: E402  -- local module, resolved from this script's dir
-from bus_routing import MOS_HALVES, build_bus_overlay, trim_tap_port  # noqa: E402
+from bus_routing import build_bus_overlay, trim_tap_port  # noqa: E402
 from layout_common import (  # noqa: E402
-    DIRECTION_NORTH,
     N_R1,
     N_R2_COARSE,
     N_R2_TRIM_UNITS,
@@ -1060,90 +1059,6 @@ def place_blocks(
 # union_bbox() lives in layout_common.py (issue #169) -- imported above.
 
 
-# ---------------------------------------------------------------------------
-# Connectivity
-# ---------------------------------------------------------------------------
-#: Port-name suffix families each block flavour exposes, and the outward
-#: `direction_deg` each faces. `klt gen`'s own generators report these; this
-#: table is only a readable index into them, never a second source of truth
-#: (every lookup below validates against the block's reported `ports[]`).
-#: How many candidate ports per side the router-oracle search below will try
-#: before giving up on a net. Kept small: the candidates are ordered by how
-#: close they sit to the block edge the route approaches from, so the right
-#: one is normally the first or second.
-PORT_CANDIDATE_LIMIT = 6
-
-
-def select_ports(
-    report: dict[str, Any],
-    suffix: str,
-    facing: int,
-    toward: str,
-    limit: int = PORT_CANDIDATE_LIMIT,
-    half: str | None = None,
-) -> list[str]:
-    """Ordered candidate port names on one block, best-first for a route
-    approaching from `toward` ("east"/"west"/"north"/"south").
-
-    `klt gen-compose`'s router draws a straight/single-jog Manhattan backbone
-    between two ports and rejects the net outright when that backbone crosses
-    a block's interior by more than the port's own edge margin. Which port of
-    a 100-segment ladder or a 16-way split pair is chosen therefore decides
-    whether a net routes at all -- the one nearest the edge the route arrives
-    at is the only one whose approach stays outside the block.
-
-    Ordering is purely geometric (the block's own reported port positions);
-    the router itself remains the pass/fail authority, consulted by
-    `resolve_connectivity`.
-    """
-    ports = [
-        p
-        for p in report["ports"]
-        if p["name"].endswith(suffix)
-        and int(p.get("direction_deg", 0)) % 360 == facing
-        and (half is None or p["name"].startswith(f"{half}_"))
-    ]
-    if not ports:
-        raise KeyError(
-            f"no '{suffix}' ports facing {facing} deg "
-            f"{'half ' + half + ' ' if half else ''}"
-            f"(available: {sorted({q['name'] for q in report['ports']})})"
-        )
-    key = {
-        "east": lambda p: -float(p["x_um"]),
-        "west": lambda p: float(p["x_um"]),
-        "north": lambda p: -float(p["y_um"]),
-        "south": lambda p: float(p["y_um"]),
-    }[toward]
-    ports.sort(key=key)
-    return [p["name"] for p in ports[:limit]]
-
-
-
-#: Label-only pin promotions (`pins[]`), i.e. nodes made addressable from a
-#: post-layout testbench (issue #16) without any claim of connectivity: a
-#: `pins[]` entry draws a label, never a wire.
-#:
-#: The eight gate entries this list used to carry are **gone**. They existed
-#: because a MOS gate could not be wired at all
-#: (layout/generator-notes.md#mos-gate-note), so each
-#: gate node could only be named -- with a deliberately different name
-#: (`GDRV_GATE`, `VA_GATE`, ...) from the schematic node it belonged to, so
-#: that two disconnected pieces of metal could not be labelled alike and
-#: merged by `klt extract`. With 2AMLogic/klayout-tools#461 merged, every one
-#: of those nodes is drawn metal carrying its own schematic name (see
-#: INTER_BLOCK_MET1), and re-labelling their pads here would do exactly the
-#: damage `routed_ports` exists to prevent.
-#:
-#: What remains is the trim ladder's read-only probe taps, which are genuinely
-#: single-port nodes no schematic net reaches (see :func:`trim_tap_ladder`).
-CORE_PIN_LABELS: list[dict[str, Any]] = []
-
-
-
-
-
-
 def r2_leg_length() -> dict[str, Any]:
     """Drawn vs. specified length of one R2 divider leg, in um.
 
@@ -1233,31 +1148,6 @@ def trim_tap_ladder(reports: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
             }
         )
     return rows
-
-
-def routed_ports(bus_summary: dict[str, Any]) -> set[tuple[str, str]]:
-    """Every `(block, port)` pad a drawn met1 net already contacts.
-
-    A `pins[]` label is drawn *on the pad*, so a label placed on a pad some
-    other node's met1 has already via'd down to does not name that label's
-    node -- it renames the node that owns the pad. `klt extract` then reports
-    the pad's net under both names joined by `|` (e.g. `TAIL|VOUT`), i.e. the
-    layout claims one schematic node is another.
-
-    This is not hypothetical: it is what the previous increment's composed
-    layout did. `VOUT`'s label landed on `core_mirror.M2_1_D`, which is
-    MPAMP's drain and the pad the drawn `TAIL` net contacts, because the pin
-    selector and the router kept separate "already used" sets. They share one
-    now, and :func:`assert_no_merged_pin_names` checks the extracted netlist
-    for the `|` that would prove the sharing failed.
-    """
-    claimed: set[tuple[str, str]] = set()
-    for route in bus_summary.get("_inter_block", []):
-        for terminal in route.get("terminals", []):
-            block, _, port = terminal.partition(".")
-            if port:
-                claimed.add((block, port))
-    return claimed
 
 
 def assert_no_merged_pin_names(netlist_path: Path) -> list[str]:
@@ -1490,10 +1380,8 @@ def compose_inner(
     pdk: str,
     cell_name: str,
     block_ids: list[str],
-    reports: dict[str, dict[str, Any]],
     origins: dict[str, dict[str, float]],
-    bus_summary: dict[str, Any],
-) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+) -> dict[str, Any]:
     """Compose the placed blocks plus the met1 bus/route overlay into one cell.
 
     `connectivity[]` is deliberately **empty**. PR #64 asked `gen-compose`'s
@@ -1510,42 +1398,18 @@ def compose_inner(
       so li1 routing and per-group rings remain effectively exclusive. On
       met1 the ring is simply a layer below.
 
-    `pins[]` is still used, and only for what it is: **naming**. A pin entry
-    draws a label, never a wire, so it makes a node addressable from a
-    post-layout testbench (issue #16) without claiming any connectivity. Gate
-    nodes are here for exactly that reason -- a MOS gate cannot be wired at
-    all (layout/generator-notes.md#mos-gate-note), but it can be named.
+    `pins[]` is deliberately **empty** too. The eight MOS-gate labels it used
+    to carry are drawn metal now (klayout-tools#461): each of those nodes
+    carries its own schematic name in the bus overlay, and a `pins[]` entry
+    here would draw a *second* label on a pad the route already owns -- the
+    exact `TAIL|VOUT` rename the label-collision gate
+    (:func:`assert_no_merged_pin_names`) exists to catch. The trim ladder's
+    read-only probe taps are the one remaining kind of nameable node, and
+    they are deliberately NOT folded into `pins[]` either -- see
+    INTERNAL_NODE_LABEL_NOTE and the record's own trim-tap table.
 
-    Returns `(compose_response, pins)`.
+    Returns the compose response.
     """
-
-    pins: list[dict[str, Any]] = []
-    # Seeded with every pad the drawn met1 nets already contact, so a label can
-    # never rename another node's pad (see routed_ports).
-    used: set[tuple[str, str]] = routed_ports(bus_summary)
-    for spec in CORE_PIN_LABELS:
-        block, device = spec["device"]
-        half = MOS_HALVES[block]["devices"][device]
-        placed = False
-        for name in select_ports(
-            reports[block],
-            "_G",
-            DIRECTION_NORTH,
-            spec["toward"],
-            half=half,
-        ):
-            if (block, name) not in used:
-                pins.append({"net": spec["net"], "block": block, "port": name})
-                used.add((block, name))
-                placed = True
-                break
-        if not placed:
-            raise KeyError(
-                f"pin {spec['net']}: every gate port of {block}.{device} is "
-                "already claimed"
-            )
-    # trim_tap_ladder() is deliberately NOT folded into `pins[]` -- see
-    # INTERNAL_NODE_LABEL_NOTE and the record's own trim-tap table.
 
     request = {
         "schema": "klt.gen_compose.request/1",
@@ -1563,7 +1427,7 @@ def compose_inner(
             "origins_um": origins,
         },
         "connectivity": [],
-        "pins": pins,
+        "pins": [],
         "routing": {"layer_role": "metal", "width_um": ROUTE_WIDTH_UM},
         "options": {
             "cell_name": cell_name,
@@ -1574,7 +1438,7 @@ def compose_inner(
     request_path.write_text(json.dumps(request, indent=2) + "\n")
     compose = run_klt_json(klt, "gen-compose", str(request_path), allow_exit=(0, 3))
     (out_dir / "compose.inner.json").write_text(json.dumps(compose, indent=2) + "\n")
-    return compose, pins
+    return compose
 
 
 
@@ -1638,17 +1502,14 @@ def main() -> int:
     inner_ids = [b["id"] for b in BLOCKS] + [
         o["cell_name"] for o in overlays.values()
     ]
-    inner_reports = {bid: all_reports[bid] for bid in inner_ids}
     inner_origins = {bid: all_origins[bid] for bid in inner_ids}
-    inner_compose, pin_labels = compose_inner(
+    inner_compose = compose_inner(
         klt,
         out_dir,
         pdk,
         inner_cell,
         inner_ids,
-        inner_reports,
         inner_origins,
-        bus_summary,
     )
     met1_routes = bus_summary["_inter_block"]
     met1_conflicts = bus_summary["_conflicts"]
