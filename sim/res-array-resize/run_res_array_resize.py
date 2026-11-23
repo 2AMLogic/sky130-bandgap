@@ -159,7 +159,12 @@ CORNERS = (
 )
 TRIM_CODES = (0, -8, -16)  # AC3 downward-range recheck (DR-002's certified span)
 
-VREF_SPEC_V = (1.188, 1.212)  # draft spec: 1.20 V +/- 1%
+# Historical pre-DR-005 draft spec: 1.20 V +/- 1% -- retained (numeric band
+# unchanged, per the 2026-11-23 operator ruling) so re-runs stay comparable
+# with the 2026-08-05 records DR-003 and DR-004 cite as evidence. Superseded
+# for current work by sim_common.RATIFIED_VREF_WINDOW_V, DR-005's ratified
+# +/-2% band.
+DRAFT_VREF_WINDOW_V = (1.188, 1.212)
 VREF_SANITY_V = (1.10, 1.30)  # regulation-loss guard (a collapse jumps VOUT to ~2.85 V)
 
 
@@ -236,7 +241,7 @@ def explore(pairs: list[tuple[int, int]], timeout: int) -> int:
     base_body = load_base_body(BASE_SNAPSHOT, EXPECTED_PARAMS)
     run_dir = BUILD_DIR / "explore"
     print(f"PDK: {pdk.dir} (open_pdks {pdk.installed_commit})")
-    print(f"spec window: {VREF_SPEC_V} V   corners: {[p for p, _ in CORNERS]}")
+    print(f"spec window: {DRAFT_VREF_WINDOW_V} V   corners: {[p for p, _ in CORNERS]}")
     for n_r1, n_r2 in pairs:
         res = analytic_resistances(n_r1, n_r2)
         print(
@@ -246,7 +251,7 @@ def explore(pairs: list[tuple[int, int]], timeout: int) -> int:
         results = run_corner_set(run_dir, None, "explore", pdk, base_body, n_r1, n_r2, 0, timeout, f"n{n_r1}_{n_r2}")
         for process, supply in CORNERS:
             m = results[(process, supply)]
-            in_spec = VREF_SPEC_V[0] <= m["vref_27"] <= VREF_SPEC_V[1]
+            in_spec = DRAFT_VREF_WINDOW_V[0] <= m["vref_27"] <= DRAFT_VREF_WINDOW_V[1]
             reg = VREF_SANITY_V[0] <= m["vref_max"] <= VREF_SANITY_V[1]
             print(
                 f"  {process}/{supply:.2f}V  vref27={m['vref_27']:.6f}  vref_max={m['vref_max']:.6f}  "
@@ -271,12 +276,12 @@ def evaluate(resized, resized_trim, shipped) -> list[dict]:
     for process, supply in CORNERS:
         cid = f"{process}_{supply:.2f}v"
         m = resized[(process, supply)]
-        in_spec = VREF_SPEC_V[0] <= m["vref_27"] <= VREF_SPEC_V[1]
+        in_spec = DRAFT_VREF_WINDOW_V[0] <= m["vref_27"] <= DRAFT_VREF_WINDOW_V[1]
         add(
             f"resized_vref27_in_spec[{cid}]",
             in_spec,
             f"resized (n_r1={RESIZE_N_R1}, n_r2={RESIZE_N_R2}) vref_27={m['vref_27']:.6f} V "
-            f"vs spec {VREF_SPEC_V}" + ("" if in_spec else " -- OUT OF SPEC"),
+            f"vs spec {DRAFT_VREF_WINDOW_V}" + ("" if in_spec else " -- OUT OF SPEC"),
         )
         reg = VREF_SANITY_V[0] <= m["vref_max"] <= VREF_SANITY_V[1]
         add(
@@ -290,7 +295,7 @@ def evaluate(resized, resized_trim, shipped) -> list[dict]:
     for process, supply in CORNERS:
         cid = f"{process}_{supply:.2f}v"
         m = shipped[(process, supply)]
-        out = not (VREF_SPEC_V[0] <= m["vref_27"] <= VREF_SPEC_V[1])
+        out = not (DRAFT_VREF_WINDOW_V[0] <= m["vref_27"] <= DRAFT_VREF_WINDOW_V[1])
         add(
             f"shipped_control_out_of_spec[{cid}]",
             out,
@@ -401,7 +406,7 @@ def render_record(r: dict) -> str:
     add("|---|---|---|---|---|---|---|---|")
     for process, supply in CORNERS:
         m = r["resized"][f"{process}:{supply}"]
-        in_spec = "yes" if VREF_SPEC_V[0] <= m["vref_27"] <= VREF_SPEC_V[1] else "**NO**"
+        in_spec = "yes" if DRAFT_VREF_WINDOW_V[0] <= m["vref_27"] <= DRAFT_VREF_WINDOW_V[1] else "**NO**"
         reg = "yes" if VREF_SANITY_V[0] <= m["vref_max"] <= VREF_SANITY_V[1] else "**NO — collapsed**"
         add(
             f"| {process} | {supply:.2f} | {m['vref_27']:.6f} | {m['vref_min']:.6f} | "
@@ -415,7 +420,7 @@ def render_record(r: dict) -> str:
     add("|---|---|---|---|---|---|---|")
     for process, supply in CORNERS:
         m = r["shipped"][f"{process}:{supply}"]
-        in_spec = "yes" if VREF_SPEC_V[0] <= m["vref_27"] <= VREF_SPEC_V[1] else "**NO**"
+        in_spec = "yes" if DRAFT_VREF_WINDOW_V[0] <= m["vref_27"] <= DRAFT_VREF_WINDOW_V[1] else "**NO**"
         reg = "yes" if VREF_SANITY_V[0] <= m["vref_max"] <= VREF_SANITY_V[1] else "**NO — collapsed**"
         add(
             f"| {process} | {supply:.2f} | {m['vref_27']:.6f} | {m['vref_max']:.6f} | "
@@ -486,10 +491,10 @@ def render_record(r: dict) -> str:
 
 
 def build_determination(resized, resized_trim, shipped, ra) -> str:
-    out_shipped = [f"{p}/{s:.2f}V" for p, s in CORNERS if not (VREF_SPEC_V[0] <= shipped[(p, s)]["vref_27"] <= VREF_SPEC_V[1])]
+    out_shipped = [f"{p}/{s:.2f}V" for p, s in CORNERS if not (DRAFT_VREF_WINDOW_V[0] <= shipped[(p, s)]["vref_27"] <= DRAFT_VREF_WINDOW_V[1])]
     collapse_shipped = [f"{p}/{s:.2f}V" for p, s in CORNERS if shipped[(p, s)]["vref_max"] > VREF_SANITY_V[1]]
     resized_vrefs = [resized[(p, s)]["vref_27"] for p, s in CORNERS]
-    resized_ok = all(VREF_SPEC_V[0] <= v <= VREF_SPEC_V[1] for v in resized_vrefs)
+    resized_ok = all(DRAFT_VREF_WINDOW_V[0] <= v <= DRAFT_VREF_WINDOW_V[1] for v in resized_vrefs)
     resized_reg = all(VREF_SANITY_V[0] <= resized[(p, s)]["vref_max"] <= VREF_SANITY_V[1] for p, s in CORNERS)
     spans = {(p, s): resized_trim[(p, s, 0)]["vref_27"] - resized_trim[(p, s, -16)]["vref_27"] for p, s in CORNERS}
     min_span_mv = min(spans.values()) * 1000
@@ -513,7 +518,7 @@ def build_determination(resized, resized_trim, shipped, ra) -> str:
     if resized_ok and resized_reg:
         seg.append(
             "**AC2 met.** At the resized sizing, VOUT(27 degC) lands back inside the draft "
-            f"+/-1% window (1.188-1.212 V) at all {len(CORNERS)} corners, and no corner "
+            f"+/-1% window ({DRAFT_VREF_WINDOW_V[0]}-{DRAFT_VREF_WINDOW_V[1]} V) at all {len(CORNERS)} corners, and no corner "
             "collapses -- including ff/2.97 V and fs/2.97 V, the two the shipped chained "
             f"sizing pinned near 2.85 V. Resized VOUT(27) range across corners: "
             f"{min(resized_vrefs):.4f}-{max(resized_vrefs):.4f} V."

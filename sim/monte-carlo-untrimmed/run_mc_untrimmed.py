@@ -56,6 +56,7 @@ sys.path.insert(0, str(SIM_DIR / "bin"))
 import batch_sim  # noqa: E402
 from sim_common import (  # noqa: E402
     MismatchPoint,
+    RATIFIED_VREF_WINDOW_V,
     add_batch_args,
     add_common_args,
     check_pdk_and_ngspice,
@@ -186,9 +187,9 @@ CONFIG_LABELS = {
 
 # The ratified spec's untrimmed output-accuracy window (README.md "Target
 # specification (ratified -- see DR-005, issue #1)"; same +/-2% window
-# sim/output-voltage-tc uses) -- see the CLAIM string below.
+# sim/output-voltage-tc uses) is imported above as RATIFIED_VREF_WINDOW_V --
+# see the CLAIM string below.
 VOUT_NOMINAL_V = 1.20
-SPEC_WINDOW_V = (1.176, 1.224)
 
 # A Monte Carlo sample only counts if the core actually came up. bandgap_core
 # is bistable by construction (no startup circuit -- issue #10) and this
@@ -436,7 +437,7 @@ def collect_batch(pin, pdk, body, points, args, corners_dir) -> tuple[dict[str, 
 
 
 def spec_yield(values: list[float]) -> float:
-    lo, hi = SPEC_WINDOW_V
+    lo, hi = RATIFIED_VREF_WINDOW_V
     return sum(1 for v in values if lo <= v <= hi) / len(values)
 
 
@@ -523,7 +524,7 @@ def evaluate(point: Point, samples: list[dict[str, float]], excluded: list[dict[
         "yield_ge_50pct",
         spec_y >= 0.5,
         f"{spec_y:.1%} of converged draws land inside the +/-2% window "
-        f"[{SPEC_WINDOW_V[0]}, {SPEC_WINDOW_V[1]}] V (sanity floor only -- the yield number "
+        f"[{RATIFIED_VREF_WINDOW_V[0]}, {RATIFIED_VREF_WINDOW_V[1]}] V (sanity floor only -- the yield number "
         f"itself is the deliverable, not a pass/fail spec claim; see the Result section)",
     )
 
@@ -833,7 +834,7 @@ def render_record(r: dict) -> str:
     add("## Output-voltage distribution and yield against the +/-2 % window")
     add("")
     add(
-        f"Window: [{SPEC_WINDOW_V[0]}, {SPEC_WINDOW_V[1]}] V around the ratified spec's "
+        f"Window: [{RATIFIED_VREF_WINDOW_V[0]}, {RATIFIED_VREF_WINDOW_V[1]}] V around the ratified spec's "
         f"{VOUT_NOMINAL_V:.2f} V nominal (README.md 'Target specification (ratified -- see "
         f"DR-005, issue #1)'). "
         f"**Yield** below is the fraction of MC draws that (a) converged to the core's real "
@@ -1233,7 +1234,7 @@ def main(argv: list[str]) -> int:
             },
             "source": "libs.tech/combined/continuous/models_*.spice + models_global.spice",
         },
-        "spec_window_v": list(SPEC_WINDOW_V),
+        "spec_window_v": list(RATIFIED_VREF_WINDOW_V),
         "statistics": {"n_samples": args.samples, "seed_a": SEED_A, "seed_b": SEED_B},
         "pdk": {
             "root": str(pdk.root),

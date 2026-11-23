@@ -50,7 +50,7 @@
     {
       "path": "sim/bin/sim_common.py",
       "role": "harness",
-      "content_hash": "sha256:d7ed9be76c3b468697bc31b3a3e26335ab5815a1cd1eb4c149fafda5254a74f9"
+      "content_hash": "sha256:b572035974eb4e0ec59ee9f2afd99fabab93e4c9d443f9120095f79cb49a698a"
     }
   ],
   "testbenches": [
@@ -136,7 +136,7 @@
         {
           "path": "sim/monte-carlo-untrimmed/run_mc_untrimmed.py",
           "role": "runner",
-          "content_hash": "sha256:130e987feed956ca8e9a142fbdd5f4c9f3ffc1d68cf5228785d4dede32b06b65"
+          "content_hash": "sha256:9e530acc3f39e4c8df4ddfb5fd3bfd8d8f9d9dc748d3f72b09efad8ea0be758e"
         }
       ]
     },
@@ -341,7 +341,7 @@
         {
           "path": "sim/res-array-head-resistance/run_res_array_head_resistance.py",
           "role": "runner",
-          "content_hash": "sha256:24db4528f2092cb29f6f6752dcbab38a69df7e4b2a855600787e757c5b591b0f"
+          "content_hash": "sha256:41e12499e32abb5c4dccd240ddadb01f467744e971e6742de49c397c851a08c7"
         }
       ]
     },
@@ -352,7 +352,7 @@
         {
           "path": "sim/res-array-resize/run_res_array_resize.py",
           "role": "runner",
-          "content_hash": "sha256:07987bc6132b597f9617b1e53c5e5a48b949ec58ab0da5722ea9bcd2b9bf99ec"
+          "content_hash": "sha256:746b312784e74a92ee0ace181ee560fc1a80bc6972036d056a07481c85a87da3"
         }
       ]
     },

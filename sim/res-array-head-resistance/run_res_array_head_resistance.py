@@ -179,7 +179,11 @@ PHASE_B_CORNERS = (
     ("fs", 2.97),
 )
 
-VREF_SPEC_V = (1.188, 1.212)  # draft spec: 1.20 V +/- 1% (sim/output-voltage-tc/experiment.json)
+# Historical pre-DR-005 draft spec: 1.20 V +/- 1% -- retained (numeric band
+# unchanged, per the 2026-11-23 operator ruling) so re-runs stay comparable
+# with the 2026-08-05 records DR-003 and DR-004 cite as evidence. DR-005's
+# ratified +/-2% band lives in sim_common.RATIFIED_VREF_WINDOW_V.
+DRAFT_VREF_WINDOW_V = (1.188, 1.212)
 VREF_SANITY_V = (1.10, 1.30)  # loose regulation-loss guard, same band run_trim_sweep.py uses
 
 
@@ -358,12 +362,12 @@ def evaluate(phase_a: dict, phase_b: dict[tuple[str, float], dict], baseline: di
             VREF_SANITY_V[0] <= base["vref_27"] <= VREF_SANITY_V[1],
             f"baseline (single-device) vref_27={base['vref_27']:.6f} V",
         )
-        chained_in_spec = VREF_SPEC_V[0] <= chained["vref_27"] <= VREF_SPEC_V[1]
+        chained_in_spec = DRAFT_VREF_WINDOW_V[0] <= chained["vref_27"] <= DRAFT_VREF_WINDOW_V[1]
         add(
             f"chained_vref27_in_spec[{corner_id}]",
             chained_in_spec,
             f"chained-array vref_27={chained['vref_27']:.6f} V vs draft spec window "
-            f"{VREF_SPEC_V} (baseline was {base['vref_27']:.6f} V)"
+            f"{DRAFT_VREF_WINDOW_V} (baseline was {base['vref_27']:.6f} V)"
             + ("" if chained_in_spec else " -- OUT OF SPEC"),
         )
         add(
@@ -536,8 +540,8 @@ def render_record(record: dict) -> str:
     for process, supply in PHASE_B_CORNERS:
         base = r["phase_b_baseline"][f"{process}:{supply}"]
         chained = r["phase_b"][f"{process}:{supply}"]
-        base_ok = "yes" if VREF_SPEC_V[0] <= base["vref_27"] <= VREF_SPEC_V[1] else "**NO**"
-        chained_ok = "yes" if VREF_SPEC_V[0] <= chained["vref_27"] <= VREF_SPEC_V[1] else "**NO**"
+        base_ok = "yes" if DRAFT_VREF_WINDOW_V[0] <= base["vref_27"] <= DRAFT_VREF_WINDOW_V[1] else "**NO**"
+        chained_ok = "yes" if DRAFT_VREF_WINDOW_V[0] <= chained["vref_27"] <= DRAFT_VREF_WINDOW_V[1] else "**NO**"
         add(
             f"| {process} | {supply:.2f} | single-device (baseline) | {base['vref_27']:.6f} | "
             f"{base['vref_max']:.6f} | {base['tc_ppm']:.3f} | {base_ok} |"
