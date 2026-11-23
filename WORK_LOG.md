@@ -9,6 +9,12 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-23
 
+- **PR #646**: refactor: fold pex-native shims onto canonical corner-run types
+- **Issue #554** (closed): Dedup pex-native's three duck-type shims onto corner-run's Corner/Experiment/Measurement dataclasses (_C has no .id, blocking batch_sim's collectors)
+- **PR #644**: fix(sim): derive res-array-resize determination from its checks
+- **Issue #642** (closed): Remove unconditional confirmation and duplicate check logic from sim/res-array-resize
+- **PR #622**: Bind post-layout extraction to the PDK: temperature-behaved resistors on the extracted side (rows 1b/3b, item 7)
+- **Issue #614** (closed): Post-layout benches simulate temperature-flat resistors: extract with klt's --pdk model binding and retire the hand resistor translation
 - **Issue #633** (closed): generator-notes.md MET2_ESCAPE_NOTE: qualify the "what klt drc passes clean" sentence with the stricter-enclosure difference
 - **PR #639**: docs: qualify met2 escape note's klt-drc pass-clean claim
 - **Issue #545** (closed): Consolidate the VREF accuracy window: 4 copies of DR-005's ratified band under 4 names, plus 2 live gates still on the superseded draft band

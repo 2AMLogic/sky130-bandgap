@@ -1,7 +1,7 @@
 # Work Plan
 
 <!-- guide:plan-body:start -->
-_Generated: 2026-11-23T15:25:37Z (snapshot; compare against live labels)_
+_Generated: 2026-11-23T20:25:46Z (snapshot; compare against live labels)_
 ## Operator Attention: Merge-Risk-Hold Pileup
 
 Judge-approved PRs under a hold (`loom:blocked` or `loom:operator`) — only a human merge decision is missing.
@@ -23,7 +23,6 @@ _None._
 - **#368**: Design a state-dependent startup-injector reference-stack element that clears the 60 dB PSRR floor at ff/125/3.63 and sf/27/2.97 *(held)*
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(held)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(held)*
-- **#614**: Post-layout benches simulate temperature-flat resistors: extract with klt's --pdk model binding and retire the hand resistor translation
 - **#620**: Generate and verify the thick-oxide MOS geometry in the routed bandgap core
 
 ## Ready
@@ -36,7 +35,6 @@ _None._
 
 Issues currently being built (`loom:building`).
 
-- **#614**: Post-layout benches simulate temperature-flat resistors: extract with klt's --pdk model binding and retire the hand resistor translation
 - **#620**: Generate and verify the thick-oxide MOS geometry in the routed bandgap core
 - **#638**: Remove unconditional confirmation from the resistor head-resistance report
 
@@ -51,7 +49,7 @@ PRs waiting on Judge (`loom:review-requested`).
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
-_None._
+- **#640**: fix(sim): derive res-array-head-resistance determination from its checks
 
 ## Proposed
 
@@ -64,14 +62,12 @@ Issues carrying `loom:curated`.
 - **#432**: Follow-on from PR #431: first live routed-flow run with artifact broker *(curated)* *(held)*
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(curated)* *(held)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(curated)* *(held)*
-- **#614**: Post-layout benches simulate temperature-flat resistors: extract with klt's --pdk model binding and retire the hand resistor translation *(curated)*
 - **#615**: T1 item 5 rows 3a/3b: schematic-level study of which temperature-coefficient correction fits the remaining area (the roadmap's "question first") *(curated)* *(held)*
 - **#620**: Generate and verify the thick-oxide MOS geometry in the routed bandgap core *(curated)*
 
 ## Proposed (Architect / Hermit)
 
-- **#554**: Dedup pex-native's three duck-type shims onto corner-run's Corner/Experiment/Measurement dataclasses (_C has no .id, blocking batch_sim's collectors) *(hermit)* *(held)*
-- **#642**: Remove unconditional confirmation and duplicate check logic from sim/res-array-resize *(hermit)*
+- **#645**: Remove repeated direct-elbow attempts from the met1 detour search *(hermit)* *(held)*
 
 ## Epics
 
@@ -83,12 +79,12 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Very important | 0 |
-| Important | 7 |
+| Important | 6 |
 | Ready (`loom:issue`, net of holds/building/merge-pending) | 0 |
-| In Progress (`loom:building`) | 3 |
+| In Progress (`loom:building`) | 2 |
 | PRs awaiting review | 2 |
-| Approved PRs awaiting merge | 0 |
-| Curated | 10 |
-| Architect / Hermit proposals | 2 |
+| Approved PRs awaiting merge | 1 |
+| Curated | 9 |
+| Architect / Hermit proposals | 1 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
