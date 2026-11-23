@@ -129,55 +129,16 @@ def main() -> int:
         f"{lvs_bad_topo.get('status')} | mismatch_count={lvs_bad_topo.get('mismatch_count')} |"
     )
     a("")
-    good_mismatches = lvs_good.get("mismatches", [])
-    non_warning = [m for m in good_mismatches if m.get("severity") != "warning"]
-    ambiguous_net = [
-        m
-        for m in good_mismatches
-        if m.get("category") == "topology" and m.get("net") is not None
-    ]
-    unused_class = [
-        m
-        for m in good_mismatches
-        if m.get("category") == "topology" and m.get("net") is None
-    ]
-    body_unverified = [
-        m for m in good_mismatches if m.get("category") == "device.body_unverified"
-    ]
     a(
-        f"The good-reference LVS run's `mismatch_count` "
-        f"({lvs_good.get('mismatch_count')}) is nonzero but `status` is "
-        f"`\"match\"` -- all {len(good_mismatches)} entries are "
-        f"`severity: \"warning\"` (0 at `severity: \"error\"`; see "
-        "`lvs.json`), documented, expected quirks for this minimal, highly "
-        "symmetric cell:"
+        "Per-run statuses and counts are the table above, read straight "
+        "from each JSON envelope; the raw mismatch entries behind every "
+        "LVS row (category, severity, description) are the `lvs*.json` "
+        "envelopes linked below. For why a `\"match\"` verdict on this "
+        "cell can still carry a nonzero `mismatch_count` of expected "
+        "warnings, see the layout guide's [\"Expected LVS warnings on the "
+        "trivial cell\"](../../../README.md#expected-lvs-warnings-on-the-trivial-cell) "
+        "section."
     )
-    a(
-        f"- `device.body_unverified` (x{len(body_unverified)}): the curated "
-        "sky130 extraction deck draws no distinct NMOS substrate/tap layer, "
-        "so every body terminal compares against a deck-synthesized "
-        "`vsubs` net rather than a real schematic net (documented in "
-        "`klt extract`'s own \"Coverage\" docs)."
-    )
-    a(
-        f"- `topology`, ambiguous net pairing (x{len(ambiguous_net)}): the "
-        "array's unit devices are electrically interchangeable (no two "
-        "devices connect to a common net that would anchor a unique "
-        "pairing), so `NetlistComparer` resolves the correspondence "
-        "structurally rather than uniquely -- expected for a fully "
-        "symmetric matched array, not a defect."
-    )
-    a(
-        f"- `topology`, unused device class on both sides (x{len(unused_class)}): "
-        "device classes the sky130 deck can recognise (e.g. `pfet`, `pnp`, "
-        "`resistor`) but that this cell draws none of -- not a real mismatch."
-    )
-    if non_warning:
-        a(
-            f"- **{len(non_warning)} `severity: \"error\"` entries were "
-            "present -- this is NOT a clean match and the assertion above "
-            "should have failed.**"
-        )
     a("")
     a("## Provenance")
     a("")
