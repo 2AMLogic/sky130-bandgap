@@ -19,9 +19,9 @@ place.
 
 from __future__ import annotations
 
+import ast
 import inspect
 import json
-import re
 import sys
 import unittest
 from pathlib import Path
@@ -51,17 +51,58 @@ DRAFT_BAND_SCRIPTS = (
 )
 
 RETIRED_IDENTIFIERS = ("VREF_SPEC_V", "SPEC_WINDOW_V", "WINDOW_V")
-LITERAL_PATTERNS = (
-    re.compile(r"\(\s*1\.176\s*,\s*1\.224\s*\)"),
-    re.compile(r"\{\s*\"min\":\s*1\.176\s*,\s*\"max\":\s*1\.224\s*\}"),
-)
+RATIFIED_FLOATS = (1.176, 1.224)
+LITERAL_HIT = "ratified-band literal"
+
+
+def _identifiers(node: ast.AST) -> list[str]:
+    """Every name `node` binds or references (not strings/comments)."""
+    if isinstance(node, ast.Name):
+        return [node.id]
+    if isinstance(node, ast.Attribute):
+        return [node.attr]
+    if isinstance(node, ast.arg):
+        return [node.arg]
+    if isinstance(node, ast.keyword):
+        return [node.arg] if node.arg else []
+    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+        return [node.name]
+    if isinstance(node, ast.alias):
+        return [node.asname or node.name]
+    return []
+
+
+def _numbers(nodes: list[ast.AST]) -> set[float]:
+    return {
+        n.value
+        for n in nodes
+        if isinstance(n, ast.Constant) and isinstance(n.value, float)
+    }
 
 
 def scan_for_hand_rolled_copies(text: str) -> list[str]:
-    """Every retired identifier / re-typed ratified-band literal in `text`."""
-    hits = [n for n in RETIRED_IDENTIFIERS if re.search(rf"\b{n}\b", text)]
-    hits += [p.pattern for p in LITERAL_PATTERNS if p.search(text)]
-    return hits
+    """Every retired identifier / re-typed ratified-band literal in `text`.
+
+    Walks the parsed AST rather than matching source text, so formatting
+    (multiline dicts, trailing commas, quote style) cannot hide a copy and a
+    comment merely mentioning a retired name is not a hit. A tuple, list, set or
+    dict display holding both ratified floats directly is a copy.
+    """
+    tree = ast.parse(text)
+    idents: set[str] = set()
+    literal = False
+    for node in ast.walk(tree):
+        idents.update(_identifiers(node))
+        if isinstance(node, (ast.Tuple, ast.List, ast.Set)):
+            elts = list(node.elts)
+        elif isinstance(node, ast.Dict):
+            elts = list(node.values)
+        else:
+            continue
+        if set(RATIFIED_FLOATS) <= _numbers(elts):
+            literal = True
+    hits = [n for n in RETIRED_IDENTIFIERS if n in idents]
+    return hits + ([LITERAL_HIT] if literal else [])
 
 
 class CanonicalConstantTests(unittest.TestCase):
@@ -147,11 +188,25 @@ class NoHandRolledCopiesTests(unittest.TestCase):
 
     def test_guard_catches_a_reintroduced_copy(self) -> None:
         self.assertEqual(scan_for_hand_rolled_copies("SPEC_WINDOW_V = (1.176, 1.224)\n"),
-                         ["SPEC_WINDOW_V", LITERAL_PATTERNS[0].pattern])
+                         ["SPEC_WINDOW_V", LITERAL_HIT])
         self.assertEqual(scan_for_hand_rolled_copies('WINDOW = {"min": 1.176, "max": 1.224}\n'),
-                         [LITERAL_PATTERNS[1].pattern])
+                         [LITERAL_HIT])
         self.assertEqual(scan_for_hand_rolled_copies("VREF_SPEC_V = (1.188, 1.212)\n"),
                          ["VREF_SPEC_V"])
+
+    def test_guard_catches_reformatted_copies(self) -> None:
+        # Review of #635: the old regexes missed every one of these.
+        for src in (
+            'LIMITS = {\n    "min": 1.176,\n    "max": 1.224,\n}\n',
+            "LIMITS = (1.176, 1.224,)\n",
+            "LIMITS = {'min': 1.176, 'max': 1.224}\n",
+            "LIMITS = [1.224,\n          1.176]\n",
+        ):
+            self.assertEqual(scan_for_hand_rolled_copies(src), [LITERAL_HIT], src)
+
+    def test_guard_ignores_comments_and_unrelated_tuples(self) -> None:
+        self.assertEqual(scan_for_hand_rolled_copies("# was SPEC_WINDOW_V (1.176, 1.224)\nx = 1\n"), [])
+        self.assertEqual(scan_for_hand_rolled_copies("x = (1.176, 1.2)\n"), [])
 
     def test_guard_allows_the_draft_band_in_its_two_owning_scripts(self) -> None:
         for path in DRAFT_BAND_SCRIPTS:
