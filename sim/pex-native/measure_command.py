@@ -106,7 +106,7 @@ def doc_corner(cid: str, values: dict, manifest: dict, error: str | None = None)
 def measure_batch(block: str, corners, manifest: dict, pdk, workdir: Path) -> list[dict]:
     import batch_sim
 
-    pin = pdk.pin
+    pin = {**pdk.pin, "variant": pdk.variant}  # request must name the resolved variant (PDK override)
     exp_like = _ExpLike(manifest)
     analysis, lets, meas_cards = batch_sim.split_analyses(list(manifest["deck"]["analyses"]))
     measurements = batch_sim.request_measurements(exp_like, lets, meas_cards)
@@ -165,15 +165,29 @@ class _ExpLike:
 
 
 def main(argv: list[str]) -> int:
+    if not argv:
+        raise pexlib.PexNativeError("missing netlist path argument")
+    flags, netlist = argv[:-1], Path(argv[-1])
+    unknown = [f for f in flags if f != "--allow-pdk-mismatch"]
+    if unknown:
+        raise pexlib.PexNativeError(f"unknown measure_command flag(s): {unknown!r}")
+    allow_mismatch = (
+        "--allow-pdk-mismatch" in flags
+        or os.environ.get("PEX_NATIVE_ALLOW_PDK_MISMATCH", "").strip().lower()
+        in ("1", "true", "yes")
+    )
     side = os.environ.get("KLT_PEX_SIDE", "")
-    netlist = Path(argv[-1])
+    backend = os.environ.get("PEX_NATIVE_BACKEND", "batch")
+    if backend not in ("batch", "local"):
+        raise pexlib.PexNativeError(f"PEX_NATIVE_BACKEND must be batch|local, got {backend!r}")
+    cr = plc.sim_common.load_corner_run()
+    pdk = plc.sim_common.check_pdk_and_ngspice(
+        cr.load_pin(), allow_mismatch, require_ngspice=(backend == "local")
+    )
     manifest = json.loads(pexlib.EXPERIMENT_JSON.read_text())
     text = netlist.read_text()
     block = side_block(side, text)
-    cr = plc.sim_common.load_corner_run()
-    pdk = cr.resolve_pdk(cr.load_pin())
     corners = parse_corners(os.environ.get("PEX_NATIVE_CORNERS"))
-    backend = os.environ.get("PEX_NATIVE_BACKEND", "batch")
     work = Path(os.environ.get("KLT_PEX_ARTIFACTS_DIR") or tempfile.mkdtemp(prefix="pex-native-")) / f"measure-{side}"
     if backend == "local":
         if len(corners) != 1:
@@ -182,10 +196,8 @@ def main(argv: list[str]) -> int:
                 "a corner grid must go to the batch fleet")
         values, rc = measure_local(block, corners[0], manifest, pdk, work)
         cs = [doc_corner(corner_id(*corners[0]), values, manifest, None if rc == 0 else f"ngspice exit {rc}")]
-    elif backend == "batch":
-        cs = measure_batch(block, corners, manifest, pdk, work)
     else:
-        raise pexlib.PexNativeError(f"PEX_NATIVE_BACKEND must be batch|local, got {backend!r}")
+        cs = measure_batch(block, corners, manifest, pdk, work)
     print(json.dumps({"corners": cs}, indent=2))
     return 0
 

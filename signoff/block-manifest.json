@@ -132,7 +132,7 @@
     },
     "9": {
       "file": "signoff/attest/item-9.evidence.json",
-      "content_hash": "sha256:34efd84cc8131771a36e437ef6cce9bea4801af6192eed6eb07aae90b49a7c9d"
+      "content_hash": "sha256:53e1d64e96beb1a51886c71d20c95aceac9da7fb792b5d4a4df4e5f7dfd097aa"
     },
     "10": {
       "file": "signoff/attest/item-10.evidence.json",
