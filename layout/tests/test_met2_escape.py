@@ -105,7 +105,11 @@ class TestMet2DrcCoverageNote(unittest.TestCase):
     track the measured `coverage` list instead of a fixed increment-era fact,
     and these tests exercise both branches directly -- something the old
     inline form, buried in `main()`'s klt-and-PDK-dependent flow, could not
-    be given without a full flow run.
+    be given without a full flow run. Issue #517 corrected the second
+    branch's own stale fixed fact (a "cannot check `m2.6`" claim that the
+    pinned deck's `met2.area.1` contradicts); the note now states the
+    independent cross-check plus orphan-via role of
+    `layout/bin/met2_drc.py` instead.
     """
 
     def test_both_escape_layers_unchecked_reports_the_gap(self) -> None:
@@ -122,22 +126,27 @@ class TestMet2DrcCoverageNote(unittest.TestCase):
         self.assertNotIn("69/20**", note)
 
     def test_neither_escape_layer_unchecked_reports_current_coverage(self) -> None:
-        """The state as of klayout-tools#513/#515: `coverage` no longer
-        names either escape-plane layer, so the note must say `klt drc` now
-        checks them (not the removed "does not check any" claim) and must
-        still name the one rule (`m2.6`) neither `klt drc` nor this
-        function's own claim of "checked" covers."""
+        """The state at the pinned klayout-tools==0.8.0: `coverage` names
+        neither escape-plane layer, so the note must say `klt drc` checks
+        them -- without the removed "cannot check `m2.6`" claim -- and must
+        still name `layout/bin/met2_drc.py`'s independent cross-check and
+        orphan-via coverage."""
         note = gen_bandgap_routed.met2_drc_coverage_note(
             ["64/20", "65/44", "66/13", "68/5", "82/44", "83/20", "86/20", "94/20"]
         )
-        self.assertIn("now checks most", note)
+        self.assertIn("now checks", note)
         self.assertNotIn("does not fully check", note)
-        self.assertIn("m2.6", note)
+        self.assertIn("met2_drc.py", note)
+        self.assertIn("orphan", note)
+        self.assertNotIn("cannot check", note)
+        self.assertNotIn("left it out", note)
 
-    def test_empty_unchecked_list_still_names_the_m2_6_gap(self) -> None:
+    def test_empty_unchecked_list_still_names_the_cross_check(self) -> None:
         note = gen_bandgap_routed.met2_drc_coverage_note([])
-        self.assertIn("now checks most", note)
-        self.assertIn("m2.6", note)
+        self.assertIn("now checks", note)
+        self.assertIn("met2_drc.py", note)
+        self.assertIn("orphan", note)
+        self.assertNotIn("cannot check", note)
         self.assertIn("`--`", note)  # the empty coverage list itself is quoted
 
 

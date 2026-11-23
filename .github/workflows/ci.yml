@@ -11,8 +11,8 @@ name: CI
 #     plus `layout/tests/`'s unit coverage for the routed-layout flow's own
 #     pass/fail gates — drawn-short, label-collision, coverage scoring, and
 #     (via the `pip install klayout` step below) the met2 escape plane's own
-#     DRC rules in `test_met2_drc.py` — the curated sky130 deck declares no
-#     `met2.*`/`via.*` rule, so that file is the only thing checking it,
+#     DRC rules in `test_met2_drc.py` — the flow's independent cross-check
+#     plus orphan-via gate for that plane,
 #     and `sim/tests/`'s coverage of the evidence-minting harnesses, which
 #     guards the provenance-hygiene invariants a committed, append-only
 #     record can never be repaired for afterwards, issue #288)
@@ -77,10 +77,10 @@ jobs:
         # in seconds and gives `layout/tests/test_met2_drc.py` the interpreter
         # it needs. Without it, that file's module-level `skipUnless(HAVE_
         # KLAYOUT, ...)` guard skips the *entire* file, and `test_met2_drc.py`
-        # is the only check that gates the met2 escape plane's own DRC rules
-        # (see its module docstring): `klt drc`'s curated sky130 deck carries
-        # no met2.*/via.* rule at all, so CI previously had zero coverage of
-        # the escape plane's geometry (run 30951454502: `OK (skipped=17)`).
+        # is the only place CI exercises the met2 escape plane's independent
+        # DRC cross-check and orphan-via gate (see its module docstring) --
+        # without the wheel, CI had zero coverage of the escape plane's
+        # geometry (run 30951454502: `OK (skipped=17)`).
         run: pip install klayout
 
       - name: npm run check:ci

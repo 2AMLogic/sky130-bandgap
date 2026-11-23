@@ -1058,10 +1058,11 @@ class TestFlowGate(unittest.TestCase):
             "no_merged_pin_names": {"merged_pin_names": ["TAIL|VOUT"]},
             "no_split_routed_nets": {"split_routed": {"VDD": 2}},
             # The escape plane's own DRC. `drc_clean` above is `klt drc`'s
-            # verdict, and the curated sky130 deck still carries no met2
-            # min-area rule (`m2.6`, klayout-tools#513/#515 left it out) --
-            # so without this row an undersized met2 area would pass the
-            # whole flow (layout/generator-notes.md#met2-escape-note).
+            # verdict; this row is the flow's independent cross-check of
+            # the same threshold set (`met2.area.1` included at the pinned
+            # 0.8.0) plus the orphan-via check `klt drc` passes clean -- so
+            # a curated-deck regression on this hand-drawn plane still
+            # fails the flow (layout/generator-notes.md#met2-escape-note).
             "met2_drc_clean": {"met2_drc_clean": False},
         }
         self.assertEqual(

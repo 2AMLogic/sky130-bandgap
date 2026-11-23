@@ -139,7 +139,7 @@ layout/
     run-erc-supply-flow.sh    # T1 item 11: klt erc supply-spec run -> bandgap-core/erc/
     erc_supply_record.py      # that flow's gate + record.md renderer
     met1_bus.py               # hand-drawn met1 bussing + the met2/via1 escape plane
-    met2_drc.py               # DRC for the met2 plane the curated deck has no rules for
+    met2_drc.py               # independent DRC cross-check + orphan-via gate for the met2 plane
     measure_mim_overlay_feasibility.py  # re-runnable "can MCC be a MiM overlay?" measurement
     measure_combine_devices_determinism.py  # re-runnable "does klt lvs's verdict reproduce?" measurement
     render-record.py          # renders + verdict-checks a record's record.md
@@ -355,12 +355,13 @@ one; the full narratives are archived in
    escape for the three hops (`D1`, `GDRV`, `VSS`) that had no met1 corridor
    under any router lever tried (search depth, channel window, row-0
    margin/re-placement, a genuine 2D row split — `matching-plan.md` Sections
-   7d-7o). The escape plane's own DRC is checked by this repo's own
-   `layout/bin/met2_drc.py` against the installed PDK's source rules, since
-   the curated *DRC* deck's met2/via coverage is still incomplete:
-   [klayout-tools#513](https://github.com/2AMLogic/klayout-tools/issues/513)
-   (closed, merged via #515) added the met2/via width, spacing, and
-   via-enclosure rules, but the met2 min-area rule (`m2.6`) is still missing.
+   7d-7o). The escape plane's own DRC is re-checked by this repo's own
+   `layout/bin/met2_drc.py` against the installed PDK's source rules, as an
+   independent cross-check plus orphan-via detection on top of the curated
+   *DRC* deck, which at the pinned `klayout-tools==0.8.0` covers the
+   met2/via width, spacing, enclosure, and min-area rules
+   ([klayout-tools#513](https://github.com/2AMLogic/klayout-tools/issues/513),
+   closed, merged via #515, started the set).
 
 **All 12 of 12 schematic inter-block nets are joined across every block they
 reach — criterion 1 is MET, not partial.** Measured against
@@ -555,13 +556,15 @@ failure mode that must never pass silently:
   (closed, merged via #515) has since added the width/spacing/enclosure rules
   for that level to the curated *DRC* deck (`met2.width.1`, `met2.space.1`,
   `via.width.1`, `via.space.1`, `met1.enclosing.via.1`, `met2.enclosing.via.1`),
-  so `klt drc` now checks met2/via1 width, spacing, and via enclosure. What it
-  still can't check is the met2 min-area rule (`m2.6`): #515 left it out because
-  no `area` check primitive exists in the curated deck's rule vocabulary. This
-  checker applies the installed sky130A PDK's own source rules (`m2.1`, `m2.2`,
-  `m2.6`, `via.1a`, `via.2`, `via.4a`/`via.5a`, `m2.4`/`m2.5`) to the composed
-  stream instead — its remaining reason to exist is the uncovered `m2.6` area
-  gate.
+  and at the pinned `klayout-tools==0.8.0` the min-area rule (`met2.area.1`,
+  `m2.6`) is covered too — each run's own `drc.json` rule list says so. This
+  checker still applies the installed sky130A PDK's own source rules (`m2.1`,
+  `m2.2`, `m2.6`, `via.1a`, `via.2`, `via.4a`/`via.5a`, `m2.4`/`m2.5`) to the
+  composed stream as an independent cross-check, and adds the one check `klt
+  drc` at the pinned build passes clean: an orphan via1 cut with no metal on
+  one side (`via.4a_a`/`m2.4_a`; upstream
+  [klayout-tools#5737](https://github.com/2AMLogic/klayout-tools/issues/5737)
+  closed that gap after 0.8.0).
 - **R2 leg-length check** (`gen_bandgap_routed.r2_leg_length()`). The drawn
   divider leg's length against `design/bandgap_core.sch`'s own
   `L = r_lseg*n_r2 + r_lseg_trim*n_r2_trim`. `klt lvs` can only report a
