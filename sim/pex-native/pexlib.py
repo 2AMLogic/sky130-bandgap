@@ -52,7 +52,13 @@ class PexNativeError(RuntimeError):
 
 
 def corner_ids() -> list[str]:
-    return [f"{p}_27c_{v:.2f}v" for p in PROCESSES for v in SUPPLIES]
+    """Declared-matrix corner ids, via the canonical `sim_common.corner_id`."""
+    sim_bin = str(REPO_ROOT / "sim" / "bin")
+    if sim_bin not in sys.path:
+        sys.path.insert(0, sim_bin)
+    import sim_common
+
+    return [sim_common.corner_id(p, 27.0, v) for p in PROCESSES for v in SUPPLIES]
 
 
 # --------------------------------------------------------------------------
