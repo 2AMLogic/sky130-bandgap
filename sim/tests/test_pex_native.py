@@ -2,11 +2,14 @@
 checks (one negative fixture each) and the pinned-klt resistor dialect."""
 
 import json
+import os
+import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 PEX = Path(__file__).resolve().parents[1] / "pex-native"
 sys.path.insert(0, str(PEX))
@@ -130,6 +133,179 @@ class PexNative(unittest.TestCase):
         rows[0]["extracted_value"] = 1.19
         self.assertTrue(grade_deltas.grade({"delta": rows}, limits)["n_exceeded"] == 1)
         self.assertTrue(grade_deltas.grade({"delta": rows[1:]}, limits)["missing"])
+
+    def test_signoff_item_7_selects_pdk_bound_record(self):
+        """Issue #614: T1 item 7 in signoff/block-manifest.json must cite the
+        PDK-bound native PEX record (not the unbound 20261106-pilot record),
+        and that report must carry the pinned PDK variant and revision."""
+        import post_layout_common as plc
+
+        manifest = json.loads((pexlib.REPO_ROOT / "signoff" / "block-manifest.json").read_text())
+        pin = json.loads((pexlib.REPO_ROOT / "sim" / "pdk.json").read_text())
+        selected = manifest["evidence"]["7"]["file"]
+        self.assertEqual(selected, "sim/pex-native/records/20261120-pdk-bound/pex-stdout.json")
+        report = json.loads((pexlib.REPO_ROOT / selected).read_text())
+        pdk_prov = (report.get("provenance") or {}).get("pdk") or {}
+        self.assertEqual(pdk_prov.get("name"), pin["variant"])
+        self.assertEqual(plc._recorded_pdk_commit(report), pin["open_pdks_commit"])
+
+    @staticmethod
+    def _write_fake_pdk(root: Path, variant: str, ngspice_lib: str, sources: str | None) -> Path:
+        pdk_dir = root / variant
+        lib = pdk_dir / ngspice_lib
+        lib.parent.mkdir(parents=True, exist_ok=True)
+        lib.write_text("* fake ngspice lib\n")
+        if sources is not None:
+            (pdk_dir / "SOURCES").write_text(sources)
+        return pdk_dir
+
+    def test_run_sh_refuses_wrong_pdk_revision_before_creating_record_or_extracting(self):
+        """Issue #614: an alternate PDK_ROOT with the right variant at a wrong
+        open_pdks revision must be refused by run.sh before creating the record
+        directory or invoking klt extraction."""
+        pin = json.loads((pexlib.REPO_ROOT / "sim" / "pdk.json").read_text())
+        wrong_rev = "c6d73a35f524070e85faff4a6a9eef49553ebc2b"
+        stamp = f"__unit_test_pdk_gate_{os.getpid()}__"
+        out_dir = PEX / "records" / stamp
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                tmp_path = Path(tmp)
+                pdk_root = tmp_path / "pdk-root"
+                self._write_fake_pdk(
+                    pdk_root, pin["variant"], pin["ngspice_lib"], f"open_pdks {wrong_rev}\n"
+                )
+                bin_dir = tmp_path / "bin"
+                bin_dir.mkdir()
+                sentinel = tmp_path / "uvx-called"
+                uvx_stub = bin_dir / "uvx"
+                uvx_stub.write_text(
+                    f"#!/usr/bin/env bash\necho called > {str(sentinel)!r}\nexit 0\n"
+                )
+                uvx_stub.chmod(0o755)
+
+                env = {
+                    **os.environ,
+                    "PDK_ROOT": str(pdk_root),
+                    "PDK": pin["variant"],
+                    "PATH": f"{bin_dir}{os.pathsep}{os.environ.get('PATH', '')}",
+                }
+                env.pop("PEX_NATIVE_ALLOW_PDK_MISMATCH", None)
+                rc = subprocess.run(
+                    ["bash", str(PEX / "run.sh"), stamp],
+                    capture_output=True,
+                    text=True,
+                    env=env,
+                )
+                self.assertEqual(rc.returncode, 1, rc.stderr)
+                self.assertIn(wrong_rev, rc.stderr)
+                self.assertIn(pin["open_pdks_commit"], rc.stderr)
+                self.assertFalse(out_dir.exists(), "record directory must not be created on PDK mismatch")
+                self.assertFalse(sentinel.exists(), "uvx/klt extraction must not run on PDK mismatch")
+        finally:
+            shutil.rmtree(out_dir, ignore_errors=True)
+
+    def test_measure_command_enforces_pdk_revision_unless_overridden(self):
+        """Issue #614: measure_command.py must refuse an alternate PDK_ROOT
+        containing the right variant at the wrong open_pdks revision on both
+        schematic and extracted sides before reaching batch_sim.collect, unless
+        --allow-pdk-mismatch or PEX_NATIVE_ALLOW_PDK_MISMATCH=1 is given."""
+        import batch_sim
+        import io
+        import measure_command
+        import post_layout_common as plc
+        from contextlib import redirect_stdout
+
+        cr = plc.sim_common.load_corner_run()
+        pin = cr.load_pin()
+        wrong_rev = "c6d73a35f524070e85faff4a6a9eef49553ebc2b"
+
+        bound_extracted = "\n".join(
+            [
+                f".SUBCKT {pexlib.TOP} {' '.join(pexlib.ROUTED_PORTS)}",
+                "X$98 VOUT__t0 \\$7__t0 VSS__t24 sky130_fd_pr__res_high_po l=5 w=1",
+                f".ENDS {pexlib.TOP}",
+                "",
+            ]
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            wrong_root = tmp_path / "wrong-pdk"
+            self._write_fake_pdk(
+                wrong_root, pin["variant"], pin["ngspice_lib"], f"open_pdks {wrong_rev}\n"
+            )
+            pinned_root = tmp_path / "pinned-pdk"
+            self._write_fake_pdk(
+                pinned_root,
+                pin["variant"],
+                pin["ngspice_lib"],
+                f"open_pdks {pin['open_pdks_commit']}\n",
+            )
+            sch_netlist = tmp_path / "ref.spice"
+            sch_netlist.write_text(REF)
+            ext_netlist = tmp_path / "ext.spice"
+            ext_netlist.write_text(bound_extracted)
+            art_dir = tmp_path / "artifacts"
+
+            for side, net_path in (("schematic", sch_netlist), ("extracted", ext_netlist)):
+                env = {
+                    "PDK_ROOT": str(wrong_root),
+                    "PDK": pin["variant"],
+                    "KLT_PEX_SIDE": side,
+                    "PEX_NATIVE_BACKEND": "batch",
+                    "PEX_NATIVE_CORNERS": "tt:3.30",
+                    "KLT_PEX_ARTIFACTS_DIR": str(art_dir),
+                    "PEX_NATIVE_ALLOW_PDK_MISMATCH": "",
+                }
+                with mock.patch.dict(os.environ, env), mock.patch.object(
+                    batch_sim, "collect"
+                ) as collect_mock:
+                    with self.assertRaisesRegex(cr.HarnessError, wrong_rev):
+                        measure_command.main([str(net_path)])
+                    collect_mock.assert_not_called()
+
+            def fake_collect(groups):
+                out = []
+                for g in groups:
+                    rep = {
+                        "environment": {"remote": {"job_id": "fake-job"}},
+                        "corners": [{"process": c.process, "measurements": []} for c in g.corners],
+                    }
+                    o = mock.Mock()
+                    o.group = g
+                    o.report = rep
+                    out.append(o)
+                return out
+
+            # Explicit CLI override allows the mismatched install.
+            override_env = {
+                "PDK_ROOT": str(wrong_root),
+                "PDK": pin["variant"],
+                "KLT_PEX_SIDE": "extracted",
+                "PEX_NATIVE_BACKEND": "batch",
+                "PEX_NATIVE_CORNERS": "tt:3.30",
+                "KLT_PEX_ARTIFACTS_DIR": str(art_dir / "override"),
+                "PEX_NATIVE_ALLOW_PDK_MISMATCH": "",
+            }
+            with mock.patch.dict(os.environ, override_env), mock.patch.object(
+                batch_sim, "collect", side_effect=fake_collect
+            ) as collect_mock, redirect_stdout(io.StringIO()):
+                self.assertEqual(
+                    measure_command.main(["--allow-pdk-mismatch", str(ext_netlist)]), 0
+                )
+                self.assertEqual(collect_mock.call_count, 1)
+
+            # Pinned install passes without any override.
+            pinned_env = {
+                **override_env,
+                "PDK_ROOT": str(pinned_root),
+                "KLT_PEX_ARTIFACTS_DIR": str(art_dir / "pinned"),
+            }
+            with mock.patch.dict(os.environ, pinned_env), mock.patch.object(
+                batch_sim, "collect", side_effect=fake_collect
+            ) as collect_mock, redirect_stdout(io.StringIO()):
+                self.assertEqual(measure_command.main([str(ext_netlist)]), 0)
+                self.assertEqual(collect_mock.call_count, 1)
 
 
 FIXTURE = """X$1 VB__t0 n1__t0 VSS__t1 res_high_po r=50 L=5U W=1U
