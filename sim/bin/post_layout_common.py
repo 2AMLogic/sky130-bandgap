@@ -148,6 +148,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -249,6 +250,54 @@ def require_layout_draws_injector(slug: str) -> None:
 # --------------------------------------------------------------------------
 
 
+def _has_existing_snapshot_target(path: Path) -> bool:
+    """True when `path` already holds non-empty evidence (or is a file/symlink).
+
+    An empty directory carries no snapshot evidence and may be atomically
+    replaced by a fresh staged extraction; a non-empty directory, regular file,
+    or symlink is preserved per `sim/`'s append-only rule.
+    """
+    if path.is_symlink():
+        return True
+    if not path.exists():
+        return False
+    return (not path.is_dir()) or any(path.iterdir())
+
+
+def _read_pdk_dir_commit(pdk_dir: Path) -> str:
+    """Read the `open_pdks <commit>` revision from `<pdk_dir>/SOURCES`, matching
+    `corner-run.installed_commit` (`"unknown"` when absent or unparseable)."""
+    try:
+        lines = (pdk_dir / "SOURCES").read_text().splitlines()
+    except OSError:
+        return "unknown"
+    for line in lines:
+        fields = line.split()
+        if len(fields) >= 2 and fields[0] == "open_pdks":
+            return fields[1]
+    return "unknown"
+
+
+def _recorded_pdk_commit(summary: dict) -> str | None:
+    """Extract the `open_pdks <commit>` revision from `provenance.pdk.version`.
+
+    `klt` joins non-empty lines of `<pdk>/SOURCES` with `"; "`. Returns None
+    when `provenance.pdk.version` is absent or carries no `open_pdks` entry.
+    """
+    version = ((summary.get("provenance") or {}).get("pdk") or {}).get("version")
+    if not isinstance(version, str):
+        return None
+    for entry in version.split(";"):
+        fields = entry.split()
+        if len(fields) >= 2 and fields[0] == "open_pdks":
+            return fields[1]
+    return None
+
+
+def _snapshot_key_tag(value: str) -> str:
+    return re.sub(r"[^A-Za-z0-9_-]", "_", value)
+
+
 def run_klt_extract_parasitics(
     gds: Path,
     out_dir: Path,
@@ -267,44 +316,80 @@ def run_klt_extract_parasitics(
     bulk terminal, the fixed PNP macros, and the ``_01v8``/``g5v0d10v5`` MOS
     wrappers by drawn flavour marker) instead of writing generic LVS class
     cards. The summary's ``provenance.pdk`` records the resolved install.
+
+    Extraction is staged in a sibling temporary directory and atomically
+    published to `out_dir` only once both `.pex.spice` and `.pex.json` are
+    valid, so a failed or interrupted attempt leaves no partial or empty
+    `out_dir` blocking a retry while existing non-empty evidence stays
+    append-only.
     """
-    out_dir.mkdir(parents=True, exist_ok=True)
-    spice_out = out_dir / f"{top}.pex.spice"
-    cmd = [
-        "klt",
-        "extract",
-        str(gds),
-        "--deck",
-        deck,
-        "--top",
-        top,
-        "--parasitics",
-        "--format",
-        "json",
-        "-o",
-        str(spice_out),
-    ]
-    if pdk_variant:
-        cmd += ["--pdk", pdk_variant]
-        if pdk_root:
-            cmd += ["--pdk-root", pdk_root]
-    try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-    except FileNotFoundError as exc:
-        raise PostLayoutError(f"klt not found on PATH: {exc}") from exc
-    if proc.returncode != 0:
+    if _has_existing_snapshot_target(out_dir):
         raise PostLayoutError(
-            f"klt extract --parasitics failed (rc={proc.returncode})\n"
-            f"  cmd: {' '.join(cmd)}\n  stdout: {proc.stdout}\n  stderr: {proc.stderr}"
+            f"{out_dir} already exists and is non-empty; "
+            "snapshots are append-only, refusing to overwrite"
         )
-    if not spice_out.is_file():
-        raise PostLayoutError(f"klt extract did not produce {spice_out}")
+    out_dir.parent.mkdir(parents=True, exist_ok=True)
+    stage_dir = Path(tempfile.mkdtemp(prefix=f".{out_dir.name}.tmp-", dir=out_dir.parent))
+    spice_out = out_dir / f"{top}.pex.spice"
     try:
-        summary = json.loads(proc.stdout)
-    except json.JSONDecodeError as exc:
-        raise PostLayoutError(f"klt extract --format json did not print valid JSON: {exc}") from exc
-    json_out = out_dir / f"{top}.pex.json"
-    json_out.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+        spice_stage = stage_dir / f"{top}.pex.spice"
+        cmd = [
+            "klt",
+            "extract",
+            str(gds),
+            "--deck",
+            deck,
+            "--top",
+            top,
+            "--parasitics",
+            "--format",
+            "json",
+            "-o",
+            str(spice_stage),
+        ]
+        if pdk_variant:
+            cmd += ["--pdk", pdk_variant]
+            if pdk_root:
+                cmd += ["--pdk-root", pdk_root]
+        try:
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        except FileNotFoundError as exc:
+            raise PostLayoutError(f"klt not found on PATH: {exc}") from exc
+        if proc.returncode != 0:
+            raise PostLayoutError(
+                f"klt extract --parasitics failed (rc={proc.returncode})\n"
+                f"  cmd: {' '.join(cmd)}\n  stdout: {proc.stdout}\n  stderr: {proc.stderr}"
+            )
+        if not spice_stage.is_file():
+            raise PostLayoutError(f"klt extract did not produce {spice_stage}")
+        try:
+            summary = json.loads(proc.stdout)
+        except json.JSONDecodeError as exc:
+            raise PostLayoutError(
+                f"klt extract --format json did not print valid JSON: {exc}"
+            ) from exc
+        if not isinstance(summary, dict):
+            raise PostLayoutError(
+                f"klt extract --format json did not print a JSON object: {type(summary).__name__}"
+            )
+        if summary.get("netlist_path") in (str(spice_stage), str(spice_stage.resolve())):
+            summary["netlist_path"] = str(spice_out)
+        json_stage = stage_dir / f"{top}.pex.json"
+        json_stage.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+        if _has_existing_snapshot_target(out_dir):
+            raise PostLayoutError(
+                f"{out_dir} appeared while extracting; "
+                "snapshots are append-only, refusing to overwrite"
+            )
+        try:
+            stage_dir.replace(out_dir)
+        except OSError as exc:
+            raise PostLayoutError(
+                f"failed to publish parasitics snapshot to {out_dir}: {exc}"
+            ) from exc
+    except BaseException:
+        shutil.rmtree(stage_dir, ignore_errors=True)
+        raise
     return spice_out, summary
 
 
@@ -690,6 +775,8 @@ def resolve_parasitics_snapshot(
     pdk_root: str | None = None,
     legacy_layout_record_id: str | None = None,
     pinned_variant: str | None = None,
+    pdk_commit: str | None = None,
+    pinned_commit: str | None = None,
 ) -> tuple[Path, dict, str]:
     """Find (or produce) the `klt extract --parasitics --pdk` snapshot for one
     layout record. Returns (snapshot_dir, summary, source).
@@ -725,32 +812,47 @@ def resolve_parasitics_snapshot(
             summary = json.loads((local / PEX_JSON_NAME).read_text())
             return local, summary, "local"
 
-    # The default key `<id>-pdk` belongs to the PINNED variant. A snapshot is
-    # only reusable when its recorded provenance.pdk.name is the variant this
-    # run simulates with; under a `PDK=<other>` override the lookup moves to
-    # `<id>-pdk-<variant>` so the committed pinned-variant snapshots stay put.
-    default_key = f"{layout_record_id}-pdk"
-    if pdk_variant and pinned_variant and pdk_variant != pinned_variant:
-        bound_key = f"{default_key}-{pdk_variant}"
-    else:
-        bound_key = default_key
+    resolved_commit = pdk_commit
+    if resolved_commit is None and pdk_variant and pdk_root:
+        pdk_dir = Path(pdk_root).expanduser() / pdk_variant
+        if pdk_dir.is_dir():
+            resolved_commit = _read_pdk_dir_commit(pdk_dir)
 
-    def _variant_ok(summary: dict) -> bool:
-        if not pdk_variant:
-            return True
-        recorded = ((summary.get("provenance") or {}).get("pdk") or {}).get("name")
-        return recorded == pdk_variant
+    # The default key `<id>-pdk` belongs to the PINNED variant and PINNED
+    # revision. A snapshot is only reusable when its recorded provenance.pdk
+    # matches both the variant and the resolved open_pdks revision; under a
+    # `PDK=<other>` or `--allow-pdk-mismatch` override the lookup moves to a
+    # distinct key so committed pinned snapshots stay put and unpinned runs
+    # never populate `<id>-pdk` for a later graded run.
+    default_key = f"{layout_record_id}-pdk"
+    key_parts = [default_key]
+    if pdk_variant and pinned_variant and pdk_variant != pinned_variant:
+        key_parts.append(_snapshot_key_tag(pdk_variant))
+    if resolved_commit and pinned_commit and resolved_commit != pinned_commit:
+        key_parts.append(_snapshot_key_tag(resolved_commit))
+    bound_key = "-".join(key_parts)
+
+    def _pdk_ok(summary: dict) -> bool:
+        pdk_meta = (summary.get("provenance") or {}).get("pdk") or {}
+        if pdk_variant and pdk_meta.get("name") != pdk_variant:
+            return False
+        if resolved_commit is not None:
+            if resolved_commit == "unknown":
+                return False
+            if _recorded_pdk_commit(summary) != resolved_commit:
+                return False
+        return True
 
     local = local_snapshot_root / bound_key
     if (local / PEX_SPICE_NAME).is_file() and (local / PEX_JSON_NAME).is_file():
         summary = json.loads((local / PEX_JSON_NAME).read_text())
-        if _variant_ok(summary):
+        if _pdk_ok(summary):
             return local, summary, "local"
 
     for candidate in sorted(SIM_DIR.glob(f"*/parasitics-snapshot/{bound_key}")):
         if (candidate / PEX_SPICE_NAME).is_file() and (candidate / PEX_JSON_NAME).is_file():
             summary = json.loads((candidate / PEX_JSON_NAME).read_text())
-            if _variant_ok(summary):
+            if _pdk_ok(summary):
                 return candidate, summary, f"reused:{candidate.relative_to(REPO_ROOT)}"
 
     if not pdk_variant:
@@ -760,10 +862,13 @@ def resolve_parasitics_snapshot(
             "was passed to extract one (issue #614: the post-layout path extracts "
             "with --pdk so device cards bind to the PDK models)"
         )
-    if local.exists():
+    if _has_existing_snapshot_target(local):
+        expected_pdk = (
+            f"{pdk_variant}@{resolved_commit}" if resolved_commit else pdk_variant
+        )
         raise PostLayoutError(
-            f"{local} exists but its provenance.pdk.name is not {pdk_variant}; "
-            "snapshots are append-only, refusing to extract over it"
+            f"{local} exists but does not match expected PDK provenance "
+            f"({expected_pdk}); snapshots are append-only, refusing to extract over it"
         )
     _spice, summary = run_klt_extract_parasitics(
         gds, local, top=PEX_TOP, pdk_variant=pdk_variant, pdk_root=pdk_root
@@ -792,6 +897,8 @@ def build_extracted_body(
         pdk_root=str(pdk.root),
         legacy_layout_record_id=legacy_layout_record_id,
         pinned_variant=pdk.pin["variant"],
+        pdk_commit=pdk.installed_commit,
+        pinned_commit=pdk.pin["open_pdks_commit"],
     )
     spice_path = pex_dir / PEX_SPICE_NAME
 

@@ -45,7 +45,7 @@
     {
       "path": "sim/bin/post_layout_common.py",
       "role": "harness",
-      "content_hash": "sha256:87a9d00841f52ce1c168389d32e10c73fe716ca6415102e563c9dbf91fe27ad7"
+      "content_hash": "sha256:63f5ce67c39a94237592e24aa1b60804fd9791370ef26be3ab83efabc464f167"
     },
     {
       "path": "sim/bin/sim_common.py",
