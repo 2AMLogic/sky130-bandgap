@@ -861,6 +861,19 @@ TARGET_LINES = {
 }
 
 
+# DR-005's ratified untrimmed output-accuracy window: 1.20 V +/-2%, i.e.
+# 1.176-1.224 V (spec/decision-records/DR-005-ratify-target-spec.md:34; the
+# same bounds the vref_27/vref_min/vref_max limits carry in
+# sim/output-voltage-tc/experiment.json). The single hand-rolled declaration
+# every grading site imports -- parity with the manifest and a no-local-copies
+# recurrence guard live in sim/tests/test_vref_window.py. The pre-DR-005
+# draft +/-1% band (1.188, 1.212) that the two DR-003-era chained-array
+# runners still grade against is deliberately NOT here: it is a historical
+# comparability gate, not a spec line, and stays named DRAFT_VREF_WINDOW_V in
+# its two owning scripts.
+RATIFIED_VREF_WINDOW_V: tuple[float, float] = (1.176, 1.224)
+
+
 def r2_segments_um(
     n_r2: int,
     trim_code: int,

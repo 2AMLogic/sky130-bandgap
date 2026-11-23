@@ -123,7 +123,7 @@
       "content_hash": "sha256:0b01d0dd123b8fae9bbb8044263f00c2f14fc8e1d9afea6e8856a712421b1694"
     },
     "7": {
-      "file": "sim/pex-native/records/20261120-pdk-bound/pex-stdout.json",
+      "file": "sim/pex-native/records/20261106-pilot/pex-stdout.json",
       "content_hash": "sha256:311c0f14cdd85aa5255018c590cbe755e31fd1ac81e04895d6302fea2146aae9"
     },
     "8": {
@@ -132,11 +132,11 @@
     },
     "9": {
       "file": "signoff/attest/item-9.evidence.json",
-      "content_hash": "sha256:b38a047ced825a1127a9d59d5f79966a3b1a9fa3d22c8d9dd9af2fd91ec9ae30"
+      "content_hash": "sha256:fd3b3427938d608abc232a37607b13a5fbaea7ad68bed7ec0c8d77efa2b9e488"
     },
     "10": {
       "file": "signoff/attest/item-10.evidence.json",
-      "content_hash": "sha256:f3b54dc265d01ea689c4fc48d686452c39eba74515b720f6f73abb0d14a575aa"
+      "content_hash": "sha256:f85e2bf357d66307be978cac4983f083c543f51a7c68cc2fe412d42af1c5c5b1"
     },
     "11": [
       {
