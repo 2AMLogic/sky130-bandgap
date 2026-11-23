@@ -352,7 +352,7 @@
         {
           "path": "sim/res-array-resize/run_res_array_resize.py",
           "role": "runner",
-          "content_hash": "sha256:746b312784e74a92ee0ace181ee560fc1a80bc6972036d056a07481c85a87da3"
+          "content_hash": "sha256:c310bea175f1c85947d4e25e66e33e4e951ea022933e5b936e904bfb885a4b5b"
         }
       ]
     },
