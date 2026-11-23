@@ -341,7 +341,7 @@
         {
           "path": "sim/res-array-head-resistance/run_res_array_head_resistance.py",
           "role": "runner",
-          "content_hash": "sha256:41e12499e32abb5c4dccd240ddadb01f467744e971e6742de49c397c851a08c7"
+          "content_hash": "sha256:eea13e6f0698c451a22ce19b4e64734a5efd868d4fdfda86e05a75670bde06ce"
         }
       ]
     },
