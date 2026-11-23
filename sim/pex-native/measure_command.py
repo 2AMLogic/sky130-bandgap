@@ -63,10 +63,6 @@ def parse_corners(spec: str | None) -> list[tuple[str, float]]:
     return out
 
 
-def corner_id(process: str, supply: float) -> str:
-    return f"{process}_27c_{supply:.2f}v"
-
-
 def measure_local(block: str, corner: tuple[str, float], manifest: dict, pdk, workdir: Path) -> dict:
     process, supply = corner
     deck = pexlib.build_deck(block, process, supply, str(pdk.lib_file), manifest)
@@ -107,7 +103,11 @@ def measure_batch(block: str, corners, manifest: dict, pdk, workdir: Path) -> li
     import batch_sim
 
     pin = {**pdk.pin, "variant": pdk.variant}  # request must name the resolved variant (PDK override)
-    exp_like = _ExpLike(manifest)
+    cr = plc.sim_common.load_corner_run()
+    exp_like = cr.Experiment(
+        dir=pexlib.EXPERIMENT_JSON.parent, raw=manifest,
+        measurements=[cr.Measurement(**m) for m in manifest["measurements"]],
+    )
     analysis, lets, meas_cards = batch_sim.split_analyses(list(manifest["deck"]["analyses"]))
     measurements = batch_sim.request_measurements(exp_like, lets, meas_cards)
     spiceinit = (pexlib.REPO_ROOT / "sim" / "spiceinit").read_text()
@@ -129,7 +129,7 @@ def measure_batch(block: str, corners, manifest: dict, pdk, workdir: Path) -> li
         )
         req_path = gdir / "request.json"
         req_path.write_text(json.dumps(request, indent=2, sort_keys=True) + "\n")
-        cs = [_C(p, 27.0, supply) for p in procs]
+        cs = [cr.Corner(p, 27.0, supply) for p in procs]
         groups.append(batch_sim.Group(supply, gdir, netlist, req_path, cs, request))
     outcomes = batch_sim.collect(groups)  # BatchError on any failure; never local
     out = []
@@ -140,28 +140,8 @@ def measure_batch(block: str, corners, manifest: dict, pdk, workdir: Path) -> li
             values = {batch_sim.plain_name(m["name"], o.group.request): m["value"]
                       for m in kc.get("measurements") or [] if m.get("value") is not None}
             err = None if values else json.dumps(kc.get("diagnostics") or [])
-            out.append(doc_corner(corner_id(kc["process"], o.group.supply_v), values, manifest, err))
+            out.append(doc_corner(plc.sim_common.corner_id(kc["process"], 27.0, o.group.supply_v), values, manifest, err))
     return out
-
-
-class _C:
-    def __init__(self, process, temp_c, supply_v):
-        self.process, self.temp_c, self.supply_v = process, temp_c, supply_v
-
-
-class _ExpLike:
-    """Duck-types the `Experiment` bits `batch_sim.request_measurements` reads."""
-
-    def __init__(self, manifest: dict):
-        class M:  # noqa: D401
-            pass
-
-        self.measurements = []
-        for m in manifest["measurements"]:
-            o = M()
-            o.name, o.expr, o.unit = m["name"], m["expr"], m.get("unit", "")
-            o.min, o.max = m.get("min"), m.get("max")
-            self.measurements.append(o)
 
 
 def main(argv: list[str]) -> int:
@@ -195,7 +175,7 @@ def main(argv: list[str]) -> int:
                 "PEX_NATIVE_BACKEND=local runs exactly one corner (set PEX_NATIVE_CORNERS=tt:3.30); "
                 "a corner grid must go to the batch fleet")
         values, rc = measure_local(block, corners[0], manifest, pdk, work)
-        cs = [doc_corner(corner_id(*corners[0]), values, manifest, None if rc == 0 else f"ngspice exit {rc}")]
+        cs = [doc_corner(plc.sim_common.corner_id(corners[0][0], 27.0, corners[0][1]), values, manifest, None if rc == 0 else f"ngspice exit {rc}")]
     else:
         cs = measure_batch(block, corners, manifest, pdk, work)
     print(json.dumps({"corners": cs}, indent=2))
