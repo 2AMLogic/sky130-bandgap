@@ -369,5 +369,31 @@ class AttributeDelta(unittest.TestCase):
         self.assertIn("XRM$3 VOUT__t0 VA__t0 VSS__t3 sky130_fd_pr__res_high_po W=1 L=0.5 mult=1 m=1", out)
 
 
+class CornerIdPinning(unittest.TestCase):
+    """Issue #554: ids must stay byte-identical to the committed evidence."""
+
+    def test_ids_match_sim_common_and_corner_run(self):
+        import sim_common
+
+        cr = sim_common.load_corner_run()
+        want = [f"{p}_27c_{v:.2f}v" for p in pexlib.PROCESSES for v in pexlib.SUPPLIES]
+        self.assertEqual(pexlib.corner_ids(), want)
+        self.assertEqual(len(want), 15)
+        for p in pexlib.PROCESSES:
+            for v in pexlib.SUPPLIES:
+                self.assertEqual(sim_common.corner_id(p, 27.0, v), cr.Corner(p, 27.0, v).id)
+
+    def test_ids_equal_committed_evidence_records(self):
+        records = sorted((PEX / "records").glob("*/graded-deltas.json"))
+        self.assertGreaterEqual(len(records), 3)
+        for path in records:
+            with self.subTest(record=path.parent.name):
+                ids = []
+                for row in json.loads(path.read_text())["rows"]:
+                    if row["corner_id"] not in ids:
+                        ids.append(row["corner_id"])
+                self.assertEqual(ids, pexlib.corner_ids())
+
+
 if __name__ == "__main__":
     unittest.main()
