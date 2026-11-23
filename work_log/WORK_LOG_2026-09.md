@@ -2,6 +2,11 @@
 
 Sections moved byte-for-byte from [WORK_LOG.md](../WORK_LOG.md) by `loom-daemon work-docs archive`.
 
+### 2026-09-22
+
+- **Issue #282** (closed): Commit a klt signoff block manifest so this block's T1 state is graded, not hand-read
+- **PR #289**: signoff: commit a klt signoff block manifest for this block's T1 state
+
 ### 2026-09-14
 
 - **Issue #179** (closed): OPERATOR QUESTION: if the core's TC floor stays above the ratified < 50 ppm/°C, scope curvature correction or stand non-qualifying on item 5?

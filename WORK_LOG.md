@@ -7,6 +7,22 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 - [2026-09](work_log/WORK_LOG_2026-09.md)
 
+### 2026-11-22
+
+- **PR #629**: refactor(layout): emit the empty inner-compose pins array directly
+- **Issue #628** (closed): Remove the retired MOS gate label selector from inner compose
+
+### 2026-11-21
+
+- **Issue #624** (closed): Unit-test the shared resistor-chain substitution loop (sim_common.substitute_chained_arrays)
+- **PR #625**: test: pin substitute_chained_arrays ordering, diagnostics, and wrapper delegation
+- **Issue #617** (closed): Reuse the shared resistor-chain substitution and temperature sweep in the head-resistance bench
+- **PR #623**: refactor(sim): reuse shared resistor-chain substitution and temp-sweep control in head-resistance bench
+
+### 2026-11-20
+
+- **PR #616**: feat: screen three bandgap temperature corrections on batch
+
 ### 2026-11-18
 
 - **PR #610**: ci: add the merge_group trigger and gate merge-queue readiness
@@ -326,9 +342,4 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 - **PR #295**: README: embed the fleet burndown chart
 - **Issue #281** (closed): T1 item 11 (power delivery, structural): no klt erc supply spec or report in this repo
 - **PR #290**: layout: klt erc supply spec + report for T1 item 11 (power delivery, structural)
-
-### 2026-09-22
-
-- **Issue #282** (closed): Commit a klt signoff block manifest so this block's T1 state is graded, not hand-read
-- **PR #289**: signoff: commit a klt signoff block manifest for this block's T1 state
 
