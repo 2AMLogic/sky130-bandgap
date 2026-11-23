@@ -1287,8 +1287,8 @@ def flow_gate(
     `klayout-tools==0.8.0` has rules for the plane's quantities, `met2.area.1`
     (`m2.6`) included (layout/generator-notes.md#met2-escape-note), but
     is laxer on enclosure than this check's 0.085 um on every edge, and
-    passes an orphan via1 cut clean, which this check is what catches. None
-    of the first three is visible to `klt drc` at all.
+    passes an orphan via1 cut clean, which this check catches. None of the
+    first three is visible to `klt drc` at all.
 
     `r2_leg_length_matches` is the fifth of that kind, and the newest (issue
     #91). `full_scale_ladder` above only checks that the ladder is drawn at
