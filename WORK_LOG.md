@@ -7,6 +7,11 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 - [2026-09](work_log/WORK_LOG_2026-09.md)
 
+### 2026-11-23
+
+- **PR #632**: Correct stale m2.6 / no-met2-rule prose; restate met2_drc as cross-check + orphan-via gate
+- **Issue #517** (closed): Correct stale m2.6 / "no met2 rule" prose around layout/bin/met2_drc.py while keeping the full independent re-check
+
 ### 2026-11-22
 
 - **PR #629**: refactor(layout): emit the empty inner-compose pins array directly
