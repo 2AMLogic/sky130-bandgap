@@ -116,6 +116,36 @@ topology (shorted-net) corruption, since a single corruption class can
 pass by accident on a compare that ignores the other axis. Both must (and
 do) report `status: "mismatch"`.
 
+## Expected LVS warnings on the trivial cell
+
+The good-reference LVS run reports `status: "match"` with a *nonzero*
+`mismatch_count`. That is not a contradiction: on this minimal, highly
+symmetric cell every mismatch entry is expected to be
+`severity: "warning"` -- documented quirks, not defects. A record's
+results table and the `lvs.json` envelope behind it are the per-run
+truth; this section is the standing interpretation of the warning
+categories those entries fall into:
+
+- **`device.body_unverified`**: the curated sky130 extraction deck draws
+  no distinct NMOS substrate/tap layer, so every body terminal compares
+  against a deck-synthesized `vsubs` net rather than a real schematic
+  net (documented in `klt extract`'s own "Coverage" docs).
+- **`topology`, ambiguous net pairing**: the array's unit devices are
+  electrically interchangeable (no two devices connect to a common net
+  that would anchor a unique pairing), so `NetlistComparer` resolves the
+  correspondence structurally rather than uniquely -- expected for a
+  fully symmetric matched array, not a defect.
+- **`topology`, unused device class on both sides**: device classes the
+  sky130 deck can recognise (e.g. `pfet`, `pnp`, `resistor`) but that
+  this cell draws none of -- not a real topology mismatch.
+
+Entries at any other severity are not covered by this interpretation.
+The per-run verdict the flow gates on is each envelope's own `status`
+field -- `layout/bin/render-record.py` asserts `"match"` on the good
+reference and `"mismatch"` on both negative controls, and exits non-zero
+if any flips -- so a record never needs to re-derive a verdict from the
+entry list.
+
 ## Repeatability
 
 `layout/bin/run-trivial-cell-flow.sh` was run twice in immediate succession
