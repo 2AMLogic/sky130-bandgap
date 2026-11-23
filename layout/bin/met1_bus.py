@@ -71,11 +71,10 @@ proven by this flow's own `klt drc` stage:
                      block's own port pitch, which is far coarser
 
 Held by construction here and re-proved by this module's own
-:meth:`Met1Bus.conflicts` regardless of what the curated deck checks:
-klayout-tools#513 (merged via #515) gave the curated deck met2/via1 width,
-spacing and enclosure rules, but not the met2 min-area rule (`m2.6`, left
-out because the curated deck's rule vocabulary has no `area` check
-primitive) and not a net-aware short check (`m2.2`'s width/space rule sees
+:meth:`Met1Bus.conflicts` regardless of what the curated deck checks: at
+the pinned klayout-tools==0.8.0 the curated deck checks the met2/via1
+width, spacing, enclosure and min-area rules (`met2.area.1` included),
+but not a net-aware short check (`m2.2`'s width/space rule sees
 geometry, not electrical identity, so two different nodes' met2 that
 actually *touch* -- no gap between them -- is not a spacing violation for
 `klt drc` to catch; :meth:`conflicts` is what does). The sizes below are

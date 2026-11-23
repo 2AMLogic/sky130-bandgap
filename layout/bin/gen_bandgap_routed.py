@@ -1281,13 +1281,14 @@ def flow_gate(
     contain (through metal, and through a pin label respectively); the third
     catches the inverse, a node this flow's own bookkeeping calls routed
     while the drawn metal is still in two pieces (see
-    :func:`split_routed_nets`); the fourth checks the met2 escape plane
-    against sky130's own source DRC rules, because the curated deck `drc_clean`
-    above reports on is missing only the met2 min-area rule (`m2.6`) for it
-    (layout/generator-notes.md#met2-escape-note) -- the
-    width/spacing/enclosure rules landed via
-    klayout-tools#513/#515 and are part of `drc_clean` itself now. None of
-    the first three is visible to `klt drc` at all.
+    :func:`split_routed_nets`); the fourth re-checks the met2 escape plane
+    against sky130's own source DRC rules, independently of the curated deck
+    `drc_clean` above reports on -- which at this flow's pinned
+    `klayout-tools==0.8.0` has rules for the plane's quantities, `met2.area.1`
+    (`m2.6`) included (layout/generator-notes.md#met2-escape-note), but
+    is laxer on enclosure than this check's 0.085 um on every edge, and
+    passes an orphan via1 cut clean, which this check is what catches. None
+    of the first three is visible to `klt drc` at all.
 
     `r2_leg_length_matches` is the fifth of that kind, and the newest (issue
     #91). `full_scale_ladder` above only checks that the ladder is drawn at
@@ -1359,18 +1360,25 @@ def met2_drc_coverage_note(unchecked: list[str]) -> str:
             "DRC row in Results and [`met2-drc.json`](met2-drc.json)."
         )
     return (
-        "**`klt drc` now checks most of this geometry.** klayout-tools#513 "
-        "(merged via #515) added met2/via1 width, spacing and enclosure "
-        "rules to the curated sky130 deck, and `drc.json`'s own `coverage` "
-        "block (klayout-tools#189) confirms neither escape-plane layer "
-        "(`via.drawing` 68/44, `met2.drawing` 69/20) is in this run's "
-        f"unchecked-layer list (`{', '.join(unchecked) or '--'}`). What "
-        "`klt drc` still cannot check is the met2 min-area rule (`m2.6`) -- "
-        "#515 left it out because the curated deck's rule vocabulary has no "
-        "`area` check primitive. `layout/bin/met2_drc.py` re-checks the "
-        "full sky130A source-deck threshold set (including `m2.6`) "
-        "independently and gates on it -- see the met2 DRC row in Results "
-        "and [`met2-drc.json`](met2-drc.json)."
+        "**`klt drc` now checks this geometry, and says so.** `drc.json`'s "
+        "own `coverage` block (klayout-tools#189) confirms neither "
+        "escape-plane layer (`via.drawing` 68/44, `met2.drawing` 69/20) is "
+        f"in this run's unchecked-layer list (`{', '.join(unchecked) or '--'}`), "
+        "and at this flow's pinned `klayout-tools==0.8.0` the curated "
+        "deck's met2/via1 rule set includes the min-area rule "
+        "(`met2.area.1`, `m2.6`) alongside the width, spacing and enclosure "
+        "rules klayout-tools#513 (merged via #515) added. "
+        "`layout/bin/met2_drc.py` still re-checks the full sky130A "
+        "source-deck rule set independently -- this plane is the "
+        "flow's own hand-drawn geometry, so a curated-deck regression is "
+        "caught here rather than at a tool upgrade. It applies a stricter "
+        "enclosure bar than the source deck (0.085 um on every edge, not "
+        "two adjacent edges), so a fully covered via can pass the curated "
+        "deck and fail this check; and it adds the one "
+        "check `klt drc` at the pinned build passes clean: an orphan via1 "
+        "cut with no metal on one side (`via.4a_a`/`m2.4_a`; upstream "
+        "klayout-tools#5737 closed that gap after 0.8.0). See the met2 "
+        "DRC row in Results and [`met2-drc.json`](met2-drc.json)."
     )
 
 
@@ -1605,13 +1613,16 @@ def main() -> int:
     )
     (out_dir / "drc.json").write_text(json.dumps(drc, indent=2) + "\n")
 
-    # --- 6b. met2 DRC, because the curated deck's own coverage is partial ---
-    # `klt drc --deck sky130` above now checks met2/via1 width, spacing and
-    # enclosure (klayout-tools#513, merged via #515) -- but not the met2
-    # min-area rule (`m2.6`), which #515 deliberately left out. This module
-    # re-checks the full sky130A source-deck threshold set (including
-    # `m2.6`) so the escape plane's evidence never depends on which subset
-    # the curated deck happens to cover. See
+    # --- 6b. met2 DRC: independent cross-check plus orphan-via detection --
+    # `klt drc --deck sky130` above has met2/via1 rules at the pinned
+    # klayout-tools==0.8.0, `met2.area.1` (`m2.6`) included -- but is laxer
+    # on enclosure than this module (a fully covered via can pass it and
+    # fail here) and passes an orphan via1 cut clean; the escape plane is
+    # this flow's own hand-drawn geometry. This module re-checks the full
+    # sky130A source-deck rule set independently, enclosure at the stricter
+    # 0.085 um on every edge (plus the orphan-via
+    # `via.4a_a`/`m2.4_a` checks) so the escape plane's evidence never
+    # depends on the curated deck alone. See
     # layout/generator-notes.md#met2-escape-note and layout/bin/met2_drc.py.
     met2_drc = run_met2_drc(klt, Path(compose["gds_path"]), cell, out_dir)
 
