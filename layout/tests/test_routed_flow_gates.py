@@ -1059,8 +1059,9 @@ class TestFlowGate(unittest.TestCase):
             "no_split_routed_nets": {"split_routed": {"VDD": 2}},
             # The escape plane's own DRC. `drc_clean` above is `klt drc`'s
             # verdict; this row is the flow's independent cross-check of
-            # the same threshold set (`met2.area.1` included at the pinned
-            # 0.8.0) plus the orphan-via check `klt drc` passes clean -- so
+            # the same rule set (`met2.area.1` included at the pinned 0.8.0)
+            # at a stricter enclosure bar (0.085 um on every edge), plus the
+            # orphan-via check `klt drc` passes clean -- so
             # a curated-deck regression on this hand-drawn plane still
             # fails the flow (layout/generator-notes.md#met2-escape-note).
             "met2_drc_clean": {"met2_drc_clean": False},

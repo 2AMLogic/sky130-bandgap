@@ -14,11 +14,15 @@ it at first: through issue #62's twenty-third increment it carried
 `met1.width.1`, `met1.space.1` and `met1.enclosing.mcon.1`, and no `met2.*`
 or `via.*` rule at all. 2AMLogic/klayout-tools#513 (merged via #515) added
 the met2/via1 width, spacing and enclosure rules, and at this flow's pinned
-`klayout-tools==0.8.0` (`layout/requirements.txt`) the deck checks every
-threshold this module re-derives -- `met2.width.1`, `met2.space.1`,
+`klayout-tools==0.8.0` (`layout/requirements.txt`) the deck has a rule for
+every quantity this module re-derives -- `met2.width.1`, `met2.space.1`,
 `met2.area.1` (`m2.6`), `via.width.1`, `via.space.1`, and the
 `met1`/`met2` enclosing rules; each run's own `drc.json` rule list says so.
-What `klt drc` at 0.8.0 still passes clean is a via1 cut with no metal on
+The two checkers are not equivalent on enclosure, though: this module
+requires the stricter 0.085 um on *every* edge of a via (see below), so a
+fully covered via with a 0.06 um edge passes the curated deck clean and fails
+here (`via.4a`/`via.5a`, `m2.4`/`m2.5`). What `klt drc` at 0.8.0 also passes
+clean is a via1 cut with no metal on
 one side (an orphan via): no enclosing rule fires on a cut with zero metal
 coverage, and `klt extract` simply yields one fewer connection (upstream
 2AMLogic/klayout-tools#5737 tracked and closed the DRC half after 0.8.0).
@@ -193,9 +197,13 @@ def check(gds_path: Path, top: str | None = None) -> dict[str, Any]:
             "independent cross-check of the met2/via1 escape plane against "
             "the sky130A source deck plus orphan-via detection "
             "(via.4a_a/m2.4_a): at the pinned klayout-tools==0.8.0 the "
-            "curated klt sky130 DRC deck checks the same thresholds "
-            "(met2.area.1, m2.6, included) but passes a via1 cut with no "
-            "metal on one side clean"
+            "curated klt sky130 DRC deck covers the same rules (width, "
+            "spacing, min area met2.area.1/m2.6, via size and spacing, "
+            "met1/met2 enclosure), but this checker applies a stricter "
+            "enclosure bar (0.085 um on every edge, vs. two adjacent edges "
+            "in the source deck), so a fully covered via can pass the "
+            "curated deck and fail here; the curated deck also passes a "
+            "via1 cut with no metal on one side clean"
         ),
         "counts": {
             "met1_polygons": int(met1.count()),

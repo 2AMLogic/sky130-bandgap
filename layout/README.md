@@ -560,7 +560,9 @@ failure mode that must never pass silently:
   `m2.6`) is covered too — each run's own `drc.json` rule list says so. This
   checker still applies the installed sky130A PDK's own source rules (`m2.1`,
   `m2.2`, `m2.6`, `via.1a`, `via.2`, `via.4a`/`via.5a`, `m2.4`/`m2.5`) to the
-  composed stream as an independent cross-check, and adds the one check `klt
+  composed stream as an independent cross-check, with a stricter enclosure bar
+  (0.085 µm on every edge rather than two adjacent edges, so a fully covered
+  via can pass the curated deck and fail here), and adds the one check `klt
   drc` at the pinned build passes clean: an orphan via1 cut with no metal on
   one side (`via.4a_a`/`m2.4_a`; upstream
   [klayout-tools#5737](https://github.com/2AMLogic/klayout-tools/issues/5737)
