@@ -97,6 +97,8 @@ def run(argv: list[str]) -> int:
         claim_tail=CLAIM_TAIL,
         argv=argv,
         claim_split=CLAIM_SPLIT,
+        # Reproduce the committed klt-0.5.0 snapshot for this layout (#560).
+        legacy_layout_record_id="20260923-070209-dbd57a9",
     )
 
 

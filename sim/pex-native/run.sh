@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Native `klt pex` pilot on the pinned klt (issue #335). From a clean checkout:
 #
-#   sim/pex-native/run.sh [STAMP] [--critical-net NET]... [--distributed-rc]
+#   sim/pex-native/run.sh [STAMP] [--critical-net NET]... [--distributed-rc] [--allow-pdk-mismatch]
 #
 # Extracts the routed cell with the PINNED klt (uvx, never the host tool),
 # refuses mismatched inputs, then runs `klt pex --measure-command`. The 15-corner
@@ -14,7 +14,15 @@
 # star parasitic model for a distributed ladder on the named nets. They are
 # threaded into BOTH klt pex steps so the graded and comparable netlists come
 # from the same extraction, and are recorded in the record's inputs.json. With
-# no flags the klt pex argv is exactly what it always was.
+# no flags the klt pex argv is exactly what it always was, plus the pinned PDK
+# binding flags (issue #614): --pdk/--pdk-root resolve the same variant and
+# open_pdks revision sim/pdk.json pins ($PDK/$PDK_ROOT override, enforced
+# against SOURCES before creating the record unless --allow-pdk-mismatch is
+# given), so device cards come out bound to their PDK subcircuits -- resistors
+# as sky130_fd_pr__res_high_po with geometry and bulk (temperature-behaved,
+# retiring the hand fixed-R rewrite), PNPs as the fixed macros, MOS as the
+# flavour-keyed wrappers (see sim/bin/post_layout_common.py's bound-dialect
+# notes for the MOS class).
 set -euo pipefail
 
 KLT_PIN="klayout-tools==0.8.0"
@@ -23,6 +31,10 @@ if [[ $# -gt 0 && "$1" != --* ]]; then STAMP="$1"; shift; else
   STAMP="$(date -u +%Y%m%d-%H%M%S)-$(git -C "$ROOT" rev-parse --short HEAD)"; fi
 CRITICAL_NETS=()
 DISTRIBUTED_RC=0
+ALLOW_PDK_MISMATCH=0
+case "${PEX_NATIVE_ALLOW_PDK_MISMATCH:-}" in
+  1|true|TRUE|yes|YES) ALLOW_PDK_MISMATCH=1 ;;
+esac
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --critical-net)
@@ -33,7 +45,8 @@ commas; pass --critical-net VB --critical-net VBQ)" >&2; exit 1 ;;
       esac
       CRITICAL_NETS+=("$2"); shift 2 ;;
     --distributed-rc) DISTRIBUTED_RC=1; shift ;;
-    *) echo "refusing: unknown argument '$1' (usage: run.sh [STAMP] [--critical-net NET]... [--distributed-rc])" >&2; exit 1 ;;
+    --allow-pdk-mismatch) ALLOW_PDK_MISMATCH=1; shift ;;
+    *) echo "refusing: unknown argument '$1' (usage: run.sh [STAMP] [--critical-net NET]... [--distributed-rc] [--allow-pdk-mismatch])" >&2; exit 1 ;;
   esac
 done
 [[ $DISTRIBUTED_RC -eq 1 && ${#CRITICAL_NETS[@]} -eq 0 ]] && \
@@ -47,10 +60,36 @@ OUT="$ROOT/sim/pex-native/records/$STAMP"
 REF="$ROOT/sim/pex-native/reference/bandgap_core_composed.spice"
 
 [[ -e "$OUT" ]] && { echo "refusing: $OUT exists (records are append-only)" >&2; exit 1; }
-mkdir -p "$OUT"
+
+# PDK model binding and revision gate (issue #614): resolve $PDK/$PDK_ROOT and
+# verify SOURCES matches sim/pdk.json's open_pdks_commit before creating $OUT
+# or invoking either extraction, matching sim_common.check_pdk_and_ngspice.
+PDK_OUT="$(python3 -I - "$ROOT/sim/bin" "$ALLOW_PDK_MISMATCH" <<'PY'
+import sys
+sys.path.insert(0, sys.argv[1])
+import sim_common
+
+cr = sim_common.load_corner_run()
+try:
+    pdk = sim_common.check_pdk_and_ngspice(
+        cr.load_pin(), sys.argv[2] == "1", require_ngspice=False
+    )
+except cr.HarnessError as exc:
+    print(f"refusing: {exc}", file=sys.stderr)
+    sys.exit(1)
+print(pdk.variant)
+print(pdk.root)
+PY
+)"
+readarray -t PDK_LINES <<< "$PDK_OUT"
+PDK_VARIANT="${PDK_LINES[0]}"
+PDK_ROOT_PATH="${PDK_LINES[1]}"
+EXTRACT_FLAGS+=(--pdk "$PDK_VARIANT" --pdk-root "$PDK_ROOT_PATH")
 
 python3 -I "$ROOT/sim/pex-native/compose_reference.py" --check \
   || { echo "reference is stale: run sim/pex-native/compose_reference.py" >&2; exit 1; }
+
+mkdir -p "$OUT"
 
 # 1. extract with the pin, then check reference/extracted comparability.
 uvx --from "$KLT_PIN" klt pex --extract-only --deck sky130 --top bandgap_core_routed \
@@ -60,6 +99,11 @@ python3 -I "$ROOT/sim/pex-native/check_inputs.py" inputs --reference "$REF" --ex
 
 # 2. native pex, command-measured. rc 0/3/4 all carry a report (3 = failed deltas).
 export PEX_NATIVE_BACKEND=batch PEX_NATIVE_CAPACITY_WAIT_S=600
+if [[ $ALLOW_PDK_MISMATCH -eq 1 ]]; then
+  export PEX_NATIVE_ALLOW_PDK_MISMATCH=1
+else
+  unset PEX_NATIVE_ALLOW_PDK_MISMATCH
+fi
 set +e
 uvx --from "$KLT_PIN" klt pex --deck sky130 --top bandgap_core_routed \
   --measure-command "python3 -I $ROOT/sim/pex-native/measure_command.py" \
@@ -74,15 +118,17 @@ echo "$rc" > "$OUT/pex.rc"
 # run is not a default one, so a default record's inputs.json is byte-identical
 # to the pilot's schema while a flagged record is distinguishable without
 # parsing the klt report.
-python3 -I - "$OUT" "$GDS" "$REF" "$KLT_PIN" "$LAYOUT_ID" "$DISTRIBUTED_RC" "${CRITICAL_NETS[@]}" <<'PY'
+python3 -I - "$OUT" "$GDS" "$REF" "$KLT_PIN" "$LAYOUT_ID" "$DISTRIBUTED_RC" "$ALLOW_PDK_MISMATCH" "${CRITICAL_NETS[@]}" <<'PY'
 import hashlib, json, sys
-out, gds, ref, pin, layout, dist, *nets = sys.argv[1:]
+out, gds, ref, pin, layout, dist, allow_mismatch, *nets = sys.argv[1:]
 h = lambda p: hashlib.sha256(open(p, "rb").read()).hexdigest()
 record = {"klt_pin": pin, "layout_record": layout, "gds_sha256": h(gds), "reference_sha256": h(ref),
           "extracted_sha256": h(out + "/extracted.spice"),
           "delta_limits_sha256": h(out + "/../../delta-limits.json")}
 if nets or dist == "1":
     record["extraction_flags"] = {"critical_nets": nets, "distributed_rc": dist == "1"}
+if allow_mismatch == "1":
+    record["allow_pdk_mismatch"] = True
 json.dump(record, open(out + "/inputs.json", "w"), indent=2, sort_keys=True)
 PY
 [[ $rc -eq 0 || $rc -eq 3 ]] || { echo "klt pex exited $rc; see $OUT/pex-stderr.txt" >&2; exit "$rc"; }

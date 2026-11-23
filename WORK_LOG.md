@@ -9,6 +9,10 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-23
 
+- **Issue #633** (closed): generator-notes.md MET2_ESCAPE_NOTE: qualify the "what klt drc passes clean" sentence with the stricter-enclosure difference
+- **PR #639**: docs: qualify met2 escape note's klt-drc pass-clean claim
+- **Issue #545** (closed): Consolidate the VREF accuracy window: 4 copies of DR-005's ratified band under 4 names, plus 2 live gates still on the superseded draft band
+- **PR #635**: refactor: consolidate DR-005's ratified VREF window into sim_common; rename the draft band DRAFT_VREF_WINDOW_V
 - **Issue #636** (closed): Remove the hardcoded match narrative from trivial-cell LVS records
 - **PR #637**: fix: drop hardcoded match narrative from trivial-cell records
 - **PR #632**: Correct stale m2.6 / no-met2-rule prose; restate met2_drc as cross-check + orphan-via gate

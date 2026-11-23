@@ -14,10 +14,15 @@ that a COMMITTED snapshot under `sim/*/parasitics-snapshot/` actually uses:
   * klt 0.8.0 (issue #540): `X$n <a> <b> <bulk> res_high_po r=<value> [L=.. W=..]`
     -- what `sim/output-voltage-tc-post-layout/`'s snapshot carries, and what
     the five re-run benches' snapshots resolve to since issue #560.
+  * klt 0.8.0 with `--pdk` (issue #614): the device comes out already BOUND
+    to the PDK subcircuit, `X$n <a> <b> <bulk> sky130_fd_pr__res_high_po
+    l=5 w=1`, and is passed through unchanged (no fixed-value rewrite) --
+    what the `20260923-070209-dbd57a9-pdk` snapshot carries and what the
+    post-layout path resolves since #614. `PdkBoundDialects` below covers it.
 
-Both are live simultaneously: `SNAPSHOT_050` and `SNAPSHOT_080` below both
-resolve under sibling glob, so a regression on either dialect silently zeroes
-that bench's resistor coverage.
+All are live simultaneously: `SNAPSHOT_050`, `SNAPSHOT_080` and
+`SNAPSHOT_PDK` below all resolve under the snapshot resolution, so a
+regression on any dialect silently zeroes that bench's resistor coverage.
 `build_extracted_body`'s `device_counts` cross-check turns that into a loud
 abort rather than a wrong netlist -- these tests keep it from getting that
 far, and pin the invariant that the two shapes translate to the SAME card.
@@ -33,9 +38,13 @@ No PDK, ngspice or `klt` on PATH is needed.
 
 from __future__ import annotations
 
+import json
+import subprocess
 import sys
 import unittest
 from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 SIM_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SIM_DIR / "bin"))
@@ -50,6 +59,28 @@ R_CARD_080 = r"X$98 VOUT__t0 \$7__t0 VSS__t24 res_high_po r=2003.841367 L=5U W=1
 # resistor at the extracted ohms, bulk terminal and L/W deliberately dropped.
 R_TRANSLATED = r"R$98 VOUT__t0 \$7__t0 2003.841367"
 
+# The PDK-BOUND dialect (issue #614): `klt extract --parasitics --pdk sky130A`
+# writes each device already bound to its PDK subcircuit. Cards below are
+# copied verbatim out of the committed bound snapshot for the same layout
+# record -- same devices, now temperature-behaved vendor models instead of
+# hand-written fixed cards.
+RES_CARD_BOUND = r"X$98 VOUT__t0 \$7__t0 VSS__t24 sky130_fd_pr__res_high_po l=5 w=1"
+PNP_CARD_BOUND_SMALL = r"X$74 VSS__t0 VSS__t188 VA__t0 sky130_fd_pr__pnp_05v5_W0p68L0p68"
+PNP_CARD_BOUND_LARGE = r"X$82 VSS__t16 VSS__t189 VBQ__t0 sky130_fd_pr__pnp_05v5_W3p40L3p40"
+MOS_CARD_BOUND = (
+    "X$1 VSS__t190 D1__t5 D1__t10 VSS__t169 sky130_fd_pr__nfet_01v8 "
+    "L=20 W=8 AS=3.36 AD=3.36 PS=16.84 PD=16.84"
+)
+# The bound MOS card is the one class still rewritten: the layout draws no
+# `hvi` marker, so klt binds the thin-oxide `_01v8` pair while the design
+# instantiates `g5v0d10v5` -- see post_layout_common's `_X_BOUND_RES_RE`
+# block comment for the full story.
+MOS_CARD_BOUND_TRANSLATED = (
+    "X$1 VSS__t190 D1__t5 D1__t10 VSS__t169 sky130_fd_pr__nfet_g5v0d10v5 "
+    "L=20 W=8 AS=3.36 AD=3.36 PS=16.84 PD=16.84 "
+    "nrd=0.036250 nrs=0.036250 nf=1 mult=1 sa=0 sb=0 sd=0"
+)
+
 SNAPSHOT_050 = (
     SIM_DIR
     / "startup-time-post-layout"
@@ -62,6 +93,13 @@ SNAPSHOT_080 = (
     / "output-voltage-tc-post-layout"
     / "parasitics-snapshot"
     / "20260923-070209-dbd57a9"
+    / "bandgap_core_routed.pex.spice"
+)
+SNAPSHOT_PDK = (
+    SIM_DIR
+    / "output-voltage-tc-post-layout"
+    / "parasitics-snapshot"
+    / "20260923-070209-dbd57a9-pdk"
     / "bandgap_core_routed.pex.spice"
 )
 
@@ -137,6 +175,491 @@ class ResistorDialects(unittest.TestCase):
             sorted(l for l in a.splitlines() if l.startswith("R$")),
             sorted(l for l in b.splitlines() if l.startswith("R$")),
         )
+
+
+class PdkBoundDialects(unittest.TestCase):
+    """The `--pdk`-bound card dialect (issue #614): resistors and PNPs pass
+    through as the PDK model calls klt wrote (temperature-behaved, bulk
+    terminal and geometry intact); only the MOS class is rewritten, to the
+    flavour the design actually draws."""
+
+    def test_bound_resistor_passes_through_unchanged(self):
+        text, counts = plc.translate_extracted_netlist(RES_CARD_BOUND + "\n")
+        self.assertEqual(counts, {"mos": 0, "pnp": 0, "res": 1})
+        self.assertIn(RES_CARD_BOUND, text)
+        self.assertNotIn("R$98 ", text)  # no fixed-value card standing in
+
+    def test_bound_pnp_passes_through_unchanged(self):
+        for card in (PNP_CARD_BOUND_SMALL, PNP_CARD_BOUND_LARGE):
+            text, counts = plc.translate_extracted_netlist(card + "\n")
+            self.assertEqual(counts["pnp"], 1)
+            self.assertIn(card, text)
+
+    def test_bound_mos_is_rewritten_to_the_designs_flavour(self):
+        text, counts = plc.translate_extracted_netlist(MOS_CARD_BOUND + "\n")
+        self.assertEqual(counts["mos"], 1)
+        self.assertIn(MOS_CARD_BOUND_TRANSLATED, text)
+        self.assertNotIn("_01v8", text)
+
+    def test_bound_pfet_too(self):
+        card = (
+            "X$40 VA__t1 VB__t2 GDRV__t1 VDD__t3 sky130_fd_pr__pfet_01v8 "
+            "L=10 W=20 AS=8.4"
+        )
+        text, counts = plc.translate_extracted_netlist(card + "\n")
+        self.assertEqual(counts["mos"], 1)
+        self.assertIn("sky130_fd_pr__pfet_g5v0d10v5", text)
+        self.assertIn("nrd=0.014500 nrs=0.014500", text)  # 0.29 / W=20
+
+    def test_bound_mos_unit_suffixes_are_stripped(self):
+        card = (
+            "X$1 a b c d sky130_fd_pr__nfet_01v8 L=20U W=8U AS=3.36P"
+        )
+        text, counts = plc.translate_extracted_netlist(card + "\n")
+        self.assertEqual(counts["mos"], 1)
+        self.assertIn("L=20 W=8 AS=3.36", text)
+
+    def test_correctly_bound_mos_flavours_count_at_full_coverage(self):
+        marked = SNAPSHOT_PDK.read_text().replace("fet_01v8 ", "fet_g5v0d10v5 ")
+        translated, counts = plc.translate_extracted_netlist(marked)
+        self.assertEqual(counts, {"mos": 73, "pnp": 24, "res": 145})
+        self.assertEqual(translated.count("sky130_fd_pr__nfet_g5v0d10v5 "), 19)
+        self.assertEqual(translated.count("sky130_fd_pr__pfet_g5v0d10v5 "), 54)
+
+    def test_mos_defaults_fill_only_missing_parameters(self):
+        for flavour in ("01v8", "g5v0d10v5"):
+            with self.subTest(flavour=flavour):
+                card = (
+                    f"X$1 d g s b sky130_fd_pr__pfet_{flavour} L=20 W=8 "
+                    "NRD=0.5 nf=2\n+ Sb=1U mult=3"
+                )
+                translated, counts = plc.translate_extracted_netlist(card)
+                expected = (
+                    "X$1 d g s b sky130_fd_pr__pfet_g5v0d10v5 L=20 W=8 "
+                    "NRD=0.5 nf=2 Sb=1U mult=3 nrs=0.036250 sa=0 sd=0"
+                )
+                self.assertEqual((translated, counts["mos"]), (expected, 1))
+                self.assertEqual(plc.translate_extracted_netlist(expected), (expected, counts))
+
+    def test_bound_dialect_is_mutually_exclusive_with_legacy(self):
+        """Neither the legacy resistor patterns nor the bound patterns may
+        claim the other dialect's card, or a snapshot would double-count and
+        trip the coverage guard."""
+        self.assertIsNone(plc._R_RE.match(RES_CARD_BOUND))
+        self.assertIsNone(plc._R_SUBCKT_RE.match(RES_CARD_BOUND))
+        self.assertIsNone(plc._X_BOUND_RES_RE.match(R_CARD_080))
+        self.assertIsNone(plc._X_BOUND_RES_RE.match(R_CARD_050))
+        # A subckt call whose model merely CONTAINS the class name (the legacy
+        # `res_high_po r=` shape vs the bound `sky130_fd_pr__res_high_po l=`)
+        # must not cross-match either way.
+        self.assertIsNone(plc._M_RE.match(MOS_CARD_BOUND))
+        self.assertIsNone(plc._X_BOUND_M_RE.match("M$1 a b c d nfet L=20U W=8U"))
+
+    def test_unknown_bound_pnp_macro_is_left_alone(self):
+        """The bound PNP pattern whitelists the two macros this design draws;
+        any other macro must fall through (and trip the coverage guard at run
+        time) rather than pass an unknown subckt silently."""
+        card = "X$9 a b c sky130_fd_pr__pnp_05v5_W5p00L5p00"
+        text, counts = plc.translate_extracted_netlist(card + "\n")
+        self.assertEqual(counts["pnp"], 0)
+        self.assertIn(card, text)
+
+    def test_committed_bound_snapshot_translates_at_full_coverage(self):
+        """The committed bound snapshot must translate every device its own
+        JSON summary declares, with the PDK binding recorded in provenance."""
+        import json
+
+        self.assertTrue(SNAPSHOT_PDK.is_file(), f"missing snapshot {SNAPSHOT_PDK}")
+        summary = json.loads(
+            SNAPSHOT_PDK.with_name("bandgap_core_routed.pex.json").read_text()
+        )
+        self.assertEqual(summary["provenance"]["klt_version"], "0.8.0")
+        self.assertEqual(summary["provenance"]["pdk"]["name"], "sky130A")
+        declared = summary["device_counts"]
+        text, counts = plc.translate_extracted_netlist(SNAPSHOT_PDK.read_text())
+        self.assertEqual(
+            (counts["mos"], counts["pnp"], counts["res"]),
+            (
+                declared.get("nfet", 0) + declared.get("pfet", 0),
+                declared.get("pnp", 0),
+                declared.get("res_high_po", 0),
+            ),
+        )
+
+    def test_committed_bound_snapshot_emits_no_fixed_resistor_card(self):
+        """Issue #614's acceptance: the simulated extracted netlist contains
+        no fixed-value `R` card standing in for a `res_high_po` device, and
+        keeps all 145 bound cards."""
+        text, counts = plc.translate_extracted_netlist(SNAPSHOT_PDK.read_text())
+        self.assertEqual(counts["res"], 145)
+        self.assertEqual(
+            [l for l in text.splitlines() if l.startswith("R$")],
+            [],
+        )
+        self.assertEqual(
+            sum("sky130_fd_pr__res_high_po" in l for l in text.splitlines()),
+            145,
+        )
+
+    def test_bound_snapshot_keeps_the_same_parasitic_network(self):
+        """Binding changes only the DEVICE cards: the bound snapshot's plain
+        parasitic `R`/`C` cards must be identical to the unbound 0.8.0
+        snapshot's (same layout record, same klt version)."""
+        def parasitic_lines(path):
+            return [
+                l
+                for l in path.read_text().splitlines()
+                if l.startswith(("R", "C")) and "$" not in l.split()[0]
+            ]
+
+        self.assertEqual(
+            parasitic_lines(SNAPSHOT_PDK), parasitic_lines(SNAPSHOT_080)
+        )
+
+
+class StartupSnapshotResolution(unittest.TestCase):
+    def test_startup_reuses_its_committed_legacy_snapshot(self):
+        record_id = SNAPSHOT_050.parent.name
+        directory, summary, source = plc.resolve_parasitics_snapshot(
+            SNAPSHOT_050.parent.parent, Path("unused.gds"), record_id,
+            pdk_variant="sky130A", legacy_layout_record_id=record_id,
+        )
+        self.assertEqual((directory, source), (SNAPSHOT_050.parent, "local"))
+        self.assertEqual(summary["provenance"]["klt_version"], "0.5.0")
+
+    def test_missing_local_pin_reuses_bound_sibling(self):
+        with TemporaryDirectory() as tmp:
+            directory, summary, source = plc.resolve_parasitics_snapshot(
+                Path(tmp), Path("unused.gds"), SNAPSHOT_050.parent.name,
+                pdk_variant="sky130A", legacy_layout_record_id=SNAPSHOT_050.parent.name,
+            )
+        self.assertEqual(directory, SNAPSHOT_PDK.parent)
+        self.assertTrue(source.startswith("reused:"))
+        self.assertEqual(summary["provenance"]["pdk"]["name"], "sky130A")
+
+    def test_new_layout_ignores_unbound_snapshots_and_extracts_with_pdk(self):
+        with TemporaryDirectory() as tmp, patch.object(plc, "SIM_DIR", Path(tmp)):
+            local = Path(tmp) / "startup-time-post-layout" / "parasitics-snapshot"
+            sibling = Path(tmp) / "other-bench" / "parasitics-snapshot"
+            for root in (local, sibling):
+                (root / "new-layout").mkdir(parents=True)
+                (root / "new-layout" / plc.PEX_SPICE_NAME).touch()
+                (root / "new-layout" / plc.PEX_JSON_NAME).write_text("{}")
+            gds = Path(tmp) / "new.gds"
+            bound = local / "new-layout-pdk"
+            with patch.object(plc, "run_klt_extract_parasitics") as extract:
+                extract.return_value = (bound / plc.PEX_SPICE_NAME, {})
+                directory, _, source = plc.resolve_parasitics_snapshot(
+                    local, gds, "new-layout", pdk_variant="sky130A",
+                    pdk_root="/test/pdks", legacy_layout_record_id=SNAPSHOT_050.parent.name,
+                )
+            self.assertEqual((directory, source), (bound, "extracted"))
+            extract.assert_called_once_with(
+                gds, bound, top=plc.PEX_TOP, pdk_variant="sky130A", pdk_root="/test/pdks",
+            )
+
+
+class AlternatePdkVariant(unittest.TestCase):
+    """A `PDK=sky130B` override must not reuse sky130A-recorded snapshots."""
+
+    def test_pinned_snapshots_not_reused_for_other_variant(self):
+        record_id = SNAPSHOT_PDK.parent.name.removesuffix("-pdk")
+        with TemporaryDirectory() as tmp:
+            local = Path(tmp)
+            bound = local / f"{record_id}-pdk-sky130B"
+            with patch.object(plc, "run_klt_extract_parasitics") as extract:
+                extract.return_value = (bound / plc.PEX_SPICE_NAME, {})
+                directory, _, source = plc.resolve_parasitics_snapshot(
+                    local, Path("x.gds"), record_id, pdk_variant="sky130B",
+                    pdk_root="/pdks", pinned_variant="sky130A",
+                )
+            self.assertEqual((directory, source), (bound, "extracted"))
+            extract.assert_called_once_with(
+                Path("x.gds"), bound, top=plc.PEX_TOP, pdk_variant="sky130B", pdk_root="/pdks",
+            )
+
+    def test_pinned_variant_still_reuses_committed_snapshot(self):
+        record_id = SNAPSHOT_PDK.parent.name.removesuffix("-pdk")
+        with TemporaryDirectory() as tmp:
+            directory, summary, source = plc.resolve_parasitics_snapshot(
+                Path(tmp), Path("x.gds"), record_id, pdk_variant="sky130A",
+                pinned_variant="sky130A",
+            )
+        self.assertTrue(source.startswith("reused:"))
+        self.assertEqual(summary["provenance"]["pdk"]["name"], "sky130A")
+
+    def test_provenance_mismatch_on_default_key_is_not_a_hit(self):
+        with TemporaryDirectory() as tmp, patch.object(plc, "SIM_DIR", Path(tmp)):
+            local = Path(tmp) / "b" / "parasitics-snapshot"
+            snap = local / "rid-pdk"
+            snap.mkdir(parents=True)
+            (snap / plc.PEX_SPICE_NAME).touch()
+            (snap / plc.PEX_JSON_NAME).write_text('{"provenance": {"pdk": {"name": "sky130A"}}}')
+            with patch.object(plc, "run_klt_extract_parasitics") as extract:
+                with self.assertRaises(plc.PostLayoutError):
+                    plc.resolve_parasitics_snapshot(
+                        local, Path("x.gds"), "rid", pdk_variant="sky130B",
+                    )
+                extract.assert_not_called()
+
+
+class PdkRevisionProvenance(unittest.TestCase):
+    """Cached bound snapshots must match the resolved open_pdks revision as
+    well as the variant across both local and sibling lookups."""
+
+    PINNED_REV = "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+    SCRATCH_REV = "c6d73a35f524070e85faff4a6a9eef49553ebc2b"
+
+    @staticmethod
+    def _write_snapshot(snap_dir: Path, variant: str, version: str | None) -> None:
+        snap_dir.mkdir(parents=True, exist_ok=True)
+        (snap_dir / plc.PEX_SPICE_NAME).write_text("* spice\n")
+        pdk_meta = {"name": variant}
+        if version is not None:
+            pdk_meta["version"] = version
+        (snap_dir / plc.PEX_JSON_NAME).write_text(
+            json.dumps({"provenance": {"pdk": pdk_meta}})
+        )
+
+    @staticmethod
+    def _make_pdk_root(root: Path, variant: str, sources: str | None) -> Path:
+        pdk_dir = root / variant
+        pdk_dir.mkdir(parents=True, exist_ok=True)
+        if sources is not None:
+            (pdk_dir / "SOURCES").write_text(sources)
+        return root
+
+    def test_local_lookup_rejects_mismatched_revision_and_preserves_snapshot(self):
+        with TemporaryDirectory() as tmp, patch.object(plc, "SIM_DIR", Path(tmp)):
+            local = Path(tmp) / "bench-a" / "parasitics-snapshot"
+            snap = local / "rid-pdk"
+            self._write_snapshot(snap, "sky130A", f"open_pdks {self.SCRATCH_REV}")
+            before_json = (snap / plc.PEX_JSON_NAME).read_text()
+            pdk_root = self._make_pdk_root(
+                Path(tmp) / "pdk-pinned", "sky130A", f"open_pdks {self.PINNED_REV}\n"
+            )
+            with patch.object(plc, "run_klt_extract_parasitics") as extract:
+                with self.assertRaises(plc.PostLayoutError):
+                    plc.resolve_parasitics_snapshot(
+                        local, Path("x.gds"), "rid",
+                        pdk_variant="sky130A", pdk_root=str(pdk_root),
+                    )
+                extract.assert_not_called()
+            self.assertEqual((snap / plc.PEX_JSON_NAME).read_text(), before_json)
+
+    def test_sibling_lookup_rejects_mismatched_revision_and_extracts_fresh(self):
+        with TemporaryDirectory() as tmp, \
+                patch.object(plc, "SIM_DIR", Path(tmp)), \
+                patch.object(plc, "REPO_ROOT", Path(tmp)):
+            sibling_snap = Path(tmp) / "bench-a" / "parasitics-snapshot" / "rid-pdk"
+            self._write_snapshot(sibling_snap, "sky130A", f"open_pdks {self.SCRATCH_REV}")
+            before_json = (sibling_snap / plc.PEX_JSON_NAME).read_text()
+
+            local = Path(tmp) / "bench-b" / "parasitics-snapshot"
+            bound = local / "rid-pdk"
+            pdk_root = self._make_pdk_root(
+                Path(tmp) / "pdk-pinned", "sky130A", f"open_pdks {self.PINNED_REV}\n"
+            )
+            expected_summary = {
+                "provenance": {"pdk": {"name": "sky130A", "version": f"open_pdks {self.PINNED_REV}"}}
+            }
+            with patch.object(plc, "run_klt_extract_parasitics") as extract:
+                extract.return_value = (bound / plc.PEX_SPICE_NAME, expected_summary)
+                directory, summary, source = plc.resolve_parasitics_snapshot(
+                    local, Path("x.gds"), "rid",
+                    pdk_variant="sky130A", pdk_root=str(pdk_root),
+                )
+            self.assertEqual((directory, source), (bound, "extracted"))
+            self.assertEqual(summary, expected_summary)
+            extract.assert_called_once_with(
+                Path("x.gds"), bound, top=plc.PEX_TOP,
+                pdk_variant="sky130A", pdk_root=str(pdk_root),
+            )
+            self.assertEqual((sibling_snap / plc.PEX_JSON_NAME).read_text(), before_json)
+
+    def test_sibling_lookup_skips_mismatched_and_reuses_matching_revision(self):
+        with TemporaryDirectory() as tmp, \
+                patch.object(plc, "SIM_DIR", Path(tmp)), \
+                patch.object(plc, "REPO_ROOT", Path(tmp)):
+            bad_sib = Path(tmp) / "bench-a" / "parasitics-snapshot" / "rid-pdk"
+            good_sib = Path(tmp) / "bench-b" / "parasitics-snapshot" / "rid-pdk"
+            self._write_snapshot(bad_sib, "sky130A", f"open_pdks {self.SCRATCH_REV}")
+            self._write_snapshot(
+                good_sib, "sky130A", f"magic abc; open_pdks {self.PINNED_REV}"
+            )
+            local = Path(tmp) / "bench-c" / "parasitics-snapshot"
+            directory, summary, source = plc.resolve_parasitics_snapshot(
+                local, Path("x.gds"), "rid",
+                pdk_variant="sky130A", pdk_commit=self.PINNED_REV,
+            )
+            self.assertEqual(directory, good_sib)
+            self.assertEqual(source, "reused:bench-b/parasitics-snapshot/rid-pdk")
+            self.assertIn(self.PINNED_REV, summary["provenance"]["pdk"]["version"])
+
+    def test_unpinned_revision_uses_distinct_key_without_polluting_pinned_cache(self):
+        with TemporaryDirectory() as tmp, \
+                patch.object(plc, "SIM_DIR", Path(tmp)), \
+                patch.object(plc, "REPO_ROOT", Path(tmp)):
+            local = Path(tmp) / "bench-a" / "parasitics-snapshot"
+            scratch_dir = local / f"rid-pdk-{self.SCRATCH_REV}"
+            pinned_dir = local / "rid-pdk"
+            scratch_root = self._make_pdk_root(
+                Path(tmp) / "pdk-scratch", "sky130A", f"open_pdks {self.SCRATCH_REV}\n"
+            )
+            pinned_root = self._make_pdk_root(
+                Path(tmp) / "pdk-pinned", "sky130A", f"open_pdks {self.PINNED_REV}\n"
+            )
+
+            def fake_extract(gds, out_dir, **kw):
+                rev = self.SCRATCH_REV if kw["pdk_root"] == str(scratch_root) else self.PINNED_REV
+                self._write_snapshot(out_dir, "sky130A", f"open_pdks {rev}")
+                return out_dir / plc.PEX_SPICE_NAME, json.loads(
+                    (out_dir / plc.PEX_JSON_NAME).read_text()
+                )
+
+            with patch.object(plc, "run_klt_extract_parasitics", side_effect=fake_extract):
+                d1, s1, src1 = plc.resolve_parasitics_snapshot(
+                    local, Path("x.gds"), "rid",
+                    pdk_variant="sky130A", pdk_root=str(scratch_root),
+                    pinned_variant="sky130A", pinned_commit=self.PINNED_REV,
+                )
+                d2, s2, src2 = plc.resolve_parasitics_snapshot(
+                    local, Path("x.gds"), "rid",
+                    pdk_variant="sky130A", pdk_root=str(pinned_root),
+                    pinned_variant="sky130A", pinned_commit=self.PINNED_REV,
+                )
+                d3, _, src3 = plc.resolve_parasitics_snapshot(
+                    Path(tmp) / "bench-b" / "parasitics-snapshot", Path("x.gds"), "rid",
+                    pdk_variant="sky130A", pdk_root=str(pinned_root),
+                    pinned_variant="sky130A", pinned_commit=self.PINNED_REV,
+                )
+
+            self.assertEqual((d1, src1), (scratch_dir, "extracted"))
+            self.assertIn(self.SCRATCH_REV, s1["provenance"]["pdk"]["version"])
+            self.assertEqual((d2, src2), (pinned_dir, "extracted"))
+            self.assertIn(self.PINNED_REV, s2["provenance"]["pdk"]["version"])
+            self.assertEqual(d3, pinned_dir)
+            self.assertTrue(src3.startswith("reused:"))
+            self.assertTrue((scratch_dir / plc.PEX_JSON_NAME).is_file())
+
+    def test_unknown_commit_or_missing_version_never_reuses_cached_snapshot(self):
+        with TemporaryDirectory() as tmp, patch.object(plc, "SIM_DIR", Path(tmp)):
+            local = Path(tmp) / "bench-a" / "parasitics-snapshot"
+            snap = local / "rid-pdk"
+            self._write_snapshot(snap, "sky130A", None)
+            with patch.object(plc, "run_klt_extract_parasitics") as extract:
+                with self.assertRaises(plc.PostLayoutError):
+                    plc.resolve_parasitics_snapshot(
+                        local, Path("x.gds"), "rid",
+                        pdk_variant="sky130A", pdk_commit=self.PINNED_REV,
+                    )
+                with self.assertRaises(plc.PostLayoutError):
+                    plc.resolve_parasitics_snapshot(
+                        local, Path("x.gds"), "rid",
+                        pdk_variant="sky130A", pdk_commit="unknown",
+                    )
+                extract.assert_not_called()
+
+    def test_committed_bound_snapshot_matches_pinned_revision(self):
+        record_id = SNAPSHOT_PDK.parent.name.removesuffix("-pdk")
+        with TemporaryDirectory() as tmp:
+            directory, summary, source = plc.resolve_parasitics_snapshot(
+                Path(tmp), Path("x.gds"), record_id,
+                pdk_variant="sky130A", pdk_commit=self.PINNED_REV,
+                pinned_variant="sky130A", pinned_commit=self.PINNED_REV,
+            )
+        self.assertEqual(directory, SNAPSHOT_PDK.parent)
+        self.assertTrue(source.startswith("reused:"))
+        self.assertEqual(plc._recorded_pdk_commit(summary), self.PINNED_REV)
+
+
+class StagedExtractionRetry(unittest.TestCase):
+    """A failed extraction must not leave behind an empty or partial snapshot
+    directory that blocks a subsequent retry, while completed evidence stays
+    append-only."""
+
+    def test_missing_klt_leaves_no_snapshot_dir_and_retry_succeeds(self):
+        with TemporaryDirectory() as tmp, patch.object(plc, "SIM_DIR", Path(tmp)):
+            local = Path(tmp) / "bench" / "parasitics-snapshot"
+            bound = local / "fresh-id-pdk"
+
+            with patch.object(plc.subprocess, "run", side_effect=FileNotFoundError("no klt")):
+                with self.assertRaisesRegex(plc.PostLayoutError, "klt not found"):
+                    plc.resolve_parasitics_snapshot(
+                        local, Path("x.gds"), "fresh-id", pdk_variant="sky130A",
+                    )
+            self.assertFalse(bound.exists())
+            self.assertEqual(list(local.iterdir()) if local.exists() else [], [])
+
+            def ok_klt(cmd, **_kw):
+                spice_out = Path(cmd[cmd.index("-o") + 1])
+                spice_out.write_text("* extracted\n")
+                payload = {
+                    "netlist_path": str(spice_out),
+                    "provenance": {"pdk": {"name": "sky130A", "version": "open_pdks abc123"}},
+                }
+                return subprocess.CompletedProcess(cmd, 0, stdout=json.dumps(payload), stderr="")
+
+            with patch.object(plc.subprocess, "run", side_effect=ok_klt):
+                directory, summary, source = plc.resolve_parasitics_snapshot(
+                    local, Path("x.gds"), "fresh-id",
+                    pdk_variant="sky130A", pdk_commit="abc123",
+                )
+            self.assertEqual((directory, source), (bound, "extracted"))
+            self.assertTrue((bound / plc.PEX_SPICE_NAME).is_file())
+            self.assertTrue((bound / plc.PEX_JSON_NAME).is_file())
+            self.assertEqual(summary["netlist_path"], str(bound / plc.PEX_SPICE_NAME))
+            self.assertEqual([p.name for p in local.iterdir()], ["fresh-id-pdk"])
+
+    def test_invalid_json_after_spice_write_cleans_stage_and_retry_succeeds(self):
+        with TemporaryDirectory() as tmp, patch.object(plc, "SIM_DIR", Path(tmp)):
+            local = Path(tmp) / "bench" / "parasitics-snapshot"
+            bound = local / "fresh-id-pdk"
+
+            def bad_json_klt(cmd, **_kw):
+                Path(cmd[cmd.index("-o") + 1]).write_text("* partial spice\n")
+                return subprocess.CompletedProcess(cmd, 0, stdout="not-json", stderr="")
+
+            with patch.object(plc.subprocess, "run", side_effect=bad_json_klt):
+                with self.assertRaisesRegex(plc.PostLayoutError, "valid JSON"):
+                    plc.resolve_parasitics_snapshot(
+                        local, Path("x.gds"), "fresh-id", pdk_variant="sky130A",
+                    )
+            self.assertFalse(bound.exists())
+            self.assertEqual(list(local.iterdir()), [])
+
+    def test_preexisting_empty_dir_is_retryable_while_nonempty_dir_is_protected(self):
+        with TemporaryDirectory() as tmp, patch.object(plc, "SIM_DIR", Path(tmp)):
+            local = Path(tmp) / "bench" / "parasitics-snapshot"
+            bound = local / "empty-id-pdk"
+            bound.mkdir(parents=True)
+
+            def ok_klt(cmd, **_kw):
+                spice_out = Path(cmd[cmd.index("-o") + 1])
+                spice_out.write_text("* extracted\n")
+                return subprocess.CompletedProcess(
+                    cmd, 0,
+                    stdout=json.dumps({"provenance": {"pdk": {"name": "sky130A"}}}),
+                    stderr="",
+                )
+
+            with patch.object(plc.subprocess, "run", side_effect=ok_klt):
+                directory, _, source = plc.resolve_parasitics_snapshot(
+                    local, Path("x.gds"), "empty-id", pdk_variant="sky130A",
+                )
+            self.assertEqual((directory, source), (bound, "extracted"))
+
+            # Non-empty leftover (e.g. a stray file) is preserved and never overwritten.
+            occupied = local / "occupied-id-pdk"
+            occupied.mkdir(parents=True)
+            (occupied / "existing.txt").write_text("keep")
+            with patch.object(plc.subprocess, "run", side_effect=ok_klt) as run_mock:
+                with self.assertRaisesRegex(plc.PostLayoutError, "append-only"):
+                    plc.resolve_parasitics_snapshot(
+                        local, Path("x.gds"), "occupied-id", pdk_variant="sky130A",
+                    )
+                run_mock.assert_not_called()
+            self.assertEqual((occupied / "existing.txt").read_text(), "keep")
 
 
 if __name__ == "__main__":
