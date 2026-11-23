@@ -55,10 +55,12 @@ MANIFEST = REPO_ROOT / "signoff" / "block-manifest.json"
 PINNED_INPUTS = REPO_ROOT / "signoff" / "pinned-inputs.json"
 
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci"))
+sys.path.insert(0, str(REPO_ROOT / "sim" / "bin"))
 
 # Both conventions are needed here: `recorded_from[].sha256` is bare, while
 # `provenance.input.content_hash` is the tagged form check_signoff_pins.py reads.
 from content_hash import sha256_file, sha256_file_tagged  # noqa: E402
+from sim_common import RATIFIED_VREF_WINDOW_V  # noqa: E402
 
 ITEM = "5"
 
@@ -66,7 +68,7 @@ ITEM = "5"
 # means the ratified spec states no number for that measurement (structural
 # startup claims, supply-sweep coverage guards): the record's own limits are
 # copied as recorded.
-WINDOW = {"min": 1.176, "max": 1.224}  # 1.20 V +/-2 %
+WINDOW = {"min": RATIFIED_VREF_WINDOW_V[0], "max": RATIFIED_VREF_WINDOW_V[1]}  # 1.20 V +/-2 %
 TC_MAX = {"max": 50.0}  # < 50 ppm/degC, box method
 PSRR_MIN = {"min": 60.0}  # > 60 dB, DC..1 kHz band-min (DR-006)
 IQ_MAX = 50e-6  # < 50 uA

@@ -74,14 +74,15 @@ SIM_DIR = HERE.parent
 REPO_ROOT = SIM_DIR.parent
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
-from sim_common import parse_samples, partition_by_window  # noqa: E402
+from sim_common import RATIFIED_VREF_WINDOW_V, parse_samples, partition_by_window  # noqa: E402
 
 sys.path.insert(0, str(HERE))
 import run_mc_untrimmed as record_mod  # noqa: E402
 
 # Mirrors run_mc_untrimmed.py's own module-level constants -- kept in sync by
-# hand (both are small, stable, and cited by the same record).
-SPEC_WINDOW_V = (1.176, 1.224)
+# hand (both are small, stable, and cited by the same record). The spec
+# window itself is no longer mirrored: it is imported from sim_common
+# (RATIFIED_VREF_WINDOW_V, DR-005's ratified band).
 OPERATING_VOUT_V = (0.9, 1.5)
 TEMPS_C = [-40.0, 27.0, 125.0]
 SUPPLY_V = 3.3
@@ -132,7 +133,7 @@ def build_sample_set(record_id: str) -> dict:
                 "name": measurement_name(t),
                 "unit": "V",
                 "samples": samples,
-                "limits": {"min": SPEC_WINDOW_V[0], "max": SPEC_WINDOW_V[1]},
+                "limits": {"min": RATIFIED_VREF_WINDOW_V[0], "max": RATIFIED_VREF_WINDOW_V[1]},
                 "source_corners": [corner_id],
             }
         )
