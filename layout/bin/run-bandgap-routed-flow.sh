@@ -81,7 +81,7 @@ set -e
 # publish, so they are excluded from the artifact store and its manifest (the
 # single list drives both the --exclude passes and the copy loop, issue #657).
 SUMMARY_FILES=(record.md drc.json extract.json lvs.json lvs.combined.json
-               met2-drc.json hv-drc.json flavour.json erc.json
+               met2-drc.json hv-drc.json flavour.json amp-terminal-census.json erc.json
                erc.negative-control.json erc-verdict.json nwell-boxes.json)
 EXCLUDE_ARGS=()
 for f in "${SUMMARY_FILES[@]}"; do

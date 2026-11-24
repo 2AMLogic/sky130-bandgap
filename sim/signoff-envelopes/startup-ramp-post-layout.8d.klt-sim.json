@@ -1,15 +1,15 @@
 {
   "schema_version": 3,
-  "status": "pass",
-  "netlist": "sim/startup-ramp-post-layout/netlist-snapshots/20261124-154208-39a20d81.spice",
+  "status": "fail",
+  "netlist": "sim/startup-ramp-post-layout/netlist-snapshots/20261124-181545-d436ab4c.spice",
   "corner_count": 45,
-  "passed": 45,
-  "failed": 0,
+  "passed": 30,
+  "failed": 15,
   "errored": 0,
   "metrics": {
     "sim__corner__count": 45,
-    "sim__corner__passed_count": 45,
-    "sim__corner__failed_count": 0,
+    "sim__corner__passed_count": 30,
+    "sim__corner__failed_count": 15,
     "sim__corner__errored_count": 0
   },
   "coverage": {
@@ -24,8 +24,8 @@
     ],
     "recorded_from": [
       {
-        "file": "sim/startup-ramp-post-layout/records/20261124-154208-39a20d81.json",
-        "sha256": "d80a575d95daf9cd4a2e394c8e84546978a343548e21f678793fb9d83d3d4da9"
+        "file": "sim/startup-ramp-post-layout/records/20261124-181545-d436ab4c.json",
+        "sha256": "e3f62ad2dbf5ea15b5738eed065fd491392cb6739d63e432fce3765846895ca9"
       }
     ],
     "excluded_measurements": {
@@ -41,10 +41,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:d8a208b29b706b58b9e66f0559ab781cac35fc135b9cf70ce8ffbb4c507660fa",
+      "content_hash": "sha256:3be46e80b81c2ec750b47c7ebd23d39786abafabad810aa71c39a73fbc36d514",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/startup-ramp-post-layout/netlist-snapshots/20261124-154208-39a20d81.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/startup-ramp-post-layout/netlist-snapshots/20261124-181545-d436ab4c.spice)"
   },
   "measurements": [
     {
@@ -55,11 +55,12 @@
         "max": 0.001
       },
       "worst_case": {
-        "corner_id": "ss_-40c_2.97v",
-        "value": 0.000367629,
-        "margin": 0.0006323710000000001
+        "corner_id": "tt_125c_2.97v",
+        "value": null,
+        "margin": null,
+        "reason": "measurement not found in ngspice output"
       },
-      "status": "pass"
+      "status": "fail"
     },
     {
       "name": "t_start_f",
@@ -70,8 +71,8 @@
       },
       "worst_case": {
         "corner_id": "ss_-40c_2.97v",
-        "value": 0.0002260492,
-        "margin": 0.0007739508000000001
+        "value": 0.0002056634,
+        "margin": 0.0007943366000000001
       },
       "status": "pass"
     },
@@ -84,8 +85,8 @@
       },
       "worst_case": {
         "corner_id": "sf_125c_2.97v",
-        "value": 2.42093e-05,
-        "margin": 0.0009757907000000001
+        "value": 2.612389e-05,
+        "margin": 0.00097387611
       },
       "status": "pass"
     }
@@ -103,23 +104,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 7.4448e-05,
+          "value": 6.3401e-05,
           "status": "pass",
-          "margin": 0.0009255520000000001
+          "margin": 0.000936599
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.718426e-05,
+          "value": 4.160056e-05,
           "status": "pass",
-          "margin": 0.0009528157400000001
+          "margin": 0.0009583994400000001
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.446794e-08,
+          "value": 1.462452e-08,
           "status": "pass",
-          "margin": 0.0009999855320600001
+          "margin": 0.00099998537548
         }
       ]
     },
@@ -135,23 +136,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 6.21106e-05,
+          "value": 5.58694e-05,
           "status": "pass",
-          "margin": 0.0009378894
+          "margin": 0.0009441306
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 7.989784e-06,
+          "value": 7.059552e-06,
           "status": "pass",
-          "margin": 0.000992010216
+          "margin": 0.000992940448
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.253767e-08,
+          "value": 1.277836e-08,
           "status": "pass",
-          "margin": 0.00099998746233
+          "margin": 0.0009999872216400001
         }
       ]
     },
@@ -167,23 +168,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 6.08307e-05,
+          "value": 5.50945e-05,
           "status": "pass",
-          "margin": 0.0009391693
+          "margin": 0.0009449055000000001
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.743593e-06,
+          "value": 1.570064e-06,
           "status": "pass",
-          "margin": 0.000998256407
+          "margin": 0.000998429936
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.123856e-08,
+          "value": 1.134197e-08,
           "status": "pass",
-          "margin": 0.00099998876144
+          "margin": 0.0009999886580300001
         }
       ]
     },
@@ -199,23 +200,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -2.97332e-05,
+          "value": -3.4813e-05,
           "status": "pass",
-          "margin": 0.0010297332
+          "margin": 0.001034813
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.586078e-05,
+          "value": 1.497038e-05,
           "status": "pass",
-          "margin": 0.00098413922
+          "margin": 0.00098502962
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.698828e-08,
+          "value": 1.727927e-08,
           "status": "pass",
-          "margin": 0.00099998301172
+          "margin": 0.00099998272073
         }
       ]
     },
@@ -231,23 +232,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -2.01463e-05,
+          "value": -2.4763e-05,
           "status": "pass",
-          "margin": 0.0010201463
+          "margin": 0.001024763
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 3.776858e-06,
+          "value": 3.586862e-06,
           "status": "pass",
-          "margin": 0.000996223142
+          "margin": 0.0009964131380000001
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.425113e-08,
+          "value": 1.452927e-08,
           "status": "pass",
-          "margin": 0.00099998574887
+          "margin": 0.00099998547073
         }
       ]
     },
@@ -263,23 +264,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -1.28455e-05,
+          "value": -1.70683e-05,
           "status": "pass",
-          "margin": 0.0010128455
+          "margin": 0.0010170683
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.22466e-06,
+          "value": 1.219109e-06,
           "status": "pass",
-          "margin": 0.00099877534
+          "margin": 0.000998780891
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.225702e-08,
+          "value": 1.256881e-08,
           "status": "pass",
-          "margin": 0.00099998774298
+          "margin": 0.00099998743119
         }
       ]
     },
@@ -290,28 +291,29 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 5.283e-05,
-          "status": "pass",
-          "margin": 0.00094717
+          "value": null,
+          "status": "fail",
+          "margin": null,
+          "reason": "measurement not found in ngspice output"
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 5.5163e-06,
+          "value": 5.488911e-06,
           "status": "pass",
-          "margin": 0.0009944837
+          "margin": 0.000994511089
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 5.236593e-06,
+          "value": 5.304531e-06,
           "status": "pass",
-          "margin": 0.000994763407
+          "margin": 0.000994695469
         }
       ]
     },
@@ -322,28 +324,29 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 5.38398e-05,
-          "status": "pass",
-          "margin": 0.0009461602
+          "value": null,
+          "status": "fail",
+          "margin": null,
+          "reason": "measurement not found in ngspice output"
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 2.338886e-06,
+          "value": 2.303601e-06,
           "status": "pass",
-          "margin": 0.000997661114
+          "margin": 0.000997696399
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.8721e-08,
+          "value": 1.899848e-08,
           "status": "pass",
-          "margin": 0.000999981279
+          "margin": 0.00099998100152
         }
       ]
     },
@@ -354,28 +357,29 @@
         "vdd": 3.63
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 5.48762e-05,
-          "status": "pass",
-          "margin": 0.0009451238
+          "value": null,
+          "status": "fail",
+          "margin": null,
+          "reason": "measurement not found in ngspice output"
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.317762e-06,
+          "value": 1.250799e-06,
           "status": "pass",
-          "margin": 0.000998682238
+          "margin": 0.000998749201
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.507927e-08,
+          "value": 1.504207e-08,
           "status": "pass",
-          "margin": 0.00099998492073
+          "margin": 0.00099998495793
         }
       ]
     },
@@ -391,23 +395,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 0.000367629,
+          "value": 0.000335759,
           "status": "pass",
-          "margin": 0.0006323710000000001
+          "margin": 0.0006642410000000001
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 0.0002260492,
+          "value": 0.0002056634,
           "status": "pass",
-          "margin": 0.0007739508000000001
+          "margin": 0.0007943366000000001
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.432416e-08,
+          "value": 1.466574e-08,
           "status": "pass",
-          "margin": 0.00099998567584
+          "margin": 0.00099998533426
         }
       ]
     },
@@ -423,23 +427,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 0.0001449431,
+          "value": 0.0001378691,
           "status": "pass",
-          "margin": 0.0008550569
+          "margin": 0.0008621309
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 3.501688e-05,
+          "value": 3.228614e-05,
           "status": "pass",
-          "margin": 0.00096498312
+          "margin": 0.0009677138600000001
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.22489e-08,
+          "value": 1.248005e-08,
           "status": "pass",
-          "margin": 0.0009999877511
+          "margin": 0.00099998751995
         }
       ]
     },
@@ -455,23 +459,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 0.0001341491,
+          "value": 0.0001289699,
           "status": "pass",
-          "margin": 0.0008658509
+          "margin": 0.0008710301
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 5.778193e-06,
+          "value": 5.447463e-06,
           "status": "pass",
-          "margin": 0.000994221807
+          "margin": 0.000994552537
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.102286e-08,
+          "value": 1.124004e-08,
           "status": "pass",
-          "margin": 0.00099998897714
+          "margin": 0.00099998875996
         }
       ]
     },
@@ -487,23 +491,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 4.9233e-05,
+          "value": 4.5407e-05,
           "status": "pass",
-          "margin": 0.000950767
+          "margin": 0.000954593
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.075261e-05,
+          "value": 3.92484e-05,
           "status": "pass",
-          "margin": 0.00095924739
+          "margin": 0.0009607516
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.653489e-08,
+          "value": 1.677135e-08,
           "status": "pass",
-          "margin": 0.00099998346511
+          "margin": 0.00099998322865
         }
       ]
     },
@@ -519,23 +523,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 4.8957e-05,
+          "value": 4.60878e-05,
           "status": "pass",
-          "margin": 0.000951043
+          "margin": 0.0009539122
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 8.514315e-06,
+          "value": 8.254558e-06,
           "status": "pass",
-          "margin": 0.000991485685
+          "margin": 0.000991745442
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.394483e-08,
+          "value": 1.423047e-08,
           "status": "pass",
-          "margin": 0.00099998605517
+          "margin": 0.00099998576953
         }
       ]
     },
@@ -551,23 +555,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 4.97172e-05,
+          "value": 4.71605e-05,
           "status": "pass",
-          "margin": 0.0009502828
+          "margin": 0.0009528395
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 2.324191e-06,
+          "value": 2.276549e-06,
           "status": "pass",
-          "margin": 0.000997675809
+          "margin": 0.000997723451
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.19884e-08,
+          "value": 1.230862e-08,
           "status": "pass",
-          "margin": 0.0009999880116
+          "margin": 0.00099998769138
         }
       ]
     },
@@ -578,28 +582,29 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 0.000163011,
-          "status": "pass",
-          "margin": 0.000836989
+          "value": null,
+          "status": "fail",
+          "margin": null,
+          "reason": "measurement not found in ngspice output"
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 8.590403e-06,
+          "value": 8.494511e-06,
           "status": "pass",
-          "margin": 0.000991409597
+          "margin": 0.000991505489
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 6.726262e-06,
+          "value": 6.765532e-06,
           "status": "pass",
-          "margin": 0.0009932737380000001
+          "margin": 0.000993234468
         }
       ]
     },
@@ -610,28 +615,29 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 0.0001142852,
-          "status": "pass",
-          "margin": 0.0008857148000000001
+          "value": null,
+          "status": "fail",
+          "margin": null,
+          "reason": "measurement not found in ngspice output"
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 3.076643e-06,
+          "value": 3.039805e-06,
           "status": "pass",
-          "margin": 0.0009969233570000001
+          "margin": 0.000996960195
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.766807e-08,
+          "value": 1.829938e-08,
           "status": "pass",
-          "margin": 0.00099998233193
+          "margin": 0.00099998170062
         }
       ]
     },
@@ -642,28 +648,29 @@
         "vdd": 3.63
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 0.0001092936,
-          "status": "pass",
-          "margin": 0.0008907064
+          "value": null,
+          "status": "fail",
+          "margin": null,
+          "reason": "measurement not found in ngspice output"
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.723628e-06,
+          "value": 1.615368e-06,
           "status": "pass",
-          "margin": 0.000998276372
+          "margin": 0.000998384632
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.461963e-08,
+          "value": 1.476687e-08,
           "status": "pass",
-          "margin": 0.00099998538037
+          "margin": 0.00099998523313
         }
       ]
     },
@@ -679,23 +686,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -3.38202e-05,
+          "value": -4.16062e-05,
           "status": "pass",
-          "margin": 0.0010338202
+          "margin": 0.0010416062000000001
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 6.686229e-06,
+          "value": 5.607909e-06,
           "status": "pass",
-          "margin": 0.000993313771
+          "margin": 0.000994392091
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.460307e-08,
+          "value": 1.504729e-08,
           "status": "pass",
-          "margin": 0.00099998539693
+          "margin": 0.00099998495271
         }
       ]
     },
@@ -711,23 +718,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -2.59598e-05,
+          "value": -3.31092e-05,
           "status": "pass",
-          "margin": 0.0010259598
+          "margin": 0.0010331092
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.311473e-06,
+          "value": 1.131302e-06,
           "status": "pass",
-          "margin": 0.000998688527
+          "margin": 0.000998868698
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.282208e-08,
+          "value": 1.298479e-08,
           "status": "pass",
-          "margin": 0.00099998717792
+          "margin": 0.00099998701521
         }
       ]
     },
@@ -743,23 +750,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -1.98896e-05,
+          "value": -2.64889e-05,
           "status": "pass",
-          "margin": 0.0010198896
+          "margin": 0.0010264889
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.882229e-07,
+          "value": 4.462039e-07,
           "status": "pass",
-          "margin": 0.0009995117771
+          "margin": 0.0009995537961
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.145531e-08,
+          "value": 1.168976e-08,
           "status": "pass",
-          "margin": 0.00099998854469
+          "margin": 0.00099998831024
         }
       ]
     },
@@ -775,23 +782,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000125988,
+          "value": -0.000131388,
           "status": "pass",
-          "margin": 0.001125988
+          "margin": 0.001131388
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.792348e-06,
+          "value": 4.331693e-06,
           "status": "pass",
-          "margin": 0.0009952076520000001
+          "margin": 0.000995668307
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.73744e-08,
+          "value": 1.786885e-08,
           "status": "pass",
-          "margin": 0.0009999826256
+          "margin": 0.00099998213115
         }
       ]
     },
@@ -807,23 +814,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.00010688,
+          "value": -0.000111829,
           "status": "pass",
-          "margin": 0.00110688
+          "margin": 0.001111829
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.32498e-06,
+          "value": 1.229103e-06,
           "status": "pass",
-          "margin": 0.00099867502
+          "margin": 0.000998770897
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.455712e-08,
+          "value": 1.48325e-08,
           "status": "pass",
-          "margin": 0.00099998544288
+          "margin": 0.0009999851675
         }
       ]
     },
@@ -839,23 +846,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -9.17894e-05,
+          "value": -9.63528e-05,
           "status": "pass",
-          "margin": 0.0010917894
+          "margin": 0.0010963528
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 5.577529e-07,
+          "value": 5.438519e-07,
           "status": "pass",
-          "margin": 0.0009994422471
+          "margin": 0.0009994561481
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.255564e-08,
+          "value": 1.288374e-08,
           "status": "pass",
-          "margin": 0.0009999874443600001
+          "margin": 0.00099998711626
         }
       ]
     },
@@ -866,28 +873,29 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -2.34779e-05,
-          "status": "pass",
-          "margin": 0.0010234779
+          "value": null,
+          "status": "fail",
+          "margin": null,
+          "reason": "measurement not found in ngspice output"
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 3.913073e-06,
+          "value": 3.891616e-06,
           "status": "pass",
-          "margin": 0.000996086927
+          "margin": 0.000996108384
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 4.607492e-06,
+          "value": 4.751904e-06,
           "status": "pass",
-          "margin": 0.000995392508
+          "margin": 0.000995248096
         }
       ]
     },
@@ -898,28 +906,29 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -1.43237e-05,
-          "status": "pass",
-          "margin": 0.0010143237
+          "value": null,
+          "status": "fail",
+          "margin": null,
+          "reason": "measurement not found in ngspice output"
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.846933e-06,
+          "value": 1.830364e-06,
           "status": "pass",
-          "margin": 0.000998153067
+          "margin": 0.000998169636
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.970819e-08,
+          "value": 2.447659e-08,
           "status": "pass",
-          "margin": 0.00099998029181
+          "margin": 0.00099997552341
         }
       ]
     },
@@ -930,28 +939,29 @@
         "vdd": 3.63
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -7.2914e-06,
-          "status": "pass",
-          "margin": 0.0010072914
+          "value": null,
+          "status": "fail",
+          "margin": null,
+          "reason": "measurement not found in ngspice output"
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 5.903779e-07,
+          "value": 5.880419e-07,
           "status": "pass",
-          "margin": 0.0009994096221
+          "margin": 0.0009994119581000001
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.566465e-08,
+          "value": 1.587814e-08,
           "status": "pass",
-          "margin": 0.00099998433535
+          "margin": 0.00099998412186
         }
       ]
     },
@@ -967,23 +977,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000106933,
+          "value": -0.000117041,
           "status": "pass",
-          "margin": 0.001106933
+          "margin": 0.001117041
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.42088e-06,
+          "value": 1.164555e-06,
           "status": "pass",
-          "margin": 0.00099857912
+          "margin": 0.000998835445
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.390783e-08,
+          "value": 1.416547e-08,
           "status": "pass",
-          "margin": 0.00099998609217
+          "margin": 0.0009999858345300001
         }
       ]
     },
@@ -999,23 +1009,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -9.27981e-05,
+          "value": -0.00010201,
           "status": "pass",
-          "margin": 0.0010927981000000001
+          "margin": 0.00110201
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.494811e-07,
+          "value": 4.072331e-07,
           "status": "pass",
-          "margin": 0.0009995505189
+          "margin": 0.0009995927669
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.226393e-08,
+          "value": 1.247523e-08,
           "status": "pass",
-          "margin": 0.00099998773607
+          "margin": 0.00099998752477
         }
       ]
     },
@@ -1031,23 +1041,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -8.1419e-05,
+          "value": -8.98798e-05,
           "status": "pass",
-          "margin": 0.0010814190000000001
+          "margin": 0.0010898798
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 2.808119e-07,
+          "value": 2.648949e-07,
           "status": "pass",
-          "margin": 0.0009997191881
+          "margin": 0.0009997351051
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.089565e-08,
+          "value": 1.111708e-08,
           "status": "pass",
-          "margin": 0.00099998910435
+          "margin": 0.00099998888292
         }
       ]
     },
@@ -1063,23 +1073,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000190953,
+          "value": -0.000196925,
           "status": "pass",
-          "margin": 0.001190953
+          "margin": 0.001196925
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 2.203981e-06,
+          "value": 1.944961e-06,
           "status": "pass",
-          "margin": 0.000997796019
+          "margin": 0.000998055039
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.639977e-08,
+          "value": 1.68639e-08,
           "status": "pass",
-          "margin": 0.0009999836002300001
+          "margin": 0.0009999831361
         }
       ]
     },
@@ -1095,23 +1105,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000164391,
+          "value": -0.000169876,
           "status": "pass",
-          "margin": 0.001164391
+          "margin": 0.001169876
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 7.470661e-07,
+          "value": 6.687701e-07,
           "status": "pass",
-          "margin": 0.0009992529339
+          "margin": 0.0009993312299
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.356411e-08,
+          "value": 1.402161e-08,
           "status": "pass",
-          "margin": 0.0009999864358900001
+          "margin": 0.00099998597839
         }
       ]
     },
@@ -1127,23 +1137,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -0.000143392,
+          "value": -0.000148449,
           "status": "pass",
-          "margin": 0.001143392
+          "margin": 0.001148449
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 4.044269e-07,
+          "value": 3.773869e-07,
           "status": "pass",
-          "margin": 0.0009995955731
+          "margin": 0.0009996226131
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.184897e-08,
+          "value": 1.219505e-08,
           "status": "pass",
-          "margin": 0.00099998815103
+          "margin": 0.00099998780495
         }
       ]
     },
@@ -1154,28 +1164,29 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 0.000112935,
-          "status": "pass",
-          "margin": 0.000887065
+          "value": null,
+          "status": "fail",
+          "margin": null,
+          "reason": "measurement not found in ngspice output"
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.220026e-05,
+          "value": 1.185086e-05,
           "status": "pass",
-          "margin": 0.00098779974
+          "margin": 0.00098814914
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 2.42093e-05,
+          "value": 2.612389e-05,
           "status": "pass",
-          "margin": 0.0009757907000000001
+          "margin": 0.00097387611
         }
       ]
     },
@@ -1186,28 +1197,29 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 9.26257e-05,
-          "status": "pass",
-          "margin": 0.0009073743000000001
+          "value": null,
+          "status": "fail",
+          "margin": null,
+          "reason": "measurement not found in ngspice output"
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 3.478674e-06,
+          "value": 3.399025e-06,
           "status": "pass",
-          "margin": 0.000996521326
+          "margin": 0.000996600975
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.832174e-08,
+          "value": 1.882075e-08,
           "status": "pass",
-          "margin": 0.00099998167826
+          "margin": 0.00099998117925
         }
       ]
     },
@@ -1218,28 +1230,29 @@
         "vdd": 3.63
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 8.92668e-05,
-          "status": "pass",
-          "margin": 0.0009107332
+          "value": null,
+          "status": "fail",
+          "margin": null,
+          "reason": "measurement not found in ngspice output"
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.723912e-06,
+          "value": 1.680915e-06,
           "status": "pass",
-          "margin": 0.000998276088
+          "margin": 0.000998319085
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.460978e-08,
+          "value": 1.516655e-08,
           "status": "pass",
-          "margin": 0.00099998539022
+          "margin": 0.00099998483345
         }
       ]
     },
@@ -1255,23 +1268,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 0.000204678,
+          "value": 0.000202529,
           "status": "pass",
-          "margin": 0.000795322
+          "margin": 0.000797471
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 0.0001481393,
+          "value": 0.000144205,
           "status": "pass",
-          "margin": 0.0008518607
+          "margin": 0.000855795
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.520332e-08,
+          "value": 1.548292e-08,
           "status": "pass",
-          "margin": 0.00099998479668
+          "margin": 0.0009999845170800001
         }
       ]
     },
@@ -1287,23 +1300,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 0.0001088035,
+          "value": 0.0001080866,
           "status": "pass",
-          "margin": 0.0008911965
+          "margin": 0.0008919134000000001
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.692754e-05,
+          "value": 1.650786e-05,
           "status": "pass",
-          "margin": 0.00098307246
+          "margin": 0.00098349214
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.285747e-08,
+          "value": 1.333815e-08,
           "status": "pass",
-          "margin": 0.00099998714253
+          "margin": 0.00099998666185
         }
       ]
     },
@@ -1319,23 +1332,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 0.0001027328,
+          "value": 0.0001020821,
           "status": "pass",
-          "margin": 0.0008972672000000001
+          "margin": 0.0008979179
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 2.927933e-06,
+          "value": 2.896132e-06,
           "status": "pass",
-          "margin": 0.000997072067
+          "margin": 0.000997103868
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.13627e-08,
+          "value": 1.16683e-08,
           "status": "pass",
-          "margin": 0.0009999886373
+          "margin": 0.0009999883317
         }
       ]
     },
@@ -1351,23 +1364,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -2.60318e-05,
+          "value": -2.70628e-05,
           "status": "pass",
-          "margin": 0.0010260318
+          "margin": 0.0010270628
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.695986e-05,
+          "value": 1.665847e-05,
           "status": "pass",
-          "margin": 0.00098304014
+          "margin": 0.00098334153
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.730523e-08,
+          "value": 1.828851e-08,
           "status": "pass",
-          "margin": 0.00099998269477
+          "margin": 0.00099998171149
         }
       ]
     },
@@ -1383,23 +1396,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -1.7617e-05,
+          "value": -1.85458e-05,
           "status": "pass",
-          "margin": 0.001017617
+          "margin": 0.0010185458
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 3.728607e-06,
+          "value": 3.668397e-06,
           "status": "pass",
-          "margin": 0.0009962713930000001
+          "margin": 0.000996331603
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.456293e-08,
+          "value": 1.46651e-08,
           "status": "pass",
-          "margin": 0.00099998543707
+          "margin": 0.0009999853349
         }
       ]
     },
@@ -1415,23 +1428,23 @@
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -1.12198e-05,
+          "value": -1.20684e-05,
           "status": "pass",
-          "margin": 0.0010112198
+          "margin": 0.0010120684
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.396256e-06,
+          "value": 1.386576e-06,
           "status": "pass",
-          "margin": 0.000998603744
+          "margin": 0.000998613424
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.275546e-08,
+          "value": 1.302586e-08,
           "status": "pass",
-          "margin": 0.00099998724454
+          "margin": 0.00099998697414
         }
       ]
     },
@@ -1442,28 +1455,29 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -1.28214e-05,
-          "status": "pass",
-          "margin": 0.0010128214
+          "value": null,
+          "status": "fail",
+          "margin": null,
+          "reason": "measurement not found in ngspice output"
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 3.479071e-06,
+          "value": 3.446757e-06,
           "status": "pass",
-          "margin": 0.000996520929
+          "margin": 0.000996553243
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 2.874572e-06,
+          "value": 2.863253e-06,
           "status": "pass",
-          "margin": 0.000997125428
+          "margin": 0.000997136747
         }
       ]
     },
@@ -1474,28 +1488,29 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": -5.3764e-06,
-          "status": "pass",
-          "margin": 0.0010053764
+          "value": null,
+          "status": "fail",
+          "margin": null,
+          "reason": "measurement not found in ngspice output"
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 1.77011e-06,
+          "value": 1.746974e-06,
           "status": "pass",
-          "margin": 0.00099822989
+          "margin": 0.000998253026
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 2.206064e-08,
+          "value": 2.3577e-08,
           "status": "pass",
-          "margin": 0.00099997793936
+          "margin": 0.0009999764230000001
         }
       ]
     },
@@ -1506,28 +1521,29 @@
         "vdd": 3.63
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "t_start_s",
           "unit": "s",
-          "value": 1.874e-07,
-          "status": "pass",
-          "margin": 0.0009998126
+          "value": null,
+          "status": "fail",
+          "margin": null,
+          "reason": "measurement not found in ngspice output"
         },
         {
           "name": "t_start_f",
           "unit": "s",
-          "value": 6.639469e-07,
+          "value": 6.767149e-07,
           "status": "pass",
-          "margin": 0.0009993360531
+          "margin": 0.0009993232851000001
         },
         {
           "name": "t_start_g",
           "unit": "s",
-          "value": 1.555078e-08,
+          "value": 1.604518e-08,
           "status": "pass",
-          "margin": 0.00099998444922
+          "margin": 0.00099998395482
         }
       ]
     }

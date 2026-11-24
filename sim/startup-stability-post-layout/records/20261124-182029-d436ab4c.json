@@ -1,0 +1,1492 @@
+{
+  "author": "313063438+loom-fleet-dispatch[bot]@users.noreply.github.com",
+  "corners": [
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-7c3b69ebfaec",
+        "job_ids": [
+          "klt-sim-7c3b69ebfaec"
+        ],
+        "klt_corner_id": "ff/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ff_-40c_2.97v",
+      "elapsed_s": 12.037,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability-post-layout/corners/20261124-182029-d436ab4c/ff_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.5936255
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0001413711
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0003981465
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0004226591
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00017175
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": false,
+          "reason": "below min 1.1",
+          "unit": "V",
+          "value": 1.05298
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.759932
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.056311e-05
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [
+          {
+            "code": "nonconvergence",
+            "message": "Warning: Dynamic gmin stepping failed",
+            "severity": "warning"
+          }
+        ],
+        "failure": null,
+        "job_id": "klt-sim-5b7ba156fd16",
+        "job_ids": [
+          "klt-sim-5b7ba156fd16"
+        ],
+        "klt_corner_id": "ff/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ff_-40c_3.63v",
+      "elapsed_s": 32.144,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability-post-layout/corners/20261124-182029-d436ab4c/ff_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6653386
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0003365152
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006041255
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006853861
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.00025957
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": false,
+          "reason": "below min 1.1",
+          "unit": "V",
+          "value": 1.054146
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.422457
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.061886e-05
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-7c3b69ebfaec",
+        "job_ids": [
+          "klt-sim-7c3b69ebfaec"
+        ],
+        "klt_corner_id": "ff/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ff_125c_2.97v",
+      "elapsed_s": 9.08,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability-post-layout/corners/20261124-182029-d436ab4c/ff_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6613546
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 7.614456e-08
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0001184721
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.000413769
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000148152
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": false,
+          "reason": "below min 1.1",
+          "unit": "V",
+          "value": 0.922903
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.963477
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.731286e-05
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-5b7ba156fd16",
+        "job_ids": [
+          "klt-sim-5b7ba156fd16"
+        ],
+        "klt_corner_id": "ff/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ff_125c_3.63v",
+      "elapsed_s": 24.226,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability-post-layout/corners/20261124-182029-d436ab4c/ff_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.7211155
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 8.101427e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0004349175
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006589644
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000213006
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": false,
+          "reason": "below min 1.1",
+          "unit": "V",
+          "value": 0.9461311
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.620121
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.831718e-05
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [
+          {
+            "code": "nonconvergence",
+            "message": "Warning: Dynamic gmin stepping failed",
+            "severity": "warning"
+          }
+        ],
+        "failure": null,
+        "job_id": "klt-sim-7c3b69ebfaec",
+        "job_ids": [
+          "klt-sim-7c3b69ebfaec"
+        ],
+        "klt_corner_id": "ss/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ss_-40c_2.97v",
+      "elapsed_s": 39.193,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability-post-layout/corners/20261124-182029-d436ab4c/ss_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.561753
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0002605699
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0003881851
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0004006183
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000159364
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": false,
+          "reason": "below min 1.1",
+          "unit": "V",
+          "value": 1.051712
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.674902
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.038742e-05
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-5b7ba156fd16",
+        "job_ids": [
+          "klt-sim-5b7ba156fd16"
+        ],
+        "klt_corner_id": "ss/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ss_-40c_3.63v",
+      "elapsed_s": 35.85,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability-post-layout/corners/20261124-182029-d436ab4c/ss_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6454183
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.000411962
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0005999304
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006589302
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000245471
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": false,
+          "reason": "below min 1.1",
+          "unit": "V",
+          "value": 1.051865
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.341163
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.015767e-05
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-7c3b69ebfaec",
+        "job_ids": [
+          "klt-sim-7c3b69ebfaec"
+        ],
+        "klt_corner_id": "ss/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ss_125c_2.97v",
+      "elapsed_s": 27.222,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability-post-layout/corners/20261124-182029-d436ab4c/ss_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.6334661
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 6.002366e-09
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.213328e-05
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0002501149
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000138666
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": false,
+          "reason": "below min 1.1",
+          "unit": "V",
+          "value": 0.919979
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 1.877375
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.704614e-05
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": "klt-sim-5b7ba156fd16",
+        "job_ids": [
+          "klt-sim-5b7ba156fd16"
+        ],
+        "klt_corner_id": "ss/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ss_125c_3.63v",
+      "elapsed_s": 23.617,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/startup-stability-post-layout/corners/20261124-182029-d436ab4c/ss_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "(250 - mean(ssu[0,249]*ssu[1,250])*250) / 2",
+          "max": 1.5,
+          "min": 0.5,
+          "name": "ncross_su",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 1.0
+        },
+        {
+          "expr": "1 - mean((ssu+1)/2)",
+          "max": 0.74,
+          "min": 0.2,
+          "name": "alpha_eq",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 0.7011952
+        },
+        {
+          "expr": "vecmin(ifsu[188,250])",
+          "max": null,
+          "min": 1e-09,
+          "name": "itrav_min",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 2.664256e-07
+        },
+        {
+          "expr": "vecmin(abs(ifsu[225,250]))",
+          "max": null,
+          "min": 1e-08,
+          "name": "imin_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0002850528
+        },
+        {
+          "expr": "ifsu[250]",
+          "max": null,
+          "min": 1e-06,
+          "name": "i_off_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 0.0006130008
+        },
+        {
+          "expr": "ifsu[0]",
+          "max": -1e-06,
+          "min": null,
+          "name": "i_on_su",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": -0.000201939
+        },
+        {
+          "expr": "v(vrefd)[0]",
+          "max": 1.3,
+          "min": 1.1,
+          "name": "vref_dut",
+          "pass": false,
+          "reason": "below min 1.1",
+          "unit": "V",
+          "value": 0.9217431
+        },
+        {
+          "expr": "v(gd)[0]",
+          "max": 3.2,
+          "min": 1.0,
+          "name": "vgdrv_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "V",
+          "value": 2.545369
+        },
+        {
+          "expr": "-i(v1)[0]",
+          "max": 5e-05,
+          "min": 5e-06,
+          "name": "isup_dut",
+          "pass": true,
+          "reason": "",
+          "unit": "A",
+          "value": 1.680954e-05
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    }
+  ],
+  "execution": {
+    "backend": "batch",
+    "blockers": [],
+    "collected_at": "2026-11-24T18:23:15Z",
+    "corner_runtime_max_s": 39.2,
+    "corner_runtime_median_s": 27.2,
+    "corner_runtime_min_s": 9.1,
+    "corner_runtime_sum_s": 203.4,
+    "jobs": [
+      {
+        "collected_at": "2026-11-24T18:22:51Z",
+        "corner_count": 4,
+        "corner_runtime_max_s": 39.2,
+        "corner_runtime_min_s": 9.1,
+        "corner_runtime_sum_s": 87.5,
+        "engine": "ngspice",
+        "engine_version": "47",
+        "job_elapsed_s": 50,
+        "job_id": "klt-sim-7c3b69ebfaec",
+        "job_ids": [
+          "klt-sim-7c3b69ebfaec"
+        ],
+        "klt_client_version": "0.9.3.dev5473+g89c4f5ac4a7a",
+        "klt_exit_code": 3,
+        "klt_status": "fail",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "d0f15a2d86286390bc0eeb0c0854ed32392ef17b339ae47ad30c8a66b839adfa",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "pdk_provenance": {
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ],
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+        },
+        "queue_provision_and_transfer_s": 90.6,
+        "remote": {
+          "ami_id": "ami-09c14f55df4958cbd",
+          "availability_zone": "us-east-1c",
+          "client_collected_at": "2026-11-24T18:22:51.367010Z",
+          "client_klt_version": "0.9.3.dev5473+g89c4f5ac4a7a",
+          "client_launched_at": "2026-11-24T18:21:48.202345Z",
+          "client_status_terminal_at": "2026-11-24T18:22:50.506780Z",
+          "client_submitted_at": "2026-11-24T18:20:32.434947Z",
+          "concurrency": "1",
+          "elapsed_seconds": 50,
+          "exit_code": "3",
+          "exit_reason": {
+            "exit_code": 3,
+            "message": "klt sim exited 3 (a corner or measurement failed): aggregate status 'fail'; the job state is failed because of this verdict exit code, not a runner crash and not the whole-job ceiling (a ceiling kill reports state timeout, exit 124)",
+            "nothing_checked": false,
+            "nothing_checked_reasons": [],
+            "report_status": "fail",
+            "units": {
+              "by_status": {
+                "fail": 4
+              },
+              "first_not_passed": [
+                {
+                  "code": null,
+                  "corner_id": "ff/novdd/-40C",
+                  "message": null,
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "ff/novdd/125C",
+                  "message": null,
+                  "status": "fail"
+                },
+                {
+                  "code": "nonconvergence",
+                  "corner_id": "ss/novdd/-40C",
+                  "message": "Warning: Dynamic gmin stepping failed",
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "ss/novdd/125C",
+                  "message": null,
+                  "status": "fail"
+                }
+              ],
+              "total": 4
+            }
+          },
+          "image_profile": "sim",
+          "instance_id": "i-0d33b41ef53e29558",
+          "instance_type": "m6i.4xlarge",
+          "job_ceiling": {
+            "basis": "conservative_serial_bound",
+            "check": "warn",
+            "exceeds_ceiling": false,
+            "image_profile": "sim",
+            "job_bound_s": 2520.0,
+            "max_job_seconds": 3600.0,
+            "max_job_seconds_source": "fleet_config",
+            "max_units_per_job": 5,
+            "overhead_s": 120.0,
+            "per_unit_timeout_s": 600,
+            "recommended_hosts": 1,
+            "unit_count": 4
+          },
+          "job_id": "klt-sim-7c3b69ebfaec",
+          "lifecycle": "spot",
+          "models_lib_comparison": {
+            "status": "match"
+          },
+          "physical_cores": "8",
+          "provider": "aws-batch-fleet",
+          "region": "us-east-1",
+          "runner_compatibility": "match",
+          "runner_corner_section_libs": null,
+          "runner_klt_version": "0.9.0",
+          "runner_model_inputs": null,
+          "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+          "runner_osdi_preload": null,
+          "runner_request_features": {
+            "missing": [],
+            "required": [
+              "measurements[].expr",
+              "options.ngspice_init"
+            ],
+            "status": "supported"
+          },
+          "spot": true,
+          "state": "failed",
+          "worker_environment_ref": "6f582d52983647cc5c0d4ba5e3a4274a8cce566127ccbaaf17181990e989a25b"
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-669/sim/build/startup-stability-post-layout/20261124-182029-d436ab4c/batch/v2.97/klt-report.json",
+        "submit_to_collect_wall_s": 140.6,
+        "submitted_at": "2026-11-24T18:20:30Z",
+        "supply_v": 2.97
+      },
+      {
+        "collected_at": "2026-11-24T18:23:15Z",
+        "corner_count": 4,
+        "corner_runtime_max_s": 35.9,
+        "corner_runtime_min_s": 23.6,
+        "corner_runtime_sum_s": 115.8,
+        "engine": "ngspice",
+        "engine_version": "47",
+        "job_elapsed_s": 90,
+        "job_id": "klt-sim-5b7ba156fd16",
+        "job_ids": [
+          "klt-sim-5b7ba156fd16"
+        ],
+        "klt_client_version": "0.9.3.dev5473+g89c4f5ac4a7a",
+        "klt_exit_code": 3,
+        "klt_status": "fail",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "81c30e448a2e3b2fb53a9b2e08608af897081fa3e0895ff775cc273c15ae00d5",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "pdk_provenance": {
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ],
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+        },
+        "queue_provision_and_transfer_s": 74.4,
+        "remote": {
+          "ami_id": "ami-09c14f55df4958cbd",
+          "availability_zone": "us-east-1c",
+          "client_collected_at": "2026-11-24T18:23:15.070522Z",
+          "client_klt_version": "0.9.3.dev5473+g89c4f5ac4a7a",
+          "client_launched_at": "2026-11-24T18:21:10.314035Z",
+          "client_status_terminal_at": "2026-11-24T18:23:14.199328Z",
+          "client_submitted_at": "2026-11-24T18:20:32.452049Z",
+          "concurrency": "1",
+          "elapsed_seconds": 90,
+          "exit_code": "3",
+          "exit_reason": {
+            "exit_code": 3,
+            "message": "klt sim exited 3 (a corner or measurement failed): aggregate status 'fail'; the job state is failed because of this verdict exit code, not a runner crash and not the whole-job ceiling (a ceiling kill reports state timeout, exit 124)",
+            "nothing_checked": false,
+            "nothing_checked_reasons": [],
+            "report_status": "fail",
+            "units": {
+              "by_status": {
+                "fail": 4
+              },
+              "first_not_passed": [
+                {
+                  "code": "nonconvergence",
+                  "corner_id": "ff/novdd/-40C",
+                  "message": "Warning: Dynamic gmin stepping failed",
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "ff/novdd/125C",
+                  "message": null,
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "ss/novdd/-40C",
+                  "message": null,
+                  "status": "fail"
+                },
+                {
+                  "code": null,
+                  "corner_id": "ss/novdd/125C",
+                  "message": null,
+                  "status": "fail"
+                }
+              ],
+              "total": 4
+            }
+          },
+          "image_profile": "sim",
+          "instance_id": "i-0410ed5ba183d51c7",
+          "instance_type": "m7i.4xlarge",
+          "job_ceiling": {
+            "basis": "conservative_serial_bound",
+            "check": "warn",
+            "exceeds_ceiling": false,
+            "image_profile": "sim",
+            "job_bound_s": 2520.0,
+            "max_job_seconds": 3600.0,
+            "max_job_seconds_source": "fleet_config",
+            "max_units_per_job": 5,
+            "overhead_s": 120.0,
+            "per_unit_timeout_s": 600,
+            "recommended_hosts": 1,
+            "unit_count": 4
+          },
+          "job_id": "klt-sim-5b7ba156fd16",
+          "lifecycle": "spot",
+          "models_lib_comparison": {
+            "status": "match"
+          },
+          "physical_cores": "8",
+          "provider": "aws-batch-fleet",
+          "region": "us-east-1",
+          "runner_compatibility": "match",
+          "runner_corner_section_libs": null,
+          "runner_klt_version": "0.9.0",
+          "runner_model_inputs": null,
+          "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+          "runner_osdi_preload": null,
+          "runner_request_features": {
+            "missing": [],
+            "required": [
+              "measurements[].expr",
+              "options.ngspice_init"
+            ],
+            "status": "supported"
+          },
+          "spot": true,
+          "state": "failed",
+          "worker_environment_ref": "2b08fe120d5c82da57ef03a9bd774ca3f59563410673a534990aa90a71dde914"
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-669/sim/build/startup-stability-post-layout/20261124-182029-d436ab4c/batch/v3.63/klt-report.json",
+        "submit_to_collect_wall_s": 164.4,
+        "submitted_at": "2026-11-24T18:20:30Z",
+        "supply_v": 3.63
+      }
+    ],
+    "klt_client": "klt 0.9.3.dev5473+g89c4f5ac4a7a",
+    "local_pinned_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+    "mechanism": "klt sim --backend batch (2am EDA batch fleet, Spot)",
+    "remote_ami_ids": [
+      "ami-09c14f55df4958cbd"
+    ],
+    "remote_engine_versions": [
+      "47"
+    ],
+    "remote_instance_types": [
+      "m6i.4xlarge",
+      "m7i.4xlarge"
+    ],
+    "remote_pdk_matches_pin": true,
+    "submit_to_collect_wall_s": 164.4,
+    "submitted_at": "2026-11-24T18:20:30Z",
+    "timing_note": "elapsed_s per corner is the remote engine wall clock reported by klt (runtime_s). job_elapsed_s is the fleet harness's own job time. queue_provision_and_transfer_s = submit-to-collect wall minus job_elapsed_s (S3 upload, Spot acquisition/boot, polling granularity, download).",
+    "worker_environments": {
+      "2b08fe120d5c82da57ef03a9bd774ca3f59563410673a534990aa90a71dde914": {
+        "capture": "ok",
+        "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+        "diagnostics": [],
+        "engine_build_comparison": {
+          "status": "match"
+        },
+        "image_manifest": null,
+        "model_inputs": null,
+        "ngspice_init": null,
+        "omp_num_threads": null,
+        "pdk": {
+          "models_staged": false,
+          "root": "/opt/pdk",
+          "stamp_scheme": "sources-sha256",
+          "stamp_scope": "executed",
+          "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+          "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+          "variant": "sky130A"
+        },
+        "pdk_stamp_comparison": {
+          "status": "match"
+        },
+        "simulator": {
+          "binary_sha256": "e12148baf532d879d2e2053cecc5b498680bd4156a0dc3f69ce4f83e741e1314",
+          "binary_source": "PATH",
+          "requested_binary": "ngspice",
+          "selected_path": "/usr/local/bin/ngspice",
+          "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Fri Nov 13 23:19:32 UTC 2026\n******\n",
+          "version_probe": "ok"
+        },
+        "threads_per_worker": 1
+      },
+      "6f582d52983647cc5c0d4ba5e3a4274a8cce566127ccbaaf17181990e989a25b": {
+        "capture": "ok",
+        "cpu_model": "Intel(R) Xeon(R) Platinum 8375C CPU @ 2.90GHz",
+        "diagnostics": [],
+        "engine_build_comparison": {
+          "status": "match"
+        },
+        "image_manifest": null,
+        "model_inputs": null,
+        "ngspice_init": null,
+        "omp_num_threads": null,
+        "pdk": {
+          "models_staged": false,
+          "root": "/opt/pdk",
+          "stamp_scheme": "sources-sha256",
+          "stamp_scope": "executed",
+          "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+          "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+          "variant": "sky130A"
+        },
+        "pdk_stamp_comparison": {
+          "status": "match"
+        },
+        "simulator": {
+          "binary_sha256": "e12148baf532d879d2e2053cecc5b498680bd4156a0dc3f69ce4f83e741e1314",
+          "binary_source": "PATH",
+          "requested_binary": "ngspice",
+          "selected_path": "/usr/local/bin/ngspice",
+          "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Fri Nov 13 23:19:32 UTC 2026\n******\n",
+          "version_probe": "ok"
+        },
+        "threads_per_worker": 1
+      }
+    }
+  },
+  "experiment": {
+    "claim": "spec/topology-survey.md Startup row (\"self-starting, < 1 ms\") -- the no-other-stable-state half, on the cell that would actually be fabricated. Substantiates that the ROUTED bandgap-core layout (issue #62, thick-oxide geometry per issue #620; its LVS verdict is cited under 'Netlist provenance', not asserted here) -- which since issue #285 DRAWS design/startup_injector.sch inside the composed cell (MPC1, MPC2, MNS, MNI, MNC, QS) -- has exactly ONE DC operating point over the whole 0..VDD range of its startup node GDRV, and that the loop is pulled downhill by a bounded-below current everywhere in the degenerate region rather than merely somewhere in it. The DUT is the composed cell ALONE: this bench instantiates design/bandgap_core.sym with NO separate design/startup_injector.sym instance, because the extracted body already contains one, and it carries NO bare-core control instance, because the drawn cell cannot express one (issue #299 -- see the 'dropped measurements' note below for what that costs and where those claims still live). The extracted core comes from klt extract --parasitics translated to a simulatable netlist (sim/bin/post_layout_common.py), NOT design/bandgap_core.sch directly -- see 'Netlist provenance' below. The schematic-level counterpart of this claim, WITH its bare-core control, is sim/startup-stability/ (report row 8a); the startup TIME claim on this same composed cell is the sibling post-layout bench sim/startup-ramp-post-layout/; the +/-1% output-accuracy claim is issue #11.",
+    "provenance": "extracted",
+    "provenance_source": "manifests/artifacts/layout-bandgap-core-20261124-181030-d436ab4c.manifest.json#layout/bandgap-core/staging/20261124-181030-d436ab4c/bandgap_core_routed.gds (sha256 407a2c17d6493456..., fetched via `klt artifact get` to sim/build/layout-artifacts/20261124-181030-d436ab4c/bandgap_core_routed.gds) via `klt extract --parasitics` (layout record 20261124-181030-d436ab4c), translated by sim/bin/post_layout_common.py, over this bench's own sim/startup-stability-post-layout/testbench/tb_startup_stability_pl.sch",
+    "slug": "startup-stability-post-layout",
+    "statistical_convention": "N/A (corner-matrix claim, not a distribution claim)",
+    "title": "Startup: the degenerate zero-current state is not an operating point of the COMPOSED LAYOUT CELL -- POST-LAYOUT (extracted netlist)"
+  },
+  "git": {
+    "branch": "feature/issue-669",
+    "dirty": true,
+    "sha": "d436ab4c"
+  },
+  "jobs": null,
+  "layout_provenance": {
+    "core_port_order": [
+      "D1",
+      "D2",
+      "GDRV",
+      "NE",
+      "NG",
+      "PN",
+      "TAIL",
+      "VA",
+      "VB",
+      "VBQ",
+      "VDD",
+      "VOUT",
+      "VSS"
+    ],
+    "device_translation_counts": {
+      "mos": 73,
+      "pnp": 24,
+      "res": 145
+    },
+    "layout_gds": "sim/build/layout-artifacts/20261124-181030-d436ab4c/bandgap_core_routed.gds",
+    "layout_gds_source": {
+      "cache": "sim/build/layout-artifacts/20261124-181030-d436ab4c/bandgap_core_routed.gds",
+      "entry": "layout/bandgap-core/staging/20261124-181030-d436ab4c/bandgap_core_routed.gds",
+      "kind": "artifact-store",
+      "manifest": "manifests/artifacts/layout-bandgap-core-20261124-181030-d436ab4c.manifest.json",
+      "sha256": "407a2c17d649345689f7a8f8e974b9f089807f0f8467982b8a000931eb0157dd",
+      "size": 315644
+    },
+    "layout_lvs": {
+      "mismatch_count": 5,
+      "report": "layout/bandgap-core/reports/20261124-181030-d436ab4c/lvs.combined.json",
+      "status": "mismatch"
+    },
+    "layout_record": "layout/bandgap-core/reports/20261124-181030-d436ab4c/record.md",
+    "layout_record_id": "20261124-181030-d436ab4c",
+    "layout_reference": {
+      "kind": "tracked",
+      "path": "layout/bandgap-core/reference.spice",
+      "sha256": "e722ce6553b3008772dcc3ae79fcaea76713311d068ffb95ca824f13e6e69c6e"
+    },
+    "lvs_mismatch_count_at_extraction": 5,
+    "mos_flavour_gate": {
+      "clean": true,
+      "expected": {
+        "nfet": 19,
+        "pfet": 54
+      },
+      "mismatches": {},
+      "observed": {
+        "nfet": 19,
+        "pfet": 54
+      },
+      "unexpected_mos_models": {}
+    },
+    "parasitics_snapshot": {
+      "c_count": 156,
+      "json": "sim/output-voltage-tc-post-layout/parasitics-snapshot/20261124-181030-d436ab4c-pdk/bandgap_core_routed.pex.json",
+      "pex_spice_sha256": "a356df98b2ae858bf882c7f2cebe5e42193627af550e2b73b0fe972ffe767488",
+      "r_count": 799,
+      "source": "reused:sim/output-voltage-tc-post-layout/parasitics-snapshot/20261124-181030-d436ab4c-pdk",
+      "spice": "sim/output-voltage-tc-post-layout/parasitics-snapshot/20261124-181030-d436ab4c-pdk/bandgap_core_routed.pex.spice",
+      "total_capacitance_ff": 1893.444129,
+      "total_resistance_ohm": 934238.0413
+    }
+  },
+  "links": {
+    "artifact_manifest": "manifests/artifacts/startup-stability-post-layout-20261124-182029-d436ab4c.manifest.json",
+    "corners_dir": "sim/startup-stability-post-layout/corners/20261124-182029-d436ab4c/",
+    "json": "sim/startup-stability-post-layout/records/20261124-182029-d436ab4c.json",
+    "manifest": "sim/startup-stability-post-layout/experiment.json",
+    "netlist_snapshot": "sim/startup-stability-post-layout/netlist-snapshots/20261124-182029-d436ab4c.spice",
+    "record": "sim/startup-stability-post-layout/records/20261124-182029-d436ab4c.md",
+    "testbench": "sim/startup-stability-post-layout/testbench/tb_startup_stability_pl.sch"
+  },
+  "matrix": {
+    "is_subset": true,
+    "n_points": 8,
+    "point_ids": [
+      "ff_-40c_2.97v",
+      "ff_-40c_3.63v",
+      "ff_125c_2.97v",
+      "ff_125c_3.63v",
+      "ss_-40c_2.97v",
+      "ss_-40c_3.63v",
+      "ss_125c_2.97v",
+      "ss_125c_3.63v"
+    ],
+    "points": [
+      [
+        "ff",
+        -40.0,
+        2.97
+      ],
+      [
+        "ff",
+        -40.0,
+        3.63
+      ],
+      [
+        "ff",
+        125.0,
+        2.97
+      ],
+      [
+        "ff",
+        125.0,
+        3.63
+      ],
+      [
+        "ss",
+        -40.0,
+        2.97
+      ],
+      [
+        "ss",
+        -40.0,
+        3.63
+      ],
+      [
+        "ss",
+        125.0,
+        2.97
+      ],
+      [
+        "ss",
+        125.0,
+        3.63
+      ]
+    ],
+    "process": [
+      "ff",
+      "ss"
+    ],
+    "subset_reason": "issue #16's Acceptance Criteria ask for issue #10's degenerate-state checks re-run 'at worst corners', not the full 45-point matrix sim/startup-stability's own schematic-level records use. This 8-point subset (process in {ff, ss} x temperature in {-40, 125} C x supply in {2.97, 3.63} V) is the temperature/supply extremes crossed with the two process corners sim/startup-stability/experiment.json's own notes field and sim/startup-ramp/experiment.json's vref_spread note identify as where this design's margin is thinnest: ff/125 C/3.63 V is the worst recorded dvref (+8.70 mV, record 20260803-204236-f41373d); the sibling startup-ramp bench's only two documented FAILs in its early records are both at ff/-40 C (2.97 V and 3.63 V, on vref_spread); ss is the slow-amplifier corner the same startup-ramp notes cite as the worst t_start_s (ss/125 C/2.97 V, +146 us against the 1 ms bound). tt/sf/fs and the 27 C / nominal-supply interior points are intentionally omitted -- they are not where the design's own prior evidence puts the degenerate-state margin at risk, and every one of them is already covered by sim/startup-time-post-layout's full 45-point matrix on the SAME extracted composed cell, whose 45/45 PASS (record 20260923-070906-dbd57a9, t_start 0.0678-0.1818 ms, gdrv_final 1.598-2.611 V) is the same 'the drawn injector evicts the degenerate state' statement measured transiently at every one of them. It also keeps this bench's cost bounded: each corner is four forced 251-point non-continuation DC sweeps over a parasitic-laden extracted netlist.",
+    "supply_v": [
+      2.97,
+      3.63
+    ],
+    "temperature_c": [
+      -40.0,
+      125.0
+    ]
+  },
+  "overall_blockers": [],
+  "overall_pass": false,
+  "pdk": {
+    "installed_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "lib_file": "/home/ubuntu/.ciel/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "root": "/home/ubuntu/.ciel",
+    "variant": "sky130A"
+  },
+  "record_id": "20261124-182029-d436ab4c",
+  "spread_checks": [
+    {
+      "measurement": "vgdrv_dut",
+      "min_spread": 0.3,
+      "n": 8,
+      "note": "The startup node's operating voltage tracks the supply (GDRV ~ VDD - |Vgs_p|), so a multi-corner run must show it moving by more than the +/-10 % supply span. A flat vgdrv_dut across the matrix means the corner/supply knobs are not reaching the simulator.",
+      "observed_spread": 0.9452190000000003,
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "measurement": "vref_dut",
+      "min_spread": 0.01,
+      "n": 8,
+      "note": "Untrimmed output over process and temperature must move by more than 10 mV; a frozen value would indicate the .lib corner or .temp injection stopped taking effect.",
+      "observed_spread": 0.13416700000000004,
+      "pass": true,
+      "reason": ""
+    }
+  ],
+  "supersedes": "20261124-154418-39a20d81",
+  "timestamp": "2026-11-24T18:20:29Z",
+  "tools": {
+    "klt": "klt 0.9.3.dev5473+g89c4f5ac4a7a",
+    "ngspice": "ngspice-47 (remote, batch fleet m6i.4xlarge/m7i.4xlarge; not the dispatch host's ngspice)",
+    "platform": "Linux 6.17.0-1019-aws x86_64",
+    "python": "3.12.3",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}

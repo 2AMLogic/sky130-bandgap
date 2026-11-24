@@ -542,6 +542,48 @@ class TestDrawChainBlockedByCounts(unittest.TestCase):
         self.assertNotIn("blocked_by_counts", hops[0])
 
 
+class TestDrawChainTree(unittest.TestCase):
+    """`_draw_chain(tree=True)` (issue #669): a terminal that cannot reach its
+    chain predecessor attaches to another already-connected terminal, instead
+    of stranding itself and everything behind it."""
+
+    def test_tree_attaches_to_a_reachable_member(self) -> None:
+        # wall_bus walls both elbows of the P0-P1 hop; P2 sits clear of both,
+        # so P1 can only join the node through P2.
+        def point(name: str, x: float, y: float) -> dict:
+            return {"name": name, "pad": (x, y), "via": False}
+
+        p0, p1, p2 = point("P0", 0.0, 0.0), point("P1", 10.0, 10.0), point("P2", 10.0, 5.0)
+        plan = [p2, p0, p1]
+        with zero_detour(), met1_only():
+            _, chain_routed = bus_routing._draw_chain(
+                wall_bus("WALL"), "N1", plan
+            )
+            self.assertFalse(chain_routed, "the chain order strands P1")
+            hops, routed = bus_routing._draw_chain(
+                wall_bus("WALL"), "N1", plan, tree=True
+            )
+        self.assertTrue(routed)
+        self.assertEqual([(h["from"], h["to"]) for h in hops], [("P2", "P0"), ("P2", "P1")])
+
+    def test_tree_reports_the_failed_attachment(self) -> None:
+        with zero_detour(), met1_only():
+            bus = wall_bus("WALL")
+            hops, routed = bus_routing._draw_chain(
+                bus, "N1",
+                [
+                    {"name": "P0", "pad": (0.0, 0.0), "via": False},
+                    {"name": "P1", "pad": (10.0, 10.0), "via": False},
+                ],
+                tree=True,
+            )
+        self.assertFalse(routed)
+        self.assertEqual(hops[0]["from"], "P0")
+        self.assertEqual(hops[0]["to"], "P1")
+        self.assertFalse(hops[0]["routed"])
+        self.assertEqual(hops[0]["blocked_by"], "WALL")
+
+
 class TestChannelPaths(unittest.TestCase):
     """`_channel_paths()` is the shape a cross-floorplan hop needs that no
     elbow or single-jog Z can express -- see its own docstring. These check
@@ -841,12 +883,49 @@ class TestRouteOneNetSkipFirst(unittest.TestCase):
         bus = met1_bus.Met1Bus()
         trunks = {("L", "A"): (0.0, 0.0)}
         combs = {("R", "A"): [("near", 10.0, 0.0), ("far", 50.0, 0.0)]}
+        specs = self._specs()
+        specs["A"]["terminals"].reverse()  # label the chosen comb escape
         result = bus_routing._route_one_net(
-            bus, "A", self._specs(), {}, {}, trunks, combs, set(), {},
-            skip_first=99,
+            bus, "A", specs, {}, {}, trunks, combs, set(), {}, skip_first=99,
         )
-        self.assertIn("net", result)
-        self.assertIn("hops", result)
+        self.assertTrue(result["routed"])
+        self.assertIn("near", result["terminals"])
+        self.assertEqual(bus.labels[0]["at_um"], [10.0, 0.0])
+
+    def test_tree_retry_and_redraw_after_exhaustion(self) -> None:
+        # A, B and C each reach H, but walls block both elbows between
+        # any two leaves. Only a branching tree can join all four trunks.
+        trunks = {
+            ("H", "N"): (6, 13), ("A", "N"): (0, 0),
+            ("B", "N"): (10, 10), ("C", "N"): (20, 20),
+        }
+        specs = {"N": {"net": "N", "schematic": "star", "terminals": [
+            {"trunk": trunk} for trunk in trunks
+        ]}}
+
+        def route(skip_first):
+            bus = met1_bus.Met1Bus()
+            bus.net("WALL")
+            for x in (0, 10, 20):
+                for y in (0, 10, 20):
+                    if x != y:
+                        bus.hseg(x - 0.15, x + 0.15, y)
+            with zero_detour(), met1_only():
+                result = bus_routing._route_one_net(
+                    bus, "N", specs, {}, {}, trunks, {}, set(), {},
+                    skip_first=skip_first,
+                )
+            self.assertTrue(result["routed"])
+            self.assertEqual(bus.components()["N"], 1)
+            self.assertEqual(bus.conflicts(), [])
+            return result, bus.shapes
+
+        first, first_shapes = route(0)
+        retry, _ = route(1)
+        self.assertNotEqual(retry["terminals"], first["terminals"])
+        redrawn, shapes = route(99)
+        self.assertEqual(redrawn, first)
+        self.assertEqual(shapes, first_shapes)
 
 
 class TestRepairUnroutedHops(unittest.TestCase):

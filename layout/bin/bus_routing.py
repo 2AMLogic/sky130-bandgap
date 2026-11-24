@@ -1750,11 +1750,11 @@ def _route_one_net(
     # `skip_first` asks for it to be passed over).
     best_score: tuple[int, int] | None = None
     best_plan: list[dict[str, Any]] = []
+    best_tree = False
     best_claims: list[tuple[str, str]] = []
     hops: list[dict[str, Any]] = []
     routed = False
     skipped = 0
-    resolved: list[dict[str, Any]] = []
     for assignment in _candidate_assignments(points, cx, cy):
         resolved, claims = assignment
         for point in resolved:
@@ -1768,28 +1768,34 @@ def _route_one_net(
         # zig-zags across the floorplan asks the open-channel router for
         # corridors that a chain visiting the same terminals in a
         # friendlier order never needs.
-        for plan in _chain_orders(resolved):
+        orders = _chain_orders(resolved)
+        # Tree attachment is the fallback when no open chain routes: the same
+        # visit orders, but each terminal may join any nearer member.
+        plans = [(p, False) for p in orders] + [(p, True) for p in orders]
+        chain_routed = False
+        for plan, as_tree in plans:
+            if as_tree and chain_routed:
+                # A chain already routed this assignment (and was only passed
+                # over by `skip_first`); a tree is purely a fallback, so it
+                # must not mint extra "next solutions" for the repair pass.
+                break
             mark = bus.mark()
-            hops, routed = _draw_chain(bus, net, plan, channels)
+            hops, routed = _draw_chain(bus, net, plan, channels, tree=as_tree)
             score = (0 if routed else 1, sum(1 for h in hops if not h["routed"]))
-            if routed and skipped < skip_first:
-                # A fully-routed candidate, but the repair pass asked for
-                # this net's *next* solution past its greedy first pick --
-                # keep it as the fallback (in case nothing survives past
-                # skip_first, see the "not routed" tail below) and keep
-                # looking rather than accepting it.
-                skipped += 1
-                routed = False
-                bus.restore(mark)
-                if best_score is None or score < best_score:
-                    best_plan, best_score, best_claims = plan, score, claims
-                continue
-            if routed:
-                best_plan, best_score, best_claims = plan, score, claims
+            accept = routed and skipped >= skip_first
+            if accept or best_score is None or score < best_score:
+                best_plan, best_tree = plan, as_tree
+                best_claims, best_score = claims, score
+                label_point = resolved[0]
+            if accept:
                 break  # geometry for the winning plan stays on the bus
             bus.restore(mark)
-            if best_score is None or score < best_score:
-                best_plan, best_score, best_claims = plan, score, claims
+            if routed:
+                # A skipped chain suppresses the tree fallback for this
+                # assignment. A skipped tree leaves later tree orders eligible.
+                chain_routed = not as_tree
+                skipped += 1
+                routed = False
         if routed:
             break
     if not routed:
@@ -1797,7 +1803,7 @@ def _route_one_net(
         # surviving past it, only ever scored and rolled back). Redraw the
         # best one so the geometry on the bus is the geometry the report
         # below describes.
-        hops, routed = _draw_chain(bus, net, best_plan, channels)
+        hops, routed = _draw_chain(bus, net, best_plan, channels, tree=best_tree)
     used_ports.update(best_claims)
     # One label per net, on drawn metal, so `klt extract` promotes it as a
     # named top-level pin. Deliberately one and only one: two labels with
@@ -1811,7 +1817,7 @@ def _route_one_net(
     # schematic device splits that device in two on the layout side and
     # nothing can pair either half. See INTERNAL_NODE_LABEL_NOTE.
     if not spec.get("internal"):
-        bus.label(net, resolved[0]["x"], resolved[0]["y"])
+        bus.label(net, label_point["x"], label_point["y"])
     return {
         "net": net,
         "routed": routed,
@@ -2070,13 +2076,25 @@ def _chain_orders(points: list[dict[str, Any]]) -> list[list[dict[str, Any]]]:
     return unique
 
 
+#: How many nearest already-connected terminals a `tree=True`
+#: :func:`_draw_chain` tries to attach a new terminal to before giving up.
+TREE_MAX_ATTACH = 3
+
+
 def _draw_chain(
     bus: "met1_bus.Met1Bus",
     net: str,
     plan: list[dict[str, Any]],
     channels: dict[str, list[float]] | None = None,
+    tree: bool = False,
 ) -> tuple[list[dict[str, Any]], bool]:
     """Draw one node's vias, escape stubs and chain hops in `plan` order.
+
+    `tree=True` joins each terminal to the *nearest already-connected*
+    terminal that a path exists to, instead of strictly to its predecessor
+    (:data:`TREE_MAX_ATTACH` nearest tried). An open chain loses everything
+    behind one unroutable hop; a tree lets a terminal that cannot reach its
+    chain neighbour attach to another member of the same node.
 
     Every point's `x`/`y` is reset from its `pad` before drawing, so a plan
     can be retried after an earlier one moved a terminal onto its escape stub.
@@ -2099,7 +2117,42 @@ def _draw_chain(
 
     hops: list[dict[str, Any]] = []
     routed = True
-    for first, second in zip(plan, plan[1:]):
+    if tree:
+        pairs = []
+    else:
+        pairs = list(zip(plan, plan[1:]))
+    for idx, second in enumerate(plan[1:], start=1) if tree else ():
+        # Terminals before `idx` are already one connected piece (each was
+        # attached below, or the hop failed and the plan is unrouted).
+        near = sorted(
+            plan[:idx],
+            key=lambda p: abs(p["x"] - second["x"]) + abs(p["y"] - second["y"]),
+        )[:TREE_MAX_ATTACH]
+        attached = None
+        for first in near:
+            hop = _connect(
+                bus, net, (first["x"], first["y"]),
+                (second["x"], second["y"]), channels,
+            )
+            if hop is not None:
+                hop.update(
+                    {"from": first["name"], "to": second["name"], "routed": True}
+                )
+                hops.append(hop)
+                attached = first
+                break
+        if attached is None:
+            routed = False
+            hops.append(
+                {
+                    "from": near[0]["name"],
+                    "to": second["name"],
+                    "routed": False,
+                    "blocked_by": _LAST_BLOCKER[0] if _LAST_BLOCKER else None,
+                    "blocked_by_counts": dict(_BLOCKER_COUNTS.most_common()),
+                }
+            )
+    for first, second in pairs:
         hop = _connect(
             bus, net, (first["x"], first["y"]), (second["x"], second["y"]),
             channels,

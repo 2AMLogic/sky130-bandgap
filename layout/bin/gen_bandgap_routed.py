@@ -263,7 +263,7 @@ INTERNAL_NODE_LABEL_NOTE = (
     "them. Measured in isolation before being fixed: re-running `klt lvs` on "
     "the identical extracted netlist with only those four pins removed took "
     "`mismatch_count` 26 -> 18 and `device.unmatched` 13 -> **1** (the "
-    "deliberately-undrawn `MCC`), with `net.unmatched` going 6 -> 0. Fixed "
+    "then-undrawn `MCC`), with `net.unmatched` going 6 -> 0. Fixed "
     "here by not labelling a net declared `internal` to a schematic device, "
     "and by reporting the trim taps into the record instead of into `pins[]` "
     "-- the taps are still documented, they are just no longer asserted to "
@@ -1534,6 +1534,7 @@ def flow_gate(
     mos_flavour_clean: bool = True,
     hv_drc_clean: bool = True,
     erc_supply_clean: bool = True,
+    amp_terminals_named: bool = True,
 ) -> dict[str, bool]:
     """The flow's pass/fail gate, as a named condition per row.
 
@@ -1611,6 +1612,10 @@ def flow_gate(
         # run-erc-supply-flow.sh gates it, negative control included (see
         # run_supply_erc).
         "erc_supply_clean": erc_supply_clean,
+        # Issue #669: every amp_pmirr / amp_cc PFET card's terminals sit on
+        # the labelled net the schematic states, none on an unnamed island
+        # (see check_amp_terminal_census).
+        "amp_terminals_named": amp_terminals_named,
     }
 
 
@@ -1720,6 +1725,77 @@ def check_mos_flavour(
         "observed": observed,
         "unexpected_mos_models": unexpected,
         "mismatches": mismatches,
+    }
+
+
+#: Expected terminal census of the error amplifier's two PMOS groups whose
+#: fingers a split VDD trunk strands (issue #669). Keyed by the PDK-bound
+#: card's (L, W) in um; each entry is `(diffusion pair, gate, bulk, cards)`
+#: per distinct terminal signature, the diffusion pair unordered. Transcribed
+#: from `layout/bandgap-core/reference.spice` (MCC m=16; MP3/MP4 m=8 each).
+AMP_PFET_CENSUS: dict[tuple[float, float], list[tuple[tuple[str, str], str, str, int]]] = {
+    (20.0, 30.0): [(("VDD", "VDD"), "GDRV", "VDD", 16)],
+    (20.0, 6.0): [
+        (("PN", "VDD"), "PN", "VDD", 8),
+        (("GDRV", "VDD"), "PN", "VDD", 8),
+    ],
+}
+
+
+def check_amp_terminal_census(netlist_text: str) -> dict[str, Any]:
+    """Score every amp_cc / amp_pmirr PFET card's terminals against the
+    schematic's named nets in the raw PDK-bound extraction.
+
+    A card whose gate, bulk or diffusion sits on an unnamed island (`$12`,
+    `\\$179`), or on the wrong named net, is reported in `bad_cards`; a
+    signature whose card count differs from the schematic's is reported in
+    `count_mismatches`. Passes only when both are empty -- a missing card
+    fails the count, a mis-wired one fails the signature.
+    """
+    observed: dict[tuple[float, float], dict[tuple[Any, ...], int]] = {}
+    for line in netlist_text.replace("\n+", " ").splitlines():
+        tokens = line.strip().split()
+        if (
+            len(tokens) <= X_CARD_MODEL_FIELD
+            or tokens[0][0] not in "Xx"
+            or "pfet" not in tokens[X_CARD_MODEL_FIELD]
+        ):
+            continue
+        params = {
+            k.upper(): v
+            for k, _, v in (t.partition("=") for t in tokens[X_CARD_MODEL_FIELD + 1 :])
+        }
+        try:
+            key = (float(params["L"]), float(params["W"]))
+        except (KeyError, ValueError):
+            continue
+        if key not in AMP_PFET_CENSUS:
+            continue
+        sig = (tuple(sorted((tokens[1], tokens[3]))), tokens[2], tokens[4])
+        observed.setdefault(key, {})
+        observed[key][sig] = observed[key].get(sig, 0) + 1
+    bad_cards: list[dict[str, Any]] = []
+    count_mismatches: list[dict[str, Any]] = []
+    for key, expected in AMP_PFET_CENSUS.items():
+        allowed = {(tuple(sorted(d)), g, b): n for d, g, b, n in expected}
+        seen = observed.get(key, {})
+        for sig, n in seen.items():
+            if sig not in allowed:
+                bad_cards.append(
+                    {"L": key[0], "W": key[1], "diffusion": list(sig[0]),
+                     "gate": sig[1], "bulk": sig[2], "cards": n}
+                )
+        for sig, n in allowed.items():
+            if seen.get(sig, 0) != n:
+                count_mismatches.append(
+                    {"L": key[0], "W": key[1], "diffusion": list(sig[0]),
+                     "gate": sig[1], "bulk": sig[2],
+                     "expected": n, "observed": seen.get(sig, 0)}
+                )
+    return {
+        "clean": not bad_cards and not count_mismatches,
+        "bad_cards": bad_cards,
+        "count_mismatches": count_mismatches,
     }
 
 
@@ -2327,7 +2403,6 @@ def main() -> int:
         klt, out_dir, reports[BLOCKS[0]["id"]]["pdk"], reports, origins
     )
     overlays["hv_fixup"] = hv_fixup_report
-    all_reports[hv_fixup_report["cell_name"]] = hv_fixup_report
     all_origins[hv_fixup_report["cell_name"]] = {"x": 0.0, "y": 0.0}
 
     content_bbox = union_bbox([b["id"] for b in BLOCKS], reports, origins)
@@ -2513,6 +2588,10 @@ def main() -> int:
         "device_counts": pdk_extract.get("device_counts"),
     }
     (out_dir / "flavour.json").write_text(json.dumps(flavour, indent=2) + "\n")
+    amp_census = check_amp_terminal_census(pdk_netlist_text)
+    (out_dir / "amp-terminal-census.json").write_text(
+        json.dumps(amp_census, indent=2) + "\n"
+    )
 
     # --- 7c. Supply/tie ERC on this exact GDS (issue #620) ------------------
     # The two specs run-erc-supply-flow.sh invokes, with the well boxes
@@ -2634,6 +2713,7 @@ def main() -> int:
         flavour=flavour,
         hv_drc=hv_drc,
         erc=erc,
+        amp_census=amp_census,
     )
     print(record.text)
 
@@ -2670,6 +2750,7 @@ def main() -> int:
         mos_flavour_clean=flavour["clean"],
         hv_drc_clean=hv_drc["clean"],
         erc_supply_clean=erc["clean"],
+        amp_terminals_named=amp_census["clean"],
     )
     failed = [name for name, passed in gate.items() if not passed]
     if failed:

@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "status": "fail",
-  "netlist": "sim/output-voltage-tc-post-layout/netlist-snapshots/20261124-152508-39a20d81.spice",
+  "netlist": "sim/output-voltage-tc-post-layout/netlist-snapshots/20261124-181216-d436ab4c.spice",
   "corner_count": 15,
   "passed": 0,
   "failed": 15,
@@ -24,8 +24,8 @@
     ],
     "recorded_from": [
       {
-        "file": "sim/output-voltage-tc-post-layout/records/20261124-152508-39a20d81.json",
-        "sha256": "54d049c9d06e5fc31f3c97ca03d621fb6c0de9714e360705aaf8ec1f5f9f69df"
+        "file": "sim/output-voltage-tc-post-layout/records/20261124-181216-d436ab4c.json",
+        "sha256": "c6828fa067110bfc5b7f0675300c1157f48db189c6b4b767197b3b9db867cd5e"
       }
     ],
     "excluded_measurements": {
@@ -34,10 +34,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:f216fed0deda09d735b6aa9b0d87671fe42907ce8673fe8c4457373a0883f7ea",
+      "content_hash": "sha256:fdd93cbbd11b7a1181a6fd6e42a3cd9ea0bbf39ddceade424dff6b909382e78d",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/output-voltage-tc-post-layout/netlist-snapshots/20261124-152508-39a20d81.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/output-voltage-tc-post-layout/netlist-snapshots/20261124-181216-d436ab4c.spice)"
   },
   "measurements": [
     {
@@ -48,9 +48,10 @@
         "max": 50.0
       },
       "worst_case": {
-        "corner_id": "tt_27c_3.30v",
-        "value": 189.6242,
-        "margin": -139.6242
+        "corner_id": "ss_27c_2.97v",
+        "value": 796.9112,
+        "margin": -746.9112,
+        "reason": "above max 50"
       },
       "status": "fail"
     }
@@ -68,9 +69,10 @@
         {
           "name": "tc_ppm",
           "unit": "ppm/degC",
-          "value": 102.8288,
+          "value": 790.7916,
           "status": "fail",
-          "margin": -52.8288
+          "margin": -740.7916,
+          "reason": "above max 50"
         }
       ]
     },
@@ -86,9 +88,10 @@
         {
           "name": "tc_ppm",
           "unit": "ppm/degC",
-          "value": 189.6242,
+          "value": 789.2975,
           "status": "fail",
-          "margin": -139.6242
+          "margin": -739.2975,
+          "reason": "above max 50"
         }
       ]
     },
@@ -104,9 +107,10 @@
         {
           "name": "tc_ppm",
           "unit": "ppm/degC",
-          "value": 158.522,
+          "value": 752.0623,
           "status": "fail",
-          "margin": -108.52199999999999
+          "margin": -702.0623,
+          "reason": "above max 50"
         }
       ]
     },
@@ -122,9 +126,10 @@
         {
           "name": "tc_ppm",
           "unit": "ppm/degC",
-          "value": 88.77843,
+          "value": 796.9112,
           "status": "fail",
-          "margin": -38.77843
+          "margin": -746.9112,
+          "reason": "above max 50"
         }
       ]
     },
@@ -140,9 +145,10 @@
         {
           "name": "tc_ppm",
           "unit": "ppm/degC",
-          "value": 172.7493,
+          "value": 796.6487,
           "status": "fail",
-          "margin": -122.7493
+          "margin": -746.6487,
+          "reason": "above max 50"
         }
       ]
     },
@@ -158,9 +164,10 @@
         {
           "name": "tc_ppm",
           "unit": "ppm/degC",
-          "value": 178.074,
+          "value": 787.0569,
           "status": "fail",
-          "margin": -128.074
+          "margin": -737.0569,
+          "reason": "above max 50"
         }
       ]
     },
@@ -176,9 +183,10 @@
         {
           "name": "tc_ppm",
           "unit": "ppm/degC",
-          "value": 154.4069,
+          "value": 784.9572,
           "status": "fail",
-          "margin": -104.40690000000001
+          "margin": -734.9572,
+          "reason": "above max 50"
         }
       ]
     },
@@ -194,9 +202,10 @@
         {
           "name": "tc_ppm",
           "unit": "ppm/degC",
-          "value": 171.9237,
+          "value": 763.9163,
           "status": "fail",
-          "margin": -121.9237
+          "margin": -713.9163,
+          "reason": "above max 50"
         }
       ]
     },
@@ -212,9 +221,10 @@
         {
           "name": "tc_ppm",
           "unit": "ppm/degC",
-          "value": 140.3296,
+          "value": 650.6695,
           "status": "fail",
-          "margin": -90.3296
+          "margin": -600.6695,
+          "reason": "above max 50"
         }
       ]
     },
@@ -230,9 +240,10 @@
         {
           "name": "tc_ppm",
           "unit": "ppm/degC",
-          "value": 152.5402,
+          "value": 781.7205,
           "status": "fail",
-          "margin": -102.5402
+          "margin": -731.7205,
+          "reason": "above max 50"
         }
       ]
     },
@@ -248,9 +259,10 @@
         {
           "name": "tc_ppm",
           "unit": "ppm/degC",
-          "value": 155.1901,
+          "value": 790.3746,
           "status": "fail",
-          "margin": -105.1901
+          "margin": -740.3746,
+          "reason": "above max 50"
         }
       ]
     },
@@ -266,9 +278,10 @@
         {
           "name": "tc_ppm",
           "unit": "ppm/degC",
-          "value": 54.07099,
+          "value": 788.0483,
           "status": "fail",
-          "margin": -4.070990000000002
+          "margin": -738.0483,
+          "reason": "above max 50"
         }
       ]
     },
@@ -284,9 +297,10 @@
         {
           "name": "tc_ppm",
           "unit": "ppm/degC",
-          "value": 69.56526,
+          "value": 796.6175,
           "status": "fail",
-          "margin": -19.565259999999995
+          "margin": -746.6175,
+          "reason": "above max 50"
         }
       ]
     },
@@ -302,9 +316,10 @@
         {
           "name": "tc_ppm",
           "unit": "ppm/degC",
-          "value": 84.85711,
+          "value": 789.2847,
           "status": "fail",
-          "margin": -34.857110000000006
+          "margin": -739.2847,
+          "reason": "above max 50"
         }
       ]
     },
@@ -320,9 +335,10 @@
         {
           "name": "tc_ppm",
           "unit": "ppm/degC",
-          "value": 81.30361,
+          "value": 767.2671,
           "status": "fail",
-          "margin": -31.303610000000006
+          "margin": -717.2671,
+          "reason": "above max 50"
         }
       ]
     }

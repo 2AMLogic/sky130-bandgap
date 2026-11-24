@@ -50,7 +50,8 @@
       "worst_case": {
         "corner_id": "fs_-40c_3.30v",
         "value": 158.9664,
-        "margin": -108.9664
+        "margin": -108.9664,
+        "reason": "above max 50"
       },
       "status": "fail"
     }
@@ -70,7 +71,8 @@
           "unit": "ppm/degC",
           "value": 152.8523,
           "status": "fail",
-          "margin": -102.85230000000001
+          "margin": -102.85230000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -88,7 +90,8 @@
           "unit": "ppm/degC",
           "value": 152.9517,
           "status": "fail",
-          "margin": -102.95169999999999
+          "margin": -102.95169999999999,
+          "reason": "above max 50"
         }
       ]
     },
@@ -106,7 +109,8 @@
           "unit": "ppm/degC",
           "value": 152.9601,
           "status": "fail",
-          "margin": -102.96010000000001
+          "margin": -102.96010000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -124,7 +128,8 @@
           "unit": "ppm/degC",
           "value": 152.8523,
           "status": "fail",
-          "margin": -102.85230000000001
+          "margin": -102.85230000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -142,7 +147,8 @@
           "unit": "ppm/degC",
           "value": 152.9517,
           "status": "fail",
-          "margin": -102.95169999999999
+          "margin": -102.95169999999999,
+          "reason": "above max 50"
         }
       ]
     },
@@ -160,7 +166,8 @@
           "unit": "ppm/degC",
           "value": 152.9601,
           "status": "fail",
-          "margin": -102.96010000000001
+          "margin": -102.96010000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -178,7 +185,8 @@
           "unit": "ppm/degC",
           "value": 152.8523,
           "status": "fail",
-          "margin": -102.85230000000001
+          "margin": -102.85230000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -196,7 +204,8 @@
           "unit": "ppm/degC",
           "value": 152.9517,
           "status": "fail",
-          "margin": -102.95169999999999
+          "margin": -102.95169999999999,
+          "reason": "above max 50"
         }
       ]
     },
@@ -214,7 +223,8 @@
           "unit": "ppm/degC",
           "value": 152.9601,
           "status": "fail",
-          "margin": -102.96010000000001
+          "margin": -102.96010000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -232,7 +242,8 @@
           "unit": "ppm/degC",
           "value": 154.1061,
           "status": "fail",
-          "margin": -104.1061
+          "margin": -104.1061,
+          "reason": "above max 50"
         }
       ]
     },
@@ -250,7 +261,8 @@
           "unit": "ppm/degC",
           "value": 154.1915,
           "status": "fail",
-          "margin": -104.19149999999999
+          "margin": -104.19149999999999,
+          "reason": "above max 50"
         }
       ]
     },
@@ -268,7 +280,8 @@
           "unit": "ppm/degC",
           "value": 154.1654,
           "status": "fail",
-          "margin": -104.1654
+          "margin": -104.1654,
+          "reason": "above max 50"
         }
       ]
     },
@@ -286,7 +299,8 @@
           "unit": "ppm/degC",
           "value": 154.1061,
           "status": "fail",
-          "margin": -104.1061
+          "margin": -104.1061,
+          "reason": "above max 50"
         }
       ]
     },
@@ -304,7 +318,8 @@
           "unit": "ppm/degC",
           "value": 154.1915,
           "status": "fail",
-          "margin": -104.19149999999999
+          "margin": -104.19149999999999,
+          "reason": "above max 50"
         }
       ]
     },
@@ -322,7 +337,8 @@
           "unit": "ppm/degC",
           "value": 154.1654,
           "status": "fail",
-          "margin": -104.1654
+          "margin": -104.1654,
+          "reason": "above max 50"
         }
       ]
     },
@@ -340,7 +356,8 @@
           "unit": "ppm/degC",
           "value": 154.1061,
           "status": "fail",
-          "margin": -104.1061
+          "margin": -104.1061,
+          "reason": "above max 50"
         }
       ]
     },
@@ -358,7 +375,8 @@
           "unit": "ppm/degC",
           "value": 154.1915,
           "status": "fail",
-          "margin": -104.19149999999999
+          "margin": -104.19149999999999,
+          "reason": "above max 50"
         }
       ]
     },
@@ -376,7 +394,8 @@
           "unit": "ppm/degC",
           "value": 154.1654,
           "status": "fail",
-          "margin": -104.1654
+          "margin": -104.1654,
+          "reason": "above max 50"
         }
       ]
     },
@@ -394,7 +413,8 @@
           "unit": "ppm/degC",
           "value": 151.8036,
           "status": "fail",
-          "margin": -101.80359999999999
+          "margin": -101.80359999999999,
+          "reason": "above max 50"
         }
       ]
     },
@@ -412,7 +432,8 @@
           "unit": "ppm/degC",
           "value": 151.8891,
           "status": "fail",
-          "margin": -101.88910000000001
+          "margin": -101.88910000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -430,7 +451,8 @@
           "unit": "ppm/degC",
           "value": 151.8813,
           "status": "fail",
-          "margin": -101.88130000000001
+          "margin": -101.88130000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -448,7 +470,8 @@
           "unit": "ppm/degC",
           "value": 151.8036,
           "status": "fail",
-          "margin": -101.80359999999999
+          "margin": -101.80359999999999,
+          "reason": "above max 50"
         }
       ]
     },
@@ -466,7 +489,8 @@
           "unit": "ppm/degC",
           "value": 151.8891,
           "status": "fail",
-          "margin": -101.88910000000001
+          "margin": -101.88910000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -484,7 +508,8 @@
           "unit": "ppm/degC",
           "value": 151.8813,
           "status": "fail",
-          "margin": -101.88130000000001
+          "margin": -101.88130000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -502,7 +527,8 @@
           "unit": "ppm/degC",
           "value": 151.8036,
           "status": "fail",
-          "margin": -101.80359999999999
+          "margin": -101.80359999999999,
+          "reason": "above max 50"
         }
       ]
     },
@@ -520,7 +546,8 @@
           "unit": "ppm/degC",
           "value": 151.8891,
           "status": "fail",
-          "margin": -101.88910000000001
+          "margin": -101.88910000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -538,7 +565,8 @@
           "unit": "ppm/degC",
           "value": 151.8813,
           "status": "fail",
-          "margin": -101.88130000000001
+          "margin": -101.88130000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -556,7 +584,8 @@
           "unit": "ppm/degC",
           "value": 142.4365,
           "status": "fail",
-          "margin": -92.4365
+          "margin": -92.4365,
+          "reason": "above max 50"
         }
       ]
     },
@@ -574,7 +603,8 @@
           "unit": "ppm/degC",
           "value": 142.5558,
           "status": "fail",
-          "margin": -92.5558
+          "margin": -92.5558,
+          "reason": "above max 50"
         }
       ]
     },
@@ -592,7 +622,8 @@
           "unit": "ppm/degC",
           "value": 142.5884,
           "status": "fail",
-          "margin": -92.58840000000001
+          "margin": -92.58840000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -610,7 +641,8 @@
           "unit": "ppm/degC",
           "value": 142.4365,
           "status": "fail",
-          "margin": -92.4365
+          "margin": -92.4365,
+          "reason": "above max 50"
         }
       ]
     },
@@ -628,7 +660,8 @@
           "unit": "ppm/degC",
           "value": 142.5558,
           "status": "fail",
-          "margin": -92.5558
+          "margin": -92.5558,
+          "reason": "above max 50"
         }
       ]
     },
@@ -646,7 +679,8 @@
           "unit": "ppm/degC",
           "value": 142.5884,
           "status": "fail",
-          "margin": -92.58840000000001
+          "margin": -92.58840000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -664,7 +698,8 @@
           "unit": "ppm/degC",
           "value": 142.4365,
           "status": "fail",
-          "margin": -92.4365
+          "margin": -92.4365,
+          "reason": "above max 50"
         }
       ]
     },
@@ -682,7 +717,8 @@
           "unit": "ppm/degC",
           "value": 142.5558,
           "status": "fail",
-          "margin": -92.5558
+          "margin": -92.5558,
+          "reason": "above max 50"
         }
       ]
     },
@@ -700,7 +736,8 @@
           "unit": "ppm/degC",
           "value": 142.5884,
           "status": "fail",
-          "margin": -92.58840000000001
+          "margin": -92.58840000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -718,7 +755,8 @@
           "unit": "ppm/degC",
           "value": 158.8884,
           "status": "fail",
-          "margin": -108.88839999999999
+          "margin": -108.88839999999999,
+          "reason": "above max 50"
         }
       ]
     },
@@ -736,7 +774,8 @@
           "unit": "ppm/degC",
           "value": 158.9664,
           "status": "fail",
-          "margin": -108.9664
+          "margin": -108.9664,
+          "reason": "above max 50"
         }
       ]
     },
@@ -754,7 +793,8 @@
           "unit": "ppm/degC",
           "value": 158.9439,
           "status": "fail",
-          "margin": -108.94390000000001
+          "margin": -108.94390000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -772,7 +812,8 @@
           "unit": "ppm/degC",
           "value": 158.8884,
           "status": "fail",
-          "margin": -108.88839999999999
+          "margin": -108.88839999999999,
+          "reason": "above max 50"
         }
       ]
     },
@@ -790,7 +831,8 @@
           "unit": "ppm/degC",
           "value": 158.9664,
           "status": "fail",
-          "margin": -108.9664
+          "margin": -108.9664,
+          "reason": "above max 50"
         }
       ]
     },
@@ -808,7 +850,8 @@
           "unit": "ppm/degC",
           "value": 158.9439,
           "status": "fail",
-          "margin": -108.94390000000001
+          "margin": -108.94390000000001,
+          "reason": "above max 50"
         }
       ]
     },
@@ -826,7 +869,8 @@
           "unit": "ppm/degC",
           "value": 158.8884,
           "status": "fail",
-          "margin": -108.88839999999999
+          "margin": -108.88839999999999,
+          "reason": "above max 50"
         }
       ]
     },
@@ -844,7 +888,8 @@
           "unit": "ppm/degC",
           "value": 158.9664,
           "status": "fail",
-          "margin": -108.9664
+          "margin": -108.9664,
+          "reason": "above max 50"
         }
       ]
     },
@@ -862,7 +907,8 @@
           "unit": "ppm/degC",
           "value": 158.9439,
           "status": "fail",
-          "margin": -108.94390000000001
+          "margin": -108.94390000000001,
+          "reason": "above max 50"
         }
       ]
     }
