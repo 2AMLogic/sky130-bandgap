@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "checker": "layout/bin/met2_drc.py",
+  "gds": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-669/layout/bandgap-core/staging/20261124-181030-d436ab4c/bandgap_core_routed.gds",
+  "top": "bandgap_core_routed",
+  "source": "sky130A_mr.drc (installed PDK), see module docstring",
+  "reason": "independent cross-check of the met2/via1 escape plane against the sky130A source deck plus orphan-via detection (via.4a_a/m2.4_a): at the pinned klayout-tools==0.8.0 the curated klt sky130 DRC deck covers the same rules (width, spacing, min area met2.area.1/m2.6, via size and spacing, met1/met2 enclosure), but this checker applies a stricter enclosure bar (0.085 um on every edge, vs. two adjacent edges in the source deck), so a fully covered via can pass the curated deck and fail here; the curated deck also passes a via1 cut with no metal on one side clean",
+  "counts": {
+    "met1_polygons": 171,
+    "via1_cuts": 28,
+    "met2_polygons": 13
+  },
+  "violation_count": 0,
+  "violations": [],
+  "status": "clean"
+}

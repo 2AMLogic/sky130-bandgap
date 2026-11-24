@@ -1,0 +1,95 @@
+{
+  "deck": {
+    "source": "/home/ubuntu/.ciel/sky130A/libs.tech/klayout/drc/sky130A.lydrc",
+    "source_sha256": "81cf4f998fc6fb6925ccc8618afba3dc8530058db1d0e31dc1f6ad5299e52372",
+    "feol_enabled_copy": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-669/layout/bandgap-core/staging/20261124-181030-d436ab4c/sky130A.feol.lydrc",
+    "feol_copy_sha256": "efa5c6c99d43d7311219f4ca62e8ae27d726f816aa967941eac5dffe4d0b7f30"
+  },
+  "control": {
+    "block": "su_inj",
+    "gds": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-669/layout/bandgap-core/staging/20261124-181030-d436ab4c/su_inj_hvi_control.gds",
+    "required_categories": [
+      "hvdifftap.22"
+    ],
+    "report": {
+      "file": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-669/layout/bandgap-core/staging/20261124-181030-d436ab4c/su_inj_hvi_control.gds",
+      "status": "passed",
+      "violation_count": 7,
+      "rules_found": [
+        "hvdifftap.22",
+        "licon.15"
+      ],
+      "expected_categories": [
+        "hvdifftap.22"
+      ]
+    },
+    "passed": true
+  },
+  "hv_categories_declared": [
+    "hvdifftap.14",
+    "hvdifftap.14a",
+    "hvdifftap.15a",
+    "hvdifftap.15b",
+    "hvdifftap.16",
+    "hvdifftap.17",
+    "hvdifftap.18",
+    "hvdifftap.19",
+    "hvdifftap.20",
+    "hvdifftap.21",
+    "hvdifftap.22",
+    "hvdifftap.23",
+    "hvdifftap.24",
+    "hvdifftap.25",
+    "hvi.1",
+    "hvi.2",
+    "hvi.4",
+    "hvntm.1",
+    "hvntm.2",
+    "hvntm.3",
+    "hvntm.4",
+    "hvntm.5",
+    "hvntm.6a",
+    "hvntm.9",
+    "hvnwel.9",
+    "hvnwell.8",
+    "hvpoly.13",
+    "hvpoly.14"
+  ],
+  "hv_categories_declared_count": 28,
+  "rule_counts": {
+    "difftap.10": 42,
+    "difftap.8": 42,
+    "li.5": 70,
+    "licon.12": 64,
+    "licon.7": 314,
+    "n/psdm.8": 36,
+    "tap and diff": 36
+  },
+  "provenance": {
+    "klt_version": "0.8.0",
+    "klayout_version": "0.30.14",
+    "pdk": {
+      "name": "sky130A",
+      "source": "search root: ~/.ciel",
+      "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+      "ambiguous_sources": [
+        "search root: ~/.volare"
+      ]
+    },
+    "deck": {
+      "name": "sky130A.feol.lydrc",
+      "content_hash": "sha256:efa5c6c99d43d7311219f4ca62e8ae27d726f816aa967941eac5dffe4d0b7f30",
+      "released": false
+    },
+    "input": {
+      "content_hash": "sha256:407a2c17d649345689f7a8f8e974b9f089807f0f8467982b8a000931eb0157dd",
+      "role": "layout"
+    },
+    "klayout_version_mismatch": true
+  },
+  "hv_violations": {},
+  "hv_violation_count": 0,
+  "non_hv_violation_count": 604,
+  "clean": true,
+  "status": "clean"
+}

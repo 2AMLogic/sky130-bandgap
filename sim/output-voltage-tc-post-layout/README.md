@@ -7,7 +7,21 @@ DRC-clean / LVS-matching `layout/bandgap-core/` GDS, via
 Records here are append-only and are **new** evidence — they neither
 overwrite nor retire `sim/output-voltage-tc/`'s schematic-level records.
 
-## Standing result on the thick-oxide layout record (issue #621)
+## Standing result on the VDD-complete layout record (issue #669)
+
+Record [`records/20261124-181216-d436ab4c`](records/20261124-181216-d436ab4c.md)
+(supersedes `20261124-152508-39a20d81`) — measured on layout record
+`20261124-181030-d436ab4c`, whose `bus-summary.json` reports every declared net in
+exactly one component (`VDD` included, 15/15 met1 nets routed) and whose PDK-bound
+extraction puts all 32 `amp_cc`/`amp_pmirr` PFET cards on the named nets the
+schematic states (`amp-terminal-census.json`). **Overall: FAIL 15/15**, but the
+amplifier now regulates instead of tracking the supply: `vref_27` is
+1.002–1.007 V at every corner (matching #669's DC repair probe, 1.00 V), against the
+1.176–1.224 V window, and box TC is 651–797 ppm/°C. The verdict is reported at the
+existing limits, unrelaxed. The ~170 mV shortfall is not explained by connectivity
+any more; it is the next thing to trace.
+
+## Previous standing result: the thick-oxide layout record (issue #621, superseded)
 
 Record [`records/20261124-152508-39a20d81`](records/20261124-152508-39a20d81.md)
 (supersedes `20261120-230509-7d59542`) — measured on layout record
