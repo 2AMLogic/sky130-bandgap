@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Post-layout (extracted-netlist) degenerate-state / single-equilibrium claim
-for the COMPOSED bandgap-core layout cell -- the routed, LVS-clean layout of
+for the COMPOSED bandgap-core layout cell -- the routed layout of
 issue #62 as it stands since issue #285 drew `design/startup_injector.sch`
 into it. Sibling of `sim/startup-ramp-post-layout/`; schematic-level
 counterpart is `sim/startup-stability/` (report row 8a).

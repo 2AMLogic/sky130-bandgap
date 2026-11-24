@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Post-layout (extracted-netlist) re-run of `sim/startup-time`'s supply-ramp
-startup-time claim, against the routed, LVS-clean bandgap-core layout
+startup-time claim, against the routed bandgap-core layout
 (issue #62) instead of `design/bandgap_core.sch` (issue #16).
 
 Fifth increment of issue #16's post-layout suite, and the LAST of the five
@@ -69,7 +69,9 @@ WRAPPED_SCHEMATIC = "sim/startup-time/testbench/tb_vref_startup.sch"
 CLAIM_SPLIT = "Ramps the supply feeding "
 
 CLAIM_TAIL = (
-    "Ramps the supply feeding the ROUTED, LVS-clean bandgap-core layout (issue #62) "
+    "Ramps the supply feeding the ROUTED bandgap-core layout (issue #62, thick-oxide "
+    "geometry per issue #620; its LVS verdict is cited under 'Netlist provenance', "
+    "not asserted here) "
     "from 0 V to the corner supply in t_ramp and measures the first time VREF rises "
     "through 1.08 V (90% of the 1.20 V draft nominal), open-circuit, over the full "
     "45-point PVT matrix, via klt extract --parasitics translated to a simulatable "

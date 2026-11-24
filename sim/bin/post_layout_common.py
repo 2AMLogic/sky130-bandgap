@@ -3,11 +3,16 @@
 experiment scripts (issue #16).
 
 Post-layout re-verification needs a `bandgap_core` netlist body that is
-genuinely derived from the routed, LVS-clean layout (`layout/bandgap-core/`,
+genuinely derived from the routed layout (`layout/bandgap-core/`,
 issue #62) rather than `design/bandgap_core.sch` -- otherwise a "post-layout"
 record would just be a relabeled schematic run, the exact failure mode
 issue #16's own history (the reversed 2026-08-03 Champion promotion) warns
-against. Building that netlist takes three steps, each with its own
+against. (Since issue #621 the layout inputs themselves resolve through the
+record's artifact manifest when the record is store-backed -- see
+`resolve_latest_layout` -- and the selected record's actual LVS verdict,
+flavour gate and input digests are carried in every record's
+`layout_provenance` instead of an "LVS-clean" assertion in the claim.)
+Building that netlist takes three steps, each with its own
 non-obvious wrinkle this module documents and handles once:
 
 1. **Extract parasitics from the composed GDS**
@@ -143,6 +148,7 @@ without re-deriving any of the above.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import shutil
@@ -165,21 +171,250 @@ class PostLayoutError(RuntimeError):
 # --------------------------------------------------------------------------
 
 
-def resolve_latest_layout(bandgap_core_dir: Path) -> tuple[str, Path, Path]:
-    """Resolve `layout/bandgap-core/reports/LATEST` to (record_id, record_dir, gds).
+def resolve_latest_layout(
+    bandgap_core_dir: Path, cache_root: Path | None = None
+) -> tuple[str, Path, Path, dict]:
+    """Resolve `layout/bandgap-core/reports/LATEST` to
+    (record_id, record_dir, gds, gds_source).
 
     Reference-only reads under `layout/` -- never writes there (issue #16's
     Affected Files scope: `layout/` is reference-only).
+
+    The routed GDS is resolved in either of the two forms a record ships
+    (issue #621): a historical in-tree record carries
+    `bandgap_core_routed.gds` inside its own report directory, while a
+    store-backed record (issue #440's operator ruling) keeps the bytes in
+    the fleet artifact store and git keeps only the manifest -- so the GDS
+    is fetched with `klt artifact get <manifest>#<entry>` into a cache under
+    `sim/build/layout-artifacts/` (gitignored harness scratch), digest-
+    verified against the manifest both by `klt` itself and again here. A
+    missing artifact or digest mismatch raises naming the failing record,
+    before any simulation is spent.
+
+    `gds_source` records which form resolved and the durable citation (the
+    manifest path, entry name and sha256 for store-backed records; the
+    in-tree repo-relative path for historical ones) so a record's
+    provenance can repeat the run even when the download directory differs.
     """
     latest_file = bandgap_core_dir / "reports" / "LATEST"
     if not latest_file.is_file():
         raise PostLayoutError(f"no LATEST pointer at {latest_file}")
     record_id = latest_file.read_text().strip()
     record_dir = bandgap_core_dir / "reports" / record_id
-    gds = record_dir / "bandgap_core_routed.gds"
-    if not gds.is_file():
-        raise PostLayoutError(f"no routed GDS at {gds} (LATEST -> {record_id})")
-    return record_id, record_dir, gds
+    gds, gds_source = resolve_record_gds(
+        bandgap_core_dir, record_id, record_dir, cache_root=cache_root
+    )
+    return record_id, record_dir, gds, gds_source
+
+
+def _sha256_of(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def layout_artifact_manifest_relpath(record_id: str) -> str:
+    """Repo-relative path of a bandgap-core record's artifact manifest
+    (`manifests/artifacts/layout-bandgap-core-<record-id>.manifest.json`,
+    the name `layout/`'s own flow writes)."""
+    return f"manifests/artifacts/layout-bandgap-core-{record_id}.manifest.json"
+
+
+def _manifest_gds_entry(manifest: dict, record_id: str) -> dict:
+    """The record's own `bandgap_core_routed.gds` entry from its manifest.
+
+    Preferred by the exact staging name
+    `layout/bandgap-core/staging/<record-id>/bandgap_core_routed.gds`;
+    a unique basename match is accepted so a renamed staging prefix still
+    resolves. Anything else raises naming the record.
+    """
+    entries = manifest.get("entries")
+    if not isinstance(entries, list):
+        raise PostLayoutError(
+            f"layout record {record_id}: artifact manifest "
+            f"{layout_artifact_manifest_relpath(record_id)} has no entries[] list"
+        )
+    wanted = f"layout/bandgap-core/staging/{record_id}/bandgap_core_routed.gds"
+    for entry in entries:
+        if isinstance(entry, dict) and entry.get("name") == wanted:
+            return entry
+    by_basename = [
+        entry
+        for entry in entries
+        if isinstance(entry, dict)
+        and Path(str(entry.get("name", ""))).name == "bandgap_core_routed.gds"
+    ]
+    if len(by_basename) == 1:
+        return by_basename[0]
+    raise PostLayoutError(
+        f"layout record {record_id}: no bandgap_core_routed.gds entry in artifact "
+        f"manifest {layout_artifact_manifest_relpath(record_id)}, and no routed GDS "
+        "in the record directory -- cannot resolve the layout input"
+    )
+
+
+def fetch_record_gds_from_store(
+    repo_root: Path, record_id: str, entry: dict, cache_root: Path
+) -> Path:
+    """Fetch one record's routed GDS through `klt artifact get`, into
+    `cache_root/<record-id>/bandgap_core_routed.gds`.
+
+    `klt artifact get` itself refuses to write bytes whose recomputed
+    sha256 does not match the manifest's; the digest is re-checked here so
+    a tampered cache file that somehow landed cannot ride through either.
+    A cache file whose digest no longer matches (a stale or partial
+    download) is replaced via `--force` rather than trusted.
+    """
+    name = str(entry.get("name", ""))
+    expected_sha = entry.get("sha256")
+    cache = cache_root / record_id / "bandgap_core_routed.gds"
+    if cache.is_file() and (expected_sha is None or _sha256_of(cache) == expected_sha):
+        return cache
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    cmd = ["klt", "artifact", "get", f"{layout_artifact_manifest_relpath(record_id)}#{name}"]
+    if cache.is_file():
+        cmd.append("--force")
+    cmd += ["-o", str(cache)]
+    try:
+        proc = subprocess.run(
+            cmd, cwd=str(repo_root), capture_output=True, text=True, timeout=600
+        )
+    except FileNotFoundError as exc:
+        raise PostLayoutError(f"klt not found on PATH: {exc}") from exc
+    if proc.returncode != 0:
+        raise PostLayoutError(
+            f"layout record {record_id}: klt artifact get failed for '{name}' "
+            f"(rc={proc.returncode}): {proc.stderr.strip() or proc.stdout.strip()}"
+        )
+    if not cache.is_file():
+        raise PostLayoutError(
+            f"layout record {record_id}: klt artifact get reported success for "
+            f"'{name}' but no file landed at {cache}"
+        )
+    if expected_sha is not None:
+        got = _sha256_of(cache)
+        if got != expected_sha:
+            raise PostLayoutError(
+                f"layout record {record_id}: fetched GDS digest {got} does not match "
+                f"the manifest's {expected_sha} for '{name}'"
+            )
+    return cache
+
+
+def resolve_record_gds(
+    bandgap_core_dir: Path,
+    record_id: str,
+    record_dir: Path,
+    cache_root: Path | None = None,
+) -> tuple[Path, dict]:
+    """Resolve one record's routed GDS: in-tree first, then the store.
+
+    Returns (gds_path, source) where source names the form that resolved
+    (see `resolve_latest_layout`). Historical in-tree records (issue #16's
+    era, GDS committed beside the verdict JSONs) resolve exactly as they
+    always did; store-backed records (issue #440 onward) resolve through
+    the artifact manifest and need `$KLT_ARTIFACT_BROKER` reachability.
+    """
+    in_tree = record_dir / "bandgap_core_routed.gds"
+    if in_tree.is_file():
+        return in_tree, {"kind": "in-tree", "sha256": _sha256_of(in_tree)}
+    repo_root = bandgap_core_dir.parent.parent
+    if cache_root is None:
+        cache_root = SIM_DIR / "build" / "layout-artifacts"
+    manifest_path = repo_root / layout_artifact_manifest_relpath(record_id)
+    if not manifest_path.is_file():
+        raise PostLayoutError(
+            f"layout record {record_id}: no routed GDS in the record directory and no "
+            f"artifact manifest at {layout_artifact_manifest_relpath(record_id)} -- a "
+            "fresh checkout cannot resolve this record's layout input (historical "
+            "records carry bandgap_core_routed.gds in the record directory; "
+            "store-backed records need their manifest and $KLT_ARTIFACT_BROKER)"
+        )
+    try:
+        manifest = json.loads(manifest_path.read_text())
+    except json.JSONDecodeError as exc:
+        raise PostLayoutError(
+            f"layout record {record_id}: artifact manifest "
+            f"{layout_artifact_manifest_relpath(record_id)} is not valid JSON: {exc}"
+        ) from exc
+    entry = _manifest_gds_entry(manifest, record_id)
+    gds = fetch_record_gds_from_store(repo_root, record_id, entry, cache_root)
+    try:
+        cache_rel = str(gds.relative_to(repo_root))
+    except ValueError:
+        cache_rel = str(gds)
+    source = {
+        "kind": "artifact-store",
+        "manifest": layout_artifact_manifest_relpath(record_id),
+        "entry": entry.get("name"),
+        "sha256": entry.get("sha256"),
+        "size": entry.get("size"),
+        "cache": cache_rel,
+    }
+    return gds, source
+
+
+#: A companion summary's "Not stored (identical bytes are already tracked
+#: in git)" row for the reference netlist:
+#: `| reference.spice | <sha256> | \`<repo-relative tracked path>\` |`.
+#: The tracked path and the digest the injector check verifies both come
+#: from this row -- the record's own summary is the authority for which
+#: committed file states its reference netlist (issue #621).
+_COMPANION_REFERENCE_ROW_RE = re.compile(
+    r"^\|\s*reference\.spice\s*\|\s*([0-9a-f]{64})\s*\|\s*`([^`]+)`\s*\|\s*$",
+    re.M,
+)
+
+
+def resolve_record_reference(
+    bandgap_core_dir: Path, record_id: str, record_dir: Path
+) -> tuple[Path, dict]:
+    """Resolve one record's reference netlist: in-tree first, then the
+    tracked copy named by the record's companion artifact-store summary.
+
+    Returns (reference_path, source). The store-backed records commit no
+    `reference.spice` beside their verdicts (the bytes are unchanged and
+    already tracked), so the companion summary's "Not stored" row names the
+    tracked path and the sha256 it must hash to -- verified BEFORE the
+    injector check reads the file, so a drifted `layout/bandgap-core/
+    reference.spice` cannot silently change what `layout_record_draws_injector`
+    reports about a record.
+    """
+    in_tree = record_dir / "reference.spice"
+    if in_tree.is_file():
+        return in_tree, {"kind": "in-tree"}
+    repo_root = bandgap_core_dir.parent.parent
+    summary_rel = f"manifests/artifacts/layout-bandgap-core-{record_id}.md"
+    summary_path = repo_root / summary_rel
+    if not summary_path.is_file():
+        raise PostLayoutError(
+            f"no reference.spice in layout record {record_dir} and no companion "
+            f"summary at {summary_rel} to resolve a tracked copy"
+        )
+    m = _COMPANION_REFERENCE_ROW_RE.search(summary_path.read_text())
+    if not m:
+        raise PostLayoutError(
+            f"layout record {record_id}: companion summary {summary_rel} lists no "
+            "tracked reference.spice row (expected a "
+            "'| reference.spice | <sha256> | `<repo path>` |' entry)"
+        )
+    sha_hex, tracked = m.group(1), m.group(2)
+    tracked_path = repo_root / tracked
+    if not tracked_path.is_file():
+        raise PostLayoutError(
+            f"layout record {record_id}: tracked reference netlist {tracked} (named by "
+            f"{summary_rel}) is not a file in this checkout"
+        )
+    got = _sha256_of(tracked_path)
+    if got != sha_hex:
+        raise PostLayoutError(
+            f"layout record {record_id}: tracked reference {tracked} hashes to {got}, "
+            f"but the companion summary pins {sha_hex} -- the committed reference "
+            "netlist has drifted from the one this record's verdicts were made against"
+        )
+    return tracked_path, {"kind": "tracked", "path": tracked, "sha256": sha_hex}
 
 
 #: Device cards `layout/bandgap-core/reference.spice` states for the startup
@@ -189,12 +424,21 @@ def resolve_latest_layout(bandgap_core_dir: Path) -> tuple[str, Path, Path]:
 _INJECTOR_REFERENCE_CARDS = ("MMPC1", "MMPC2", "MMNS", "MMNI", "MMNC", "QQS")
 
 
-def layout_record_draws_injector(record_dir: Path) -> bool:
+def layout_record_draws_injector(
+    record_dir: Path, bandgap_core_dir: Path | None = None
+) -> bool:
     """True if this layout record's own reference netlist carries the startup
-    injector's devices, i.e. the composed cell draws it (issue #285)."""
-    reference = record_dir / "reference.spice"
-    if not reference.is_file():
-        raise PostLayoutError(f"no reference.spice in layout record {record_dir}")
+    injector's devices, i.e. the composed cell draws it (issue #285).
+
+    `bandgap_core_dir` defaults to the repo's `layout/bandgap-core/` (the
+    module constant); pass it explicitly when `record_dir` is not under the
+    default one, as the synthetic-record tests do.
+    """
+    if bandgap_core_dir is None:
+        bandgap_core_dir = LAYOUT_BANDGAP_CORE_DIR
+    reference, _source = resolve_record_reference(
+        bandgap_core_dir, record_dir.name, record_dir
+    )
     text = reference.read_text()
     return all(re.search(rf"^{card}\s", text, re.M) for card in _INJECTOR_REFERENCE_CARDS)
 
@@ -229,8 +473,8 @@ def require_layout_draws_injector(slug: str) -> None:
     corner matrix full of unexplained FAILs, and it fires before any ngspice
     time is spent.
     """
-    record_id, record_dir, _gds = resolve_latest_layout(LAYOUT_BANDGAP_CORE_DIR)
-    if layout_record_draws_injector(record_dir):
+    record_id, record_dir, _gds, _gds_source = resolve_latest_layout(LAYOUT_BANDGAP_CORE_DIR)
+    if layout_record_draws_injector(record_dir, LAYOUT_BANDGAP_CORE_DIR):
         return
     raise PostLayoutError(
         f"{slug}: refusing to run against layout record {record_id}, whose own "
@@ -602,6 +846,130 @@ def translate_extracted_netlist(text: str) -> tuple[str, dict[str, int]]:
     return result, counts
 
 
+# --------------------------------------------------------------------------
+# MOS flavour gate (issue #621): the PDK-bound extraction itself must bind
+# the thick-oxide wrappers, BEFORE any local translation runs
+# --------------------------------------------------------------------------
+
+#: The wrapper cards a PDK-bound `klt extract --pdk sky130A` must emit for
+#: every MOS finger once the geometry is thick-oxide, by polarity -- the
+#: same mapping `layout/bin/gen_bandgap_routed.py`'s flavour gate (issue
+#: #620) scores the layout flow's own raw extraction against.
+_HVI_MOS_WRAPPER_MODELS = {
+    "nfet": "sky130_fd_pr__nfet_g5v0d10v5",
+    "pfet": "sky130_fd_pr__pfet_g5v0d10v5",
+}
+
+#: 0-based token index of a bound subckt-wrapper card's model name
+#: (`X<name> d g s b <model> ...`) -- the same field
+#: `layout/bin/gen_bandgap_routed.py`'s `X_CARD_MODEL_FIELD` reads.
+_X_CARD_MODEL_FIELD = 5
+
+
+def bound_mos_wrapper_census(netlist_text: str) -> dict[str, int]:
+    """Count subckt-wrapper `X` cards per `sky130_fd_pr__*fet*` model name.
+
+    The same census `layout/bin/gen_bandgap_routed.py`'s
+    `raw_mos_card_counts()` performs on the layout flow's raw PDK-bound
+    extraction, applied here to the parasitics snapshot the benches
+    simulate: resistors (`res_high_po`) and PNPs never contain `fet`, so
+    the count is a MOS-only census by construction.
+    """
+    counts: dict[str, int] = {}
+    for line in netlist_text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped[0] not in "Xx":
+            continue  # '+' continuation lines never carry another card
+        tokens = stripped.split()
+        if len(tokens) <= _X_CARD_MODEL_FIELD:
+            continue
+        model = tokens[_X_CARD_MODEL_FIELD]
+        if "sky130_fd_pr__" in model and "fet" in model:
+            counts[model] = counts.get(model, 0) + 1
+    return counts
+
+
+def check_parasitics_mos_flavour(
+    pex_text: str, expected: dict[str, int], record_id: str
+) -> dict:
+    """Gate the snapshot's raw MOS wrapper binding against the record's
+    geometry-derived flavour counts, before `translate_extracted_netlist`
+    rewrites a single MOS card (issue #621).
+
+    `expected` is the record's own `flavour.json` `expected` block -- the
+    finger counts #620 derived from `reference.spice`'s `m=` per polarity
+    and confirmed on the raw PDK-bound extraction of this very GDS. The
+    parasitics snapshot is extracted from the same GDS with the same
+    `--pdk` binding, so its census must agree. Both halves of the check
+    catch a SINGLE wrong card: one thin-oxide card among otherwise-correct
+    devices leaves its polarity one short (caught by the exact-count
+    comparison) even when the total MOS count still agrees, and adds one
+    unexpected model to the census. A simulation-only model substitution
+    cannot establish the oxide flavour -- the extraction must.
+    """
+    census = bound_mos_wrapper_census(pex_text)
+    observed = {
+        polarity: census.get(model, 0)
+        for polarity, model in _HVI_MOS_WRAPPER_MODELS.items()
+    }
+    unexpected = {
+        model: n
+        for model, n in sorted(census.items())
+        if model not in _HVI_MOS_WRAPPER_MODELS.values()
+    }
+    mismatches = {
+        polarity: {"expected": expected[polarity], "observed": observed[polarity]}
+        for polarity in _HVI_MOS_WRAPPER_MODELS
+        if observed[polarity] != expected[polarity]
+    }
+    result = {
+        "clean": not mismatches and not unexpected,
+        "expected": dict(expected),
+        "observed": observed,
+        "unexpected_mos_models": unexpected,
+        "mismatches": mismatches,
+    }
+    if not result["clean"]:
+        detail = f"expected {expected}, observed {observed}"
+        if unexpected:
+            detail += f", unexpected wrapper models {unexpected}"
+        raise PostLayoutError(
+            f"layout record {record_id}: the PDK-bound parasitics snapshot's MOS "
+            f"wrapper binding does not agree with the record's geometry-derived "
+            f"flavour counts (flavour.json): {detail}. A single wrong-flavour card "
+            "fails even when the total MOS count agrees, and a simulation-only "
+            "model substitution cannot establish the oxide flavour (issue #621) -- "
+            "the extraction itself must bind the thick-oxide wrappers"
+        )
+    return result
+
+
+def layout_record_lvs_status(record_dir: Path, record_id: str) -> dict | None:
+    """Read a record's committed combined LVS verdict, for provenance and
+    the claim guard. Returns None when the record predates
+    `lvs.combined.json` (the field stays null, as before); a present but
+    unparseable verdict is an error naming the record, not a silent null.
+    """
+    path = record_dir / "lvs.combined.json"
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text())
+    except json.JSONDecodeError as exc:
+        raise PostLayoutError(
+            f"layout record {record_id}: lvs.combined.json is not valid JSON: {exc}"
+        ) from exc
+    if not isinstance(data, dict):
+        raise PostLayoutError(
+            f"layout record {record_id}: lvs.combined.json is not a JSON object"
+        )
+    return {
+        "status": data.get("status"),
+        "mismatch_count": data.get("mismatch_count"),
+        "report": f"layout/bandgap-core/reports/{record_id}/lvs.combined.json",
+    }
+
+
 def extract_subckt_block(text: str, name: str) -> str:
     """Pull out one `.SUBCKT <name> ... .ENDS <name>` block (case-insensitive)."""
     m = re.search(
@@ -874,7 +1242,12 @@ def build_extracted_body(
     `bandgap_core`/`error_amp` subckt definitions for the translated,
     extracted, parasitics-included routed layout. Returns (body, provenance).
     """
-    layout_record_id, layout_record_dir, gds = resolve_latest_layout(LAYOUT_BANDGAP_CORE_DIR)
+    layout_record_id, layout_record_dir, gds, gds_source = resolve_latest_layout(
+        LAYOUT_BANDGAP_CORE_DIR
+    )
+    _reference, reference_source = resolve_record_reference(
+        LAYOUT_BANDGAP_CORE_DIR, layout_record_id, layout_record_dir
+    )
     pex_dir, pex_summary, pex_source = resolve_parasitics_snapshot(
         local_snapshot_root,
         gds,
@@ -887,8 +1260,45 @@ def build_extracted_body(
         pinned_commit=pdk.pin["open_pdks_commit"],
     )
     spice_path = pex_dir / PEX_SPICE_NAME
+    pex_text = spice_path.read_text()
 
-    translated, counts = translate_extracted_netlist(spice_path.read_text())
+    # Flavour gate (issue #621): score the RAW PDK-bound wrapper binding of
+    # this very snapshot against the record's geometry-derived counts,
+    # BEFORE translate_extracted_netlist rewrites any MOS card. Only a
+    # record that carries flavour.json (issue #620 onward) has a
+    # geometry-derived expectation to gate against; the legacy unbound
+    # klt-0.5.0 snapshot has no wrapper cards at all, so there is nothing
+    # to score on that path either -- both cases are disclosed in the
+    # provenance instead of silently passing.
+    flavour_gate: dict = {"status": "not-gated"}
+    flavour_path = layout_record_dir / "flavour.json"
+    if flavour_path.is_file():
+        try:
+            flavour_expected = (json.loads(flavour_path.read_text()) or {}).get("expected")
+        except json.JSONDecodeError as exc:
+            raise PostLayoutError(
+                f"layout record {layout_record_id}: flavour.json is not valid JSON: {exc}"
+            ) from exc
+        if isinstance(flavour_expected, dict) and bound_mos_wrapper_census(pex_text):
+            flavour_gate = check_parasitics_mos_flavour(
+                pex_text, flavour_expected, layout_record_id
+            )
+        else:
+            flavour_gate = {
+                "status": "not-gated",
+                "reason": (
+                    "snapshot carries no PDK-bound MOS wrapper cards "
+                    "(legacy unbound extraction); no oxide-flavour evidence on this path"
+                ),
+            }
+    else:
+        flavour_gate = {
+            "status": "not-gated",
+            "reason": "record predates issue #620's flavour.json; no geometry-derived "
+            "expectation to gate against",
+        }
+
+    translated, counts = translate_extracted_netlist(pex_text)
 
     expected = pex_summary.get("device_counts", {})
     expected_mos = expected.get("nfet", 0) + expected.get("pfet", 0)
@@ -913,21 +1323,29 @@ def build_extracted_body(
 
     body = (tb_body_text + "\n\n" + wrapper + "\n" + core_block + "\n").splitlines()
 
+    lvs_status = layout_record_lvs_status(layout_record_dir, layout_record_id)
     provenance = {
         "layout_record_id": layout_record_id,
         "layout_record": str((layout_record_dir / "record.md").relative_to(REPO_ROOT)),
         "layout_gds": str(gds.relative_to(REPO_ROOT)),
+        "layout_gds_source": gds_source,
+        "layout_reference": reference_source,
+        "layout_lvs": lvs_status,
         "parasitics_snapshot": {
             "spice": str(spice_path.relative_to(REPO_ROOT)),
             "json": str((pex_dir / PEX_JSON_NAME).relative_to(REPO_ROOT)),
             "source": pex_source,
+            "pex_spice_sha256": _sha256_of(spice_path),
             "r_count": pex_summary.get("parasitics", {}).get("r_count"),
             "c_count": pex_summary.get("parasitics", {}).get("c_count"),
             "total_resistance_ohm": pex_summary.get("parasitics", {}).get("total_resistance_ohm"),
             "total_capacitance_ff": pex_summary.get("parasitics", {}).get("total_capacitance_ff"),
         },
+        "mos_flavour_gate": flavour_gate,
         "device_translation_counts": counts,
-        "lvs_mismatch_count_at_extraction": None,  # cross-referenced in the record body, not re-derived here
+        # The selected record's own combined LVS verdict (issue #621): null
+        # only for records that predate lvs.combined.json.
+        "lvs_mismatch_count_at_extraction": (lvs_status or {}).get("mismatch_count"),
         "core_port_order": list(core_port_order),  # as actually parsed from this run's own extraction header
     }
     return body, provenance
@@ -1100,6 +1518,40 @@ def resolve_record_claim_and_title(
             f"{raw.get('provenance')!r}"
         )
     return raw["claim"], raw.get("title", fallback_title), True
+
+
+def check_claim_matches_lvs_verdict(
+    slug: str,
+    claim_text: str,
+    layout_provenance: dict,
+    error,
+) -> None:
+    """Refuse a claim that asserts an "LVS-clean" layout while the selected
+    record's own combined LVS report disagrees (issue #621).
+
+    Extracted from `run_post_layout_experiment` so the rule is testable
+    without a PDK, ngspice or `klt` on PATH -- the same reason
+    `resolve_record_claim_and_title` exists. `error` is the exception class
+    to raise (callers pass `cr.HarnessError`; a test can pass anything).
+
+    The historical claims this guard retired said "the ROUTED, LVS-clean
+    bandgap-core layout" at a time when the graded record's LVS verdict was
+    `mismatch_count: 0`. The thick-oxide record's verdict is 5 disclosed
+    mismatches, and a claim is a sentence about the DUT -- it must not
+    assert a verdict the record's own evidence contradicts. Records carry
+    the actual verdict in `layout_provenance["layout_lvs"]` and cite it
+    under 'Netlist provenance' instead. A record with no `lvs.combined.json`
+    (predating it) has no verdict to contradict, so the guard passes.
+    """
+    lvs = layout_provenance.get("layout_lvs") or {}
+    if "lvs-clean" in claim_text.lower() and lvs.get("mismatch_count"):
+        raise error(
+            f"{slug}: the claim text asserts an 'LVS-clean' layout, but layout record "
+            f"{layout_provenance.get('layout_record_id')}'s combined LVS report carries "
+            f"mismatch_count={lvs.get('mismatch_count')} (status {lvs.get('status')!r}). "
+            "Cite the record's actual LVS verdict under 'Netlist provenance' instead of "
+            "asserting cleanliness (issue #621)"
+        )
 
 
 def run_post_layout_experiment(
@@ -1306,9 +1758,16 @@ def run_post_layout_experiment(
         legacy_layout_record_id=legacy_layout_record_id,
     )
 
+    # Claim-vs-verdict guard (issue #621): see
+    # `check_claim_matches_lvs_verdict` -- the record's actual verdict is
+    # carried in layout_provenance (layout_lvs) and cited under 'Netlist
+    # provenance'; the claim text has to say that instead.
+    check_claim_matches_lvs_verdict(slug, claim_text, layout_provenance, cr.HarnessError)
+
     print(f"experiment      : {slug}")
     print(f"record id       : {record_id}")
     print(f"layout record   : {layout_provenance['layout_record_id']}")
+    print(f"layout gds      : {layout_provenance['layout_gds_source']['kind']}")
     print(f"parasitics      : {layout_provenance['parasitics_snapshot']['source']}")
     print(f"corner points   : {len(matrix)}" + (" (SUBSET)" if is_subset else " (full matrix)"))
 
@@ -1342,13 +1801,22 @@ def run_post_layout_experiment(
         print("\n(dry run: nothing written under sim/)")
         return 0
 
+    gds_source = layout_provenance["layout_gds_source"]
+    if gds_source["kind"] == "artifact-store":
+        gds_citation = (
+            f"{gds_source['manifest']}#{gds_source['entry']} "
+            f"(sha256 {str(gds_source.get('sha256'))[:16]}..., fetched via `klt artifact get` "
+            f"to {layout_provenance['layout_gds']})"
+        )
+    else:
+        gds_citation = layout_provenance["layout_gds"]
     experiment_fields = {
         "slug": slug,
         "title": title,
         "claim": claim_text,
         "provenance": "extracted",
         "provenance_source": (
-            f"{layout_provenance['layout_gds']} via `klt extract --parasitics` "
+            f"{gds_citation} via `klt extract --parasitics` "
             f"(layout record {layout_provenance['layout_record_id']}), translated by "
             "sim/bin/post_layout_common.py, "
             + ("over this bench's own " if owns_its_manifest else "wrapped over the unmodified ")

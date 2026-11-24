@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Post-layout (extracted-netlist) re-run of `sim/quiescent-current`'s total
-quiescent supply current claim, against the routed, LVS-clean bandgap-core
+quiescent supply current claim, against the routed bandgap-core
 layout (issue #62) instead of `design/bandgap_core.sch` (issue #16).
 
 Second increment of issue #16's post-layout suite, after
@@ -58,8 +58,10 @@ WRAPPED_EXPERIMENT = "quiescent-current"  # manifest (corners/measurements/deck)
 WRAPPED_SCHEMATIC = "sim/quiescent-current/testbench/tb_vref_iq.sch"
 
 CLAIM_TAIL = (
-    "Measures the total current out of the single supply source feeding the ROUTED, "
-    "LVS-clean bandgap-core layout (issue #62) -- both core branches, the R2A/R2B legs "
+    "Measures the total current out of the single supply source feeding the ROUTED "
+    "bandgap-core layout (issue #62, thick-oxide geometry per issue #620; its LVS "
+    "verdict is cited under 'Netlist provenance', not asserted here) -- both core "
+    "branches, the R2A/R2B legs "
     "and the error amplifier's mirrored tail, now including the drawn VDD/VSS routing's "
     "own series resistance -- open-circuit at VREF, over the full 45-point PVT matrix, "
     "via klt extract --parasitics translated to a simulatable netlist "

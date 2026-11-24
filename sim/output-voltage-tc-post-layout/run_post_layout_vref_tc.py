@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Post-layout (extracted-netlist) re-run of `sim/output-voltage-tc`'s output
-voltage + box-method TC claim, against the routed, LVS-clean bandgap-core
+voltage + box-method TC claim, against the routed bandgap-core
 layout (issue #62) instead of `design/bandgap_core.sch` (issue #16).
 
 Schematic-level evidence assumes ideal parasitics; this record substantiates
@@ -59,8 +59,10 @@ WRAPPED_EXPERIMENT = "output-voltage-tc"  # manifest (corners/measurements/deck)
 WRAPPED_SCHEMATIC = "sim/output-voltage-tc/testbench/tb_vref_tc.sch"
 
 CLAIM_TAIL = (
-    "Measures the ROUTED, LVS-clean bandgap-core layout (issue #62) open-circuit, "
-    "untrimmed, via klt extract --parasitics translated to a simulatable netlist "
+    "Measures the ROUTED bandgap-core layout (issue #62, thick-oxide geometry per "
+    "issue #620; its LVS verdict is cited under 'Netlist provenance', not asserted "
+    "here) open-circuit, untrimmed, via klt extract --parasitics translated to a "
+    "simulatable netlist "
     "(sim/bin/post_layout_common.py) -- NOT design/bandgap_core.sch directly; see "
     "'Netlist provenance' below."
 )
