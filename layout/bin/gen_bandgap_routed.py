@@ -2327,7 +2327,6 @@ def main() -> int:
         klt, out_dir, reports[BLOCKS[0]["id"]]["pdk"], reports, origins
     )
     overlays["hv_fixup"] = hv_fixup_report
-    all_reports[hv_fixup_report["cell_name"]] = hv_fixup_report
     all_origins[hv_fixup_report["cell_name"]] = {"x": 0.0, "y": 0.0}
 
     content_bbox = union_bbox([b["id"] for b in BLOCKS], reports, origins)
