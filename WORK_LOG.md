@@ -9,6 +9,10 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-24
 
+- **Issue #669** (closed): layout/bandgap-core: complete the VDD trunk and amp finger-bus connectivity on the thick-oxide record (floating amp_pmirr well and amp_cc spine)
+- **PR #682**: fix(layout): complete the VDD trunk via tree-attach routing and re-run the post-layout benches
+- **Issue #679** (closed): pdk_record_fields docstring credits sort_keys=True for writers that do not use it
+- **PR #680**: docs: state sim_common key order is the byte order for two unsorted writers
 - **PR #678**: refactor: dedupe PDK metadata blocks in simulation record writers
 - **PR #677**: test: assert the LATEST routed record's extract netlist resolves
 - **Issue #676** (closed): Deduplicate the two repeated PDK metadata blocks in simulation record writers
@@ -358,13 +362,4 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 - **Issue #313** (closed): Dedup csv_list/csv_floats: post_layout_common.py reimplements corner-run.py's CSV parsers
 - **PR #314**: Dedup csv_list/csv_floats: route post_layout_common.py through sim_common.py
-
-### 2026-09-24
-
-- **Issue #303** (closed): startup-ramp + post-layout: re-run the post-#284 manifest over the full 45-point matrix (the #284 records are 10- and 4-point subsets, host-capacity-limited)
-- **Issue #299** (closed): Rows 8b/8d: the post-layout startup benches double-count the injector now that it is drawn — they need their own testbench
-- **PR #311**: Rows 8b/8d: give the post-layout startup benches their own DUT shape, re-run, and re-grade
-- **Issue #308** (closed): sim/bin/corner-run.py: add a -j parallel-corner mode so slow hosts stop forcing subset records
-- **PR #310**: sim: add -j/--jobs concurrent-corner mode to corner-run.py
-- **Issue #312** (closed): sim/tests/ is not run by CI — npm run check:ci only discovers layout/tests
 

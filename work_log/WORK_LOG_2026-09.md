@@ -2,6 +2,15 @@
 
 Sections moved byte-for-byte from [WORK_LOG.md](../WORK_LOG.md) by `loom-daemon work-docs archive`.
 
+### 2026-09-24
+
+- **Issue #303** (closed): startup-ramp + post-layout: re-run the post-#284 manifest over the full 45-point matrix (the #284 records are 10- and 4-point subsets, host-capacity-limited)
+- **Issue #299** (closed): Rows 8b/8d: the post-layout startup benches double-count the injector now that it is drawn — they need their own testbench
+- **PR #311**: Rows 8b/8d: give the post-layout startup benches their own DUT shape, re-run, and re-grade
+- **Issue #308** (closed): sim/bin/corner-run.py: add a -j parallel-corner mode so slow hosts stop forcing subset records
+- **PR #310**: sim: add -j/--jobs concurrent-corner mode to corner-run.py
+- **Issue #312** (closed): sim/tests/ is not run by CI — npm run check:ci only discovers layout/tests
+
 ### 2026-09-23
 
 - **PR #309**: sim(startup-ramp): re-run the full 45-point matrix on the post-#284 manifest
