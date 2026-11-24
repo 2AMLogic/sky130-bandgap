@@ -9,6 +9,10 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-24
 
+- **PR #670**: Re-run the seven post-layout benches on #620's thick-oxide record: verified input resolution, flavour gate, and an all-FAIL campaign dominated by the record's unrouted VDD
+- **PR #663**: refactor: reuse corner-run installed_commit in post-layout snapshot lookup
+- **Issue #621** (closed): Re-extract and rerun the seven post-layout benches on the verified thick-oxide GDS
+- **Issue #656** (closed): Reuse the harness PDK revision reader in post-layout snapshot lookup
 - **PR #666**: chore: ignore account-ranking.codex in loom-managed gitignore block
 - **PR #664**: feat(layout): keep routed-flow summary files out of the artifact store
 - **PR #661**: test: catch short+long add_argument forms in SharedOptionTailGuard
