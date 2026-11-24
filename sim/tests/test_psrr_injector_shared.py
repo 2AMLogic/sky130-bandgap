@@ -9,6 +9,12 @@ second class below also pins the record KEY ORDER each bench writes against its
 own newest committed record -- `sim/` is append-only evidence, and a dedup that
 silently reshuffled a record's json would make new records non-comparable with
 the committed ones no one can go back and fix.
+
+Issue #650 moved the option tail both `parse_args()` bodies shared (everything
+from `--corners` onward, `add_batch_args` and the variant/concurrency checks
+behind it) into `parse_injector_args()`; the last class is the recurrence
+guard keeping that tail in exactly one place, in the spirit of
+test_batch_cli_flags.NoHandRolledCopiesTests.
 """
 
 from __future__ import annotations
@@ -443,6 +449,44 @@ class InjectorRecordSkeletonTest(unittest.TestCase):
             with self.subTest(bench=name):
                 self.assertIn(f'statistical_convention="{convention}"', source)
                 del R
+
+
+class SharedOptionTailGuard(unittest.TestCase):
+    """The recurrence guard for issue #650: the option tail from `--corners`
+    onward is registered in exactly one place, `parse_injector_args()`. Both
+    runners carried it as byte-identical copies once, which is why #583's
+    empty-selection guard had to be fixed twice; a runner that re-registers
+    any tail flag itself re-forks the two CLIs and their `--help` the same
+    way. Docstring mentions of a flag are fine -- only registrations count."""
+
+    #: What the shared tail registers beyond the batch block add_batch_args()
+    #: puts in (that block already has its own guard,
+    #: test_batch_cli_flags.NoHandRolledCopiesTests).
+    TAIL_FLAGS = ("--corners", "--jobs", "--dry-run", "--batch-hosts",
+                  "--batch-max-jobs", "--timeout", "--author",
+                  "--allow-pdk-mismatch")
+    HOME = SIM_DIR / "bin" / "injector_common.py"
+
+    def test_neither_runner_registers_a_tail_flag_itself(self):
+        for name, path in RUNNERS.items():
+            with self.subTest(bench=name):
+                hits = [f for f in self.TAIL_FLAGS
+                        if f'add_argument("{f}"' in path.read_text()]
+                self.assertEqual(
+                    hits, [],
+                    "this runner registers part of the shared option tail itself "
+                    "instead of delegating to injector_common.parse_injector_args()",
+                )
+
+    def test_both_runners_delegate_their_tail(self):
+        for name, path in RUNNERS.items():
+            with self.subTest(bench=name):
+                self.assertIn("parse_injector_args(", path.read_text())
+
+    def test_the_home_really_is_the_home(self):
+        text = self.HOME.read_text()
+        for flag in self.TAIL_FLAGS:
+            self.assertIn(f'add_argument("{flag}"', text)
 
 
 if __name__ == "__main__":
