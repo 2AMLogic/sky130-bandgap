@@ -22,6 +22,7 @@ from __future__ import annotations
 import contextlib
 import io
 import json
+import re
 import sys
 import tempfile
 import unittest
@@ -457,7 +458,17 @@ class SharedOptionTailGuard(unittest.TestCase):
     runners carried it as byte-identical copies once, which is why #583's
     empty-selection guard had to be fixed twice; a runner that re-registers
     any tail flag itself re-forks the two CLIs and their `--help` the same
-    way. Docstring mentions of a flag are fine -- only registrations count."""
+    way. Docstring mentions of a flag are fine -- only registrations count.
+
+    Issue #655 widened it to the shape of its model,
+    test_batch_cli_flags.NoHandRolledCopiesTests: the registration match
+    accepts either quote style, and the tail's signature flag `--corners`
+    is guarded across all of sim/**.py, so a third bench copy-pasting the
+    tail is caught too. Only `--corners` is guarded repo-wide because it is
+    the one tail name nothing else uses; the rest (--jobs, --timeout,
+    --dry-run, ...) are generic names other harnesses legitimately
+    register for themselves, so a repo-wide bare-name match on the full
+    tail would need an allowlist for no extra catch."""
 
     #: What the shared tail registers beyond the batch block add_batch_args()
     #: puts in (that block already has its own guard,
@@ -465,18 +476,44 @@ class SharedOptionTailGuard(unittest.TestCase):
     TAIL_FLAGS = ("--corners", "--jobs", "--dry-run", "--batch-hosts",
                   "--batch-max-jobs", "--timeout", "--author",
                   "--allow-pdk-mismatch")
+    #: The one tail flag unique enough to walk all of sim/ for: measured for
+    #: issue #655, nothing outside the HOME (and these tests) even names it.
+    SIGNATURE_FLAG = "--corners"
     HOME = SIM_DIR / "bin" / "injector_common.py"
+
+    @staticmethod
+    def registers(text: str, flag: str) -> bool:
+        # Either quote style and any spacing after the open paren: a
+        # single-quoted registration must not slip past the guard just
+        # because the tree happens to spell registrations with double
+        # quotes today.
+        return re.search(rf"add_argument\(\s*[\"']{re.escape(flag)}[\"']",
+                         text) is not None
 
     def test_neither_runner_registers_a_tail_flag_itself(self):
         for name, path in RUNNERS.items():
             with self.subTest(bench=name):
                 hits = [f for f in self.TAIL_FLAGS
-                        if f'add_argument("{f}"' in path.read_text()]
+                        if self.registers(path.read_text(), f)]
                 self.assertEqual(
                     hits, [],
                     "this runner registers part of the shared option tail itself "
                     "instead of delegating to injector_common.parse_injector_args()",
                 )
+
+    def test_only_the_home_registers_the_tail_signature_flag(self):
+        offenders: list[str] = []
+        for path in sorted(SIM_DIR.rglob("*.py")):
+            if path == self.HOME or path.parent == SIM_DIR / "tests":
+                continue
+            if self.registers(path.read_text(), self.SIGNATURE_FLAG):
+                offenders.append(str(path.relative_to(SIM_DIR)))
+        self.assertEqual(
+            offenders, [],
+            "this sim/ file registers the shared option tail's signature flag "
+            f"{self.SIGNATURE_FLAG} itself instead of delegating to "
+            "injector_common.parse_injector_args()",
+        )
 
     def test_both_runners_delegate_their_tail(self):
         for name, path in RUNNERS.items():
