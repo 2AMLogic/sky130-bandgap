@@ -95,7 +95,6 @@ BUILD_DIR = SIM_DIR / "build" / "psrr-injector-candidates"
 sys.path.insert(0, str(SIM_DIR / "bin"))
 import batch_sim  # noqa: E402
 from sim_common import (  # noqa: E402
-    add_batch_args,
     batch_netlist as _batch_netlist,
     build_batch_groups as _build_batch_groups,
     check_pdk_and_ngspice,
@@ -119,6 +118,7 @@ from injector_common import (  # noqa: E402
     injector_run_variants,
     new_record_id,
     parse_corner_spec,
+    parse_injector_args,
     run_all_batch as _run_all_batch,
     run_all_variants,
     write_injector_record,
@@ -874,48 +874,7 @@ def parse_args(argv):
     p.add_argument("--variants", default=",".join(v.name for v in VARIANTS),
                    type=lambda s: [x.strip() for x in s.split(",") if x.strip()],
                    help="comma-separated variant names (default: all)")
-    p.add_argument("--corners", default="ff,125,3.63",
-                   help="explore mode only: semicolon-separated process,temp,supply triples")
-    p.add_argument("--jobs", type=int, default=None,
-                   help="local backend only: concurrent ngspice processes (default 2 -- these "
-                        "hosts are shared)")
-    add_batch_args(
-        p,
-        backend_help="where points run: 'local' (default; one ngspice per point on this host, "
-                     "for single-corner probes) or 'batch' (klt sim --backend batch on the Spot "
-                     "batch fleet -- use this for the full grid on a dispatch host). A failed "
-                     "batch submission is an error, never a local fallback",
-    )
-    p.add_argument("--dry-run", action="store_true",
-                   help="--backend batch only: build and print the klt requests, submit nothing, "
-                        "run no ngspice, write nothing under sim/<experiment>/")
-    p.add_argument("--batch-hosts", type=int, default=1,
-                   help="batch only: shard each request across this many fleet hosts "
-                        "(request remote.hosts; default 1 = unsharded)")
-    p.add_argument("--batch-max-jobs", type=int, default=8,
-                   help="batch only: klt requests in flight at once (default 8)")
-    p.add_argument("--timeout", type=int, default=1800, help="per-point ngspice timeout (s)")
-    p.add_argument("--author", default="", help="record author (default: git user.email)")
-    p.add_argument("--allow-pdk-mismatch", action="store_true",
-                   help="run even if the installed PDK differs from the sim/pdk.json pin")
-    args = p.parse_args(argv)
-    if not args.variants:
-        p.error(f"empty --variants selection; known: {sorted(VARIANTS_BY_NAME)}")
-    unknown = [v for v in args.variants if v not in VARIANTS_BY_NAME]
-    if unknown:
-        p.error(f"unknown variant(s) {unknown}; known: {sorted(VARIANTS_BY_NAME)}")
-    if args.dry_run and args.backend != "batch":
-        p.error("--dry-run is only meaningful with --backend batch")
-    if args.backend == "batch" and args.jobs is not None:
-        p.error("--jobs is a local-concurrency flag; --backend batch ignores it, drop it "
-                "(use --batch-max-jobs)")
-    if args.jobs is None:
-        args.jobs = 2
-    if args.jobs < 1:
-        p.error("--jobs must be >= 1")
-    if args.batch_max_jobs < 1:
-        p.error("--batch-max-jobs must be >= 1")
-    return args
+    return parse_injector_args(p, argv, VARIANTS_BY_NAME)
 
 
 def main(argv) -> int:
