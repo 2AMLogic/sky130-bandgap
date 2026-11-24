@@ -30,7 +30,7 @@
     {
       "path": "sim/bin/batch_sim.py",
       "role": "harness",
-      "content_hash": "sha256:c427f730cbf8fe31cb252b3bc47b5e82afcbbdf24488649133447a25e6541db5"
+      "content_hash": "sha256:8527d16964090ed460fea96dc1ac1fd6fe9d0bac27ab62af695596a11fc27052"
     },
     {
       "path": "sim/bin/corner-run.py",
@@ -98,7 +98,7 @@
         {
           "path": "sim/error-amp-offset-mc/run_amp_offset_mc.py",
           "role": "runner",
-          "content_hash": "sha256:89e5c48e238b103a27999adb01457e0ab99cd0e3cf2880b9900bd3a4d973444f"
+          "content_hash": "sha256:cdaf8990689d5d0f89861730fc2136afad17512c737365a8757ee3696cfe00b8"
         }
       ]
     },
@@ -136,7 +136,7 @@
         {
           "path": "sim/monte-carlo-untrimmed/run_mc_untrimmed.py",
           "role": "runner",
-          "content_hash": "sha256:9e530acc3f39e4c8df4ddfb5fd3bfd8d8f9d9dc748d3f72b09efad8ea0be758e"
+          "content_hash": "sha256:6f50ab1320be2e48d6015a8607838f70f7d518094ef6ca2ad05b9809df987e83"
         }
       ]
     },

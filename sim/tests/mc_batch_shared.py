@@ -22,12 +22,16 @@ importing this module, and this module does the same for `sim/bin`.
 
 from __future__ import annotations
 
+import argparse
 import hashlib
+import inspect
 import json
+import re
 import sys
 import tempfile
 from pathlib import Path
 from types import SimpleNamespace
+from unittest import mock
 
 SIM_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SIM_DIR / "bin"))
@@ -224,6 +228,91 @@ class TimeoutDefaultShared:
         self.assertEqual(
             self.R.parse_args(["--backend", "batch", "--timeout", "900"]).timeout, 900
         )
+
+
+class CliBlockShared:
+    """`parse_args()` and the batch `--dry-run` branch are `batch_sim`'s
+    (issue #653): the flag block and the backend-dependent `--timeout` default
+    through `batch_sim.add_mc_batch_args()` / `batch_sim.parse_mc_args()`, the
+    printed requests through `batch_sim.print_mc_batch_dry_run()`. Before #653
+    each runner carried its own byte-for-byte copy of both, so #528 and #544
+    each had to be landed twice.
+
+    The subclass supplies `R`, the literal `LOCAL_TIMEOUT_S` (see
+    `OverCeilingBudgetShared` for why the literal, not `R.LOCAL_TIMEOUT_S`) and
+    `BENCH_FLAGS`: the option strings of the flags its own bench adds after the
+    shared block, in `--help` order (empty for a bench that adds none)."""
+
+    #: Prose both runners spelled identically before #653. None of it may come
+    #: back as a private copy in a runner.
+    SHARED_PROSE = (
+        "ngspice timeout in seconds. Locally this bounds one point",
+        "where the points run (default: local ngspice",
+        "-- batch requests (one klt sim Monte Carlo request per point) --",
+        "nothing submitted, nothing written under sim/",
+    )
+
+    def _runner_parser(self):
+        """The parser `R.parse_args()` hands to `batch_sim.parse_mc_args()`,
+        and the local `--timeout` default it resolves against."""
+        seen = {}
+        real = batch_sim.parse_mc_args
+
+        def spy(parser, argv, *, local_timeout_s):
+            seen["parser"] = parser
+            seen["local_timeout_s"] = local_timeout_s
+            return real(parser, argv, local_timeout_s=local_timeout_s)
+
+        with mock.patch.object(batch_sim, "parse_mc_args", spy):
+            self.R.parse_args(["--backend", "batch"])
+        self.assertTrue(seen, "R.parse_args() does not parse through batch_sim.parse_mc_args()")
+        return seen["parser"], seen["local_timeout_s"]
+
+    @staticmethod
+    def _shapes(parser):
+        """Comparable form of a parser's actions: argparse stores the owning
+        parser on each action, so the actions of two parsers never compare
+        equal directly."""
+        return [
+            (a.option_strings, a.dest, a.nargs, a.const, a.default, a.type,
+             a.choices, a.required, a.help, a.metavar)
+            for a in parser._actions
+        ]
+
+    def test_the_shared_block_comes_first_and_only_the_bench_flags_follow(self):
+        """Flags are listed in `--help` in the order they are added, so the
+        block must be registered verbatim and in full before anything the
+        bench adds -- that order is what keeps both `--help` outputs
+        byte-identical to their pre-#653 text."""
+        parser, local_timeout_s = self._runner_parser()
+        self.assertEqual(local_timeout_s, self.LOCAL_TIMEOUT_S)
+        reference = argparse.ArgumentParser(prog=parser.prog, add_help=True)
+        batch_sim.add_mc_batch_args(
+            reference, samples_default=self.R.N_SAMPLES, local_timeout_s=self.LOCAL_TIMEOUT_S
+        )
+        want, got = self._shapes(reference), self._shapes(parser)
+        self.assertEqual(got[:len(want)], want)
+        self.assertEqual([shape[0] for shape in got[len(want):]], self.BENCH_FLAGS)
+
+    def test_help_names_this_benchs_local_timeout_default(self):
+        # Anchored on the --timeout sentence: --batch-capacity-wait-s also
+        # prints a "(default ...)", and its 3600 equals one bench's local
+        # default, which would satisfy a bare positive check.
+        parser, _ = self._runner_parser()
+        text = " ".join(parser.format_help().split())
+        named = re.findall(r"over its samples; default (\d+)\)", text)
+        self.assertEqual(named, [str(self.LOCAL_TIMEOUT_S)])
+
+    def test_main_prints_the_dry_run_through_the_shared_printer(self):
+        # Everything in main() before the dry-run branch needs the PDK, so
+        # what can be pinned here is that the branch calls the printer.
+        self.assertIn("print_mc_batch_dry_run", self.R.main.__code__.co_names)
+
+    def test_no_private_copy_of_the_shared_prose_survives_in_the_runner(self):
+        source = inspect.getsource(self.R)
+        for prose in self.SHARED_PROSE:
+            with self.subTest(prose=prose):
+                self.assertNotIn(prose, source)
 
 
 class BatchCollectionShared:

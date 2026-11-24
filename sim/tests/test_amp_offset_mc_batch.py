@@ -22,6 +22,8 @@ real fleet run (issue #370) should be a small-N one for that reason.
 
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import sys
 import unittest
@@ -96,6 +98,20 @@ class OverCeilingBudgetIsRefused(_AmpBench, mc_batch_shared.OverCeilingBudgetSha
 class TimeoutDefaultFollowsTheBackend(_AmpBench, mc_batch_shared.TimeoutDefaultShared,
                                       unittest.TestCase):
     LOCAL_TIMEOUT_S = 7200
+
+
+class CliBlock(_AmpBench, mc_batch_shared.CliBlockShared, unittest.TestCase):
+    LOCAL_TIMEOUT_S = 7200
+    BENCH_FLAGS = []
+
+    def test_the_flags_it_does_not_implement_are_refused(self):
+        """This bench's argparse defines neither of the untrimmed bench's batch
+        flags, so its `--help` advertises only what its own backend honours
+        (issue #577): the shared block must not have brought them along."""
+        for argv in (["--batch-resume"], ["--batch-max-concurrent-jobs", "20"]):
+            with self.subTest(argv=argv), contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):
+                    self.R.parse_args(argv)
 
 
 class BatchCollection(_AmpBench, mc_batch_shared.BatchCollectionShared, unittest.TestCase):
