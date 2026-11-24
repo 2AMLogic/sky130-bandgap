@@ -58,6 +58,7 @@ from sim_common import (  # noqa: E402
     add_common_args,
     build_mismatch_points,
     check_pdk_and_ngspice,
+    corner_id,
     deck_sections,
     load_corner_run,
     mc_control_block,
@@ -472,8 +473,9 @@ def _wrap(point, samples, excluded, stats, checks) -> dict:
 
 
 def seed_stability(results: dict[str, dict]) -> list[dict]:
-    a = results.get(f"{MM_SECTION}_27c_{SUPPLY_V:.2f}v")
-    b = results.get(f"{MM_SECTION}_27c_{SUPPLY_V:.2f}v_seed-b")
+    key_a = corner_id(MM_SECTION, 27.0, SUPPLY_V)
+    a = results.get(key_a)
+    b = results.get(key_a + "_seed-b")
     if not a or not b:
         return []
     out = []
