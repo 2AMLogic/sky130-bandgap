@@ -1,7 +1,7 @@
 # Work Plan
 
 <!-- guide:plan-body:start -->
-_Generated: 2026-11-24T16:30:00Z (snapshot; compare against live labels)_
+_Generated: 2026-11-24T20:40:17Z (snapshot; compare against live labels)_
 ## Operator Attention: Merge-Risk-Hold Pileup
 
 Judge-approved PRs under a hold (`loom:blocked` or `loom:operator`) — only a human merge decision is missing.
@@ -34,7 +34,7 @@ _None._
 
 Issues currently being built (`loom:building`).
 
-- **#671**: Label-collision gate loses its headless check of the current LATEST record once LATEST is store-backed
+_None._
 
 ## PRs Awaiting Review
 
@@ -60,9 +60,7 @@ Issues carrying `loom:curated`.
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(curated)* *(held)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(curated)* *(held)*
 - **#615**: T1 item 5 rows 3a/3b: schematic-level study of which temperature-coefficient correction fits the remaining area (the roadmap's "question first") *(curated)* *(held)*
-- **#619**: Correct the routed bandgap MOS geometry to match the schematic’s 5 V thick-oxide devices *(curated)*
 - **#654**: Routed flow publishes summary files to the artifact manifest before committing them, so check_artifact_manifests.py rule 4 fails every run *(curated)* *(held)*
-- **#671**: Label-collision gate loses its headless check of the current LATEST record once LATEST is store-backed *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -80,10 +78,10 @@ _None._
 | Very important | 0 |
 | Important | 5 |
 | Ready (`loom:issue`, net of holds/building/merge-pending) | 0 |
-| In Progress (`loom:building`) | 1 |
+| In Progress (`loom:building`) | 0 |
 | PRs awaiting review | 1 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 11 |
+| Curated | 9 |
 | Architect / Hermit proposals | 1 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
