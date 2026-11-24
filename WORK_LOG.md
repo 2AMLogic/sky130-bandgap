@@ -7,6 +7,19 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 - [2026-09](work_log/WORK_LOG_2026-09.md)
 
+### 2026-11-24
+
+- **PR #659**: test: make SharedOptionTailGuard quote-agnostic and guard --corners repo-wide
+- **PR #658**: refactor(sim): share the MC batch CLI block and dry-run print
+- **PR #627**: feat(layout): draw the MOS blocks at 5 V thick-oxide and gate flavour, HV DRC and supply ERC in the routed flow
+- **PR #652**: refactor(sim): share the injector runners' CLI option tail in parse_injector_args
+- **PR #649**: refactor: build seed_stability keys with corner_id and pin them to the producer
+- **Issue #655** (closed): Widen the psrr-injector shared-option-tail guard to all of sim/**.py, matching NoHandRolledCopiesTests
+- **Issue #653** (closed): Share the duplicated Monte Carlo CLI parsing and batch dry-run blocks in batch_sim
+- **Issue #620** (closed): Generate and verify the thick-oxide MOS geometry in the routed bandgap core
+- **Issue #650** (closed): Share the 42-line CLI option and validation block in the two PSRR injector runners
+- **Issue #647** (closed): Fold run_amp_offset_mc.py's two inlined corner-id format strings onto sim_common.corner_id
+
 ### 2026-11-23
 
 - **Issue #638** (closed): Remove unconditional confirmation from the resistor head-resistance report
