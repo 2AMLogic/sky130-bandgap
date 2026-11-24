@@ -1,7 +1,7 @@
 # Work Plan
 
 <!-- guide:plan-body:start -->
-_Generated: 2026-11-23T23:24:31Z (snapshot; compare against live labels)_
+_Generated: 2026-11-24T13:45:37Z (snapshot; compare against live labels)_
 ## Operator Attention: Merge-Risk-Hold Pileup
 
 Judge-approved PRs under a hold (`loom:blocked` or `loom:operator`) — only a human merge decision is missing.
@@ -12,7 +12,7 @@ _None._
 
 `loom:very-important` (one counts per workspace); every stage takes these first.
 
-_None._
+- **#621**: Re-extract and rerun the seven post-layout benches on the verified thick-oxide GDS
 
 ## Important
 
@@ -23,28 +23,24 @@ _None._
 - **#368**: Design a state-dependent startup-injector reference-stack element that clears the 60 dB PSRR floor at ff/125/3.63 and sf/27/2.97 *(held)*
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(held)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(held)*
-- **#620**: Generate and verify the thick-oxide MOS geometry in the routed bandgap core
 
 ## Ready
 
 Human-approved issues (`loom:issue`) ready for implementation — excluding held (`loom:blocked`/`loom:operator`/`loom:frozen`), `loom:building`, and issues closed by an open `loom:pr` PR (listed under Approved).
 
-_None._
+- **#621**: Re-extract and rerun the seven post-layout benches on the verified thick-oxide GDS
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
-- **#620**: Generate and verify the thick-oxide MOS geometry in the routed bandgap core
-- **#647**: Fold run_amp_offset_mc.py's two inlined corner-id format strings onto sim_common.corner_id
+_None._
 
 ## PRs Awaiting Review
 
 PRs waiting on Judge (`loom:review-requested`).
 
 - **#509**: sim: record level-flag injector fails startup-stability standing current; latched revision loses eviction (DR-022)
-- **#627**: feat(layout): draw the MOS blocks at 5 V thick-oxide and gate flavour, HV DRC and supply ERC in the routed flow
-- **#649**: refactor: build seed_stability keys with corner_id and pin them to the producer
 
 ## Approved (Awaiting Merge)
 
@@ -64,13 +60,12 @@ Issues carrying `loom:curated`.
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(curated)* *(held)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(curated)* *(held)*
 - **#615**: T1 item 5 rows 3a/3b: schematic-level study of which temperature-coefficient correction fits the remaining area (the roadmap's "question first") *(curated)* *(held)*
-- **#620**: Generate and verify the thick-oxide MOS geometry in the routed bandgap core *(curated)*
-- **#647**: Fold run_amp_offset_mc.py's two inlined corner-id format strings onto sim_common.corner_id *(curated)*
+- **#621**: Re-extract and rerun the seven post-layout benches on the verified thick-oxide GDS *(curated)*
+- **#654**: Routed flow publishes summary files to the artifact manifest before committing them, so check_artifact_manifests.py rule 4 fails every run *(curated)* *(held)*
 
 ## Proposed (Architect / Hermit)
 
 - **#645**: Remove repeated direct-elbow attempts from the met1 detour search *(hermit)* *(held)*
-- **#650**: Share the 42-line CLI option and validation block in the two PSRR injector runners *(hermit)*
 
 ## Epics
 
@@ -81,13 +76,13 @@ _None._
 | Bucket | Count |
 |------|-------|
 | Operator merge-risk holds | 0 |
-| Very important | 0 |
-| Important | 6 |
-| Ready (`loom:issue`, net of holds/building/merge-pending) | 0 |
-| In Progress (`loom:building`) | 2 |
-| PRs awaiting review | 3 |
+| Very important | 1 |
+| Important | 5 |
+| Ready (`loom:issue`, net of holds/building/merge-pending) | 1 |
+| In Progress (`loom:building`) | 0 |
+| PRs awaiting review | 1 |
 | Approved PRs awaiting merge | 0 |
 | Curated | 10 |
-| Architect / Hermit proposals | 2 |
+| Architect / Hermit proposals | 1 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
