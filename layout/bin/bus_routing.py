@@ -2129,6 +2129,7 @@ def _draw_chain(
             key=lambda p: abs(p["x"] - second["x"]) + abs(p["y"] - second["y"]),
         )[:TREE_MAX_ATTACH]
         attached = None
+        attempts: list[dict[str, Any]] = []
         for first in near:
             hop = _connect(
                 bus, net, (first["x"], first["y"]),
@@ -2141,15 +2142,31 @@ def _draw_chain(
                 hops.append(hop)
                 attached = first
                 break
-        if attached is None:
-            routed = False
-            hops.append(
+            # Snapshot now, inside the loop: the next _connect clears
+            # _BLOCKER_COUNTS on entry, so read after the loop these globals
+            # describe only the *last* parent tried -- which is not the
+            # parent the failed hop below names (issue #683).
+            attempts.append(
                 {
-                    "from": near[0]["name"],
-                    "to": second["name"],
-                    "routed": False,
+                    "from": first["name"],
                     "blocked_by": _LAST_BLOCKER[0] if _LAST_BLOCKER else None,
                     "blocked_by_counts": dict(_BLOCKER_COUNTS.most_common()),
+                }
+            )
+        if attached is None:
+            routed = False
+            last = attempts[-1]
+            hops.append(
+                {
+                    # The final parent attempted, so the name and the blocker
+                    # fields beside it describe the same attempt -- what
+                    # _repair_unrouted_hops reads to pick its retry target.
+                    "from": last["from"],
+                    "to": second["name"],
+                    "routed": False,
+                    "blocked_by": last["blocked_by"],
+                    "blocked_by_counts": last["blocked_by_counts"],
+                    "attempts": attempts,
                 }
             )
     for first, second in pairs:
