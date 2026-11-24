@@ -9,6 +9,8 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-23
 
+- **Issue #638** (closed): Remove unconditional confirmation from the resistor head-resistance report
+- **PR #640**: fix(sim): derive res-array-head-resistance determination from its checks
 - **PR #646**: refactor: fold pex-native shims onto canonical corner-run types
 - **Issue #554** (closed): Dedup pex-native's three duck-type shims onto corner-run's Corner/Experiment/Measurement dataclasses (_C has no .id, blocking batch_sim's collectors)
 - **PR #644**: fix(sim): derive res-array-resize determination from its checks

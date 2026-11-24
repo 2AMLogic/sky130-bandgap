@@ -1,7 +1,7 @@
 # Work Plan
 
 <!-- guide:plan-body:start -->
-_Generated: 2026-11-23T20:25:46Z (snapshot; compare against live labels)_
+_Generated: 2026-11-23T23:24:31Z (snapshot; compare against live labels)_
 ## Operator Attention: Merge-Risk-Hold Pileup
 
 Judge-approved PRs under a hold (`loom:blocked` or `loom:operator`) — only a human merge decision is missing.
@@ -36,7 +36,7 @@ _None._
 Issues currently being built (`loom:building`).
 
 - **#620**: Generate and verify the thick-oxide MOS geometry in the routed bandgap core
-- **#638**: Remove unconditional confirmation from the resistor head-resistance report
+- **#647**: Fold run_amp_offset_mc.py's two inlined corner-id format strings onto sim_common.corner_id
 
 ## PRs Awaiting Review
 
@@ -44,12 +44,13 @@ PRs waiting on Judge (`loom:review-requested`).
 
 - **#509**: sim: record level-flag injector fails startup-stability standing current; latched revision loses eviction (DR-022)
 - **#627**: feat(layout): draw the MOS blocks at 5 V thick-oxide and gate flavour, HV DRC and supply ERC in the routed flow
+- **#649**: refactor: build seed_stability keys with corner_id and pin them to the producer
 
 ## Approved (Awaiting Merge)
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
-- **#640**: fix(sim): derive res-array-head-resistance determination from its checks
+_None._
 
 ## Proposed
 
@@ -64,10 +65,12 @@ Issues carrying `loom:curated`.
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(curated)* *(held)*
 - **#615**: T1 item 5 rows 3a/3b: schematic-level study of which temperature-coefficient correction fits the remaining area (the roadmap's "question first") *(curated)* *(held)*
 - **#620**: Generate and verify the thick-oxide MOS geometry in the routed bandgap core *(curated)*
+- **#647**: Fold run_amp_offset_mc.py's two inlined corner-id format strings onto sim_common.corner_id *(curated)*
 
 ## Proposed (Architect / Hermit)
 
 - **#645**: Remove repeated direct-elbow attempts from the met1 detour search *(hermit)* *(held)*
+- **#650**: Share the 42-line CLI option and validation block in the two PSRR injector runners *(hermit)*
 
 ## Epics
 
@@ -82,9 +85,9 @@ _None._
 | Important | 6 |
 | Ready (`loom:issue`, net of holds/building/merge-pending) | 0 |
 | In Progress (`loom:building`) | 2 |
-| PRs awaiting review | 2 |
-| Approved PRs awaiting merge | 1 |
-| Curated | 9 |
-| Architect / Hermit proposals | 1 |
+| PRs awaiting review | 3 |
+| Approved PRs awaiting merge | 0 |
+| Curated | 10 |
+| Architect / Hermit proposals | 2 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
