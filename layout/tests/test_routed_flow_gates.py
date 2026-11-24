@@ -52,6 +52,7 @@ Standard library only (`unittest`), matching every other script under
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -424,7 +425,8 @@ class TestBulkTapTerminals(unittest.TestCase):
     def test_the_router_resolves_a_ports_terminal_to_one_of_its_taps(self) -> None:
         """The `ports` terminal shape end to end: `_route_one_net` turns it
         into candidates, picks one, claims exactly that pad, and names it
-        `<block>.<port>` -- the form `routed_ports()` parses."""
+        `<block>.<port>` -- the form the route summary's `terminals[]`
+        entries carry."""
         reports = {
             "blk": self._report(
                 TAP_S=(10.0, 0.0), TAP_N=(10.0, 40.0), TAP_E=(20.0, 20.0)
@@ -622,10 +624,10 @@ class TestLabelCollisionGate(unittest.TestCase):
     def test_flags_the_historical_collision_the_gate_was_written_for(self) -> None:
         """Record `20260804-012421-1a97bf5` is the run whose `VOUT` label
         landed on `core_mirror.M2_1_D` -- MPAMP's drain, the pad the drawn
-        `TAIL` net already contacted -- because the pin selector and the
-        router kept separate "already used" sets (see `routed_ports`'s
-        docstring). The trim-tap labels collided the same way. This is the
-        real defect, from the real evidence trail, not an invented one."""
+        `TAIL` net already contacted -- because the flow's pin labelling and
+        its router kept separate "already used" sets. The trim-tap labels
+        collided the same way. This is the real defect, from the real
+        evidence trail, not an invented one."""
         netlist = (
             REPO_ROOT
             / "layout/bandgap-core/reports/20260804-012421-1a97bf5"
@@ -687,37 +689,120 @@ class TestFlowFailsClosedWithoutArtifactStore(unittest.TestCase):
         self.assertEqual(sorted(p.name for p in (cell / "reports").iterdir()), before)
 
 
-class TestRoutedPortClaims(unittest.TestCase):
-    """`routed_ports()` is the *prevention* half of the label-collision gate:
-    the set of pads the drawn metal already owns, which the pin selector must
-    not label. The gate above catches the failure after extraction; this is
-    what stops it being drawn in the first place.
+class TestInnerComposeRequest(unittest.TestCase):
+    """The inner compose request `compose_inner()` serializes (issue #628).
+
+    The retired MOS-gate label selector -- the `CORE_PIN_LABELS` table, the
+    port-candidate search and the claimed-pad collection that fed `pins[]` --
+    is gone: every gate node is drawn metal carrying its own schematic name
+    now, so a second label on its pad would be the exact `A|B` rename the
+    label-collision gate catches after extraction. What is contract-worthy
+    after that retirement is the request file the flow hands `klt
+    gen-compose`, so these tests pin it directly, with the external `klt`
+    process stubbed out (the same shape the flow's own end-to-end run
+    exercises, without the ~1 GB PDK).
     """
 
-    def test_claims_every_terminal_of_every_route(self) -> None:
-        summary = {
-            "_inter_block": [
-                {"net": "TAIL", "terminals": ["core_mirror.M2_1_D", "amp_input_pair.M1_S"]},
-                {"net": "VSS", "terminals": ["amp_nload.M1_S"]},
-            ]
+    def _compose(self, out_dir: Path):
+        """Run `compose_inner()` against a stubbed `run_klt_json`.
+
+        Returns `(request, returned, klt_calls, response)`; the two blocks'
+        ports are irrelevant now (nothing consults them), so the inputs are
+        just ids and origins.
+        """
+        calls = []
+        response = {
+            "schema": "stub.response/1",
+            "cell_name": "probe_inner",
+            "gds_path": str(out_dir / "probe_inner.gds"),
+            "pdk": {"variant": "sky130A"},
+            "bbox_um": {"x0": 0.0, "y0": 0.0, "x1": 4.0, "y1": 8.0},
         }
+
+        def fake_run_klt_json(klt, *args, allow_exit=(0,)):
+            calls.append({"args": list(args), "allow_exit": list(allow_exit)})
+            return response
+
+        real = gen_bandgap_routed.run_klt_json
+        gen_bandgap_routed.run_klt_json = fake_run_klt_json
+        try:
+            returned = gen_bandgap_routed.compose_inner(
+                "klt",
+                out_dir,
+                "sky130A",
+                "probe_inner",
+                ["blk_a", "blk_b"],
+                {"blk_a": {"x": 1.5, "y": 2.5}, "blk_b": {"x": 0.0, "y": 40.0}},
+            )
+        finally:
+            gen_bandgap_routed.run_klt_json = real
+        request = json.loads((out_dir / "compose.inner.request.json").read_text())
+        return request, returned, calls, response
+
+    def test_pins_and_connectivity_are_deliberately_empty(self) -> None:
+        """`pins[]` is empty because every gate node's own schematic name is
+        drawn in metal by the bus overlay -- a label here renames a pad the
+        route already owns. `connectivity[]` stays empty for the met1-vs-li1
+        reasons in `compose_inner`'s docstring. A future edit that silently
+        reintroduces either one changes the composed layout's meaning."""
+        with tempfile.TemporaryDirectory() as tmp:
+            request, _, _, _ = self._compose(Path(tmp))
+        self.assertEqual(request["schema"], "klt.gen_compose.request/1")
+        self.assertEqual(request["pins"], [])
+        self.assertEqual(request["connectivity"], [])
+
+    def test_placement_and_routing_are_carried_verbatim(self) -> None:
+        """The request must state placement and routing exactly as the flow
+        computed them: explicit strategy, the block order, the origins dict
+        unchanged, and the met1 route width from the flow's own constant --
+        any transform here would move geometry silently."""
+        origins = {"blk_a": {"x": 1.5, "y": 2.5}, "blk_b": {"x": 0.0, "y": 40.0}}
+        with tempfile.TemporaryDirectory() as tmp:
+            out_dir = Path(tmp)
+            request, _, _, _ = self._compose(out_dir)
+            self.assertEqual(
+                request["blocks"],
+                [
+                    {
+                        "id": bid,
+                        "generator_report": str(
+                            (out_dir / f"{bid}.gen.json").resolve()
+                        ),
+                    }
+                    for bid in ["blk_a", "blk_b"]
+                ],
+            )
         self.assertEqual(
-            gen_bandgap_routed.routed_ports(summary),
-            {
-                ("core_mirror", "M2_1_D"),
-                ("amp_input_pair", "M1_S"),
-                ("amp_nload", "M1_S"),
-            },
+            request["placement"],
+            {"strategy": "explicit", "order": ["blk_a", "blk_b"], "origins_um": origins},
+        )
+        self.assertEqual(
+            request["routing"],
+            {"layer_role": "metal", "width_um": gen_bandgap_routed.ROUTE_WIDTH_UM},
+        )
+        self.assertEqual(request["pdk"], {"variant": "sky130A"})
+        self.assertEqual(
+            request["options"]["output"], str((out_dir / "probe_inner.gds").resolve())
         )
 
-    def test_ignores_terminals_with_no_port_part(self) -> None:
-        """A bare block id claims nothing -- claiming the whole block would
-        starve the pin selector of every pad on it."""
-        summary = {"_inter_block": [{"net": "VSS", "terminals": ["amp_nload"]}]}
-        self.assertEqual(gen_bandgap_routed.routed_ports(summary), set())
-
-    def test_empty_summary_claims_nothing(self) -> None:
-        self.assertEqual(gen_bandgap_routed.routed_ports({}), set())
+    def test_returns_the_compose_response_directly(self) -> None:
+        """The retired empty label-list second return value is gone:
+        `compose_inner()` returns the compose response itself, invokes
+        `gen-compose` once on the serialized request path with exit 3
+        allowed (partial success is a recorded result), and writes the
+        response back as `compose.inner.json`."""
+        with tempfile.TemporaryDirectory() as tmp:
+            out_dir = Path(tmp)
+            request, returned, calls, response = self._compose(out_dir)
+            self.assertEqual(returned, response)
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(
+                calls[0]["args"][:2],
+                ["gen-compose", str(out_dir / "compose.inner.request.json")],
+            )
+            self.assertEqual(calls[0]["allow_exit"], [0, 3])
+            written = json.loads((out_dir / "compose.inner.json").read_text())
+            self.assertEqual(written, response)
 
 
 # ---------------------------------------------------------------------------
@@ -1235,10 +1320,12 @@ class TestFlowGate(unittest.TestCase):
             "no_merged_pin_names": {"merged_pin_names": ["TAIL|VOUT"]},
             "no_split_routed_nets": {"split_routed": {"VDD": 2}},
             # The escape plane's own DRC. `drc_clean` above is `klt drc`'s
-            # verdict, and the curated sky130 deck still carries no met2
-            # min-area rule (`m2.6`, klayout-tools#513/#515 left it out) --
-            # so without this row an undersized met2 area would pass the
-            # whole flow (layout/generator-notes.md#met2-escape-note).
+            # verdict; this row is the flow's independent cross-check of
+            # the same rule set (`met2.area.1` included at the pinned 0.8.0)
+            # at a stricter enclosure bar (0.085 um on every edge), plus the
+            # orphan-via check `klt drc` passes clean -- so
+            # a curated-deck regression on this hand-drawn plane still
+            # fails the flow (layout/generator-notes.md#met2-escape-note).
             "met2_drc_clean": {"met2_drc_clean": False},
             # Issue #620: the schematic's MOS cards are all 5 V thick-oxide
             # devices -- one thin-oxide binding among 72 correct ones fails

@@ -41,8 +41,9 @@ Usage
     sim/monte-carlo-untrimmed/qualify_dr005.py <record_id>
 
 Writes ``records/<record_id>-dr005-qualification.{json,md}`` (append-only: refuses
-to overwrite). Stdlib + the sibling ``emit_klt_yield`` sample loader and
-``scripts/ci/content_hash`` only.
+to overwrite). Stdlib + the sibling ``emit_klt_yield`` sample loader,
+``scripts/ci/content_hash``, and ``sim/bin/sim_common``'s RATIFIED_VREF_WINDOW_V
+only.
 """
 
 from __future__ import annotations
@@ -60,11 +61,12 @@ HERE = Path(__file__).resolve().parent
 SIM_DIR = HERE.parent
 REPO_ROOT = SIM_DIR.parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(SIM_DIR / "bin"))
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci"))
 import emit_klt_yield as eky  # noqa: E402
 from content_hash import sha256_file  # noqa: E402
+from sim_common import RATIFIED_VREF_WINDOW_V  # noqa: E402
 
-WINDOW_V = (1.176, 1.224)
 N_REQUIRED = 300
 SANITY_FLOOR = 0.50
 CONFIDENCE = 0.95
@@ -110,7 +112,7 @@ def clopper_pearson(k: int, n: int, confidence: float = CONFIDENCE) -> tuple[flo
 
 
 def grade_temperature(temp_c: float, requested: int | None, samples: list[float] | None, *,
-                      window=WINDOW_V, n_required: int = N_REQUIRED) -> dict:
+                      window=RATIFIED_VREF_WINDOW_V, n_required: int = N_REQUIRED) -> dict:
     """Grade one temperature. ``samples`` are the *converged* vout draws."""
     lo, hi = window
     out: dict = {"temperature_c": temp_c, "requested_n": requested,
@@ -147,7 +149,7 @@ def grade_temperature(temp_c: float, requested: int | None, samples: list[float]
 
 
 def qualify(per_temp: list[dict], *, joint_process_mismatch_available: bool = False,
-            expected_temps=tuple(eky.TEMPS_C), window=WINDOW_V,
+            expected_temps=tuple(eky.TEMPS_C), window=RATIFIED_VREF_WINDOW_V,
             n_required: int = N_REQUIRED) -> dict:
     """``per_temp``: dicts with ``temperature_c``, ``requested_n``, ``samples``."""
     by_t = {float(p["temperature_c"]): p for p in per_temp}

@@ -159,7 +159,12 @@ CORNERS = (
 )
 TRIM_CODES = (0, -8, -16)  # AC3 downward-range recheck (DR-002's certified span)
 
-VREF_SPEC_V = (1.188, 1.212)  # draft spec: 1.20 V +/- 1%
+# Historical pre-DR-005 draft spec: 1.20 V +/- 1% -- retained (numeric band
+# unchanged, per the 2026-11-23 operator ruling) so re-runs stay comparable
+# with the 2026-08-05 records DR-003 and DR-004 cite as evidence. Superseded
+# for current work by sim_common.RATIFIED_VREF_WINDOW_V, DR-005's ratified
+# +/-2% band.
+DRAFT_VREF_WINDOW_V = (1.188, 1.212)
 VREF_SANITY_V = (1.10, 1.30)  # regulation-loss guard (a collapse jumps VOUT to ~2.85 V)
 
 
@@ -236,7 +241,7 @@ def explore(pairs: list[tuple[int, int]], timeout: int) -> int:
     base_body = load_base_body(BASE_SNAPSHOT, EXPECTED_PARAMS)
     run_dir = BUILD_DIR / "explore"
     print(f"PDK: {pdk.dir} (open_pdks {pdk.installed_commit})")
-    print(f"spec window: {VREF_SPEC_V} V   corners: {[p for p, _ in CORNERS]}")
+    print(f"spec window: {DRAFT_VREF_WINDOW_V} V   corners: {[p for p, _ in CORNERS]}")
     for n_r1, n_r2 in pairs:
         res = analytic_resistances(n_r1, n_r2)
         print(
@@ -246,7 +251,7 @@ def explore(pairs: list[tuple[int, int]], timeout: int) -> int:
         results = run_corner_set(run_dir, None, "explore", pdk, base_body, n_r1, n_r2, 0, timeout, f"n{n_r1}_{n_r2}")
         for process, supply in CORNERS:
             m = results[(process, supply)]
-            in_spec = VREF_SPEC_V[0] <= m["vref_27"] <= VREF_SPEC_V[1]
+            in_spec = DRAFT_VREF_WINDOW_V[0] <= m["vref_27"] <= DRAFT_VREF_WINDOW_V[1]
             reg = VREF_SANITY_V[0] <= m["vref_max"] <= VREF_SANITY_V[1]
             print(
                 f"  {process}/{supply:.2f}V  vref27={m['vref_27']:.6f}  vref_max={m['vref_max']:.6f}  "
@@ -271,12 +276,12 @@ def evaluate(resized, resized_trim, shipped) -> list[dict]:
     for process, supply in CORNERS:
         cid = f"{process}_{supply:.2f}v"
         m = resized[(process, supply)]
-        in_spec = VREF_SPEC_V[0] <= m["vref_27"] <= VREF_SPEC_V[1]
+        in_spec = DRAFT_VREF_WINDOW_V[0] <= m["vref_27"] <= DRAFT_VREF_WINDOW_V[1]
         add(
             f"resized_vref27_in_spec[{cid}]",
             in_spec,
             f"resized (n_r1={RESIZE_N_R1}, n_r2={RESIZE_N_R2}) vref_27={m['vref_27']:.6f} V "
-            f"vs spec {VREF_SPEC_V}" + ("" if in_spec else " -- OUT OF SPEC"),
+            f"vs spec {DRAFT_VREF_WINDOW_V}" + ("" if in_spec else " -- OUT OF SPEC"),
         )
         reg = VREF_SANITY_V[0] <= m["vref_max"] <= VREF_SANITY_V[1]
         add(
@@ -290,13 +295,14 @@ def evaluate(resized, resized_trim, shipped) -> list[dict]:
     for process, supply in CORNERS:
         cid = f"{process}_{supply:.2f}v"
         m = shipped[(process, supply)]
-        out = not (VREF_SPEC_V[0] <= m["vref_27"] <= VREF_SPEC_V[1])
+        out = not (DRAFT_VREF_WINDOW_V[0] <= m["vref_27"] <= DRAFT_VREF_WINDOW_V[1])
         add(
             f"shipped_control_out_of_spec[{cid}]",
             out,
             f"shipped (n_r1={SHIPPED_N_R1}, n_r2={SHIPPED_N_R2}) vref_27={m['vref_27']:.6f} V "
-            f"vref_max={m['vref_max']:.6f} V -- reproduces DR-003 (expected OUT of spec"
-            + (" + collapse" if m["vref_max"] > VREF_SANITY_V[1] else "") + ")",
+            f"vref_max={m['vref_max']:.6f} V vs spec {DRAFT_VREF_WINDOW_V}"
+            + (" -- regulation collapsed" if m["vref_max"] > VREF_SANITY_V[1] else "")
+            + (" -- OUT of spec, reproducing DR-003" if out else " -- IN spec -- does NOT reproduce DR-003"),
         )
 
     # AC3: downward trim 0..-16 monotonic + collapse-free on the resized baseline
@@ -401,7 +407,7 @@ def render_record(r: dict) -> str:
     add("|---|---|---|---|---|---|---|---|")
     for process, supply in CORNERS:
         m = r["resized"][f"{process}:{supply}"]
-        in_spec = "yes" if VREF_SPEC_V[0] <= m["vref_27"] <= VREF_SPEC_V[1] else "**NO**"
+        in_spec = "yes" if DRAFT_VREF_WINDOW_V[0] <= m["vref_27"] <= DRAFT_VREF_WINDOW_V[1] else "**NO**"
         reg = "yes" if VREF_SANITY_V[0] <= m["vref_max"] <= VREF_SANITY_V[1] else "**NO — collapsed**"
         add(
             f"| {process} | {supply:.2f} | {m['vref_27']:.6f} | {m['vref_min']:.6f} | "
@@ -415,20 +421,12 @@ def render_record(r: dict) -> str:
     add("|---|---|---|---|---|---|---|")
     for process, supply in CORNERS:
         m = r["shipped"][f"{process}:{supply}"]
-        in_spec = "yes" if VREF_SPEC_V[0] <= m["vref_27"] <= VREF_SPEC_V[1] else "**NO**"
+        in_spec = "yes" if DRAFT_VREF_WINDOW_V[0] <= m["vref_27"] <= DRAFT_VREF_WINDOW_V[1] else "**NO**"
         reg = "yes" if VREF_SANITY_V[0] <= m["vref_max"] <= VREF_SANITY_V[1] else "**NO — collapsed**"
         add(
             f"| {process} | {supply:.2f} | {m['vref_27']:.6f} | {m['vref_max']:.6f} | "
             f"{m['tc_ppm']:.3f} | {in_spec} | {reg} |"
         )
-    add("")
-    add(
-        "This control re-runs DR-003's chained-array finding on this record's own code path: "
-        "the shipped sizing is out of spec at all 5 corners and collapses at ff/2.97 V and "
-        "fs/2.97 V -- confirming the harness reproduces "
-        "`sim/res-array-head-resistance/records/20260805-113409-6caa9f8.md` before the resize "
-        "is trusted."
-    )
     add("")
 
     add(f"## AC3 -- DR-002 downward trim range on the RESIZED baseline (n_r2={RESIZE_N_R2})")
@@ -485,87 +483,92 @@ def render_record(r: dict) -> str:
     return "\n".join(L)
 
 
-def build_determination(resized, resized_trim, shipped, ra) -> str:
-    out_shipped = [f"{p}/{s:.2f}V" for p, s in CORNERS if not (VREF_SPEC_V[0] <= shipped[(p, s)]["vref_27"] <= VREF_SPEC_V[1])]
-    collapse_shipped = [f"{p}/{s:.2f}V" for p, s in CORNERS if shipped[(p, s)]["vref_max"] > VREF_SANITY_V[1]]
-    resized_vrefs = [resized[(p, s)]["vref_27"] for p, s in CORNERS]
-    resized_ok = all(VREF_SPEC_V[0] <= v <= VREF_SPEC_V[1] for v in resized_vrefs)
-    resized_reg = all(VREF_SANITY_V[0] <= resized[(p, s)]["vref_max"] <= VREF_SANITY_V[1] for p, s in CORNERS)
-    spans = {(p, s): resized_trim[(p, s, 0)]["vref_27"] - resized_trim[(p, s, -16)]["vref_27"] for p, s in CORNERS}
-    min_span_mv = min(spans.values()) * 1000
-    worst_case_3sigma_mv = 15.620  # sim/monte-carlo-untrimmed 20260803-142259-544cc5e, 125 degC
-    trim_reg = all(
-        VREF_SANITY_V[0] <= resized_trim[(p, s, t)]["vref_max"] <= VREF_SANITY_V[1]
-        for p, s in CORNERS for t in TRIM_CODES
-    )
-    covers = min_span_mv >= 1.5 * worst_case_3sigma_mv
+def build_determination(checks: list[dict], resized_trim, ra) -> str:
+    """Determination derived from the checks `evaluate()` produced (issue #642).
 
-    seg = []
-    seg.append(
-        f"**Resize adopted: n_r1={RESIZE_N_R1}, n_r2={RESIZE_N_R2}** (was "
-        f"n_r1={SHIPPED_N_R1}, n_r2={SHIPPED_N_R2}). Against the routed layout's real "
-        f"chained-array topology this lowers K = R2/R1 from {ra['shipped']['k']:.4f} to "
-        f"{ra['resized']['k']:.4f}, R2A/R2B from {ra['shipped']['r2_ohm']:.0f} to "
-        f"{ra['resized']['r2_ohm']:.0f} ohm (R1 unchanged at {ra['resized']['r1_ohm']:.0f} ohm -- "
-        "R1 is left at 7 units so the branch current, and therefore the hot-corner headroom "
-        "margin the collapse depends on, is not raised while correcting K)."
-    )
-    if resized_ok and resized_reg:
-        seg.append(
-            "**AC2 met.** At the resized sizing, VOUT(27 degC) lands back inside the draft "
-            f"+/-1% window (1.188-1.212 V) at all {len(CORNERS)} corners, and no corner "
-            "collapses -- including ff/2.97 V and fs/2.97 V, the two the shipped chained "
-            f"sizing pinned near 2.85 V. Resized VOUT(27) range across corners: "
-            f"{min(resized_vrefs):.4f}-{max(resized_vrefs):.4f} V."
+    One verdict per group -- AC2 (resized, untrimmed), the DR-003 control and
+    AC3 (downward trim on the resized baseline) -- each read off its named
+    checks, so a failing run reads as failing here too, in both output formats.
+    The record's overall verdict cannot stand in for a group's: it folds in
+    the other groups. The one finding no check backs -- whether DR-002's 0..-16
+    span still covers its target -- is computed from the measured span.
+    """
+
+    def failing(*prefixes: str) -> list[str]:
+        """Corners (CORNERS order) with a failed check under any of `prefixes`;
+        a prefix naming no check is an error, never a silent PASS."""
+        failed: set[str] = set()
+        for prefix in prefixes:
+            group = [c for c in checks if c["name"].startswith(prefix + "[")]
+            if not group:
+                raise cr.HarnessError(
+                    f"determination needs checks named {prefix}[...], found none"
+                )
+            failed.update(
+                c["name"].split("[", 1)[1].rstrip("]") for c in group if not c["pass"]
+            )
+        return [f"{p}/{s:.2f}V" for p, s in CORNERS if f"{p}_{s:.2f}v" in failed]
+
+    def verdict(label: str, failed: list[str], passed_text: str, failed_text: str) -> str:
+        n = len(CORNERS)
+        count = len(failed) if failed else n
+        head = f"{label}: {'PASS' if not failed else 'FAIL'} {count}/{n} corners"
+        if failed:
+            return f"**{head} (failing: {', '.join(failed)}).** {failed_text}"
+        return f"**{head}.** {passed_text}"
+
+    ac2 = failing("resized_vref27_in_spec", "resized_regulating")
+    control = failing("shipped_control_out_of_spec")
+    ac3 = failing("resized_trim_monotonic", "resized_trim_collapse_free")
+    min_span_mv = min(
+        resized_trim[(p, s, 0)]["vref_27"] - resized_trim[(p, s, -16)]["vref_27"] for p, s in CORNERS
+    ) * 1000
+    worst_case_3sigma_mv = 15.620  # sim/monte-carlo-untrimmed 20260803-142259-544cc5e, 125 degC
+    target_mv = 1.5 * worst_case_3sigma_mv
+    covers = min_span_mv >= target_mv
+
+    seg = [
+        f"**Resize under test: n_r1={RESIZE_N_R1}, n_r2={RESIZE_N_R2}** (shipped: n_r1="
+        f"{SHIPPED_N_R1}, n_r2={SHIPPED_N_R2}). Against the routed layout's real chained-array "
+        f"topology it lowers K = R2/R1 from {ra['shipped']['k']:.4f} to {ra['resized']['k']:.4f}, "
+        f"R2A/R2B from {ra['shipped']['r2_ohm']:.0f} to {ra['resized']['r2_ohm']:.0f} ohm (R1 "
+        f"unchanged at {ra['resized']['r1_ohm']:.0f} ohm -- R1 is left at {RESIZE_N_R1} units so "
+        "the branch current, and therefore the hot-corner headroom margin the collapse depends "
+        "on, is not raised while correcting K).",
+        verdict(
+            "AC2 (resized, untrimmed)",
+            ac2,
+            f"VOUT(27 degC) is inside the draft +/-1% window ({DRAFT_VREF_WINDOW_V[0]}-"
+            f"{DRAFT_VREF_WINDOW_V[1]} V) and regulating at every corner.",
+            "The resize integer or the R1 count needs another iteration (or the "
+            "topology-change alternative in DR-003).",
+        ),
+        verdict(
+            "DR-003 control (shipped sizing, same code path)",
+            control,
+            "The shipped sizing is out of spec at every corner, reproducing "
+            "`sim/res-array-head-resistance/records/20260805-113409-6caa9f8.md` -- so the "
+            "resized result above is a real change, not a harness difference.",
+            "The shipped sizing is NOT out of spec at those corners -- it does NOT reproduce "
+            "DR-003 there, so the resized result above cannot be attributed to the resize alone.",
+        ),
+        verdict(
+            "AC3 (DR-002's downward 0..-16 trim range on the resized baseline)",
+            ac3,
+            "The downward ladder is strictly monotonic and collapse-free at every corner.",
+            "The downward ladder is not strictly increasing from -16 toward 0, or leaves "
+            "the operating branch, at those corners.",
         )
-    else:
-        seg.append(
-            "**AC2 NOT fully met at this sizing** -- see the per-corner checks; the resize "
-            "integer or the R1 count needs another iteration (or the topology-change "
-            "alternative in DR-003)."
-        )
-    seg.append(
-        "**Control confirms the harness.** Re-running the shipped (n_r1="
-        f"{SHIPPED_N_R1}, n_r2={SHIPPED_N_R2}) sizing on this same code path reproduces "
-        f"DR-003: out of spec at {len(out_shipped)}/{len(CORNERS)} corners "
-        f"({', '.join(out_shipped) if out_shipped else 'none'})"
-        + (f" and regulation collapse at {', '.join(collapse_shipped)}" if collapse_shipped else "")
-        + " -- so the in-spec resized result is a real change, not a harness difference."
-    )
-    seg.append(
-        "**AC3 -- trim-range coverage.** Re-running (not re-citing) DR-002's downward "
-        f"0..-16 `n_r2_trim` ladder on the RESIZED baseline: the code-0..-16 span is at least "
-        f"{min_span_mv:.2f} mV per corner, "
+        + f" The code-0..-16 `n_r2_trim` span is at least {min_span_mv:.2f} mV per corner, "
         + (
-            f"which still clears the 1.5x-of-3sigma coverage target "
-            f"(1.5 x {worst_case_3sigma_mv:.2f} mV = {1.5 * worst_case_3sigma_mv:.2f} mV) "
-            "DR-002 sized the range against"
+            f"which clears DR-002's 1.5x-of-3sigma coverage target (1.5 x "
+            f"{worst_case_3sigma_mv:.2f} mV = {target_mv:.2f} mV) -- the existing 0..-16 "
+            "range does not need to widen."
             if covers
-            else f"which NO LONGER clears the 1.5x-of-3sigma target "
-            f"({1.5 * worst_case_3sigma_mv:.2f} mV) -- the range needs widening"
-        )
-        + (", and every downward code stays on the operating branch (collapse-free)." if trim_reg
-           else ", but at least one downward code collapses -- see the table.")
-    )
-    seg.append(
-        "Because the resize CENTERS the untrimmed operating point back near 1.20 V (rather "
-        "than leaving it ~34 mV high, where the shipped chained part sits), DR-002's downward "
-        "trim now spends its whole span on mismatch correction rather than on a static sizing "
-        "offset -- so the existing 0..-16 range does not need to widen to absorb the "
-        "head-resistance shift. The shift is corrected at the sizing lever (n_r2), which is "
-        "the right lever for a deterministic, every-die offset, leaving the metal-option trim "
-        "for the per-die mismatch it was scoped for (DR-002)."
-    )
-    seg.append(
-        "**Layout follow-up (next lever).** This increment lands the sizing DECISION and its "
-        "full PVT + trim re-verification in `design/bandgap_core.sch`. The routed layout "
-        "generator (`layout/bin/gen_bandgap_routed.py`: `N_R1`, `SCH_N_R2`, `N_R2_COARSE`) "
-        "must be re-transcribed to the resized decomposition and re-verified through klayout "
-        "DRC/LVS -- which needs klayout (unavailable in this run environment) -- so, per this "
-        "project's one-lever-per-increment discipline (the same discipline DR-003 used to "
-        "defer this resize from the investigation), it is the next increment, tracked in "
-        "DR-003's closure and `layout/matching-plan.md` Section 7x."
-    )
+            else f"which does NOT clear DR-002's 1.5x-of-3sigma coverage target "
+            f"({target_mv:.2f} mV) -- the range needs widening."
+        ),
+    ]
     return "\n\n".join(seg)
 
 
@@ -629,7 +632,7 @@ def verify(timeout: int, author: str, supersedes: str, allow_pdk_mismatch: bool,
 
     checks = evaluate(resized, resized_trim, shipped)
     overall = all(c["pass"] for c in checks)
-    determination = build_determination(resized, resized_trim, shipped, ra)
+    determination = build_determination(checks, resized_trim, ra)
 
     record = {
         "record_id": record_id,

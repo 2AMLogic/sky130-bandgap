@@ -325,8 +325,9 @@ def render_record(
     a("4. `klt drc <composed> --deck sky130`.")
     a(
         "4b. `layout/bin/met2_drc.py <composed>` -- the escape plane's own "
-        "DRC, because the curated deck step 4 runs is still missing the "
-        "met2 min-area rule (`m2.6`; klayout-tools#513/#515 added the rest)."
+        "DRC: an independent cross-check of the full sky130A source-deck "
+        "threshold set plus orphan-via detection, on top of the curated "
+        "deck step 4 runs."
     )
     a(
         "4c. `klt drc <composed> --engine klayout --deck-file "
@@ -1089,11 +1090,13 @@ def render_record(
             f"{len(fully_drawn)}/{len(coverage)} schematic inter-block nets "
             "are joined across every block they reach -- and "
             f"{len(met2_hop_rows)} of the hops that get them there are drawn "
-            "on met2, not met1. Most of that plane's geometry is now checked "
-            "by `klt drc` itself (klayout-tools#513, merged via #515); this "
-            "repo's own `layout/bin/met2_drc.py` covers the one rule that "
-            "isn't (`m2.6`, met2 min area) against the installed PDK's "
-            "source rules. The connectivity itself is the extractor's, "
+            "on met2, not met1. That plane's DRC rules are checked by "
+            "`klt drc` itself (klayout-tools#513, merged via #515, started "
+            "the set; `met2.area.1`, `m2.6`, is in it at the pinned "
+            "0.8.0), and re-checked independently -- orphan vias "
+            "(`via.4a_a`/`m2.4_a`) included -- by this repo's own "
+            "`layout/bin/met2_drc.py` against the installed PDK's source "
+            "rules. The connectivity itself is the extractor's, "
             "since klayout-tools#511 made met2 a level of the curated "
             "extraction deck's own graph."
         )

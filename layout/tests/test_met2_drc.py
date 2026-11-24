@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """Unit coverage for `layout/bin/met2_drc.py` (issue #62).
 
-This checker is what closes the last gap between the met2 escape plane and
-unchecked geometry: the curated `klt` sky130 deck declares met2 as a
-connectivity level (2AMLogic/klayout-tools#508, merged via #511) and now
-checks most of its DRC rules too (2AMLogic/klayout-tools#513, merged via
-#515: `met2.width.1`, `met2.space.1`, `via.width.1`, `via.space.1`,
-`met1.enclosing.via.1`, `met2.enclosing.via.1`) -- but not the met2 min-area
-rule (`m2.6`), which #515 deliberately left out (the curated deck's rule
-vocabulary has no `area` check primitive). A checker that silently passed
-everything, on `m2.6` or on the rules the curated deck already covers, would
-look exactly like a clean layout -- which is the false-evidence failure mode
-this repo's "verification is the product" rule exists to prevent.
+This checker is an independent cross-check of the met2 escape plane against
+the sky130A source deck, plus the orphan-via detector nothing else in the
+flow has: the curated `klt` sky130 deck declares met2 as a connectivity
+level (2AMLogic/klayout-tools#508, merged via #511) and at this flow's
+pinned `klayout-tools==0.8.0` checks its DRC rules too -- `met2.area.1`
+(`m2.6`) included, per each run's own `drc.json` rule list -- but passes a
+via1 cut with no metal on one side clean, and the plane itself is this
+flow's own hand-drawn geometry, so its thresholds are re-derived here
+rather than taken on the curated deck's word. A checker that silently
+passed everything would look exactly like a clean layout -- which is the
+false-evidence failure mode this repo's "verification is the product" rule
+exists to prevent.
 
 So every rule here is exercised in **both** directions: a compliant shape must
 not be reported, and a deliberately non-compliant one must be. The

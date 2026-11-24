@@ -1,6 +1,7 @@
 # Work Plan
 
 <!-- guide:plan-body:start -->
+_Generated: 2026-11-23T20:25:46Z (snapshot; compare against live labels)_
 ## Operator Attention: Merge-Risk-Hold Pileup
 
 Judge-approved PRs under a hold (`loom:blocked` or `loom:operator`) — only a human merge decision is missing.
@@ -22,31 +23,33 @@ _None._
 - **#368**: Design a state-dependent startup-injector reference-stack element that clears the 60 dB PSRR floor at ff/125/3.63 and sf/27/2.97 *(held)*
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(held)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(held)*
-- **#614**: Post-layout benches simulate temperature-flat resistors: extract with klt's --pdk model binding and retire the hand resistor translation
+- **#620**: Generate and verify the thick-oxide MOS geometry in the routed bandgap core
 
 ## Ready
 
 Human-approved issues (`loom:issue`) ready for implementation — excluding held (`loom:blocked`/`loom:operator`/`loom:frozen`), `loom:building`, and issues closed by an open `loom:pr` PR (listed under Approved).
 
-- **#614**: Post-layout benches simulate temperature-flat resistors: extract with klt's --pdk model binding and retire the hand resistor translation
+_None._
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
-- **#615**: T1 item 5 rows 3a/3b: schematic-level study of which temperature-coefficient correction fits the remaining area (the roadmap's "question first")
+- **#620**: Generate and verify the thick-oxide MOS geometry in the routed bandgap core
+- **#638**: Remove unconditional confirmation from the resistor head-resistance report
 
 ## PRs Awaiting Review
 
 PRs waiting on Judge (`loom:review-requested`).
 
 - **#509**: sim: record level-flag injector fails startup-stability standing current; latched revision loses eviction (DR-022)
+- **#627**: feat(layout): draw the MOS blocks at 5 V thick-oxide and gate flavour, HV DRC and supply ERC in the routed flow
 
 ## Approved (Awaiting Merge)
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
-- **#616**: feat: screen three bandgap temperature corrections on batch
+- **#640**: fix(sim): derive res-array-head-resistance determination from its checks
 
 ## Proposed
 
@@ -59,15 +62,12 @@ Issues carrying `loom:curated`.
 - **#432**: Follow-on from PR #431: first live routed-flow run with artifact broker *(curated)* *(held)*
 - **#435**: T1 item 6 (Monte Carlo): mint a sufficiently sized untrimmed-Vref klt yield campaign with a declared negative control *(curated)* *(held)*
 - **#444**: monte-carlo-untrimmed: real-fleet smoke run of --backend batch (AC4 of #437) *(curated)* *(held)*
-- **#614**: Post-layout benches simulate temperature-flat resistors: extract with klt's --pdk model binding and retire the hand resistor translation *(curated)*
-- **#615**: T1 item 5 rows 3a/3b: schematic-level study of which temperature-coefficient correction fits the remaining area (the roadmap's "question first") *(curated)*
+- **#615**: T1 item 5 rows 3a/3b: schematic-level study of which temperature-coefficient correction fits the remaining area (the roadmap's "question first") *(curated)* *(held)*
+- **#620**: Generate and verify the thick-oxide MOS geometry in the routed bandgap core *(curated)*
 
 ## Proposed (Architect / Hermit)
 
-- **#517**: Shrink layout/bin/met2_drc.py to its orphan-via check: pinned klt 0.8.0 already checks the met2/via rules it duplicates *(hermit)* *(held)*
-- **#545**: Consolidate the VREF accuracy window: 4 copies of DR-005's ratified band under 4 names, plus 2 live gates still on the superseded draft band *(hermit)* *(held)*
-- **#554**: Dedup pex-native's three duck-type shims onto corner-run's Corner/Experiment/Measurement dataclasses (_C has no .id, blocking batch_sim's collectors) *(hermit)* *(held)*
-- **#617**: Reuse the shared resistor-chain substitution and temperature sweep in the head-resistance bench *(hermit)*
+- **#645**: Remove repeated direct-elbow attempts from the met1 detour search *(hermit)* *(held)*
 
 ## Epics
 
@@ -80,11 +80,11 @@ _None._
 | Operator merge-risk holds | 0 |
 | Very important | 0 |
 | Important | 6 |
-| Ready (`loom:issue`, net of holds/building/merge-pending) | 1 |
-| In Progress (`loom:building`) | 1 |
-| PRs awaiting review | 1 |
+| Ready (`loom:issue`, net of holds/building/merge-pending) | 0 |
+| In Progress (`loom:building`) | 2 |
+| PRs awaiting review | 2 |
 | Approved PRs awaiting merge | 1 |
 | Curated | 9 |
-| Architect / Hermit proposals | 4 |
+| Architect / Hermit proposals | 1 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->

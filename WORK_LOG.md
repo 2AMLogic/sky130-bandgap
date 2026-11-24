@@ -7,6 +7,39 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 - [2026-09](work_log/WORK_LOG_2026-09.md)
 
+### 2026-11-23
+
+- **PR #646**: refactor: fold pex-native shims onto canonical corner-run types
+- **Issue #554** (closed): Dedup pex-native's three duck-type shims onto corner-run's Corner/Experiment/Measurement dataclasses (_C has no .id, blocking batch_sim's collectors)
+- **PR #644**: fix(sim): derive res-array-resize determination from its checks
+- **Issue #642** (closed): Remove unconditional confirmation and duplicate check logic from sim/res-array-resize
+- **PR #622**: Bind post-layout extraction to the PDK: temperature-behaved resistors on the extracted side (rows 1b/3b, item 7)
+- **Issue #614** (closed): Post-layout benches simulate temperature-flat resistors: extract with klt's --pdk model binding and retire the hand resistor translation
+- **Issue #633** (closed): generator-notes.md MET2_ESCAPE_NOTE: qualify the "what klt drc passes clean" sentence with the stricter-enclosure difference
+- **PR #639**: docs: qualify met2 escape note's klt-drc pass-clean claim
+- **Issue #545** (closed): Consolidate the VREF accuracy window: 4 copies of DR-005's ratified band under 4 names, plus 2 live gates still on the superseded draft band
+- **PR #635**: refactor: consolidate DR-005's ratified VREF window into sim_common; rename the draft band DRAFT_VREF_WINDOW_V
+- **Issue #636** (closed): Remove the hardcoded match narrative from trivial-cell LVS records
+- **PR #637**: fix: drop hardcoded match narrative from trivial-cell records
+- **PR #632**: Correct stale m2.6 / no-met2-rule prose; restate met2_drc as cross-check + orphan-via gate
+- **Issue #517** (closed): Correct stale m2.6 / "no met2 rule" prose around layout/bin/met2_drc.py while keeping the full independent re-check
+
+### 2026-11-22
+
+- **PR #629**: refactor(layout): emit the empty inner-compose pins array directly
+- **Issue #628** (closed): Remove the retired MOS gate label selector from inner compose
+
+### 2026-11-21
+
+- **Issue #624** (closed): Unit-test the shared resistor-chain substitution loop (sim_common.substitute_chained_arrays)
+- **PR #625**: test: pin substitute_chained_arrays ordering, diagnostics, and wrapper delegation
+- **Issue #617** (closed): Reuse the shared resistor-chain substitution and temperature sweep in the head-resistance bench
+- **PR #623**: refactor(sim): reuse shared resistor-chain substitution and temp-sweep control in head-resistance bench
+
+### 2026-11-20
+
+- **PR #616**: feat: screen three bandgap temperature corrections on batch
+
 ### 2026-11-18
 
 - **PR #610**: ci: add the merge_group trigger and gate merge-queue readiness
@@ -302,33 +335,4 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 - **Issue #308** (closed): sim/bin/corner-run.py: add a -j parallel-corner mode so slow hosts stop forcing subset records
 - **PR #310**: sim: add -j/--jobs concurrent-corner mode to corner-run.py
 - **Issue #312** (closed): sim/tests/ is not run by CI — npm run check:ci only discovers layout/tests
-
-### 2026-09-23
-
-- **PR #309**: sim(startup-ramp): re-run the full 45-point matrix on the post-#284 manifest
-- **Issue #300** (closed): PSRR post-layout FAILs 25/45 (22.75 dB worst vs DR-006's 60 dB floor) once the startup injector is drawn into the composed cell
-- **PR #307**: sim(psrr): add schematic-level injector PSRR bench; cause is design, not extraction
-- **Issue #284** (closed): Startup convergence-spread FAILs 13/45 (schematic) and 16/45 (post-layout), both worsened by #193's resize — untracked
-- **PR #305**: sim(startup-ramp): gate vref convergence directly and disposition the vref_spread FAILs under DR-010
-- **Issue #302** (closed): Signoff hygiene after #285: re-pin T1 items 3/11 to the injector-inclusive layout record, plus two doc-rendering artifacts
-- **PR #304**: fix(signoff): re-pin T1 items 3/11 to injector-inclusive layout
-- **Issue #285** (closed): The startup injector has no layout, so the composed cell omits it — item 2 and item 7 cannot be claimed complete
-- **PR #301**: layout: draw the startup injector into the composed cell; re-run the post-layout suite against it
-- **Issue #288** (closed): klt lvs mismatch-count regression (0->12) + leaked absolute path in klt-yield evidence block items 4 and 6 from the T1 signoff manifest
-- **PR #298**: fix(evidence): repo-relative klt yield paths; measure the klt lvs combine flake
-- **Issue #283** (closed): Post-layout row 1b is an artifact FAIL from klayout-tools#800, fixed upstream 2026-08-12 — bump klt and re-grade
-- **PR #297**: Row 1b post-layout FAIL: klayout-tools#800 was closed not-planned (not fixed) — real, still-open cause is klayout-tools#2359
-- **Issue #292** (closed): signoff: CI does not detect a change to the artifact a manifest pin describes (input_verified is null on every citation)
-- **PR #296**: signoff: re-hash the artifact behind every manifest pin in CI (#292)
-- **Issue #286** (closed): 2am: reuse rule 9 — in-tree error amplifier duplicates sibling canary sky130-opamp — add reuse.lock.json in_tree entry (evaluate), then adopt or record
-- **PR #294**: chore: add reuse.lock.json in_tree entry for error_amp (2am rule 9)
-- **Issue #293** (closed): README: embed the fleet burndown chart (one line)
-- **PR #295**: README: embed the fleet burndown chart
-- **Issue #281** (closed): T1 item 11 (power delivery, structural): no klt erc supply spec or report in this repo
-- **PR #290**: layout: klt erc supply spec + report for T1 item 11 (power delivery, structural)
-
-### 2026-09-22
-
-- **Issue #282** (closed): Commit a klt signoff block manifest so this block's T1 state is graded, not hand-read
-- **PR #289**: signoff: commit a klt signoff block manifest for this block's T1 state
 

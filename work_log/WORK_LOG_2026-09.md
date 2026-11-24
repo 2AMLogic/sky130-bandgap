@@ -2,6 +2,35 @@
 
 Sections moved byte-for-byte from [WORK_LOG.md](../WORK_LOG.md) by `loom-daemon work-docs archive`.
 
+### 2026-09-23
+
+- **PR #309**: sim(startup-ramp): re-run the full 45-point matrix on the post-#284 manifest
+- **Issue #300** (closed): PSRR post-layout FAILs 25/45 (22.75 dB worst vs DR-006's 60 dB floor) once the startup injector is drawn into the composed cell
+- **PR #307**: sim(psrr): add schematic-level injector PSRR bench; cause is design, not extraction
+- **Issue #284** (closed): Startup convergence-spread FAILs 13/45 (schematic) and 16/45 (post-layout), both worsened by #193's resize — untracked
+- **PR #305**: sim(startup-ramp): gate vref convergence directly and disposition the vref_spread FAILs under DR-010
+- **Issue #302** (closed): Signoff hygiene after #285: re-pin T1 items 3/11 to the injector-inclusive layout record, plus two doc-rendering artifacts
+- **PR #304**: fix(signoff): re-pin T1 items 3/11 to injector-inclusive layout
+- **Issue #285** (closed): The startup injector has no layout, so the composed cell omits it — item 2 and item 7 cannot be claimed complete
+- **PR #301**: layout: draw the startup injector into the composed cell; re-run the post-layout suite against it
+- **Issue #288** (closed): klt lvs mismatch-count regression (0->12) + leaked absolute path in klt-yield evidence block items 4 and 6 from the T1 signoff manifest
+- **PR #298**: fix(evidence): repo-relative klt yield paths; measure the klt lvs combine flake
+- **Issue #283** (closed): Post-layout row 1b is an artifact FAIL from klayout-tools#800, fixed upstream 2026-08-12 — bump klt and re-grade
+- **PR #297**: Row 1b post-layout FAIL: klayout-tools#800 was closed not-planned (not fixed) — real, still-open cause is klayout-tools#2359
+- **Issue #292** (closed): signoff: CI does not detect a change to the artifact a manifest pin describes (input_verified is null on every citation)
+- **PR #296**: signoff: re-hash the artifact behind every manifest pin in CI (#292)
+- **Issue #286** (closed): 2am: reuse rule 9 — in-tree error amplifier duplicates sibling canary sky130-opamp — add reuse.lock.json in_tree entry (evaluate), then adopt or record
+- **PR #294**: chore: add reuse.lock.json in_tree entry for error_amp (2am rule 9)
+- **Issue #293** (closed): README: embed the fleet burndown chart (one line)
+- **PR #295**: README: embed the fleet burndown chart
+- **Issue #281** (closed): T1 item 11 (power delivery, structural): no klt erc supply spec or report in this repo
+- **PR #290**: layout: klt erc supply spec + report for T1 item 11 (power delivery, structural)
+
+### 2026-09-22
+
+- **Issue #282** (closed): Commit a klt signoff block manifest so this block's T1 state is graded, not hand-read
+- **PR #289**: signoff: commit a klt signoff block manifest for this block's T1 state
+
 ### 2026-09-14
 
 - **Issue #179** (closed): OPERATOR QUESTION: if the core's TC floor stays above the ratified < 50 ppm/°C, scope curvature correction or stand non-qualifying on item 5?

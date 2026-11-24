@@ -179,7 +179,11 @@ PHASE_B_CORNERS = (
     ("fs", 2.97),
 )
 
-VREF_SPEC_V = (1.188, 1.212)  # draft spec: 1.20 V +/- 1% (sim/output-voltage-tc/experiment.json)
+# Historical pre-DR-005 draft spec: 1.20 V +/- 1% -- retained (numeric band
+# unchanged, per the 2026-11-23 operator ruling) so re-runs stay comparable
+# with the 2026-08-05 records DR-003 and DR-004 cite as evidence. DR-005's
+# ratified +/-2% band lives in sim_common.RATIFIED_VREF_WINDOW_V.
+DRAFT_VREF_WINDOW_V = (1.188, 1.212)
 VREF_SANITY_V = (1.10, 1.30)  # loose regulation-loss guard, same band run_trim_sweep.py uses
 
 
@@ -358,12 +362,12 @@ def evaluate(phase_a: dict, phase_b: dict[tuple[str, float], dict], baseline: di
             VREF_SANITY_V[0] <= base["vref_27"] <= VREF_SANITY_V[1],
             f"baseline (single-device) vref_27={base['vref_27']:.6f} V",
         )
-        chained_in_spec = VREF_SPEC_V[0] <= chained["vref_27"] <= VREF_SPEC_V[1]
+        chained_in_spec = DRAFT_VREF_WINDOW_V[0] <= chained["vref_27"] <= DRAFT_VREF_WINDOW_V[1]
         add(
             f"chained_vref27_in_spec[{corner_id}]",
             chained_in_spec,
             f"chained-array vref_27={chained['vref_27']:.6f} V vs draft spec window "
-            f"{VREF_SPEC_V} (baseline was {base['vref_27']:.6f} V)"
+            f"{DRAFT_VREF_WINDOW_V} (baseline was {base['vref_27']:.6f} V)"
             + ("" if chained_in_spec else " -- OUT OF SPEC"),
         )
         add(
@@ -375,6 +379,69 @@ def evaluate(phase_a: dict, phase_b: dict[tuple[str, float], dict], baseline: di
         )
 
     return checks
+
+
+def build_determination(checks: list[dict]) -> str:
+    """Determination text derived from the named checks themselves (issue #638).
+
+    Two Phase A statements -- whether the chains exceed the single-device
+    model, and whether they reproduce `klt`'s extracted values -- each citing
+    the check that backs it, plus the separate Phase B corner result. The
+    record's overall verdict cannot stand in for the Phase A statements: it
+    folds in Phase B failures too. A failed Phase A measurement must not read
+    as a confirmation in either output format, and nothing here re-derives
+    the measured deltas/tolerances (they stay in the Phase A table and the
+    per-check details).
+    """
+
+    def passed(name: str) -> bool:
+        matching = [c for c in checks if c["name"] == name]
+        if len(matching) != 1:
+            raise cr.HarnessError(
+                f"determination needs exactly one check named {name!r}, found {len(matching)}"
+            )
+        return bool(matching[0]["pass"])
+
+    def flag(ok: bool) -> str:
+        return "PASS" if ok else "FAIL"
+
+    exceeds = (
+        "- Chains exceed the single-device-at-combined-L model -- R1 "
+        f"{flag(passed('r1_chain_exceeds_single_device_model'))} "
+        "(`r1_chain_exceeds_single_device_model`), R2A/R2B "
+        f"{flag(passed('r2_chain_exceeds_single_device_model'))} "
+        "(`r2_chain_exceeds_single_device_model`)."
+    )
+    reproduces = (
+        "- Chains reproduce `klt`'s LVS-extracted values (2AMLogic/klayout-tools#518/#519/#526) -- R1 "
+        f"{flag(passed('r1_chain_reproduces_klt_extraction'))} (`r1_chain_reproduces_klt_extraction`), "
+        f"R2A/R2B {flag(passed('r2_chain_reproduces_klt_extraction'))} "
+        "(`r2_chain_reproduces_klt_extraction`)."
+    )
+    phase_a = (
+        "**Phase A determination** -- each statement backed by its named check "
+        "(measured deltas and tolerances: Phase A table and Checks section above):\n\n"
+        f"{exceeds}\n{reproduces}\n\n"
+        "Reading 2 (a real electrical effect) is confirmed only for a leg whose two checks both PASS."
+    )
+    spec_failures = [
+        f"{process}/{supply:.2f}V"
+        for process, supply in PHASE_B_CORNERS
+        if not passed(f"chained_vref27_in_spec[{process}_{supply:.2f}v]")
+    ]
+    if spec_failures:
+        phase_b = (
+            "**Phase B corner result** (separate from Phase A): chained-array VOUT(27 degC) is "
+            f"OUTSIDE the draft +/-1% spec window at {len(spec_failures)}/{len(PHASE_B_CORNERS)} "
+            f"corner points ({', '.join(spec_failures)} -- `chained_vref27_in_spec[...]` FAIL)."
+        )
+    else:
+        phase_b = (
+            "**Phase B corner result** (separate from Phase A): chained-array VOUT(27 degC) stayed "
+            f"inside the draft +/-1% spec window at all {len(PHASE_B_CORNERS)} corner points "
+            "(`chained_vref27_in_spec[...]` all PASS)."
+        )
+    return phase_a + "\n\n" + phase_b
 
 
 # --------------------------------------------------------------------------
@@ -465,20 +532,6 @@ def render_record(record: dict) -> str:
         f"{k_chain:.4f} ({(k_chain - k_single) / k_single:+.2%})."
     )
     add("")
-    add(
-        f"**Reproduction of klt's own extraction** (2AMLogic/klayout-tools#518/#519/#526, issue "
-        f"#98's Problem section): chained R1 = {pa['r1_chain_ohm']:.2f} ohm vs. klt-extracted "
-        f"{KLT_EXTRACTED_R1_OHM:.2f} ohm ({abs(pa['r1_chain_ohm'] - KLT_EXTRACTED_R1_OHM) / KLT_EXTRACTED_R1_OHM:.4%} "
-        f"diff); chained R2A/R2B = {pa['r2_chain_ohm']:.2f} ohm vs. klt-extracted "
-        f"{KLT_EXTRACTED_R2_OHM:.2f} ohm ({abs(pa['r2_chain_ohm'] - KLT_EXTRACTED_R2_OHM) / KLT_EXTRACTED_R2_OHM:.4%} diff). "
-        "This is real SPICE (ngspice evaluating the PDK's own nonlinear `rhead`/`rbody` "
-        "semiconductor-resistor model cards, chained through ideal zero-resistance wires -- "
-        "not klt's own analytic `L/W*sheet_rho + fixed_offset` approximation), so this close an "
-        "agreement is not circular: it independently confirms the LVS-measured delta is a real "
-        "electrical consequence of drawing N separately-contacted devices, not an artifact of how "
-        "`klt`'s `combine_devices()` folds series resistors during extraction."
-    )
-    add("")
 
     add("## Phase B -- materiality: VOUT/TC with the chained-array topology")
     add("")
@@ -487,8 +540,8 @@ def render_record(record: dict) -> str:
     for process, supply in PHASE_B_CORNERS:
         base = r["phase_b_baseline"][f"{process}:{supply}"]
         chained = r["phase_b"][f"{process}:{supply}"]
-        base_ok = "yes" if VREF_SPEC_V[0] <= base["vref_27"] <= VREF_SPEC_V[1] else "**NO**"
-        chained_ok = "yes" if VREF_SPEC_V[0] <= chained["vref_27"] <= VREF_SPEC_V[1] else "**NO**"
+        base_ok = "yes" if DRAFT_VREF_WINDOW_V[0] <= base["vref_27"] <= DRAFT_VREF_WINDOW_V[1] else "**NO**"
+        chained_ok = "yes" if DRAFT_VREF_WINDOW_V[0] <= chained["vref_27"] <= DRAFT_VREF_WINDOW_V[1] else "**NO**"
         add(
             f"| {process} | {supply:.2f} | single-device (baseline) | {base['vref_27']:.6f} | "
             f"{base['vref_max']:.6f} | {base['tc_ppm']:.3f} | {base_ok} |"
@@ -624,55 +677,11 @@ def main(argv: list[str]) -> int:
     checks = evaluate(meas_a, phase_b, baseline)
     overall = all(c["pass"] for c in checks)
 
-    # determination narrative, derived from the checks (not hand-waved)
-    r1_delta = (meas_a["r1_chain_ohm"] - meas_a["r1_single_ohm"]) / meas_a["r1_single_ohm"]
-    r2_delta = (meas_a["r2_chain_ohm"] - meas_a["r2_single_ohm"]) / meas_a["r2_single_ohm"]
-    k_single = meas_a["r2_single_ohm"] / meas_a["r1_single_ohm"]
-    k_chain = meas_a["r2_chain_ohm"] / meas_a["r1_chain_ohm"]
-    out_of_spec_corners = [
-        f"{p}/{s:.2f}V"
-        for p, s in PHASE_B_CORNERS
-        if not (VREF_SPEC_V[0] <= phase_b[(p, s)]["vref_27"] <= VREF_SPEC_V[1])
-    ]
-    determination = (
-        f"**Reading 2 (a real electrical effect), confirmed.** Chaining {N_R1} real "
-        f"`sky130_fd_pr__res_high_po` unit instances via ideal wires (R1's shape) measures "
-        f"{r1_delta:+.2%} higher than one instance drawn at the same {R1_COMBINED_L_UM:.0f} um "
-        f"combined length; chaining {N_R2_COARSE + N_R2_TRIM_UNITS} units (R2A/R2B's shape) measures "
-        f"{r2_delta:+.2%} higher. Both numbers reproduce `klt`'s own LVS-extracted values to within "
-        f"{KLT_REPRO_REL_TOL:.2%} using an independent mechanism (real ngspice evaluation of the "
-        "PDK's nonlinear `rhead`/`rbody` model cards through ideal interconnect, not `klt`'s own "
-        "analytic extraction formula) -- so the gap 2AMLogic/klayout-tools#518/#519/#526 measures at "
-        "LVS time is not an extractor bookkeeping artifact. The model card's own structure explains "
-        "why: `rhead`'s width is a fixed function of `w` and its length is a hardcoded `l=1.0`, "
-        "*independent of the caller's drawn body length* -- so a real device really does pay this "
-        "term once per physically separate, individually-contacted instance, and `rbody`'s own "
-        "`leff = l + 0.247` fringe term adds a further per-instance length markup. The routed "
-        f"layout's `bus_res_series` draws real contacts and metal risers at every one of the array's "
-        f"internal unit boundaries (issue #98's Problem section), which is exactly the structure "
-        "this model term represents -- so real fabricated silicon built from this layout really "
-        "does pay N times the head/fringe term, not once per logical divider leg.\n\n"
-        f"K = R2/R1 shifts from {k_single:.4f} (single-device model -- what "
-        "`design/bandgap_core.sch` and every existing PVT sim record in this repo actually "
-        f"simulates today) to {k_chain:.4f} under the routed layout's real chained topology "
-        f"({(k_chain - k_single) / k_single:+.2%}), because R1's delta ({r1_delta:+.2%}) and "
-        f"R2A/R2B's delta ({r2_delta:+.2%}) differ -- confirming the concern issue #98's Problem "
-        "section raised: this is not a uniform scale factor on both resistors.\n\n"
-        + (
-            f"**Material.** Substituting the chained-array topology into the real core testbench "
-            f"(Phase B) pushes VOUT(27 degC) outside the draft +/-1% spec window "
-            f"({VREF_SPEC_V[0]:.3f}-{VREF_SPEC_V[1]:.3f} V) at "
-            f"{len(out_of_spec_corners)}/{len(PHASE_B_CORNERS)} corner points: "
-            f"{', '.join(out_of_spec_corners) if out_of_spec_corners else '(none)'}"
-            ". This is the same class of finding issue #46 (operating-point collapse from a "
-            "+1.4% R2 error) and issue #91 (drawn-length mismatch) treated as real and actionable, "
-            "not a rounding-level effect to wave off."
-            if out_of_spec_corners
-            else "**Checked for materiality, found immaterial at this corner set**: VOUT(27 degC) "
-            "under the chained-array topology stayed inside the draft +/-1% spec window at all "
-            f"{len(PHASE_B_CORNERS)} corner points tested."
-        )
-    )
+    # determination derived from the named checks, not a fixed narrative: a
+    # failed Phase A measurement must not read as a confirmation, and the
+    # overall verdict cannot stand in for the Phase A checks because it also
+    # folds in the Phase B corner failures (issue #638)
+    determination = build_determination(checks)
 
     snapshots_dir.mkdir(parents=True, exist_ok=True)
     snapshot.write_text("\n".join(substituted_body) + "\n.end\n")

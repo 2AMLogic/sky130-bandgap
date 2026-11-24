@@ -14,7 +14,7 @@ HARNESS_DIR = REPO_ROOT / "sim" / "monte-carlo-untrimmed"
 sys.path.insert(0, str(HARNESS_DIR))
 import qualify_dr005 as q  # noqa: E402
 
-LO, HI = q.WINDOW_V
+LO, HI = q.RATIFIED_VREF_WINDOW_V
 
 
 def draws(mean: float, half: float, n: int) -> list[float]:
