@@ -1276,6 +1276,49 @@ def assert_no_merged_pin_names(netlist_path: Path) -> list[str]:
     return merged
 
 
+def merged_pin_names_from_extract(extract: dict[str, Any]) -> list[str]:
+    """The label-collision gate as seen through a record's committed
+    `extract.json`, for store-backed records whose netlist bytes git does
+    not keep (issue #440 ruling).
+
+    `klt extract` leaves two independent traces of "two labels, one net":
+    the `merged_net_labels` list (current schema only; never observed
+    populated in the tree), and the merged name in `nets[].name`. The two
+    writers disagree on notation: the netlist carries `A|B` (what
+    :func:`assert_no_merged_pin_names` scans for) but `extract.json` carries
+    `A,B` -- measured on every collided record in the tree (e.g.
+    `20260804-012421-1a97bf5`: `TAIL,VOUT`) and on none of the clean ones.
+    Both separators are flagged so neither writer's convention is assumed.
+
+    Returns the offending names (empty is the only acceptable result).
+    Raises ValueError when the dict carries no usable signal -- neither a
+    `merged_net_labels` list nor at least one labelled (non-`$N`) entry in
+    `nets[]`: an extract that cannot say anything about label collisions
+    must fail the gate, not silently pass it.
+    """
+    merged_labels = extract.get("merged_net_labels")
+    nets = extract.get("nets")
+    net_names = [
+        str(net.get("name", ""))
+        for net in (nets if isinstance(nets, list) else [])
+        if isinstance(net, dict)
+    ]
+    has_labelled_net = any(
+        name and not name.startswith("$") for name in net_names
+    )
+    if not isinstance(merged_labels, list) and not has_labelled_net:
+        raise ValueError(
+            "extract.json carries neither a merged_net_labels list nor any "
+            "labelled nets[] entry -- no label-collision signal to assert on "
+            f"(keys: {sorted(extract)})"
+        )
+    names: set[str] = set()
+    if isinstance(merged_labels, list):
+        names.update(str(label) for label in merged_labels if str(label).strip())
+    names.update(name for name in net_names if "|" in name or "," in name)
+    return sorted(names)
+
+
 def split_routed_nets(
     routes: list[dict[str, Any]], components: dict[str, int]
 ) -> dict[str, int]:
