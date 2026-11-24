@@ -395,6 +395,45 @@ def check_pdk_and_ngspice(
     return pdk
 
 
+def pdk_record_fields(pdk, pin: dict) -> dict:
+    """The six-field `"pdk"` provenance block (PDK root and pinned revision
+    included) shared by the matrix runner here and the three MC mismatch
+    benches -- `monte-carlo-untrimmed`, `error-amp-offset-mc` and
+    `pnp-mismatch` -- previously four byte-for-byte identical inline
+    expressions (issue #676).
+
+    `sim/` records are append-only evidence, so the serialized shape --
+    keys, their order, the path strings, the pin-match boolean -- must stay
+    identical to the inline expressions this replaced (the written JSON is
+    `sort_keys=True`, but the dict order is kept anyway; see
+    `sim/tests/test_pdk_record_fields.py`)."""
+    return {
+        "root": str(pdk.root),
+        "variant": pdk.variant,
+        "installed_commit": pdk.installed_commit,
+        "pinned_commit": pin["open_pdks_commit"],
+        "matches_pin": pdk.matches_pin,
+        "lib_file": str(pdk.lib_file),
+    }
+
+
+def pdk_record_fields_compact(pdk) -> dict:
+    """The compact four-field `"pdk"` block (no root, no pinned revision)
+    shared by `res-array-resize`, `res-array-head-resistance`,
+    `trim-range-monotonicity` and `trim-lsb-chained` -- previously four
+    byte-for-byte identical inline expressions (issue #676).
+
+    Same shape-preservation contract as `pdk_record_fields()`; these benches
+    never needed the root or the pin itself, only what was installed and
+    whether it matches."""
+    return {
+        "variant": pdk.variant,
+        "installed_commit": pdk.installed_commit,
+        "matches_pin": pdk.matches_pin,
+        "lib_file": str(pdk.lib_file),
+    }
+
+
 def setup_record_paths(
     here: Path, record_id: str, *, with_snapshot: bool = True
 ) -> tuple[Path, Path | None, Path, Path, Path, Path | None]:
@@ -725,14 +764,7 @@ def run_matrix_and_write_record(
         "author": args.author or cr.default_author(),
         "supersedes": args.supersedes,
         "experiment": experiment_fields,
-        "pdk": {
-            "root": str(pdk.root),
-            "variant": pdk.variant,
-            "installed_commit": pdk.installed_commit,
-            "pinned_commit": pin["open_pdks_commit"],
-            "matches_pin": pdk.matches_pin,
-            "lib_file": str(pdk.lib_file),
-        },
+        "pdk": pdk_record_fields(pdk, pin),
         "tools": cr.tool_versions(),
         "jobs": jobs,
         "git": git_info,

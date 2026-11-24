@@ -52,6 +52,7 @@ from sim_common import (  # noqa: E402
     load_corner_run,
     mv,
     parse_samples,
+    pdk_record_fields,
     per_vector_stats,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
@@ -657,14 +658,7 @@ def main(argv: list[str]) -> int:
             for p in PAIRS
         ],
         "statistics": {"n_samples": args.samples, "seed_a": SEED_A, "seed_b": SEED_B},
-        "pdk": {
-            "root": str(pdk.root),
-            "variant": pdk.variant,
-            "installed_commit": pdk.installed_commit,
-            "pinned_commit": pin["open_pdks_commit"],
-            "matches_pin": pdk.matches_pin,
-            "lib_file": str(pdk.lib_file),
-        },
+        "pdk": pdk_record_fields(pdk, pin),
         "tools": cr.tool_versions(),
         "git": git_info,
         "points": ordered,
