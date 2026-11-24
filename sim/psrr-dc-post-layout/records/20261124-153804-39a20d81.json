@@ -1,0 +1,6313 @@
+{
+  "author": "313063438+loom-fleet-dispatch[bot]@users.noreply.github.com",
+  "corners": [
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-068203a77987",
+          "klt-sim-35ebfb1e333b",
+          "klt-sim-5cbb5d45da18"
+        ],
+        "klt_corner_id": "tt/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "tt_-40c_2.97v",
+      "elapsed_s": 3.809,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/tt_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.1815504
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.1799205
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.1799198
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 1.679168
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-eb30748a3f30",
+          "klt-sim-f2ec4c43821a",
+          "klt-sim-7e957f368cff"
+        ],
+        "klt_corner_id": "tt/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "tt_-40c_3.30v",
+      "elapsed_s": 3.774,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/tt_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.645679
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.64796
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.647964
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.8598476
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-514f26c6a98a",
+          "klt-sim-41ab2f022325",
+          "klt-sim-52fdc01aa21c"
+        ],
+        "klt_corner_id": "tt/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "tt_-40c_3.63v",
+      "elapsed_s": 3.577,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/tt_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.538542
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.539907
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.539907
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.4849907
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-068203a77987",
+          "klt-sim-35ebfb1e333b",
+          "klt-sim-5cbb5d45da18"
+        ],
+        "klt_corner_id": "tt/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "tt_27c_2.97v",
+      "elapsed_s": 3.789,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/tt_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.2128046
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.2107161
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.2107161
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 1.155843
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-eb30748a3f30",
+          "klt-sim-f2ec4c43821a",
+          "klt-sim-7e957f368cff"
+        ],
+        "klt_corner_id": "tt/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "tt_27c_3.30v",
+      "elapsed_s": 3.772,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/tt_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.243078
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.244863
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.244863
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.7737919
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-514f26c6a98a",
+          "klt-sim-41ab2f022325",
+          "klt-sim-52fdc01aa21c"
+        ],
+        "klt_corner_id": "tt/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "tt_27c_3.63v",
+      "elapsed_s": 3.627,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/tt_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.273235
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.274601
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.274601
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.5967349
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-068203a77987",
+          "klt-sim-35ebfb1e333b",
+          "klt-sim-5cbb5d45da18"
+        ],
+        "klt_corner_id": "tt/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "tt_125c_2.97v",
+      "elapsed_s": 3.804,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/tt_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.379321
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.378983
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.379321
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.8307682
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-eb30748a3f30",
+          "klt-sim-f2ec4c43821a",
+          "klt-sim-7e957f368cff"
+        ],
+        "klt_corner_id": "tt/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "tt_125c_3.30v",
+      "elapsed_s": 3.773,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/tt_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.682983
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.682813
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.682983
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.5419621
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-514f26c6a98a",
+          "klt-sim-41ab2f022325",
+          "klt-sim-52fdc01aa21c"
+        ],
+        "klt_corner_id": "tt/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "tt_125c_3.63v",
+      "elapsed_s": 3.618,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/tt_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.08215
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.0821412
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.08215
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.4009415
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "tt",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-068203a77987",
+          "klt-sim-35ebfb1e333b",
+          "klt-sim-5cbb5d45da18"
+        ],
+        "klt_corner_id": "ss/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ss_-40c_2.97v",
+      "elapsed_s": 3.821,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ss_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.1642561
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.1637574
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.1637574
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 1.943647
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-eb30748a3f30",
+          "klt-sim-f2ec4c43821a",
+          "klt-sim-7e957f368cff"
+        ],
+        "klt_corner_id": "ss/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ss_-40c_3.30v",
+      "elapsed_s": 3.772,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ss_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.374789
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.37574
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.37576
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 1.24461
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-514f26c6a98a",
+          "klt-sim-41ab2f022325",
+          "klt-sim-52fdc01aa21c"
+        ],
+        "klt_corner_id": "ss/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ss_-40c_3.63v",
+      "elapsed_s": 3.612,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ss_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.662718
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.663216
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.66322
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.56562
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-068203a77987",
+          "klt-sim-35ebfb1e333b",
+          "klt-sim-5cbb5d45da18"
+        ],
+        "klt_corner_id": "ss/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ss_27c_2.97v",
+      "elapsed_s": 3.798,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ss_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.2672718
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.2664631
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.2664598
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 1.309494
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-eb30748a3f30",
+          "klt-sim-f2ec4c43821a",
+          "klt-sim-7e957f368cff"
+        ],
+        "klt_corner_id": "ss/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ss_27c_3.30v",
+      "elapsed_s": 3.722,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ss_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.167264
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.168071
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.168075
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.8991951
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-514f26c6a98a",
+          "klt-sim-41ab2f022325",
+          "klt-sim-52fdc01aa21c"
+        ],
+        "klt_corner_id": "ss/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ss_27c_3.63v",
+      "elapsed_s": 3.588,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ss_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.314564
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.315149
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.315151
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.6532199
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-068203a77987",
+          "klt-sim-35ebfb1e333b",
+          "klt-sim-5cbb5d45da18"
+        ],
+        "klt_corner_id": "ss/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ss_125c_2.97v",
+      "elapsed_s": 3.557,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ss_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.03780761
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.03789966
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.03780761
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.9360375
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-eb30748a3f30",
+          "klt-sim-f2ec4c43821a",
+          "klt-sim-7e957f368cff"
+        ],
+        "klt_corner_id": "ss/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ss_125c_3.30v",
+      "elapsed_s": 3.61,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ss_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -3.56417
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -3.55135
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -3.56417
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.6592914
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-514f26c6a98a",
+          "klt-sim-41ab2f022325",
+          "klt-sim-52fdc01aa21c"
+        ],
+        "klt_corner_id": "ss/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ss_125c_3.63v",
+      "elapsed_s": 3.425,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ss_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.234293
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.234267
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.234293
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.4511487
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ss",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-068203a77987",
+          "klt-sim-35ebfb1e333b",
+          "klt-sim-5cbb5d45da18"
+        ],
+        "klt_corner_id": "ff/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ff_-40c_2.97v",
+      "elapsed_s": 3.607,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ff_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.1120368
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.1061814
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.1061814
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 1.416367
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-eb30748a3f30",
+          "klt-sim-f2ec4c43821a",
+          "klt-sim-7e957f368cff"
+        ],
+        "klt_corner_id": "ff/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ff_-40c_3.30v",
+      "elapsed_s": 3.597,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ff_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.629488
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.635024
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.635024
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.6558444
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-514f26c6a98a",
+          "klt-sim-41ab2f022325",
+          "klt-sim-52fdc01aa21c"
+        ],
+        "klt_corner_id": "ff/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ff_-40c_3.63v",
+      "elapsed_s": 3.424,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ff_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.434738
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.438694
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.438694
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.4373521
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-068203a77987",
+          "klt-sim-35ebfb1e333b",
+          "klt-sim-5cbb5d45da18"
+        ],
+        "klt_corner_id": "ff/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ff_27c_2.97v",
+      "elapsed_s": 3.58,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ff_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.06613632
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.06104596
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.06104596
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.9773842
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-eb30748a3f30",
+          "klt-sim-f2ec4c43821a",
+          "klt-sim-7e957f368cff"
+        ],
+        "klt_corner_id": "ff/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ff_27c_3.30v",
+      "elapsed_s": 3.601,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ff_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.250917
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.254944
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.254944
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.6853667
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-514f26c6a98a",
+          "klt-sim-41ab2f022325",
+          "klt-sim-52fdc01aa21c"
+        ],
+        "klt_corner_id": "ff/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ff_27c_3.63v",
+      "elapsed_s": 3.422,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ff_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.233715
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.236988
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.236988
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.5516296
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-068203a77987",
+          "klt-sim-35ebfb1e333b",
+          "klt-sim-5cbb5d45da18"
+        ],
+        "klt_corner_id": "ff/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ff_125c_2.97v",
+      "elapsed_s": 3.53,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ff_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -1.49992
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -1.49871
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -1.49992
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.6880184
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-eb30748a3f30",
+          "klt-sim-f2ec4c43821a",
+          "klt-sim-7e957f368cff"
+        ],
+        "klt_corner_id": "ff/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ff_125c_3.30v",
+      "elapsed_s": 3.622,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ff_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.298759
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.298723
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.298759
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.4675708
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-514f26c6a98a",
+          "klt-sim-41ab2f022325",
+          "klt-sim-52fdc01aa21c"
+        ],
+        "klt_corner_id": "ff/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "ff_125c_3.63v",
+      "elapsed_s": 3.424,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/ff_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.0102513
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.010247
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.0102513
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.3618589
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "ff",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-068203a77987",
+          "klt-sim-35ebfb1e333b",
+          "klt-sim-5cbb5d45da18"
+        ],
+        "klt_corner_id": "sf/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "sf_-40c_2.97v",
+      "elapsed_s": 3.556,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/sf_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.06278332
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.03704548
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.03704548
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 3.710594
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-eb30748a3f30",
+          "klt-sim-f2ec4c43821a",
+          "klt-sim-7e957f368cff"
+        ],
+        "klt_corner_id": "sf/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "sf_-40c_3.30v",
+      "elapsed_s": 3.626,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/sf_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.523996
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.602267
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.602267
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 2.894656
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-514f26c6a98a",
+          "klt-sim-41ab2f022325",
+          "klt-sim-52fdc01aa21c"
+        ],
+        "klt_corner_id": "sf/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "sf_-40c_3.63v",
+      "elapsed_s": 3.422,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/sf_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -1.59241
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -1.6383
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -1.6383
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.3614979
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-068203a77987",
+          "klt-sim-35ebfb1e333b",
+          "klt-sim-5cbb5d45da18"
+        ],
+        "klt_corner_id": "sf/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "sf_27c_2.97v",
+      "elapsed_s": 3.378,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/sf_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.1412176
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.1136163
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.1136163
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 2.806621
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-eb30748a3f30",
+          "klt-sim-f2ec4c43821a",
+          "klt-sim-7e957f368cff"
+        ],
+        "klt_corner_id": "sf/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "sf_27c_3.30v",
+      "elapsed_s": 3.583,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/sf_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.78492
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.814896
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.814896
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 1.259708
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-514f26c6a98a",
+          "klt-sim-41ab2f022325",
+          "klt-sim-52fdc01aa21c"
+        ],
+        "klt_corner_id": "sf/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "sf_27c_3.63v",
+      "elapsed_s": 3.529,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/sf_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.854247
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.873624
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.873624
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.6890482
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-068203a77987",
+          "klt-sim-35ebfb1e333b",
+          "klt-sim-5cbb5d45da18"
+        ],
+        "klt_corner_id": "sf/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "sf_125c_2.97v",
+      "elapsed_s": 3.378,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/sf_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.0702753
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.0702824
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.0702824
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 1.429318
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-eb30748a3f30",
+          "klt-sim-f2ec4c43821a",
+          "klt-sim-7e957f368cff"
+        ],
+        "klt_corner_id": "sf/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "sf_125c_3.30v",
+      "elapsed_s": 3.579,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/sf_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.381191
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.38119
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.381192
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.9956098
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-514f26c6a98a",
+          "klt-sim-41ab2f022325",
+          "klt-sim-52fdc01aa21c"
+        ],
+        "klt_corner_id": "sf/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "sf_125c_3.63v",
+      "elapsed_s": 3.526,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/sf_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.376393
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.376387
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.376393
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.7848087
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "sf",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-068203a77987",
+          "klt-sim-35ebfb1e333b",
+          "klt-sim-5cbb5d45da18"
+        ],
+        "klt_corner_id": "fs/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "fs_-40c_2.97v",
+      "elapsed_s": 3.38,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/fs_-40c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.2520498
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.252027
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.2520095
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.7303401
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 2.97,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-eb30748a3f30",
+          "klt-sim-f2ec4c43821a",
+          "klt-sim-7e957f368cff"
+        ],
+        "klt_corner_id": "fs/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "fs_-40c_3.30v",
+      "elapsed_s": 3.576,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/fs_-40c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.02848101
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.02843542
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.02841675
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.5543134
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-514f26c6a98a",
+          "klt-sim-41ab2f022325",
+          "klt-sim-52fdc01aa21c"
+        ],
+        "klt_corner_id": "fs/novdd/-40C",
+        "klt_status": "fail"
+      },
+      "corner_id": "fs_-40c_3.63v",
+      "elapsed_s": 3.522,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/fs_-40c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.105791
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.105838
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.105848
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.439789
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.63,
+      "temperature_c": -40.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-068203a77987",
+          "klt-sim-35ebfb1e333b",
+          "klt-sim-5cbb5d45da18"
+        ],
+        "klt_corner_id": "fs/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "fs_27c_2.97v",
+      "elapsed_s": 3.378,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/fs_27c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.04395581
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.04389763
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.04386754
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.6628473
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 2.97,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-eb30748a3f30",
+          "klt-sim-f2ec4c43821a",
+          "klt-sim-7e957f368cff"
+        ],
+        "klt_corner_id": "fs/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "fs_27c_3.30v",
+      "elapsed_s": 3.576,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/fs_27c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.0301764
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.0302153
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.0303382
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.5562969
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-514f26c6a98a",
+          "klt-sim-41ab2f022325",
+          "klt-sim-52fdc01aa21c"
+        ],
+        "klt_corner_id": "fs/novdd/27C",
+        "klt_status": "fail"
+      },
+      "corner_id": "fs_27c_3.63v",
+      "elapsed_s": 3.472,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/fs_27c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.612249
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.612097
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.612292
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.416539
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.63,
+      "temperature_c": 27.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-068203a77987",
+          "klt-sim-35ebfb1e333b",
+          "klt-sim-5cbb5d45da18"
+        ],
+        "klt_corner_id": "fs/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "fs_125c_2.97v",
+      "elapsed_s": 3.398,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/fs_125c_2.97v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.0549926
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.0549849
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": -0.0549926
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.4479201
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 2.97,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-eb30748a3f30",
+          "klt-sim-f2ec4c43821a",
+          "klt-sim-7e957f368cff"
+        ],
+        "klt_corner_id": "fs/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "fs_125c_3.30v",
+      "elapsed_s": 3.577,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/fs_125c_3.30v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.04492152
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.04492433
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.04492152
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.3584496
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.3,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    },
+    {
+      "batch": {
+        "diagnostics": [],
+        "failure": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-514f26c6a98a",
+          "klt-sim-41ab2f022325",
+          "klt-sim-52fdc01aa21c"
+        ],
+        "klt_corner_id": "fs/novdd/125C",
+        "klt_status": "fail"
+      },
+      "corner_id": "fs_125c_3.63v",
+      "elapsed_s": 3.473,
+      "killed_by_signal": null,
+      "killed_by_signal_name": null,
+      "log": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/fs_125c_3.63v.log",
+      "measurements": [
+        {
+          "expr": "-db(v(vref)[0])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_dc",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.08554691
+        },
+        {
+          "expr": "real(frequency[0])",
+          "max": 0.11,
+          "min": 0.09,
+          "name": "f_dc",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 0.1
+        },
+        {
+          "expr": "-db(v(vref)[40])",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_1k",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.08554848
+        },
+        {
+          "expr": "real(frequency[40])",
+          "max": 1100.0,
+          "min": 900.0,
+          "name": "f_1k",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000.0
+        },
+        {
+          "expr": "minimum(-db(v(vref)[0,40]))",
+          "max": null,
+          "min": 60.0,
+          "name": "psrr_band_min",
+          "pass": false,
+          "reason": "below min 60",
+          "unit": "dB",
+          "value": 0.08554691
+        },
+        {
+          "expr": "-db(v(vref)[70])",
+          "max": null,
+          "min": null,
+          "name": "psrr_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "dB",
+          "value": 0.3031503
+        },
+        {
+          "expr": "real(frequency[70])",
+          "max": 1100000.0,
+          "min": 900000.0,
+          "name": "f_1m",
+          "pass": true,
+          "reason": "",
+          "unit": "Hz",
+          "value": 1000000.0
+        },
+        {
+          "expr": "length(v(vref))",
+          "max": 71,
+          "min": 71,
+          "name": "n_ac_points",
+          "pass": true,
+          "reason": "",
+          "unit": "",
+          "value": 71.0
+        }
+      ],
+      "ngspice_exit": null,
+      "pass": false,
+      "process": "fs",
+      "supply_v": 3.63,
+      "temperature_c": 125.0,
+      "timed_out": false,
+      "timeout_s": 600
+    }
+  ],
+  "execution": {
+    "backend": "batch",
+    "blockers": [],
+    "collected_at": "2026-11-24T15:40:19Z",
+    "corner_runtime_max_s": 3.8,
+    "corner_runtime_median_s": 3.6,
+    "corner_runtime_min_s": 3.4,
+    "corner_runtime_sum_s": 161.2,
+    "jobs": [
+      {
+        "collected_at": "2026-11-24T15:39:40Z",
+        "corner_count": 15,
+        "corner_runtime_max_s": 3.8,
+        "corner_runtime_min_s": 3.4,
+        "corner_runtime_sum_s": 53.8,
+        "engine": "ngspice",
+        "engine_version": "47",
+        "job_elapsed_s": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-068203a77987",
+          "klt-sim-35ebfb1e333b",
+          "klt-sim-5cbb5d45da18"
+        ],
+        "klt_client_version": "0.9.3.dev5396+g83764a3c6b6f",
+        "klt_exit_code": 3,
+        "klt_status": "fail",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "b7723f6596742eaac877f15170a59c6c906892e8e56cd8323f5d9bde8e1be221",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "pdk_provenance": {
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ],
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+        },
+        "queue_provision_and_transfer_s": null,
+        "remote": {
+          "fleet": [
+            {
+              "ami_id": "ami-09c14f55df4958cbd",
+              "availability_zone": "us-east-1b",
+              "client_collected_at": "2026-11-24T15:39:06.564998Z",
+              "client_klt_version": "0.9.3.dev5396+g83764a3c6b6f",
+              "client_launched_at": "2026-11-24T15:38:33.937907Z",
+              "client_status_terminal_at": "2026-11-24T15:39:05.591165Z",
+              "client_submitted_at": "2026-11-24T15:38:07.137620Z",
+              "concurrency": "1",
+              "elapsed_seconds": 12,
+              "exit_code": "3",
+              "exit_reason": {
+                "exit_code": 3,
+                "message": "klt sim exited 3 (a corner or measurement failed): aggregate status 'fail'; the job state is failed because of this verdict exit code, not a runner crash and not the whole-job ceiling (a ceiling kill reports state timeout, exit 124)",
+                "nothing_checked": false,
+                "nothing_checked_reasons": [],
+                "report_status": "fail",
+                "units": {
+                  "by_status": {
+                    "fail": 5
+                  },
+                  "first_not_passed": [
+                    {
+                      "code": null,
+                      "corner_id": "tt/novdd/-40C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "tt/novdd/27C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "tt/novdd/125C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "ss/novdd/-40C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "ss/novdd/27C",
+                      "message": null,
+                      "status": "fail"
+                    }
+                  ],
+                  "total": 5
+                }
+              },
+              "instance_id": "i-09d3a1b00ab321e6f",
+              "instance_type": "m7i.4xlarge",
+              "job_id": "klt-sim-068203a77987",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "8",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_corner_section_libs": null,
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_osdi_preload": null,
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "failed",
+              "worker_environment_ref": "2b08fe120d5c82da57ef03a9bd774ca3f59563410673a534990aa90a71dde914"
+            },
+            {
+              "ami_id": "ami-09c14f55df4958cbd",
+              "availability_zone": "us-east-1b",
+              "client_collected_at": "2026-11-24T15:39:40.504188Z",
+              "client_klt_version": "0.9.3.dev5396+g83764a3c6b6f",
+              "client_launched_at": "2026-11-24T15:38:36.998618Z",
+              "client_status_terminal_at": "2026-11-24T15:39:39.688812Z",
+              "client_submitted_at": "2026-11-24T15:38:07.135474Z",
+              "concurrency": "1",
+              "elapsed_seconds": 23,
+              "exit_code": "3",
+              "exit_reason": {
+                "exit_code": 3,
+                "message": "klt sim exited 3 (a corner or measurement failed): aggregate status 'fail'; the job state is failed because of this verdict exit code, not a runner crash and not the whole-job ceiling (a ceiling kill reports state timeout, exit 124)",
+                "nothing_checked": false,
+                "nothing_checked_reasons": [],
+                "report_status": "fail",
+                "units": {
+                  "by_status": {
+                    "fail": 5
+                  },
+                  "first_not_passed": [
+                    {
+                      "code": null,
+                      "corner_id": "ss/novdd/125C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "ff/novdd/-40C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "ff/novdd/27C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "ff/novdd/125C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "sf/novdd/-40C",
+                      "message": null,
+                      "status": "fail"
+                    }
+                  ],
+                  "total": 5
+                }
+              },
+              "instance_id": "i-0c44aea27e7cd28af",
+              "instance_type": "c7i.4xlarge",
+              "job_id": "klt-sim-35ebfb1e333b",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "8",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_corner_section_libs": null,
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_osdi_preload": null,
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "failed",
+              "worker_environment_ref": "2b08fe120d5c82da57ef03a9bd774ca3f59563410673a534990aa90a71dde914"
+            },
+            {
+              "ami_id": "ami-09c14f55df4958cbd",
+              "availability_zone": "us-east-1b",
+              "client_collected_at": "2026-11-24T15:39:06.635621Z",
+              "client_klt_version": "0.9.3.dev5396+g83764a3c6b6f",
+              "client_launched_at": "2026-11-24T15:38:33.890770Z",
+              "client_status_terminal_at": "2026-11-24T15:39:05.613232Z",
+              "client_submitted_at": "2026-11-24T15:38:07.139448Z",
+              "concurrency": "1",
+              "elapsed_seconds": 11,
+              "exit_code": "3",
+              "exit_reason": {
+                "exit_code": 3,
+                "message": "klt sim exited 3 (a corner or measurement failed): aggregate status 'fail'; the job state is failed because of this verdict exit code, not a runner crash and not the whole-job ceiling (a ceiling kill reports state timeout, exit 124)",
+                "nothing_checked": false,
+                "nothing_checked_reasons": [],
+                "report_status": "fail",
+                "units": {
+                  "by_status": {
+                    "fail": 5
+                  },
+                  "first_not_passed": [
+                    {
+                      "code": null,
+                      "corner_id": "sf/novdd/27C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "sf/novdd/125C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "fs/novdd/-40C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "fs/novdd/27C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "fs/novdd/125C",
+                      "message": null,
+                      "status": "fail"
+                    }
+                  ],
+                  "total": 5
+                }
+              },
+              "instance_id": "i-0cecccff09120340e",
+              "instance_type": "m7i.4xlarge",
+              "job_id": "klt-sim-5cbb5d45da18",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "8",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_corner_section_libs": null,
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_osdi_preload": null,
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "failed",
+              "worker_environment_ref": "2b08fe120d5c82da57ef03a9bd774ca3f59563410673a534990aa90a71dde914"
+            }
+          ],
+          "job_ids": [
+            "klt-sim-068203a77987",
+            "klt-sim-35ebfb1e333b",
+            "klt-sim-5cbb5d45da18"
+          ],
+          "run": {
+            "complete": true,
+            "completed_units": 15,
+            "declared_hosts": 3,
+            "first_launch": "2026-11-24T15:38:33.890770+00:00",
+            "history_coverage": "from_start",
+            "last_terminal": "2026-11-24T15:39:39.688812+00:00",
+            "observed_launched_jobs": 3,
+            "observed_rounds": 1,
+            "rounds": 1,
+            "total_units": 15
+          },
+          "runner_compatibility": "match"
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-621/sim/build/psrr-dc-post-layout/20261124-153804-39a20d81/batch/v2.97/klt-report.json",
+        "submit_to_collect_wall_s": 94.7,
+        "submitted_at": "2026-11-24T15:38:05Z",
+        "supply_v": 2.97
+      },
+      {
+        "collected_at": "2026-11-24T15:40:19Z",
+        "corner_count": 15,
+        "corner_runtime_max_s": 3.8,
+        "corner_runtime_min_s": 3.6,
+        "corner_runtime_sum_s": 54.8,
+        "engine": "ngspice",
+        "engine_version": "47",
+        "job_elapsed_s": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-eb30748a3f30",
+          "klt-sim-f2ec4c43821a",
+          "klt-sim-7e957f368cff"
+        ],
+        "klt_client_version": "0.9.3.dev5396+g83764a3c6b6f",
+        "klt_exit_code": 3,
+        "klt_status": "fail",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "5cbb1eb452ff3245e84312142543af77cab5a94ac6dbb9c77277a13357688654",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "pdk_provenance": {
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ],
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+        },
+        "queue_provision_and_transfer_s": null,
+        "remote": {
+          "fleet": [
+            {
+              "ami_id": "ami-09c14f55df4958cbd",
+              "availability_zone": "us-east-1f",
+              "client_collected_at": "2026-11-24T15:39:45.505211Z",
+              "client_klt_version": "0.9.3.dev5396+g83764a3c6b6f",
+              "client_launched_at": "2026-11-24T15:39:13.062253Z",
+              "client_status_terminal_at": "2026-11-24T15:39:44.639070Z",
+              "client_submitted_at": "2026-11-24T15:38:07.178699Z",
+              "concurrency": "1",
+              "elapsed_seconds": 13,
+              "exit_code": "3",
+              "exit_reason": {
+                "exit_code": 3,
+                "message": "klt sim exited 3 (a corner or measurement failed): aggregate status 'fail'; the job state is failed because of this verdict exit code, not a runner crash and not the whole-job ceiling (a ceiling kill reports state timeout, exit 124)",
+                "nothing_checked": false,
+                "nothing_checked_reasons": [],
+                "report_status": "fail",
+                "units": {
+                  "by_status": {
+                    "fail": 5
+                  },
+                  "first_not_passed": [
+                    {
+                      "code": null,
+                      "corner_id": "tt/novdd/-40C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "tt/novdd/27C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "tt/novdd/125C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "ss/novdd/-40C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "ss/novdd/27C",
+                      "message": null,
+                      "status": "fail"
+                    }
+                  ],
+                  "total": 5
+                }
+              },
+              "instance_id": "i-05e9cbd244cb26919",
+              "instance_type": "m6i.4xlarge",
+              "job_id": "klt-sim-eb30748a3f30",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "8",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_corner_section_libs": null,
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_osdi_preload": null,
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "failed",
+              "worker_environment_ref": "6f582d52983647cc5c0d4ba5e3a4274a8cce566127ccbaaf17181990e989a25b"
+            },
+            {
+              "ami_id": "ami-09c14f55df4958cbd",
+              "availability_zone": "us-east-1c",
+              "client_collected_at": "2026-11-24T15:39:06.566482Z",
+              "client_klt_version": "0.9.3.dev5396+g83764a3c6b6f",
+              "client_launched_at": "2026-11-24T15:38:33.879402Z",
+              "client_status_terminal_at": "2026-11-24T15:39:05.540659Z",
+              "client_submitted_at": "2026-11-24T15:38:07.174521Z",
+              "concurrency": "1",
+              "elapsed_seconds": 12,
+              "exit_code": "3",
+              "exit_reason": {
+                "exit_code": 3,
+                "message": "klt sim exited 3 (a corner or measurement failed): aggregate status 'fail'; the job state is failed because of this verdict exit code, not a runner crash and not the whole-job ceiling (a ceiling kill reports state timeout, exit 124)",
+                "nothing_checked": false,
+                "nothing_checked_reasons": [],
+                "report_status": "fail",
+                "units": {
+                  "by_status": {
+                    "fail": 5
+                  },
+                  "first_not_passed": [
+                    {
+                      "code": null,
+                      "corner_id": "ss/novdd/125C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "ff/novdd/-40C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "ff/novdd/27C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "ff/novdd/125C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "sf/novdd/-40C",
+                      "message": null,
+                      "status": "fail"
+                    }
+                  ],
+                  "total": 5
+                }
+              },
+              "instance_id": "i-0f26aed182aadcedf",
+              "instance_type": "c7i.4xlarge",
+              "job_id": "klt-sim-f2ec4c43821a",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "8",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_corner_section_libs": null,
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_osdi_preload": null,
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "failed",
+              "worker_environment_ref": "2b08fe120d5c82da57ef03a9bd774ca3f59563410673a534990aa90a71dde914"
+            },
+            {
+              "ami_id": "ami-09c14f55df4958cbd",
+              "availability_zone": "us-east-1b",
+              "client_collected_at": "2026-11-24T15:40:19.269687Z",
+              "client_klt_version": "0.9.3.dev5396+g83764a3c6b6f",
+              "client_launched_at": "2026-11-24T15:39:16.193327Z",
+              "client_status_terminal_at": "2026-11-24T15:40:18.419389Z",
+              "client_submitted_at": "2026-11-24T15:38:07.176931Z",
+              "concurrency": "1",
+              "elapsed_seconds": 33,
+              "exit_code": "3",
+              "exit_reason": {
+                "exit_code": 3,
+                "message": "klt sim exited 3 (a corner or measurement failed): aggregate status 'fail'; the job state is failed because of this verdict exit code, not a runner crash and not the whole-job ceiling (a ceiling kill reports state timeout, exit 124)",
+                "nothing_checked": false,
+                "nothing_checked_reasons": [],
+                "report_status": "fail",
+                "units": {
+                  "by_status": {
+                    "fail": 5
+                  },
+                  "first_not_passed": [
+                    {
+                      "code": null,
+                      "corner_id": "sf/novdd/27C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "sf/novdd/125C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "fs/novdd/-40C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "fs/novdd/27C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "fs/novdd/125C",
+                      "message": null,
+                      "status": "fail"
+                    }
+                  ],
+                  "total": 5
+                }
+              },
+              "instance_id": "i-0097fc158cb647cee",
+              "instance_type": "m7i.4xlarge",
+              "job_id": "klt-sim-7e957f368cff",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "8",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_corner_section_libs": null,
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_osdi_preload": null,
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "failed",
+              "worker_environment_ref": "2b08fe120d5c82da57ef03a9bd774ca3f59563410673a534990aa90a71dde914"
+            }
+          ],
+          "job_ids": [
+            "klt-sim-eb30748a3f30",
+            "klt-sim-f2ec4c43821a",
+            "klt-sim-7e957f368cff"
+          ],
+          "run": {
+            "complete": true,
+            "completed_units": 15,
+            "declared_hosts": 3,
+            "first_launch": "2026-11-24T15:38:33.879402+00:00",
+            "history_coverage": "from_start",
+            "last_terminal": "2026-11-24T15:40:18.419389+00:00",
+            "observed_launched_jobs": 3,
+            "observed_rounds": 1,
+            "rounds": 1,
+            "total_units": 15
+          },
+          "runner_compatibility": "match"
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-621/sim/build/psrr-dc-post-layout/20261124-153804-39a20d81/batch/v3.30/klt-report.json",
+        "submit_to_collect_wall_s": 133.5,
+        "submitted_at": "2026-11-24T15:38:05Z",
+        "supply_v": 3.3
+      },
+      {
+        "collected_at": "2026-11-24T15:39:54Z",
+        "corner_count": 15,
+        "corner_runtime_max_s": 3.6,
+        "corner_runtime_min_s": 3.4,
+        "corner_runtime_sum_s": 52.7,
+        "engine": "ngspice",
+        "engine_version": "47",
+        "job_elapsed_s": null,
+        "job_id": null,
+        "job_ids": [
+          "klt-sim-514f26c6a98a",
+          "klt-sim-41ab2f022325",
+          "klt-sim-52fdc01aa21c"
+        ],
+        "klt_client_version": "0.9.3.dev5396+g83764a3c6b6f",
+        "klt_exit_code": 3,
+        "klt_status": "fail",
+        "models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+        "netlist_sha256": "fd8232286ae1f7dc4e9229d97ac4ddc6ce2e7f9b17dbe11d645c0c7b5cf730b9",
+        "ngspice_binary": "/usr/local/bin/ngspice",
+        "pdk_provenance": {
+          "ambiguous_sources": [
+            "search root: ~/.volare"
+          ],
+          "name": "sky130A",
+          "source": "search root: ~/.ciel",
+          "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+        },
+        "queue_provision_and_transfer_s": null,
+        "remote": {
+          "fleet": [
+            {
+              "ami_id": "ami-09c14f55df4958cbd",
+              "availability_zone": "us-east-1b",
+              "client_collected_at": "2026-11-24T15:39:09.122984Z",
+              "client_klt_version": "0.9.3.dev5396+g83764a3c6b6f",
+              "client_launched_at": "2026-11-24T15:38:36.022251Z",
+              "client_status_terminal_at": "2026-11-24T15:39:07.990236Z",
+              "client_submitted_at": "2026-11-24T15:38:07.248751Z",
+              "concurrency": "1",
+              "elapsed_seconds": 12,
+              "exit_code": "3",
+              "exit_reason": {
+                "exit_code": 3,
+                "message": "klt sim exited 3 (a corner or measurement failed): aggregate status 'fail'; the job state is failed because of this verdict exit code, not a runner crash and not the whole-job ceiling (a ceiling kill reports state timeout, exit 124)",
+                "nothing_checked": false,
+                "nothing_checked_reasons": [],
+                "report_status": "fail",
+                "units": {
+                  "by_status": {
+                    "fail": 5
+                  },
+                  "first_not_passed": [
+                    {
+                      "code": null,
+                      "corner_id": "tt/novdd/-40C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "tt/novdd/27C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "tt/novdd/125C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "ss/novdd/-40C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "ss/novdd/27C",
+                      "message": null,
+                      "status": "fail"
+                    }
+                  ],
+                  "total": 5
+                }
+              },
+              "instance_id": "i-0b73b20182b1f9fe5",
+              "instance_type": "m7i.4xlarge",
+              "job_id": "klt-sim-514f26c6a98a",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "8",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_corner_section_libs": null,
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_osdi_preload": null,
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "failed",
+              "worker_environment_ref": "2b08fe120d5c82da57ef03a9bd774ca3f59563410673a534990aa90a71dde914"
+            },
+            {
+              "ami_id": "ami-09c14f55df4958cbd",
+              "availability_zone": "us-east-1b",
+              "client_collected_at": "2026-11-24T15:39:10.819780Z",
+              "client_klt_version": "0.9.3.dev5396+g83764a3c6b6f",
+              "client_launched_at": "2026-11-24T15:38:38.117178Z",
+              "client_status_terminal_at": "2026-11-24T15:39:09.991058Z",
+              "client_submitted_at": "2026-11-24T15:38:07.252423Z",
+              "concurrency": "1",
+              "elapsed_seconds": 13,
+              "exit_code": "3",
+              "exit_reason": {
+                "exit_code": 3,
+                "message": "klt sim exited 3 (a corner or measurement failed): aggregate status 'fail'; the job state is failed because of this verdict exit code, not a runner crash and not the whole-job ceiling (a ceiling kill reports state timeout, exit 124)",
+                "nothing_checked": false,
+                "nothing_checked_reasons": [],
+                "report_status": "fail",
+                "units": {
+                  "by_status": {
+                    "fail": 5
+                  },
+                  "first_not_passed": [
+                    {
+                      "code": null,
+                      "corner_id": "ss/novdd/125C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "ff/novdd/-40C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "ff/novdd/27C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "ff/novdd/125C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "sf/novdd/-40C",
+                      "message": null,
+                      "status": "fail"
+                    }
+                  ],
+                  "total": 5
+                }
+              },
+              "instance_id": "i-0b6b25474ae98a235",
+              "instance_type": "c7i.4xlarge",
+              "job_id": "klt-sim-41ab2f022325",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "8",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_corner_section_libs": null,
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_osdi_preload": null,
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "failed",
+              "worker_environment_ref": "2b08fe120d5c82da57ef03a9bd774ca3f59563410673a534990aa90a71dde914"
+            },
+            {
+              "ami_id": "ami-09c14f55df4958cbd",
+              "availability_zone": "us-east-1a",
+              "client_collected_at": "2026-11-24T15:39:54.465775Z",
+              "client_klt_version": "0.9.3.dev5396+g83764a3c6b6f",
+              "client_launched_at": "2026-11-24T15:38:51.258650Z",
+              "client_status_terminal_at": "2026-11-24T15:39:53.578637Z",
+              "client_submitted_at": "2026-11-24T15:38:07.255713Z",
+              "concurrency": "2",
+              "elapsed_seconds": 31,
+              "exit_code": "3",
+              "exit_reason": {
+                "exit_code": 3,
+                "message": "klt sim exited 3 (a corner or measurement failed): aggregate status 'fail'; the job state is failed because of this verdict exit code, not a runner crash and not the whole-job ceiling (a ceiling kill reports state timeout, exit 124)",
+                "nothing_checked": false,
+                "nothing_checked_reasons": [],
+                "report_status": "fail",
+                "units": {
+                  "by_status": {
+                    "fail": 5
+                  },
+                  "first_not_passed": [
+                    {
+                      "code": null,
+                      "corner_id": "sf/novdd/27C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "sf/novdd/125C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "fs/novdd/-40C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "fs/novdd/27C",
+                      "message": null,
+                      "status": "fail"
+                    },
+                    {
+                      "code": null,
+                      "corner_id": "fs/novdd/125C",
+                      "message": null,
+                      "status": "fail"
+                    }
+                  ],
+                  "total": 5
+                }
+              },
+              "instance_id": "i-06cc5656015550b08",
+              "instance_type": "c7i.8xlarge",
+              "job_id": "klt-sim-52fdc01aa21c",
+              "lifecycle": "spot",
+              "models_lib_comparison": {
+                "status": "match"
+              },
+              "physical_cores": "16",
+              "provider": "aws-batch-fleet",
+              "region": "us-east-1",
+              "resumed": false,
+              "runner_compatibility": "match",
+              "runner_corner_section_libs": null,
+              "runner_klt_version": "0.9.0",
+              "runner_model_inputs": null,
+              "runner_models_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+              "runner_osdi_preload": null,
+              "runner_request_features": {
+                "missing": [],
+                "required": [
+                  "measurements[].expr",
+                  "options.ngspice_init"
+                ],
+                "status": "supported"
+              },
+              "spot": true,
+              "state": "failed",
+              "worker_environment_ref": "2b08fe120d5c82da57ef03a9bd774ca3f59563410673a534990aa90a71dde914"
+            }
+          ],
+          "job_ids": [
+            "klt-sim-514f26c6a98a",
+            "klt-sim-41ab2f022325",
+            "klt-sim-52fdc01aa21c"
+          ],
+          "run": {
+            "complete": true,
+            "completed_units": 15,
+            "declared_hosts": 3,
+            "first_launch": "2026-11-24T15:38:36.022251+00:00",
+            "history_coverage": "from_start",
+            "last_terminal": "2026-11-24T15:39:53.578637+00:00",
+            "observed_launched_jobs": 3,
+            "observed_rounds": 1,
+            "rounds": 1,
+            "total_units": 15
+          },
+          "runner_compatibility": "match"
+        },
+        "report": "/home/ubuntu/GitHub/sky130-bandgap/.loom/worktrees/issue-621/sim/build/psrr-dc-post-layout/20261124-153804-39a20d81/batch/v3.63/klt-report.json",
+        "submit_to_collect_wall_s": 108.7,
+        "submitted_at": "2026-11-24T15:38:05Z",
+        "supply_v": 3.63
+      }
+    ],
+    "klt_client": "klt 0.9.3.dev5396+g83764a3c6b6f",
+    "local_pinned_lib_sha256": "48de7c677e2c6e7d09b2559279de9f818be71010a4aa933d728eb4db3b133c84",
+    "mechanism": "klt sim --backend batch (2am EDA batch fleet, Spot)",
+    "remote_ami_ids": [
+      "None"
+    ],
+    "remote_engine_versions": [
+      "47"
+    ],
+    "remote_instance_types": [
+      "None"
+    ],
+    "remote_pdk_matches_pin": true,
+    "submit_to_collect_wall_s": 133.5,
+    "submitted_at": "2026-11-24T15:38:05Z",
+    "timing_note": "elapsed_s per corner is the remote engine wall clock reported by klt (runtime_s). job_elapsed_s is the fleet harness's own job time. queue_provision_and_transfer_s = submit-to-collect wall minus job_elapsed_s (S3 upload, Spot acquisition/boot, polling granularity, download).",
+    "worker_environments": {
+      "2b08fe120d5c82da57ef03a9bd774ca3f59563410673a534990aa90a71dde914": {
+        "capture": "ok",
+        "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+        "diagnostics": [],
+        "engine_build_comparison": {
+          "status": "match"
+        },
+        "image_manifest": null,
+        "model_inputs": null,
+        "ngspice_init": null,
+        "omp_num_threads": null,
+        "pdk": {
+          "models_staged": false,
+          "root": "/opt/pdk",
+          "stamp_scheme": "sources-sha256",
+          "stamp_scope": "executed",
+          "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+          "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+          "variant": "sky130A"
+        },
+        "pdk_stamp_comparison": {
+          "status": "match"
+        },
+        "simulator": {
+          "binary_sha256": "e12148baf532d879d2e2053cecc5b498680bd4156a0dc3f69ce4f83e741e1314",
+          "binary_source": "PATH",
+          "requested_binary": "ngspice",
+          "selected_path": "/usr/local/bin/ngspice",
+          "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Fri Nov 13 23:19:32 UTC 2026\n******\n",
+          "version_probe": "ok"
+        },
+        "threads_per_worker": 1
+      },
+      "6f582d52983647cc5c0d4ba5e3a4274a8cce566127ccbaaf17181990e989a25b": {
+        "capture": "ok",
+        "cpu_model": "Intel(R) Xeon(R) Platinum 8375C CPU @ 2.90GHz",
+        "diagnostics": [],
+        "engine_build_comparison": {
+          "status": "match"
+        },
+        "image_manifest": null,
+        "model_inputs": null,
+        "ngspice_init": null,
+        "omp_num_threads": null,
+        "pdk": {
+          "models_staged": false,
+          "root": "/opt/pdk",
+          "stamp_scheme": "sources-sha256",
+          "stamp_scope": "executed",
+          "stamp_sha256": "4ca10280ae9f293aa1ff69f0060a52e0026929111bda881503717469b429ce67",
+          "stamp_text": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+          "variant": "sky130A"
+        },
+        "pdk_stamp_comparison": {
+          "status": "match"
+        },
+        "simulator": {
+          "binary_sha256": "e12148baf532d879d2e2053cecc5b498680bd4156a0dc3f69ce4f83e741e1314",
+          "binary_source": "PATH",
+          "requested_binary": "ngspice",
+          "selected_path": "/usr/local/bin/ngspice",
+          "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Fri Nov 13 23:19:32 UTC 2026\n******\n",
+          "version_probe": "ok"
+        },
+        "threads_per_worker": 1
+      }
+    }
+  },
+  "experiment": {
+    "claim": "README.md 'Target specification' (DR-005, amended by DR-006) row 'PSRR' (> 60 dB DC-1 kHz target; > 30 dB @ 1 MHz stretch, out of scope for wave 1 per DR-001), for the 3.3 V primary flavor. Measures the AC supply-to-VREF transfer function (1 V AC magnitude on the supply, PSRR = -db(v(vref))) of the ROUTED bandgap-core layout (issue #62, thick-oxide geometry per issue #620; its LVS verdict is cited under 'Netlist provenance', not asserted here) -- now including the drawn VDD/VSS routing's own series R/C parasitics directly in the signal path under test -- open-circuit at VREF, over the full 45-point PVT matrix, via klt extract --parasitics translated to a simulatable netlist (sim/bin/post_layout_common.py) -- NOT design/bandgap_core.sch directly; see 'Netlist provenance' below.",
+    "provenance": "extracted",
+    "provenance_source": "manifests/artifacts/layout-bandgap-core-20261121-082021-3f43042b.manifest.json#layout/bandgap-core/staging/20261121-082021-3f43042b/bandgap_core_routed.gds (sha256 1eccb2e2982ed238..., fetched via `klt artifact get` to sim/build/layout-artifacts/20261121-082021-3f43042b/bandgap_core_routed.gds) via `klt extract --parasitics` (layout record 20261121-082021-3f43042b), translated by sim/bin/post_layout_common.py, wrapped over the unmodified sim/psrr-dc/testbench/tb_vref_psrr.sch",
+    "slug": "psrr-dc-post-layout",
+    "statistical_convention": "N/A (corner-matrix claim)",
+    "title": "Power-supply rejection ratio, DC-1 kHz band + 1 MHz spot, untrimmed core -- POST-LAYOUT (extracted netlist)"
+  },
+  "git": {
+    "branch": "feature/issue-621",
+    "dirty": true,
+    "sha": "39a20d81"
+  },
+  "jobs": null,
+  "layout_provenance": {
+    "core_port_order": [
+      "D1",
+      "D2",
+      "GDRV",
+      "NE",
+      "NG",
+      "PN",
+      "TAIL",
+      "VA",
+      "VB",
+      "VBQ",
+      "VDD",
+      "VOUT",
+      "VSS"
+    ],
+    "device_translation_counts": {
+      "mos": 73,
+      "pnp": 24,
+      "res": 145
+    },
+    "layout_gds": "sim/build/layout-artifacts/20261121-082021-3f43042b/bandgap_core_routed.gds",
+    "layout_gds_source": {
+      "cache": "sim/build/layout-artifacts/20261121-082021-3f43042b/bandgap_core_routed.gds",
+      "entry": "layout/bandgap-core/staging/20261121-082021-3f43042b/bandgap_core_routed.gds",
+      "kind": "artifact-store",
+      "manifest": "manifests/artifacts/layout-bandgap-core-20261121-082021-3f43042b.manifest.json",
+      "sha256": "1eccb2e2982ed238b52d35641c2c8a3786b0301db39d483aa8887c9544290f78",
+      "size": 313852
+    },
+    "layout_lvs": {
+      "mismatch_count": 5,
+      "report": "layout/bandgap-core/reports/20261121-082021-3f43042b/lvs.combined.json",
+      "status": "mismatch"
+    },
+    "layout_record": "layout/bandgap-core/reports/20261121-082021-3f43042b/record.md",
+    "layout_record_id": "20261121-082021-3f43042b",
+    "layout_reference": {
+      "kind": "tracked",
+      "path": "layout/bandgap-core/reference.spice",
+      "sha256": "e722ce6553b3008772dcc3ae79fcaea76713311d068ffb95ca824f13e6e69c6e"
+    },
+    "lvs_mismatch_count_at_extraction": 5,
+    "mos_flavour_gate": {
+      "clean": true,
+      "expected": {
+        "nfet": 19,
+        "pfet": 54
+      },
+      "mismatches": {},
+      "observed": {
+        "nfet": 19,
+        "pfet": 54
+      },
+      "unexpected_mos_models": {}
+    },
+    "parasitics_snapshot": {
+      "c_count": 157,
+      "json": "sim/output-voltage-tc-post-layout/parasitics-snapshot/20261121-082021-3f43042b-pdk/bandgap_core_routed.pex.json",
+      "pex_spice_sha256": "b4e37d4220217c11ba6d00cc293206ea2a2e9764b979eb119d9d4ccacbabe5a8",
+      "r_count": 799,
+      "source": "reused:sim/output-voltage-tc-post-layout/parasitics-snapshot/20261121-082021-3f43042b-pdk",
+      "spice": "sim/output-voltage-tc-post-layout/parasitics-snapshot/20261121-082021-3f43042b-pdk/bandgap_core_routed.pex.spice",
+      "total_capacitance_ff": 1898.756496,
+      "total_resistance_ohm": 934271.5946
+    }
+  },
+  "links": {
+    "artifact_manifest": "manifests/artifacts/psrr-dc-post-layout-20261124-153804-39a20d81.manifest.json",
+    "corners_dir": "sim/psrr-dc-post-layout/corners/20261124-153804-39a20d81/",
+    "json": "sim/psrr-dc-post-layout/records/20261124-153804-39a20d81.json",
+    "manifest": "sim/psrr-dc/experiment.json",
+    "netlist_snapshot": "sim/psrr-dc-post-layout/netlist-snapshots/20261124-153804-39a20d81.spice",
+    "record": "sim/psrr-dc-post-layout/records/20261124-153804-39a20d81.md",
+    "testbench": "sim/psrr-dc/testbench/tb_vref_psrr.sch"
+  },
+  "matrix": {
+    "is_subset": false,
+    "n_points": 45,
+    "point_ids": [
+      "tt_-40c_2.97v",
+      "tt_-40c_3.30v",
+      "tt_-40c_3.63v",
+      "tt_27c_2.97v",
+      "tt_27c_3.30v",
+      "tt_27c_3.63v",
+      "tt_125c_2.97v",
+      "tt_125c_3.30v",
+      "tt_125c_3.63v",
+      "ss_-40c_2.97v",
+      "ss_-40c_3.30v",
+      "ss_-40c_3.63v",
+      "ss_27c_2.97v",
+      "ss_27c_3.30v",
+      "ss_27c_3.63v",
+      "ss_125c_2.97v",
+      "ss_125c_3.30v",
+      "ss_125c_3.63v",
+      "ff_-40c_2.97v",
+      "ff_-40c_3.30v",
+      "ff_-40c_3.63v",
+      "ff_27c_2.97v",
+      "ff_27c_3.30v",
+      "ff_27c_3.63v",
+      "ff_125c_2.97v",
+      "ff_125c_3.30v",
+      "ff_125c_3.63v",
+      "sf_-40c_2.97v",
+      "sf_-40c_3.30v",
+      "sf_-40c_3.63v",
+      "sf_27c_2.97v",
+      "sf_27c_3.30v",
+      "sf_27c_3.63v",
+      "sf_125c_2.97v",
+      "sf_125c_3.30v",
+      "sf_125c_3.63v",
+      "fs_-40c_2.97v",
+      "fs_-40c_3.30v",
+      "fs_-40c_3.63v",
+      "fs_27c_2.97v",
+      "fs_27c_3.30v",
+      "fs_27c_3.63v",
+      "fs_125c_2.97v",
+      "fs_125c_3.30v",
+      "fs_125c_3.63v"
+    ],
+    "points": [
+      [
+        "tt",
+        -40.0,
+        2.97
+      ],
+      [
+        "tt",
+        -40.0,
+        3.3
+      ],
+      [
+        "tt",
+        -40.0,
+        3.63
+      ],
+      [
+        "tt",
+        27.0,
+        2.97
+      ],
+      [
+        "tt",
+        27.0,
+        3.3
+      ],
+      [
+        "tt",
+        27.0,
+        3.63
+      ],
+      [
+        "tt",
+        125.0,
+        2.97
+      ],
+      [
+        "tt",
+        125.0,
+        3.3
+      ],
+      [
+        "tt",
+        125.0,
+        3.63
+      ],
+      [
+        "ss",
+        -40.0,
+        2.97
+      ],
+      [
+        "ss",
+        -40.0,
+        3.3
+      ],
+      [
+        "ss",
+        -40.0,
+        3.63
+      ],
+      [
+        "ss",
+        27.0,
+        2.97
+      ],
+      [
+        "ss",
+        27.0,
+        3.3
+      ],
+      [
+        "ss",
+        27.0,
+        3.63
+      ],
+      [
+        "ss",
+        125.0,
+        2.97
+      ],
+      [
+        "ss",
+        125.0,
+        3.3
+      ],
+      [
+        "ss",
+        125.0,
+        3.63
+      ],
+      [
+        "ff",
+        -40.0,
+        2.97
+      ],
+      [
+        "ff",
+        -40.0,
+        3.3
+      ],
+      [
+        "ff",
+        -40.0,
+        3.63
+      ],
+      [
+        "ff",
+        27.0,
+        2.97
+      ],
+      [
+        "ff",
+        27.0,
+        3.3
+      ],
+      [
+        "ff",
+        27.0,
+        3.63
+      ],
+      [
+        "ff",
+        125.0,
+        2.97
+      ],
+      [
+        "ff",
+        125.0,
+        3.3
+      ],
+      [
+        "ff",
+        125.0,
+        3.63
+      ],
+      [
+        "sf",
+        -40.0,
+        2.97
+      ],
+      [
+        "sf",
+        -40.0,
+        3.3
+      ],
+      [
+        "sf",
+        -40.0,
+        3.63
+      ],
+      [
+        "sf",
+        27.0,
+        2.97
+      ],
+      [
+        "sf",
+        27.0,
+        3.3
+      ],
+      [
+        "sf",
+        27.0,
+        3.63
+      ],
+      [
+        "sf",
+        125.0,
+        2.97
+      ],
+      [
+        "sf",
+        125.0,
+        3.3
+      ],
+      [
+        "sf",
+        125.0,
+        3.63
+      ],
+      [
+        "fs",
+        -40.0,
+        2.97
+      ],
+      [
+        "fs",
+        -40.0,
+        3.3
+      ],
+      [
+        "fs",
+        -40.0,
+        3.63
+      ],
+      [
+        "fs",
+        27.0,
+        2.97
+      ],
+      [
+        "fs",
+        27.0,
+        3.3
+      ],
+      [
+        "fs",
+        27.0,
+        3.63
+      ],
+      [
+        "fs",
+        125.0,
+        2.97
+      ],
+      [
+        "fs",
+        125.0,
+        3.3
+      ],
+      [
+        "fs",
+        125.0,
+        3.63
+      ]
+    ],
+    "process": [
+      "tt",
+      "ss",
+      "ff",
+      "sf",
+      "fs"
+    ],
+    "subset_reason": "",
+    "supply_v": [
+      2.97,
+      3.3,
+      3.63
+    ],
+    "temperature_c": [
+      -40.0,
+      27.0,
+      125.0
+    ]
+  },
+  "overall_blockers": [],
+  "overall_pass": false,
+  "pdk": {
+    "installed_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "lib_file": "/home/ubuntu/.ciel/sky130A/libs.tech/combined/sky130.lib.spice",
+    "matches_pin": true,
+    "pinned_commit": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "root": "/home/ubuntu/.ciel",
+    "variant": "sky130A"
+  },
+  "record_id": "20261124-153804-39a20d81",
+  "spread_checks": [
+    {
+      "measurement": "psrr_dc",
+      "min_spread": 0.5,
+      "n": 45,
+      "note": "DC rejection must move by at least 0.5 dB across the 45-point matrix. A dead-flat result would mean the corner/temperature/supply knobs are not reaching the simulator.",
+      "observed_spread": 3.8314418,
+      "pass": true,
+      "reason": ""
+    }
+  ],
+  "supersedes": "20261115-185945-d4ae166e",
+  "timestamp": "2026-11-24T15:38:04Z",
+  "tools": {
+    "klt": "klt 0.9.3.dev5396+g83764a3c6b6f",
+    "ngspice": "ngspice-47 (remote, batch fleet None; not the dispatch host's ngspice)",
+    "platform": "Linux 6.17.0-1019-aws x86_64",
+    "python": "3.12.3",
+    "xschem": "XSCHEM V3.4.7"
+  }
+}

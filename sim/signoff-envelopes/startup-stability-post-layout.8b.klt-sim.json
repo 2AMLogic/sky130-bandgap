@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "status": "pass",
-  "netlist": "sim/startup-stability-post-layout/netlist-snapshots/20261115-185945-d4ae166e.spice",
+  "netlist": "sim/startup-stability-post-layout/netlist-snapshots/20261124-154418-39a20d81.spice",
   "corner_count": 8,
   "passed": 8,
   "failed": 0,
@@ -24,8 +24,8 @@
     ],
     "recorded_from": [
       {
-        "file": "sim/startup-stability-post-layout/records/20261115-185945-d4ae166e.json",
-        "sha256": "c36ae6e9ad3786880cc0a1ecd9287e064c06f6d78a7822d247815e5f489dd067"
+        "file": "sim/startup-stability-post-layout/records/20261124-154418-39a20d81.json",
+        "sha256": "71e20d8a130264a97f197a6b1c9c054754123c3d5565151865685a2d6fa4c087"
       }
     ],
     "excluded_measurements": {
@@ -37,10 +37,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:4766bced1f447158b4dc51ee4053e2458a95fd0bec3191aa0c31ae0c3d6c0862",
+      "content_hash": "sha256:54f382a219cf3a4e5d5573a2051d43ea186e23e79d33cdd8cedc5adb41c789dc",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/startup-stability-post-layout/netlist-snapshots/20261115-185945-d4ae166e.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/startup-stability-post-layout/netlist-snapshots/20261124-154418-39a20d81.spice)"
   },
   "measurements": [
     {
@@ -67,8 +67,8 @@
       },
       "worst_case": {
         "corner_id": "ss_125c_2.97v",
-        "value": 5.818875e-09,
-        "margin": 4.818875e-09
+        "value": 2.503644e-08,
+        "margin": 2.4036440000000002e-08
       },
       "status": "pass"
     },
@@ -81,8 +81,8 @@
       },
       "worst_case": {
         "corner_id": "ss_125c_2.97v",
-        "value": 2.287903e-05,
-        "margin": 2.286903e-05
+        "value": 2.213245e-05,
+        "margin": 2.2122449999999997e-05
       },
       "status": "pass"
     },
@@ -95,8 +95,8 @@
       },
       "worst_case": {
         "corner_id": "ss_125c_2.97v",
-        "value": 0.0002834264,
-        "margin": 0.0002824264
+        "value": 0.0002500712,
+        "margin": 0.0002490712
       },
       "status": "pass"
     },
@@ -109,8 +109,8 @@
       },
       "worst_case": {
         "corner_id": "ss_125c_2.97v",
-        "value": -0.00036919,
-        "margin": 0.00036818999999999996
+        "value": -8.77064e-05,
+        "margin": 8.670640000000001e-05
       },
       "status": "pass"
     }
@@ -135,30 +135,30 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0001620554,
+          "value": 0.0001413348,
           "status": "pass",
-          "margin": 0.00016205440000000002
+          "margin": 0.0001413338
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0004918872,
+          "value": 0.0003980661,
           "status": "pass",
-          "margin": 0.0004918771999999999
+          "margin": 0.0003980561
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0005157675,
+          "value": 0.0004225506,
           "status": "pass",
-          "margin": 0.0005147675
+          "margin": 0.00042155059999999996
         },
         {
           "name": "i_on_su",
           "unit": "A",
-          "value": -0.00055075,
+          "value": -0.000100272,
           "status": "pass",
-          "margin": 0.00054975
+          "margin": 9.927200000000001e-05
         }
       ]
     },
@@ -181,30 +181,30 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0004041615,
+          "value": 0.0003364489,
           "status": "pass",
-          "margin": 0.0004041605
+          "margin": 0.0003364479
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0008936631,
+          "value": 0.0006040067,
           "status": "pass",
-          "margin": 0.0008936530999999999
+          "margin": 0.0006039967
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.001111491,
+          "value": 0.0006852528,
           "status": "pass",
-          "margin": 0.0011104910000000001
+          "margin": 0.0006842527999999999
         },
         {
           "name": "i_on_su",
           "unit": "A",
-          "value": -0.000827962,
+          "value": -0.000138572,
           "status": "pass",
-          "margin": 0.000826962
+          "margin": 0.000137572
         }
       ]
     },
@@ -227,30 +227,30 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 7.423209e-08,
+          "value": 1.710772e-07,
           "status": "pass",
-          "margin": 7.323209e-08
+          "margin": 1.700772e-07
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0001309612,
+          "value": 0.0001184546,
           "status": "pass",
-          "margin": 0.00013095120000000001
+          "margin": 0.00011844460000000001
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0005064854,
+          "value": 0.0004136901,
           "status": "pass",
-          "margin": 0.0005054854
+          "margin": 0.0004126901
         },
         {
           "name": "i_on_su",
           "unit": "A",
-          "value": -0.000402716,
+          "value": -9.29871e-05,
           "status": "pass",
-          "margin": 0.000401716
+          "margin": 9.19871e-05
         }
       ]
     },
@@ -273,30 +273,30 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 9.277416e-07,
+          "value": 1.763736e-06,
           "status": "pass",
-          "margin": 9.267416e-07
+          "margin": 1.762736e-06
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.000525618,
+          "value": 0.0004348351,
           "status": "pass",
-          "margin": 0.000525608
+          "margin": 0.0004348251
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.001093075,
+          "value": 0.0006588417,
           "status": "pass",
-          "margin": 0.001092075
+          "margin": 0.0006578417
         },
         {
           "name": "i_on_su",
           "unit": "A",
-          "value": -0.000595515,
+          "value": -0.000127453,
           "status": "pass",
-          "margin": 0.000594515
+          "margin": 0.000126453
         }
       ]
     },
@@ -319,30 +319,30 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0003063917,
+          "value": 0.0002604889,
           "status": "pass",
-          "margin": 0.0003063907
+          "margin": 0.0002604879
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0004689171,
+          "value": 0.0003880986,
           "status": "pass",
-          "margin": 0.0004689071
+          "margin": 0.0003880886
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0004767898,
+          "value": 0.0004005275,
           "status": "pass",
-          "margin": 0.00047578979999999996
+          "margin": 0.00039952749999999995
         },
         {
           "name": "i_on_su",
           "unit": "A",
-          "value": -0.000507412,
+          "value": -9.509e-05,
           "status": "pass",
-          "margin": 0.000506412
+          "margin": 9.409e-05
         }
       ]
     },
@@ -365,30 +365,30 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 0.0005015739,
+          "value": 0.0004118818,
           "status": "pass",
-          "margin": 0.0005015729
+          "margin": 0.0004118808
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0008631566,
+          "value": 0.0005998152,
           "status": "pass",
-          "margin": 0.0008631466
+          "margin": 0.0005998052
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.000891879,
+          "value": 0.0006587974,
           "status": "pass",
-          "margin": 0.000890879
+          "margin": 0.0006577973999999999
         },
         {
           "name": "i_on_su",
           "unit": "A",
-          "value": -0.000776203,
+          "value": -0.000132989,
           "status": "pass",
-          "margin": 0.000775203
+          "margin": 0.000131989
         }
       ]
     },
@@ -411,30 +411,30 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 5.818875e-09,
+          "value": 2.503644e-08,
           "status": "pass",
-          "margin": 4.818875e-09
+          "margin": 2.4036440000000002e-08
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 2.287903e-05,
+          "value": 2.213245e-05,
           "status": "pass",
-          "margin": 2.286903e-05
+          "margin": 2.2122449999999997e-05
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0002834264,
+          "value": 0.0002500712,
           "status": "pass",
-          "margin": 0.0002824264
+          "margin": 0.0002490712
         },
         {
           "name": "i_on_su",
           "unit": "A",
-          "value": -0.00036919,
+          "value": -8.77064e-05,
           "status": "pass",
-          "margin": 0.00036818999999999996
+          "margin": 8.670640000000001e-05
         }
       ]
     },
@@ -457,30 +457,30 @@
         {
           "name": "itrav_min",
           "unit": "A",
-          "value": 2.766732e-07,
+          "value": 6.042554e-07,
           "status": "pass",
-          "margin": 2.756732e-07
+          "margin": 6.032554e-07
         },
         {
           "name": "imin_off_su",
           "unit": "A",
-          "value": 0.0003239811,
+          "value": 0.0002850018,
           "status": "pass",
-          "margin": 0.0003239711
+          "margin": 0.0002849918
         },
         {
           "name": "i_off_su",
           "unit": "A",
-          "value": 0.0008135027,
+          "value": 0.0006128861,
           "status": "pass",
-          "margin": 0.0008125027
+          "margin": 0.0006118861
         },
         {
           "name": "i_on_su",
           "unit": "A",
-          "value": -0.000554765,
+          "value": -0.000121677,
           "status": "pass",
-          "margin": 0.000553765
+          "margin": 0.000120677
         }
       ]
     }

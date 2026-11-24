@@ -7,6 +7,27 @@ DRC-clean / LVS-matching `layout/bandgap-core/` GDS, via
 Records here are append-only and are **new** evidence — they neither
 overwrite nor retire `sim/output-voltage-tc/`'s schematic-level records.
 
+## Standing result on the thick-oxide layout record (issue #621)
+
+Record [`records/20261124-152508-39a20d81`](records/20261124-152508-39a20d81.md)
+(supersedes `20261120-230509-7d59542`) — measured on layout record
+`20261121-082021-3f43042b` (#620's thick-oxide GDS, store-backed, resolved through
+its artifact manifest; PDK-bound parasitics snapshot shared with the other six
+benches, pex spice sha256 `b4e37d42…`). **Overall: FAIL 15/15.** `vref_27`
+2.603–3.504 V and `vref_min` 2.578–3.465 V — both above the 1.224 V ceiling at
+every corner, tracking the supply instead of regulating; box TC 54.1–189.6
+ppm/°C, also failing at every corner.
+
+The dominant cause is the record's incomplete VDD routing, not the oxide
+geometry: its `bus-summary.json` states `VDD` has 2 drawn components (the
+inter-block table marks VDD `routed: NO`), and the extraction strands
+`amp_pmirr` n-well/gate fingers and 11/16 `amp_cc` VDD-spine fingers on
+floating islands, so the error amplifier cannot regulate. A DC repair probe
+(islands tied to VDD) moves `vref_27` 3.06 → 1.00 V at tt/27 °C/3.30 V,
+confirming causality. The layout-side fix is tracked in #669; the
+flavour gate on this snapshot is clean (19 nfet + 54 pfet
+`g5v0d10v5` wrappers, matching the record's `flavour.json`).
+
 ## Record index
 
 This index is **not exhaustive** — it stops at `20260817-020357-13476b7`

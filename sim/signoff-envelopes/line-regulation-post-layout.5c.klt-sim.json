@@ -1,15 +1,15 @@
 {
   "schema_version": 3,
-  "status": "pass",
-  "netlist": "sim/line-regulation-post-layout/netlist-snapshots/20261115-185945-d4ae166e.spice",
+  "status": "fail",
+  "netlist": "sim/line-regulation-post-layout/netlist-snapshots/20261124-153508-39a20d81.spice",
   "corner_count": 15,
-  "passed": 15,
-  "failed": 0,
+  "passed": 0,
+  "failed": 15,
   "errored": 0,
   "metrics": {
     "sim__corner__count": 15,
-    "sim__corner__passed_count": 15,
-    "sim__corner__failed_count": 0,
+    "sim__corner__passed_count": 0,
+    "sim__corner__failed_count": 15,
     "sim__corner__errored_count": 0
   },
   "coverage": {
@@ -24,8 +24,8 @@
     ],
     "recorded_from": [
       {
-        "file": "sim/line-regulation-post-layout/records/20261115-185945-d4ae166e.json",
-        "sha256": "83077877aa54e54882ec3b0db25de73db51608ac004f8d30da53468d5bba2aa1"
+        "file": "sim/line-regulation-post-layout/records/20261124-153508-39a20d81.json",
+        "sha256": "5e5cd943aede79a38e25367426d9c74b2fac792490b1cefe6c3eeba68ad8b922"
       }
     ],
     "excluded_measurements": {
@@ -37,10 +37,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:3bae69305846e215368051e5065279e78000b1eed32df96cd25245382472be7b",
+      "content_hash": "sha256:db76d019b9a31ede6c83d3e00efa2dcc16fbccc4ace3ea74127e31a6313d5806",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/line-regulation-post-layout/netlist-snapshots/20261115-185945-d4ae166e.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/line-regulation-post-layout/netlist-snapshots/20261124-153508-39a20d81.spice)"
   },
   "measurements": [
     {
@@ -51,11 +51,11 @@
         "max": 48.0
       },
       "worst_case": {
-        "corner_id": "ff_125c_3.30v",
-        "value": 14.04002,
-        "margin": 33.95998
+        "corner_id": "ss_125c_3.30v",
+        "value": 738.6263,
+        "margin": -690.6263
       },
-      "status": "pass"
+      "status": "fail"
     },
     {
       "name": "sweep_start_v",
@@ -96,14 +96,14 @@
         "vdd": 3.3
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 0.321829,
-          "status": "pass",
-          "margin": 47.678171
+          "value": 690.7792,
+          "status": "fail",
+          "margin": -642.7792
         },
         {
           "name": "sweep_start_v",
@@ -128,14 +128,14 @@
         "vdd": 3.3
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 0.2731951,
-          "status": "pass",
-          "margin": 47.7268049
+          "value": 672.0621,
+          "status": "fail",
+          "margin": -624.0621
         },
         {
           "name": "sweep_start_v",
@@ -160,14 +160,14 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 3.248132,
-          "status": "pass",
-          "margin": 44.751868
+          "value": 726.7822,
+          "status": "fail",
+          "margin": -678.7822
         },
         {
           "name": "sweep_start_v",
@@ -192,14 +192,14 @@
         "vdd": 3.3
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 0.1206871,
-          "status": "pass",
-          "margin": 47.8793129
+          "value": 684.1811,
+          "status": "fail",
+          "margin": -636.1811
         },
         {
           "name": "sweep_start_v",
@@ -224,14 +224,14 @@
         "vdd": 3.3
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 0.1254588,
-          "status": "pass",
-          "margin": 47.8745412
+          "value": 666.9868,
+          "status": "fail",
+          "margin": -618.9868
         },
         {
           "name": "sweep_start_v",
@@ -256,14 +256,14 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 0.5557728,
-          "status": "pass",
-          "margin": 47.4442272
+          "value": 738.6263,
+          "status": "fail",
+          "margin": -690.6263
         },
         {
           "name": "sweep_start_v",
@@ -288,14 +288,14 @@
         "vdd": 3.3
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 1.064355,
-          "status": "pass",
-          "margin": 46.935645
+          "value": 695.2441,
+          "status": "fail",
+          "margin": -647.2441
         },
         {
           "name": "sweep_start_v",
@@ -320,14 +320,14 @@
         "vdd": 3.3
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 1.006784,
-          "status": "pass",
-          "margin": 46.993216
+          "value": 675.059,
+          "status": "fail",
+          "margin": -627.059
         },
         {
           "name": "sweep_start_v",
@@ -352,14 +352,14 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 14.04002,
-          "status": "pass",
-          "margin": 33.95998
+          "value": 695.9577,
+          "status": "fail",
+          "margin": -647.9577
         },
         {
           "name": "sweep_start_v",
@@ -384,14 +384,14 @@
         "vdd": 3.3
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 3.58818,
-          "status": "pass",
-          "margin": 44.41182
+          "value": 721.3909,
+          "status": "fail",
+          "margin": -673.3909
         },
         {
           "name": "sweep_start_v",
@@ -416,14 +416,14 @@
         "vdd": 3.3
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 1.707125,
-          "status": "pass",
-          "margin": 46.292875
+          "value": 705.4191,
+          "status": "fail",
+          "margin": -657.4191
         },
         {
           "name": "sweep_start_v",
@@ -448,14 +448,14 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 0.7144038,
-          "status": "pass",
-          "margin": 47.2855962
+          "value": 685.3873,
+          "status": "fail",
+          "margin": -637.3873
         },
         {
           "name": "sweep_start_v",
@@ -480,14 +480,14 @@
         "vdd": 3.3
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 0.05915937,
-          "status": "pass",
-          "margin": 47.94084063
+          "value": 654.6985,
+          "status": "fail",
+          "margin": -606.6985
         },
         {
           "name": "sweep_start_v",
@@ -512,14 +512,14 @@
         "vdd": 3.3
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 0.1501765,
-          "status": "pass",
-          "margin": 47.8498235
+          "value": 687.7753,
+          "status": "fail",
+          "margin": -639.7753
         },
         {
           "name": "sweep_start_v",
@@ -544,14 +544,14 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "line_shift_mv",
           "unit": "mV",
-          "value": 3.122241,
-          "status": "pass",
-          "margin": 44.877759
+          "value": 657.3031,
+          "status": "fail",
+          "margin": -609.3031
         },
         {
           "name": "sweep_start_v",

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Post-layout (extracted-netlist) degenerate-state / single-equilibrium claim
-for the COMPOSED bandgap-core layout cell -- the routed, LVS-clean layout of
+for the COMPOSED bandgap-core layout cell -- the routed layout of
 issue #62 as it stands since issue #285 drew `design/startup_injector.sch`
 into it. Sibling of `sim/startup-ramp-post-layout/`; schematic-level
 counterpart is `sim/startup-stability/` (report row 8a).
@@ -123,6 +123,9 @@ SUBSET_REASON = (
 def run(argv: list[str]) -> int:
     # The DUT this bench claims to measure is the COMPOSED cell. Refuse rather
     # than silently measure an unprotected core against these bounds (#299).
+    # Parse first so `--help` / a bad flag never needs the store-backed layout
+    # record (the guard below resolves it); the runner re-parses the same argv.
+    plc.parse_post_layout_args(argv)
     plc.require_layout_draws_injector(SLUG)
     return plc.run_post_layout_experiment(
         cr,

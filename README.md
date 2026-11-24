@@ -8,9 +8,15 @@ xschem + ngspice analog flow.
 ![fleet burndown](https://raw.githubusercontent.com/2AMLogic/2am/main/fleet-metrics/charts/sky130-bandgap.svg)
 
 **Status: active development, not spec-conformant.** Bandgap-core layout is
-DRC-clean, fully routed, and `klt lvs` reports **`mismatch_count: 0`** (22/22
-devices matched; the composed cell is 70,360 µm², inside the `< 0.08 mm²`
-budget of [DR-007](spec/decision-records/DR-007-mcc-area-budget.md)). Nothing
+DRC/HV/ERC-clean on the thick-oxide corrected record
+(`layout/bandgap-core/reports/20261121-082021-3f43042b`, issue #620; the
+composed cell is 75,481 µm², inside the `< 0.08 mm²`
+budget of [DR-007](spec/decision-records/DR-007-mcc-area-budget.md)), and
+`klt lvs` reports **`mismatch_count: 5`** on it — with the VDD trunk still
+unrouted (2 drawn components), so the extracted cell does not regulate: the
+seven post-layout benches re-run on that record (2026-11-24) all FAIL with
+`vref` tracking the supply. The connectivity fix is tracked in
+[#669](https://github.com/2AMLogic/sky130-bandgap/issues/669). Nothing
 here has been taped out or measured in silicon. Ladder: simulation-complete →
 layout DRC/LVS-clean → shuttle seat → measured silicon over temperature;
 current position is mid-ladder, a **layout-complete** block with disclosed
@@ -22,14 +28,14 @@ entry is authoritative for its own claim.
 
 | Spec row | Verdict | Where |
 |---|---|---|
-| Output reference, ±2% untrimmed | Schematic **PASS 45/45**; mismatch MC graded on three separate layers — evidence **present**, ≥50% harness sanity floor **PASS** (79–96% yield inside the window, N=300 requested), **DR-005 3σ spec FAIL** (mean±3σ falls outside [1.176, 1.224] V at all three temperatures; −40 °C has only 238 converged draws; `tt_mm` is local-mismatch only, no joint process×mismatch evidence; see `sim/monte-carlo-untrimmed/records/20260817-121131-d7d85b6-dr005-qualification.md`); post-layout **FAIL 15/15** (`vref_min` 1.1535–1.1685 V, below the 1.176 V floor at every corner; measured 2026-11-14 on an extraction at the ratified `klayout-tools==0.8.0` pin, which **carries** klayout-tools#2359's fix — so that long-standing attribution is **refuted**, and the residual tracks the extractor's default lumped-star `VSS` return allocation (klayout-tools#2458, opt-in fix) rather than a confirmed design defect; a distributed/in-path model is issue #541) | report rows 1a–1c |
+| Output reference, ±2% untrimmed | Schematic **PASS 45/45**; mismatch MC graded on three separate layers — evidence **present**, ≥50% harness sanity floor **PASS** (79–96% yield inside the window, N=300 requested), **DR-005 3σ spec FAIL** (mean±3σ falls outside [1.176, 1.224] V at all three temperatures; −40 °C has only 238 converged draws; `tt_mm` is local-mismatch only, no joint process×mismatch evidence; see `sim/monte-carlo-untrimmed/records/20260817-121131-d7d85b6-dr005-qualification.md`); post-layout **FAIL 15/15** on the thick-oxide record (`vref` 2.578–3.505 V tracks the supply at every corner; measured 2026-11-24, `sim/output-voltage-tc-post-layout/records/20261124-152508-39a20d81.md` — dominated by the record's unrouted VDD split, see #669, not by the oxide geometry; a DC repair probe of the split islands moves `vref_27` 3.06 → 1.00 V) | report rows 1a–1c |
 | Trim | Two layers, graded separately. **DR-002 engineering checks: PASS** (schematic-level, 15/15 corners) — monotonic, downward span 38.46–38.75 mV, LSB 2.404–2.422 mV/code (≤ 3.000), re-derived at the current `n_r2=51` design. **DR-005 ratified-spec qualification: FAIL** — range ≥ ±5% not demonstrated (0 mV up, 38.46–38.75 mV = 3.2% down, vs 60 mV each way; DR-002 certifies downward trim only), ≥ 5-bit coverage not demonstrated (17 codes = 4.09 bits); resolution ≤ 0.25%/step passes (0.2025%). The "magnitude only" wording is undefined in DR-005 (narrow operator question disclosed, range not waived). A post-layout extracted-chain trim check is not yet done | report row 2; `sim/trim-lsb-chained/records/20261008-163545-ffa415c-dr005-qualification.md` |
-| Temp coefficient, `< 50 ppm/°C` | **FAIL at every corner** — 142–159 ppm/°C schematic, 136.5–212.0 ppm/°C post-layout; disposition (keep the row, disclose the FAIL, defer curvature correction) in [DR-009](spec/decision-records/DR-009-tc-floor-disposition-defer-curvature-correction.md) | report rows 3a–3b |
-| PSRR, `> 60 dB` DC–1 kHz | Schematic **PASS 45/45**; post-layout **FAIL 25/45** since the startup injector was drawn in (worst 22.75 dB); resize cannot fix it, [DR-011](spec/decision-records/DR-011-startup-injector-psrr-fix-infeasible-by-resize.md), issues #300/#315 | report rows 4a–4f |
-| Supply, 3.3 V ±10% | **PASS** (operability; line regulation PASS, post-layout margin eroded by the injector) | report rows 5–5c |
-| Iq, `< 50 µA` | **PASS 45/45** schematic and post-layout (the `< 20 µA` stretch is not met) | report rows 6a–6c |
-| Area, `< 0.08 mm²` | **PASS** (70,360 µm²) | report row 7 |
-| Startup, self-starting `< 1 ms` | **MIXED** — self-starting **PASS** (schematic 45/45, post-layout 8/8); the ratified `t_start < 1 ms` measurement passes everywhere, but the startup-ramp `vref` spread check **FAILS 13/45** schematic and post-layout ([DR-010](spec/decision-records/DR-010-startup-ramp-vref-spread-settling-tail.md)); the bare-core startup-time bench fails by construction | report rows 8a–8e |
+| Temp coefficient, `< 50 ppm/°C` | **FAIL at every corner** — 142–159 ppm/°C schematic; post-layout 136.5–212.0 ppm/°C on the pre-thick-oxide record, and 54–190 ppm/°C on the 2026-11-24 thick-oxide re-run (a supply-tracking output, not a regulation — see #669); disposition (keep the row, disclose the FAIL, defer curvature correction) in [DR-009](spec/decision-records/DR-009-tc-floor-disposition-defer-curvature-correction.md) | report rows 3a–3b |
+| PSRR, `> 60 dB` DC–1 kHz | Schematic **PASS 45/45**; post-layout **FAIL 25/45** on the pre-thick-oxide record since the startup injector was drawn in (worst 22.75 dB; resize cannot fix it, [DR-011](spec/decision-records/DR-011-startup-injector-psrr-fix-infeasible-by-resize.md), issues #300/#315), and **FAIL 45/45** on the 2026-11-24 thick-oxide re-run (`psrr_dc` −3.6…+0.3 dB; the unregulated output leaves no rejection — see #669) | report rows 4a–4f |
+| Supply, 3.3 V ±10% | **PASS** (operability; line regulation PASS schematic, FAIL 15/15 post-layout on the 2026-11-24 thick-oxide re-run — 31–38 %/V with the output tracking the supply, see #669) | report rows 5–5c |
+| Iq, `< 50 µA` | **PASS 45/45** schematic; post-layout **FAIL 45/45** on the 2026-11-24 thick-oxide re-run (52–309 µA, scaling with the supply the unregulated core rides — see #669) | report rows 6a–6c |
+| Area, `< 0.08 mm²` | **PASS** (75,481 µm² at the thick-oxide record `20261121-082021-3f43042b`) | report row 7 |
+| Startup, self-starting `< 1 ms` | **MIXED** — self-starting **PASS** (schematic 45/45, post-layout 8/8 on the pre-thick-oxide record); the ratified `t_start < 1 ms` measurement passes everywhere, but the startup-ramp `vref` spread check **FAILS 13/45** schematic and post-layout ([DR-010](spec/decision-records/DR-010-startup-ramp-vref-spread-settling-tail.md)); the bare-core startup-time bench fails by construction; the 2026-11-24 thick-oxide re-run **FAILs all three startup benches** (the output rides the supply ramp — the numbers do not characterize a working reference; see #669) | report rows 8a–8e |
 
 LVS determinism, the `combine_devices` resistor accounting, the `MCC` cap and
 the pinned `klt` build are explained in

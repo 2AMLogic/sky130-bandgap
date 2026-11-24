@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Post-layout (extracted-netlist) re-run of `sim/psrr-dc`'s power-supply
-rejection ratio claim, against the routed, LVS-clean bandgap-core layout
+rejection ratio claim, against the routed bandgap-core layout
 (issue #62) instead of `design/bandgap_core.sch` (issue #16).
 
 Third increment of issue #16's post-layout suite, after
@@ -63,7 +63,9 @@ WRAPPED_SCHEMATIC = "sim/psrr-dc/testbench/tb_vref_psrr.sch"
 
 CLAIM_TAIL = (
     "Measures the AC supply-to-VREF transfer function (1 V AC magnitude on the supply, "
-    "PSRR = -db(v(vref))) of the ROUTED, LVS-clean bandgap-core layout (issue #62) -- now "
+    "PSRR = -db(v(vref))) of the ROUTED bandgap-core layout (issue #62, thick-oxide "
+    "geometry per issue #620; its LVS verdict is cited under 'Netlist provenance', "
+    "not asserted here) -- now "
     "including the drawn VDD/VSS routing's own series R/C parasitics directly in the signal "
     "path under test -- open-circuit at VREF, over the full 45-point PVT matrix, via "
     "klt extract --parasitics translated to a simulatable netlist "

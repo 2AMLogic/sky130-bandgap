@@ -1,15 +1,15 @@
 {
   "schema_version": 3,
   "status": "fail",
-  "netlist": "sim/psrr-dc-post-layout/netlist-snapshots/20261115-185945-d4ae166e.spice",
+  "netlist": "sim/psrr-dc-post-layout/netlist-snapshots/20261124-153804-39a20d81.spice",
   "corner_count": 45,
-  "passed": 23,
-  "failed": 22,
+  "passed": 0,
+  "failed": 45,
   "errored": 0,
   "metrics": {
     "sim__corner__count": 45,
-    "sim__corner__passed_count": 23,
-    "sim__corner__failed_count": 22,
+    "sim__corner__passed_count": 0,
+    "sim__corner__failed_count": 45,
     "sim__corner__errored_count": 0
   },
   "coverage": {
@@ -24,8 +24,8 @@
     ],
     "recorded_from": [
       {
-        "file": "sim/psrr-dc-post-layout/records/20261115-185945-d4ae166e.json",
-        "sha256": "b878601ca44d95bc618fb879b47d8b4f9ee81b76312210c3bee306a1a6d6e51a"
+        "file": "sim/psrr-dc-post-layout/records/20261124-153804-39a20d81.json",
+        "sha256": "77620b1e528cda48802158a4bf0455da882d9da3b10b688dc4f7f7039a178b04"
       }
     ],
     "excluded_measurements": {
@@ -38,10 +38,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:69f253b694370568576428bd1bb37658b5128996a606f0dca8011ccafd81bea3",
+      "content_hash": "sha256:113350fc466b9adef81db3573d6db777140409af9e0d7160fb1fcc5bd44120a9",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/psrr-dc-post-layout/netlist-snapshots/20261115-185945-d4ae166e.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/psrr-dc-post-layout/netlist-snapshots/20261124-153804-39a20d81.spice)"
   },
   "measurements": [
     {
@@ -52,9 +52,9 @@
         "min": 60.0
       },
       "worst_case": {
-        "corner_id": "ff_125c_3.63v",
-        "value": 24.43586,
-        "margin": -35.564139999999995
+        "corner_id": "ss_125c_3.30v",
+        "value": -3.56417,
+        "margin": -63.56417
       },
       "status": "fail"
     },
@@ -66,9 +66,9 @@
         "min": 60.0
       },
       "worst_case": {
-        "corner_id": "ff_125c_3.63v",
-        "value": 24.43712,
-        "margin": -35.56288
+        "corner_id": "ss_125c_3.30v",
+        "value": -3.55135,
+        "margin": -63.55135
       },
       "status": "fail"
     },
@@ -80,9 +80,9 @@
         "min": 60.0
       },
       "worst_case": {
-        "corner_id": "ff_125c_3.63v",
-        "value": 24.43586,
-        "margin": -35.564139999999995
+        "corner_id": "ss_125c_3.30v",
+        "value": -3.56417,
+        "margin": -63.56417
       },
       "status": "fail"
     }
@@ -95,28 +95,28 @@
         "vdd": 2.97
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 68.61052,
-          "status": "pass",
-          "margin": 8.610519999999994
+          "value": 0.1815504,
+          "status": "fail",
+          "margin": -59.8184496
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 65.04477,
-          "status": "pass",
-          "margin": 5.04477
+          "value": 0.1799205,
+          "status": "fail",
+          "margin": -59.8200795
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 65.04477,
-          "status": "pass",
-          "margin": 5.04477
+          "value": 0.1799198,
+          "status": "fail",
+          "margin": -59.8200802
         }
       ]
     },
@@ -127,28 +127,28 @@
         "vdd": 3.3
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 66.18289,
-          "status": "pass",
-          "margin": 6.18289
+          "value": -0.645679,
+          "status": "fail",
+          "margin": -60.645679
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 61.16785,
-          "status": "pass",
-          "margin": 1.1678500000000014
+          "value": -0.64796,
+          "status": "fail",
+          "margin": -60.64796
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 61.16785,
-          "status": "pass",
-          "margin": 1.1678500000000014
+          "value": -0.647964,
+          "status": "fail",
+          "margin": -60.647964
         }
       ]
     },
@@ -164,23 +164,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 64.57549,
-          "status": "pass",
-          "margin": 4.575490000000002
+          "value": -0.538542,
+          "status": "fail",
+          "margin": -60.538542
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 57.69072,
+          "value": -0.539907,
           "status": "fail",
-          "margin": -2.309280000000001
+          "margin": -60.539907
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 57.5528,
+          "value": -0.539907,
           "status": "fail",
-          "margin": -2.4472000000000023
+          "margin": -60.539907
         }
       ]
     },
@@ -191,28 +191,28 @@
         "vdd": 2.97
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 69.73904,
-          "status": "pass",
-          "margin": 9.739040000000003
+          "value": 0.2128046,
+          "status": "fail",
+          "margin": -59.7871954
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 62.15711,
-          "status": "pass",
-          "margin": 2.157110000000003
+          "value": 0.2107161,
+          "status": "fail",
+          "margin": -59.7892839
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 62.15711,
-          "status": "pass",
-          "margin": 2.157110000000003
+          "value": 0.2107161,
+          "status": "fail",
+          "margin": -59.7892839
         }
       ]
     },
@@ -223,28 +223,28 @@
         "vdd": 3.3
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 67.99485,
-          "status": "pass",
-          "margin": 7.99485
+          "value": -0.243078,
+          "status": "fail",
+          "margin": -60.243078
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 60.08239,
-          "status": "pass",
-          "margin": 0.08238999999999663
+          "value": -0.244863,
+          "status": "fail",
+          "margin": -60.244863
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 60.07815,
-          "status": "pass",
-          "margin": 0.07815000000000083
+          "value": -0.244863,
+          "status": "fail",
+          "margin": -60.244863
         }
       ]
     },
@@ -260,23 +260,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 63.46051,
-          "status": "pass",
-          "margin": 3.4605099999999993
+          "value": -0.273235,
+          "status": "fail",
+          "margin": -60.273235
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 57.94993,
+          "value": -0.274601,
           "status": "fail",
-          "margin": -2.050069999999998
+          "margin": -60.274601
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 57.87161,
+          "value": -0.274601,
           "status": "fail",
-          "margin": -2.128390000000003
+          "margin": -60.274601
         }
       ]
     },
@@ -287,28 +287,28 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 82.46154,
-          "status": "pass",
-          "margin": 22.46154
+          "value": -0.379321,
+          "status": "fail",
+          "margin": -60.379321
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 70.92711,
-          "status": "pass",
-          "margin": 10.927109999999999
+          "value": -0.378983,
+          "status": "fail",
+          "margin": -60.378983
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 70.92711,
-          "status": "pass",
-          "margin": 10.927109999999999
+          "value": -0.379321,
+          "status": "fail",
+          "margin": -60.379321
         }
       ]
     },
@@ -324,23 +324,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 59.39378,
+          "value": -0.682983,
           "status": "fail",
-          "margin": -0.6062200000000004
+          "margin": -60.682983
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 59.10372,
+          "value": -0.682813,
           "status": "fail",
-          "margin": -0.8962799999999973
+          "margin": -60.682813
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 59.10372,
+          "value": -0.682983,
           "status": "fail",
-          "margin": -0.8962799999999973
+          "margin": -60.682983
         }
       ]
     },
@@ -356,23 +356,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 32.81745,
+          "value": -0.08215,
           "status": "fail",
-          "margin": -27.18255
+          "margin": -60.08215
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 32.83616,
+          "value": -0.0821412,
           "status": "fail",
-          "margin": -27.16384
+          "margin": -60.0821412
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 32.81745,
+          "value": -0.08215,
           "status": "fail",
-          "margin": -27.18255
+          "margin": -60.08215
         }
       ]
     },
@@ -383,28 +383,28 @@
         "vdd": 2.97
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 78.01776,
-          "status": "pass",
-          "margin": 18.017759999999996
+          "value": 0.1642561,
+          "status": "fail",
+          "margin": -59.8357439
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 70.85921,
-          "status": "pass",
-          "margin": 10.859210000000004
+          "value": 0.1637574,
+          "status": "fail",
+          "margin": -59.8362426
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 70.85921,
-          "status": "pass",
-          "margin": 10.859210000000004
+          "value": 0.1637574,
+          "status": "fail",
+          "margin": -59.8362426
         }
       ]
     },
@@ -415,28 +415,28 @@
         "vdd": 3.3
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 74.79881,
-          "status": "pass",
-          "margin": 14.798810000000003
+          "value": -0.374789,
+          "status": "fail",
+          "margin": -60.374789
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 69.47374,
-          "status": "pass",
-          "margin": 9.473740000000006
+          "value": -0.37574,
+          "status": "fail",
+          "margin": -60.37574
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 69.47374,
-          "status": "pass",
-          "margin": 9.473740000000006
+          "value": -0.37576,
+          "status": "fail",
+          "margin": -60.37576
         }
       ]
     },
@@ -447,28 +447,28 @@
         "vdd": 3.63
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 72.28084,
-          "status": "pass",
-          "margin": 12.280839999999998
+          "value": -0.662718,
+          "status": "fail",
+          "margin": -60.662718
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 66.59422,
-          "status": "pass",
-          "margin": 6.594220000000007
+          "value": -0.663216,
+          "status": "fail",
+          "margin": -60.663216
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 66.59422,
-          "status": "pass",
-          "margin": 6.594220000000007
+          "value": -0.66322,
+          "status": "fail",
+          "margin": -60.66322
         }
       ]
     },
@@ -479,28 +479,28 @@
         "vdd": 2.97
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 78.11788,
-          "status": "pass",
-          "margin": 18.11788
+          "value": 0.2672718,
+          "status": "fail",
+          "margin": -59.7327282
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 69.54898,
-          "status": "pass",
-          "margin": 9.54898
+          "value": 0.2664631,
+          "status": "fail",
+          "margin": -59.7335369
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 69.54898,
-          "status": "pass",
-          "margin": 9.54898
+          "value": 0.2664598,
+          "status": "fail",
+          "margin": -59.7335402
         }
       ]
     },
@@ -511,28 +511,28 @@
         "vdd": 3.3
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 74.52732,
-          "status": "pass",
-          "margin": 14.527320000000003
+          "value": -0.167264,
+          "status": "fail",
+          "margin": -60.167264
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 67.71807,
-          "status": "pass",
-          "margin": 7.718069999999997
+          "value": -0.168071,
+          "status": "fail",
+          "margin": -60.168071
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 67.71807,
-          "status": "pass",
-          "margin": 7.718069999999997
+          "value": -0.168075,
+          "status": "fail",
+          "margin": -60.168075
         }
       ]
     },
@@ -543,28 +543,28 @@
         "vdd": 3.63
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 71.44877,
-          "status": "pass",
-          "margin": 11.448769999999996
+          "value": -0.314564,
+          "status": "fail",
+          "margin": -60.314564
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 65.34613,
-          "status": "pass",
-          "margin": 5.346130000000002
+          "value": -0.315149,
+          "status": "fail",
+          "margin": -60.315149
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 65.11269,
-          "status": "pass",
-          "margin": 5.112690000000001
+          "value": -0.315151,
+          "status": "fail",
+          "margin": -60.315151
         }
       ]
     },
@@ -575,28 +575,28 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 102.6756,
-          "status": "pass",
-          "margin": 42.6756
+          "value": 0.03780761,
+          "status": "fail",
+          "margin": -59.96219239
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 78.61025,
-          "status": "pass",
-          "margin": 18.610249999999994
+          "value": 0.03789966,
+          "status": "fail",
+          "margin": -59.96210034
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 78.61025,
-          "status": "pass",
-          "margin": 18.610249999999994
+          "value": 0.03780761,
+          "status": "fail",
+          "margin": -59.96219239
         }
       ]
     },
@@ -607,28 +607,28 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 70.3131,
-          "status": "pass",
-          "margin": 10.313100000000006
+          "value": -3.56417,
+          "status": "fail",
+          "margin": -63.56417
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 70.21942,
-          "status": "pass",
-          "margin": 10.21942
+          "value": -3.55135,
+          "status": "fail",
+          "margin": -63.55135
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 70.21942,
-          "status": "pass",
-          "margin": 10.21942
+          "value": -3.56417,
+          "status": "fail",
+          "margin": -63.56417
         }
       ]
     },
@@ -644,23 +644,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 44.77134,
+          "value": -0.234293,
           "status": "fail",
-          "margin": -15.228659999999998
+          "margin": -60.234293
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 44.9092,
+          "value": -0.234267,
           "status": "fail",
-          "margin": -15.090800000000002
+          "margin": -60.234267
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 44.77134,
+          "value": -0.234293,
           "status": "fail",
-          "margin": -15.228659999999998
+          "margin": -60.234293
         }
       ]
     },
@@ -676,23 +676,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 58.11777,
+          "value": 0.1120368,
           "status": "fail",
-          "margin": -1.8822299999999998
+          "margin": -59.8879632
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 56.75733,
+          "value": 0.1061814,
           "status": "fail",
-          "margin": -3.242669999999997
+          "margin": -59.8938186
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 56.15412,
+          "value": 0.1061814,
           "status": "fail",
-          "margin": -3.845880000000001
+          "margin": -59.8938186
         }
       ]
     },
@@ -708,23 +708,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 55.77953,
+          "value": -0.629488,
           "status": "fail",
-          "margin": -4.220469999999999
+          "margin": -60.629488
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 51.2028,
+          "value": -0.635024,
           "status": "fail",
-          "margin": -8.797199999999997
+          "margin": -60.635024
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 50.57546,
+          "value": -0.635024,
           "status": "fail",
-          "margin": -9.42454
+          "margin": -60.635024
         }
       ]
     },
@@ -740,23 +740,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 54.30097,
+          "value": -0.434738,
           "status": "fail",
-          "margin": -5.6990300000000005
+          "margin": -60.434738
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 47.24095,
+          "value": -0.438694,
           "status": "fail",
-          "margin": -12.759050000000002
+          "margin": -60.438694
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 46.78822,
+          "value": -0.438694,
           "status": "fail",
-          "margin": -13.211779999999997
+          "margin": -60.438694
         }
       ]
     },
@@ -772,23 +772,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 61.19958,
-          "status": "pass",
-          "margin": 1.1995799999999974
+          "value": 0.06613632,
+          "status": "fail",
+          "margin": -59.93386368
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 54.24543,
+          "value": 0.06104596,
           "status": "fail",
-          "margin": -5.754570000000001
+          "margin": -59.93895404
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 53.70588,
+          "value": 0.06104596,
           "status": "fail",
-          "margin": -6.2941199999999995
+          "margin": -59.93895404
         }
       ]
     },
@@ -804,23 +804,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 59.75098,
+          "value": -0.250917,
           "status": "fail",
-          "margin": -0.24902000000000157
+          "margin": -60.250917
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 51.85845,
+          "value": -0.254944,
           "status": "fail",
-          "margin": -8.141550000000002
+          "margin": -60.254944
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 51.42634,
+          "value": -0.254944,
           "status": "fail",
-          "margin": -8.573659999999997
+          "margin": -60.254944
         }
       ]
     },
@@ -836,23 +836,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 44.6947,
+          "value": -0.233715,
           "status": "fail",
-          "margin": -15.305300000000003
+          "margin": -60.233715
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 48.03943,
+          "value": -0.236988,
           "status": "fail",
-          "margin": -11.960569999999997
+          "margin": -60.236988
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 44.6947,
+          "value": -0.236988,
           "status": "fail",
-          "margin": -15.305300000000003
+          "margin": -60.236988
         }
       ]
     },
@@ -863,28 +863,28 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 67.85066,
-          "status": "pass",
-          "margin": 7.850660000000005
+          "value": -1.49992,
+          "status": "fail",
+          "margin": -61.49992
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 66.25957,
-          "status": "pass",
-          "margin": 6.2595699999999965
+          "value": -1.49871,
+          "status": "fail",
+          "margin": -61.49871
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 66.25957,
-          "status": "pass",
-          "margin": 6.2595699999999965
+          "value": -1.49992,
+          "status": "fail",
+          "margin": -61.49992
         }
       ]
     },
@@ -900,23 +900,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 39.11173,
+          "value": -0.298759,
           "status": "fail",
-          "margin": -20.88827
+          "margin": -60.298759
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 39.19437,
+          "value": -0.298723,
           "status": "fail",
-          "margin": -20.80563
+          "margin": -60.298723
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 39.11173,
+          "value": -0.298759,
           "status": "fail",
-          "margin": -20.88827
+          "margin": -60.298759
         }
       ]
     },
@@ -932,23 +932,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 24.43586,
+          "value": -0.0102513,
           "status": "fail",
-          "margin": -35.564139999999995
+          "margin": -60.0102513
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 24.43712,
+          "value": -0.010247,
           "status": "fail",
-          "margin": -35.56288
+          "margin": -60.010247
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 24.43586,
+          "value": -0.0102513,
           "status": "fail",
-          "margin": -35.564139999999995
+          "margin": -60.0102513
         }
       ]
     },
@@ -964,23 +964,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 47.75564,
+          "value": 0.06278332,
           "status": "fail",
-          "margin": -12.24436
+          "margin": -59.93721668
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 47.52828,
+          "value": 0.03704548,
           "status": "fail",
-          "margin": -12.471719999999998
+          "margin": -59.96295452
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 46.28564,
+          "value": 0.03704548,
           "status": "fail",
-          "margin": -13.71436
+          "margin": -59.96295452
         }
       ]
     },
@@ -996,23 +996,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 45.18057,
+          "value": -0.523996,
           "status": "fail",
-          "margin": -14.819429999999997
+          "margin": -60.523996
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 41.1152,
+          "value": -0.602267,
           "status": "fail",
-          "margin": -18.8848
+          "margin": -60.602267
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 40.19419,
+          "value": -0.602267,
           "status": "fail",
-          "margin": -19.80581
+          "margin": -60.602267
         }
       ]
     },
@@ -1028,23 +1028,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 43.77051,
+          "value": -1.59241,
           "status": "fail",
-          "margin": -16.22949
+          "margin": -61.59241
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 36.78822,
+          "value": -1.6383,
           "status": "fail",
-          "margin": -23.211779999999997
+          "margin": -61.6383
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 36.1683,
+          "value": -1.6383,
           "status": "fail",
-          "margin": -23.831699999999998
+          "margin": -61.6383
         }
       ]
     },
@@ -1060,23 +1060,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 52.93479,
+          "value": 0.1412176,
           "status": "fail",
-          "margin": -7.06521
+          "margin": -59.8587824
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 46.15454,
+          "value": 0.1136163,
           "status": "fail",
-          "margin": -13.845460000000003
+          "margin": -59.8863837
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 45.3042,
+          "value": 0.1136163,
           "status": "fail",
-          "margin": -14.695799999999998
+          "margin": -59.8863837
         }
       ]
     },
@@ -1092,23 +1092,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 51.74247,
+          "value": -0.78492,
           "status": "fail",
-          "margin": -8.257530000000003
+          "margin": -60.78492
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 43.68018,
+          "value": -0.814896,
           "status": "fail",
-          "margin": -16.31982
+          "margin": -60.814896
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 43.06913,
+          "value": -0.814896,
           "status": "fail",
-          "margin": -16.93087
+          "margin": -60.814896
         }
       ]
     },
@@ -1124,23 +1124,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 50.7081,
+          "value": -0.854247,
           "status": "fail",
-          "margin": -9.291899999999998
+          "margin": -60.854247
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 41.57817,
+          "value": -0.873624,
           "status": "fail",
-          "margin": -18.42183
+          "margin": -60.873624
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 41.15994,
+          "value": -0.873624,
           "status": "fail",
-          "margin": -18.84006
+          "margin": -60.873624
         }
       ]
     },
@@ -1151,28 +1151,28 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 72.29007,
-          "status": "pass",
-          "margin": 12.29007
+          "value": -0.0702753,
+          "status": "fail",
+          "margin": -60.0702753
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 69.19639,
-          "status": "pass",
-          "margin": 9.196389999999994
+          "value": -0.0702824,
+          "status": "fail",
+          "margin": -60.0702824
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 69.19639,
-          "status": "pass",
-          "margin": 9.196389999999994
+          "value": -0.0702824,
+          "status": "fail",
+          "margin": -60.0702824
         }
       ]
     },
@@ -1183,28 +1183,28 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 65.61434,
-          "status": "pass",
-          "margin": 5.6143399999999986
+          "value": -0.381191,
+          "status": "fail",
+          "margin": -60.381191
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 64.8466,
-          "status": "pass",
-          "margin": 4.846599999999995
+          "value": -0.38119,
+          "status": "fail",
+          "margin": -60.38119
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 64.8466,
-          "status": "pass",
-          "margin": 4.846599999999995
+          "value": -0.381192,
+          "status": "fail",
+          "margin": -60.381192
         }
       ]
     },
@@ -1220,23 +1220,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 44.79164,
+          "value": -0.376393,
           "status": "fail",
-          "margin": -15.208359999999999
+          "margin": -60.376393
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 44.79918,
+          "value": -0.376387,
           "status": "fail",
-          "margin": -15.20082
+          "margin": -60.376387
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 44.79164,
+          "value": -0.376393,
           "status": "fail",
-          "margin": -15.208359999999999
+          "margin": -60.376393
         }
       ]
     },
@@ -1247,28 +1247,28 @@
         "vdd": 2.97
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 83.86215,
-          "status": "pass",
-          "margin": 23.86215
+          "value": 0.2520498,
+          "status": "fail",
+          "margin": -59.7479502
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 69.03955,
-          "status": "pass",
-          "margin": 9.039550000000006
+          "value": 0.252027,
+          "status": "fail",
+          "margin": -59.747973
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 69.03955,
-          "status": "pass",
-          "margin": 9.039550000000006
+          "value": 0.2520095,
+          "status": "fail",
+          "margin": -59.7479905
         }
       ]
     },
@@ -1279,28 +1279,28 @@
         "vdd": 3.3
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 81.14084,
-          "status": "pass",
-          "margin": 21.140839999999997
+          "value": 0.02848101,
+          "status": "fail",
+          "margin": -59.97151899
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 69.32468,
-          "status": "pass",
-          "margin": 9.32468
+          "value": 0.02843542,
+          "status": "fail",
+          "margin": -59.97156458
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 69.32468,
-          "status": "pass",
-          "margin": 9.32468
+          "value": 0.02841675,
+          "status": "fail",
+          "margin": -59.97158325
         }
       ]
     },
@@ -1311,28 +1311,28 @@
         "vdd": 3.63
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 78.21781,
-          "status": "pass",
-          "margin": 18.21781
+          "value": -0.105791,
+          "status": "fail",
+          "margin": -60.105791
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 69.1302,
-          "status": "pass",
-          "margin": 9.130200000000002
+          "value": -0.105838,
+          "status": "fail",
+          "margin": -60.105838
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 69.1302,
-          "status": "pass",
-          "margin": 9.130200000000002
+          "value": -0.105848,
+          "status": "fail",
+          "margin": -60.105848
         }
       ]
     },
@@ -1343,28 +1343,28 @@
         "vdd": 2.97
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 84.5858,
-          "status": "pass",
-          "margin": 24.585800000000006
+          "value": 0.04395581,
+          "status": "fail",
+          "margin": -59.95604419
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 69.26945,
-          "status": "pass",
-          "margin": 9.269450000000006
+          "value": 0.04389763,
+          "status": "fail",
+          "margin": -59.95610237
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 69.26945,
-          "status": "pass",
-          "margin": 9.269450000000006
+          "value": 0.04386754,
+          "status": "fail",
+          "margin": -59.95613246
         }
       ]
     },
@@ -1375,28 +1375,28 @@
         "vdd": 3.3
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 79.09746,
-          "status": "pass",
-          "margin": 19.097459999999998
+          "value": -0.0301764,
+          "status": "fail",
+          "margin": -60.0301764
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 69.1368,
-          "status": "pass",
-          "margin": 9.136799999999994
+          "value": -0.0302153,
+          "status": "fail",
+          "margin": -60.0302153
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 69.1368,
-          "status": "pass",
-          "margin": 9.136799999999994
+          "value": -0.0303382,
+          "status": "fail",
+          "margin": -60.0303382
         }
       ]
     },
@@ -1407,28 +1407,28 @@
         "vdd": 3.63
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 61.37035,
-          "status": "pass",
-          "margin": 1.370350000000002
+          "value": -0.612249,
+          "status": "fail",
+          "margin": -60.612249
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 63.15656,
-          "status": "pass",
-          "margin": 3.156559999999999
+          "value": -0.612097,
+          "status": "fail",
+          "margin": -60.612097
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 61.37035,
-          "status": "pass",
-          "margin": 1.370350000000002
+          "value": -0.612292,
+          "status": "fail",
+          "margin": -60.612292
         }
       ]
     },
@@ -1439,28 +1439,28 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 68.97364,
-          "status": "pass",
-          "margin": 8.973640000000003
+          "value": -0.0549926,
+          "status": "fail",
+          "margin": -60.0549926
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 66.89571,
-          "status": "pass",
-          "margin": 6.895709999999994
+          "value": -0.0549849,
+          "status": "fail",
+          "margin": -60.0549849
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 66.89571,
-          "status": "pass",
-          "margin": 6.895709999999994
+          "value": -0.0549926,
+          "status": "fail",
+          "margin": -60.0549926
         }
       ]
     },
@@ -1476,23 +1476,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 46.70341,
+          "value": 0.04492152,
           "status": "fail",
-          "margin": -13.296590000000002
+          "margin": -59.95507848
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 46.7041,
+          "value": 0.04492433,
           "status": "fail",
-          "margin": -13.295900000000003
+          "margin": -59.95507567
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 46.70341,
+          "value": 0.04492152,
           "status": "fail",
-          "margin": -13.296590000000002
+          "margin": -59.95507848
         }
       ]
     },
@@ -1508,23 +1508,23 @@
         {
           "name": "psrr_dc",
           "unit": "dB",
-          "value": 38.46089,
+          "value": 0.08554691,
           "status": "fail",
-          "margin": -21.53911
+          "margin": -59.91445309
         },
         {
           "name": "psrr_1k",
           "unit": "dB",
-          "value": 38.45961,
+          "value": 0.08554848,
           "status": "fail",
-          "margin": -21.540390000000002
+          "margin": -59.91445152
         },
         {
           "name": "psrr_band_min",
           "unit": "dB",
-          "value": 38.45961,
+          "value": 0.08554691,
           "status": "fail",
-          "margin": -21.540390000000002
+          "margin": -59.91445309
         }
       ]
     }

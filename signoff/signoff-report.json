@@ -209,8 +209,8 @@
           "rows": [
             "5c"
           ],
-          "status": "met",
-          "reason": null
+          "status": "unmet",
+          "reason": "check_failed"
         },
         {
           "citation": "sim/signoff-envelopes/quiescent-current.6a.klt-sim.json",
@@ -225,8 +225,8 @@
           "rows": [
             "6b"
           ],
-          "status": "met",
-          "reason": null
+          "status": "unmet",
+          "reason": "check_failed"
         },
         {
           "citation": "sim/signoff-envelopes/startup-stability.8a.klt-sim.json",
@@ -273,13 +273,17 @@
           "sim/signoff-envelopes/output-voltage-tc.3a.klt-sim.json",
           "sim/signoff-envelopes/output-voltage-tc-post-layout.1b.klt-sim.json",
           "sim/signoff-envelopes/output-voltage-tc-post-layout.3b.klt-sim.json",
-          "sim/signoff-envelopes/psrr-dc-post-layout.4b.klt-sim.json"
+          "sim/signoff-envelopes/psrr-dc-post-layout.4b.klt-sim.json",
+          "sim/signoff-envelopes/line-regulation-post-layout.5c.klt-sim.json",
+          "sim/signoff-envelopes/quiescent-current-post-layout.6b.klt-sim.json"
         ],
         "failed_rows": [
           "1b",
           "3a",
           "3b",
-          "4b"
+          "4b",
+          "5c",
+          "6b"
         ],
         "uncovered_rows": [],
         "declared_gaps": [
@@ -301,9 +305,7 @@
           "1a": "derived",
           "4a": "derived",
           "5a": "derived",
-          "5c": "derived",
           "6a": "derived",
-          "6b": "derived",
           "8a": "derived",
           "8b": "derived",
           "8c": "derived",
@@ -370,7 +372,7 @@
         "command": null,
         "kind": "generic",
         "check_status": "pass",
-        "content_hash": "sha256:28604265e9bbddb2a2e3fa361b9b452e515394a89b4c4487d20a99b4de3ad571",
+        "content_hash": "sha256:1609d42305054abbe72f7df1ea325ed46857433b5eb8ae12d04c78c1d98f5ac1",
         "input_verified": null,
         "exit_status": 0
       }
@@ -390,7 +392,7 @@
         "command": null,
         "kind": "generic",
         "check_status": "pass",
-        "content_hash": "sha256:57bcd8792450a43f91c5f56d99114ce2efc0766f05b1e3cd7001064e9fd4b06a",
+        "content_hash": "sha256:09959709bd2adca40173adf47f3a78139dadd162b3f6647f17a4d4404ed738ba",
         "input_verified": true,
         "exit_status": 0,
         "artifact_binding": {
@@ -399,7 +401,7 @@
             "path": "signoff/attest/testbench-inventory.json",
             "scope": "repo"
           },
-          "content_hash": "sha256:57bcd8792450a43f91c5f56d99114ce2efc0766f05b1e3cd7001064e9fd4b06a",
+          "content_hash": "sha256:09959709bd2adca40173adf47f3a78139dadd162b3f6647f17a4d4404ed738ba",
           "input_verified": true,
           "summary": "Testbenches shipped: every runnable testbench with its cold-start command and the PDK/tool pins.",
           "source": "signoff/attest/testbench-inventory.json"
@@ -421,7 +423,7 @@
         "command": null,
         "kind": "generic",
         "check_status": "pass",
-        "content_hash": "sha256:f85e2bf357d66307be978cac4983f083c543f51a7c68cc2fe412d42af1c5c5b1",
+        "content_hash": "sha256:fa9e8d804f76d4d41819c899cbaf25daddaeb7cb4bae919031fd99deada0cccf",
         "input_verified": true,
         "exit_status": 0,
         "artifact_binding": {
@@ -430,7 +432,7 @@
             "path": "signoff/attest/repo-hygiene.inventory.json",
             "scope": "repo"
           },
-          "content_hash": "sha256:f85e2bf357d66307be978cac4983f083c543f51a7c68cc2fe412d42af1c5c5b1",
+          "content_hash": "sha256:fa9e8d804f76d4d41819c899cbaf25daddaeb7cb4bae919031fd99deada0cccf",
           "input_verified": true,
           "summary": "Repo hygiene: README, LICENSE, CI workflow and the commands it runs.",
           "source": "signoff/attest/repo-hygiene.inventory.json"

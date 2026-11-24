@@ -17,6 +17,27 @@ both directions, without changing which process corners carry the risk
 (`ff`/`sf`, cold) or the overall verdict (FAIL both before and after
 extraction, for the same reason).
 
+## Standing result on the thick-oxide layout record (issue #621)
+
+Record [`records/20261124-154208-39a20d81`](records/20261124-154208-39a20d81.md)
+(supersedes `20261115-185945-d4ae166e`) — measured on layout record
+`20261121-082021-3f43042b` (#620's thick-oxide GDS, store-backed, resolved through
+its artifact manifest; PDK-bound parasitics snapshot shared with the other six
+benches, pex spice sha256 `b4e37d42…`). **Overall: FAIL 45/45.** `vref_g`
+2.579–3.505 V with `vref_spread` ≤ 0.96 mV: the degenerate-state eviction
+measurement sees an output that never leaves the supply-tracking trajectory,
+so the ramp/eviction numbers do not characterize a working reference's
+startup.
+
+The dominant cause is the record's incomplete VDD routing, not the oxide
+geometry: its `bus-summary.json` states `VDD` has 2 drawn components (the
+inter-block table marks VDD `routed: NO`), and the extraction strands
+`amp_pmirr` n-well/gate fingers and 11/16 `amp_cc` VDD-spine fingers on
+floating islands, so the error amplifier cannot regulate. A DC repair probe
+(islands tied to VDD) moves `vref_27` 3.06 → 1.00 V at tt/27 °C/3.30 V,
+confirming causality. The layout-side fix is tracked in #669; the flavour
+gate on this snapshot is clean (19 nfet + 54 pfet `g5v0d10v5` wrappers).
+
 ## What the record says
 
 Record `20260812-043245-7eb5be4` — full 45-point PVT matrix (this bench

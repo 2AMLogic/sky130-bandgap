@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Post-layout (extracted-netlist) supply-ramp startup-TIME claim for the
-COMPOSED bandgap-core layout cell -- the routed, LVS-clean layout of issue #62
+COMPOSED bandgap-core layout cell -- the routed layout of issue #62
 as it stands since issue #285 drew `design/startup_injector.sch` into it.
 Sibling of `sim/startup-stability-post-layout/`; schematic-level counterpart
 is `sim/startup-ramp/` (report row 8c).
@@ -97,6 +97,9 @@ SCHEMATIC = "sim/startup-ramp-post-layout/testbench/tb_startup_ramp_pl.sch"
 def run(argv: list[str]) -> int:
     # The DUT this bench claims to measure is the COMPOSED cell. Refuse rather
     # than silently measure an unprotected core against these bounds (#299).
+    # Parse first so `--help` / a bad flag never needs the store-backed layout
+    # record (the guard below resolves it); the runner re-parses the same argv.
+    plc.parse_post_layout_args(argv)
     plc.require_layout_draws_injector(SLUG)
     return plc.run_post_layout_experiment(
         cr,

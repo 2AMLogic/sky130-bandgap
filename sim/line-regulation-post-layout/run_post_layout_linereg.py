@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Post-layout (extracted-netlist) re-run of `sim/line-regulation`'s
-untrimmed line-regulation claim, against the routed, LVS-clean bandgap-core
+untrimmed line-regulation claim, against the routed bandgap-core
 layout (issue #62) instead of `design/bandgap_core.sch` (issue #16).
 
 Fourth increment of issue #16's post-layout suite, after
@@ -60,8 +60,10 @@ WRAPPED_EXPERIMENT = "line-regulation"  # manifest (corners/measurements/deck) r
 WRAPPED_SCHEMATIC = "sim/line-regulation/testbench/tb_vref_linereg.sch"
 
 CLAIM_TAIL = (
-    "Measures the large-signal DC output shift of the ROUTED, LVS-clean bandgap-core "
-    "layout (issue #62) as the supply is swept 2.97 .. 3.63 V INSIDE the deck, "
+    "Measures the large-signal DC output shift of the ROUTED bandgap-core "
+    "layout (issue #62, thick-oxide geometry per issue #620; its LVS verdict is "
+    "cited under 'Netlist provenance', not asserted here) as the supply is swept "
+    "2.97 .. 3.63 V INSIDE the deck, "
     "open-circuit at VREF, over the process x temperature subset (see 'Corner matrix "
     "run' below), via klt extract --parasitics translated to a simulatable netlist "
     "(sim/bin/post_layout_common.py) -- NOT design/bandgap_core.sch directly; see "
