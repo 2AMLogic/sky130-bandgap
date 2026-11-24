@@ -50,7 +50,7 @@
     {
       "path": "sim/bin/sim_common.py",
       "role": "harness",
-      "content_hash": "sha256:fa9c92bd54315ec457968a58e96439f413d48f373118510c5f31d92bb540c9f6"
+      "content_hash": "sha256:a68cc6b60ec957e64ce55fb837f70364044f56ec6cf05ad0b0e5ce72bf69302c"
     }
   ],
   "testbenches": [

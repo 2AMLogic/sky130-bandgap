@@ -404,8 +404,11 @@ def pdk_record_fields(pdk, pin: dict) -> dict:
 
     `sim/` records are append-only evidence, so the serialized shape --
     keys, their order, the path strings, the pin-match boolean -- must stay
-    identical to the inline expressions this replaced (the written JSON is
-    `sort_keys=True`, but the dict order is kept anyway; see
+    identical to the inline expressions this replaced. The key order is
+    NOT cosmetic: most benches write `sort_keys=True`, but
+    `run_mc_untrimmed.py` and `run_amp_offset_mc.py` write
+    `json.dumps(record, indent=2)` without `sort_keys`, so this dict's
+    insertion order is the published byte order for those two benches (see
     `sim/tests/test_pdk_record_fields.py`)."""
     return {
         "root": str(pdk.root),
