@@ -9,6 +9,11 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-24
 
+- **PR #678**: refactor: dedupe PDK metadata blocks in simulation record writers
+- **PR #677**: test: assert the LATEST routed record's extract netlist resolves
+- **Issue #676** (closed): Deduplicate the two repeated PDK metadata blocks in simulation record writers
+- **Issue #675** (closed): Headless CI no longer asserts a store-backed LATEST record has a resolvable artifact manifest
+- **Issue #619** (closed): Correct the routed bandgap MOS geometry to match the schematic’s 5 V thick-oxide devices
 - **PR #674**: fix: keep the label-collision gate running headless via extract.json
 - **Issue #671** (closed): Label-collision gate loses its headless check of the current LATEST record once LATEST is store-backed
 - **PR #670**: Re-run the seven post-layout benches on #620's thick-oxide record: verified input resolution, flavour gate, and an all-FAIL campaign dominated by the record's unrouted VDD
