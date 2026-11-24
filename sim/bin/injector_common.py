@@ -2,7 +2,7 @@
 """Shared helpers for the two psrr-injector benches,
 `sim/psrr-injector-attribution/run_psrr_injector_attribution.py` and
 `sim/psrr-injector-candidates/run_psrr_injector_candidates.py`
-(issues #379, #410, #511; split out of `sim_common.py` by issue #557).
+(issues #379, #410, #511, #650; split out of `sim_common.py` by issue #557).
 
 The two benches are variant-sweeps over the same base body: both build one
 local deck per (variant, PVT corner), run the cross product locally or on the
@@ -15,14 +15,18 @@ the post-layout family established with `sim/bin/post_layout_common.py`
 
 What stays per-bench, deliberately: `variant_body()` (different substitution
 models -- device removal vs. card retarget/clone/insert), `evaluate()` and
-`render_record()` (the per-experiment judgement, as #410 specified),
-`parse_args()`, and the early exits each `verify()`/`explore()` owns (the
-attribution bench's `--dry-run`, the candidates bench's ceiling load).
+`render_record()` (the per-experiment judgement, as #410 specified), the head
+of `parse_args()` (its description and the `--explore`/`--variants` pair,
+whose default selection and help text are per-bench policy), and the early
+exits each `verify()`/`explore()` owns (the attribution bench's `--dry-run`,
+the candidates bench's ceiling load). The option tail from `--corners` onward
+and the variant/concurrency validation behind it are shared here as
+`parse_injector_args()` (issue #650) -- the two copies were byte-identical.
 
 What this module needs from `sim_common` it imports rather than copies
-(`_cr`, `REPO_DIR`, `corner_id`, `parse_measurements`, `run_ngspice`,
-`write_log`, `publish_run_evidence`); the generic batch-request builders
-(`batch_netlist`, `build_batch_groups`) stay in `sim_common` (issue #557
+(`_cr`, `REPO_DIR`, `add_batch_args`, `corner_id`, `parse_measurements`,
+`run_ngspice`, `write_log`, `publish_run_evidence`); the generic
+batch-request builders (`batch_netlist`, `build_batch_groups`) stay in `sim_common` (issue #557
 scoped the move out) -- these two injector benches are their only callers;
 the Monte Carlo runners' same-named `batch_netlist` / `build_batch_groups`
 are independent locals with different signatures, not users of these.
@@ -32,6 +36,7 @@ For the history of which issue added which helper, see
 
 from __future__ import annotations
 
+import argparse
 import json
 import shutil
 from concurrent.futures import ThreadPoolExecutor
@@ -41,6 +46,7 @@ from pathlib import Path
 from sim_common import (  # noqa: E402  (importers put sim/bin on sys.path first)
     REPO_DIR,
     _cr,
+    add_batch_args,
     corner_id,
     parse_measurements,
     publish_run_evidence,
@@ -216,6 +222,65 @@ def parse_corner_spec(spec: str) -> list[tuple[str, float, float]]:
     """
     points = [tuple(pt.split(",")) for pt in spec.split(";")]
     return [(p, float(t), float(s)) for p, t, s in points]
+
+
+def parse_injector_args(
+    p: argparse.ArgumentParser, argv, variants_by_name: dict
+) -> argparse.Namespace:
+    """Finish and run both psrr-injector benches' `parse_args()` (issue #650).
+
+    The caller has already built its own parser and registered the per-bench
+    head (`--explore` and `--variants`, whose default selection and help text
+    are per-bench policy); this registers everything from `--corners` onward
+    -- the option tail both benches carried as byte-identical copies --
+    including the shared batch flags via `add_batch_args`, then validates:
+    the empty/unknown variant selection (#583), `--dry-run` without the batch
+    backend, an explicit local `--jobs` under `--backend batch`, and the job
+    bounds. `variants_by_name` is the calling bench's variant lookup, so the
+    error messages name that bench's variants.
+    """
+    p.add_argument("--corners", default="ff,125,3.63",
+                   help="explore mode only: semicolon-separated process,temp,supply triples")
+    p.add_argument("--jobs", type=int, default=None,
+                   help="local backend only: concurrent ngspice processes (default 2 -- these "
+                        "hosts are shared)")
+    add_batch_args(
+        p,
+        backend_help="where points run: 'local' (default; one ngspice per point on this host, "
+                     "for single-corner probes) or 'batch' (klt sim --backend batch on the Spot "
+                     "batch fleet -- use this for the full grid on a dispatch host). A failed "
+                     "batch submission is an error, never a local fallback",
+    )
+    p.add_argument("--dry-run", action="store_true",
+                   help="--backend batch only: build and print the klt requests, submit nothing, "
+                        "run no ngspice, write nothing under sim/<experiment>/")
+    p.add_argument("--batch-hosts", type=int, default=1,
+                   help="batch only: shard each request across this many fleet hosts "
+                        "(request remote.hosts; default 1 = unsharded)")
+    p.add_argument("--batch-max-jobs", type=int, default=8,
+                   help="batch only: klt requests in flight at once (default 8)")
+    p.add_argument("--timeout", type=int, default=1800, help="per-point ngspice timeout (s)")
+    p.add_argument("--author", default="", help="record author (default: git user.email)")
+    p.add_argument("--allow-pdk-mismatch", action="store_true",
+                   help="run even if the installed PDK differs from the sim/pdk.json pin")
+    args = p.parse_args(argv)
+    if not args.variants:
+        p.error(f"empty --variants selection; known: {sorted(variants_by_name)}")
+    unknown = [v for v in args.variants if v not in variants_by_name]
+    if unknown:
+        p.error(f"unknown variant(s) {unknown}; known: {sorted(variants_by_name)}")
+    if args.dry_run and args.backend != "batch":
+        p.error("--dry-run is only meaningful with --backend batch")
+    if args.backend == "batch" and args.jobs is not None:
+        p.error("--jobs is a local-concurrency flag; --backend batch ignores it, drop it "
+                "(use --batch-max-jobs)")
+    if args.jobs is None:
+        args.jobs = 2
+    if args.jobs < 1:
+        p.error("--jobs must be >= 1")
+    if args.batch_max_jobs < 1:
+        p.error("--batch-max-jobs must be >= 1")
+    return args
 
 
 def injector_deck(

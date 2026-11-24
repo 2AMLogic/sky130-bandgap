@@ -30,6 +30,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from gen_bandgap_routed import (  # noqa: E402
     BLOCKS,
     DUMMY_DEVICE_NOTE,
+    HV_FIXUP_NOTE,
     INTERNAL_NODE_LABEL_NOTE,
     MCC_AREA_UM2_NOTE,
     N_R2_TRIM_CODES,
@@ -72,6 +73,9 @@ class RecordResult:
     r2_leg_matches: bool
     all_classes: bool
     pin_count: int
+    flavour_clean: bool = True
+    hv_clean: bool = True
+    erc_clean: bool = True
 
 
 def render_record(
@@ -95,6 +99,10 @@ def render_record(
     merged_pin_names: list[str],
     reports: dict[str, dict[str, Any]],
     bus_summary: dict[str, Any],
+    gds_digest: str = "",
+    flavour: dict[str, Any] | None = None,
+    hv_drc: dict[str, Any] | None = None,
+    erc: dict[str, Any] | None = None,
 ) -> RecordResult:
     """Render the acceptance-criteria scoreboard + prose record.md.
 
@@ -262,6 +270,25 @@ def render_record(
         "layout/generator-notes.md#res-head-resistance-note, DR-003 and "
         "layout/matching-plan.md Section 7z |"
     )
+    flavour_clean = bool((flavour or {}).get("clean"))
+    hv_clean = bool((hv_drc or {}).get("clean"))
+    erc_clean = bool((erc or {}).get("clean"))
+    a(
+        f"| 6 | Thick-oxide MOS: flavour bound + HV-legal (issue #620) | "
+        f"{'MET' if flavour_clean and hv_clean and erc_clean else 'NOT MET'} | "
+        f"raw PDK-bound extraction binds "
+        f"{json.dumps((flavour or {}).get('observed', {}))} to the 5 V "
+        f"wrappers against the schematic's "
+        f"{json.dumps((flavour or {}).get('expected', {}))} fingers; HV "
+        f"rule group on the pinned PDK's FEOL-enabled source deck: "
+        f"{(hv_drc or {}).get('hv_violation_count', 0)} violations, "
+        f"{(hv_drc or {}).get('hv_categories_declared_count', 0)} HV "
+        f"categories declared, enclosure control "
+        f"{'passed' if (hv_drc or {}).get('control', {}).get('passed') else 'FAILED'}; "
+        f"supply/tie ERC on this GDS "
+        f"{'PASS' if erc_clean else 'FAIL'} (negative control included) -- "
+        f"see \"Thick-oxide geometry and flavour binding\" below |"
+    )
     a("")
     a(f"- [{'x' if drc_clean else ' '}] DRC on the composed, routed layout is clean")
     a(
@@ -289,6 +316,12 @@ def render_record(
         "step 2, and the four trim-tap pin entries earlier records carried "
         "are gone (INTERNAL_NODE_LABEL_NOTE). `compose.request.json`."
     )
+    a(
+        "3b. `klt draw` once more, for the thick-oxide legality overlay: "
+        "hvi/nwell/npc markers that put the `voltage_flavor='hvi'` blocks' "
+        "own geometry past the pinned PDK's enclosure thresholds (issue "
+        "#620; HV_FIXUP_NOTE below). `bandgap_core_hv_fixup.draw.json`."
+    )
     a("4. `klt drc <composed> --deck sky130`.")
     a(
         "4b. `layout/bin/met2_drc.py <composed>` -- the escape plane's own "
@@ -296,7 +329,24 @@ def render_record(
         "threshold set plus orphan-via detection, on top of the curated "
         "deck step 4 runs."
     )
+    a(
+        "4c. `klt drc <composed> --engine klayout --deck-file "
+        "sky130A.feol.lydrc` -- the pinned PDK's own source deck with its "
+        "FEOL group enabled, negative enclosure control included: the one "
+        "deck that carries the hvi/npc/nwell rules 5 V geometry must "
+        "satisfy (issue #620)."
+    )
     a(f"5. `klt extract <composed> --deck sky130 --top {cell}`.")
+    a(
+        "5b. `klt extract <composed> --deck sky130 --pdk sky130A --top "
+        f"{cell}` -- the PDK-bound run whose raw X cards name the wrapper "
+        "each MOS finger bound; the flavour gate reads it (issue #620)."
+    )
+    a(
+        "5c. `klt erc <composed>` twice -- the supply spec and the "
+        "swapped-tie negative control, with this GDS's own well boxes "
+        "re-derived into both specs (issue #620)."
+    )
     a(
         "6. `klt lvs` against the xschem-derived reference netlist (issue "
         "#8), twice -- with and without `options.combine_devices`."
@@ -514,6 +564,133 @@ def render_record(
     unchecked = drc.get("coverage", {}).get("layers_in_stream_without_rules", [])
     a(met2_drc_coverage_note(unchecked))
     a("")
+    a("## Thick-oxide geometry and flavour binding (issue #620)")
+    a("")
+    a(
+        "The schematic specifies 5 V thick-oxide MOS devices "
+        "(`*_g5v0d10v5`) for a 3.3 V +/-10% supply (DR-005); through the "
+        "previous record this layout drew every one of them as thin-oxide "
+        "1.8 V geometry, and nothing could see the difference -- the "
+        "curated deck binds both flavours to the same generic class, and "
+        "its DRC ruleset carries no hvi/npc/nwell rule at all. Three "
+        "checks close that now, all gated (`mos_flavour_bound`, "
+        "`hv_drc_clean`, `erc_supply_clean`)."
+    )
+    a("")
+    if flavour is not None:
+        a("### Flavour: raw PDK-bound extraction vs. the schematic's fingers")
+        a("")
+        a(
+            "A separate `klt extract --pdk sky130A` binds every extracted "
+            "device to the PDK wrapper its geometry implies and writes the "
+            "binding as raw subckt-wrapper `X` cards -- before any "
+            "translation to the generic classes the LVS path compares "
+            "(which stays on the step-5 extract, unchanged). Expected "
+            "counts are summed from `reference.spice`'s own `m=` per "
+            "polarity, not asserted:"
+        )
+        a("")
+        a("| polarity | 5 V wrapper card | expected fingers | observed |")
+        a("| --- | --- | --- | --- |")
+        obs = flavour.get("observed", {})
+        for polarity, model in (
+            ("nfet", "sky130_fd_pr__nfet_g5v0d10v5"),
+            ("pfet", "sky130_fd_pr__pfet_g5v0d10v5"),
+        ):
+            a(
+                f"| {polarity} | `{model}` | "
+                f"{flavour.get('expected', {}).get(polarity)} | "
+                f"{obs.get(polarity, 0)} |"
+            )
+        a("")
+        a(
+            "Unexpected MOS wrapper cards: "
+            f"`{json.dumps(flavour.get('unexpected_mos_models', {})) or 'none'}`."
+            " A single wrong card fails the gate twice over -- its "
+            "polarity comes up one short and the census gains an "
+            "unexpected model -- so one thin-oxide card among 72 correct "
+            "ones cannot pass. The negative control (the original "
+            "thin-oxide GDS's raw extraction binding 19 + 54 `*_01v8` "
+            "cards) is pinned in "
+            "`layout/tests/test_routed_flow_gates.py`."
+        )
+        a("")
+    if hv_drc is not None:
+        a("### HV legality: the pinned PDK's own source deck, FEOL on")
+        a("")
+        a(
+            f"The pinned sky130A deck's HVI/HVDIFFTAP/HVPOLY/HVNTM checks "
+            "ship gated behind `FEOL = false`; the working copy this run "
+            "built flips only that switch "
+            f"(`{Path(hv_drc.get('deck', {}).get('source', '')).name}`, "
+            "source sha256 "
+            f"`{hv_drc.get('deck', {}).get('source_sha256', '')[:16]}…` -> "
+            f"copy sha256 "
+            f"`{hv_drc.get('deck', {}).get('feol_copy_sha256', '')[:16]}…`, "
+            "in the artifact store). "
+            f"{hv_drc.get('hv_categories_declared_count', 0)} HV rule "
+            "categories are declared by the run "
+            "(`coverage.rule_categories`), the enclosure control "
+            f"(the raw `{hv_drc.get('control', {}).get('block')}` "
+            "generator output, no overlay) "
+            + (
+                "produced the required "
+                f"{', '.join(hv_drc.get('control', {}).get('required_categories', []))} "
+                "markers"
+                if hv_drc.get("control", {}).get("passed")
+                else "**FAILED to produce its markers**"
+            )
+            + ", and the composed GDS reports **"
+            f"{hv_drc.get('hv_violation_count', 0)}** HV violations: "
+            f"`{json.dumps(hv_drc.get('hv_violations', {})) or 'none'}`."
+        )
+        a("")
+        a(
+            f"Non-HV findings from the same run are reported, never gated "
+            "here: "
+            f"{hv_drc.get('non_hv_violation_count', 0)} markers across "
+            "categories the curated deck either already reports or the "
+            "generator geometry triggers independent of the thick-oxide "
+            "change (full per-category counts in `hv-drc.json`). "
+            f"Note: {HV_FIXUP_NOTE}"
+        )
+        a("")
+    if erc is not None:
+        a("### Supply/tie ERC on this exact GDS")
+        a("")
+        counts = erc.get("well_box_count", {})
+        a(
+            "The two specs `layout/bin/run-erc-supply-flow.sh` invokes, "
+            "run here against the exact composed GDS (sha256 "
+            f"`{erc.get('gds_sha256', '')[:16]}…`). Their `ties[]` carry "
+            "absolute well boxes of the pre-thick-oxide GDS, so both were "
+            "re-derived from this GDS's merged 64/20 region -- "
+            f"{counts.get('VDD', 0)} PMOS-body wells on `VDD`, "
+            f"{counts.get('VSS', 0)} PNP base tubs on `VSS` "
+            "(boxes in `erc-verdict.json`; derived specs in the artifact "
+            "store). Gated with `erc_supply_record`'s own item-11 gate:"
+        )
+        a("")
+        a("| run | verdict | detail |")
+        a("| --- | --- | --- |")
+        for kind, label in (
+            ("supply", "supply spec"),
+            ("negative_control", "swapped-tie control"),
+        ):
+            entry = erc.get(kind, {})
+            a(
+                f"| {label} | {'**PASS**' if entry.get('passed') else '**FAIL**'} | "
+                f"`erc_status` {entry.get('erc_status')}, "
+                f"{entry.get('finding_count')} findings, exit "
+                f"{entry.get('exit')}"
+                + (
+                    "; " + "; ".join(entry.get("reasons", []))
+                    if entry.get("reasons")
+                    else ""
+                )
+                + " |"
+            )
+        a("")
     a("## Schematic inter-block nets: drawn vs. labelled only")
     a("")
     a(
@@ -679,6 +856,31 @@ def render_record(
         f"via1 cuts={met2_drc.get('counts', {}).get('via1_cuts')}, "
         f"met2 polygons={met2_drc.get('counts', {}).get('met2_polygons')} |"
     )
+    if hv_drc is not None:
+        a(
+            f"| HV DRC (PDK source deck, FEOL on) | "
+            f"{hv_drc.get('status')} | HV violations="
+            f"{hv_drc.get('hv_violation_count')}, non-HV markers="
+            f"{hv_drc.get('non_hv_violation_count')}, control "
+            f"{'passed' if hv_drc.get('control', {}).get('passed') else 'FAILED'} |"
+        )
+    if flavour is not None:
+        a(
+            f"| MOS flavour (raw PDK-bound extract) | "
+            f"{'bound' if flavour.get('clean') else 'MISMATCH'} | "
+            f"observed={json.dumps(flavour.get('observed', {}))} vs "
+            f"expected={json.dumps(flavour.get('expected', {}))}, "
+            f"unexpected={json.dumps(flavour.get('unexpected_mos_models', {}))} |"
+        )
+    if erc is not None:
+        a(
+            f"| supply/tie ERC (this repo's own) | "
+            f"{'clean' if erc.get('clean') else 'FAIL'} | "
+            f"wells VDD/VSS="
+            f"{erc.get('well_box_count', {}).get('VDD')}/"
+            f"{erc.get('well_box_count', {}).get('VSS')}, negative control "
+            f"{'flagged every well' if erc.get('negative_control', {}).get('passed') else 'FAILED'} |"
+        )
     a(
         f"| extract | ok | device_count={extract.get('device_count')}, "
         f"device_counts={json.dumps(device_counts)}, pin_count={pin_count} |"
@@ -937,6 +1139,8 @@ def render_record(
     a("## Provenance")
     a("")
     a(f"- Record ID: `{args.record_id}`")
+    if gds_digest:
+        a(f"- Composed GDS sha256: `{gds_digest}`")
     a(f"- `klt` version: `{klt_ver}` (pinned, see `layout/requirements.txt`)")
     a(
         "- KLayout engine version: "
@@ -951,6 +1155,15 @@ def render_record(
         "- [`drc.json`](drc.json), [`met2-drc.json`](met2-drc.json), "
         "[`extract.json`](extract.json), "
         "[`lvs.combined.json`](lvs.combined.json), [`lvs.json`](lvs.json)"
+    )
+    a(
+        "- [`hv-drc.json`](hv-drc.json), [`flavour.json`](flavour.json), "
+        "[`erc.json`](erc.json), "
+        "[`erc.negative-control.json`](erc.negative-control.json), "
+        "[`erc-verdict.json`](erc-verdict.json), "
+        "[`nwell-boxes.json`](nwell-boxes.json) -- the PDK-bound extract, "
+        "the derived ERC specs and the FEOL deck copy live in the artifact "
+        "store with the rest of the raw outputs"
     )
     a("- [`bus-summary.json`](bus-summary.json)")
     a(f"- [`{cell}.extract.spice`]({cell}.extract.spice), [`reference.spice`](reference.spice)")
@@ -968,5 +1181,8 @@ def render_record(
         r2_leg_matches=r2_length["matches"],
         all_classes=all_classes,
         pin_count=pin_count,
+        flavour_clean=flavour_clean,
+        hv_clean=hv_clean,
+        erc_clean=erc_clean,
     )
 
