@@ -130,6 +130,32 @@ class BatchCollection(_AmpBench, mc_batch_shared.BatchCollectionShared, unittest
         self.assertTrue(all(c["pass"] for c in zeroed))
 
 
+class SeedStabilityKeys(unittest.TestCase):
+    """`seed_stability()` looks its two points up by corner id; if the producer
+    (`build_mismatch_points`) and that lookup drift apart the seed-stability
+    block silently vanishes from the record (#647)."""
+
+    def test_lookup_keys_equal_the_producers_corner_ids(self):
+        points = R.build_points(10)
+        mm27 = next(p for p in points if p.role == "mismatch" and p.temp_c == 27.0)
+        seed_b = next(p for p in points if p.role == "seed-check")
+        self.assertEqual(mm27.corner_id, "tt_mm_27c_3.30v")
+        self.assertEqual(seed_b.corner_id, "tt_mm_27c_3.30v_seed-b")
+        key_a = sim_common.corner_id(R.MM_SECTION, 27.0, R.SUPPLY_V)
+        self.assertEqual(key_a, mm27.corner_id)
+        self.assertEqual(key_a + "_seed-b", seed_b.corner_id)
+
+    def test_seed_stability_consumes_the_producers_ids(self):
+        points = R.build_points(10)
+        stats = {"stats": {n: {"sigma": 1.0, "max_abs": 2.0} for n in ("vos", "vout", "dvbe8")}}
+        both = {p.corner_id: stats for p in points if p.role in ("mismatch", "seed-check")
+                and (p.role == "seed-check" or p.temp_c == 27.0)}
+        self.assertTrue(R.seed_stability(both))
+        for missing in both:
+            partial = {k: v for k, v in both.items() if k != missing}
+            self.assertEqual(R.seed_stability(partial), [])
+
+
 BENCH_DIR = SIM_DIR / "error-amp-offset-mc"
 
 
