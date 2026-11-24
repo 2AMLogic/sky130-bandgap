@@ -264,20 +264,6 @@ def _has_existing_snapshot_target(path: Path) -> bool:
     return (not path.is_dir()) or any(path.iterdir())
 
 
-def _read_pdk_dir_commit(pdk_dir: Path) -> str:
-    """Read the `open_pdks <commit>` revision from `<pdk_dir>/SOURCES`, matching
-    `corner-run.installed_commit` (`"unknown"` when absent or unparseable)."""
-    try:
-        lines = (pdk_dir / "SOURCES").read_text().splitlines()
-    except OSError:
-        return "unknown"
-    for line in lines:
-        fields = line.split()
-        if len(fields) >= 2 and fields[0] == "open_pdks":
-            return fields[1]
-    return "unknown"
-
-
 def _recorded_pdk_commit(summary: dict) -> str | None:
     """Extract the `open_pdks <commit>` revision from `provenance.pdk.version`.
 
@@ -816,7 +802,7 @@ def resolve_parasitics_snapshot(
     if resolved_commit is None and pdk_variant and pdk_root:
         pdk_dir = Path(pdk_root).expanduser() / pdk_variant
         if pdk_dir.is_dir():
-            resolved_commit = _read_pdk_dir_commit(pdk_dir)
+            resolved_commit = sim_common.load_corner_run().installed_commit(pdk_dir)
 
     # The default key `<id>-pdk` belongs to the PINNED variant and PINNED
     # revision. A snapshot is only reusable when its recorded provenance.pdk
