@@ -17,7 +17,10 @@ Properties pinned (the issue's test plan):
 
 from __future__ import annotations
 
+import argparse
+import contextlib
 import copy
+import io
 import json
 import re
 import shutil
@@ -490,6 +493,167 @@ class MonteCarloGroupCeiling(unittest.TestCase):
     def test_a_small_sample_count_is_sized_too(self):
         g = self.build(batch_sim.MC_BATCH_TIMEOUT_S, samples=20, out=self.tmp / "small")
         self.assertEqual(g.request["remote"]["hosts"], 2)
+
+
+class MonteCarloCli(unittest.TestCase):
+    """The command-line half both Monte Carlo runners share (issue #653):
+    `add_mc_batch_args()` / `parse_mc_args()` for the flag block and the
+    backend-dependent `--timeout` default, and `print_mc_batch_dry_run()` for
+    the batch `--dry-run` output. Until they moved here, `run_amp_offset_mc.py`
+    and `run_mc_untrimmed.py` each carried a byte-for-byte copy of both, so
+    #528's `--timeout` wording and #544's `add_batch_args()` call each had to
+    be edited twice.
+
+    The oracle is the pre-#653 block rebuilt straight from the `sim_common`
+    primitives the two runners used to call themselves, so a change to the
+    wording fails here rather than silently in two benches' `--help`.
+    """
+
+    LOCAL_TIMEOUT_S = 7200
+
+    def reference_parser(self, *, samples_default=300, local_timeout_s=LOCAL_TIMEOUT_S):
+        """The block exactly as both runners spelled it before #653."""
+        p = argparse.ArgumentParser(prog="run_mc.py", add_help=False)
+        sim_common.add_common_args(
+            p, timeout_default=None, samples_default=samples_default,
+            timeout_help=(
+                "ngspice timeout in seconds. Locally this bounds one point (the whole "
+                f"`.control` loop over its samples; default {local_timeout_s}). With "
+                "--backend batch it becomes the request's per-SAMPLE budget (default "
+                f"{batch_sim.MC_BATCH_TIMEOUT_S}); a value whose per-shard job bound cannot "
+                f"fit the fleet's whole-job ceiling ({batch_sim.FLEET_JOB_CEILING_S} s, i.e. "
+                f"more than {batch_sim.FLEET_JOB_CEILING_S - batch_sim.FLEET_JOB_OVERHEAD_S} s "
+                "per sample) is an error, not a warning"
+            ),
+        )
+        sim_common.add_batch_args(
+            p,
+            backend_help=(
+                "where the points run (default: local ngspice `.control` loops). 'batch' builds "
+                "one `klt sim` Monte Carlo request per point for the Spot batch fleet, collects "
+                "the per-sample reports and writes the normal record; `--dry-run` prints the "
+                "requests instead. A submit/collect failure is an error -- it never falls back "
+                "to a local run"
+            ),
+        )
+        return p
+
+    def block(self, *, samples_default=300, local_timeout_s=LOCAL_TIMEOUT_S):
+        """The same block, as the shared helper registers it."""
+        p = argparse.ArgumentParser(prog="run_mc.py", add_help=False)
+        batch_sim.add_mc_batch_args(
+            p, samples_default=samples_default, local_timeout_s=local_timeout_s
+        )
+        return p
+
+    def parse(self, argv, *, p=None, local_timeout_s=LOCAL_TIMEOUT_S):
+        return batch_sim.parse_mc_args(
+            p or self.block(), argv, local_timeout_s=local_timeout_s
+        )
+
+    def test_help_is_the_pre_dedup_block_word_for_word(self):
+        for samples_default in (300, 20):
+            with self.subTest(samples_default=samples_default):
+                self.assertEqual(
+                    self.block(samples_default=samples_default).format_help(),
+                    self.reference_parser(samples_default=samples_default).format_help(),
+                )
+
+    def test_both_shared_flags_are_registered_by_sim_common_not_copied(self):
+        """Delegation, not a copy: `--batch-capacity-wait-s` and
+        `--batch-runner-version-check` are declared in `sim_common` alone
+        (`test_batch_cli_flags.NoHandRolledCopiesTests`), so the block must
+        hand the caller's parser to both primitives, with the runners' text."""
+        with mock.patch.object(sim_common, "add_common_args",
+                               wraps=sim_common.add_common_args) as common, \
+                mock.patch.object(sim_common, "add_batch_args",
+                                  wraps=sim_common.add_batch_args) as batch:
+            p = self.block()
+        self.assertIs(common.call_args.args[0], p)
+        self.assertIs(batch.call_args.args[0], p)
+        reference = {a.dest: a for a in self.reference_parser()._actions}
+        self.assertEqual(common.call_args.kwargs, {
+            "timeout_default": None, "samples_default": 300,
+            "timeout_help": reference["timeout"].help,
+        })
+        self.assertEqual(batch.call_args.kwargs, {"backend_help": reference["backend"].help})
+
+    def test_the_timeout_help_names_the_benchs_own_local_default(self):
+        for local_timeout_s in (3600, 7200):
+            with self.subTest(local_timeout_s=local_timeout_s):
+                text = " ".join(self.block(local_timeout_s=local_timeout_s).format_help().split())
+                other = 7200 if local_timeout_s == 3600 else 3600
+                # Anchored on the --timeout sentence: --batch-capacity-wait-s
+                # also prints a "(default ...)" and its 3600 is not this one.
+                self.assertIn(f"over its samples; default {local_timeout_s})", text)
+                self.assertNotIn(f"over its samples; default {other})", text)
+                self.assertIn(f"per-SAMPLE budget (default {batch_sim.MC_BATCH_TIMEOUT_S})", text)
+
+    def test_defaults_are_what_both_runners_always_had(self):
+        args = self.parse([])
+        self.assertEqual(args.samples, 300)
+        self.assertEqual(args.backend, "local")
+        self.assertEqual(args.timeout, self.LOCAL_TIMEOUT_S)
+        self.assertIsInstance(args.batch_capacity_wait_s, float)
+        self.assertEqual(args.batch_runner_version_check, "enforce")
+        self.assertEqual(
+            (args.author, args.supersedes, args.allow_pdk_mismatch, args.dry_run),
+            ("", "", False, False),
+        )
+
+    def test_timeout_default_follows_the_backend_and_an_explicit_value_wins(self):
+        # Batch and local mean different things by --timeout (issue #528).
+        self.assertEqual(self.parse(["--backend", "batch"]).timeout, batch_sim.MC_BATCH_TIMEOUT_S)
+        self.assertEqual(self.parse(["--backend", "local"]).timeout, self.LOCAL_TIMEOUT_S)
+        self.assertEqual(self.parse(["--timeout", "900"]).timeout, 900)
+        self.assertEqual(self.parse(["--backend", "batch", "--timeout", "900"]).timeout, 900)
+
+    def test_a_flag_added_between_the_block_and_the_parse_still_parses(self):
+        # monte-carlo-untrimmed's shape: its own --batch-resume goes after the block.
+        p = self.block()
+        p.add_argument("--batch-resume", action="store_true")
+        args = self.parse(["--backend", "batch", "--batch-resume"], p=p)
+        self.assertIs(args.batch_resume, True)
+        self.assertEqual(args.timeout, batch_sim.MC_BATCH_TIMEOUT_S)
+
+    def mc_groups(self, out):
+        """Two real MC requests, as a runner's `build_batch_groups()` hands
+        them to the printer."""
+        return [
+            batch_sim.build_mc_group(
+                label, out, "* netlist\n", PIN, "tt_mm", 27.0, 3.3, 300, seed,
+                [{"name": "vout", "expr": "v(vref)"}], "", batch_sim.MC_BATCH_TIMEOUT_S,
+                capacity_wait_s=60, runner_version_check="enforce", poll_interval_s=30,
+            )
+            for label, seed in (("tt_mm_27c_3.30v", 20260803), ("tt_mm_27c_3.30v_seed-b", 20260804))
+        ]
+
+    def test_dry_run_prints_the_list_then_the_first_request_then_the_notice(self):
+        for slug in ("error-amp-offset-mc", "monte-carlo-untrimmed"):
+            with self.subTest(slug=slug), tempfile.TemporaryDirectory() as tmp:
+                first, second = self.mc_groups(Path(tmp))
+                out = io.StringIO()
+                with contextlib.redirect_stdout(out):
+                    batch_sim.print_mc_batch_dry_run([first, second], slug)
+                self.assertEqual(out.getvalue(), (
+                    "\n-- batch requests (one klt sim Monte Carlo request per point) --\n"
+                    f"  {first.request_path}  (n=300 seed=20260803 vary=mismatch)\n"
+                    f"  {second.request_path}  (n=300 seed=20260804 vary=mismatch)\n"
+                    f"\n-- request for {first.label} --\n"
+                    f"{first.request_path.read_text()}\n"
+                    f"(dry run: nothing submitted, nothing written under sim/{slug}/)\n"
+                ))
+
+    def test_dry_run_writes_nothing(self):
+        # The notice says nothing is written; hold the printer to it.
+        with tempfile.TemporaryDirectory() as tmp:
+            groups = self.mc_groups(Path(tmp))
+            root = Path(tmp)
+            before = {p: p.stat().st_mtime_ns for p in root.rglob("*")}
+            with contextlib.redirect_stdout(io.StringIO()):
+                batch_sim.print_mc_batch_dry_run(groups, "error-amp-offset-mc")
+            after = {p: p.stat().st_mtime_ns for p in root.rglob("*")}
+        self.assertEqual(after, before)
 
 
 class Aggregation(unittest.TestCase):

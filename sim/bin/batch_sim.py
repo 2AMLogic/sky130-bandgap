@@ -33,6 +33,7 @@ can never yield an overall PASS.
 
 from __future__ import annotations
 
+import argparse
 import copy
 import json
 import re
@@ -51,6 +52,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts" / "ci"))
 # Re-exported on purpose: `batch_sim.sha256_file` and `batch_sim.sha256_text`
 # are how the benches and `sim/tests/*` already reach the bare-hex helpers.
 from content_hash import sha256_file, sha256_text  # noqa: E402
+
+import sim_common  # noqa: E402
 
 #: Experiments whose deck shape this adapter has been validated against,
 #: including a live single-corner comparison on the fleet. Everything else
@@ -733,6 +736,88 @@ def build_mc_batch_groups(
         )
         for p in points
     ]
+
+
+def add_mc_batch_args(
+    parser: argparse.ArgumentParser, *, samples_default: int, local_timeout_s: int
+) -> None:
+    """Register on `parser` the flag block both Monte Carlo runners share:
+    `sim_common.add_common_args()` with `--samples`, then
+    `sim_common.add_batch_args()`. Each is delegated to, never spelled out
+    here, so the two fleet-wide batch flags stay declared in `sim_common`
+    alone (issue #544) and a wording fix to either lands once.
+
+    `--timeout` is left unset: locally it bounds a whole point but on the fleet
+    it bounds one sample, so no single default serves both and
+    `parse_mc_args()` resolves it from the backend (issue #528).
+    `local_timeout_s` is the bench's own local default (its `LOCAL_TIMEOUT_S`),
+    which the help names beside the batch default `MC_BATCH_TIMEOUT_S`.
+
+    A bench with batch flags of its own (`run_mc_untrimmed.py`'s
+    `--batch-max-concurrent-jobs`, `--batch-resume`) adds them after this call
+    and before parsing, so `--help` keeps listing them last.
+
+    Both runners carried this block as a byte-for-byte private copy until
+    issue #653; the help text is frozen, and
+    `sim/tests/test_batch_sim.py::MonteCarloCli` holds it against the
+    pre-#653 wording."""
+    sim_common.add_common_args(
+        parser, timeout_default=None, samples_default=samples_default,
+        timeout_help=(
+            "ngspice timeout in seconds. Locally this bounds one point (the whole "
+            f"`.control` loop over its samples; default {local_timeout_s}). With "
+            "--backend batch it becomes the request's per-SAMPLE budget (default "
+            f"{MC_BATCH_TIMEOUT_S}); a value whose per-shard job bound cannot "
+            f"fit the fleet's whole-job ceiling ({FLEET_JOB_CEILING_S} s, i.e. "
+            f"more than {FLEET_JOB_CEILING_S - FLEET_JOB_OVERHEAD_S} s "
+            "per sample) is an error, not a warning"
+        ),
+    )
+    sim_common.add_batch_args(
+        parser,
+        backend_help=(
+            "where the points run (default: local ngspice `.control` loops). 'batch' builds "
+            "one `klt sim` Monte Carlo request per point for the Spot batch fleet, collects "
+            "the per-sample reports and writes the normal record; `--dry-run` prints the "
+            "requests instead. A submit/collect failure is an error -- it never falls back "
+            "to a local run"
+        ),
+    )
+
+
+def parse_mc_args(
+    parser: argparse.ArgumentParser, argv: list[str], *, local_timeout_s: int
+) -> argparse.Namespace:
+    """Parse `argv` with a parser `add_mc_batch_args()` has filled and resolve
+    the `--timeout` that block leaves unset: `MC_BATCH_TIMEOUT_S` per sample
+    under `--backend batch`, the bench's `local_timeout_s` per point otherwise,
+    and an explicit value always wins (issue #528)."""
+    args = parser.parse_args(argv)
+    if args.timeout is None:
+        # Batch and local mean different things by `--timeout` (see the flag's
+        # help and issue #528), so the default has to follow the backend.
+        args.timeout = (
+            MC_BATCH_TIMEOUT_S if args.backend == "batch" else local_timeout_s
+        )
+    return args
+
+
+def print_mc_batch_dry_run(groups: list[Group], slug: str) -> None:
+    """Print what `--backend batch --dry-run` shows for a Monte Carlo runner:
+    one line per request, the first request's file in full, then the notice
+    that nothing was submitted or written under `sim/<slug>/`.
+
+    `groups` are what `build_mc_batch_groups()` wrote; this only reads their
+    request files back and prints. `slug` is the bench's own `SLUG`, so the
+    notice names the bench the operator ran. Both runners printed these lines
+    from identical private copies until issue #653."""
+    print("\n-- batch requests (one klt sim Monte Carlo request per point) --")
+    for g in groups:
+        mc = g.request["monte_carlo"]
+        print(f"  {g.request_path}  (n={mc['n']} seed={mc['seed']} vary={mc['vary']})")
+    print(f"\n-- request for {groups[0].label} --")
+    print(groups[0].request_path.read_text())
+    print(f"(dry run: nothing submitted, nothing written under sim/{slug}/)")
 
 
 def _unique(values) -> list:

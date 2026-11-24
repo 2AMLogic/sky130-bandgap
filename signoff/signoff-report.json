@@ -390,7 +390,7 @@
         "command": null,
         "kind": "generic",
         "check_status": "pass",
-        "content_hash": "sha256:e08481913471a88ed144a8c818ba390fc9984aa06a6dfdf3d80b0884817b5bad",
+        "content_hash": "sha256:f229cee293f8bcc3800c78eed245341d1c0e5af005d65a7184e635708e091bc4",
         "input_verified": true,
         "exit_status": 0,
         "artifact_binding": {
@@ -399,7 +399,7 @@
             "path": "signoff/attest/testbench-inventory.json",
             "scope": "repo"
           },
-          "content_hash": "sha256:e08481913471a88ed144a8c818ba390fc9984aa06a6dfdf3d80b0884817b5bad",
+          "content_hash": "sha256:f229cee293f8bcc3800c78eed245341d1c0e5af005d65a7184e635708e091bc4",
           "input_verified": true,
           "summary": "Testbenches shipped: every runnable testbench with its cold-start command and the PDK/tool pins.",
           "source": "signoff/attest/testbench-inventory.json"

@@ -166,6 +166,24 @@ class TimeoutDefaultFollowsTheBackend(_UntrimmedBench, mc_batch_shared.TimeoutDe
     LOCAL_TIMEOUT_S = 3600
 
 
+class CliBlock(_UntrimmedBench, mc_batch_shared.CliBlockShared, unittest.TestCase):
+    LOCAL_TIMEOUT_S = 3600
+    BENCH_FLAGS = [["--batch-max-concurrent-jobs"], ["--batch-resume"]]
+
+    def test_the_bench_flags_still_parse_after_the_shared_block(self):
+        # Only this bench's argparse defines the two flags (issue #577); the
+        # shared block must neither swallow them nor change their defaults.
+        args = self.R.parse_args(
+            ["--backend", "batch", "--batch-max-concurrent-jobs", "20", "--batch-resume"]
+        )
+        self.assertEqual(args.batch_max_concurrent_jobs, 20)
+        self.assertIs(args.batch_resume, True)
+        self.assertEqual(args.timeout, batch_sim.MC_BATCH_TIMEOUT_S)
+        plain = self.R.parse_args(["--backend", "batch"])
+        self.assertIsNone(plain.batch_max_concurrent_jobs)
+        self.assertIs(plain.batch_resume, False)
+
+
 class BatchCollection(_UntrimmedBench, mc_batch_shared.BatchCollectionShared,
                       unittest.TestCase):
     BENCH_NAME = "monte-carlo-untrimmed"

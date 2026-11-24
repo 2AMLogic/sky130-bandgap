@@ -54,8 +54,6 @@ sys.path.insert(0, str(SIM_DIR / "bin"))
 import batch_sim  # noqa: E402
 from sim_common import (  # noqa: E402
     MismatchPoint,
-    add_batch_args,
-    add_common_args,
     build_mismatch_points,
     check_pdk_and_ngspice,
     corner_id,
@@ -785,36 +783,8 @@ def render_record(r: dict) -> str:
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    add_common_args(
-        p, timeout_default=None, samples_default=N_SAMPLES,
-        timeout_help=(
-            "ngspice timeout in seconds. Locally this bounds one point (the whole "
-            f"`.control` loop over its samples; default {LOCAL_TIMEOUT_S}). With "
-            "--backend batch it becomes the request's per-SAMPLE budget (default "
-            f"{batch_sim.MC_BATCH_TIMEOUT_S}); a value whose per-shard job bound cannot "
-            f"fit the fleet's whole-job ceiling ({batch_sim.FLEET_JOB_CEILING_S} s, i.e. "
-            f"more than {batch_sim.FLEET_JOB_CEILING_S - batch_sim.FLEET_JOB_OVERHEAD_S} s "
-            "per sample) is an error, not a warning"
-        ),
-    )
-    add_batch_args(
-        p,
-        backend_help=(
-            "where the points run (default: local ngspice `.control` loops). 'batch' builds "
-            "one `klt sim` Monte Carlo request per point for the Spot batch fleet, collects "
-            "the per-sample reports and writes the normal record; `--dry-run` prints the "
-            "requests instead. A submit/collect failure is an error -- it never falls back "
-            "to a local run"
-        ),
-    )
-    args = p.parse_args(argv)
-    if args.timeout is None:
-        # Batch and local mean different things by `--timeout` (see the flag's
-        # help and issue #528), so the default has to follow the backend.
-        args.timeout = (
-            batch_sim.MC_BATCH_TIMEOUT_S if args.backend == "batch" else LOCAL_TIMEOUT_S
-        )
-    return args
+    batch_sim.add_mc_batch_args(p, samples_default=N_SAMPLES, local_timeout_s=LOCAL_TIMEOUT_S)
+    return batch_sim.parse_mc_args(p, argv, local_timeout_s=LOCAL_TIMEOUT_S)
 
 
 def main(argv: list[str]) -> int:
@@ -858,13 +828,7 @@ def main(argv: list[str]) -> int:
         groups = build_batch_groups(
             pin, body, points, (SIM_DIR / "spiceinit").read_text(), BUILD_DIR / "batch", args
         )
-        print("\n-- batch requests (one klt sim Monte Carlo request per point) --")
-        for g in groups:
-            mc = g.request["monte_carlo"]
-            print(f"  {g.request_path}  (n={mc['n']} seed={mc['seed']} vary={mc['vary']})")
-        print(f"\n-- request for {groups[0].label} --")
-        print(groups[0].request_path.read_text())
-        print(f"(dry run: nothing submitted, nothing written under sim/{SLUG}/)")
+        batch_sim.print_mc_batch_dry_run(groups, SLUG)
         return 0
 
     if args.dry_run:
