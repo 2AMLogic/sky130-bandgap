@@ -619,6 +619,115 @@ class TestLabelCollisionGate(unittest.TestCase):
         netlist = self.CLEAN_NETLIST.replace("G=GDRV", "G=$3|GDRV")
         self.assertEqual(self._check(netlist), ["$3|GDRV"])
 
+    # -- extract.json view: the headless pin for store-backed records -----
+    # Every record from here on is store-backed (issue #440 ruling), so in
+    # the no-broker CI job the current-record tripwire reads the record's
+    # committed extract.json instead of the netlist bytes. These pin that
+    # view against the same defect the netlist scan catches (issue #671).
+    def test_extract_view_reports_comma_merged_name_in_nets(self) -> None:
+        """`klt` writes the merged name as `A,B` in extract.json."""
+        extract = {
+            "merged_net_labels": [],
+            "nets": [{"name": "VDD"}, {"name": "TAIL,VOUT"}],
+        }
+        self.assertEqual(
+            gen_bandgap_routed.merged_pin_names_from_extract(extract),
+            ["TAIL,VOUT"],
+        )
+
+    def test_extract_view_reports_pipe_merged_name_in_nets(self) -> None:
+        extract = {"nets": [{"name": "VDD"}, {"name": "TAIL|VOUT"}]}
+        self.assertEqual(
+            gen_bandgap_routed.merged_pin_names_from_extract(extract),
+            ["TAIL|VOUT"],
+        )
+
+    def test_extract_view_reports_nonempty_merged_net_labels(self) -> None:
+        extract = {"merged_net_labels": ["TAIL", "VOUT"], "nets": []}
+        self.assertEqual(
+            gen_bandgap_routed.merged_pin_names_from_extract(extract),
+            ["TAIL", "VOUT"],
+        )
+
+    def test_extract_view_clean_dict_returns_empty(self) -> None:
+        extract = {
+            "merged_net_labels": [],
+            "nets": [{"name": "VDD"}, {"name": "VSS"}],
+        }
+        self.assertEqual(
+            gen_bandgap_routed.merged_pin_names_from_extract(extract), []
+        )
+
+    def test_extract_view_legacy_schema_with_labelled_nets_is_clean(self) -> None:
+        legacy = {"nets": [{"name": "VA"}, {"name": "VB"}]}
+        self.assertEqual(
+            gen_bandgap_routed.merged_pin_names_from_extract(legacy), []
+        )
+
+    def test_extract_view_without_any_signal_raises(self) -> None:
+        """An extract that cannot speak to label collisions fails the gate
+        rather than silently passing it: unknown schema, a `nets` list that
+        is empty, or one with only anonymous `$N` nets and no
+        `merged_net_labels`."""
+        for bad in (
+            {"schema_version": 0, "status": "ok"},
+            {"nets": []},
+            {"nets": [{"name": "$1"}, {"name": "$2"}]},
+        ):
+            with self.subTest(extract=bad):
+                with self.assertRaises(ValueError):
+                    gen_bandgap_routed.merged_pin_names_from_extract(bad)
+
+    def test_extract_view_flags_the_historical_collision_on_real_klt_output(
+        self,
+    ) -> None:
+        """Pinned on the real committed extract.json of the record the gate
+        was written for, not a hand-built fixture: `klt` emits the merged
+        names comma-joined there."""
+        record = (
+            REPO_ROOT / "layout/bandgap-core/reports/20260804-012421-1a97bf5"
+        )
+        extract = json.loads((record / "extract.json").read_text())
+        self.assertEqual(
+            gen_bandgap_routed.merged_pin_names_from_extract(extract),
+            [
+                "TAIL,VOUT",
+                "TRIM_A_CODE_MINUS16,VA",
+                "TRIM_B_CODE_MINUS16,VB",
+            ],
+        )
+
+    def test_extract_view_is_clean_on_every_committed_record_but_the_collided(
+        self,
+    ) -> None:
+        """Zero false positives against the committed corpus: only records
+        whose netlists carry a real collision may be flagged."""
+        collided = {
+            "20260803-232955-05e1b99",
+            "20260803-235842-b4bcce9",
+            "20260804-001742-bc9c31f",
+            "20260804-012421-1a97bf5",
+        }
+        reports = REPO_ROOT / "layout/bandgap-core/reports"
+        checked = 0
+        for extract_json in sorted(reports.glob("*/extract.json")):
+            flagged = gen_bandgap_routed.merged_pin_names_from_extract(
+                json.loads(extract_json.read_text())
+            )
+            with self.subTest(record=extract_json.parent.name):
+                self.assertEqual(
+                    bool(flagged), extract_json.parent.name in collided
+                )
+            checked += 1
+        self.assertGreater(checked, 0)
+
+    def test_store_backed_fallback_fails_without_extract_json(self) -> None:
+        """A store-backed record with no committed extract.json cannot be
+        pinned headless -- that is a failure, not a pass."""
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(AssertionError):
+                self._assert_store_backed_record_is_clean(Path(tmp))
+
     # -- regression corpus: the flow's own append-only evidence -------------
     # These read the checked-in records rather than a synthetic fixture, so
     # the gate is pinned against the exact netlists it was written to judge.
@@ -649,13 +758,36 @@ class TestLabelCollisionGate(unittest.TestCase):
         netlist = latest / "bandgap_core_routed.extract.spice"
         if not netlist.is_file():
             # Store-backed record (issue #440 ruling): the bytes live in the
-            # fleet artifact store and git keeps the manifest. Resolve the
-            # extract netlist through it, exactly the way the flow's own
-            # evidence index documents; without broker access there is
-            # nothing local to pin the gate against, so the check skips
-            # with the reason rather than silently passing.
-            netlist = self._fetch_from_artifact_store(latest_id, netlist)
+            # fleet artifact store and git keeps the manifest. With a broker
+            # the full netlist check still runs, resolved exactly the way
+            # the flow's own evidence index documents. Headless (the CI
+            # job's environment) there are no netlist bytes to scan, but
+            # the record's committed extract.json carries the same
+            # label-collision traces -- assert on those instead of
+            # skipping, so this tripwire never depends on a `klt` install
+            # (issue #671).
+            if shutil.which("klt") and os.environ.get("KLT_ARTIFACT_BROKER"):
+                netlist = self._fetch_from_artifact_store(latest_id, netlist)
+            else:
+                self._assert_store_backed_record_is_clean(latest)
+                return
         self.assertEqual(gen_bandgap_routed.assert_no_merged_pin_names(netlist), [])
+
+    def _assert_store_backed_record_is_clean(self, record: Path) -> None:
+        """Headless pin for a store-backed record: the label-collision
+        traces in the record's committed `extract.json` must be clean."""
+        extract_json = record / "extract.json"
+        self.assertTrue(
+            extract_json.is_file(),
+            f"store-backed record {record.name} has no committed extract.json "
+            f"at {extract_json} to pin the label-collision gate against",
+        )
+        self.assertEqual(
+            gen_bandgap_routed.merged_pin_names_from_extract(
+                json.loads(extract_json.read_text())
+            ),
+            [],
+        )
 
     def _fetch_from_artifact_store(
         self, record_id: str, in_tree: Path
@@ -682,11 +814,6 @@ class TestLabelCollisionGate(unittest.TestCase):
             f"no '{wanted}' entry in {manifest.name} to resolve the extract "
             "netlist from",
         )
-        if not shutil.which("klt") or not os.environ.get("KLT_ARTIFACT_BROKER"):
-            self.skipTest(
-                "LATEST record is store-backed and no artifact broker is "
-                "configured (need klt on PATH and $KLT_ARTIFACT_BROKER)"
-            )
         dest = Path(tempfile.mkdtemp(prefix="label-collision-")) / "extract.spice"
         proc = subprocess.run(
             ["klt", "artifact", "get", f"{manifest.relative_to(REPO_ROOT)}#{wanted}",
