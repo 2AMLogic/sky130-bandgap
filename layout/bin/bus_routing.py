@@ -2142,10 +2142,8 @@ def _draw_chain(
                 hops.append(hop)
                 attached = first
                 break
-            # Snapshot now, inside the loop: the next _connect clears
-            # _BLOCKER_COUNTS on entry, so read after the loop these globals
-            # describe only the *last* parent tried -- which is not the
-            # parent the failed hop below names (issue #683).
+            # Capture this parent's blockers before the next _connect
+            # clears the counts for its own attempt.
             attempts.append(
                 {
                     "from": first["name"],

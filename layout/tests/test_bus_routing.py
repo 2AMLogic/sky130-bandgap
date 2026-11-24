@@ -656,8 +656,7 @@ class TestDrawChainTree(unittest.TestCase):
         )
 
     def test_tree_success_after_earlier_parent_fails_emits_one_hop(self) -> None:
-        """A attachment reached on a later parent emits only the successful
-        hop: no failed hop, no `attempts` trail, for that terminal."""
+        """A terminal reached through a later parent emits only its successful hop."""
         def point(name: str, x: float, y: float) -> dict:
             return {"name": name, "pad": (x, y), "via": False}
 
