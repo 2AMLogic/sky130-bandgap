@@ -15,6 +15,26 @@ alongside the record, not into it, for the same reason
 `sim/quiescent-current-post-layout/README.md` exists: the record format has
 no field for a cross-record investigation.
 
+## Standing result on the thick-oxide layout record (issue #621)
+
+Record [`records/20261124-153804-39a20d81`](records/20261124-153804-39a20d81.md)
+(supersedes `20261115-185945-d4ae166e`) — measured on layout record
+`20261121-082021-3f43042b` (#620's thick-oxide GDS, store-backed, resolved through
+its artifact manifest; PDK-bound parasitics snapshot shared with the other six
+benches, pex spice sha256 `b4e37d42…`). **Overall: FAIL 45/45.** `psrr_dc`
+−3.56 to +0.27 dB and `psrr_1m` 0.30–3.71 dB: with the output riding the
+supply there is no rejection left to measure.
+
+The dominant cause is the record's incomplete VDD routing, not the oxide
+geometry: its `bus-summary.json` states `VDD` has 2 drawn components (the
+inter-block table marks VDD `routed: NO`), and the extraction strands
+`amp_pmirr` n-well/gate fingers and 11/16 `amp_cc` VDD-spine fingers on
+floating islands, so the error amplifier cannot regulate — `vref` rides
+`VDD − 0.24…0.3 V` at every corner. A DC repair probe (islands tied to VDD)
+moves `vref_27` 3.06 → 1.00 V at tt/27 °C/3.30 V, confirming causality. The
+layout-side fix is tracked in #669; the flavour gate on this snapshot is
+clean (19 nfet + 54 pfet `g5v0d10v5` wrappers).
+
 ## What the record says
 
 Record `20260812-011520-5df01bf` — full 45-point PVT matrix, **no** collapsed

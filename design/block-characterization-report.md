@@ -79,7 +79,11 @@ away.
   `20260817-020222-13476b7`, which is still on disk but is no longer cited by any row:
   rows 8b/8d, the last two holdouts, were restructured and re-run against the
   injector-inclusive record by issue #299. **Every post-layout row in this report now
-  cites the same layout record.**
+  cites the same layout record.** *Since 2026-11-24 (issue #621) `reports/LATEST`
+  selects the thick-oxide record `20261121-082021-3f43042b` instead — LVS
+  `mismatch_count: 5`, VDD unrouted, every post-layout bench on it FAILing — see the
+  2026-11-24 revision below and #669; the rows' citations above remain the
+  pre-thick-oxide measurements deliberately.*
 - **This artifact is stale, not wrong, the moment any of the following changes**:
   a new `sim/output-voltage-tc(-post-layout)/`, `sim/monte-carlo-untrimmed/`,
   `sim/psrr-dc(-post-layout)/`, `sim/psrr-dc-with-injector/` (row 4d),
@@ -294,6 +298,30 @@ away.
     revisions above — `./signoff/regenerate.sh` was re-run and
     `signoff/evidence/characterization.generic.json`, `signoff/block-manifest.json` and
     `signoff/signoff-report.json` were re-committed with it.
+- **Revision, 2026-11-24 (issue #621) — all seven post-layout benches re-run on #620's
+  thick-oxide record; every one FAILs, dominated by that record's unrouted VDD split.**
+  `layout/bandgap-core/reports/LATEST` now selects
+  `layout/bandgap-core/reports/20261121-082021-3f43042b` (issue #620 via PR #627:
+  thick-oxide geometry, HV-DRC/ERC/flavour clean, LVS `mismatch_count: 5`, composed
+  bbox 75,481 µm², store-backed GDS resolved through its artifact manifest since this
+  issue). The seven records of 2026-11-24 — one per bench, each superseding its
+  predecessor and all sharing one PDK-bound parasitics snapshot (pex spice sha256
+  `b4e37d42…`, flavour-gated clean at 19 nfet + 54 pfet `g5v0d10v5` wrappers) —
+  **FAIL at every corner** with `vref` riding `VDD − 0.24…0.3 V`: rows 1b/3b
+  (`vref_27` 2.603–3.504 V), 4b (`psrr_dc` −3.6…+0.3 dB), 5c (31–38 %/V), 6b
+  (52–309 µA), 8b/8d/8e (startup numbers that characterize a supply-tracking output,
+  not a working reference). **Attribution**: the record's own `bus-summary.json`
+  states `VDD` has 2 drawn components (its inter-block table marks VDD `routed: NO`),
+  and the extraction strands `amp_pmirr` n-well/gate fingers and 11/16 `amp_cc`
+  VDD-spine fingers on floating islands — a DC repair probe of those islands moves
+  `vref_27` 3.06 → 1.00 V at tt/27 °C/3.30 V, so the connectivity split, not the
+  oxide geometry, dominates these verdicts. The layout-side fix is tracked in
+  [#669](https://github.com/2AMLogic/sky130-bandgap/issues/669). Per this section's
+  own rule the newest record under each cited `sim/*/records/` directory is
+  authoritative for its own claim; this revision does not re-derive the §2 rows from
+  the failing records (they are superseded-in-waiting of #669's corrected layout),
+  and the rows' pre-thick-oxide citations stay as the last measurements of a
+  regulating extracted core. `./signoff/regenerate.sh` was re-run with this change.
 
 ## 1. What `klt signoff` already produces, and what it does not
 

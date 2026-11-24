@@ -29,6 +29,27 @@ in the overall verdict alone:
    pin (re-measured at the klt-0.8.0 pin by issue #560 on 2026-11-15, the divergence is now
    −10.5 % mean / −11.5 % at `tt/27 °C/3.30 V`; see that bench's `README.md`).
 
+## Standing result on the thick-oxide layout record (issue #621)
+
+Record [`records/20261124-153508-39a20d81`](records/20261124-153508-39a20d81.md)
+(supersedes `20261115-185945-d4ae166e`) — measured on layout record
+`20261121-082021-3f43042b` (#620's thick-oxide GDS, store-backed, resolved through
+its artifact manifest; PDK-bound parasitics snapshot shared with the other six
+benches, pex spice sha256 `b4e37d42…`). **Overall: FAIL 15/15.** `line_shift_mv`
+654.7–738.6 mV across the 2.97–3.63 V sweep (`line_reg_pct_per_v` 31.4–37.6,
+`line_psrr_db` near 0 dB): the output follows the supply rail-for-rail because
+the unregulated core passes VDD through (see the root cause below).
+
+The dominant cause is the record's incomplete VDD routing, not the oxide
+geometry: its `bus-summary.json` states `VDD` has 2 drawn components (the
+inter-block table marks VDD `routed: NO`), and the extraction strands
+`amp_pmirr` n-well/gate fingers and 11/16 `amp_cc` VDD-spine fingers on
+floating islands, so the error amplifier cannot regulate — `vref` rides
+`VDD − 0.24…0.3 V` at every corner. A DC repair probe (islands tied to VDD)
+moves `vref_27` 3.06 → 1.00 V at tt/27 °C/3.30 V, confirming causality. The
+layout-side fix is tracked in #669; the flavour gate on this snapshot is
+clean (19 nfet + 54 pfet `g5v0d10v5` wrappers).
+
 ## What the records say
 
 Two records back this write-up. Both are on the same commit (`9a2360a`),

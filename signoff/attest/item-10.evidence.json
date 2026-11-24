@@ -11,7 +11,7 @@
         "path": "signoff/attest/repo-hygiene.inventory.json",
         "scope": "repo"
       },
-      "content_hash": "sha256:f85e2bf357d66307be978cac4983f083c543f51a7c68cc2fe412d42af1c5c5b1"
+      "content_hash": "sha256:fa9e8d804f76d4d41819c899cbaf25daddaeb7cb4bae919031fd99deada0cccf"
     }
   },
   "note": "Produced by scripts/ci/attest_inventories.py in the artifact-anchored generic form klt 0.7.0 grades; replace with `klt signoff --attest` once a klayout-tools release carries it (klayout-tools#2844)."

@@ -1,15 +1,15 @@
 {
   "schema_version": 3,
-  "status": "pass",
-  "netlist": "sim/quiescent-current-post-layout/netlist-snapshots/20261115-185501-d4ae166e.spice",
+  "status": "fail",
+  "netlist": "sim/quiescent-current-post-layout/netlist-snapshots/20261124-153613-39a20d81.spice",
   "corner_count": 45,
-  "passed": 45,
-  "failed": 0,
+  "passed": 0,
+  "failed": 45,
   "errored": 0,
   "metrics": {
     "sim__corner__count": 45,
-    "sim__corner__passed_count": 45,
-    "sim__corner__failed_count": 0,
+    "sim__corner__passed_count": 0,
+    "sim__corner__failed_count": 45,
     "sim__corner__errored_count": 0
   },
   "coverage": {
@@ -24,8 +24,8 @@
     ],
     "recorded_from": [
       {
-        "file": "sim/quiescent-current-post-layout/records/20261115-185501-d4ae166e.json",
-        "sha256": "f9e97974cb8fc2ba932108834dcdaf351dcdb14915d567b6735ab86bb7e465ee"
+        "file": "sim/quiescent-current-post-layout/records/20261124-153613-39a20d81.json",
+        "sha256": "4e095a8916dfc8e4693f543b5bff0c85fe85468fb7d78a8f517e29b5f7f7a937"
       }
     ],
     "excluded_measurements": {
@@ -35,10 +35,10 @@
   },
   "provenance": {
     "input": {
-      "content_hash": "sha256:cf8db892b8be08d821f4fd0a952d124a88814b7260e5c48302cb7f5df0ba958d",
+      "content_hash": "sha256:8231efd82b4e02f665b1d565ce0f051ad658352c5bfe1546276ef3933d850a8a",
       "role": "netlist"
     },
-    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/quiescent-current-post-layout/netlist-snapshots/20261115-185501-d4ae166e.spice)"
+    "note": "no klt_version: no klt invocation produced this envelope (see mint); the input pin is the sha256 of the netlist snapshot the record simulated (sim/quiescent-current-post-layout/netlist-snapshots/20261124-153613-39a20d81.spice)"
   },
   "measurements": [
     {
@@ -50,11 +50,11 @@
         "max": 5e-05
       },
       "worst_case": {
-        "corner_id": "ss_-40c_3.63v",
-        "value": 1.710972e-05,
-        "margin": 1.610972e-05
+        "corner_id": "fs_125c_3.63v",
+        "value": 0.0003091558,
+        "margin": -0.00025915579999999996
       },
-      "status": "pass"
+      "status": "fail"
     }
   ],
   "corners": [
@@ -65,14 +65,14 @@
         "vdd": 2.97
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 1.780797e-05,
-          "status": "pass",
-          "margin": 1.680797e-05
+          "value": 6.013146e-05,
+          "status": "fail",
+          "margin": -1.013146e-05
         }
       ]
     },
@@ -83,14 +83,14 @@
         "vdd": 3.3
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 1.78308e-05,
-          "status": "pass",
-          "margin": 1.6830799999999998e-05
+          "value": 7.397626e-05,
+          "status": "fail",
+          "margin": -2.397626e-05
         }
       ]
     },
@@ -101,14 +101,14 @@
         "vdd": 3.63
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 1.784463e-05,
-          "status": "pass",
-          "margin": 1.684463e-05
+          "value": 9.681601e-05,
+          "status": "fail",
+          "margin": -4.681601e-05
         }
       ]
     },
@@ -119,14 +119,14 @@
         "vdd": 2.97
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.296888e-05,
-          "status": "pass",
-          "margin": 2.196888e-05
+          "value": 7.083469e-05,
+          "status": "fail",
+          "margin": -2.0834689999999998e-05
         }
       ]
     },
@@ -137,14 +137,14 @@
         "vdd": 3.3
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.298837e-05,
-          "status": "pass",
-          "margin": 2.198837e-05
+          "value": 8.743706e-05,
+          "status": "fail",
+          "margin": -3.743706e-05
         }
       ]
     },
@@ -155,14 +155,14 @@
         "vdd": 3.63
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.300008e-05,
-          "status": "pass",
-          "margin": 2.2000079999999998e-05
+          "value": 0.000111316,
+          "status": "fail",
+          "margin": -6.131600000000001e-05
         }
       ]
     },
@@ -173,14 +173,14 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 3.042999e-05,
-          "status": "pass",
-          "margin": 1.957001e-05
+          "value": 0.0001048302,
+          "status": "fail",
+          "margin": -5.4830199999999996e-05
         }
       ]
     },
@@ -191,14 +191,14 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 3.044509e-05,
-          "status": "pass",
-          "margin": 1.9554910000000002e-05
+          "value": 0.0002014919,
+          "status": "fail",
+          "margin": -0.0001514919
         }
       ]
     },
@@ -209,14 +209,14 @@
         "vdd": 3.63
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 3.060642e-05,
-          "status": "pass",
-          "margin": 1.9393580000000002e-05
+          "value": 0.0002818329,
+          "status": "fail",
+          "margin": -0.00023183290000000002
         }
       ]
     },
@@ -227,14 +227,14 @@
         "vdd": 2.97
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 1.747323e-05,
-          "status": "pass",
-          "margin": 1.647323e-05
+          "value": 5.929497e-05,
+          "status": "fail",
+          "margin": -9.294969999999996e-06
         }
       ]
     },
@@ -245,14 +245,14 @@
         "vdd": 3.3
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 1.729796e-05,
-          "status": "pass",
-          "margin": 1.629796e-05
+          "value": 7.129779e-05,
+          "status": "fail",
+          "margin": -2.1297790000000004e-05
         }
       ]
     },
@@ -263,14 +263,14 @@
         "vdd": 3.63
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 1.710972e-05,
-          "status": "pass",
-          "margin": 1.610972e-05
+          "value": 9.143311e-05,
+          "status": "fail",
+          "margin": -4.1433109999999995e-05
         }
       ]
     },
@@ -281,14 +281,14 @@
         "vdd": 2.97
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.255721e-05,
-          "status": "pass",
-          "margin": 2.1557209999999998e-05
+          "value": 6.899566e-05,
+          "status": "fail",
+          "margin": -1.8995660000000002e-05
         }
       ]
     },
@@ -299,14 +299,14 @@
         "vdd": 3.3
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.234491e-05,
-          "status": "pass",
-          "margin": 2.134491e-05
+          "value": 8.316479e-05,
+          "status": "fail",
+          "margin": -3.3164790000000004e-05
         }
       ]
     },
@@ -317,14 +317,14 @@
         "vdd": 3.63
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.2125e-05,
-          "status": "pass",
-          "margin": 2.1125e-05
+          "value": 0.0001044626,
+          "status": "fail",
+          "margin": -5.44626e-05
         }
       ]
     },
@@ -335,14 +335,14 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.995613e-05,
-          "status": "pass",
-          "margin": 2.004387e-05
+          "value": 9.528278e-05,
+          "status": "fail",
+          "margin": -4.528278e-05
         }
       ]
     },
@@ -353,14 +353,14 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.97127e-05,
-          "status": "pass",
-          "margin": 2.02873e-05
+          "value": 0.0001606531,
+          "status": "fail",
+          "margin": -0.0001106531
         }
       ]
     },
@@ -371,14 +371,14 @@
         "vdd": 3.63
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.949033e-05,
-          "status": "pass",
-          "margin": 2.0509670000000002e-05
+          "value": 0.0002641033,
+          "status": "fail",
+          "margin": -0.00021410330000000001
         }
       ]
     },
@@ -389,14 +389,14 @@
         "vdd": 2.97
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 1.785526e-05,
-          "status": "pass",
-          "margin": 1.6855259999999998e-05
+          "value": 6.115724e-05,
+          "status": "fail",
+          "margin": -1.1157239999999998e-05
         }
       ]
     },
@@ -407,14 +407,14 @@
         "vdd": 3.3
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 1.789195e-05,
-          "status": "pass",
-          "margin": 1.689195e-05
+          "value": 7.786403e-05,
+          "status": "fail",
+          "margin": -2.7864029999999998e-05
         }
       ]
     },
@@ -425,14 +425,14 @@
         "vdd": 3.63
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 1.792465e-05,
-          "status": "pass",
-          "margin": 1.692465e-05
+          "value": 0.0001031521,
+          "status": "fail",
+          "margin": -5.3152099999999995e-05
         }
       ]
     },
@@ -443,14 +443,14 @@
         "vdd": 2.97
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.304074e-05,
-          "status": "pass",
-          "margin": 2.204074e-05
+          "value": 7.339322e-05,
+          "status": "fail",
+          "margin": -2.3393219999999993e-05
         }
       ]
     },
@@ -461,14 +461,14 @@
         "vdd": 3.3
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.306704e-05,
-          "status": "pass",
-          "margin": 2.206704e-05
+          "value": 9.297486e-05,
+          "status": "fail",
+          "margin": -4.297486e-05
         }
       ]
     },
@@ -479,14 +479,14 @@
         "vdd": 3.63
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.310442e-05,
-          "status": "pass",
-          "margin": 2.210442e-05
+          "value": 0.0001196077,
+          "status": "fail",
+          "margin": -6.960770000000001e-05
         }
       ]
     },
@@ -497,14 +497,14 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 3.04955e-05,
-          "status": "pass",
-          "margin": 1.9504500000000003e-05
+          "value": 0.0001339651,
+          "status": "fail",
+          "margin": -8.396510000000001e-05
         }
       ]
     },
@@ -515,14 +515,14 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 3.054573e-05,
-          "status": "pass",
-          "margin": 1.9454270000000006e-05
+          "value": 0.0002250371,
+          "status": "fail",
+          "margin": -0.0001750371
         }
       ]
     },
@@ -533,14 +533,14 @@
         "vdd": 3.63
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 3.122222e-05,
-          "status": "pass",
-          "margin": 1.877778e-05
+          "value": 0.0002970417,
+          "status": "fail",
+          "margin": -0.0002470417
         }
       ]
     },
@@ -551,14 +551,14 @@
         "vdd": 2.97
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 1.793138e-05,
-          "status": "pass",
-          "margin": 1.693138e-05
+          "value": 5.241348e-05,
+          "status": "fail",
+          "margin": -2.4134799999999984e-06
         }
       ]
     },
@@ -569,14 +569,14 @@
         "vdd": 3.3
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 1.803415e-05,
-          "status": "pass",
-          "margin": 1.703415e-05
+          "value": 6.247712e-05,
+          "status": "fail",
+          "margin": -1.2477119999999998e-05
         }
       ]
     },
@@ -587,14 +587,14 @@
         "vdd": 3.63
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 1.814258e-05,
-          "status": "pass",
-          "margin": 1.714258e-05
+          "value": 7.797599e-05,
+          "status": "fail",
+          "margin": -2.7975989999999997e-05
         }
       ]
     },
@@ -605,14 +605,14 @@
         "vdd": 2.97
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.316823e-05,
-          "status": "pass",
-          "margin": 2.216823e-05
+          "value": 5.737423e-05,
+          "status": "fail",
+          "margin": -7.374229999999997e-06
         }
       ]
     },
@@ -623,14 +623,14 @@
         "vdd": 3.3
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.322874e-05,
-          "status": "pass",
-          "margin": 2.222874e-05
+          "value": 6.892919e-05,
+          "status": "fail",
+          "margin": -1.892919e-05
         }
       ]
     },
@@ -641,14 +641,14 @@
         "vdd": 3.63
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.328265e-05,
-          "status": "pass",
-          "margin": 2.228265e-05
+          "value": 8.650836e-05,
+          "status": "fail",
+          "margin": -3.650836e-05
         }
       ]
     },
@@ -659,14 +659,14 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 3.05828e-05,
-          "status": "pass",
-          "margin": 1.94172e-05
+          "value": 6.902615e-05,
+          "status": "fail",
+          "margin": -1.9026149999999994e-05
         }
       ]
     },
@@ -677,14 +677,14 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 3.0604e-05,
-          "status": "pass",
-          "margin": 1.9396000000000002e-05
+          "value": 8.512593e-05,
+          "status": "fail",
+          "margin": -3.5125930000000004e-05
         }
       ]
     },
@@ -695,14 +695,14 @@
         "vdd": 3.63
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 3.064015e-05,
-          "status": "pass",
-          "margin": 1.935985e-05
+          "value": 0.0001061218,
+          "status": "fail",
+          "margin": -5.6121799999999995e-05
         }
       ]
     },
@@ -713,14 +713,14 @@
         "vdd": 2.97
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 1.785357e-05,
-          "status": "pass",
-          "margin": 1.685357e-05
+          "value": 8.53832e-05,
+          "status": "fail",
+          "margin": -3.5383200000000004e-05
         }
       ]
     },
@@ -731,14 +731,14 @@
         "vdd": 3.3
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 1.786505e-05,
-          "status": "pass",
-          "margin": 1.686505e-05
+          "value": 0.0001033466,
+          "status": "fail",
+          "margin": -5.3346599999999995e-05
         }
       ]
     },
@@ -749,14 +749,14 @@
         "vdd": 3.63
       },
       "temperature_c": -40.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 1.786849e-05,
-          "status": "pass",
-          "margin": 1.686849e-05
+          "value": 0.000132381,
+          "status": "fail",
+          "margin": -8.2381e-05
         }
       ]
     },
@@ -767,14 +767,14 @@
         "vdd": 2.97
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.298156e-05,
-          "status": "pass",
-          "margin": 2.198156e-05
+          "value": 0.0001129848,
+          "status": "fail",
+          "margin": -6.298480000000001e-05
         }
       ]
     },
@@ -785,14 +785,14 @@
         "vdd": 3.3
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.299082e-05,
-          "status": "pass",
-          "margin": 2.199082e-05
+          "value": 0.0001467673,
+          "status": "fail",
+          "margin": -9.676730000000001e-05
         }
       ]
     },
@@ -803,14 +803,14 @@
         "vdd": 3.63
       },
       "temperature_c": 27.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 2.299764e-05,
-          "status": "pass",
-          "margin": 2.199764e-05
+          "value": 0.0002589149,
+          "status": "fail",
+          "margin": -0.0002089149
         }
       ]
     },
@@ -821,14 +821,14 @@
         "vdd": 2.97
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 3.043889e-05,
-          "status": "pass",
-          "margin": 1.9561110000000002e-05
+          "value": 0.0001891326,
+          "status": "fail",
+          "margin": -0.0001391326
         }
       ]
     },
@@ -839,14 +839,14 @@
         "vdd": 3.3
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 3.047073e-05,
-          "status": "pass",
-          "margin": 1.952927e-05
+          "value": 0.0002484865,
+          "status": "fail",
+          "margin": -0.00019848649999999998
         }
       ]
     },
@@ -857,14 +857,14 @@
         "vdd": 3.63
       },
       "temperature_c": 125.0,
-      "status": "pass",
+      "status": "fail",
       "measurements": [
         {
           "name": "iq",
           "unit": "A",
-          "value": 3.059943e-05,
-          "status": "pass",
-          "margin": 1.9400570000000003e-05
+          "value": 0.0003091558,
+          "status": "fail",
+          "margin": -0.00025915579999999996
         }
       ]
     }

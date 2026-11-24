@@ -2,6 +2,30 @@
 
 See [`sim/README.md`](../README.md) for the harness; this file carries the per-bench description and record history.
 
+## Standing result on the thick-oxide layout record (issue #621)
+
+Record [`records/20261124-154028-39a20d81`](records/20261124-154028-39a20d81.md)
+(supersedes `20261113-111050-7efdcf3b`) — measured on layout record
+`20261121-082021-3f43042b` (#620's thick-oxide GDS, store-backed, resolved through
+its artifact manifest). This is the first startup-time record on the PDK-bound
+snapshot path: LATEST no longer names `20260923-070209-dbd57a9`, so the
+klt-0.5.0 legacy-snapshot exception did not fire, and the record shares the
+campaign's single snapshot (pex spice sha256 `b4e37d42…`) with the other six
+benches. **Overall: FAIL 45/45.** `t_start_ms` 0.080–0.388 ms with
+`vref_final` 2.579–3.505 V: the "startup time" is the unregulated output
+riding the supply ramp through the 1.08 V crossing, not a regulation
+acquisition — read against the root cause below, these numbers do not
+characterize startup of a working reference.
+
+The dominant cause is the record's incomplete VDD routing, not the oxide
+geometry: its `bus-summary.json` states `VDD` has 2 drawn components (the
+inter-block table marks VDD `routed: NO`), and the extraction strands
+`amp_pmirr` n-well/gate fingers and 11/16 `amp_cc` VDD-spine fingers on
+floating islands, so the error amplifier cannot regulate. A DC repair probe
+(islands tied to VDD) moves `vref_27` 3.06 → 1.00 V at tt/27 °C/3.30 V,
+confirming causality. The layout-side fix is tracked in #669; the flavour
+gate on this snapshot is clean (19 nfet + 54 pfet `g5v0d10v5` wrappers).
+
 ## Experiment description and record history
 
 Moved verbatim from the "Experiments that do not go through the corner runner" table in `sim/README.md` (issue #339). The newest entry under `records/` is authoritative for the current verdict; the text below was written when the cited records were current.
