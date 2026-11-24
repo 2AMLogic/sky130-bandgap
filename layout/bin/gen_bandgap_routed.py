@@ -1282,31 +1282,40 @@ def merged_pin_names_from_extract(extract: dict[str, Any]) -> list[str]:
     not keep (issue #440 ruling).
 
     `klt extract` leaves two independent traces of "two labels, one net":
-    the `merged_net_labels` list, and the merged name surviving verbatim in
-    `nets[].name` -- the same `A|B` notation :func:`assert_no_merged_pin_names`
-    scans the netlist for. Either trace is enough to flag the collision.
+    the `merged_net_labels` list (current schema only; never observed
+    populated in the tree), and the merged name in `nets[].name`. The two
+    writers disagree on notation: the netlist carries `A|B` (what
+    :func:`assert_no_merged_pin_names` scans for) but `extract.json` carries
+    `A,B` -- measured on every collided record in the tree (e.g.
+    `20260804-012421-1a97bf5`: `TAIL,VOUT`) and on none of the clean ones.
+    Both separators are flagged so neither writer's convention is assumed.
 
     Returns the offending names (empty is the only acceptable result).
-    Raises ValueError when the dict carries neither trace: an extract from
-    an unknown schema must fail the gate, not silently pass it.
+    Raises ValueError when the dict carries no usable signal -- neither a
+    `merged_net_labels` list nor at least one labelled (non-`$N`) entry in
+    `nets[]`: an extract that cannot say anything about label collisions
+    must fail the gate, not silently pass it.
     """
     merged_labels = extract.get("merged_net_labels")
     nets = extract.get("nets")
-    if not isinstance(merged_labels, list) and not isinstance(nets, list):
+    net_names = [
+        str(net.get("name", ""))
+        for net in (nets if isinstance(nets, list) else [])
+        if isinstance(net, dict)
+    ]
+    has_labelled_net = any(
+        name and not name.startswith("$") for name in net_names
+    )
+    if not isinstance(merged_labels, list) and not has_labelled_net:
         raise ValueError(
-            "extract.json carries neither merged_net_labels nor nets[] -- "
-            f"no label-collision signal to assert on (keys: {sorted(extract)})"
+            "extract.json carries neither a merged_net_labels list nor any "
+            "labelled nets[] entry -- no label-collision signal to assert on "
+            f"(keys: {sorted(extract)})"
         )
     names: set[str] = set()
     if isinstance(merged_labels, list):
         names.update(str(label) for label in merged_labels if str(label).strip())
-    if isinstance(nets, list):
-        for net in nets:
-            if not isinstance(net, dict):
-                continue
-            name = str(net.get("name", ""))
-            if "|" in name:
-                names.add(name)
+    names.update(name for name in net_names if "|" in name or "," in name)
     return sorted(names)
 
 
