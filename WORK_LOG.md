@@ -9,6 +9,12 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-24
 
+- **PR #666**: chore: ignore account-ranking.codex in loom-managed gitignore block
+- **PR #664**: feat(layout): keep routed-flow summary files out of the artifact store
+- **PR #661**: test: catch short+long add_argument forms in SharedOptionTailGuard
+- **Issue #665** (closed): gitignore the daemon's account-ranking runtime state
+- **Issue #657** (closed): Follow-on from PR #627: filter reports/<record-id>/ summary files out of publish
+- **Issue #660** (closed): SharedOptionTailGuard: registration regex misses the short+long add_argument form
 - **PR #659**: test: make SharedOptionTailGuard quote-agnostic and guard --corners repo-wide
 - **PR #658**: refactor(sim): share the MC batch CLI block and dry-run print
 - **PR #627**: feat(layout): draw the MOS blocks at 5 V thick-oxide and gate flavour, HV DRC and supply ERC in the routed flow
