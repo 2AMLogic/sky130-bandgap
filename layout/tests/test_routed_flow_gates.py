@@ -1454,6 +1454,45 @@ class TestWellBoxClassification(unittest.TestCase):
 # ---------------------------------------------------------------------------
 # The gate composition itself
 # ---------------------------------------------------------------------------
+def _amp_cards(*, floating: int = 0, drop: int = 0) -> str:
+    """A PDK-bound netlist fragment holding the 32 amp PFET cards the
+    schematic states; `floating` moves that many MCC cards' gate+bulk onto
+    an unnamed island (the November record's defect), `drop` removes cards."""
+    cards = []
+    for i in range(16):
+        g, b = ("\\$9", "\\$9") if i < floating else ("GDRV", "VDD")
+        cards.append(f"X$c{i} VDD {g} VDD {b} sky130_fd_pr__pfet_g5v0d10v5 L=20 W=30")
+    for i in range(8):
+        cards.append(f"X$a{i} PN PN VDD VDD sky130_fd_pr__pfet_g5v0d10v5 L=20 W=6")
+        cards.append(f"X$b{i} GDRV PN VDD VDD sky130_fd_pr__pfet_g5v0d10v5 L=20 W=6")
+    return "\n".join(cards[: len(cards) - drop]) + "\n"
+
+
+class TestAmpTerminalCensus(unittest.TestCase):
+    """`check_amp_terminal_census` (issue #669)."""
+
+    def test_schematic_wiring_passes(self) -> None:
+        self.assertTrue(gen_bandgap_routed.check_amp_terminal_census(_amp_cards())["clean"])
+
+    def test_diffusion_pair_is_unordered(self) -> None:
+        text = _amp_cards().replace("X$b0 GDRV PN VDD", "X$b0 VDD PN GDRV")
+        self.assertTrue(gen_bandgap_routed.check_amp_terminal_census(text)["clean"])
+
+    def test_floating_island_terminals_fail(self) -> None:
+        result = gen_bandgap_routed.check_amp_terminal_census(_amp_cards(floating=11))
+        self.assertFalse(result["clean"])
+        self.assertEqual(sum(c["cards"] for c in result["bad_cards"]), 11)
+
+    def test_missing_card_fails(self) -> None:
+        result = gen_bandgap_routed.check_amp_terminal_census(_amp_cards(drop=1))
+        self.assertFalse(result["clean"])
+        self.assertTrue(result["count_mismatches"])
+
+    def test_wrong_named_net_fails(self) -> None:
+        text = _amp_cards().replace("X$a0 PN PN VDD VDD", "X$a0 PN PN VDD VSS")
+        self.assertFalse(gen_bandgap_routed.check_amp_terminal_census(text)["clean"])
+
+
 class TestFlowGate(unittest.TestCase):
     """`flow_gate()` is the flow's exit status. Its job is to fail on any one
     condition -- an "and" written as ten separate rows so a failing run can
@@ -1474,6 +1513,7 @@ class TestFlowGate(unittest.TestCase):
         "mos_flavour_clean": True,
         "hv_drc_clean": True,
         "erc_supply_clean": True,
+        "amp_terminals_named": True,
     }
 
     def test_all_conditions_met_passes(self) -> None:
@@ -1519,6 +1559,9 @@ class TestFlowGate(unittest.TestCase):
             # Supply/tie ERC on the exact composed GDS, gated exactly like
             # run-erc-supply-flow.sh gates the committed records.
             "erc_supply_clean": {"erc_supply_clean": False},
+            # Issue #669: no amp_pmirr/amp_cc PFET terminal on an unnamed
+            # island or the wrong net in the PDK-bound extraction.
+            "amp_terminals_named": {"amp_terminals_named": False},
         }
         self.assertEqual(
             set(failures), set(gen_bandgap_routed.flow_gate(**self.PASSING)),

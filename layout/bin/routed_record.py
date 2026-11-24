@@ -1158,6 +1158,7 @@ def render_record(
     )
     a(
         "- [`hv-drc.json`](hv-drc.json), [`flavour.json`](flavour.json), "
+        "[`amp-terminal-census.json`](amp-terminal-census.json), "
         "[`erc.json`](erc.json), "
         "[`erc.negative-control.json`](erc.negative-control.json), "
         "[`erc-verdict.json`](erc-verdict.json), "

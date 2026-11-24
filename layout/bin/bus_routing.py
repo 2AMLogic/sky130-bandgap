@@ -1768,9 +1768,20 @@ def _route_one_net(
         # zig-zags across the floorplan asks the open-channel router for
         # corridors that a chain visiting the same terminals in a
         # friendlier order never needs.
-        for plan in _chain_orders(resolved):
+        orders = _chain_orders(resolved)
+        # Tree attachment is the fallback when no open chain routes: the same
+        # visit orders, but each terminal may join any nearer member.
+        plans = [(p, False) for p in orders] + [(p, True) for p in orders]
+        chain_routed = False
+        for plan, as_tree in plans:
+            if as_tree and chain_routed:
+                # A chain already routed this assignment (and was only passed
+                # over by `skip_first`); a tree is purely a fallback, so it
+                # must not mint extra "next solutions" for the repair pass.
+                break
             mark = bus.mark()
-            hops, routed = _draw_chain(bus, net, plan, channels)
+            hops, routed = _draw_chain(bus, net, plan, channels, tree=as_tree)
+            chain_routed = chain_routed or routed
             score = (0 if routed else 1, sum(1 for h in hops if not h["routed"]))
             if routed and skipped < skip_first:
                 # A fully-routed candidate, but the repair pass asked for
@@ -2070,13 +2081,25 @@ def _chain_orders(points: list[dict[str, Any]]) -> list[list[dict[str, Any]]]:
     return unique
 
 
+#: How many nearest already-connected terminals a `tree=True`
+#: :func:`_draw_chain` tries to attach a new terminal to before giving up.
+TREE_MAX_ATTACH = 3
+
+
 def _draw_chain(
     bus: "met1_bus.Met1Bus",
     net: str,
     plan: list[dict[str, Any]],
     channels: dict[str, list[float]] | None = None,
+    tree: bool = False,
 ) -> tuple[list[dict[str, Any]], bool]:
     """Draw one node's vias, escape stubs and chain hops in `plan` order.
+
+    `tree=True` joins each terminal to the *nearest already-connected*
+    terminal that a path exists to, instead of strictly to its predecessor
+    (:data:`TREE_MAX_ATTACH` nearest tried). An open chain loses everything
+    behind one unroutable hop; a tree lets a terminal that cannot reach its
+    chain neighbour attach to another member of the same node.
 
     Every point's `x`/`y` is reset from its `pad` before drawing, so a plan
     can be retried after an earlier one moved a terminal onto its escape stub.
@@ -2099,7 +2122,42 @@ def _draw_chain(
 
     hops: list[dict[str, Any]] = []
     routed = True
-    for first, second in zip(plan, plan[1:]):
+    if tree:
+        pairs = []
+    else:
+        pairs = list(zip(plan, plan[1:]))
+    for idx, second in enumerate(plan[1:], start=1) if tree else ():
+        # Terminals before `idx` are already one connected piece (each was
+        # attached below, or the hop failed and the plan is unrouted).
+        near = sorted(
+            plan[:idx],
+            key=lambda p: abs(p["x"] - second["x"]) + abs(p["y"] - second["y"]),
+        )[:TREE_MAX_ATTACH]
+        attached = None
+        for first in near:
+            hop = _connect(
+                bus, net, (first["x"], first["y"]),
+                (second["x"], second["y"]), channels,
+            )
+            if hop is not None:
+                hop.update(
+                    {"from": first["name"], "to": second["name"], "routed": True}
+                )
+                hops.append(hop)
+                attached = first
+                break
+        if attached is None:
+            routed = False
+            hops.append(
+                {
+                    "from": near[0]["name"],
+                    "to": second["name"],
+                    "routed": False,
+                    "blocked_by": _LAST_BLOCKER[0] if _LAST_BLOCKER else None,
+                    "blocked_by_counts": dict(_BLOCKER_COUNTS.most_common()),
+                }
+            )
+    for first, second in pairs:
         hop = _connect(
             bus, net, (first["x"], first["y"]), (second["x"], second["y"]),
             channels,

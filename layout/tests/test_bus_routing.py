@@ -542,6 +542,47 @@ class TestDrawChainBlockedByCounts(unittest.TestCase):
         self.assertNotIn("blocked_by_counts", hops[0])
 
 
+class TestDrawChainTree(unittest.TestCase):
+    """`_draw_chain(tree=True)` (issue #669): a terminal that cannot reach its
+    chain predecessor attaches to another already-connected terminal, instead
+    of stranding itself and everything behind it."""
+
+    def test_tree_attaches_to_a_reachable_member(self) -> None:
+        # wall_bus walls both elbows of the P0-P1 hop; P2 sits clear of both,
+        # so P1 can only join the node through P2.
+        def point(name: str, x: float, y: float) -> dict:
+            return {"name": name, "pad": (x, y), "via": False}
+
+        p0, p1, p2 = point("P0", 0.0, 0.0), point("P1", 10.0, 10.0), point("P2", 10.0, 5.0)
+        with zero_detour(), met1_only():
+            _, chain_routed = bus_routing._draw_chain(
+                wall_bus("WALL"), "N1", [p0, p1, p2]
+            )
+            self.assertFalse(chain_routed, "the chain order strands P1")
+            hops, routed = bus_routing._draw_chain(
+                wall_bus("WALL"), "N1", [p0, p2, p1], tree=True
+            )
+        self.assertTrue(routed)
+        self.assertEqual([(h["from"], h["to"]) for h in hops], [("P0", "P2"), ("P2", "P1")])
+
+    def test_tree_reports_the_failed_attachment(self) -> None:
+        with zero_detour(), met1_only():
+            bus = wall_bus("WALL")
+            hops, routed = bus_routing._draw_chain(
+                bus, "N1",
+                [
+                    {"name": "P0", "pad": (0.0, 0.0), "via": False},
+                    {"name": "P1", "pad": (10.0, 10.0), "via": False},
+                ],
+                tree=True,
+            )
+        self.assertFalse(routed)
+        self.assertEqual(hops[0]["from"], "P0")
+        self.assertEqual(hops[0]["to"], "P1")
+        self.assertFalse(hops[0]["routed"])
+        self.assertEqual(hops[0]["blocked_by"], "WALL")
+
+
 class TestChannelPaths(unittest.TestCase):
     """`_channel_paths()` is the shape a cross-floorplan hop needs that no
     elbow or single-jog Z can express -- see its own docstring. These check
