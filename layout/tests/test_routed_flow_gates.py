@@ -1457,7 +1457,7 @@ class TestWellBoxClassification(unittest.TestCase):
 def _amp_cards(*, floating: int = 0, drop: int = 0) -> str:
     """A PDK-bound netlist fragment holding the 32 amp PFET cards the
     schematic states; `floating` moves that many MCC cards' gate+bulk onto
-    an unnamed island (the November record's defect), `drop` removes cards."""
+    an unnamed island for a synthetic negative test, `drop` removes cards."""
     cards = []
     for i in range(16):
         g, b = ("\\$9", "\\$9") if i < floating else ("GDRV", "VDD")
@@ -1482,6 +1482,40 @@ class TestAmpTerminalCensus(unittest.TestCase):
         result = gen_bandgap_routed.check_amp_terminal_census(_amp_cards(floating=11))
         self.assertFalse(result["clean"])
         self.assertEqual(sum(c["cards"] for c in result["bad_cards"]), 11)
+
+    def test_measured_vdd_split_and_repair(self) -> None:
+        snapshots = REPO_ROOT / "sim/output-voltage-tc-post-layout/parasitics-snapshot"
+
+        def census(record):
+            path = snapshots / f"{record}-pdk" / "bandgap_core_routed.pex.spice"
+            lines = [line.split() for line in path.read_text().splitlines()]
+            # Each PEX star resistor joins its device terminal to the extracted
+            # net. Keep SPICE continuations (some contain the finger width).
+            parent = {
+                row[1]: row[2] for row in lines
+                if row and row[0].startswith("R") and "__t" in row[1]
+            }
+            cards = [
+                " ".join(parent.get(token, token) for token in row)
+                for row in lines if row and row[0].startswith(("X", "+"))
+            ]
+            return gen_bandgap_routed.check_amp_terminal_census("\n".join(cards))
+
+        split = census("20261121-082021-3f43042b")
+        self.assertFalse(split["clean"])
+        # Only the VDD diffusion of each MP3/MP4 finger moved to the island.
+        # The MCC signatures and counts already matched in the predecessor.
+        self.assertCountEqual(split["bad_cards"], [
+            {"L": 20, "W": 6, "diffusion": [other, r"\$172"], "gate": "PN",
+             "bulk": "VDD", "cards": 8}
+            for other in ("PN", "GDRV")
+        ])
+        self.assertCountEqual(split["count_mismatches"], [
+            {"L": 20, "W": 6, "diffusion": [other, "VDD"], "gate": "PN",
+             "bulk": "VDD", "expected": 8, "observed": 0}
+            for other in ("PN", "GDRV")
+        ])
+        self.assertTrue(census("20261124-181030-d436ab4c")["clean"])
 
     def test_missing_card_fails(self) -> None:
         result = gen_bandgap_routed.check_amp_terminal_census(_amp_cards(drop=1))

@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -28,6 +29,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from gen_bandgap_routed import (  # noqa: E402
+    AMP_M_CC,
     BLOCKS,
     DUMMY_DEVICE_NOTE,
     HV_FIXUP_NOTE,
@@ -78,6 +80,35 @@ class RecordResult:
     erc_clean: bool = True
 
 
+def lvs_findings(
+    lvs: dict[str, Any], extract: dict[str, Any], amp_census: dict[str, Any] | None
+) -> list[str]:
+    """Render this run's LVS findings and the independent PDK-bound census."""
+    devices = lvs.get("counts", {}).get("devices", {})
+    lines = [
+        f"`klt extract` reported {extract.get('device_count')} drawn devices. "
+        f"The LVS comparison counted {devices.get('layout')} layout devices "
+        f"and matched {devices.get('matched')} to the reference.",
+        "",
+    ]
+    findings = Counter(
+        (item["category"], item["severity"]) for item in lvs.get("mismatches", [])
+    )
+    for (category, severity), count in sorted(findings.items()):
+        lines.append(f"- `{category}` — {count} {severity}{'s' if count != 1 else ''}.")
+    if amp_census is not None:
+        if findings:
+            lines.append("")
+        if amp_census["clean"]:
+            lines.append(
+                f"The PDK-bound terminal census places all {AMP_M_CC} MCC fingers "
+                "on GDRV (gate) and VDD (both diffusions and bulk)."
+            )
+        else:
+            lines.append("The amplifier terminal census failed. See [the census](amp-terminal-census.json).")
+    return lines
+
+
 def render_record(
     *,
     args: argparse.Namespace,
@@ -103,6 +134,7 @@ def render_record(
     flavour: dict[str, Any] | None = None,
     hv_drc: dict[str, Any] | None = None,
     erc: dict[str, Any] | None = None,
+    amp_census: dict[str, Any] | None = None,
 ) -> RecordResult:
     """Render the acceptance-criteria scoreboard + prose record.md.
 
@@ -945,49 +977,9 @@ def render_record(
             f"{block.get('matched')} |"
         )
     a("")
-    a(
-        "Device counts here are **after** `klt lvs`'s "
-        "`options.combine_devices` has folded both sides (this increment "
-        "turns it on): the layout's series ladder segments and parallel "
-        "array units collapse into the lumped devices the schematic states, "
-        "which is only possible because the busses above are actually drawn. "
-        f"`klt extract` saw {extract.get('device_count')} drawn devices; the "
-        f"comparison sees {lvs_devices.get('layout')}."
-    )
+    lines.extend(lvs_findings(lvs, extract, amp_census))
     a("")
-    a(f"Mismatch categories: `{json.dumps(lvs.get('category_counts', {}))}`.")
-    a("")
-    a(
-        "The residual gap has exactly **one** disclosed cause left, as of "
-        "this (issue #108) increment, and it is neither a topology error "
-        "in either netlist, a connectivity difference, nor a layout "
-        "defect: the single deliberately-undrawn device. Seven causes "
-        "tracked by prior records -- the deck-synthesized substrate net, "
-        "undeclarable array dummies, the resistor device-class arity "
-        "mismatch, unrouted schematic nodes, the R2 divider leg length, "
-        "the PNP `ae`/`pe`/`ne` transcription gap, and (as of this "
-        "increment) the `res_high_po` per-instance head-resistance value "
-        "gap -- are **retired**; see \"Retired since the last increment\" "
-        "below."
-    )
-    a("")
-    a(
-        "1. **`MMCC`, the amp's compensation cap, is in the reference but "
-        "deliberately not drawn in this layout** (see the Blocks note "
-        "above), so one reference device has no layout counterpart by "
-        "construction. This is the *only* mismatch on either side."
-    )
-    a("")
-    a(
-        "Not worked around by editing either netlist to match the other. "
-        "`reference.spice` states design/bandgap_core.sch; rewriting it to "
-        "enumerate the layout's own shortfalls would make LVS compare the "
-        "layout against itself, which is not evidence. `MMCC` is a "
-        "deliberate scope choice (a single-ended compensation cap this "
-        "layout does not draw), not a defect either side could fix."
-    )
-    a("")
-    a("### Retired since the last increment")
+    a("### Changes in earlier layout records")
     a("")
     a(
         "- **The R2 divider legs draw the length the schematic specifies.** "
@@ -1006,7 +998,7 @@ def render_record(
         "already occupied it. Retired by 2AMLogic/klayout-tools#508 (merged "
         "via #511) plus the escape router built on it -- see \"The met2 "
         "escape plane\" above. `net.split` and `net.merged` are both **0** "
-        "in the categories line above; they were 10 and 3."
+        "in that comparison; they were previously 10 and 3."
     )
     a(
         "- **The trim ladder's nodes no longer split R2A/R2B into unpairable "
@@ -1047,7 +1039,7 @@ def render_record(
         "exactly reproducing what "
         "`combine_devices` sums the layout side to. Measured: `R1`/`R2A`/"
         "`R2B` all move from `device.property` mismatches to full matches, "
-        "`mismatch_count` moving from 4 (pre-resize) to the 1 above."
+        "`mismatch_count` moving from 4 (pre-resize) to 1 in the issue #108 comparison."
     )
     a(
         "- **The R2 leg is drawn one coarse unit longer (issue #178).** "
@@ -1060,30 +1052,6 @@ def render_record(
     a("")
     a("## What this record does NOT claim")
     a("")
-    a(
-        f"- **Not LVS-clean.** `klt lvs` reports `{lvs.get('status')}` with "
-        f"`mismatch_count={lvs.get('mismatch_count')}` against the "
-        "xschem-derived reference netlist, and `devices.matched` is "
-        f"{lvs_devices.get('matched')}. The one cause above (`MMCC`, "
-        "deliberately not drawn) is the whole of it. The count moved "
-        "18 -> 4 when reference.spice's PNP cards gained emitter geometry "
-        "(a transcription fix, not a drawn-shape change), held at 4 across "
-        "issue #91's R2-leg-length fix and picking up klayout-tools#518/"
-        "#519/#521/#526's `res_high_po` head-resistance correction (which "
-        "made the disclosed `r` delta *larger*, not smaller, because this "
-        "flow's own trim-tap decomposition charges the fixed per-instance "
-        "offset once per drawn primitive rather than once per logical "
-        "device -- see "
-        "layout/generator-notes.md#res-head-resistance-note), and now "
-        "moves 4 -> 1 "
-        "with issue #108's resize propagation: reference.spice now states "
-        "the CHAINED value for `R1`/`R2A`/`R2B` "
-        "(layout/generator-notes.md#res-resize-note, "
-        "reference.spice's own RESISTOR VALUE CONVENTION note) instead of "
-        "the single-device approximation, which is what `combine_devices` "
-        "actually sums the layout side to -- so the three `device.property` "
-        "mismatches this cause carried are gone, not just smaller."
-    )
     if full_connectivity:
         a(
             "- **Fully inter-block routed, but not on one plane.** All "
@@ -1110,15 +1078,6 @@ def render_record(
             "coverage table names per row."
         )
     a(
-        "- **MOS finger bussing is drawn, and the m=N devices it produces "
-        "are this record's own claim, not the tool's.** Each `bus_mos_comb` "
-        "trunk is hand-placed geometry; what makes it evidence is that "
-        "`klt extract` reads the drawn shapes back and `klt lvs`'s "
-        "`combine_devices` folds the fingers into a single device with the "
-        "schematic's own W -- see the device table in the extracted netlist, "
-        "not this sentence."
-    )
-    a(
         "- **The PNP devices are drawn geometry recognised by the deck, not "
         "vendor `pnp_05v5` cell instances.** `klt gen bjt_array` draws a "
         "matching-faithful floorplan from base layers by design (its own "
@@ -1132,7 +1091,7 @@ def render_record(
         "is real drawn connectivity -- both new this increment.** The "
         f"`pnp` and `{RES_CLASS}` counts above already exclude each "
         f"array's dummy edge units ({extract.get('dummy_devices_dropped', 0)} "
-        "dropped this run); see \"Retired since the last increment\" above "
+        "dropped this run); see \"Changes in earlier layout records\" above "
         "for both."
     )
     a("")

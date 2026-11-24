@@ -263,7 +263,7 @@ INTERNAL_NODE_LABEL_NOTE = (
     "them. Measured in isolation before being fixed: re-running `klt lvs` on "
     "the identical extracted netlist with only those four pins removed took "
     "`mismatch_count` 26 -> 18 and `device.unmatched` 13 -> **1** (the "
-    "deliberately-undrawn `MCC`), with `net.unmatched` going 6 -> 0. Fixed "
+    "then-undrawn `MCC`), with `net.unmatched` going 6 -> 0. Fixed "
     "here by not labelling a net declared `internal` to a schematic device, "
     "and by reporting the trim taps into the record instead of into `pins[]` "
     "-- the taps are still documented, they are just no longer asserted to "
@@ -1753,7 +1753,7 @@ def check_amp_terminal_census(netlist_text: str) -> dict[str, Any]:
     fails the count, a mis-wired one fails the signature.
     """
     observed: dict[tuple[float, float], dict[tuple[Any, ...], int]] = {}
-    for line in netlist_text.splitlines():
+    for line in netlist_text.replace("\n+", " ").splitlines():
         tokens = line.strip().split()
         if (
             len(tokens) <= X_CARD_MODEL_FIELD
@@ -2713,6 +2713,7 @@ def main() -> int:
         flavour=flavour,
         hv_drc=hv_drc,
         erc=erc,
+        amp_census=amp_census,
     )
     print(record.text)
 

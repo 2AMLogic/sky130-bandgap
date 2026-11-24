@@ -1750,11 +1750,11 @@ def _route_one_net(
     # `skip_first` asks for it to be passed over).
     best_score: tuple[int, int] | None = None
     best_plan: list[dict[str, Any]] = []
+    best_tree = False
     best_claims: list[tuple[str, str]] = []
     hops: list[dict[str, Any]] = []
     routed = False
     skipped = 0
-    resolved: list[dict[str, Any]] = []
     for assignment in _candidate_assignments(points, cx, cy):
         resolved, claims = assignment
         for point in resolved:
@@ -1781,26 +1781,21 @@ def _route_one_net(
                 break
             mark = bus.mark()
             hops, routed = _draw_chain(bus, net, plan, channels, tree=as_tree)
-            chain_routed = chain_routed or routed
             score = (0 if routed else 1, sum(1 for h in hops if not h["routed"]))
-            if routed and skipped < skip_first:
-                # A fully-routed candidate, but the repair pass asked for
-                # this net's *next* solution past its greedy first pick --
-                # keep it as the fallback (in case nothing survives past
-                # skip_first, see the "not routed" tail below) and keep
-                # looking rather than accepting it.
-                skipped += 1
-                routed = False
-                bus.restore(mark)
-                if best_score is None or score < best_score:
-                    best_plan, best_score, best_claims = plan, score, claims
-                continue
-            if routed:
-                best_plan, best_score, best_claims = plan, score, claims
+            accept = routed and skipped >= skip_first
+            if accept or best_score is None or score < best_score:
+                best_plan, best_tree = plan, as_tree
+                best_claims, best_score = claims, score
+                label_point = resolved[0]
+            if accept:
                 break  # geometry for the winning plan stays on the bus
             bus.restore(mark)
-            if best_score is None or score < best_score:
-                best_plan, best_score, best_claims = plan, score, claims
+            if routed:
+                # A skipped chain suppresses the tree fallback for this
+                # assignment. A skipped tree leaves later tree orders eligible.
+                chain_routed = not as_tree
+                skipped += 1
+                routed = False
         if routed:
             break
     if not routed:
@@ -1808,7 +1803,7 @@ def _route_one_net(
         # surviving past it, only ever scored and rolled back). Redraw the
         # best one so the geometry on the bus is the geometry the report
         # below describes.
-        hops, routed = _draw_chain(bus, net, best_plan, channels)
+        hops, routed = _draw_chain(bus, net, best_plan, channels, tree=best_tree)
     used_ports.update(best_claims)
     # One label per net, on drawn metal, so `klt extract` promotes it as a
     # named top-level pin. Deliberately one and only one: two labels with
@@ -1822,7 +1817,7 @@ def _route_one_net(
     # schematic device splits that device in two on the layout side and
     # nothing can pair either half. See INTERNAL_NODE_LABEL_NOTE.
     if not spec.get("internal"):
-        bus.label(net, resolved[0]["x"], resolved[0]["y"])
+        bus.label(net, label_point["x"], label_point["y"])
     return {
         "net": net,
         "routed": routed,

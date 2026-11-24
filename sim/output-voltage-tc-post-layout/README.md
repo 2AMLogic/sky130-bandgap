@@ -2,7 +2,7 @@
 
 Post-layout (`provenance: extracted`) re-run of `sim/output-voltage-tc`'s
 untrimmed output-reference + box-method TC claim against the routed,
-DRC-clean / LVS-matching `layout/bandgap-core/` GDS, via
+DRC-clean `layout/bandgap-core/` GDS, via
 `klt extract --parasitics` translated by `sim/bin/post_layout_common.py`.
 Records here are append-only and are **new** evidence — they neither
 overwrite nor retire `sim/output-voltage-tc/`'s schematic-level records.
@@ -14,12 +14,10 @@ Record [`records/20261124-181216-d436ab4c`](records/20261124-181216-d436ab4c.md)
 `20261124-181030-d436ab4c`, whose `bus-summary.json` reports every declared net in
 exactly one component (`VDD` included, 15/15 met1 nets routed) and whose PDK-bound
 extraction puts all 32 `amp_cc`/`amp_pmirr` PFET cards on the named nets the
-schematic states (`amp-terminal-census.json`). **Overall: FAIL 15/15**, but the
-amplifier now regulates instead of tracking the supply: `vref_27` is
-1.002–1.007 V at every corner (matching #669's DC repair probe, 1.00 V), against the
-1.176–1.224 V window, and box TC is 651–797 ppm/°C. The verdict is reported at the
-existing limits, unrelaxed. The ~170 mV shortfall is not explained by connectivity
-any more; it is the next thing to trace.
+schematic states (`amp-terminal-census.json`). **Overall: FAIL 15/15.**
+Repairing the VDD split restored regulation. Across the 15 process and supply
+points, `vref_27` is 1.002–1.007 V against the 1.176–1.224 V window, and box
+TC is 651–797 ppm/°C. The cause of the remaining ~170 mV shortfall is open.
 
 ## Previous standing result: the thick-oxide layout record (issue #621, superseded)
 
@@ -32,15 +30,12 @@ benches, pex spice sha256 `b4e37d42…`). **Overall: FAIL 15/15.** `vref_27`
 every corner, tracking the supply instead of regulating; box TC 54.1–189.6
 ppm/°C, also failing at every corner.
 
-The dominant cause is the record's incomplete VDD routing, not the oxide
-geometry: its `bus-summary.json` states `VDD` has 2 drawn components (the
-inter-block table marks VDD `routed: NO`), and the extraction strands
-`amp_pmirr` n-well/gate fingers and 11/16 `amp_cc` VDD-spine fingers on
-floating islands, so the error amplifier cannot regulate. A DC repair probe
-(islands tied to VDD) moves `vref_27` 3.06 → 1.00 V at tt/27 °C/3.30 V,
-confirming causality. The layout-side fix is tracked in #669; the
-flavour gate on this snapshot is clean (19 nfet + 54 pfet
-`g5v0d10v5` wrappers, matching the record's `flavour.json`).
+The record's `bus-summary.json` reports two VDD components. The PDK-bound
+snapshot places one diffusion of each of the eight MP3 and eight MP4 fingers
+on island `\$172`. Their gates and bulks and all 16 MCC fingers match the
+schematic. The DC repair probe reported in #669 moved `vref_27` from 3.06 V to
+1.00 V at tt/27 °C/3.30 V when the island was tied to VDD. The flavour gate
+counted 19 nfet and 54 pfet `g5v0d10v5` wrappers.
 
 ## Record index
 
