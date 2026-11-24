@@ -148,7 +148,6 @@ without re-deriving any of the above.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import re
 import shutil
@@ -157,6 +156,9 @@ import sys
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts" / "ci"))
+from content_hash import sha256_file  # noqa: E402
 
 import batch_sim
 import sim_common
@@ -208,11 +210,10 @@ def resolve_latest_layout(
 
 
 def _sha256_of(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+    """Bare-hex SHA-256 of a file, via the repo's one implementation
+    (`scripts/ci/content_hash.py`, issue #538) -- the form manifest `sha256`
+    fields and the `*_sha256` provenance keys carry."""
+    return sha256_file(path)
 
 
 def layout_artifact_manifest_relpath(record_id: str) -> str:

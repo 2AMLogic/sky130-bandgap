@@ -54,6 +54,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -643,10 +644,62 @@ class TestLabelCollisionGate(unittest.TestCase):
         increment that reintroduces the shared-pad bug fails here without
         needing a `klt` install to notice."""
         reports = REPO_ROOT / "layout/bandgap-core/reports"
-        latest = reports / (reports / "LATEST").read_text().strip()
+        latest_id = (reports / "LATEST").read_text().strip()
+        latest = reports / latest_id
         netlist = latest / "bandgap_core_routed.extract.spice"
-        self.assertTrue(netlist.is_file(), f"no extracted netlist in {latest}")
+        if not netlist.is_file():
+            # Store-backed record (issue #440 ruling): the bytes live in the
+            # fleet artifact store and git keeps the manifest. Resolve the
+            # extract netlist through it, exactly the way the flow's own
+            # evidence index documents; without broker access there is
+            # nothing local to pin the gate against, so the check skips
+            # with the reason rather than silently passing.
+            netlist = self._fetch_from_artifact_store(latest_id, netlist)
         self.assertEqual(gen_bandgap_routed.assert_no_merged_pin_names(netlist), [])
+
+    def _fetch_from_artifact_store(
+        self, record_id: str, in_tree: Path
+    ) -> Path:
+        manifest = (
+            REPO_ROOT
+            / "manifests/artifacts"
+            / f"layout-bandgap-core-{record_id}.manifest.json"
+        )
+        self.assertTrue(
+            manifest.is_file(),
+            f"no extracted netlist in {in_tree.parent} and no artifact manifest "
+            f"at {manifest}",
+        )
+        wanted = (
+            f"layout/bandgap-core/staging/{record_id}/"
+            "bandgap_core_routed.extract.spice"
+        )
+        entries = json.loads(manifest.read_text()).get("entries", [])
+        names = [e.get("name") for e in entries if e.get("name") == wanted]
+        self.assertEqual(
+            names,
+            [wanted],
+            f"no '{wanted}' entry in {manifest.name} to resolve the extract "
+            "netlist from",
+        )
+        if not shutil.which("klt") or not os.environ.get("KLT_ARTIFACT_BROKER"):
+            self.skipTest(
+                "LATEST record is store-backed and no artifact broker is "
+                "configured (need klt on PATH and $KLT_ARTIFACT_BROKER)"
+            )
+        dest = Path(tempfile.mkdtemp(prefix="label-collision-")) / "extract.spice"
+        proc = subprocess.run(
+            ["klt", "artifact", "get", f"{manifest.relative_to(REPO_ROOT)}#{wanted}",
+             "-o", str(dest)],
+            cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300,
+        )
+        self.assertEqual(
+            proc.returncode,
+            0,
+            f"klt artifact get failed for '{wanted}': {proc.stderr.strip()}",
+        )
+        self.addCleanup(shutil.rmtree, dest.parent, True)
+        return dest
 
 
 class TestRectsSnapToMfgGrid(unittest.TestCase):
