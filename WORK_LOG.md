@@ -9,9 +9,11 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-24
 
+- **PR #674**: fix: keep the label-collision gate running headless via extract.json
+- **Issue #671** (closed): Label-collision gate loses its headless check of the current LATEST record once LATEST is store-backed
 - **PR #670**: Re-run the seven post-layout benches on #620's thick-oxide record: verified input resolution, flavour gate, and an all-FAIL campaign dominated by the record's unrouted VDD
-- **PR #663**: refactor: reuse corner-run installed_commit in post-layout snapshot lookup
 - **Issue #621** (closed): Re-extract and rerun the seven post-layout benches on the verified thick-oxide GDS
+- **PR #663**: refactor: reuse corner-run installed_commit in post-layout snapshot lookup
 - **Issue #656** (closed): Reuse the harness PDK revision reader in post-layout snapshot lookup
 - **PR #666**: chore: ignore account-ranking.codex in loom-managed gitignore block
 - **PR #664**: feat(layout): keep routed-flow summary files out of the artifact store
