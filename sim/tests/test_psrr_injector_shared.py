@@ -468,7 +468,13 @@ class SharedOptionTailGuard(unittest.TestCase):
     the one tail name nothing else uses; the rest (--jobs, --timeout,
     --dry-run, ...) are generic names other harnesses legitimately
     register for themselves, so a repo-wide bare-name match on the full
-    tail would need an allowlist for no extra catch."""
+    tail would need an allowlist for no extra catch.
+
+    Issue #660 widened the match once more, to the short+long option form
+    (add_argument("-c", "--corners", ...) registers the flag even though it
+    is not the first argument), and routed the HOME check through
+    registers() as well, so reformatting the home's quotes cannot fail
+    this guard without a real regression."""
 
     #: What the shared tail registers beyond the batch block add_batch_args()
     #: puts in (that block already has its own guard,
@@ -483,12 +489,18 @@ class SharedOptionTailGuard(unittest.TestCase):
 
     @staticmethod
     def registers(text: str, flag: str) -> bool:
-        # Either quote style and any spacing after the open paren: a
-        # single-quoted registration must not slip past the guard just
-        # because the tree happens to spell registrations with double
-        # quotes today.
-        return re.search(rf"add_argument\(\s*[\"']{re.escape(flag)}[\"']",
-                         text) is not None
+        # Either quote style, any spacing after the open paren, and any
+        # number of preceding string arguments: a single-quoted or
+        # short-aliased (add_argument("-c", "--corners", ...))
+        # registration must not slip past the guard just because the tree
+        # happens to spell registrations flag-first with double quotes
+        # today. A preceding string argument equal to the flag itself is
+        # matched harmlessly -- that spelling registers the flag too.
+        return re.search(
+            rf"add_argument\(\s*(?:[\"'][^\"']*[\"']\s*,\s*)*"
+            rf"[\"']{re.escape(flag)}[\"']",
+            text,
+        ) is not None
 
     def test_neither_runner_registers_a_tail_flag_itself(self):
         for name, path in RUNNERS.items():
@@ -523,7 +535,10 @@ class SharedOptionTailGuard(unittest.TestCase):
     def test_the_home_really_is_the_home(self):
         text = self.HOME.read_text()
         for flag in self.TAIL_FLAGS:
-            self.assertIn(f'add_argument("{flag}"', text)
+            self.assertTrue(
+                self.registers(text, flag),
+                f"the HOME no longer registers tail flag {flag}",
+            )
 
 
 if __name__ == "__main__":
