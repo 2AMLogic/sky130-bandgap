@@ -583,6 +583,103 @@ class TestDrawChainTree(unittest.TestCase):
         self.assertFalse(hops[0]["routed"])
         self.assertEqual(hops[0]["blocked_by"], "WALL")
 
+    def test_tree_failure_attributes_blockers_per_parent(self) -> None:
+        """Issue #683: a fully failed tree attachment used to pair the
+        *nearest* parent's name with the *last* parent's blocker tally,
+        because _connect clears _BLOCKER_COUNTS on entry and the failure
+        record was assembled after the loop. The failed hop must describe
+        one attempt -- the last parent tried -- and carry a per-parent
+        `attempts` trail in trial order. Blocker fields are compared
+        against isolated single-parent runs rather than a frozen count, so
+        a change to the elbow/detour retry ladder (#645) does not have to
+        update this test to keep the attribution honest."""
+        def point(name: str, x: float, y: float) -> dict:
+            return {"name": name, "pad": (x, y), "via": False}
+
+        def boxed_bus(*nets: str) -> met1_bus.Met1Bus:
+            # Horizontal 0.3 um walls that veto C=(10, 7) differently per
+            # parent: WEST walls the approaches from A=(0, 0), EAST the
+            # approaches from B=(20, 20). A joins B cleanly either way.
+            bus = met1_bus.Met1Bus()
+            if "WEST" in nets:
+                bus.net("WEST")
+                bus.hseg(9.85, 10.15, 3.0)
+                bus.hseg(4.85, 5.15, 7.0)
+            if "EAST" in nets:
+                bus.net("EAST")
+                bus.hseg(9.85, 10.15, 15.0)
+                bus.hseg(14.85, 15.15, 7.0)
+            return bus
+
+        a, b, c = point("A", 0.0, 0.0), point("B", 20.0, 20.0), point("C", 10.0, 7.0)
+        with zero_detour(), met1_only():
+            west_alone, _ = bus_routing._draw_chain(
+                boxed_bus("WEST", "EAST"), "N1", [a, c], tree=True
+            )
+            east_alone, _ = bus_routing._draw_chain(
+                boxed_bus("WEST", "EAST"), "N1", [b, c], tree=True
+            )
+            self.assertFalse(west_alone[0]["routed"])
+            self.assertFalse(east_alone[0]["routed"])
+            self.assertEqual(west_alone[0]["blocked_by"], "WEST")
+            self.assertEqual(east_alone[0]["blocked_by"], "EAST")
+            west_ref = {
+                "blocked_by": west_alone[0]["blocked_by"],
+                "blocked_by_counts": west_alone[0]["blocked_by_counts"],
+            }
+            east_ref = {
+                "blocked_by": east_alone[0]["blocked_by"],
+                "blocked_by_counts": east_alone[0]["blocked_by_counts"],
+            }
+            hops, routed = bus_routing._draw_chain(
+                boxed_bus("WEST", "EAST"), "N1", [a, b, c], tree=True
+            )
+        self.assertFalse(routed)
+        self.assertEqual(
+            [(h["from"], h["to"], h["routed"]) for h in hops],
+            [("A", "B", True), ("B", "C", False)],
+        )
+        failed = hops[1]
+        # Top level describes the final parent attempted, preserving the
+        # blocker _repair_unrouted_hops reads.
+        self.assertEqual(failed["from"], "B")
+        self.assertEqual(failed["blocked_by"], east_ref["blocked_by"])
+        self.assertEqual(failed["blocked_by_counts"], east_ref["blocked_by_counts"])
+        # Per-parent trail in trial order: A's entry matches the isolated
+        # A->C attempt, B's the isolated B->C attempt.
+        self.assertEqual(
+            failed["attempts"],
+            [
+                {"from": "A", **west_ref},
+                {"from": "B", **east_ref},
+            ],
+        )
+
+    def test_tree_success_after_earlier_parent_fails_emits_one_hop(self) -> None:
+        """A terminal reached through a later parent emits only its successful hop."""
+        def point(name: str, x: float, y: float) -> dict:
+            return {"name": name, "pad": (x, y), "via": False}
+
+        bus = met1_bus.Met1Bus()
+        bus.net("WEST")
+        bus.hseg(9.85, 10.15, 3.0)
+        bus.hseg(4.85, 5.15, 7.0)
+        plan = [
+            point("A", 0.0, 0.0),
+            point("B", 20.0, 20.0),
+            point("C", 10.0, 7.0),
+        ]
+        with zero_detour(), met1_only():
+            hops, routed = bus_routing._draw_chain(bus, "N1", plan, tree=True)
+        self.assertTrue(routed)
+        self.assertEqual(
+            [(h["from"], h["to"], h["routed"]) for h in hops],
+            [("A", "B", True), ("B", "C", True)],
+        )
+        self.assertNotIn("attempts", hops[1])
+        self.assertNotIn("blocked_by", hops[1])
+        self.assertNotIn("blocked_by_counts", hops[1])
+
 
 class TestChannelPaths(unittest.TestCase):
     """`_channel_paths()` is the shape a cross-floorplan hop needs that no
