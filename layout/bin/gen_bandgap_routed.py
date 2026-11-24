@@ -1276,6 +1276,40 @@ def assert_no_merged_pin_names(netlist_path: Path) -> list[str]:
     return merged
 
 
+def merged_pin_names_from_extract(extract: dict[str, Any]) -> list[str]:
+    """The label-collision gate as seen through a record's committed
+    `extract.json`, for store-backed records whose netlist bytes git does
+    not keep (issue #440 ruling).
+
+    `klt extract` leaves two independent traces of "two labels, one net":
+    the `merged_net_labels` list, and the merged name surviving verbatim in
+    `nets[].name` -- the same `A|B` notation :func:`assert_no_merged_pin_names`
+    scans the netlist for. Either trace is enough to flag the collision.
+
+    Returns the offending names (empty is the only acceptable result).
+    Raises ValueError when the dict carries neither trace: an extract from
+    an unknown schema must fail the gate, not silently pass it.
+    """
+    merged_labels = extract.get("merged_net_labels")
+    nets = extract.get("nets")
+    if not isinstance(merged_labels, list) and not isinstance(nets, list):
+        raise ValueError(
+            "extract.json carries neither merged_net_labels nor nets[] -- "
+            f"no label-collision signal to assert on (keys: {sorted(extract)})"
+        )
+    names: set[str] = set()
+    if isinstance(merged_labels, list):
+        names.update(str(label) for label in merged_labels if str(label).strip())
+    if isinstance(nets, list):
+        for net in nets:
+            if not isinstance(net, dict):
+                continue
+            name = str(net.get("name", ""))
+            if "|" in name:
+                names.add(name)
+    return sorted(names)
+
+
 def split_routed_nets(
     routes: list[dict[str, Any]], components: dict[str, int]
 ) -> dict[str, int]:
