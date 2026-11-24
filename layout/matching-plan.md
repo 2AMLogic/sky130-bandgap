@@ -1363,6 +1363,56 @@ Issue #540 -- record cited: `20261114-184650-4a9f2c97`
 (`sim/output-voltage-tc-post-layout/records/`), layout record
 `20260923-070209-dbd57a9`.
 
+### 7ii. Thirty-seventh increment (issue #620): the MOS blocks are drawn at the schematic's 5 V thick-oxide flavour -- gated by a raw PDK-bound flavour census, a FEOL-enabled HV DRC with a failing enclosure control, and in-flow supply/tie ERC
+
+Through 7hh every MOS block in this layout was thin-oxide 1.8 V geometry,
+while design/bandgap_core.sch specifies 5 V `*_g5v0d10v5` devices for the
+3.3 V +/-10% supply (DR-005). Nothing could see the difference: the curated
+extraction deck binds both flavours to one generic `nfet`/`pfet` class (so
+LVS passed either way) and the curated DRC deck carries no hvi/npc/nwell
+rule at all. The baseline reproduction in the issue confirms the size of
+the gap: a PDK-bound extraction of record `20260923-070209-dbd57a9`'s GDS
+binds 19 `sky130_fd_pr__nfet_01v8` + 54 `sky130_fd_pr__pfet_01v8` cards.
+
+Three changes, all gated:
+
+1. **Flavour.** Every MOS block's `klt gen` params gain
+   `voltage_flavor: "hvi"` (both polarities, core + amplifier including
+   the MCC PMOS cap + startup injector). The gate reads the *raw,
+   pre-translation* X cards of a separate `klt extract --pdk sky130A` run
+   and requires every schematic finger (summed from `reference.spice`'s
+   own `m=`: 19 NFET / 54 PFET) to bind its 5 V wrapper, with a MOS-only
+   census rejecting any other `*fet*` wrapper -- so one thin-oxide card
+   among 72 correct ones fails twice over. The curated extract stays the
+   LVS input, unchanged. The original GDS's raw extraction is committed
+   as the gate's failing regression corpus
+   (`layout/tests/fixtures/20260923-070209-dbd57a9.pdk-extract.spice`).
+2. **HV legality.** The pinned sky130A source deck's HVI/HVDIFFTAP/HVPOLY/
+   HVNTM rules ship behind `FEOL = false`; the flow now builds the
+   FEOL-enabled working copy and runs it via `klt drc --engine klayout
+   --deck-file`, gating on the HV rule-group categories with the raw
+   `su_inj` generator output as `--negative-control` (its un-corrected
+   hvi marker is 0.03 um short of `hvdifftap.22`, so a run whose control
+   comes back clean has not executed the group). The generator's own
+   flavour markers are *not* legal by construction -- hvi 0.15 um short
+   of the 0.18 um diff/tap enclosure, the pfet nwell 0.13 um short of
+   `hvdifftap.19`'s 0.33 um tap enclosure, npc 0.005 um short of
+   `licon.15` -- filed as klayout-tools#7061; the flow draws a corrective
+   hvi/nwell/npc overlay (HV_FIXUP_NOTE) and the corrected blocks are
+   HV-clean per block type against the same deck.
+3. **ERC on the exact GDS.** The two specs `run-erc-supply-flow.sh`
+   invokes, run in-flow on the composed GDS with their
+   `well_requires_boxes` re-derived from this GDS's merged 64/20 region
+   (the committed spec's absolute boxes describe the pre-HVI GDS; the
+   overlay enlarges the five PMOS wells). Gated with
+   `erc_supply_record`'s own item-11 gate, swapped-tie negative control
+   included.
+
+The klt pin does not move. The combined-LVS regression 7ff measured at
+klt 0.8.0 (mismatch_count 5) is out of scope here and is tracked by the
+parent correction (#619); this increment records combined LVS as-measured
+on the new geometry.
+
 ## 8. Known limitations / follow-on work
 
 - **LVS is not clean.** *(Still open; the reason has now changed five
