@@ -18,8 +18,10 @@
 # Raw outputs (GDS, .gen.json, extract/LVS payloads, renders) are staged in the
 # git-ignored layout/bandgap-core/staging/<record-id>/ and stored in the fleet
 # artifact store (manifests/artifacts/layout-bandgap-core-<record-id>.manifest.json,
-# issue #426); only record.md and the verdict JSONs are committed under
-# reports/<record-id>/. Needs $KLT_ARTIFACT_BROKER and a `klt` with
+# issue #426); the summary files below are committed under reports/<record-id>/
+# and therefore excluded from the store and its manifest -- rule 4 of
+# scripts/ci/check_artifact_manifests.py forbids storing bytes that are also
+# committed (issue #657). Needs $KLT_ARTIFACT_BROKER and a `klt` with
 # `artifact put` on PATH; without them the flow exits before writing anything
 # (no local fallback). `reports/LATEST` is no longer updated.
 #
@@ -75,15 +77,24 @@ python3 "$LAYOUT_DIR/bin/gen_bandgap_routed.py" \
 STATUS=$?
 set -e
 
+# Summary files: copied verbatim into the committed reports/<record-id>/ after
+# publish, so they are excluded from the artifact store and its manifest (the
+# single list drives both the --exclude passes and the copy loop, issue #657).
+SUMMARY_FILES=(record.md drc.json extract.json lvs.json lvs.combined.json
+               met2-drc.json hv-drc.json flavour.json erc.json
+               erc.negative-control.json erc-verdict.json nwell-boxes.json)
+EXCLUDE_ARGS=()
+for f in "${SUMMARY_FILES[@]}"; do
+  EXCLUDE_ARGS+=(--exclude "$f")
+done
+
 # Store the raw outputs, then commit only the summary. A publish failure
 # leaves the staged files in place and nothing under reports/.
 python3 "$LAYOUT_DIR/bin/publish_layout_evidence.py" publish "$OUT_DIR" \
-  --bench layout-bandgap-core --run-id "$RECORD_ID" || exit 1
+  --bench layout-bandgap-core --run-id "$RECORD_ID" "${EXCLUDE_ARGS[@]}" || exit 1
 
 mkdir -p "$SUMMARY_DIR"
-for f in record.md drc.json extract.json lvs.json lvs.combined.json met2-drc.json \
-         hv-drc.json flavour.json erc.json erc.negative-control.json \
-         erc-verdict.json nwell-boxes.json; do
+for f in "${SUMMARY_FILES[@]}"; do
   [[ -f "$OUT_DIR/$f" ]] && cp "$OUT_DIR/$f" "$SUMMARY_DIR/$f"
 done
 
