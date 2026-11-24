@@ -278,13 +278,48 @@ def newest_record(bench: str, design: dict[str, list[str]] | None = None) -> Pat
     return candidates[-1]
 
 
-def margin(value: float, limits: dict[str, float]) -> float:
+def margin(value: float | None, limits: dict[str, float]) -> float | None:
+    if value is None:
+        return None
     margins = []
     if "min" in limits:
         margins.append(value - limits["min"])
     if "max" in limits:
         margins.append(limits["max"] - value)
-    return min(margins)
+    return min(margins) if margins else None
+
+
+def worst_point(
+    entries: list[tuple[float | None, float | None, str, bool, str]],
+) -> dict[str, Any]:
+    """Return the `worst_case` summary for one measurement across corners.
+
+    Entries are `(margin_value, value, corner_id, passed, reason)` in record
+    order. Missing values (`value is None`) rank strictly worse than any finite
+    margin (matching `klayout_tools.sim`'s `-inf` sort key), so an unmeasured
+    failing corner is never masked by a passing corner's positive margin.
+    """
+    best_idx = 0
+    best_key: tuple[int, float, float, str] | None = None
+    for idx, (m_val, val, cid, _passed, _reason) in enumerate(entries):
+        if val is None:
+            key = (0, float("-inf"), float(idx), cid)
+        elif m_val is None:
+            key = (1, float("-inf"), float(idx), cid)
+        else:
+            key = (2, m_val, val, cid)
+        if best_key is None or key < best_key:
+            best_key = key
+            best_idx = idx
+    m_val, val, cid, passed, reason = entries[best_idx]
+    summary: dict[str, Any] = {
+        "corner_id": cid,
+        "value": val,
+        "margin": m_val,
+    }
+    if not passed and reason:
+        summary["reason"] = reason
+    return summary
 
 
 def check_bound(bench: str, name: str, recorded: dict[str, float], expected: dict[str, float]) -> None:
@@ -329,7 +364,7 @@ def mint(entry: dict[str, Any]) -> tuple[str, dict[str, Any]]:
     limits: dict[str, dict[str, float]] = {}
     excluded: dict[str, str] = {}
     corners = []
-    series: dict[str, list[tuple[float, str]]] = {name: [] for name in wanted}
+    series: dict[str, list[tuple[float | None, str, bool, str]]] = {name: [] for name in wanted}
 
     for corner in record["corners"]:
         measurements = []
@@ -346,17 +381,19 @@ def mint(entry: dict[str, Any]) -> tuple[str, dict[str, Any]]:
             limits.setdefault(name, bounds)
             units[name] = m.get("unit", "")
             value = m["value"]
-            passed = bool(m["pass"])
-            series[name].append((value, corner["corner_id"]))
-            measurements.append(
-                {
-                    "name": name,
-                    "unit": units[name],
-                    "value": value,
-                    "status": "pass" if passed else "fail",
-                    "margin": margin(value, bounds),
-                }
-            )
+            passed = bool(m["pass"]) and value is not None
+            reason = m.get("reason") or ""
+            series[name].append((value, corner["corner_id"], passed, reason))
+            meas_entry: dict[str, Any] = {
+                "name": name,
+                "unit": units[name],
+                "value": value,
+                "status": "pass" if passed else "fail",
+                "margin": margin(value, bounds),
+            }
+            if not passed and reason:
+                meas_entry["reason"] = reason
+            measurements.append(meas_entry)
         supply = corner.get("supply_v")
         corners.append(
             {
@@ -375,19 +412,17 @@ def mint(entry: dict[str, Any]) -> tuple[str, dict[str, Any]]:
 
     envelope_measurements = []
     for name, (row, _) in wanted.items():
-        points = [(margin(v, limits[name]), v, cid) for v, cid in series[name]]
-        worst_margin, worst_value, worst_corner = min(points)
+        points = [
+            (margin(v, limits[name]), v, cid, passed, reason)
+            for v, cid, passed, reason in series[name]
+        ]
         envelope_measurements.append(
             {
                 "name": name,
                 "unit": units[name],
                 "spec_row": row,
                 "limits": limits[name],
-                "worst_case": {
-                    "corner_id": worst_corner,
-                    "value": worst_value,
-                    "margin": worst_margin,
-                },
+                "worst_case": worst_point(points),
                 "status": "pass" if all(
                     c_m["status"] == "pass"
                     for c in corners
