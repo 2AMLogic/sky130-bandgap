@@ -10,6 +10,9 @@ flows share the sim harness's publisher rather than duplicating it.
   publish_layout_evidence.py publish STAGING_DIR --bench NAME --run-id ID
       Write manifests/artifacts/<NAME>-<ID>.manifest.json (+ .md summary) for
       every file under STAGING_DIR. Fails closed; no local fallback.
+      --exclude NAME (repeatable) keeps NAME (a staging-relative path) out of
+      the store and manifest -- for the summary files the flow commits under
+      reports/<record-id>/ instead (issue #657).
 """
 
 from __future__ import annotations
@@ -31,12 +34,21 @@ def main(argv: list[str] | None = None) -> int:
     pub.add_argument("staging_dir", type=Path)
     pub.add_argument("--bench", required=True)
     pub.add_argument("--run-id", required=True)
+    pub.add_argument(
+        "--exclude",
+        action="append",
+        default=[],
+        metavar="NAME",
+        help="staging-relative path to keep out of the store and manifest "
+        "(committed under reports/ instead); repeatable",
+    )
     args = ap.parse_args(argv)
     try:
         sim_common.require_artifact_store()
         if args.cmd == "publish":
             manifest = sim_common.publish_corner_evidence(
-                args.staging_dir, REPO_ROOT, bench=args.bench, run_id=args.run_id
+                args.staging_dir, REPO_ROOT,
+                bench=args.bench, run_id=args.run_id, exclude=args.exclude,
             )
             if manifest is None:
                 print("publish_layout_evidence: staging dir is empty", file=sys.stderr)
