@@ -9,6 +9,8 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-24
 
+- **PR #685**: fix: report the last attempted parent on a failed tree attachment
+- **Issue #683** (closed): Report the correct parent and blockers for a failed tree attachment
 - **Issue #669** (closed): layout/bandgap-core: complete the VDD trunk and amp finger-bus connectivity on the thick-oxide record (floating amp_pmirr well and amp_cc spine)
 - **PR #682**: fix(layout): complete the VDD trunk via tree-attach routing and re-run the post-layout benches
 - **Issue #679** (closed): pdk_record_fields docstring credits sort_keys=True for writers that do not use it
