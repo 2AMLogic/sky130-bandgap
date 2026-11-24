@@ -38,7 +38,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -481,6 +481,7 @@ def publish_corner_evidence(
     *,
     bench: str | None = None,
     run_id: str | None = None,
+    exclude: Iterable[str] = (),
 ) -> Path | None:
     """Store every file under `corners_dir` (the run's raw per-corner outputs,
     git-ignored) in the artifact store and commit-ready metadata beside it.
@@ -490,6 +491,14 @@ def publish_corner_evidence(
     object); returns the manifest path, or `None` for an empty run. `<bench>`
     and `<run-id>` come from `sim/<bench>/corners/<run-id>/` unless passed
     explicitly (the layout flow stages outside that tree, issue #426).
+
+    `exclude` names staging-relative paths (issue #657: the summary files the
+    layout flow commits under `reports/<record-id>/` after publish) that are
+    neither stored nor listed in the manifest -- rule 4 of
+    scripts/ci/check_artifact_manifests.py forbids storing bytes that are also
+    committed, and at publish time the copies do not exist yet, so the caller
+    must name them. The summary lists each as "committed under reports/". If
+    every staged file is excluded this raises, like an all-duplicate run.
 
     Files whose sha256 equals a tracked file's (the flow is deterministic, so
     older records may already commit identical bytes) are not stored, because
@@ -502,9 +511,17 @@ def publish_corner_evidence(
     """
     repo_root = repo_root or REPO_DIR
     require_artifact_store()
+    excluded_names = frozenset(exclude)
     files = sorted(p for p in corners_dir.rglob("*") if p.is_file())
     if not files:
         return None
+    excluded = [f for f in files if f.relative_to(corners_dir).as_posix() in excluded_names]
+    files = [f for f in files if f not in excluded]
+    if not files:
+        raise EvidenceStoreError(
+            f"all {len(excluded)} staged file(s) are excluded from the artifact "
+            f"store (e.g. {excluded[0].name}); nothing would be stored"
+        )
     bench = bench or corners_dir.parent.parent.name
     run_id = run_id or corners_dir.name
     out_dir = repo_root / ARTIFACT_MANIFEST_DIR
@@ -555,6 +572,12 @@ def publish_corner_evidence(
         "| name | size (bytes) | sha256 |", "|---|---:|---|",
         *(f"| {e.get('name', '')} | {e['size']} | {e['sha256']} |" for e in entries), "",
     ]
+    if excluded:
+        lines += [
+            "Not stored (excluded from the store; committed under reports/):", "",
+            "| name |", "|---|",
+            *(f"| {f.relative_to(corners_dir).as_posix()} |" for f in excluded), "",
+        ]
     if skipped:
         lines += [
             "Not stored (identical bytes are already tracked in git):", "",

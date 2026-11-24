@@ -65,6 +65,9 @@ class PublishCornerEvidence(unittest.TestCase):
     def publish(self):
         return sim_common.publish_corner_evidence(self.corners, self.repo)
 
+    def publish_excluded(self, exclude):
+        return sim_common.publish_corner_evidence(self.corners, self.repo, exclude=exclude)
+
     def assert_nothing_written(self):
         self.assertFalse((self.repo / "manifests").exists())
 
@@ -175,6 +178,45 @@ class PublishCornerEvidence(unittest.TestCase):
         with self.env():
             manifest = self.publish()
         self.assertEqual(len(json.loads(manifest.read_text())["entries"]), 1)
+
+    def test_excluded_name_is_not_stored_and_listed_in_summary(self):
+        self.stub()
+        (self.corners / "record.md").write_text("# summary\n")
+        with mock.patch.object(
+            sim_common.subprocess, "run", wraps=sim_common.subprocess.run
+        ) as run, self.env():
+            manifest = self.publish_excluded(("record.md",))
+        put = [c.args[0] for c in run.call_args_list
+               if c.args[0][:3] == ["klt", "artifact", "put"] and "--manifest" in c.args[0]]
+        self.assertEqual(len(put), 1)
+        self.assertTrue(any(a.endswith("tt.log") for a in put[0]))
+        self.assertFalse(any(a.endswith("record.md") for a in put[0]))
+        names = [e["name"] for e in json.loads(manifest.read_text())["entries"]]
+        self.assertEqual(names, ["tt.log"])
+        summary = manifest.with_suffix("").with_suffix(".md").read_text()
+        self.assertIn("record.md", summary)
+        self.assertIn("committed under reports/", summary)
+
+    def test_all_excluded_fails_closed(self):
+        self.stub()
+        (self.corners / "tt.log").unlink()
+        (self.corners / "record.md").write_text("# summary\n")
+        with self.env(), self.assertRaisesRegex(
+            sim_common.EvidenceStoreError, "excluded"
+        ):
+            self.publish_excluded(("record.md",))
+        self.assert_nothing_written()
+
+    def test_exclude_matches_staging_relative_path_not_basename(self):
+        self.stub()
+        (self.corners / "sub").mkdir()
+        (self.corners / "sub" / "record.md").write_text("# nested summary\n")
+        with self.env():
+            manifest = self.publish_excluded(("record.md",))
+        names = sorted(e["name"] for e in json.loads(manifest.read_text())["entries"])
+        self.assertEqual(names, ["record.md", "tt.log"])
+        summary = manifest.with_suffix("").with_suffix(".md").read_text()
+        self.assertNotIn("committed under reports/", summary)
 
 
 if __name__ == "__main__":
