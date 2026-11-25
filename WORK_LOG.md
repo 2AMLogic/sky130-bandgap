@@ -7,6 +7,11 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 - [2026-09](work_log/WORK_LOG_2026-09.md)
 
+### 2026-11-25
+
+- **PR #688**: fix(sim): derive trim-range-monotonicity record narrative from its measurements
+- **Issue #687** (closed): Remove unconditional confirmations and frozen run-1 prose from sim/trim-range-monotonicity
+
 ### 2026-11-24
 
 - **PR #685**: fix: report the last attempted parent on a failed tree attachment
