@@ -127,8 +127,8 @@ cr = load_corner_run()
 SLUG = "trim-range-monotonicity"
 TITLE = (
     "Trim (n_r2_trim) range, monotonicity, and TC-at-extremes for the ladder-tap "
-    "trim network added to R2A/R2B (issue #13) -- DOWNWARD-ONLY range, positive "
-    "direction rejected on hot-corner regulation-collapse evidence"
+    "trim network added to R2A/R2B (issue #13) -- downward range under test, positive "
+    "direction under a hot-corner regulation-collapse rejection test"
 )
 
 # (process, supply_v) pairs for the negative (usable) range sweep.
@@ -387,27 +387,56 @@ def evaluate(results: dict[Point, dict]) -> list[dict]:
             f"tc_delta_reported[{process}_{supply:.2f}v]",
             True,  # informational: always "passes" as a check, the number is the deliverable
             f"tc_ppm(trim=0)={tc0:.3f}, tc_ppm(trim=-16)={tc16:.3f}, delta={delta:+.3f} ppm/degC "
-            f"(baseline itself already exceeds the 50 ppm/degC budget -- issue #46, out of "
-            f"scope here; this delta is reported, not gated -- see Scope limits)",
+            f"(this run's trim=0 TC {'exceeds' if tc0 > 50 else 'does not exceed'} the 50 "
+            f"ppm/degC budget; any historical untrimmed overage is issue #46, out of scope "
+            f"here; this signed delta is reported, not gated -- see Scope limits)",
         )
 
     # --- positive-direction rejection: confirm regulation loss is real and
     # reproducible at the codes where it is expected, at BOTH corners ---
+    # Computed once, up front: every per-code detail below and the
+    # non-monotonicity check speak from this measured map, never from a
+    # hardcoded run-1 pattern (issue #687).
+    regulating_by_code = {
+        process: {
+            c: is_regulating(results[Point(process, POSITIVE_SUPPLY_V, c, "positive_rejected")])
+            for c in sorted(p.trim_code for p in positive_points if p.process == process)
+        }
+        for process in sorted({p.process for p in positive_points})
+    }
     for point, meas in positive_points.items():
         vref27 = meas.get("vref_27")
         vref_max = meas.get("vref_max")
-        regulating = is_regulating(meas)
+        regulating = regulating_by_code[point.process][point.trim_code]
         if point.trim_code in (3, 4):
             # These two codes are the ones observed to stay sane on this
             # grid -- part of the non-monotonicity finding, NOT a safe
             # design point (see module docstring / DR-002). Check confirms
-            # they remain sane (as observed), informational either way.
+            # they remain sane (as observed); the detail claims bracketing
+            # only when the adjacent probed codes actually collapsed.
+            by_code = regulating_by_code[point.process]
+            lower = max(
+                (c for c in by_code if c < point.trim_code and not by_code[c]),
+                default=None,
+            )
+            upper = min(
+                (c for c in by_code if c > point.trim_code and not by_code[c]),
+                default=None,
+            )
+            bracketed = lower is not None and upper is not None
             add(
                 f"positive_code_sane_but_not_safe[{point.corner_id}]",
                 regulating,
-                f"vref_27={vref27}, vref_max={vref_max} -- sane on this grid, but this code "
-                f"is bracketed by codes that collapse (see the non-monotonicity table) and "
-                f"is NOT a certified-safe design point",
+                f"vref_27={vref27}, vref_max={vref_max} -- "
+                + (
+                    "sane on this grid, but bracketed by collapsed codes "
+                    f"(+{lower} below, +{upper} above) -- NOT a certified-safe design point"
+                    if regulating and bracketed
+                    else "sane on this grid -- not by itself a certified-safe design point"
+                    if regulating
+                    else "UNEXPECTED: this code was expected to stay sane on this grid and "
+                    "did not (regulation loss) -- re-examine before relying on this record"
+                ),
             )
         else:
             add(
@@ -427,16 +456,40 @@ def evaluate(results: dict[Point, dict]) -> list[dict]:
     # one pass and one fail among interior codes, proving the pattern is not
     # simply "everything above 0 fails" (which would at least be monotonic
     # and give a clean boundary) ---
-    ff_codes = sorted(p.trim_code for p in positive_points if p.process == "ff")
-    ff_regulating = {c: is_regulating(results[Point("ff", POSITIVE_SUPPLY_V, c, "positive_rejected")]) for c in ff_codes}
+    # A reversal needs at least TWO transitions in the regulating flags
+    # ordered by increasing code (e.g. regulating -> collapsed -> regulating):
+    # a single transition is what a clean threshold looks like. The trim=0
+    # baseline at the same corner leads the sequence when it was run.
+    ff_regulating = regulating_by_code["ff"]
+    ordered_flags = [ff_regulating[c] for c in sorted(ff_regulating)]
+    base_pt = Point("ff", POSITIVE_SUPPLY_V, 0, "negative")
+    if base_pt in results:
+        ordered_flags.insert(0, is_regulating(results[base_pt]))
+    transitions = sum(1 for a, b in zip(ordered_flags, ordered_flags[1:]) if a != b)
     has_pass = any(ff_regulating.values())
     has_fail = any(not v for v in ff_regulating.values())
+    reversal = has_pass and has_fail and transitions >= 2
     add(
         "positive_direction_nonmonotonic[ff]",
-        has_pass and has_fail,
-        f"regulating-by-code = {ff_regulating} -- a genuine mix of regulating and "
-        f"collapsed codes among the SAME small interior range (not a clean threshold) is "
-        f"the evidence that no positive code can be certified safe from this record",
+        reversal,
+        f"regulating-by-code = {ff_regulating}, ordered flags incl. trim=0 baseline "
+        f"= {ordered_flags}, transitions = {transitions} -- "
+        + (
+            "regulation is lost and regained along increasing code (a reversal, not "
+            "a clean threshold); a sparse regulating result among collapsed codes "
+            "cannot certify a positive code as safe"
+            if reversal
+            else "every probed positive code stayed on the operating branch -- no collapse "
+            "observed in this bisection, so this run does NOT establish the "
+            "non-monotonic rejection evidence the check looks for"
+            if not has_fail
+            else "every probed positive code collapsed -- this reports what the probes "
+            "observed only: no reversal is shown, and no threshold is inferred from "
+            "collapsed samples alone"
+            if not has_pass
+            else f"{transitions} transition(s) in the ordered flags -- a single transition "
+            "is consistent with a clean threshold, not a reversal"
+        ),
     )
 
     return checks
@@ -461,12 +514,14 @@ def render_record(record: dict) -> str:
         "- **Claim**: trim network design phase for issue #13, following "
         "`spec/decision-records/DR-002-trim-network-scoping.md`'s go decision "
         "(#12's Monte Carlo evidence found the untrimmed ±1 % target NOT met). "
-        "Verifies the `n_r2_trim` ladder-tap trim added to "
-        "`design/bandgap_core.sch`'s R2A/R2B resistor segments. **Headline "
-        "finding: the positive (VOUT-increasing) direction is REJECTED** on "
-        "hot-corner (ff/2.97 V, fs/2.97 V) regulation-collapse evidence — the "
-        "shipped range is downward-only (code 0..-16). Wraps issue #11's own "
-        "output-voltage testbench (`sim/output-voltage-tc/testbench/tb_vref_tc.sch`) "
+        "Tests the `n_r2_trim` ladder-tap trim added to "
+        "`design/bandgap_core.sch`'s R2A/R2B resistor segments: whether the "
+        "DOWNWARD direction (code 0..-16) is a monotonic, collapse-free "
+        "range, and whether the positive (VOUT-increasing) direction is "
+        "rejected by hot-corner (ff/2.97 V, fs/2.97 V) regulation-collapse "
+        "evidence -- each verdict is this run's own tables and checks below, "
+        "not this line. Wraps issue #11's own output-voltage testbench "
+        "(`sim/output-voltage-tc/testbench/tb_vref_tc.sch`) "
         "unmodified. Records are PROVISIONAL against the draft spec until "
         "issue #1 ratifies it."
     )
@@ -478,7 +533,7 @@ def render_record(record: dict) -> str:
     L.extend(render_pdk_tools_repo_state(r))
     add("- **Corner matrix run**:")
     add(
-        "  - **Negative (usable) range**: "
+        "  - **Negative-direction range (under test)**: "
         + ", ".join(f"{p}/{s:.2f} V" for p, s in NEGATIVE_CORNERS)
         + f" x codes {NEGATIVE_CODES}. Process/supply pairs chosen to bound the process "
         "spread while sitting at the worst-case (lowest) supply for the two corners "
@@ -487,16 +542,17 @@ def render_record(record: dict) -> str:
         "baseline records."
     )
     add(
-        "  - **Positive (rejected) direction**: ff/2.97 V at codes "
+        "  - **Positive direction (rejection test)**: ff/2.97 V at codes "
         + ", ".join(f"{c:+d}" for c in POSITIVE_REJECTED_FF_CODES)
-        + " (a bisection demonstrating non-monotonic collapse, not an exhaustive sweep); "
-        "fs/2.97 V at code +15 only (confirms the same collapse mechanism is not "
-        "ff-specific)."
+        + " (a bisection probing for non-monotonic collapse, not an exhaustive "
+        "sweep); fs/2.97 V at code +15 only (probes whether the same collapse "
+        "mechanism is ff-specific)."
     )
     add(
-        "  - Temperature: continuous in-deck sweep -40..125 °C (16 points, `dc temp -40 125 11`, "
+        "  - Temperature: continuous in-deck sweep -40..125 °C (16 points planned, `dc temp -40 125 11`, "
         "the same box-method sweep issue #11's bench already runs) — not a separate outer axis; "
-        "every point below therefore already carries full temperature coverage and a TC number."
+        "the point count each negative-range point actually produced is verified by the "
+        "`n_temp_points` checks below, not assumed here."
     )
     add(f"  - {len(r['points'])} ngspice points executed.")
     add(
@@ -505,7 +561,7 @@ def render_record(record: dict) -> str:
     )
     add("")
 
-    add("## Negative (usable) range: per-point measurements")
+    add("## Negative-direction range (under test): per-point measurements")
     add("")
     add("| process | supply (V) | trim code | VREF(27 °C) (V) | VREF min (V) | VREF max (V) | TC (ppm/°C) |")
     add("|---|---|---|---|---|---|---|")
@@ -518,16 +574,17 @@ def render_record(record: dict) -> str:
             )
     add("")
 
-    add("## Positive (rejected) direction: per-point measurements")
+    add("## Positive direction (rejection test): per-point measurements")
     add("")
     add("| process | supply (V) | trim code | VREF(27 °C) (V) | VREF max (V) | TC (ppm/°C) | regulating? |")
     add("|---|---|---|---|---|---|---|")
     for process, codes in (("ff", POSITIVE_REJECTED_FF_CODES), ("fs", POSITIVE_REJECTED_FS_CODES)):
         m0 = r["results"].get(f"{process}:{POSITIVE_SUPPLY_V}:0")
         if m0:
+            reg0 = "yes" if is_regulating(m0) else "**NO — collapsed**"
             add(
                 f"| {process} | {POSITIVE_SUPPLY_V:.2f} | +0 | {m0['vref_27']:.6f} | "
-                f"{m0['vref_max']:.6f} | {m0['tc_ppm']:.3f} | yes |"
+                f"{m0['vref_max']:.6f} | {m0['tc_ppm']:.3f} | {reg0} |"
             )
         for t in codes:
             m = r["results"][f"{process}:{POSITIVE_SUPPLY_V}:{t}"]
@@ -536,13 +593,6 @@ def render_record(record: dict) -> str:
                 f"| {process} | {POSITIVE_SUPPLY_V:.2f} | {t:+d} | {m['vref_27']:.6f} | "
                 f"{m['vref_max']:.6f} | {m['tc_ppm']:.3f} | {reg} |"
             )
-    add("")
-    add(
-        "Read the ff row across codes +1..+5: **collapsed, collapsed, sane, sane, "
-        "collapsed** — a non-monotonic pattern in trim code. This is the evidence "
-        "that no positive code is a certified-safe design point (see the module "
-        "docstring / DR-002 for the bifurcation-surface explanation)."
-    )
     add("")
 
     add("## Range / monotonicity / TC-delta / rejection checks")
@@ -555,46 +605,29 @@ def render_record(record: dict) -> str:
     add(f"- **Overall: {'PASS' if r['overall_pass'] else 'FAIL'}** ({n_fail} check(s) failed)")
     add("")
 
-    add("## Controls (the reason this record can be believed)")
-    add("")
-    add(
-        "- **trim=0 baseline reproduces the pre-existing untrimmed record.** At tt/3.30 V, "
-        "the `trim_code=0` row's `vref_27`/`tc_ppm` match "
-        "`sim/output-voltage-tc/records/20260803-115356-7759435.md`'s own value "
-        "(1.199721 V / 163.389 ppm/°C here vs. 1.19972 V / 163.389 ppm/°C there) -- "
-        "confirming the schematic edit is backward-compatible and the wrapped testbench + "
-        "PDK + corner set are unchanged. Likewise at ff/2.97 V (1.199468 V / 162.299 ppm/°C "
-        "here vs. 1.19947 V / 162.298-162.441 ppm/°C across supply in the same prior record) "
-        "and fs/2.97 V (1.199991 V / 169.187 ppm/°C here vs. 1.19999 V / 169.187-169.312 ppm/°C "
-        "there)."
-    )
-    add(
-        "- **The override-that-didn't-work IS the negative control.** Before landing on "
-        "the body-substitution mechanism, a manual pre-check appended `.param "
-        "n_r2_trim=15` AFTER the netlisted body (the technique that works for "
-        "`sim/monte-carlo-untrimmed`'s PDK-coefficient overrides) and it reproduced the "
-        "trim_code=0 baseline byte-for-byte -- proving that if this record's trim "
-        "mechanism were silently inactive, the `monotonic[*]` checks below would fail "
-        "flat (all `vref_27` identical) rather than pass. See `substitute_trim_code()`'s "
-        "docstring for the full writeup."
-    )
-    add(
-        "- **The positive-direction collapse itself replicates issue #46's finding on an "
-        "independent code path.** `n_r2_trim=+5` is bit-for-bit the same ΔL (+5 µm on "
-        "R2A/R2B) as #46's rejected `n_r2=55` resize, produced through a completely "
-        "different schematic parameter (`r_lseg_trim*n_r2_trim` here vs. `r_lseg*n_r2` "
-        "there). That two independent parameterizations of the identical physical "
-        "perturbation both lose the ff/2.97 V and fs/2.97 V operating point is strong "
-        "corroboration this is a real circuit property, not a script artifact."
-    )
-    add("")
-
     add("## Scope limits, stated so this record is not over-read")
     add("")
+    neg_prefixes = (
+        "sanity[", "n_temp_points[", "monotonic[", "range_covers_mc_spread[", "lsb_comfortable[",
+    )
+    neg_ok = all(c["pass"] for c in r["checks"] if c["name"].startswith(neg_prefixes))
+    nonmono_ok = next(
+        (c["pass"] for c in r["checks"] if c["name"] == "positive_direction_nonmonotonic[ff]"),
+        False,
+    )
     add(
-        "1. **Downward-only trim range.** This is the headline finding, not a scope "
-        "reduction taken for convenience: the positive direction was tested (see the "
-        "rejection table above) and found unsafe. A trim network that can only correct "
+        "1. **Downward-only trim range.** This is the design claim under test, not "
+        "a scope reduction taken for convenience: "
+        + (
+            "every downward-range check in this run passed, so the downward direction "
+            "is supported by this record's own checks"
+            if neg_ok
+            else "one or more downward-range checks FAILED in this run (see the checks "
+            "above), so this record does NOT support the downward range as usable"
+        )
+        + ", and the positive direction's "
+        "rejection is decided by the rejection-test table and checks above, not "
+        "assumed here. A trim network that can only correct "
         "the high-VOUT tail of the mismatch distribution leaves the low-VOUT tail "
         "uncorrected — roughly half of a zero-mean mismatch population, if the "
         "distribution is symmetric (issue #12's own record does not characterize "
@@ -604,20 +637,32 @@ def render_record(record: dict) -> str:
         "layout matching, since #12 found amp/mirror MOS mismatch dominant) so less "
         "trim range is needed in the first place."
     )
+    tc_deltas = [
+        r["results"][f"{process}:{supply}:-16"]["tc_ppm"]
+        - r["results"][f"{process}:{supply}:0"]["tc_ppm"]
+        for process, supply in NEGATIVE_CORNERS
+    ]
     add(
-        "2. **TC-delta is reported, not gated to a tight bound.** The untrimmed core's "
-        "own TC already measures ~152-169 ppm/°C across process corners "
-        "(`sim/output-voltage-tc/records/20260803-115356-7759435.md`), above the draft "
-        "50 ppm/°C budget for reasons unrelated to trim (issue #46, open). At the full "
-        "-16 extreme this record measures a further +79 to +86 ppm/°C on top of that "
-        "baseline (see the per-corner `tc_delta_reported` checks) -- a substantial, "
-        "disclosed cost, not a negligible one. This is an unavoidable consequence of "
-        "using the SAME R2/R1 ratio for both accuracy trim and the core's PTAT/CTAT "
+        "2. **TC-delta is reported, not gated to a tight bound.** The historical "
+        "untrimmed core's TC measured ~152-169 ppm/°C across process corners "
+        "(`sim/output-voltage-tc/records/20260803-115356-7759435.md`, a past record, "
+        "not this run), above the draft 50 ppm/°C budget for reasons unrelated to "
+        "trim (issue #46, open). At the full "
+        f"-16 extreme this run measures a signed TC change of {min(tc_deltas):+.3f} to "
+        f"{max(tc_deltas):+.3f} ppm/°C relative to each corner's own trim=0 TC "
+        "(positive = TC worsens; see the per-corner `tc_delta_reported` checks) -- "
+        + (
+            "an increase at every corner, i.e. a cost of trim"
+            if min(tc_deltas) > 0
+            else "a decrease at every corner, i.e. an improvement, not a cost"
+            if max(tc_deltas) < 0
+            else "mixed in sign across corners"
+        )
+        + ". The shared R2/R1 ratio serves both accuracy trim and the core's PTAT/CTAT "
         "cancellation weight K (issue #46's own finding: 'reaching < 50 ppm/degC "
         "untrimmed needs either curvature correction/trim (#13) ... or widening the "
         "error amp's own headroom margin (#9)'). This record does NOT claim trim "
-        "brings TC under budget -- it reports what trim itself costs on top of the "
-        "pre-existing, separately-tracked overage."
+        "brings TC under budget -- it reports the measured change."
     )
     add(
         "3. **Corner subset for the negative range.** tt/ss at nominal 3.30 V, ff/sf/fs "
@@ -629,10 +674,18 @@ def render_record(record: dict) -> str:
     )
     add(
         "4. **Positive-direction point set is a bisection, not an exhaustive sweep.** "
-        "Six codes at ff and one confirmatory code at fs are the minimum set that "
-        "demonstrates non-monotonic collapse; a denser sweep could find additional "
-        "collapsed or sane codes but cannot change the conclusion (no positive code is "
-        "certified safe by a sparse sane result surrounded by collapsed neighbors)."
+        f"{len(POSITIVE_REJECTED_FF_CODES)} codes at ff and {len(POSITIVE_REJECTED_FS_CODES)} "
+        "confirmatory code(s) at fs are the planned probe set; "
+        + (
+            "this run's readings show a reversal (the `positive_direction_nonmonotonic[ff]` "
+            "check passed), so a sparse regulating result among collapsed neighbors "
+            "cannot certify a positive code safe"
+            if nonmono_ok
+            else "this run's readings did NOT show a reversal (the "
+            "`positive_direction_nonmonotonic[ff]` check failed), so this record does "
+            "not demonstrate non-monotonic collapse"
+        )
+        + "; a denser sweep could find additional collapsed or sane codes."
     )
     add("")
 

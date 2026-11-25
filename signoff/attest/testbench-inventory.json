@@ -518,7 +518,7 @@
         {
           "path": "sim/trim-range-monotonicity/run_trim_sweep.py",
           "role": "runner",
-          "content_hash": "sha256:7769989d5861fc9e5db43127782b6f1cf437c2a661b82f676799874b0e958e7e"
+          "content_hash": "sha256:f339349012650f6000d8718ecf550e5f43710b95d3de272885aaaffa49ca883f"
         }
       ]
     }
