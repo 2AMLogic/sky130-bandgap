@@ -69,6 +69,8 @@ UNCONDITIONAL_PROSE = (
     "1.199721 V / 163.389 ppm/°C",
     "+79 to +86 ppm/°C",
     "demonstrating non-monotonic collapse",
+    "a substantial, disclosed cost",
+    "certified usable by this record",
     "confirms the same collapse mechanism is not ff-specific",
     "DOWNWARD-ONLY range, positive direction rejected",
     "Headline finding: the positive (VOUT-increasing) direction is REJECTED",
@@ -188,7 +190,7 @@ class NarrativeReplayTests(unittest.TestCase):
         self.assertEqual(len(record["checks"]), 58)
         self.assertTrue(all(c["pass"] for c in record["checks"]), record["checks"])
         self.assertIn("**Overall: PASS** (0 check(s) failed)", md)
-        self.assertIn("measures a further +77.582 to +79.537 ppm/°C", md)
+        self.assertIn("measures a signed TC change of +77.582 to +79.537 ppm/°C", md)
         self.assertIn("- **Experiment**: `trim-range-monotonicity` — " + rt.TITLE, md)
         self.assertIn("**Positive direction (rejection test)**", md)
         details = detail_map(record)
@@ -201,7 +203,7 @@ class NarrativeReplayTests(unittest.TestCase):
             details["positive_code_sane_but_not_safe[ff_trimp4_2.97v]"],
         )
         self.assertIn(
-            "a genuine mix of regulating and collapsed codes",
+            "regulation is lost and regained along increasing code",
             details["positive_direction_nonmonotonic[ff]"],
         )
 
@@ -242,7 +244,7 @@ class NarrativeReplayTests(unittest.TestCase):
         checks = check_map(record)
         self.assertFalse(checks["positive_direction_nonmonotonic[ff]"])
         self.assertIn(
-            "every probed code stayed on the operating branch",
+            "every probed positive code stayed on the operating branch",
             details["positive_direction_nonmonotonic[ff]"],
         )
         self.assertNotIn(
@@ -255,7 +257,7 @@ class NarrativeReplayTests(unittest.TestCase):
             self.assertIn("UNEXPECTED", details[f"regulation_loss_confirmed[{name}]"])
 
         # Scope limits derives the -16 TC-delta span from this run's results.
-        self.assertIn(f"measures a further {tc_delta_range(readings)}", md)
+        self.assertIn(f"measures a signed TC change of {tc_delta_range(readings)}", md)
 
         # Title and corner-matrix description state the test, not the
         # historical outcome.
@@ -312,13 +314,64 @@ class NarrativeReplayTests(unittest.TestCase):
         details = detail_map(record)
         self.assertFalse(checks["positive_direction_nonmonotonic[ff]"])
         self.assertIn(
-            "every probed code left the operating branch -- a clean threshold",
+            "every probed positive code collapsed",
             details["positive_direction_nonmonotonic[ff]"],
         )
-        self.assertNotIn("genuine mix", details["positive_direction_nonmonotonic[ff]"])
-        self.assertIn(
-            "every probed code left the operating branch -- a clean threshold", md
-        )
+        self.assertIn("no threshold is inferred", details["positive_direction_nonmonotonic[ff]"])
+        self.assertNotIn("regained", details["positive_direction_nonmonotonic[ff]"])
+        self.assertIn("every probed positive code collapsed", md)
+
+    def test_single_collapse_threshold_is_not_nonmonotonic(self) -> None:
+        """One transition (ff regulating at +1..+4, collapsed at +5 and +15)
+        is a clean threshold, not a reversal: the check fails and the detail
+        says so."""
+        readings = committed_readings()
+        for code in (1, 2, 3, 4):
+            readings[f"ff_trimp{code}_2.97v"].update(vref_27=1.2, vref_max=1.205)
+        rc, record, md = replay_main(readings)
+
+        self.assertEqual(rc, 2)
+        checks = check_map(record)
+        detail = detail_map(record)["positive_direction_nonmonotonic[ff]"]
+        self.assertFalse(checks["positive_direction_nonmonotonic[ff]"])
+        self.assertIn("single transition", detail)
+        self.assertNotIn("regained", detail)
+        self.assertIn("FAIL `positive_direction_nonmonotonic[ff]`", md)
+        self.assertIn("did NOT show a reversal", md)
+        self.assertNotIn("PASS `positive_direction_nonmonotonic[ff]`", md)
+
+    def test_failed_run_does_not_certify_downward_range(self) -> None:
+        """A failed negative-range check withdraws the downward-range claim
+        and the full-temperature-coverage claim."""
+        readings = committed_readings()
+        readings["tt_trimp0_3.30v"].update(vref_27=1.350, tc_ppm=240.0)
+        _, record, md = replay_main(readings)
+
+        self.assertFalse(check_map(record)["sanity[tt_trimp0_3.30v]"])
+        self.assertIn("does NOT support the downward range as usable", md)
+        self.assertNotIn("certified usable", md)
+        self.assertNotIn("full temperature coverage", md)
+        self.assertNotIn("usable)", md)
+
+    def test_tc_improvement_is_reported_neutrally(self) -> None:
+        """Every -16 TC set to trim=0 minus 5 ppm/°C, with a trim=0 TC of 45
+        (below 50): reported as a signed -5 improvement, not a cost, and the
+        per-corner detail does not claim the baseline exceeds 50."""
+        readings = committed_readings()
+        for process, supply in rt.NEGATIVE_CORNERS:
+            base = f"{process}_trimp0_{supply:.2f}v"
+            readings[base]["tc_ppm"] = 45.0
+            readings[f"{process}_trimn16_{supply:.2f}v"]["tc_ppm"] = 40.0
+        rc, record, md = replay_main(readings)
+
+        self.assertEqual(rc, 0)
+        self.assertIn("signed TC change of -5.000 to -5.000 ppm/°C", md)
+        self.assertIn("a decrease at every corner, i.e. an improvement, not a cost", md)
+        self.assertNotIn("substantial, disclosed cost", md)
+        for name, detail in detail_map(record).items():
+            if name.startswith("tc_delta_reported["):
+                self.assertIn("does not exceed the 50", detail)
+                self.assertNotIn("baseline itself already exceeds", detail)
 
 
 if __name__ == "__main__":
