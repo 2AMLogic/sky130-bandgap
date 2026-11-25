@@ -7,35 +7,31 @@ xschem + ngspice analog flow.
 
 ![fleet burndown](https://raw.githubusercontent.com/2AMLogic/2am/main/fleet-metrics/charts/sky130-bandgap.svg)
 
-**Status: active development, not spec-conformant.** Bandgap-core layout is
-DRC/HV/ERC-clean on the thick-oxide corrected record
-(`layout/bandgap-core/reports/20261121-082021-3f43042b`, issue #620; the
-composed cell is 75,481 µm², inside the `< 0.08 mm²`
-budget of [DR-007](spec/decision-records/DR-007-mcc-area-budget.md)), and
-`klt lvs` reports **`mismatch_count: 5`** on it — with the VDD trunk still
-unrouted (2 drawn components), so the extracted cell does not regulate: the
-seven post-layout benches re-run on that record (2026-11-24) all FAIL with
-`vref` tracking the supply. The connectivity fix is tracked in
-[#669](https://github.com/2AMLogic/sky130-bandgap/issues/669). Nothing
-here has been taped out or measured in silicon. Ladder: simulation-complete →
-layout DRC/LVS-clean → shuttle seat → measured silicon over temperature;
-current position is mid-ladder, a **layout-complete** block with disclosed
-spec failures. The verdicts below are copied from
-[`design/block-characterization-report.md`](design/block-characterization-report.md)
-(section 2 is the row-by-row record; read it, not this table, for numbers and
-binding corners). The report is a dated snapshot; the newest `sim/*/records/`
-entry is authoritative for its own claim.
+**Status: active development, not spec-conformant.** The routed bandgap core
+passes DRC, HV DRC and ERC. All 15 declared met1 nets are connected, including
+VDD, and all 32 amplifier PFET fingers checked by the extraction match their
+schematic nets. LVS still reports five mismatches. [Layout record](layout/bandgap-core/reports/20261124-181030-d436ab4c/record.md)
+
+Repairing the VDD trunk restored regulation. Across 15 process and supply
+corners at 27 °C, the extracted reference delivers 1.002–1.007 V against the
+1.176–1.224 V target. The cause of the shortfall is open. All seven post-layout
+benches report an overall failure. The block has yet to reach tape-out or
+silicon measurement. [Output-voltage and TC record](sim/output-voltage-tc-post-layout/records/20261124-181216-d436ab4c.md)
+
+The table combines the schematic verdicts in section 2 of the
+[characterization report](design/block-characterization-report.md) with the
+post-layout measurements on the repaired routing.
 
 | Spec row | Verdict | Where |
 |---|---|---|
-| Output reference, ±2% untrimmed | Schematic **PASS 45/45**; mismatch MC graded on three separate layers — evidence **present**, ≥50% harness sanity floor **PASS** (79–96% yield inside the window, N=300 requested), **DR-005 3σ spec FAIL** (mean±3σ falls outside [1.176, 1.224] V at all three temperatures; −40 °C has only 238 converged draws; `tt_mm` is local-mismatch only, no joint process×mismatch evidence; see `sim/monte-carlo-untrimmed/records/20260817-121131-d7d85b6-dr005-qualification.md`); post-layout **FAIL 15/15** on the thick-oxide record (`vref` 2.578–3.505 V tracks the supply at every corner; measured 2026-11-24, `sim/output-voltage-tc-post-layout/records/20261124-152508-39a20d81.md` — dominated by the record's unrouted VDD split, see #669, not by the oxide geometry; a DC repair probe of the split islands moves `vref_27` 3.06 → 1.00 V) | report rows 1a–1c |
+| Output reference, ±2% untrimmed | Schematic **PASS 45/45**; mismatch MC graded on three separate layers — evidence **present**, ≥50% harness sanity floor **PASS** (79–96% yield inside the window, N=300 requested), **DR-005 3σ spec FAIL** (mean±3σ falls outside [1.176, 1.224] V at all three temperatures; −40 °C has only 238 converged draws; `tt_mm` is local-mismatch only, no joint process×mismatch evidence; see `sim/monte-carlo-untrimmed/records/20260817-121131-d7d85b6-dr005-qualification.md`). Post-layout **FAIL 15/15** at 27 °C (1.002–1.007 V) | report rows 1a–1c. [Output and TC](sim/output-voltage-tc-post-layout/records/20261124-181216-d436ab4c.md) |
 | Trim | Two layers, graded separately. **DR-002 engineering checks: PASS** (schematic-level, 15/15 corners) — monotonic, downward span 38.46–38.75 mV, LSB 2.404–2.422 mV/code (≤ 3.000), re-derived at the current `n_r2=51` design. **DR-005 ratified-spec qualification: FAIL** — range ≥ ±5% not demonstrated (0 mV up, 38.46–38.75 mV = 3.2% down, vs 60 mV each way; DR-002 certifies downward trim only), ≥ 5-bit coverage not demonstrated (17 codes = 4.09 bits); resolution ≤ 0.25%/step passes (0.2025%). The "magnitude only" wording is undefined in DR-005 (narrow operator question disclosed, range not waived). A post-layout extracted-chain trim check is not yet done | report row 2; `sim/trim-lsb-chained/records/20261008-163545-ffa415c-dr005-qualification.md` |
-| Temp coefficient, `< 50 ppm/°C` | **FAIL at every corner** — 142–159 ppm/°C schematic; post-layout 136.5–212.0 ppm/°C on the pre-thick-oxide record, and 54–190 ppm/°C on the 2026-11-24 thick-oxide re-run (a supply-tracking output, not a regulation — see #669); disposition (keep the row, disclose the FAIL, defer curvature correction) in [DR-009](spec/decision-records/DR-009-tc-floor-disposition-defer-curvature-correction.md) | report rows 3a–3b |
-| PSRR, `> 60 dB` DC–1 kHz | Schematic **PASS 45/45**; post-layout **FAIL 25/45** on the pre-thick-oxide record since the startup injector was drawn in (worst 22.75 dB; resize cannot fix it, [DR-011](spec/decision-records/DR-011-startup-injector-psrr-fix-infeasible-by-resize.md), issues #300/#315), and **FAIL 45/45** on the 2026-11-24 thick-oxide re-run (`psrr_dc` −3.6…+0.3 dB; the unregulated output leaves no rejection — see #669) | report rows 4a–4f |
-| Supply, 3.3 V ±10% | **PASS** (operability; line regulation PASS schematic, FAIL 15/15 post-layout on the 2026-11-24 thick-oxide re-run — 31–38 %/V with the output tracking the supply, see #669) | report rows 5–5c |
-| Iq, `< 50 µA` | **PASS 45/45** schematic; post-layout **FAIL 45/45** on the 2026-11-24 thick-oxide re-run (52–309 µA, scaling with the supply the unregulated core rides — see #669) | report rows 6a–6c |
-| Area, `< 0.08 mm²` | **PASS** (75,481 µm² at the thick-oxide record `20261121-082021-3f43042b`) | report row 7 |
-| Startup, self-starting `< 1 ms` | **MIXED** — self-starting **PASS** (schematic 45/45, post-layout 8/8 on the pre-thick-oxide record); the ratified `t_start < 1 ms` measurement passes everywhere, but the startup-ramp `vref` spread check **FAILS 13/45** schematic and post-layout ([DR-010](spec/decision-records/DR-010-startup-ramp-vref-spread-settling-tail.md)); the bare-core startup-time bench fails by construction; the 2026-11-24 thick-oxide re-run **FAILs all three startup benches** (the output rides the supply ramp — the numbers do not characterize a working reference; see #669) | report rows 8a–8e |
+| Temp coefficient, `< 50 ppm/°C` | **FAIL at every corner**. Schematic box TC is 142–159 ppm/°C. The extracted layout measures 651–797 ppm/°C across 15 corners. | report rows 3a–3b. [DR-009](spec/decision-records/DR-009-tc-floor-disposition-defer-curvature-correction.md), [Output and TC](sim/output-voltage-tc-post-layout/records/20261124-181216-d436ab4c.md) |
+| PSRR, `> 60 dB` DC–1 kHz | Schematic **PASS 45/45**. Post-layout **FAIL 27/45**. The lowest rejection across the specified band is 22.15 dB. | report rows 4a–4f. [DR-011](spec/decision-records/DR-011-startup-injector-psrr-fix-infeasible-by-resize.md), [PSRR record](sim/psrr-dc-post-layout/records/20261124-181909-d436ab4c.md) |
+| Supply, 3.3 V ±10% | Schematic operability and line regulation **PASS**. The post-layout sweep measures 0.020–3.80 %/V. All 15 corners fail the bench’s nominal output-voltage floor of 1.14 V. | report rows 5–5c. [Line regulation](sim/line-regulation-post-layout/records/20261124-181351-d436ab4c.md) |
+| Iq, `< 50 µA` | Schematic **PASS 45/45**. Extracted Iq is 10.16–18.32 µA across all 45 corners. The bench records **15/45 failures** on its separate 1 V reference-voltage floor. | report rows 6a–6c. [Quiescent current](sim/quiescent-current-post-layout/records/20261124-181542-d436ab4c.md) |
+| Area, `< 0.08 mm²` | **PASS**. The routed cell occupies 75,481 µm². | report row 7. [DR-007](spec/decision-records/DR-007-mcc-area-budget.md), [layout record](layout/bandgap-core/reports/20261124-181030-d436ab4c/record.md) |
+| Startup, self-starting `< 1 ms` | Schematic self-starting **PASS 45/45**. The schematic ramp-spread check fails 13/45. On the repaired layout, the startup-time bench fails 15/45, ramp fails 45/45, and stability fails 8/8. | report rows 8a–8e. [DR-010](spec/decision-records/DR-010-startup-ramp-vref-spread-settling-tail.md), [time](sim/startup-time-post-layout/records/20261124-181351-d436ab4c.md), [ramp](sim/startup-ramp-post-layout/records/20261124-181545-d436ab4c.md), [stability](sim/startup-stability-post-layout/records/20261124-182029-d436ab4c.md) |
 
 LVS determinism, the `combine_devices` resistor accounting, the `MCC` cap and
 the pinned `klt` build are explained in
