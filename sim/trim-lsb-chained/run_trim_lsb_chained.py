@@ -721,8 +721,10 @@ def qualify_dr005(results: dict, config: str = GRADED_CONFIG, codes=CHAINED_CODE
         "direction": {
             "codes_up": sorted({c["n_codes_up"] for c in done}),
             "codes_down": sorted({c["n_codes_down"] for c in done}),
-            "note": "DR-002 certifies downward codes only (0..-16); no upward code exists, so the up "
-                    "direction demonstrates 0 mV." if done and all(c["n_codes_up"] == 0 for c in done) else "",
+            "note": "DR-002 certifies downward codes only (0..-16); no upward code exists. Code signs "
+                    "describe which trim codes are available, not which way VREF moves: the measured "
+                    "movement in each direction is graded by the trim-range rows from the extrema of "
+                    "the measured VREF series." if done and all(c["n_codes_up"] == 0 for c in done) else "",
         },
         "thresholds": {"nominal_v": DR005_NOMINAL_V, "range_fraction": DR005_RANGE_FRACTION,
                        "resolution_pct": DR005_RESOLUTION_PCT, "min_bits": DR005_MIN_BITS},
@@ -765,7 +767,7 @@ def render_dr005_section(q: dict) -> list[str]:
     L.append(f"- **Incomplete corners**: {q['n_incomplete_corners']} of {q['n_corners']}.")
     L.append("- **Range basis**: movement of VREF(27 C) away from the code-0 (untrimmed) point, as a share of the "
              "specified 1.20 V (not of the measured VREF). Absolute reach versus 1.20 V is listed per corner "
-             "below for context; it is smaller still on the down side because code 0 sits above 1.20 V.")
+             "below for context.")
     L.append("")
     L.append("| corner | up (mV) | down (mV) | down (% of 1.20 V) | reach vs 1.20 V up/down (mV) | max step (mV) | "
              "max step (%) | effective codes (bits) |")
