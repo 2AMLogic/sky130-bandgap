@@ -45,6 +45,17 @@ def synthetic(lsb_mv=2.4, mutate=None, drop=()):
     return res
 
 
+def reversed_response(base_v=1.18, lsb_mv=4.0):
+    """Results dict whose negative codes push VREF up from a below-nominal code 0
+    (issue #696 fixture: a reversed response to the certified downward codes)."""
+    return {
+        ("chained", p, v, c): {"vref_27": base_v - c * lsb_mv / 1000}
+        for p in rt.PROCESSES
+        for v in rt.SUPPLIES
+        for c in rt.CHAINED_CODES
+    }
+
+
 def by_name(checks):
     return {c["name"]: c for c in checks}
 
@@ -541,6 +552,61 @@ class Dr005QualificationTests(unittest.TestCase):
         self.assertIn("DR-005 verdict: FAIL", text)
         self.assertIn("NARROW OPERATOR QUESTION", text)
         self.assertIn("INSUFFICIENT", "\n".join(rt.render_dr005_section(rt.qualify_dr005({}))))
+
+    def test_reversed_response_direction_note_matches_range_rows(self) -> None:
+        # issue #696: the Direction note states the available code signs; the measured
+        # movement belongs to the range rows, so the note cannot contradict them
+        q = rt.qualify_dr005(reversed_response())
+        r = q["requirements"]
+        self.assertAlmostEqual(r["range_up"]["worst_mv"], 64.0, places=6)
+        self.assertAlmostEqual(r["range_up"]["worst_pct"], 64.0 / 12.0, places=6)
+        self.assertEqual(r["range_up"]["verdict"], "PASS")
+        self.assertEqual(q["direction"]["codes_up"], [0])
+        self.assertEqual(q["direction"]["codes_down"], [16])
+        note = q["direction"]["note"]
+        self.assertIn("downward codes only", note)
+        self.assertIn("no upward code exists", note)
+        self.assertNotIn("0 mV", note)
+        text = "\n".join(rt.render_dr005_section(q))
+        self.assertIn(f"- **Direction**: {note}", text)
+        self.assertIn("64.000 mV (5.333 %) | **PASS**", text)
+
+    def test_reversed_response_per_corner_table_values(self) -> None:
+        # issue #696's documented fixture numbers: at TT, 3.30 V the downward movement
+        # from code 0 is 0 mV and the downward reach versus nominal is +20 mV
+        q = rt.qualify_dr005(reversed_response())
+        c = q["corners"]["tt_3.30v"]
+        self.assertAlmostEqual(c["v_code0"], 1.18, places=9)
+        self.assertAlmostEqual(c["up_mv"], 64.0, places=6)
+        self.assertAlmostEqual(c["down_mv"], 0.0, places=6)
+        self.assertAlmostEqual(c["reach_up_mv"], 44.0, places=6)
+        self.assertAlmostEqual(c["reach_down_mv"], 20.0, places=6)
+        text = "\n".join(rt.render_dr005_section(q))
+        self.assertIn("| tt_3.30v | 64.000 | 0.000 | 0.000 | +44.000 / +20.000 |", text)
+
+    def test_range_basis_wording_holds_for_code0_below_at_and_above_nominal(self) -> None:
+        # issue #696: the Range basis bullet must not locate code 0 relative to nominal --
+        # it names the origin (code 0), the percentage denominator (1.20 V) and the
+        # absolute-reach reference (1.20 V) and stays true wherever code 0 actually sits
+        bullets = set()
+        for base_v in (1.18, 1.20, 1.22):  # below, at, above nominal
+            text = "\n".join(rt.render_dr005_section(rt.qualify_dr005(reversed_response(base_v=base_v))))
+            bullet = next(l for l in text.splitlines() if l.startswith("- **Range basis**"))
+            bullets.add(bullet)
+            self.assertIn("code-0 (untrimmed) point", bullet)
+            self.assertIn("share of the specified 1.20 V", bullet)
+            self.assertIn("Absolute reach versus 1.20 V", bullet)
+            # no claim about where code 0 sits: it moves per corner and per fixture
+            self.assertNotIn("code 0 sits", bullet)
+            self.assertNotIn("smaller", bullet)
+        self.assertEqual(len(bullets), 1)  # wording independent of code-0 position
+        # ...and independent of corners disagreeing about where code 0 sits
+        per_process = {"tt": 1.18, "ss": 1.20, "ff": 1.22, "sf": 1.19, "fs": 1.21}
+        res = {("chained", p, v, c): {"vref_27": per_process[p] - 0.004 * c}
+               for p in rt.PROCESSES for v in rt.SUPPLIES for c in rt.CHAINED_CODES}
+        text = "\n".join(rt.render_dr005_section(rt.qualify_dr005(res)))
+        bullet = next(l for l in text.splitlines() if l.startswith("- **Range basis**"))
+        self.assertIn(bullet, bullets)
 
 
 if __name__ == "__main__":

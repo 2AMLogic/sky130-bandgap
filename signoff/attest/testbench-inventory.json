@@ -507,7 +507,7 @@
         {
           "path": "sim/trim-lsb-chained/run_trim_lsb_chained.py",
           "role": "runner",
-          "content_hash": "sha256:b8ed8c28077ce427b602c0e194dcedd05b5a343437cc9328b148400720a2ba63"
+          "content_hash": "sha256:fc33527469028818d9e48dc2501a7ea2ae498ac77eb062e92bfcd05b920584bf"
         }
       ]
     },
