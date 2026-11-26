@@ -1475,6 +1475,7 @@ def seed_stability_checks(
                 f"sigma(seed {seed_b}) / sigma(seed {seed_a}) = "
                 f"{(sb / sa) if sa else float('nan'):.3f} "
                 f"({mv(sb)} mV vs {mv(sa)} mV; tolerance +/-{tol:.0%})"
+                + (f"; {SEED_REF_ZERO_NOTE}" if not sa else "")
             ),
         },
         {
@@ -1489,6 +1490,12 @@ def seed_stability_checks(
             ),
         },
     ]
+
+
+SEED_REF_ZERO_NOTE = (
+    "reference sigma is zero, so the relative change is undefined and cannot be "
+    "compared with the tolerance"
+)
 
 
 def _vector_key_label(entry: str | tuple[str, str]) -> tuple[str, str]:
@@ -1572,10 +1579,18 @@ def render_mc_controls(
             )
         elif failed_sigma:
             names = ", ".join(f"`{name}`" for name in failed_sigma)
-            seed_outcome = (
-                f"**FAIL** ({names}): individual samples differed, but σ drifted "
-                "outside the seed-stability tolerance between seeds (see `## Checks` below)."
-            )
+            ref_zero = any(SEED_REF_ZERO_NOTE in c["detail"] for c in sigma_checks if not c["pass"])
+            if ref_zero:
+                seed_outcome = (
+                    f"**FAIL** ({names}): the first-seed σ is zero, so the relative "
+                    "σ change between seeds is undefined and cannot be compared with the "
+                    "seed-stability tolerance (see `## Checks` below)."
+                )
+            else:
+                seed_outcome = (
+                    f"**FAIL** ({names}): individual samples differed, but σ drifted "
+                    "outside the seed-stability tolerance between seeds (see `## Checks` below)."
+                )
         else:
             names = ", ".join(f"`{name}`" for name in failed_sample)
             seed_outcome = (

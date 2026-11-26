@@ -427,5 +427,73 @@ class EvaluateToRenderIntegrationTests(unittest.TestCase):
         self.assertIn("not established as sufficient", md_jump)
 
 
+class ZeroReferenceSigmaNarrativeTests(unittest.TestCase):
+    """A zero reference sigma makes relative drift undefined (issue #691 review)."""
+
+    def test_seed_check_detail_states_undefined_comparison(self):
+        for sigma_b in (0.0, 0.001):
+            with self.subTest(sigma_b=sigma_b):
+                a = {"stats": {"vout": {"sigma": 0.0, "max": 1.200}}}
+                b = {"stats": {"vout": {"sigma": sigma_b, "max": 1.201}}}
+                checks = sim_common.seed_stability_checks(
+                    a, b, "vout", 1, 2, 0.25, sample_field="max"
+                )
+                self.assertFalse(checks[0]["pass"])
+                self.assertIn(sim_common.SEED_REF_ZERO_NOTE, checks[0]["detail"])
+
+    def test_nonzero_reference_detail_has_no_undefined_note(self):
+        a = {"stats": {"vout": {"sigma": 0.01, "max": 1.2}}}
+        b = {"stats": {"vout": {"sigma": 0.02, "max": 1.3}}}
+        checks = sim_common.seed_stability_checks(a, b, "vout", 1, 2, 0.25, sample_field="max")
+        self.assertNotIn(sim_common.SEED_REF_ZERO_NOTE, checks[0]["detail"])
+
+    def test_all_renderers_do_not_claim_drift_for_zero_reference_sigma(self):
+        for name, mod, path in RUNNERS:
+            with self.subTest(runner=name):
+                r = _load(path)
+                seed_b = next(p for p in r["points"] if p["role"] == "seed-check")
+                seed_a_id = seed_b["corner_id"].removesuffix("_seed-b")
+                seed_a = next(p for p in r["points"] if p["corner_id"] == seed_a_id)
+                for pt in (seed_a, seed_b):
+                    for st in pt["stats"].values():
+                        st["sigma"] = 0.0
+                by_id = {seed_a_id: seed_a, seed_b["corner_id"]: seed_b}
+                r["cross_point_checks"] = mod.seed_stability(by_id)
+                self.assertTrue(
+                    any(
+                        c["name"].startswith("seed_sigma_stable[") and not c["pass"]
+                        for c in r["cross_point_checks"]
+                    )
+                )
+                controls = _controls_section(mod.render_record(r))
+                self.assertIn("**FAIL**", controls)
+                self.assertIn("undefined", controls)
+                self.assertNotIn("drifted", controls)
+
+    def test_untrimmed_identical_draws_report_undefined_not_inf(self):
+        all_27_pt = next(
+            p
+            for p in UNTRIMMED.build_points(20)
+            if p.role == "mismatch" and p.config == "all" and p.temp_c == 27.0
+        )
+        samples = [{"vout": 1.200, "vgdrv": 2.0} for _ in range(20)]
+        ev = UNTRIMMED.evaluate(all_27_pt, samples, [])
+        conv_checks = UNTRIMMED.convergence_check(ev)
+        self.assertEqual(len(conv_checks), 1)
+        self.assertFalse(conv_checks[0]["pass"])
+        self.assertNotIn("inf", conv_checks[0]["detail"])
+        self.assertIn("undefined", conv_checks[0]["detail"])
+        r = _load(UNTRIMMED_DRIFT_FAIL_RECORD)
+        r["points"] = [ev if p["corner_id"] == all_27_pt.corner_id else p for p in r["points"]]
+        r["cross_point_checks"] = [
+            c for c in r["cross_point_checks"] if c["name"] != "sample_count_sufficient"
+        ] + conv_checks
+        md = UNTRIMMED.render_record(r)
+        self.assertNotIn("inf%", md)
+        self.assertIn("is zero, so the relative change is undefined", md)
+        self.assertIn("not established as sufficient", md)
+        self.assertNotIn("is treated as sufficient", md)
+
+
 if __name__ == "__main__":
     unittest.main()

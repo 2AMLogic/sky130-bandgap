@@ -634,6 +634,17 @@ def convergence_sequence_clause(execution: dict | None, n: int, k: int) -> str:
             f"to a standalone {k}-sample run")
 
 
+def convergence_change_clause(prev: dict, rel: float) -> str:
+    """Describe the running-sigma change between two checkpoints.
+
+    A zero reference sigma makes the relative change undefined (`rel` is `inf`),
+    so the comparison fails without asserting a measured percentage change."""
+    if not prev["sigma"]:
+        return ("relative change undefined (the reference checkpoint's sigma is "
+                "zero, so a percentage comparison is not possible)")
+    return f"relative change {rel:.1%}"
+
+
 def convergence_check(all_point_27c: dict | None, execution: dict | None = None) -> list[dict]:
     if not all_point_27c or "convergence" not in all_point_27c:
         return []
@@ -650,8 +661,8 @@ def convergence_check(all_point_27c: dict | None, execution: dict | None = None)
                 f"running sigma(VOUT) at N={prev['n']} vs N={last['n']} "
                 f"({convergence_sequence_clause(execution, last['n'], prev['n'])}): "
                 f"{prev['sigma'] * 1e3:.4f} mV -> "
-                f"{last['sigma'] * 1e3:.4f} mV, relative change {rel:.1%} (tolerance "
-                f"{CONVERGENCE_TOL:.0%}). Full checkpoint series: "
+                f"{last['sigma'] * 1e3:.4f} mV, {convergence_change_clause(prev, rel)} "
+                f"(tolerance {CONVERGENCE_TOL:.0%}). Full checkpoint series: "
                 + ", ".join(f"N={p['n']}: {p['sigma'] * 1e3:.4f} mV" for p in series)
             ),
         }
@@ -960,9 +971,19 @@ def render_record(r: dict) -> str:
                     "and yield figures above, rather than asserted by convention alone."
                 )
             else:
+                if not prev["sigma"]:
+                    change = (
+                        f"σ at N={prev['n']} is zero, so the relative change is "
+                        f"undefined and cannot be compared with the {CONVERGENCE_TOL:.0%} "
+                        "`sample_count_sufficient` tolerance"
+                    )
+                else:
+                    change = (
+                        f"σ changed by {rel:.1%}, exceeding the {CONVERGENCE_TOL:.0%} "
+                        "`sample_count_sufficient` tolerance"
+                    )
                 add(
-                    f"N={prev['n']} -> N={last['n']}: σ changed by {rel:.1%}, exceeding "
-                    f"the {CONVERGENCE_TOL:.0%} `sample_count_sufficient` tolerance "
+                    f"N={prev['n']} -> N={last['n']}: {change} "
                     "(**FAIL**; see `## Checks` below) — running σ has not stabilised "
                     f"across checkpoints, so N={n}{sibling_note} is not established as "
                     "sufficient by this run."

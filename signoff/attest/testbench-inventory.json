@@ -50,7 +50,7 @@
     {
       "path": "sim/bin/sim_common.py",
       "role": "harness",
-      "content_hash": "sha256:0388807d46f45479cb7092a63b8e18da1987ba1c45740547042438e36e890b8a"
+      "content_hash": "sha256:413f70443a65aed2e664ce7a1119812a03236800adf2cfb36162218c7068ce8f"
     }
   ],
   "testbenches": [
@@ -136,7 +136,7 @@
         {
           "path": "sim/monte-carlo-untrimmed/run_mc_untrimmed.py",
           "role": "runner",
-          "content_hash": "sha256:ca57b689c3532b9a18be16728b092598270ae23ccfdf465700e5f35ebf94ed11"
+          "content_hash": "sha256:f794c2bd564da8738bceb4f95353ccfcb3b7b4b30a1bad436bb4c445bca8f003"
         }
       ]
     },
@@ -507,7 +507,7 @@
         {
           "path": "sim/trim-lsb-chained/run_trim_lsb_chained.py",
           "role": "runner",
-          "content_hash": "sha256:5015fed4ff51481f4708864b4ae5bb819143420ffebc6e0d2e893001d08d9ccf"
+          "content_hash": "sha256:b8ed8c28077ce427b602c0e194dcedd05b5a343437cc9328b148400720a2ba63"
         }
       ]
     },
