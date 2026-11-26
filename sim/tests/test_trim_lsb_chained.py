@@ -9,10 +9,12 @@ on synthetic fixtures.
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 SIM_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SIM_DIR / "bin"))
@@ -197,6 +199,240 @@ class GradingTests(unittest.TestCase):
         checks = rt.evaluate(res, {key: "x"})
         text = rt.build_determination(res, checks, rt.read_design_sizing())
         self.assertIn("INCOMPLETE", text)
+
+
+class FailingCheckDetailTests(unittest.TestCase):
+    """A failing check's `detail` may not assert the passing condition
+    (issue #694): `collapse_free[*]`/`monotonic[*]` details must state what
+    the measurements actually show, not what a passing run would show."""
+
+    def test_collapsed_detail_names_the_out_of_band_codes(self) -> None:
+        def collapse(res):
+            res[("chained", "fs", 2.97, -3)]["vref_max"] = 2.85
+            res[("chained", "fs", 2.97, -4)]["vref_max"] = 0.95
+        c = by_name(rt.evaluate(synthetic(mutate=collapse)))["collapse_free[chained_fs_2.97v]"]
+        self.assertFalse(c["pass"])
+        self.assertIn("code -3", c["detail"])
+        self.assertIn("2.850000 V", c["detail"])
+        self.assertIn("code -4", c["detail"])
+        self.assertIn("left the operating branch", c["detail"])
+        self.assertNotIn("stay on the operating branch", c["detail"])
+
+    def test_passing_collapse_detail_keeps_the_pass_wording(self) -> None:
+        c = by_name(rt.evaluate(synthetic()))["collapse_free[chained_tt_3.30v]"]
+        self.assertTrue(c["pass"])
+        self.assertIn("stay on the operating branch", c["detail"])
+        self.assertNotIn("left the operating branch", c["detail"])
+
+    def test_nonmonotonic_detail_names_the_offending_transition(self) -> None:
+        def bump(res):
+            res[("chained", "tt", 3.30, -7)]["vref_27"] += 0.01  # one negative step
+        c = by_name(rt.evaluate(synthetic(mutate=bump)))["monotonic[chained_tt_3.30v]"]
+        self.assertFalse(c["pass"])
+        self.assertIn("NOT strictly increasing", c["detail"])
+        self.assertIn("code -7 -> -6 (-7.6000 mV)", c["detail"])
+        self.assertNotIn("strictly increasing from code -16 to 0 over all 17 codes", c["detail"])
+
+    def test_passing_monotonic_detail_keeps_the_pass_wording(self) -> None:
+        c = by_name(rt.evaluate(synthetic()))["monotonic[chained_tt_3.30v]"]
+        self.assertTrue(c["pass"])
+        self.assertIn("strictly increasing from code -16 to 0", c["detail"])
+        self.assertNotIn("NOT strictly increasing", c["detail"])
+
+
+class MagnitudeOnlyNoteTests(unittest.TestCase):
+    """The 'magnitude only' note's evidence-impact clause follows this run's
+    range verdicts (issue #694): it may not claim 'range FAILS under either
+    reading' when `range_down` reaches 5 %, where the narrow operator
+    question's answer does flip the range verdict."""
+
+    def test_both_directions_fail_keeps_verdict_independent_wording(self) -> None:
+        note = rt.qualify_dr005(synthetic())["magnitude_only"]  # down 3.2 %, up 0 mV
+        self.assertIn("NARROW OPERATOR QUESTION", note)
+        self.assertIn("does not depend on the answer", note)
+        self.assertIn("about 3.2 % of 1.20 V", note)
+        self.assertIn("range FAILS under either reading", note)
+
+    def test_range_down_pass_makes_the_answer_decisive(self) -> None:
+        note = rt.qualify_dr005(synthetic(lsb_mv=3.75))["magnitude_only"]  # down 5.0 %, up 0 mV
+        self.assertIn("NARROW OPERATOR QUESTION", note)
+        self.assertIn("DOES depend on the answer", note)
+        self.assertIn("about 5.0 % of 1.20 V", note)
+        self.assertIn("FAIL under the two-sided reading", note)
+        self.assertIn("PASS under a one-sided one", note)
+        self.assertNotIn("is itself below 5 %", note)
+        self.assertNotIn("range FAILS under either reading", note)
+
+    def test_no_evidence_is_insufficient_under_either_reading(self) -> None:
+        note = rt.qualify_dr005({})["magnitude_only"]
+        self.assertIn("NARROW OPERATOR QUESTION", note)
+        self.assertIn("INSUFFICIENT_EVIDENCE under either reading", note)
+        self.assertNotIn("is itself below 5 %", note)
+        self.assertNotIn("DOES depend on the answer", note)
+
+
+class MintDr005RecordTests(unittest.TestCase):
+    """`mint_dr005_record`'s determination and supersession lines follow the
+    source record and this qualification's own verdicts (issue #694)."""
+
+    SOURCE = SIM_DIR / "trim-lsb-chained" / "records" / "20261008-163545-ffa415c.json"
+
+    def mint_from(self, mutate=None, supersedes="") -> tuple[dict, str]:
+        # mint computes repo-relative provenance, so the source copy must sit
+        # inside the repo tree (records are still untouched: temp dir + cleanup)
+        tmp = Path(tempfile.mkdtemp(dir=SIM_DIR.parent, prefix="trim-lsb-dr005-"))
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        src = tmp / self.SOURCE.name
+        data = json.loads(self.SOURCE.read_text())
+        if mutate:
+            mutate(data)
+        src.write_text(json.dumps(data))
+        src.with_suffix(".md").write_bytes(self.SOURCE.with_suffix(".md").read_bytes())
+        out_md, out_json = rt.mint_dr005_record(src, "test author", supersedes)
+        return json.loads(out_json.read_text()), out_md.read_text()
+
+    def test_passing_source_determination_follows_the_verdicts(self) -> None:
+        rec, md = self.mint_from()
+        self.assertIn("DR-002 engineering PASS stands", rec["determination"])
+        self.assertIn("range_up FAILS", rec["determination"])
+        self.assertIn("code_coverage FAILS", rec["determination"])
+        self.assertIn("Only resolution holds", rec["determination"])
+        self.assertIn("## Determination", md)
+        self.assertIn(rec["determination"], md)
+        self.assertNotIn("The DR-002 engineering result is FAIL", md)
+
+    def test_supersedes_is_stamped_and_rendered(self) -> None:
+        rec, md = self.mint_from(supersedes="20261112-224417-24a14a1")
+        self.assertEqual(rec["supersedes"], "20261112-224417-24a14a1")
+        self.assertIn("- **Supersedes**: 20261112-224417-24a14a1", md)
+        self.assertNotIn("first DR-005 qualification", md)
+
+    def test_omitted_supersedes_leaves_the_qualification_predecessor_unspecified(self) -> None:
+        rec, md = self.mint_from()
+        self.assertIsNone(rec["supersedes"])
+        self.assertIn("- **Supersedes**: (none specified)", md.splitlines())
+
+    def test_partial_corner_leaves_one_sided_range_and_downward_requirement_unresolved(self) -> None:
+        def partial_corner(data):
+            src = synthetic_record(results=synthetic(lsb_mv=3.75, drop=[("chained", "tt", 3.3, -1)]))
+            for key in ("results", "checks", "overall_pass"):
+                data[key] = src[key]
+
+        rec, md = self.mint_from(mutate=partial_corner)
+        q = rec["dr005_qualification"]
+        self.assertEqual(q["n_incomplete_corners"], 1)
+        self.assertEqual(q["requirements"]["range_up"]["verdict"], "FAIL")
+        self.assertEqual(q["requirements"]["range_down"]["verdict"], "INSUFFICIENT_EVIDENCE")
+        self.assertIn("FAIL under the two-sided reading", q["magnitude_only"])
+        self.assertIn("INSUFFICIENT_EVIDENCE under a one-sided one", q["magnitude_only"])
+        self.assertIn("range_up FAILS", rec["determination"])
+        self.assertIn("Insufficient evidence for range_down.", rec["determination"])
+        self.assertNotIn("No literal requirement holds", rec["determination"])
+        self.assertIn(q["magnitude_only"], md)
+        self.assertIn(rec["determination"], md)
+
+    def test_failing_source_determination_reads_as_failing(self) -> None:
+        """The issue #694 reproduction: a DR-002-failing source record whose
+        range_down reaches 5 % with an oversized step must not be narrated as
+        an engineering PASS with range 'below 5 %'."""
+        def mutate(data):
+            data["overall_pass"] = False
+            data["checks"][0]["pass"] = False
+            data["results"]["chained|fs|2.97|-3"]["vref_max"] = 2.85
+            for key, m in data["results"].items():
+                cfg, proc, supply, code = key.split("|")
+                if cfg == "chained":
+                    m["vref_27"] = round(1.2 + int(code) * 0.00375, 9)
+            data["results"]["chained|tt|3.3|-7"]["vref_27"] += 0.002  # one 5.75 mV step
+
+        rec, md = self.mint_from(mutate=mutate)
+        self.assertIn("The DR-002 engineering result is FAIL (1 of 76 checks failed", rec["determination"])
+        self.assertIn("range_up FAILS", rec["determination"])
+        self.assertIn("resolution FAILS", rec["determination"])
+        self.assertNotIn("range_down FAILS", rec["determination"])
+        self.assertNotIn("DR-002 engineering PASS stands", md)
+        q = rec["dr005_qualification"]["requirements"]
+        self.assertEqual(q["range_down"]["verdict"], "PASS")
+        self.assertEqual(q["resolution"]["verdict"], "FAIL")
+        self.assertEqual(rec["dr005_qualification"]["overall"], "FAIL")
+        self.assertIn("DOES depend on the answer", rec["dr005_qualification"]["magnitude_only"])
+        self.assertIn("about 5.0 % of 1.20 V", md)
+        self.assertNotIn("is itself below 5 %", md)
+        self.assertIn(rec["determination"], md)
+
+    def test_main_forwards_supersedes(self) -> None:
+        with mock.patch.object(rt, "mint_dr005_record",
+                               return_value=(SIM_DIR / "a.md", SIM_DIR / "a.json")) as m:
+            rc = rt.main(["--qualify-dr005", str(self.SOURCE),
+                          "--supersedes", "20261112-224417-24a14a1"])
+        self.assertEqual(rc, 0)
+        m.assert_called_once_with(self.SOURCE.resolve(), "",
+                                  "20261112-224417-24a14a1")
+
+
+def synthetic_record(**over) -> dict:
+    """A minimal but renderable record dict for `render_record` (issue #694):
+    checks/determination/DR-005 section are produced by the real functions."""
+    res = over.pop("results", synthetic())
+    checks = rt.evaluate(res)
+    sizing = rt.read_design_sizing()
+    r = {
+        "record_id": "20261126-000000-test0000",
+        "timestamp": "2026-11-26T00:00:00Z",
+        "author": "test",
+        "supersedes": None,
+        "sizing": sizing,
+        "pdk": {"variant": "sky130A", "installed_commit": "deadbeef", "matches_pin": True,
+                "lib_file": "/nonexistent/sky130.lib.spice"},
+        "tools": {"ngspice": "ngspice-46", "xschem": "XSCHEM V3.4.7", "platform": "linux"},
+        "klt_version": "klt 0.9.2",
+        "local_models_sha256": "x" * 64,
+        "models_sha_match": True,
+        "git": {"sha": "test0000", "branch": "feature/issue-694", "dirty": False},
+        "execution": [{"request": "chained_v3.30_trim0", "job_id": "klt-sim-x", "instance_type": "m6i.4xlarge",
+                       "lifecycle": "spot", "fleet_elapsed_s": 24, "wall_s": 80.0, "klt_status": "pass",
+                       "engine_version": "46", "models_lib_sha256": "x" * 64}],
+        "results": {f"{c}|{p}|{v}|{k}": m for (c, p, v, k), m in res.items()},
+        "missing_points": {},
+        "provenance": {"schematic_sha256": {"design/bandgap_core.sch": "a" * 64},
+                       "netlist_body_sha256": "b" * 64},
+        "checks": checks,
+        "overall_pass": all(c["pass"] for c in checks),
+        "determination": rt.build_determination(res, checks, sizing),
+        "dr005_qualification": rt.qualify_dr005(res),
+        "links": {"corners_dir": "sim/build/trim-lsb-chained/x/", "json": "sim/build/x.json",
+                  "record": "sim/build/x.md", "snapshot": "sim/build/x.spice"},
+    }
+    r.update(over)
+    return r
+
+
+class RenderRecordSupersessionTests(unittest.TestCase):
+    """`render_record` takes supersession from `r["supersedes"]` only (issue
+    #694): the hardcoded first-refresh `Replaces the STALE`/`superseded (stale)
+    record` lines are gone, so a record can no longer claim two different
+    predecessors."""
+
+    def test_supersedes_line_follows_the_record_field(self) -> None:
+        md = rt.render_record(synthetic_record(supersedes="20261008-163545-ffa415c"))
+        self.assertIn("- **Supersedes**: 20261008-163545-ffa415c", md)
+
+    def test_omitted_supersedes_leaves_the_record_predecessor_unspecified(self) -> None:
+        md = rt.render_record(synthetic_record())
+        self.assertIn("- **Supersedes**: (none specified)", md.splitlines())
+
+    def test_hardcoded_stale_record_lines_are_gone(self) -> None:
+        for sup in (None, "20261008-163545-ffa415c"):
+            md = rt.render_record(synthetic_record(supersedes=sup))
+            self.assertNotIn("Replaces the STALE", md)
+            self.assertNotIn("superseded (stale) record", md)
+            self.assertNotIn("20260806-052035-dea0ca5", md)
+
+    def test_results_parse_via_parse_results_json(self) -> None:
+        key = ("chained", "ff", 2.97, -5)
+        res = synthetic(drop=[key])
+        md = rt.render_record(synthetic_record(results=res))
+        self.assertIn("INCOMPLETE -- code(s) missing/nonconvergent", md)
 
 class Dr005QualificationTests(unittest.TestCase):
     """Issue #333: the literal DR-005 Trim row is graded apart from DR-002."""
