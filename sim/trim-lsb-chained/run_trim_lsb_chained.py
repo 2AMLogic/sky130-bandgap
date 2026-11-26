@@ -487,13 +487,24 @@ def evaluate(results: dict, missing: dict | None = None) -> list[dict]:
                 continue
             r = {c: results[(GRADED_CONFIG, proc, supply, c)] for c in CHAINED_CODES}
             reg = all(VREF_SANITY_V[0] <= r[c]["vref_max"] <= VREF_SANITY_V[1] for c in CHAINED_CODES)
+            off = [c for c in CHAINED_CODES if not VREF_SANITY_V[0] <= r[c]["vref_max"] <= VREF_SANITY_V[1]]
             add(f"collapse_free[{cid}]", reg,
-                f"all {len(CHAINED_CODES)} downward codes stay on the operating branch (vref_max in {VREF_SANITY_V})")
-            series = [r[c]["vref_27"] for c in sorted(CHAINED_CODES)]
-            steps = [b - a for a, b in zip(series, series[1:])]
-            add(f"monotonic[{cid}]", all(s > 0 for s in steps),
-                f"vref_27 strictly increasing from code -16 to 0 over all {len(series)} codes; "
-                f"smallest single-code step {min(steps) * 1000:.4f} mV, largest {max(steps) * 1000:.4f} mV")
+                f"all {len(CHAINED_CODES)} downward codes stay on the operating branch (vref_max in {VREF_SANITY_V})"
+                if reg else
+                f"{len(off)} of {len(CHAINED_CODES)} downward codes left the operating branch "
+                f"(vref_max outside {VREF_SANITY_V}): "
+                + "; ".join(f"code {c} vref_max {r[c]['vref_max']:.6f} V" for c in off))
+            ordered = sorted(CHAINED_CODES)
+            steps = [r[b]["vref_27"] - r[a]["vref_27"] for a, b in zip(ordered, ordered[1:])]
+            mono = all(s > 0 for s in steps)
+            add(f"monotonic[{cid}]", mono,
+                f"vref_27 strictly increasing from code -16 to 0 over all {len(ordered)} codes; "
+                f"smallest single-code step {min(steps) * 1000:.4f} mV, largest {max(steps) * 1000:.4f} mV"
+                if mono else
+                "vref_27 NOT strictly increasing from code -16 to 0; non-increasing transition(s): "
+                + "; ".join(f"code {a} -> {b} ({s * 1000:+.4f} mV)"
+                            for (a, b), s in zip(zip(ordered, ordered[1:]), steps) if s <= 0)
+                + f"; smallest single-code step {min(steps) * 1000:.4f} mV, largest {max(steps) * 1000:.4f} mV")
             span = r[0]["vref_27"] - r[-16]["vref_27"]
             for tag, sigma3 in (("range_covers_mc_spread", WORST_CASE_3SIGMA_DR002_V),
                                 ("range_covers_current_mc_spread", WORST_CASE_3SIGMA_CURRENT_V)):
@@ -563,10 +574,43 @@ MAGNITUDE_ONLY_NOTE = (
     "'+/-5 %', i.e. both directions. Under that reading the range requirement is 60 mV up AND 60 mV down "
     "from the 27 C untrimmed (code 0) point at 1.20 V. NARROW OPERATOR QUESTION (not decided here, range NOT "
     "waived): does 'magnitude only' intend to allow a one-sided trim, so that only one direction need reach "
-    "5 %? The verdict on this evidence does not depend on the answer: the demonstrated downward movement "
-    "(about 3.2 % of 1.20 V) is itself below 5 %, so range FAILS under either reading; only the up-direction "
-    "line would change, from FAIL to not-applicable."
+    "5 %?"
 )
+
+
+def magnitude_only_note(req: dict[str, dict]) -> str:
+    """MAGNITUDE_ONLY_NOTE plus the evidence-impact clause derived from this
+    run's own range verdicts (issue #694): whether the operator question's
+    answer would change the range outcome is a property of the measurements,
+    not a constant -- the frozen 'about 3.2 % ... range FAILS under either
+    reading' sentence contradicted its own table whenever range_down
+    actually reached 5 %."""
+    up, down = req["range_up"], req["range_down"]
+    verdicts = (up["verdict"], down["verdict"])
+    one_sided = "PASS" if "PASS" in verdicts else "FAIL" if "FAIL" in verdicts else "INSUFFICIENT_EVIDENCE"
+    two_sided = ("PASS" if all(v == "PASS" for v in verdicts)
+                 else "FAIL" if "FAIL" in verdicts else "INSUFFICIENT_EVIDENCE")
+    if one_sided != two_sided:
+        good, gname = (down, "down") if down["verdict"] == "PASS" else (up, "up")
+        bname = "up" if gname == "down" else "down"
+        tail = (f"The verdict on this evidence DOES depend on the answer: the demonstrated {gname}ward "
+                f"movement (about {good['worst_pct']:.1f} % of {DR005_NOMINAL_V:.2f} V) meets 5 % while the "
+                f"{bname} direction does not, so range is {two_sided} under the two-sided reading and would "
+                f"be PASS under a one-sided one.")
+    elif one_sided == "PASS":
+        tail = (f"The verdict on this evidence does not depend on the answer: the demonstrated movement "
+                f"reaches 5 % in both directions (up about {up['worst_pct']:.1f} %, down about "
+                f"{down['worst_pct']:.1f} % of {DR005_NOMINAL_V:.2f} V), so range PASSES under either "
+                f"reading.")
+    elif up["verdict"] == "FAIL" and down["verdict"] == "FAIL":
+        tail = (f"The verdict on this evidence does not depend on the answer: the demonstrated downward "
+                f"movement (about {down['worst_pct']:.1f} % of {DR005_NOMINAL_V:.2f} V) is itself below "
+                f"5 %, so range FAILS under either reading; only the up-direction line would change, from "
+                f"FAIL to not-applicable.")
+    else:
+        tail = (f"The verdict on this evidence does not depend on the answer: neither direction earns a "
+                f"PASS on this evidence, so range is {one_sided} under either reading.")
+    return f"{MAGNITUDE_ONLY_NOTE} {tail}"
 
 
 def _dr005_corner(series: dict[int, float | None], codes) -> dict:
@@ -679,7 +723,7 @@ def qualify_dr005(results: dict, config: str = GRADED_CONFIG, codes=CHAINED_CODE
         },
         "thresholds": {"nominal_v": DR005_NOMINAL_V, "range_fraction": DR005_RANGE_FRACTION,
                        "resolution_pct": DR005_RESOLUTION_PCT, "min_bits": DR005_MIN_BITS},
-        "magnitude_only": MAGNITUDE_ONLY_NOTE,
+        "magnitude_only": magnitude_only_note(req),
     }
 
 
@@ -736,8 +780,47 @@ def render_dr005_section(q: dict) -> list[str]:
     return L
 
 
-def mint_dr005_record(source_json: Path, author: str = "") -> tuple[Path, Path]:
-    """Append-only derived qualification record beside `source_json`; refuses to overwrite."""
+def dr005_determination(dr002_engineering: dict, q: dict) -> str:
+    """The derived record's determination, built from the source record's
+    DR-002 engineering verdict and this qualification's own per-requirement
+    verdicts (issue #694) -- never a fixed paragraph, so the determination
+    cannot contradict the verdict table directly above it."""
+    if dr002_engineering["overall_pass"]:
+        dr002 = ("The DR-002 engineering PASS stands: the trim network is monotonic, collapse-free and its "
+                 "downward span/LSB satisfy DR-002's scoping criteria.")
+    else:
+        dr002 = (f"The DR-002 engineering result is FAIL ({dr002_engineering['checks_failed']} of "
+                 f"{dr002_engineering['checks']} checks failed in the source record) and is unchanged by "
+                 f"this qualification; see the source record's own checks.")
+    verdicts = {n: q["requirements"][n]["verdict"] for n in DR005_REQUIREMENTS}
+    failed = [n for n, v in verdicts.items() if v == "FAIL"]
+    holds = [n for n, v in verdicts.items() if v == "PASS"]
+    if q["overall"] == "PASS":
+        dr005 = "The ratified DR-005 Trim row is **demonstrated**: every requirement above holds."
+    elif failed:
+        holds_txt = (f" Only {holds[0]} holds." if len(holds) == 1
+                     else f" {', '.join(holds)} hold." if holds
+                     else " No literal requirement holds.")
+        dr005 = ("The ratified DR-005 Trim row is **not demonstrated**: "
+                 + ", ".join(f"{n} FAILS" for n in failed) + "." + holds_txt)
+    else:
+        dr005 = ("The ratified DR-005 Trim row is neither demonstrated nor refuted on this evidence: no "
+                 "requirement has a FAIL verdict, but the incomplete corners leave the row unproven.")
+    if failed:
+        closing = (f"Closing the {', '.join(failed)} gap(s) needs circuit changes and/or a spec ruling, "
+                   "which are separate work. DR-005 is not relaxed by this record.")
+    elif q["overall"] == "PASS":
+        closing = "DR-005 is not relaxed by this record."
+    else:
+        closing = ("Completing the evidence (every corner's full code set) is separate work. DR-005 is not "
+                   "relaxed by this record.")
+    return " ".join((dr002, dr005, closing))
+
+
+def mint_dr005_record(source_json: Path, author: str = "", supersedes: str = "") -> tuple[Path, Path]:
+    """Append-only derived qualification record beside `source_json`; refuses
+    to overwrite. `supersedes` (the shared `--supersedes` flag) is stamped
+    into the record instead of a hardcoded first-qualification claim."""
     src = json.loads(source_json.read_text())
     source_md = source_json.with_suffix(".md")
     rec_id = f"{src['record_id']}-{DR005_RECORD_SUFFIX}"
@@ -750,27 +833,28 @@ def mint_dr005_record(source_json: Path, author: str = "") -> tuple[Path, Path]:
     git_info = cr.git_state()
     now = datetime.now(timezone.utc)
     rel = lambda p: str(p.resolve().relative_to(REPO_ROOT))  # noqa: E731
+    dr002_engineering = {"overall_pass": src["overall_pass"],
+                         "checks": len(src["checks"]),
+                         "checks_failed": sum(1 for c in src["checks"] if not c["pass"])}
     rec = {
         "record_id": rec_id,
         "kind": "derived-qualification",
         "timestamp": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "author": author or cr.default_author(),
-        "supersedes": None,
+        "supersedes": supersedes or None,
         "source_record": {
             "record_id": src["record_id"],
             "json": rel(source_json), "json_sha256": batch_sim.sha256_file(source_json),
             "md": rel(source_md), "md_sha256": batch_sim.sha256_file(source_md),
-            "issue": 327,
         },
         "input_hashes": src["provenance"],
         "request_netlist_sha256": src.get("request_netlist_sha256"),
         "models_lib_sha256": src.get("local_models_sha256"),
         "sizing": src["sizing"],
         "git": git_info,
-        "dr002_engineering": {"overall_pass": src["overall_pass"],
-                              "checks": len(src["checks"]),
-                              "checks_failed": sum(1 for c in src["checks"] if not c["pass"])},
+        "dr002_engineering": dr002_engineering,
         "dr005_qualification": q,
+        "determination": dr005_determination(dr002_engineering, q),
         "new_simulation": False,
     }
     out_json.write_text(json.dumps(rec, indent=2, sort_keys=True, default=str) + "\n")
@@ -778,9 +862,9 @@ def mint_dr005_record(source_json: Path, author: str = "") -> tuple[Path, Path]:
          f"- **Record ID**: {rec_id}",
          f"- **Experiment**: `{SLUG}` -- derived DR-005 Trim-row qualification (issue #333)",
          f"- **Claim**: issue #333 -- grade the literal DR-005 Trim row (range >= +/-5 % of 1.20 V, resolution "
-         f"<= 0.25 %/step, >= 5 bits equivalent) from the measurements of record `{src['record_id']}` "
-         "(issue #327), separately from DR-002's engineering checks. No new simulation was run; every number is "
-         "recomputed from that record's committed `results`.",
+         f"<= 0.25 %/step, >= 5 bits equivalent) from the measurements of record `{src['record_id']}`, "
+         "separately from DR-002's engineering checks. No new simulation was run; every number is recomputed "
+         "from that record's committed `results`.",
          f"- **Source measurements**: `{rel(source_json)}` (sha256 `{rec['source_record']['json_sha256']}`), "
          f"`{rel(source_md)}` (sha256 `{rec['source_record']['md_sha256']}`)",
          f"- **Input hashes (from the source record)**: netlist body `{src['provenance']['netlist_body_sha256']}`; "
@@ -792,17 +876,12 @@ def mint_dr005_record(source_json: Path, author: str = "") -> tuple[Path, Path]:
          f"{rec['dr002_engineering']['checks']} checks failed)",
          f"- **Repo state**: `{git_info['sha']}`",
          f"- **Timestamp / author**: {rec['timestamp']}, {rec['author']}",
-         "- **Supersedes**: (none -- first DR-005 qualification of this trim network; the source record is "
-         "untouched and remains the DR-002 engineering record)",
+         f"- **Supersedes**: {supersedes or '(none -- first DR-005 qualification of this trim network; the source record is untouched and remains the DR-002 engineering record)'}",
          ""]
     L.extend(render_dr005_section(q))
     L.append("## Determination")
     L.append("")
-    L.append("The DR-002 engineering PASS stands: the trim network is monotonic, collapse-free and its downward "
-             "span/LSB satisfy DR-002's scoping criteria. The ratified DR-005 Trim row is **not demonstrated**: "
-             "see the per-requirement verdicts above. Resolution is the only literal requirement that holds. "
-             "Closing the range and code-coverage gaps needs circuit changes (extra/upward codes), which are "
-             "separate work, as is any spec ruling. DR-005 is not relaxed by this record.")
+    L.append(rec["determination"])
     L.append("")
     L.append(f"Written by `sim/{SLUG}/run_trim_lsb_chained.py --qualify-dr005`. Append-only: never edit this "
              "file -- a correction is a new record with a `Supersedes` field (see `sim/README.md`).")
@@ -817,8 +896,7 @@ def mint_dr005_record(source_json: Path, author: str = "") -> tuple[Path, Path]:
 def render_record(r: dict) -> str:
     L: list[str] = []
     add = L.append
-    results = {(k.split("|")[0], k.split("|")[1], float(k.split("|")[2]), int(k.split("|")[3])): v
-               for k, v in r["results"].items()}
+    results = parse_results_json(r["results"])
     s = r["sizing"]
 
     add(f"# Record {r['record_id']}")
@@ -829,8 +907,7 @@ def render_record(r: dict) -> str:
         "downward span, LSB) against the routed layout's chained fine-trim topology at the CURRENT design "
         f"sizing (`n_r1={s['n_r1']:g}`, `n_r2={s['n_r2']:g}`, `r_lseg_trim={s['r_lseg_trim']:g}` um, "
         f"`n_r2_fine={s['n_r2_fine']:g}`, read from `design/bandgap_core.sch`), over the full 5-process x "
-        "3-supply corner matrix and the -40..125 C range. Replaces the STALE `n_r1=7`/`n_r2=50` record "
-        "`20260806-052035-dea0ca5` (not edited)."
+        "3-supply corner matrix and the -40..125 C range."
     )
     add(
         "- **Netlist provenance**: a fresh xschem netlist of `sim/output-voltage-tc/testbench/tb_vref_tc.sch` "
@@ -972,7 +1049,6 @@ def render_record(r: dict) -> str:
     add("- **Links**:")
     add(f"  - wrapped schematic: `{TB_SCH.relative_to(REPO_ROOT)}`")
     add(f"  - netlist snapshot: `{r['links']['snapshot']}`")
-    add("  - superseded (stale) record: `sim/trim-lsb-chained/records/20260806-052035-dea0ca5.md` (untouched)")
     add(f"  - current-design MC (3-sigma freshness check): `{MC_CURRENT_RECORD}`")
     add("  - DR-002's own LSB formula / criteria: `sim/trim-range-monotonicity/records/20260803-170704-b976d0f.md`")
     add(f"  - runner: `sim/{SLUG}/run_trim_lsb_chained.py`")
@@ -1168,7 +1244,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 def main(argv: list[str]) -> int:
     args = parse_args(argv)
     if args.qualify_dr005:
-        out_md, out_json = mint_dr005_record(Path(args.qualify_dr005).resolve(), args.author)
+        out_md, out_json = mint_dr005_record(Path(args.qualify_dr005).resolve(), args.author, args.supersedes)
         print(f"record : {out_md.relative_to(REPO_ROOT)}")
         print(f"json   : {out_json.relative_to(REPO_ROOT)}")
         return 0
