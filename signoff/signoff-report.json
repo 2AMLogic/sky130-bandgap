@@ -422,7 +422,7 @@
         "command": null,
         "kind": "generic",
         "check_status": "pass",
-        "content_hash": "sha256:fa9e8d804f76d4d41819c899cbaf25daddaeb7cb4bae919031fd99deada0cccf",
+        "content_hash": "sha256:06b45c797cfcf894d8c4f1b83aaa22432c46dbb9ef655010e3edc441e3f85b72",
         "input_verified": true,
         "exit_status": 0,
         "artifact_binding": {
@@ -431,7 +431,7 @@
             "path": "signoff/attest/repo-hygiene.inventory.json",
             "scope": "repo"
           },
-          "content_hash": "sha256:fa9e8d804f76d4d41819c899cbaf25daddaeb7cb4bae919031fd99deada0cccf",
+          "content_hash": "sha256:06b45c797cfcf894d8c4f1b83aaa22432c46dbb9ef655010e3edc441e3f85b72",
           "input_verified": true,
           "summary": "Repo hygiene: README, LICENSE, CI workflow and the commands it runs.",
           "source": "signoff/attest/repo-hygiene.inventory.json"
