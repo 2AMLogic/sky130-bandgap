@@ -307,10 +307,29 @@ class MintDr005RecordTests(unittest.TestCase):
         self.assertIn("- **Supersedes**: 20261112-224417-24a14a1", md)
         self.assertNotIn("first DR-005 qualification", md)
 
-    def test_no_supersedes_keeps_the_first_qualification_wording(self) -> None:
+    def test_omitted_supersedes_leaves_the_qualification_predecessor_unspecified(self) -> None:
         rec, md = self.mint_from()
         self.assertIsNone(rec["supersedes"])
-        self.assertIn("(none -- first DR-005 qualification of this trim network", md)
+        self.assertIn("- **Supersedes**: (none specified)", md.splitlines())
+
+    def test_partial_corner_leaves_one_sided_range_and_downward_requirement_unresolved(self) -> None:
+        def partial_corner(data):
+            src = synthetic_record(results=synthetic(lsb_mv=3.75, drop=[("chained", "tt", 3.3, -1)]))
+            for key in ("results", "checks", "overall_pass"):
+                data[key] = src[key]
+
+        rec, md = self.mint_from(mutate=partial_corner)
+        q = rec["dr005_qualification"]
+        self.assertEqual(q["n_incomplete_corners"], 1)
+        self.assertEqual(q["requirements"]["range_up"]["verdict"], "FAIL")
+        self.assertEqual(q["requirements"]["range_down"]["verdict"], "INSUFFICIENT_EVIDENCE")
+        self.assertIn("FAIL under the two-sided reading", q["magnitude_only"])
+        self.assertIn("INSUFFICIENT_EVIDENCE under a one-sided one", q["magnitude_only"])
+        self.assertIn("range_up FAILS", rec["determination"])
+        self.assertIn("Insufficient evidence for range_down.", rec["determination"])
+        self.assertNotIn("No literal requirement holds", rec["determination"])
+        self.assertIn(q["magnitude_only"], md)
+        self.assertIn(rec["determination"], md)
 
     def test_failing_source_determination_reads_as_failing(self) -> None:
         """The issue #694 reproduction: a DR-002-failing source record whose
@@ -398,9 +417,9 @@ class RenderRecordSupersessionTests(unittest.TestCase):
         md = rt.render_record(synthetic_record(supersedes="20261008-163545-ffa415c"))
         self.assertIn("- **Supersedes**: 20261008-163545-ffa415c", md)
 
-    def test_none_supersedes_keeps_the_first_record_wording(self) -> None:
+    def test_omitted_supersedes_leaves_the_record_predecessor_unspecified(self) -> None:
         md = rt.render_record(synthetic_record())
-        self.assertIn("- **Supersedes**: (none — first record for this claim)", md)
+        self.assertIn("- **Supersedes**: (none specified)", md.splitlines())
 
     def test_hardcoded_stale_record_lines_are_gone(self) -> None:
         for sup in (None, "20261008-163545-ffa415c"):

@@ -587,16 +587,19 @@ def magnitude_only_note(req: dict[str, dict]) -> str:
     actually reached 5 %."""
     up, down = req["range_up"], req["range_down"]
     verdicts = (up["verdict"], down["verdict"])
-    one_sided = "PASS" if "PASS" in verdicts else "FAIL" if "FAIL" in verdicts else "INSUFFICIENT_EVIDENCE"
-    two_sided = ("PASS" if all(v == "PASS" for v in verdicts)
+    one_sided = ("PASS" if "PASS" in verdicts
+                 else "FAIL" if verdicts == ("FAIL", "FAIL") else "INSUFFICIENT_EVIDENCE")
+    two_sided = ("PASS" if verdicts == ("PASS", "PASS")
                  else "FAIL" if "FAIL" in verdicts else "INSUFFICIENT_EVIDENCE")
     if one_sided != two_sided:
-        good, gname = (down, "down") if down["verdict"] == "PASS" else (up, "up")
-        bname = "up" if gname == "down" else "down"
-        tail = (f"The verdict on this evidence DOES depend on the answer: the demonstrated {gname}ward "
-                f"movement (about {good['worst_pct']:.1f} % of {DR005_NOMINAL_V:.2f} V) meets 5 % while the "
-                f"{bname} direction does not, so range is {two_sided} under the two-sided reading and would "
-                f"be PASS under a one-sided one.")
+        directions = []
+        for name, result in (("upward", up), ("downward", down)):
+            detail = f"the {name} range is {result['verdict']}"
+            if result["worst_pct"] is not None:
+                detail += f" (about {result['worst_pct']:.1f} % of {DR005_NOMINAL_V:.2f} V at the worst complete corner)"
+            directions.append(detail)
+        tail = (f"The verdict on this evidence DOES depend on the answer: {' and '.join(directions)}. "
+                f"Range is {two_sided} under the two-sided reading and would be {one_sided} under a one-sided one.")
     elif one_sided == "PASS":
         tail = (f"The verdict on this evidence does not depend on the answer: the demonstrated movement "
                 f"reaches 5 % in both directions (up about {up['worst_pct']:.1f} %, down about "
@@ -795,17 +798,21 @@ def dr005_determination(dr002_engineering: dict, q: dict) -> str:
     verdicts = {n: q["requirements"][n]["verdict"] for n in DR005_REQUIREMENTS}
     failed = [n for n, v in verdicts.items() if v == "FAIL"]
     holds = [n for n, v in verdicts.items() if v == "PASS"]
+    unresolved = [n for n, v in verdicts.items() if v == "INSUFFICIENT_EVIDENCE"]
     if q["overall"] == "PASS":
         dr005 = "The ratified DR-005 Trim row is **demonstrated**: every requirement above holds."
     elif failed:
-        holds_txt = (f" Only {holds[0]} holds." if len(holds) == 1
-                     else f" {', '.join(holds)} hold." if holds
-                     else " No literal requirement holds.")
         dr005 = ("The ratified DR-005 Trim row is **not demonstrated**: "
-                 + ", ".join(f"{n} FAILS" for n in failed) + "." + holds_txt)
+                 + ", ".join(f"{n} FAILS" for n in failed) + ".")
     else:
         dr005 = ("The ratified DR-005 Trim row is neither demonstrated nor refuted on this evidence: no "
                  "requirement has a FAIL verdict, but the incomplete corners leave the row unproven.")
+    if unresolved:
+        dr005 += f" Insufficient evidence for {', '.join(unresolved)}."
+    elif failed:
+        dr005 += (f" Only {holds[0]} holds." if len(holds) == 1
+                  else f" {', '.join(holds)} hold." if holds
+                  else " No literal requirement holds.")
     if failed:
         closing = (f"Closing the {', '.join(failed)} gap(s) needs circuit changes and/or a spec ruling, "
                    "which are separate work. DR-005 is not relaxed by this record.")
@@ -876,7 +883,7 @@ def mint_dr005_record(source_json: Path, author: str = "", supersedes: str = "")
          f"{rec['dr002_engineering']['checks']} checks failed)",
          f"- **Repo state**: `{git_info['sha']}`",
          f"- **Timestamp / author**: {rec['timestamp']}, {rec['author']}",
-         f"- **Supersedes**: {supersedes or '(none -- first DR-005 qualification of this trim network; the source record is untouched and remains the DR-002 engineering record)'}",
+         f"- **Supersedes**: {rec['supersedes'] or '(none specified)'}",
          ""]
     L.extend(render_dr005_section(q))
     L.append("## Determination")
@@ -1056,7 +1063,7 @@ def render_record(r: dict) -> str:
     add(f"  - record_json: `{r['links']['json']}`")
     add("  - decision record: `spec/decision-records/DR-002-trim-network-scoping.md`")
     add(f"- **Timestamp / author**: {r['timestamp']}, {r['author']}")
-    add(f"- **Supersedes**: {r['supersedes'] or '(none — first record for this claim)'}")
+    add(f"- **Supersedes**: {r['supersedes'] or '(none specified)'}")
     add("")
     add(
         f"Written by `sim/{SLUG}/run_trim_lsb_chained.py`. Append-only: never edit this file — "
