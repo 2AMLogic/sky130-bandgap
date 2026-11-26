@@ -1,7 +1,7 @@
 # Work Plan
 
 <!-- guide:plan-body:start -->
-_Generated: 2026-11-26T07:50:28Z (snapshot; compare against live labels)_
+_Generated: 2026-11-26T15:36:29Z (snapshot; compare against live labels)_
 ## Operator Attention: Merge-Risk-Hold Pileup
 
 Judge-approved PRs under a hold (`loom:blocked` or `loom:operator`) — only a human merge decision is missing.
@@ -46,7 +46,7 @@ PRs waiting on Judge (`loom:review-requested`).
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
-_None._
+- **#692**: fix(sim): derive Monte Carlo control, seed, and convergence prose from checks
 
 ## Proposed
 
@@ -66,6 +66,7 @@ Issues carrying `loom:curated`.
 
 - **#645**: Remove repeated direct-elbow attempts from the met1 detour search *(hermit)* *(held)*
 - **#693**: Remove the redundant resistor rewrite from the native PEX measurement hook *(hermit)* *(held)*
+- **#700**: Retire the unusable --n-r2 override in the chained trim runner *(hermit)* *(held)*
 
 ## Epics
 
@@ -81,8 +82,8 @@ _None._
 | Ready (`loom:issue`, net of holds/building/merge-pending) | 0 |
 | In Progress (`loom:building`) | 1 |
 | PRs awaiting review | 1 |
-| Approved PRs awaiting merge | 0 |
+| Approved PRs awaiting merge | 1 |
 | Curated | 9 |
-| Architect / Hermit proposals | 2 |
+| Architect / Hermit proposals | 3 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
