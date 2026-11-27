@@ -1462,6 +1462,11 @@ def seed_stability_checks(
     drift = abs(sb / sa - 1.0) if sa else float("inf")
     sample_a = a["stats"][vector][sample_field]
     sample_b = b["stats"][vector][sample_field]
+    sample_differs = sample_a != sample_b
+    sample_pair = (
+        f"({sample_a * sample_scale:.{sample_precision}f} {sample_unit} vs "
+        f"{sample_b * sample_scale:.{sample_precision}f} {sample_unit})"
+    )
     return [
         {
             "name": f"seed_sigma_stable[{vector}]",
@@ -1470,19 +1475,169 @@ def seed_stability_checks(
                 f"sigma(seed {seed_b}) / sigma(seed {seed_a}) = "
                 f"{(sb / sa) if sa else float('nan'):.3f} "
                 f"({mv(sb)} mV vs {mv(sa)} mV; tolerance +/-{tol:.0%})"
+                + (f"; {SEED_REF_ZERO_NOTE}" if not sa else "")
             ),
         },
         {
             "name": f"seed_sample_differs[{vector}]",
-            "pass": sample_a != sample_b,
+            "pass": sample_differs,
             "detail": (
                 f"worst-sample {sample_label} differs between the two seeds "
-                f"({sample_a * sample_scale:.{sample_precision}f} {sample_unit} vs "
-                f"{sample_b * sample_scale:.{sample_precision}f} {sample_unit}), i.e. the "
-                "draw really did change"
+                f"{sample_pair}, i.e. the draw really did change"
+                if sample_differs
+                else f"worst-sample {sample_label} did not change between the two seeds "
+                f"{sample_pair}"
             ),
         },
     ]
+
+
+SEED_REF_ZERO_NOTE = (
+    "reference sigma is zero, so the relative change is undefined and cannot be "
+    "compared with the tolerance"
+)
+
+
+def _vector_key_label(entry: str | tuple[str, str]) -> tuple[str, str]:
+    return (entry, entry) if isinstance(entry, str) else entry
+
+
+def render_mc_controls(
+    r: dict,
+    *,
+    ctrl_vectors: Sequence[str | tuple[str, str]],
+    seed_vectors: Sequence[str | tuple[str, str]],
+    seed_label: str,
+    ctrl_unit: str = " V",
+    ctrl_deck_note: str = "identical deck with `MC_MM_SWITCH=0`",
+) -> list[str]:
+    """Shared `## Controls` heading plus the MC-off and second-seed bullets
+    for the three Monte Carlo mismatch runners (issue #691).
+
+    Each bullet derives its outcome clause from the run's recorded checks
+    (`ctrl["checks"]`'s `sigma_zero[*]` and `r["cross_point_checks"]`'s
+    `seed_sigma_stable[*]` / `seed_sample_differs[*]`) so a failed control or
+    seed check never renders as a confirmation above a failing `## Checks` row.
+    """
+    lines = ["## Controls", ""]
+    ctrl = next((p for p in r["points"] if p["role"] == "control"), None)
+    if ctrl:
+        ctrl_pairs = [_vector_key_label(v) for v in ctrl_vectors]
+        ctrl_n = min(ctrl["stats"][key]["n"] for key, _ in ctrl_pairs)
+        ctrl_insufficient = ctrl_n < 2
+        if ctrl_insufficient:
+            sig = "σ not estimable"
+        else:
+            sig = ", ".join(
+                f"σ({label}) = {ctrl['stats'][key]['sigma']:.3g}{ctrl_unit}"
+                for key, label in ctrl_pairs
+            )
+        zero_checks = [c for c in ctrl.get("checks", []) if c["name"].startswith("sigma_zero[")]
+        failed_zero = [c["name"] for c in zero_checks if not c["pass"]]
+        nonzero_displayed = any(ctrl["stats"][key]["sigma"] != 0.0 for key, _ in ctrl_pairs)
+        undefined_displayed = any(math.isnan(ctrl["stats"][key]["sigma"]) for key, _ in ctrl_pairs)
+        if ctrl_insufficient:
+            ctrl_outcome = (
+                f"**FAIL**: only {ctrl_n} usable draw(s); a sample standard deviation needs "
+                "at least 2, so the control did not establish zero spread "
+                "(see `## Checks` below)."
+            )
+        elif undefined_displayed:
+            names = ", ".join(f"`{name}`" for name in failed_zero)
+            ctrl_outcome = (
+                f"**FAIL** ({names}): spread is undefined (non-finite σ), so the control "
+                "did not establish zero spread (see `## Checks` below)."
+            )
+        elif zero_checks and not failed_zero and not nonzero_displayed:
+            ctrl_outcome = (
+                "exactly zero, so the spread reported above comes from the mismatch "
+                "switch rather than solver noise or a re-randomised bias point."
+            )
+        elif failed_zero:
+            names = ", ".join(f"`{name}`" for name in failed_zero)
+            ctrl_outcome = (
+                f"**FAIL** ({names}): non-zero spread with `MC_MM_SWITCH=0` "
+                "(see `## Checks` below), so mismatch spread is not isolated from "
+                "deterministic drift."
+            )
+        else:
+            ctrl_outcome = (
+                "non-zero spread with `MC_MM_SWITCH=0` or missing `sigma_zero` check "
+                "(see `## Checks` below), so mismatch spread is not isolated from "
+                "deterministic drift."
+            )
+        lines.append(
+            f"- **MC-off control** (`{ctrl['corner_id']}`, section `{ctrl['section']}`, "
+            f"N = {ctrl['parsed_samples']}): {ctrl_deck_note}. {sig} — {ctrl_outcome}"
+        )
+
+    seedb = next((p for p in r["points"] if p["role"] == "seed-check"), None)
+    if seedb:
+        ref_point = next(
+            (p for p in r["points"] if p["corner_id"] + "_seed-b" == seedb["corner_id"]), None
+        )
+        seed_n = min(
+            [seedb["stats"][key]["n"] for key, _ in map(_vector_key_label, seed_vectors)]
+            + (
+                [ref_point["stats"][key]["n"] for key, _ in map(_vector_key_label, seed_vectors)]
+                if ref_point
+                else []
+            )
+        )
+        seed_insufficient = seed_n < 2
+        if seed_insufficient:
+            sig = "σ not estimable"
+        else:
+            sig = "; ".join(
+                f"σ({label}) = {mv(seedb['stats'][key]['sigma'])} mV"
+                for key, label in (_vector_key_label(v) for v in seed_vectors)
+            )
+        cross = r.get("cross_point_checks", [])
+        sigma_checks = [c for c in cross if c["name"].startswith("seed_sigma_stable[")]
+        sample_checks = [c for c in cross if c["name"].startswith("seed_sample_differs[")]
+        failed_sigma = [c["name"] for c in sigma_checks if not c["pass"]]
+        failed_sample = [c["name"] for c in sample_checks if not c["pass"]]
+        if seed_insufficient:
+            seed_outcome = (
+                f"**FAIL** — only {seed_n} usable draw(s) at one of the two seeds; a sample "
+                "standard deviation needs at least 2, so seed stability was not established "
+                "(see `## Checks` below)."
+            )
+        elif not sigma_checks or not sample_checks:
+            seed_outcome = "seed-stability checks were not emitted (see `## Checks` below)."
+        elif not failed_sigma and not failed_sample:
+            seed_outcome = (
+                "see the seed-stability checks below: individual samples differ "
+                "between seeds while σ stays within tolerance."
+            )
+        else:
+            ref_stats = next(
+                (p["stats"] for p in r["points"] if p["corner_id"] + "_seed-b" == seedb["corner_id"]),
+                {},
+            )
+            failures: dict[str, list[str]] = {}
+            for name in failed_sigma:
+                vector = name.removeprefix("seed_sigma_stable[").removesuffix("]")
+                ref_sigma = ref_stats.get(vector, {}).get("sigma")
+                if ref_sigma == 0:
+                    reason = "first-seed σ is zero, so the relative change is undefined"
+                elif ref_sigma is None:
+                    reason = "seed stability could not be established"
+                else:
+                    reason = "σ drifted outside the seed-stability tolerance"
+                failures.setdefault(reason, []).append(name)
+            if failed_sample:
+                failures["worst-sample draw did not change between seeds"] = failed_sample
+            clauses = []
+            for reason, names in failures.items():
+                checks = ", ".join(f"`{name}`" for name in names)
+                clauses.append(f"{checks} ({reason})")
+            seed_outcome = f"**FAIL** — {'. '.join(clauses)}. See `## Checks` below."
+        lines.append(
+            f"- **Second-seed point** (`{seedb['corner_id']}`, {seed_label}, "
+            f"N = {seedb['parsed_samples']}): {sig} — {seed_outcome}"
+        )
+    return lines
 
 
 # --------------------------------------------------------------------------

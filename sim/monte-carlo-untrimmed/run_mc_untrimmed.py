@@ -66,6 +66,7 @@ from sim_common import (  # noqa: E402
     parse_samples,
     partition_by_window,
     pdk_record_fields,
+    render_mc_controls,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
     run_ngspice,
@@ -633,6 +634,17 @@ def convergence_sequence_clause(execution: dict | None, n: int, k: int) -> str:
             f"to a standalone {k}-sample run")
 
 
+def convergence_change_clause(prev: dict, rel: float) -> str:
+    """Describe the running-sigma change between two checkpoints.
+
+    A zero reference sigma makes the relative change undefined (`rel` is `inf`),
+    so the comparison fails without asserting a measured percentage change."""
+    if not prev["sigma"]:
+        return ("relative change undefined (the reference checkpoint's sigma is "
+                "zero, so a percentage comparison is not possible)")
+    return f"relative change {rel:.1%}"
+
+
 def convergence_check(all_point_27c: dict | None, execution: dict | None = None) -> list[dict]:
     if not all_point_27c or "convergence" not in all_point_27c:
         return []
@@ -649,8 +661,8 @@ def convergence_check(all_point_27c: dict | None, execution: dict | None = None)
                 f"running sigma(VOUT) at N={prev['n']} vs N={last['n']} "
                 f"({convergence_sequence_clause(execution, last['n'], prev['n'])}): "
                 f"{prev['sigma'] * 1e3:.4f} mV -> "
-                f"{last['sigma'] * 1e3:.4f} mV, relative change {rel:.1%} (tolerance "
-                f"{CONVERGENCE_TOL:.0%}). Full checkpoint series: "
+                f"{last['sigma'] * 1e3:.4f} mV, {convergence_change_clause(prev, rel)} "
+                f"(tolerance {CONVERGENCE_TOL:.0%}). Full checkpoint series: "
                 + ", ".join(f"N={p['n']}: {p['sigma'] * 1e3:.4f} mV" for p in series)
             ),
         }
@@ -763,8 +775,6 @@ def render_record(r: dict) -> str:
     L: list[str] = []
     add = L.append
     mm_points = [p for p in r["points"] if p["role"] == "mismatch"]
-    ctrl = next((p for p in r["points"] if p["role"] == "control"), None)
-    seedb = next((p for p in r["points"] if p["role"] == "seed-check"), None)
     n = r["statistics"]["n_samples"]
 
     add(f"# Record {r['record_id']}")
@@ -817,14 +827,19 @@ def render_record(r: dict) -> str:
         f"points (N = {n} each, 3 temperatures x 4 configs), one MC-off control point, one "
         f"second-seed point."
     )
+    comparable_clause = (
+        " N matches `sim/pnp-mismatch` and `sim/error-amp-offset-mc`, so σ figures are "
+        "directly comparable across all three."
+        if n == N_SAMPLES
+        else ""
+    )
     add(
         f"- **Statistical convention**: **N = {n}** Monte Carlo samples per point, local "
         f"mismatch only (section `{MM_SECTION}`: `MC_MM_SWITCH=1`, `MC_PR_SWITCH=0`). Spread "
         f"is the sample standard deviation (N−1) reported as **1 σ**, with 3 σ alongside; "
         f"σ's own relative standard error is ≈ {100 / math.sqrt(2 * (n - 1)):.1f} %. "
-        f"Reproducible: {batch_sim.seed_mechanism(r.get('execution'), SEED_A, SEED_B)}. N matches "
-        f"`sim/pnp-mismatch` and `sim/error-amp-offset-mc`, so σ figures are directly "
-        f"comparable across all three. See 'Sample-count justification' below for the "
+        f"Reproducible: {batch_sim.seed_mechanism(r.get('execution'), SEED_A, SEED_B)}."
+        f"{comparable_clause} See 'Sample-count justification' below for the "
         f"empirical convergence check."
     )
     add(f"- **Result**: {'PASS' if r['overall_pass'] else 'FAIL'} — see the tables below.")
@@ -901,7 +916,14 @@ def render_record(r: dict) -> str:
     add("## Sample-count justification (empirical convergence check)")
     add("")
     conv = next((p.get("convergence") for p in mm_points if "convergence" in p), None)
-    if conv:
+    if conv is not None and len(conv) == 0:
+        add(
+            "Fewer than two convergence checkpoints had converged draws at 27 °C / `all` "
+            "config (0 checkpoints reached), so running-σ drift could not be evaluated "
+            "(`sample_count_sufficient` was not emitted) and sample-count sufficiency is "
+            "not established by this run."
+        )
+    elif conv:
         add(
             "Running σ(VOUT) at increasing sample counts, computed from the SAME "
             f"N={n}, seed={SEED_A} draw sequence at 27 °C / `all` config "
@@ -913,37 +935,69 @@ def render_record(r: dict) -> str:
         for row in conv:
             add(f"| {row['n']} | {mv(row['sigma'])} | {row['mean']:.6f} |")
         add("")
-        last, prev = conv[-1], conv[-2] if len(conv) > 1 else conv[-1]
-        rel = abs(last["sigma"] / prev["sigma"] - 1.0) if prev["sigma"] else float("nan")
-        add(
-            f"N={prev['n']} -> N={last['n']}: σ changed by {rel:.1%} (see the "
-            "`sample_count_sufficient` check below for the pass/fail threshold). Combined "
-            f"with the analytic standard error of a sample std-dev estimate, "
-            f"≈ {100 / math.sqrt(2 * (n - 1)):.1f} % at N={n} (1/√(2(N−1))), this is why "
-            f"N={n} (matching the two sibling MC experiments in this repo) is treated as "
-            "sufficient for the σ and yield figures above, rather than asserted by "
-            "convention alone."
-        )
+        if len(conv) < 2:
+            add(
+                f"Fewer than two convergence checkpoints had converged draws "
+                f"(only `N={conv[0]['n']}` reached), so running-σ drift could not be "
+                "evaluated (`sample_count_sufficient` was not emitted) and sample-count "
+                "sufficiency is not established by this run."
+            )
+        else:
+            last, prev = conv[-1], conv[-2]
+            rel = abs(last["sigma"] / prev["sigma"] - 1.0) if prev["sigma"] else float("inf")
+            suff_check = next(
+                (
+                    c
+                    for c in r.get("cross_point_checks", [])
+                    if c["name"] == "sample_count_sufficient"
+                ),
+                None,
+            )
+            converged = rel <= CONVERGENCE_TOL and (
+                suff_check is None or suff_check["pass"]
+            )
+            sibling_note = (
+                " (matching the two sibling MC experiments in this repo)"
+                if n == N_SAMPLES
+                else ""
+            )
+            if converged:
+                add(
+                    f"N={prev['n']} -> N={last['n']}: σ changed by {rel:.1%} (see the "
+                    "`sample_count_sufficient` check below for the pass/fail threshold). "
+                    "Combined with the analytic standard error of a sample std-dev estimate, "
+                    f"≈ {100 / math.sqrt(2 * (n - 1)):.1f} % at N={n} (1/√(2(N−1))), "
+                    f"this is why N={n}{sibling_note} is treated as sufficient for the σ "
+                    "and yield figures above, rather than asserted by convention alone."
+                )
+            else:
+                if not prev["sigma"]:
+                    change = (
+                        f"σ at N={prev['n']} is zero, so the relative change is "
+                        f"undefined and cannot be compared with the {CONVERGENCE_TOL:.0%} "
+                        "`sample_count_sufficient` tolerance"
+                    )
+                else:
+                    change = (
+                        f"σ changed by {rel:.1%}, exceeding the {CONVERGENCE_TOL:.0%} "
+                        "`sample_count_sufficient` tolerance"
+                    )
+                add(
+                    f"N={prev['n']} -> N={last['n']}: {change} "
+                    f"(**FAIL**; see `## Checks` below). N={n}{sibling_note} is not "
+                    "established as sufficient by this run."
+                )
     add("")
 
-    add("## Controls (the reason this record can be believed)")
-    add("")
-    if ctrl:
-        add(
-            f"- **MC-off control** (`{ctrl['corner_id']}`, section `{OFF_SECTION}`, "
-            f"N = {ctrl['parsed_samples']}): identical deck, no coefficient overrides, "
-            f"`MC_MM_SWITCH=0`. σ(VOUT) = {ctrl['stats']['vout']['sigma']:.3g} V — exactly "
-            f"zero, so the spread above is the mismatch switch and not solver noise, "
-            f"`.nodeset` drift, or a re-randomised bias point."
+    L.extend(
+        render_mc_controls(
+            r,
+            ctrl_vectors=(("vout", "VOUT"),),
+            seed_vectors=(("vout", "VOUT"),),
+            seed_label=batch_sim.seed_label(r.get("execution"), SEED_B),
+            ctrl_deck_note="identical deck, no coefficient overrides, `MC_MM_SWITCH=0`",
         )
-    if seedb:
-        add(
-            f"- **Second-seed point** (`{seedb['corner_id']}`, "
-            f"{batch_sim.seed_label(r.get('execution'), SEED_B)}, "
-            f"N = {seedb['parsed_samples']}): σ(VOUT) = {mv(seedb['stats']['vout']['sigma'])} "
-            f"mV — see the seed-stability checks below: the individual samples change, σ "
-            "does not."
-        )
+    )
     add(
         "- **Isolation-bounded check**: every isolated-family σ (`pnp`, `resistor`, `mos`) "
         "must not exceed σ(`all`) by more than 15 % at each temperature — catches a "

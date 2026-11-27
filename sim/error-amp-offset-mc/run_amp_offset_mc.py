@@ -65,6 +65,7 @@ from sim_common import (  # noqa: E402
     partition_by_window,
     pdk_record_fields,
     per_vector_stats,
+    render_mc_controls,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
     run_ngspice,
@@ -507,8 +508,6 @@ def render_record(r: dict) -> str:
     L: list[str] = []
     add = L.append
     mm_points = [p for p in r["points"] if p["role"] == "mismatch"]
-    ctrl = next((p for p in r["points"] if p["role"] == "control"), None)
-    seedb = next((p for p in r["points"] if p["role"] == "seed-check"), None)
     n = r["statistics"]["n_samples"]
 
     add(f"# Record {r['record_id']}")
@@ -558,13 +557,18 @@ def render_record(r: dict) -> str:
         f"  - {len(r['points'])} ngspice points executed: {len(mm_points)} Monte Carlo "
         f"points (N = {n} each), one MC-off control point, one second-seed point."
     )
+    comparable_clause = (
+        " N matches `sim/pnp-mismatch`, so the σ figures are directly comparable."
+        if n == N_SAMPLES
+        else ""
+    )
     add(
         f"- **Statistical convention**: **N = {n}** Monte Carlo samples per temperature, "
         f"local mismatch only (section `{MM_SECTION}`). Spread is the sample standard "
         f"deviation (N−1) reported as **1 σ**, with 3 σ alongside; σ's own relative "
         f"standard error is ≈ {100 / math.sqrt(2 * (n - 1)):.1f} %. Reproducible: "
-        f"{batch_sim.seed_mechanism(r.get('execution'), SEED_A, SEED_B)}. N matches "
-        f"`sim/pnp-mismatch`, so the σ figures are directly comparable."
+        f"{batch_sim.seed_mechanism(r.get('execution'), SEED_A, SEED_B)}."
+        f"{comparable_clause}"
     )
     add(f"- **Result**: {'PASS' if r['overall_pass'] else 'FAIL'} — see the tables below.")
     add("")
@@ -638,31 +642,15 @@ def render_record(r: dict) -> str:
     )
     add("")
 
-    add("## Controls (the reason this record can be believed)")
-    add("")
-    if ctrl:
-        sig = ", ".join(
-            f"σ({name}) = {ctrl['stats'][name]['sigma']:.3g}"
-            for name in ("vos", "vout", "dvbe8", "rratio")
+    L.extend(
+        render_mc_controls(
+            r,
+            ctrl_vectors=("vos", "vout", "dvbe8", "rratio"),
+            ctrl_unit="",
+            seed_vectors=("vos", "vout", "dvbe8"),
+            seed_label=batch_sim.seed_label(r.get("execution"), SEED_B),
         )
-        add(
-            f"- **MC-off control** (`{ctrl['corner_id']}`, section `{OFF_SECTION}`, "
-            f"N = {ctrl['parsed_samples']}): identical deck with `MC_MM_SWITCH=0`. {sig} — "
-            f"exactly zero, so the spread above is the mismatch switch and not solver "
-            f"noise, `.nodeset` drift or a re-randomised bias point. This is the check "
-            f"that would have caught a silently no-op mismatch setup."
-        )
-    if seedb:
-        add(
-            f"- **Second-seed point** (`{seedb['corner_id']}`, "
-            f"{batch_sim.seed_label(r.get('execution'), SEED_B)}, "
-            f"N = {seedb['parsed_samples']}): "
-            + "; ".join(
-                f"σ({name}) = {mv(seedb['stats'][name]['sigma'])} mV"
-                for name in ("vos", "vout", "dvbe8")
-            )
-            + " — the individual samples change, σ does not (see the seed-stability checks)."
-        )
+    )
     add(
         "- **Published anchor**: the un-arrayed 1 µA PNP pair (`dvbe1`) in this same deck "
         "has to reproduce `design/device-characterization-summary.md` section 4's "

@@ -88,10 +88,10 @@ run_erc() {
   echo "  klt erc $rec <- $(basename "$spec")"
   # `klt erc` exits 3 on "antenna or connectivity violations" and 4 on "no
   # antenna checks". Its own docs say to gate on the payload's `status`, not
-  # the exit code ("Exit codes" in docs/cli/erc.md), and the known-gap tie
-  # specs below are *expected* to report violations. So exits 3/4 are captured
-  # and passed through to the record gate; only a real failure to run (1) or a
-  # usage error (2) aborts the flow here.
+  # the exit code ("Exit codes" in docs/cli/erc.md), and the swapped-net
+  # negative-control spec below is *expected* to report violations. So exits
+  # 3/4 are captured and passed through to the record gate; only a real
+  # failure to run (1) or a usage error (2) aborts the flow here.
   local rc=0
   "$KLT" erc "$gds" "$spec" --deck sky130 --pdk sky130 --format json \
     > "$OUT_DIR/$base.json" || rc=$?
@@ -117,7 +117,7 @@ run_erc "$CELL_DIR/erc-nwell-tie-spec.negative-control.json" "$NEWEST" \
 
 python3 "$LAYOUT_DIR/bin/erc_supply_record.py" \
   --out-dir "$OUT_DIR" --record-id "$RECORD_ID" --repo-root "$REPO_ROOT" \
-  --klt "$KLT" --gds-records "${GDS_RECORDS[@]}" --newest "$NEWEST"
+  --gds-records "${GDS_RECORDS[@]}" --newest "$NEWEST"
 
 # Refresh the committed `klt signoff` manifest's item-11 citation, so the
 # block's machine-graded T1 tracker points at the record this run just wrote
