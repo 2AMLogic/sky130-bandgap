@@ -514,5 +514,43 @@ class ZeroReferenceSigmaNarrativeTests(unittest.TestCase):
         self.assertNotIn("is treated as sufficient", md)
 
 
+class InsufficientEvidenceControlsTests(unittest.TestCase):
+    """Undefined or single-draw spread is never reported as a measured spread (#691 review)."""
+
+    def test_undefined_control_sigma_is_not_called_nonzero_spread(self):
+        for name, mod, path in RUNNERS:
+            with self.subTest(runner=name):
+                r = _load(path)
+                ctrl = next(p for p in r["points"] if p["role"] == "control")
+                key = next(iter(ctrl["stats"]))
+                ctrl["stats"][key]["sigma"] = float("nan")
+                for c in ctrl["checks"]:
+                    if c["name"] == f"sigma_zero[{key}]":
+                        c["pass"] = False
+                controls = _controls_section(mod.render_record(r))
+                self.assertIn("undefined", controls)
+                self.assertIn("did not establish zero spread", controls)
+                self.assertNotIn("non-zero spread", controls)
+                self.assertNotIn("exactly zero", controls)
+
+    def test_single_draw_control_and_seed_report_insufficient_draws(self):
+        for name, mod, path in RUNNERS:
+            with self.subTest(runner=name):
+                r = _load(path)
+                for p in r["points"]:
+                    if p["role"] in ("control", "seed-check"):
+                        for st in p["stats"].values():
+                            st["n"] = 1
+                            st["sigma"] = 0.0
+                points = {p["corner_id"]: p for p in r["points"]}
+                r["cross_point_checks"] = mod.seed_stability(points)
+                controls = _controls_section(mod.render_record(r))
+                self.assertIn("σ not estimable", controls)
+                self.assertIn("needs at least 2", controls)
+                self.assertNotIn("exactly zero", controls)
+                self.assertNotIn("drifted", controls)
+                self.assertEqual(controls.count("needs at least 2"), 2)
+
+
 if __name__ == "__main__":
     unittest.main()
