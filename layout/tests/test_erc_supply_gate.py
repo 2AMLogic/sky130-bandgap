@@ -71,13 +71,13 @@ _COMPUTED_LEAD = "**`erc.missing_tie` is computed.**"
 _TIE_EVIDENCE_CLAIMS = (
     "each in `erc_coverage.checked`",
     "with `erc_coverage.skipped` empty and no `ties_disclosure`",
-    "Zero findings is therefore a result, not an absence",
 )
+_ZERO_RESULT_CLAIM = "Zero findings is therefore a result, not an absence"
 _CONTROL_CLAIM = "the negative control below shows the declaration can fail"
 _VERDICT_CLAIM = (
     "supply islands and n-well ties, both computed, with a negative control"
 )
-_TIE_CLAIMS = (_COMPUTED_LEAD,) + _TIE_EVIDENCE_CLAIMS
+_TIE_CLAIMS = (_COMPUTED_LEAD,) + _TIE_EVIDENCE_CLAIMS + (_ZERO_RESULT_CLAIM,)
 _PASS_CLAIMS = _TIE_CLAIMS + (_CONTROL_CLAIM, _VERDICT_CLAIM)
 
 
@@ -490,7 +490,7 @@ class ErcSupplyRecordRenderTest(unittest.TestCase):
         self.assertIn("0/2 / **1** | **FAIL** |", row)
         self._assert_no_pass_claims(md, *_TIE_CLAIMS, _VERDICT_CLAIM)
         self.assertIn(_CONTROL_CLAIM, md)
-        summary = self._line(md, "**`erc.missing_tie` is")
+        summary = self._line(md, "**The `erc.missing_tie` tie gate failed.**")
         self.assertIn(f"`{self.newest}`", summary)
         for reason in (
             "erc.missing_tie for nwell_tie_vdd is not in erc_coverage.checked",
@@ -514,12 +514,37 @@ class ErcSupplyRecordRenderTest(unittest.TestCase):
         self.assertEqual(rc, 1)
         self._assert_no_pass_claims(md, *_TIE_CLAIMS, _VERDICT_CLAIM)
         self.assertIn(_CONTROL_CLAIM, md)
-        summary = self._line(md, "**`erc.missing_tie` is")
+        summary = self._line(md, "**The `erc.missing_tie` tie gate failed.**")
         self.assertIn(f"`{oldest}`", summary)
         self.assertIn(
             "erc.missing_tie for nwell_tie_vdd is not in erc_coverage.checked", summary
         )
         self.assertIn("**FAIL** — item 11's structural gate.", md)
+
+    def test_finding_only_tie_failure_is_reported_as_a_failed_gate(self) -> None:
+        """A detected missing tie with full coverage is a finding, not an
+        uncomputed check."""
+
+        def add_finding(report: dict) -> None:
+            report["erc_findings"] = report["erc_findings"] + [
+                {
+                    "rule": "erc.missing_tie",
+                    "description": "tap not connected",
+                    "net": "VDD",
+                }
+            ]
+
+        self._break(f"erc.{self.newest}.json", add_finding)
+        rc, md = self._render()
+        self.assertEqual(rc, 1)
+        self._assert_no_pass_claims(md, *_TIE_CLAIMS, _VERDICT_CLAIM)
+        self.assertNotIn("not established as computed", md)
+        self.assertNotIn("the clean tie result above", md)
+        row = self._line(md, f"| `{self.newest}` |")
+        self.assertIn("2/2 / **1** | **FAIL** |", row)
+        summary = self._line(md, "**The `erc.missing_tie` tie gate failed.**")
+        self.assertIn("erc.missing_tie: tap not connected", summary)
+        self.assertNotIn("is not in erc_coverage.checked", summary)
 
     def test_failing_negative_control_renders_its_reason_not_pass_claims(
         self,
@@ -535,15 +560,39 @@ class ErcSupplyRecordRenderTest(unittest.TestCase):
         self.assertEqual(rc, 1)
         flagged = self.n_wells - 1
         self.assertIn(f"Total `erc.missing_tie`: **{flagged}** of {self.n_wells}", md)
-        self._assert_no_pass_claims(md, _COMPUTED_LEAD, _CONTROL_CLAIM, _VERDICT_CLAIM)
+        self._assert_no_pass_claims(
+            md, _COMPUTED_LEAD, _CONTROL_CLAIM, _ZERO_RESULT_CLAIM, _VERDICT_CLAIM,
+            "does not show the declaration can fail",
+        )
         for claim in _TIE_EVIDENCE_CLAIMS:
             self.assertIn(claim, md)
         self.assertIn(
-            "the negative control below does not show the declaration can fail: "
+            f"the negative control below flagged {flagged} of {self.n_wells} "
+            "deliberately swapped n-well shapes ("
             f"negative control reported {flagged} erc.missing_tie, "
-            f"expected {self.n_wells}",
+            f"expected {self.n_wells}), so the clean tie result above is not "
+            "shown to be falsifiable.",
             md,
         )
+
+    def test_silent_negative_control_reports_zero_detections(self) -> None:
+        """A control that flags nothing leaves the clean result unestablished."""
+
+        def drop_all(report: dict) -> None:
+            report["erc_findings"] = [
+                f for f in report["erc_findings"] if f.get("rule") != "erc.missing_tie"
+            ]
+
+        self._break(self.control, drop_all)
+        rc, md = self._render()
+        self.assertEqual(rc, 1)
+        self._assert_no_pass_claims(
+            md, _COMPUTED_LEAD, _CONTROL_CLAIM, _ZERO_RESULT_CLAIM, _VERDICT_CLAIM
+        )
+        self.assertIn(
+            f"flagged 0 of {self.n_wells} deliberately swapped n-well shapes", md
+        )
+        self.assertIn("not shown to be falsifiable", md)
 
     def test_failing_supply_gate_withdraws_the_verdicts_pass_wording(self) -> None:
         """Ties and control pass, so their paragraph stays true; only the

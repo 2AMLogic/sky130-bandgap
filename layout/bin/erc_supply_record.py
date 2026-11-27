@@ -199,15 +199,25 @@ def main() -> int:
     overall_ok = overall_ok and nc_ok
 
     # --- n-well ties -------------------------------------------------------
+    n_control = sum(
+        1 for f in nc.get("erc_findings") or [] if f.get("rule") == "erc.missing_tie"
+    )
     computed = (
         "The spec declares two n-well `ties[]` entries (`nwell_tie_vdd`, "
         "`nwell_tie_vss`), each in `erc_coverage.checked` (and in "
         "`checked_by_well_assertion`, because the well-class selection is the "
         "caller's `well_requires_boxes`), with `erc_coverage.skipped` empty and "
-        "no `ties_disclosure`. Zero findings is therefore a result, not an absence"
+        "no `ties_disclosure`. "
     )
+    if nc_ok:
+        computed += "Zero findings is therefore a result, not an absence"
+    else:
+        computed += (
+            "Zero findings is a computed count, but without a passing negative "
+            "control it is not shown to be a result"
+        )
     if tie_failed:
-        lead = "**`erc.missing_tie` is not established as computed.**"
+        lead = "**The `erc.missing_tie` tie gate failed.**"
         evidence = (
             "The spec declares two n-well `ties[]` entries (`nwell_tie_vdd`, "
             "`nwell_tie_vss`), but the tie gate failed for "
@@ -226,10 +236,14 @@ def main() -> int:
         control = "the negative control below shows the declaration can fail."
     else:
         control = (
-            "the negative control below does not show the declaration can fail: "
+            f"the negative control below flagged {n_control} of {well_shapes} "
+            "deliberately swapped n-well shapes ("
             + "; ".join(nc_reasons)
-            + "."
+            + ")"
         )
+        if not tie_failed:
+            control += ", so the clean tie result above is not shown to be falsifiable"
+        control += "."
     lines.append(f"{lead} {evidence}; {control}")
     lines.append("")
 
@@ -268,7 +282,11 @@ def main() -> int:
         "`erc-nwell-tie-spec.negative-control.json` is the supply spec with each "
         "tie's well boxes declared to the **opposite** net. Run against "
         f"`{args.newest}`, a tie check that works must flag every n-well shape; "
-        "if this run came back clean, the clean tie result above would prove nothing."
+        + (
+            "if this run came back clean, a clean tie result would prove nothing."
+            if tie_failed
+            else "if this run came back clean, the clean tie result above would prove nothing."
+        )
     )
     lines.append("")
     miss = [f for f in nc.get("erc_findings") or [] if f["rule"] == "erc.missing_tie"]
