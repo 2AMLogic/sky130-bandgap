@@ -1016,7 +1016,7 @@ def render_record(r: dict) -> str:
     add("")
     add("| process | supply (V) | max |dVREF27| over codes 0/-8/-16 (mV) | LSB lumped (mV) | LSB chained (mV) |")
     add("|---|---|---|---|---|")
-    worst = 0.0
+    diffs = []
     for supply in SUPPLIES:
         for proc in PROCESSES:
             keys = [(cfg, proc, supply, c) for cfg in ("lumped", "chained") for c in LUMPED_CODES]
@@ -1025,12 +1025,18 @@ def render_record(r: dict) -> str:
                 continue
             d = max(abs(results[("lumped", proc, supply, c)]["vref_27"] - results[("chained", proc, supply, c)]["vref_27"])
                     for c in LUMPED_CODES) * 1000
-            worst = max(worst, d)
+            diffs.append(d)
             lsb_l = (results[("lumped", proc, supply, 0)]["vref_27"] - results[("lumped", proc, supply, -16)]["vref_27"]) / 16 * 1000
             lsb_c = (results[("chained", proc, supply, 0)]["vref_27"] - results[("chained", proc, supply, -16)]["vref_27"]) / 16 * 1000
             add(f"| {proc} | {supply:.2f} | {d:.4f} | {lsb_l:.4f} | {lsb_c:.4f} |")
     add("")
-    add(f"Worst lumped-vs-chained VREF(27 C) difference at the sampled codes: {worst:.4f} mV.")
+    n_corners = len(SUPPLIES) * len(PROCESSES)
+    if diffs:
+        add(f"Worst lumped-vs-chained VREF(27 C) difference at the sampled codes: {max(diffs):.4f} mV "
+            f"({len(diffs)}/{n_corners} corners compared).")
+    else:
+        add(f"Worst lumped-vs-chained VREF(27 C) difference at the sampled codes: not available "
+            f"(0/{n_corners} corners could be compared).")
     add("")
 
     add("## Checks (graded config `chained`)")

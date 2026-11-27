@@ -445,6 +445,39 @@ class RenderRecordSupersessionTests(unittest.TestCase):
         md = rt.render_record(synthetic_record(results=res))
         self.assertIn("INCOMPLETE -- code(s) missing/nonconvergent", md)
 
+class CrosscheckWorstDifferenceTests(unittest.TestCase):
+    """Issue #703: the worst lumped-vs-chained line is a maximum over compared
+    corners, never a synthetic zero when nothing was compared."""
+
+    PREFIX = "Worst lumped-vs-chained VREF(27 C) difference at the sampled codes:"
+
+    def line(self, res) -> str:
+        md = rt.render_record(synthetic_record(results=res))
+        return next(l for l in md.splitlines() if l.startswith(self.PREFIX))
+
+    def test_equal_models_report_a_measured_zero(self) -> None:
+        self.assertIn("0.0000 mV (15/15 corners compared)", self.line(synthetic()))
+
+    def test_single_complete_corner_reports_its_difference_and_coverage(self) -> None:
+        keep = ("tt", 3.30)
+        drop = [("lumped", p, v, c) for p in rt.PROCESSES for v in rt.SUPPLIES
+                for c in rt.LUMPED_CODES if (p, v) != keep]
+
+        def bump(res):
+            res[("lumped", "tt", 3.30, -8)]["vref_27"] += 0.005
+
+        res = synthetic(mutate=bump, drop=drop)
+        self.assertIn("5.0000 mV (1/15 corners compared)", self.line(res))
+
+    def test_no_lumped_data_reports_no_numeric_difference(self) -> None:
+        drop = [("lumped", p, v, c) for p in rt.PROCESSES for v in rt.SUPPLIES
+                for c in rt.LUMPED_CODES]
+        line = self.line(synthetic(drop=drop))
+        self.assertIn("not available (0/15 corners could be compared)", line)
+        self.assertNotIn("0.0000", line)
+        self.assertNotRegex(line, r"\d mV")
+
+
 class Dr005QualificationTests(unittest.TestCase):
     """Issue #333: the literal DR-005 Trim row is graded apart from DR-002."""
 
