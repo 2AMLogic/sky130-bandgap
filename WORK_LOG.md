@@ -9,6 +9,10 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 ### 2026-11-26
 
+- **Issue #696** (closed): Derive the DR-005 direction and range-basis notes from measured VREF
+- **PR #698**: fix(sim): derive DR-005 direction and range-basis notes from measured VREF
+- **Issue #694** (closed): Remove unconditional confirmations and frozen prose from sim/trim-lsb-chained
+- **PR #695**: fix(sim): derive trim-lsb-chained record narrative from its verdicts
 - **Issue #654** (closed): Routed flow publishes summary files to the artifact manifest before committing them, so check_artifact_manifests.py rule 4 fails every run
 
 ### 2026-11-25
