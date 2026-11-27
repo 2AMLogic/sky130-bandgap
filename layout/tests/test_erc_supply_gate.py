@@ -41,16 +41,44 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import json
 import pathlib
+import shutil
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
+from io import StringIO
+from unittest import mock
 
 _BIN = pathlib.Path(__file__).resolve().parent.parent / "bin"
-sys.path.insert(0, str(_BIN.parent.parent / "scripts" / "ci"))
+_REPO = _BIN.parent.parent
+sys.path.insert(0, str(_REPO / "scripts" / "ci"))
 from script_module import load_script_module  # noqa: E402
 
 erc_supply_record = load_script_module(_BIN / "erc_supply_record.py", "erc_supply_record")
+
+#: The newest checked-in item-11 record. Its envelopes are recorded evidence,
+#: replayed read-only through the renderer's ``main()``; nothing here writes
+#: into the evidence tree.
+_RECORDED = _REPO / "layout" / "bandgap-core" / "erc" / "20261022-072429-9eb67913"
+
+#: The confirmation prose the renderer emitted unconditionally until issue
+#: #705, grouped by the gate leg whose failure disproves it, so a regression
+#: reads as "the pass claims came back on a failing record", not as a bare
+#: ``assertNotIn`` string. A leg that still passes keeps its true claims.
+_COMPUTED_LEAD = "**`erc.missing_tie` is computed.**"
+_TIE_EVIDENCE_CLAIMS = (
+    "each in `erc_coverage.checked`",
+    "with `erc_coverage.skipped` empty and no `ties_disclosure`",
+    "Zero findings is therefore a result, not an absence",
+)
+_CONTROL_CLAIM = "the negative control below shows the declaration can fail"
+_VERDICT_CLAIM = (
+    "supply islands and n-well ties, both computed, with a negative control"
+)
+_TIE_CLAIMS = (_COMPUTED_LEAD,) + _TIE_EVIDENCE_CLAIMS
+_PASS_CLAIMS = _TIE_CLAIMS + (_CONTROL_CLAIM, _VERDICT_CLAIM)
 
 
 def clean_report(gds_sha: str) -> dict:
@@ -321,6 +349,222 @@ class CommittedRecordTest(unittest.TestCase):
                 self.assertTrue(ok, f"{path.name}: {reasons}")
                 ok, reasons = erc_supply_record.gate_tie_report(report)
                 self.assertTrue(ok, f"{path.name}: {reasons}")
+
+
+class ErcSupplyRecordRenderTest(unittest.TestCase):
+    """The rendered ``record.md`` must say what the gates said (issue #705).
+
+    The three ``gate_*`` functions decide the exit status, but until #705
+    ``main()`` rendered the confirmation prose -- ``erc.missing_tie`` is
+    computed, zero findings is a result, the negative control shows the
+    declaration can fail, both computed with a negative control -- whether or
+    not those gates had passed, so a failing record contradicted its own
+    table. This replays the newest committed record's envelopes through the
+    renderer's real ``main()`` and breaks one gate leg at a time:
+
+    * the recorded envelopes -- PASS, exit 0, byte-identical to the committed
+      ``record.md`` (the passing wording must not change), with no ``--klt``
+      on the command line;
+    * each gate leg broken -- FAIL, exit 1, with every pass claim that leg
+      disproves withdrawn and the gate's own reasons in its place, while the
+      claims of the legs that still pass stay.
+
+    Only ``sys.argv`` is stubbed; the record text is produced by the code
+    under test from the envelopes on disk. Standard library only, no PDK, no
+    ``klt`` install.
+    """
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.out_dir = pathlib.Path(self._tmp.name)
+        for envelope in sorted(_RECORDED.glob("*.json")):
+            shutil.copy(envelope, self.out_dir / envelope.name)
+        (control,) = self.out_dir.glob("erc.negative-control-nwell-swapped.*.json")
+        self.control = control.name
+        self.newest = self.control[
+            len("erc.negative-control-nwell-swapped.") : -len(".json")
+        ]
+        self.n_wells = len(json.loads(control.read_text())["erc_findings"])
+        self.gds_records = sorted(
+            p.name[len("erc.") : -len(".json")]
+            for p in self.out_dir.glob("erc.*.json")
+            if "negative-control" not in p.name and "known-gap" not in p.name
+        )
+        self.assertEqual(self.gds_records[-1], self.newest)
+
+    def tearDown(self) -> None:
+        self._tmp.cleanup()
+
+    # --- harness ----------------------------------------------------------
+
+    def _render(self, *extra_argv: str) -> tuple[int, str]:
+        """Run the renderer's real ``main()`` over the copied envelopes."""
+        argv = [
+            "erc_supply_record.py",
+            "--out-dir",
+            str(self.out_dir),
+            "--record-id",
+            _RECORDED.name,
+            "--repo-root",
+            str(_REPO),
+            "--gds-records",
+            *self.gds_records,
+            "--newest",
+            self.newest,
+            *extra_argv,
+        ]
+        with mock.patch.object(sys, "argv", argv), redirect_stdout(StringIO()):
+            rc = erc_supply_record.main()
+        return rc, (self.out_dir / "record.md").read_text()
+
+    def _break(self, envelope: str, mutate) -> None:
+        """Overwrite one copied envelope with ``mutate`` applied to its payload."""
+        path = self.out_dir / envelope
+        report = json.loads(path.read_text())
+        mutate(report)
+        path.write_text(json.dumps(report))
+
+    def _line(self, md: str, prefix: str) -> str:
+        for line in md.splitlines():
+            if line.startswith(prefix):
+                return line
+        self.fail(f"no line starting {prefix!r} in:\n{md}")
+
+    def _assert_no_pass_claims(self, md: str, *claims: str) -> None:
+        for claim in claims:
+            self.assertNotIn(claim, md)
+
+    def _uncheck(self, *ids: str):
+        """Return a mutation dropping ``ids`` from ``erc_coverage.checked``."""
+
+        def mutate(report: dict) -> None:
+            cov = report["erc_coverage"]
+            cov["checked"] = [x for x in cov["checked"] if x not in ids]
+
+        return mutate
+
+    # --- the recorded PASS path -------------------------------------------
+
+    def test_recorded_envelopes_render_the_committed_record(self) -> None:
+        rc, md = self._render()
+        self.assertEqual(rc, 0)
+        self.assertEqual(md, (_RECORDED / "record.md").read_text())
+        for claim in _PASS_CLAIMS:
+            self.assertIn(claim, md)
+
+    def test_cli_takes_no_klt_flag(self) -> None:
+        """``--klt`` was required yet never read (#705); the version of record
+        is the report's own ``provenance.klt_version``."""
+        with redirect_stderr(StringIO()), self.assertRaises(SystemExit) as caught:
+            self._render("--klt", "/nonexistent/not-even-used")
+        self.assertEqual(caught.exception.code, 2)
+
+    # --- a failing gate leg withdraws the claims it disproves -------------
+
+    def test_failing_tie_gate_renders_its_reasons_not_pass_claims(self) -> None:
+        """The #705 reproduction: every tie-gate leg failing at once on the
+        newest GDS, while the supply half and the control still pass."""
+
+        def break_ties(report: dict) -> None:
+            cov = report["erc_coverage"]
+            cov["checked"] = [x for x in cov["checked"] if "missing_tie" not in x]
+            cov["skipped"] = [
+                {
+                    "id": 'erc.missing_tie:["nwell_tie_vss"]',
+                    "reason": "degenerate_well_selection",
+                }
+            ]
+            report["ties_disclosure"] = {"kind": "tool_limitation"}
+            report["erc_findings"] = report["erc_findings"] + [
+                {
+                    "rule": "erc.missing_tie",
+                    "description": "tap not connected",
+                    "net": "VDD",
+                }
+            ]
+
+        self._break(f"erc.{self.newest}.json", break_ties)
+        rc, md = self._render()
+        self.assertEqual(rc, 1)
+        row = self._line(md, f"| `{self.newest}` |")
+        self.assertIn("0/2 / **1** | **FAIL** |", row)
+        self._assert_no_pass_claims(md, *_TIE_CLAIMS, _VERDICT_CLAIM)
+        self.assertIn(_CONTROL_CLAIM, md)
+        summary = self._line(md, "**`erc.missing_tie` is")
+        self.assertIn(f"`{self.newest}`", summary)
+        for reason in (
+            "erc.missing_tie for nwell_tie_vdd is not in erc_coverage.checked",
+            "erc.missing_tie for nwell_tie_vss is not in erc_coverage.checked",
+            "erc_coverage.skipped is not empty",
+            "report still carries a ties_disclosure",
+            "erc.missing_tie: tap not connected",
+        ):
+            self.assertIn(reason, summary)
+        self.assertIn("**FAIL** — item 11's structural gate.", md)
+
+    def test_older_gds_tie_failure_cannot_hide_behind_a_clean_newest(self) -> None:
+        """The tie paragraph summarises every row of the table above it, so a
+        failed older row must withdraw the confirmation as well."""
+        oldest = self.gds_records[0]
+        self._break(
+            f"erc.{oldest}.json",
+            self._uncheck('erc.missing_tie:["nwell_tie_vdd"]'),
+        )
+        rc, md = self._render()
+        self.assertEqual(rc, 1)
+        self._assert_no_pass_claims(md, *_TIE_CLAIMS, _VERDICT_CLAIM)
+        self.assertIn(_CONTROL_CLAIM, md)
+        summary = self._line(md, "**`erc.missing_tie` is")
+        self.assertIn(f"`{oldest}`", summary)
+        self.assertIn(
+            "erc.missing_tie for nwell_tie_vdd is not in erc_coverage.checked", summary
+        )
+        self.assertIn("**FAIL** — item 11's structural gate.", md)
+
+    def test_failing_negative_control_renders_its_reason_not_pass_claims(
+        self,
+    ) -> None:
+        """The control flags all but one well: the tie gate still passes, so
+        only the claim that leans on the control may be withdrawn."""
+
+        def drop_one_flag(report: dict) -> None:
+            report["erc_findings"] = report["erc_findings"][:-1]
+
+        self._break(self.control, drop_one_flag)
+        rc, md = self._render()
+        self.assertEqual(rc, 1)
+        flagged = self.n_wells - 1
+        self.assertIn(f"Total `erc.missing_tie`: **{flagged}** of {self.n_wells}", md)
+        self._assert_no_pass_claims(md, _COMPUTED_LEAD, _CONTROL_CLAIM, _VERDICT_CLAIM)
+        for claim in _TIE_EVIDENCE_CLAIMS:
+            self.assertIn(claim, md)
+        self.assertIn(
+            "the negative control below does not show the declaration can fail: "
+            f"negative control reported {flagged} erc.missing_tie, "
+            f"expected {self.n_wells}",
+            md,
+        )
+
+    def test_failing_supply_gate_withdraws_the_verdicts_pass_wording(self) -> None:
+        """Ties and control pass, so their paragraph stays true; only the
+        verdict's "supply islands ... computed" must go."""
+        self._break(
+            f"erc.{self.newest}.json",
+            self._uncheck('erc.net_connectivity:["VSS"]'),
+        )
+        rc, md = self._render()
+        self.assertEqual(rc, 1)
+        self._assert_no_pass_claims(md, _VERDICT_CLAIM)
+        for claim in _TIE_CLAIMS + (_CONTROL_CLAIM,):
+            self.assertIn(claim, md)
+        verdict = self._line(md, "Item 11's structural half")
+        self.assertIn(
+            f"supply gate failed on 1 of {len(self.gds_records)} routed GDSs "
+            f"(`{self.newest}`)",
+            verdict,
+        )
+        self.assertIn("n-well tie gate passed on every routed GDS", verdict)
+        self.assertIn("swapped-tie negative control passed", verdict)
 
 
 if __name__ == "__main__":

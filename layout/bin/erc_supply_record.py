@@ -103,7 +103,6 @@ def main() -> int:
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--record-id", required=True)
     ap.add_argument("--repo-root", required=True)
-    ap.add_argument("--klt", required=True)
     ap.add_argument("--gds-records", nargs="+", required=True)
     ap.add_argument("--newest", required=True)
     args = ap.parse_args()
@@ -137,6 +136,8 @@ def main() -> int:
     lines.append("|---|---|---|---|---|---|---|")
 
     supply_reports: dict[str, dict] = {}
+    supply_failed: dict[str, list[str]] = {}
+    tie_failed: dict[str, list[str]] = {}
     for rec in args.gds_records:
         report_path = out_dir / f"erc.{rec}.json"
         report = json.loads(report_path.read_text())
@@ -144,6 +145,10 @@ def main() -> int:
         gds = cell_dir / "reports" / rec / "bandgap_core_routed.gds"
         ok, reasons = gate_supply_report(report, gds)
         tie_ok, tie_reasons = gate_tie_report(report)
+        if not ok:
+            supply_failed[rec] = reasons
+        if not tie_ok:
+            tie_failed[rec] = tie_reasons
         ok = ok and tie_ok
         reasons = reasons + tie_reasons
         overall_ok = overall_ok and ok
@@ -176,8 +181,6 @@ def main() -> int:
 
     lines.append("")
     newest_report = supply_reports[args.newest]
-    cov = newest_report.get("erc_coverage") or {}
-    inapplicable = {e["id"]: e["reason"] for e in cov.get("inapplicable") or []}
     lines.append(
         f"Newest GDS (`{args.newest}`): `erc_status` "
         f"`{newest_report.get('erc_status')}`, `erc_finding_count` "
@@ -187,14 +190,47 @@ def main() -> int:
         f"KLayout `{(newest_report.get('provenance') or {}).get('klayout_version')}`."
     )
     lines.append("")
-    lines.append(
-        "**`erc.missing_tie` is computed.** The spec declares two n-well `ties[]` "
-        "entries (`nwell_tie_vdd`, `nwell_tie_vss`), each in `erc_coverage.checked` "
-        "(and in `checked_by_well_assertion`, because the well-class selection is "
-        "the caller's `well_requires_boxes`), with `erc_coverage.skipped` empty and "
-        "no `ties_disclosure`. Zero findings is therefore a result, not an absence; "
-        "the negative control below shows the declaration can fail."
+
+    spec = json.loads((cell_dir / "erc-supply-spec.json").read_text())
+    well_shapes = sum(len(t.get("well_requires_boxes") or []) for t in spec.get("ties") or [])
+    nc_path = out_dir / f"erc.negative-control-nwell-swapped.{args.newest}.json"
+    nc = json.loads(nc_path.read_text())
+    nc_ok, nc_reasons = gate_negative_control(nc, well_shapes)
+    overall_ok = overall_ok and nc_ok
+
+    # --- n-well ties -------------------------------------------------------
+    computed = (
+        "The spec declares two n-well `ties[]` entries (`nwell_tie_vdd`, "
+        "`nwell_tie_vss`), each in `erc_coverage.checked` (and in "
+        "`checked_by_well_assertion`, because the well-class selection is the "
+        "caller's `well_requires_boxes`), with `erc_coverage.skipped` empty and "
+        "no `ties_disclosure`. Zero findings is therefore a result, not an absence"
     )
+    if tie_failed:
+        lead = "**`erc.missing_tie` is not established as computed.**"
+        evidence = (
+            "The spec declares two n-well `ties[]` entries (`nwell_tie_vdd`, "
+            "`nwell_tie_vss`), but the tie gate failed for "
+            + "; ".join(
+                f"`{rec}` ({'; '.join(reasons)})" for rec, reasons in tie_failed.items()
+            )
+            + ". An unchecked, skipped or flagged tie makes its finding count an "
+            "absence or a defect, never a clean result"
+        )
+    else:
+        lead = "**`erc.missing_tie` is computed.**"
+        if not nc_ok:
+            lead = "**`erc.missing_tie` is computed, but not shown to be falsifiable.**"
+        evidence = computed
+    if nc_ok:
+        control = "the negative control below shows the declaration can fail."
+    else:
+        control = (
+            "the negative control below does not show the declaration can fail: "
+            + "; ".join(nc_reasons)
+            + "."
+        )
+    lines.append(f"{lead} {evidence}; {control}")
     lines.append("")
 
     # --- antenna (reported, not gated) -------------------------------------
@@ -226,8 +262,6 @@ def main() -> int:
         lines.append("")
 
     # --- negative control --------------------------------------------------
-    spec = json.loads((cell_dir / "erc-supply-spec.json").read_text())
-    well_shapes = sum(len(t.get("well_requires_boxes") or []) for t in spec.get("ties") or [])
     lines.append("## Negative control (swapped tie nets)")
     lines.append("")
     lines.append(
@@ -237,10 +271,6 @@ def main() -> int:
         "if this run came back clean, the clean tie result above would prove nothing."
     )
     lines.append("")
-    nc_path = out_dir / f"erc.negative-control-nwell-swapped.{args.newest}.json"
-    nc = json.loads(nc_path.read_text())
-    nc_ok, nc_reasons = gate_negative_control(nc, well_shapes)
-    overall_ok = overall_ok and nc_ok
     miss = [f for f in nc.get("erc_findings") or [] if f["rule"] == "erc.missing_tie"]
     shorts = [f for f in nc.get("erc_findings") or [] if f["rule"] == "erc.supply_short"]
     lines.append("| declared net | `erc.missing_tie` |")
@@ -259,11 +289,31 @@ def main() -> int:
     lines.append("")
     lines.append(f"**{'PASS' if overall_ok else 'FAIL'}** — item 11's structural gate.")
     lines.append("")
+
+    def tally(failed: dict[str, list[str]]) -> str:
+        if not failed:
+            return "passed on every routed GDS"
+        return (
+            f"failed on {len(failed)} of {len(supply_reports)} routed GDSs "
+            f"({', '.join(f'`{rec}`' for rec in failed)})"
+        )
+
+    if overall_ok:
+        half = (
+            "Item 11's structural half: supply islands and n-well ties, both computed, "
+            "with a negative control. "
+        )
+    else:
+        half = (
+            "Item 11's structural half, as this record establishes it: supply gate "
+            f"{tally(supply_failed)}; n-well tie gate {tally(tie_failed)}; "
+            f"swapped-tie negative control {'passed' if nc_ok else 'failed'}. "
+        )
     lines.append(
-        "Item 11's structural half: supply islands and n-well ties, both computed, "
-        "with a negative control. The machine-graded verdict of record is "
-        "`signoff/signoff-report.json` (see `signoff/README.md`), which also grades "
-        "the LVS half. See [`../README.md`](../README.md)."
+        half
+        + "The machine-graded verdict of record is `signoff/signoff-report.json` "
+        "(see `signoff/README.md`), which also grades the LVS half. See "
+        "[`../README.md`](../README.md)."
     )
     lines.append("")
 
