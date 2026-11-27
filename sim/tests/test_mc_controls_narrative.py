@@ -470,6 +470,24 @@ class ZeroReferenceSigmaNarrativeTests(unittest.TestCase):
                 self.assertIn("undefined", controls)
                 self.assertNotIn("drifted", controls)
 
+    def test_mixed_seed_failures_explain_each_comparison(self):
+        for mod, path, zero, drift in (
+            (PNP, PNP_PASS_RECORD, "da1", "da10"),
+            (AMP, AMP_LOCAL_RECORD, "vos", "vout"),
+        ):
+            with self.subTest(runner=mod.SLUG):
+                record = _load(path)
+                points = {p["corner_id"]: p for p in record["points"]}
+                b = next(p for p in points.values() if p["role"] == "seed-check")
+                a = points[b["corner_id"].removesuffix("_seed-b")]
+                a["stats"][zero]["sigma"] = b["stats"][zero]["sigma"] = 0.0
+                b["stats"][drift]["sigma"] = 2 * a["stats"][drift]["sigma"]
+                record["cross_point_checks"] = mod.seed_stability(points)
+
+                controls = _controls_section(mod.render_record(record))
+                self.assertIn(f"`seed_sigma_stable[{zero}]` (first-seed σ is zero", controls)
+                self.assertIn(f"`seed_sigma_stable[{drift}]` (σ drifted outside", controls)
+
     def test_untrimmed_identical_draws_report_undefined_not_inf(self):
         all_27_pt = next(
             p
@@ -491,6 +509,7 @@ class ZeroReferenceSigmaNarrativeTests(unittest.TestCase):
         md = UNTRIMMED.render_record(r)
         self.assertNotIn("inf%", md)
         self.assertIn("is zero, so the relative change is undefined", md)
+        self.assertNotIn("has not stabilised", md)
         self.assertIn("not established as sufficient", md)
         self.assertNotIn("is treated as sufficient", md)
 

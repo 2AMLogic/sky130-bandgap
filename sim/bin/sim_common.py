@@ -1571,32 +1571,29 @@ def render_mc_controls(
                 "see the seed-stability checks below: individual samples differ "
                 "between seeds while σ stays within tolerance."
             )
-        elif failed_sigma and failed_sample:
-            names = ", ".join(f"`{name}`" for name in [*failed_sigma, *failed_sample])
-            seed_outcome = (
-                f"**FAIL** ({names}): both seed-stability checks failed "
-                "(see `## Checks` below)."
-            )
-        elif failed_sigma:
-            names = ", ".join(f"`{name}`" for name in failed_sigma)
-            ref_zero = any(SEED_REF_ZERO_NOTE in c["detail"] for c in sigma_checks if not c["pass"])
-            if ref_zero:
-                seed_outcome = (
-                    f"**FAIL** ({names}): the first-seed σ is zero, so the relative "
-                    "σ change between seeds is undefined and cannot be compared with the "
-                    "seed-stability tolerance (see `## Checks` below)."
-                )
-            else:
-                seed_outcome = (
-                    f"**FAIL** ({names}): individual samples differed, but σ drifted "
-                    "outside the seed-stability tolerance between seeds (see `## Checks` below)."
-                )
         else:
-            names = ", ".join(f"`{name}`" for name in failed_sample)
-            seed_outcome = (
-                f"**FAIL** ({names}): worst-sample draw did not change between seeds "
-                "(see `## Checks` below)."
+            ref_stats = next(
+                (p["stats"] for p in r["points"] if p["corner_id"] + "_seed-b" == seedb["corner_id"]),
+                {},
             )
+            failures: dict[str, list[str]] = {}
+            for name in failed_sigma:
+                vector = name.removeprefix("seed_sigma_stable[").removesuffix("]")
+                ref_sigma = ref_stats.get(vector, {}).get("sigma")
+                if ref_sigma == 0:
+                    reason = "first-seed σ is zero, so the relative change is undefined"
+                elif ref_sigma is None:
+                    reason = "seed stability could not be established"
+                else:
+                    reason = "σ drifted outside the seed-stability tolerance"
+                failures.setdefault(reason, []).append(name)
+            if failed_sample:
+                failures["worst-sample draw did not change between seeds"] = failed_sample
+            clauses = []
+            for reason, names in failures.items():
+                checks = ", ".join(f"`{name}`" for name in names)
+                clauses.append(f"{checks} ({reason})")
+            seed_outcome = f"**FAIL** — {'. '.join(clauses)}. See `## Checks` below."
         lines.append(
             f"- **Second-seed point** (`{seedb['corner_id']}`, {seed_label}, "
             f"N = {seedb['parsed_samples']}): {sig} — {seed_outcome}"

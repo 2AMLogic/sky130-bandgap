@@ -50,7 +50,7 @@
     {
       "path": "sim/bin/sim_common.py",
       "role": "harness",
-      "content_hash": "sha256:413f70443a65aed2e664ce7a1119812a03236800adf2cfb36162218c7068ce8f"
+      "content_hash": "sha256:e4925559301cd49b9598b760b14e69658a496b44c3aff5f1df4f39fc5a8d06b4"
     }
   ],
   "testbenches": [
@@ -136,7 +136,7 @@
         {
           "path": "sim/monte-carlo-untrimmed/run_mc_untrimmed.py",
           "role": "runner",
-          "content_hash": "sha256:f794c2bd564da8738bceb4f95353ccfcb3b7b4b30a1bad436bb4c445bca8f003"
+          "content_hash": "sha256:8c109e017696a914a761f53ce2c3a7a9c6b86a95b971e44adae29caad2ba605d"
         }
       ]
     },

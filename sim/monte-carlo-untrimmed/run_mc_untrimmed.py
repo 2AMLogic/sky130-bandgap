@@ -984,9 +984,8 @@ def render_record(r: dict) -> str:
                     )
                 add(
                     f"N={prev['n']} -> N={last['n']}: {change} "
-                    "(**FAIL**; see `## Checks` below) — running σ has not stabilised "
-                    f"across checkpoints, so N={n}{sibling_note} is not established as "
-                    "sufficient by this run."
+                    f"(**FAIL**; see `## Checks` below). N={n}{sibling_note} is not "
+                    "established as sufficient by this run."
                 )
     add("")
 
