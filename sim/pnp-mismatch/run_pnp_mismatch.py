@@ -54,6 +54,7 @@ from sim_common import (  # noqa: E402
     parse_samples,
     pdk_record_fields,
     per_vector_stats,
+    render_mc_controls,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
     run_ngspice,
@@ -307,8 +308,6 @@ def render_record(r: dict) -> str:
     L: list[str] = []
     add = L.append
     mm_points = [p for p in r["points"] if p["role"] == "mismatch"]
-    ctrl = next((p for p in r["points"] if p["role"] == "control"), None)
-    seedb = next((p for p in r["points"] if p["role"] == "seed-check"), None)
     n = r["statistics"]["n_samples"]
 
     add(f"# Record {r['record_id']}")
@@ -355,15 +354,20 @@ def render_record(r: dict) -> str:
         f"  - {len(r['points'])} ngspice points executed: {len(mm_points)} Monte Carlo "
         f"points (N = {n} each), one MC-off control point, one second-seed point."
     )
+    comparable_clause = (
+        " N matches gf180-bandgap's PNP mismatch record, so the two repos' σ figures are "
+        "directly comparable."
+        if n == N_SAMPLES
+        else ""
+    )
     add(
         f"- **Statistical convention**: **N = {n}** Monte Carlo samples per temperature, "
         f"local mismatch only (section `{MM_SECTION}`: `MC_MM_SWITCH=1`, `MC_PR_SWITCH=0`, "
         f"`mismatch_factor=1`). Spread is reported as **1 σ** of the pair's emitter-voltage "
         f"difference ΔVBE with 3 σ alongside; σ is the sample standard deviation (N−1), so "
         f"its own relative standard error is ≈ {100 / math.sqrt(2 * (n - 1)):.1f} %. "
-        f"Reproducible: `setseed {SEED_A}` (the second-seed point uses {SEED_B}). N matches "
-        f"gf180-bandgap's PNP mismatch record, so the two repos' σ figures are directly "
-        f"comparable."
+        f"Reproducible: `setseed {SEED_A}` (the second-seed point uses {SEED_B})."
+        f"{comparable_clause}"
     )
     add(f"- **Result**: {'PASS' if r['overall_pass'] else 'FAIL'} — see the tables below.")
     add("")
@@ -443,29 +447,15 @@ def render_record(r: dict) -> str:
             )
     add("")
 
-    add("## Controls (the reason this record can be believed)")
-    add("")
-    if ctrl:
-        sig = ", ".join(f"σ({p.vector}) = {ctrl['stats'][p.vector]['sigma']:.3g} V" for p in PAIRS)
-        add(
-            f"- **MC-off control** (`{ctrl['corner_id']}`, section `{OFF_SECTION}`, "
-            f"N = {ctrl['parsed_samples']}): identical deck with `MC_MM_SWITCH=0`. "
-            f"{sig} — exactly zero, so the spread reported above is the mismatch switch "
-            f"and not solver noise or a re-randomised bias point. This is the check that "
-            f"would have caught a wrong/no-op switch name, the main way this experiment "
-            f"could have produced plausible-looking nonsense."
+    pair_vectors = [p.vector for p in PAIRS]
+    L.extend(
+        render_mc_controls(
+            r,
+            ctrl_vectors=pair_vectors,
+            seed_vectors=pair_vectors,
+            seed_label=f"`setseed {SEED_B}`",
         )
-    if seedb:
-        add(
-            f"- **Second-seed point** (`{seedb['corner_id']}`, `setseed {SEED_B}`, "
-            f"N = {seedb['parsed_samples']}): "
-            + "; ".join(
-                f"σ({p.vector}) = {mv(seedb['stats'][p.vector]['sigma'])} mV"
-                for p in PAIRS
-            )
-            + " — see the seed-stability checks below: the individual samples change, σ "
-            "does not."
-        )
+    )
     add("")
 
     add("## Checks")
@@ -509,9 +499,14 @@ def render_record(r: dict) -> str:
         "two biases gf180-bandgap used, so both cross-references hold."
     )
     add(
-        f"4. **N and seed** match gf180-bandgap (N = {N_SAMPLES}, fixed `setseed`); the "
-        "MC-off control point and the second-seed point are additions this record makes "
-        "that the gf180 precedent did not have."
+        (
+            f"4. **N and seed** match gf180-bandgap (N = {N_SAMPLES}, fixed `setseed`); "
+            if n == N_SAMPLES
+            else f"4. **Seed convention** uses fixed `setseed` (default N = {N_SAMPLES} "
+            f"matches gf180-bandgap; this run used `--samples {n}`); "
+        )
+        + "the MC-off control point and the second-seed point are additions this record "
+        "makes that the gf180 precedent did not have."
     )
     add("")
 
