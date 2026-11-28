@@ -855,17 +855,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "falls back to running the matrix locally"
         ),
     )
-    p.add_argument(
-        "-j",
-        "--jobs",
-        type=int,
-        default=1,
-        help=(
-            "run up to N corners concurrently (default: 1, serial -- today's "
-            "behavior). Each corner is an independent ngspice process with its "
-            "own --timeout, enforced per-process either way"
-        ),
-    )
+    sim_common.add_jobs_arg(p)
     p.add_argument(
         "--allow-pdk-mismatch",
         action="store_true",
@@ -883,8 +873,7 @@ def main(argv: list[str]) -> int:
     args = parse_args(argv)
     if args.timeout is None:
         args.timeout = batch_sim.DEFAULT_BATCH_TIMEOUT_S if args.backend == "batch" else 300
-    if args.backend == "batch" and args.jobs > 1:
-        raise HarnessError("--jobs is a local-concurrency flag; --backend batch ignores it, drop it")
+    sim_common.reject_batch_jobs(args, HarnessError)
     pin = load_pin()
     pdk = resolve_pdk(pin)
 
@@ -946,18 +935,16 @@ def main(argv: list[str]) -> int:
     print(f"scratch run dir : {run_dir}")
 
     if args.dry_run and args.backend == "batch":
-        groups = batch_sim.build_groups(
-            exp, pin, matrix, body, SPICEINIT_FILE.read_text(), run_dir / "batch", args.timeout,
-            capacity_wait_s=args.batch_capacity_wait_s,
-            runner_version_check=args.batch_runner_version_check,
-            poll_interval_s=30.0,
-        )
-        print("\n-- batch requests (one klt sim job per supply voltage) --")
-        for g in groups:
-            print(f"  {g.request_path}  ({len(g.corners)} corners at {g.supply_v:.2f} V)")
-        print(f"\n-- request for {groups[0].supply_v:.2f} V --")
-        print(groups[0].request_path.read_text())
-        print("(dry run: nothing submitted, nothing written under sim/<experiment>/)")
+        try:
+            groups = batch_sim.build_groups(
+                exp, pin, matrix, body, SPICEINIT_FILE.read_text(), run_dir / "batch", args.timeout,
+                capacity_wait_s=args.batch_capacity_wait_s,
+                runner_version_check=args.batch_runner_version_check,
+                poll_interval_s=30.0,
+            )
+        except batch_sim.BatchError as err:
+            raise HarnessError(str(err)) from err
+        batch_sim.print_batch_dry_run(groups)
         return 0
 
     if args.dry_run:
@@ -981,20 +968,17 @@ def main(argv: list[str]) -> int:
     }
     execute_matrix = None
     if args.backend == "batch":
-        local_tools = tool_versions()
-        local_tools["klt"] = first_line(["klt", "--version"])
-
-        def execute_matrix(matrix_, corners_dir_):
-            try:
-                return batch_sim.execute(
-                    exp, pin, pdk, matrix_, body, SPICEINIT_FILE.read_text(),
-                    run_dir / "batch", corners_dir_, REPO_ROOT, args.timeout,
-                    evaluate_measurements, local_tools,
-                    capacity_wait_s=args.batch_capacity_wait_s,
-                    runner_version_check=args.batch_runner_version_check,
-                )
-            except batch_sim.BatchError as err:
-                raise HarnessError(str(err)) from err
+        execute_matrix = batch_sim.make_matrix_executor(
+            sys.modules[__name__],
+            exp=exp,
+            pin=pin,
+            pdk=pdk,
+            body=body,
+            spiceinit_text=SPICEINIT_FILE.read_text(),
+            work_dir=run_dir / "batch",
+            repo_root=REPO_ROOT,
+            args=args,
+        )
 
     _record, overall = sim_common.run_matrix_and_write_record(
         sys.modules[__name__],

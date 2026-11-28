@@ -1039,6 +1039,303 @@ class RecordIntegration(unittest.TestCase):
         self.assertFalse(record["overall_pass"])
 
 
+class MatrixBatchDryRun(unittest.TestCase):
+    """`print_batch_dry_run()`: the request preview `corner-run.py` and
+    `post_layout_common.py` each printed from a private copy until #720."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+
+    def groups(self):
+        return batch_sim.build_groups(
+            EXP, PIN, full_matrix(), BODY, "* fixture spiceinit", self.tmp / "batch", 60,
+            capacity_wait_s=60, runner_version_check="enforce", poll_interval_s=30,
+        )
+
+    def preview(self, groups):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            batch_sim.print_batch_dry_run(groups)
+        return out.getvalue()
+
+    def test_prints_the_list_then_the_first_request_then_the_notice(self):
+        groups = self.groups()
+        self.assertEqual(self.preview(groups), (
+            "\n-- batch requests (one klt sim job per supply voltage) --\n"
+            + "".join(
+                f"  {g.request_path}  ({len(g.corners)} corners at {g.supply_v:.2f} V)\n"
+                for g in groups
+            )
+            + f"\n-- request for {groups[0].supply_v:.2f} V --\n"
+            # print() adds its newline to a request file that already ends in one
+            + groups[0].request_path.read_text()
+            + "\n(dry run: nothing submitted, nothing written under sim/<experiment>/)\n"
+        ))
+
+    def test_one_line_per_supply_in_matrix_order(self):
+        groups = self.groups()
+        supplies = list(dict.fromkeys(c.supply_v for c in full_matrix()))
+        self.assertEqual([g.supply_v for g in groups], supplies)
+        lines = self.preview(groups).splitlines()
+        self.assertEqual(
+            [ln for ln in lines if "request.json" in ln],
+            [f"  {g.request_path}  ({len(g.corners)} corners at {g.supply_v:.2f} V)" for g in groups],
+        )
+        # blank, header, one line per request, blank, "-- request for", the
+        # request file's own lines, blank, notice
+        request_lines = len(groups[0].request_path.read_text().splitlines())
+        self.assertEqual(len(lines), len(groups) + request_lines + 6)
+
+    def test_the_notice_names_no_bench(self):
+        # Both matrix runners said the literal `<experiment>`; the Monte Carlo
+        # printer is the one that names its bench.
+        text = self.preview(self.groups())
+        self.assertIn("sim/<experiment>/)\n", text)
+        self.assertNotIn(f"sim/{EXP.slug}/", text)
+
+    def test_writes_nothing(self):
+        # The notice says nothing was written; hold the printer to it.
+        groups = self.groups()
+        before = {p: p.stat().st_mtime_ns for p in self.tmp.rglob("*")}
+        self.preview(groups)
+        after = {p: p.stat().st_mtime_ns for p in self.tmp.rglob("*")}
+        self.assertEqual(after, before)
+
+
+class MatrixExecutorAdapter(unittest.TestCase):
+    """`make_matrix_executor()`: the `execute_matrix` closure both matrix
+    runners defined privately until #720 -- same positional call into
+    `execute()`, the caller's policy passed as keywords, `BatchError` translated
+    into the caller's `HarnessError`."""
+
+    class HarnessError(RuntimeError):
+        pass
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.calls = {"execute": [], "first_line": []}
+
+        def fake_execute(*args, **kwargs):
+            self.calls["execute"].append((args, kwargs))
+            return ("results", "blockers", "extra")
+
+        patcher = mock.patch.object(batch_sim, "execute", fake_execute)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.cr = SimpleNamespace(
+            HarnessError=self.HarnessError,
+            evaluate_measurements="cr.evaluate_measurements",
+            tool_versions=lambda: {"ngspice": "n", "xschem": "x", "platform": "p", "python": "3"},
+            first_line=lambda cmd: self.calls["first_line"].append(cmd) or f"first line of {cmd[0]}",
+        )
+        self.args = SimpleNamespace(
+            timeout=600, batch_capacity_wait_s=600.5, batch_runner_version_check="warn"
+        )
+
+    def make(self, **policy):
+        return batch_sim.make_matrix_executor(
+            self.cr,
+            exp="exp", pin={"pin": True}, pdk="pdk", body=["* body"],
+            spiceinit_text="* spiceinit", work_dir=self.tmp / "batch",
+            repo_root=self.tmp, args=self.args, **policy,
+        )
+
+    def test_building_it_only_probes_the_local_tools(self):
+        execute_matrix = self.make()
+        self.assertTrue(callable(execute_matrix))
+        self.assertEqual(self.calls["execute"], [])
+        self.assertEqual(self.calls["first_line"], [["klt", "--version"]])
+
+    def test_the_tool_block_records_the_klt_version_line(self):
+        self.make()(["c"], self.tmp / "corners")
+        (args, _kwargs) = self.calls["execute"][0]
+        self.assertEqual(args[11], {
+            "ngspice": "n", "xschem": "x", "platform": "p", "python": "3",
+            "klt": "first line of klt",
+        })
+
+    def test_forwards_the_matrix_and_corners_dir_with_the_build_time_arguments(self):
+        matrix, corners_dir = ["c1", "c2", "c3"], self.tmp / "corners" / "r"
+        self.assertEqual(self.make()(matrix, corners_dir), ("results", "blockers", "extra"))
+        args, kwargs = self.calls["execute"][0]
+        self.assertEqual(args, (
+            "exp", {"pin": True}, "pdk", matrix, ["* body"], "* spiceinit",
+            self.tmp / "batch", corners_dir, self.tmp, 600, "cr.evaluate_measurements",
+            {"ngspice": "n", "xschem": "x", "platform": "p", "python": "3",
+             "klt": "first line of klt"},
+        ))
+        self.assertEqual(kwargs, {
+            "capacity_wait_s": 600.5, "runner_version_check": "warn",
+            "gate_slug": None, "enforce_job_ceiling": False,
+        })
+
+    def test_the_pre_layout_defaults_are_the_pre_layout_policy(self):
+        self.make()(["c"], self.tmp / "c")
+        _args, kwargs = self.calls["execute"][0]
+        self.assertIsNone(kwargs["gate_slug"])
+        self.assertIs(kwargs["enforce_job_ceiling"], False)
+
+    def test_the_post_layout_policy_keywords_are_forwarded(self):
+        self.make(gate_slug="psrr-dc-post-layout", enforce_job_ceiling=True)(["c"], self.tmp / "c")
+        _args, kwargs = self.calls["execute"][0]
+        self.assertEqual(kwargs["gate_slug"], "psrr-dc-post-layout")
+        self.assertIs(kwargs["enforce_job_ceiling"], True)
+
+    def test_each_call_passes_the_matrix_it_was_given(self):
+        execute_matrix = self.make()
+        execute_matrix(["a"], self.tmp / "1")
+        execute_matrix(["a", "b"], self.tmp / "2")
+        self.assertEqual([call[0][3] for call in self.calls["execute"]], [["a"], ["a", "b"]])
+        self.assertEqual([call[0][7] for call in self.calls["execute"]], [self.tmp / "1", self.tmp / "2"])
+
+    def test_batch_error_becomes_the_callers_harness_error(self):
+        def refuse(*_args, **_kwargs):
+            raise batch_sim.BatchError("no Spot capacity")
+
+        with mock.patch.object(batch_sim, "execute", refuse):
+            with self.assertRaises(self.HarnessError) as cm:
+                self.make()(["c"], self.tmp / "c")
+        self.assertEqual(str(cm.exception), "no Spot capacity")
+        self.assertIsInstance(cm.exception.__cause__, batch_sim.BatchError)
+
+    def test_anything_else_is_not_translated(self):
+        def broken(*_args, **_kwargs):
+            raise ValueError("not a batch problem")
+
+        with mock.patch.object(batch_sim, "execute", broken):
+            with self.assertRaises(ValueError):
+                self.make()(["c"], self.tmp / "c")
+
+
+class CornerRunBatchDryRun(unittest.TestCase):
+    """`corner-run.py --backend batch` end to end, with PDK resolution and
+    netlisting stubbed: the dry-run preview is the shared printer's output and
+    nothing else, a refused request surfaces as `HarnessError` (what the
+    `__main__` handler reports in one line) instead of the uncaught
+    `BatchError` it was before #720, and a real run hands
+    `run_matrix_and_write_record()` the shared executor wired to this runner's
+    own inputs."""
+
+    FIXTURE_NETLIST = "* fixture netlist\nV1 VDD 0 'vsup'\nXBG VREF GDRV VDD 0 bandgap_core\n.end\n"
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.out = io.StringIO()
+        self.pdk = SimpleNamespace(
+            matches_pin=True, dir=self.tmp / "pdk" / PIN["variant"], variant=PIN["variant"],
+            installed_commit=PIN["open_pdks_commit"],
+        )
+
+        def fake_netlist(schematic, out_dir, _pdk):
+            produced = out_dir / (schematic.stem + ".spice")
+            produced.write_text(self.FIXTURE_NETLIST)
+            return produced
+
+        for patcher in (
+            mock.patch.object(cr, "BUILD_DIR", self.tmp / "build"),
+            mock.patch.object(cr, "resolve_pdk", lambda pin: self.pdk),
+            mock.patch.object(cr, "git_state", lambda: {"sha": "abc1234", "branch": "t", "dirty": False}),
+            mock.patch.object(cr, "netlist_with_xschem", fake_netlist),
+            mock.patch.object(cr, "tool_versions", lambda: {"ngspice": "fixture"}),
+            mock.patch.object(cr, "first_line", lambda cmd: f"fixture {cmd[0]}"),
+        ):
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def run_main(self, argv, record=None):
+        """Run `cr.main(argv)` with stdout captured; with `record` given, a
+        real (non-dry-run) batch run stops at `run_matrix_and_write_record()`,
+        which `record` replaces. Whatever the run printed is in `self.out`."""
+        with contextlib.redirect_stdout(self.out):
+            if record is None:
+                return cr.main(argv)
+            with mock.patch.object(sim_common, "run_matrix_and_write_record", record):
+                self.assertEqual(cr.main(argv), 0)
+
+    def record_id(self):
+        return re.search(r"^record id\s+: (\S+)$", self.out.getvalue(), re.M).group(1)
+
+    def test_an_enabled_bench_prints_the_shared_preview_and_writes_no_record(self):
+        before = set(EXP_DIR.rglob("*"))
+        seen = {}
+        real = batch_sim.print_batch_dry_run
+
+        def spy(groups):
+            seen["groups"] = groups
+            real(groups)
+
+        with mock.patch.object(batch_sim, "print_batch_dry_run", spy):
+            self.assertEqual(self.run_main(["--backend", "batch", "--dry-run", str(EXP_DIR)]), 0)
+        text = self.out.getvalue()
+        run_dir = self.tmp / "build" / EXP.slug / self.record_id()
+        supplies = list(dict.fromkeys(c.supply_v for c in full_matrix()))
+        self.assertEqual(
+            [g.request_path for g in seen["groups"]],
+            [run_dir / "batch" / f"v{v:.2f}" / "request.json" for v in supplies],
+        )
+        # The header is corner-run's own; from the preview on, stdout is the
+        # shared printer's output on those groups and nothing else.
+        _head, marker, preview = text.partition("\n-- batch requests")
+        self.assertTrue(marker)
+        expected = io.StringIO()
+        with contextlib.redirect_stdout(expected):
+            real(seen["groups"])
+        self.assertEqual(marker + preview, expected.getvalue())
+        self.assertEqual(set(EXP_DIR.rglob("*")), before)
+
+    def test_a_refused_request_is_a_harness_error_not_an_uncaught_batch_error(self):
+        # `error-amp-loop` is named in BATCH_UNSUPPORTED_REASONS, so
+        # build_groups() refuses it with BatchError. Before #720 this branch
+        # did not translate that, the __main__ handler's `except HarnessError`
+        # missed it, and the operator got a traceback instead of
+        # `corner-run: error: ...`.
+        exp_dir = SIM_DIR / "error-amp-loop"
+        self.assertIn("error-amp-loop", batch_sim.BATCH_UNSUPPORTED_REASONS)
+        before = set(exp_dir.rglob("*"))
+        with self.assertRaises(cr.HarnessError) as cm:
+            self.run_main(["--backend", "batch", "--dry-run", str(exp_dir)])
+        self.assertNotIsInstance(cm.exception, batch_sim.BatchError)
+        self.assertIsInstance(cm.exception.__cause__, batch_sim.BatchError)
+        self.assertIn(batch_sim.BATCH_UNSUPPORTED_REASONS["error-amp-loop"], str(cm.exception))
+        self.assertEqual(set(exp_dir.rglob("*")), before)
+
+    def test_a_real_run_hands_run_matrix_the_shared_executor_on_this_runners_inputs(self):
+        calls = []
+        captured = {}
+
+        def fake_record(module, **kwargs):
+            captured["module"] = module
+            captured["execute_matrix"] = kwargs["execute_matrix"]
+            return {}, True
+
+        def fake_execute(*args, **kwargs):
+            calls.append((args, kwargs))
+            return ([], [], {})
+
+        with mock.patch.object(batch_sim, "execute", fake_execute):
+            self.run_main(["--backend", "batch", str(EXP_DIR)], record=fake_record)
+            self.assertEqual(calls, [])
+            self.assertEqual(captured["execute_matrix"](full_matrix(), "corners"), ([], [], {}))
+        self.assertIs(captured["module"], cr)
+        run_dir = self.tmp / "build" / EXP.slug / self.record_id()
+        # pin (not a variant-resolved copy), no gate slug, no ceiling: the
+        # pre-layout policy, exactly as the private closure passed it.
+        self.assertEqual(calls, [((
+            EXP, PIN, self.pdk, full_matrix(),
+            [ln for ln in self.FIXTURE_NETLIST.splitlines() if ln.strip() != ".end"],
+            (SIM_DIR / "spiceinit").read_text(), run_dir / "batch", "corners", cr.REPO_ROOT,
+            batch_sim.DEFAULT_BATCH_TIMEOUT_S, cr.evaluate_measurements,
+            {"ngspice": "fixture", "klt": "fixture klt"},
+        ), {
+            "capacity_wait_s": sim_common.DEFAULT_BATCH_CAPACITY_WAIT_S,
+            "runner_version_check": sim_common.DEFAULT_BATCH_RUNNER_VERSION_CHECK,
+            "gate_slug": None, "enforce_job_ceiling": False,
+        })])
+
+
 class ResolveXschemExprTests(unittest.TestCase):
     """xschem < 3.4.5 leaves `expr('...')` instance params unevaluated; the
     runner must produce the same netlist xschem 3.4.7 does (issue #320: the

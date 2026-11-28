@@ -820,6 +820,24 @@ def print_mc_batch_dry_run(groups: list[Group], slug: str) -> None:
     print(f"(dry run: nothing submitted, nothing written under sim/{slug}/)")
 
 
+def print_batch_dry_run(groups: list[Group]) -> None:
+    """Print what a PVT-matrix runner's `--backend batch --dry-run` shows: one
+    line per request, the first request's file in full, then the notice that
+    nothing was submitted or written under `sim/<experiment>/`.
+
+    `groups` are what `build_groups()` wrote; this only reads their request
+    files back and prints. Unlike the Monte Carlo printer above the notice
+    names no bench: `corner-run.py` and `post_layout_common.py` both printed
+    these lines from identical private copies until issue #720, and the
+    literal `<experiment>` is what both of them said."""
+    print("\n-- batch requests (one klt sim job per supply voltage) --")
+    for g in groups:
+        print(f"  {g.request_path}  ({len(g.corners)} corners at {g.supply_v:.2f} V)")
+    print(f"\n-- request for {groups[0].supply_v:.2f} V --")
+    print(groups[0].request_path.read_text())
+    print("(dry run: nothing submitted, nothing written under sim/<experiment>/)")
+
+
 def _unique(values) -> list:
     out: list = []
     for v in values:
@@ -1641,6 +1659,59 @@ def write_corner_logs(
 # --------------------------------------------------------------------------
 # the executor `sim_common.run_matrix_and_write_record()` calls
 # --------------------------------------------------------------------------
+
+
+def make_matrix_executor(
+    cr,
+    *,
+    exp,
+    pin: dict,
+    pdk,
+    body: list[str],
+    spiceinit_text: str,
+    work_dir: Path,
+    repo_root: Path,
+    args,
+    gate_slug: str | None = None,
+    enforce_job_ceiling: bool = False,
+) -> Callable:
+    """The `execute_matrix` closure a PVT-matrix runner hands to
+    `sim_common.run_matrix_and_write_record()` under `--backend batch`: called
+    as `execute_matrix(matrix, corners_dir)`, it runs `execute()` on the
+    caller's behalf and translates `BatchError` into `cr.HarnessError`, the
+    exception each runner's `__main__` handler reports as a one-line error.
+
+    `corner-run.py` and `post_layout_common.py` each defined this closure
+    privately until issue #720. What differs between them is policy, passed in
+    rather than repeated: `gate_slug` (a post-layout bench is gated under its
+    own slug, not the wrapped manifest's) and `enforce_job_ceiling` (the
+    post-layout path refuses an over-ceiling `--timeout`, issue #510); both
+    default to the pre-layout path's behaviour. `args` supplies the already
+    resolved `.timeout`, `.batch_capacity_wait_s` and
+    `.batch_runner_version_check` the flag block (`sim_common.add_batch_args`)
+    parsed.
+
+    `cr` is the `corner-run.py` module: the local tool versions (plus the
+    `klt --version` line, recorded as `execution.klt_client`) and the
+    measurement evaluator come from it, as they did from both callers."""
+    local_tools = cr.tool_versions()
+    local_tools["klt"] = cr.first_line(["klt", "--version"])
+
+    def execute_matrix(matrix_, corners_dir_):
+        try:
+            return execute(
+                exp, pin, pdk, matrix_, body, spiceinit_text,
+                work_dir, corners_dir_, repo_root, args.timeout,
+                cr.evaluate_measurements, local_tools,
+                capacity_wait_s=args.batch_capacity_wait_s,
+                runner_version_check=args.batch_runner_version_check,
+                gate_slug=gate_slug,
+                enforce_job_ceiling=enforce_job_ceiling,
+            )
+        except BatchError as err:
+            raise cr.HarnessError(str(err)) from err
+
+    return execute_matrix
 
 
 def execute(

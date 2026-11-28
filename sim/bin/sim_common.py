@@ -219,6 +219,48 @@ def add_batch_args(parser: argparse.ArgumentParser, *, backend_help: str) -> Non
     )
 
 
+#: The canonical `--help` text for the `-j`/`--jobs` flag the two PVT-matrix
+#: runners (`corner-run.py` and the post-layout benches, through
+#: `post_layout_common.parse_post_layout_args()`) share. A module constant for
+#: the same reason `BATCH_CAPACITY_WAIT_HELP` is: a test asserts the rendered
+#: `--help` of every bench against this one source (issue #720).
+JOBS_HELP = (
+    "run up to N corners concurrently (default: 1, serial -- today's "
+    "behavior). Each corner is an independent ngspice process with its "
+    "own --timeout, enforced per-process either way"
+)
+
+#: What `reject_batch_jobs()` refuses: the batch fleet schedules the corners
+#: itself, so a local `--jobs` would silently do nothing there.
+BATCH_JOBS_MESSAGE = (
+    "--jobs is a local-concurrency flag; --backend batch ignores it, drop it"
+)
+
+
+def add_jobs_arg(parser: argparse.ArgumentParser) -> None:
+    """Add the `-j`/`--jobs` flag `run_matrix_and_write_record()`'s local
+    concurrency reads (issue #308), which `corner-run.py` and
+    `post_layout_common.py` each hand-rolled identically (issue #720).
+
+    Default `1` is the serial behaviour from before the flag existed; `> 1`
+    runs that many corners concurrently through `ThreadPoolExecutor`. Callers
+    put this call exactly where their own `--jobs` block was, so `--help`
+    lists it in the same place. The PSRR injector benches' `--jobs`
+    (`injector_common.py`) is a different flag -- no `-j`, default 2, refused
+    through `p.error()` -- and is deliberately not this one."""
+    parser.add_argument("-j", "--jobs", type=int, default=1, help=JOBS_HELP)
+
+
+def reject_batch_jobs(args, error) -> None:
+    """Refuse `--backend batch` together with `-j`/`--jobs > 1`, the guard
+    both PVT-matrix runners raised from identical private copies until issue
+    #720. `args` needs `.backend` and `.jobs` (`add_batch_args()` and
+    `add_jobs_arg()`); `error` is the exception class to raise, so each
+    runner's own `HarnessError` keeps being what its handler reports."""
+    if args.backend == "batch" and args.jobs > 1:
+        raise error(BATCH_JOBS_MESSAGE)
+
+
 def build_mismatch_points(
     samples: int,
     *,
