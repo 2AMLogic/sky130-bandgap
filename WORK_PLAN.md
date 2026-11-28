@@ -1,7 +1,7 @@
 # Work Plan
 
 <!-- guide:plan-body:start -->
-_Generated: 2026-11-26T15:36:29Z (snapshot; compare against live labels)_
+_Generated: 2026-11-27T22:05:00Z (snapshot; compare against live labels)_
 ## Operator Attention: Merge-Risk-Hold Pileup
 
 Judge-approved PRs under a hold (`loom:blocked` or `loom:operator`) — only a human merge decision is missing.
@@ -34,7 +34,7 @@ _None._
 
 Issues currently being built (`loom:building`).
 
-- **#691**: Remove unconditional confirmations and triplicated control prose from the Monte Carlo runners
+- **#702**: Remove the incorrect NG-only claim from PSRR attribution reports
 
 ## PRs Awaiting Review
 
@@ -46,7 +46,7 @@ PRs waiting on Judge (`loom:review-requested`).
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
-- **#692**: fix(sim): derive Monte Carlo control, seed, and convergence prose from checks
+- **#704**: fix: remove the NG-only claim from the PSRR report caption
 
 ## Proposed
 
