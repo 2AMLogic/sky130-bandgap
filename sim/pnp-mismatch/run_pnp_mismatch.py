@@ -44,6 +44,7 @@ BUILD_DIR = SIM_DIR / "build" / "pnp-mismatch"
 SPICEINIT_FILE = SIM_DIR / "spiceinit"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
+import mc_common  # noqa: E402
 from sim_common import (  # noqa: E402
     MismatchPoint,
     add_common_args,
@@ -458,16 +459,7 @@ def render_record(r: dict) -> str:
     )
     add("")
 
-    add("## Checks")
-    add("")
-    for p in r["points"]:
-        add(f"- `{p['corner_id']}` ({p['role']}): **{'PASS' if p['pass'] else 'FAIL'}**")
-        for c in p["checks"]:
-            add(f"  - {'PASS' if c['pass'] else 'FAIL'} `{c['name']}` — {c['detail']}")
-    for c in r["cross_point_checks"]:
-        add(f"- {'PASS' if c['pass'] else 'FAIL'} `{c['name']}` — {c['detail']}")
-    add(f"- **Overall: {'PASS' if r['overall_pass'] else 'FAIL'}**")
-    add("")
+    L.extend(mc_common.render_mc_checks(r))
 
     add("## Divergences worth stating explicitly")
     add("")
@@ -510,18 +502,7 @@ def render_record(r: dict) -> str:
     )
     add("")
 
-    add("- **Links**:")
-    for key, value in r["links"].items():
-        add(f"  - {key}: `{value}`")
-    add(f"- **Timestamp / author**: {r['timestamp']}, {r['author']}")
-    add(f"- **Supersedes**: {r['supersedes'] or '(none — first record for this claim)'}")
-    add("")
-    add(
-        "Written by `sim/pnp-mismatch/run_pnp_mismatch.py`. Append-only: never edit this "
-        "file — a correction is a new record with a `Supersedes` field (see "
-        "`sim/README.md`)."
-    )
-    add("")
+    L.extend(mc_common.render_mc_footer(r, runner_path="sim/pnp-mismatch/run_pnp_mismatch.py"))
     return "\n".join(L)
 
 

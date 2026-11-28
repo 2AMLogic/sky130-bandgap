@@ -38,6 +38,7 @@ sys.path.insert(0, str(SIM_DIR / "bin"))
 sys.path.insert(0, str(SIM_DIR.parent / "scripts" / "ci"))
 
 import batch_sim  # noqa: E402
+import mc_common  # noqa: E402
 import sim_common  # noqa: E402
 from script_module import load_script_module  # noqa: E402
 
@@ -305,8 +306,10 @@ class CliBlockShared:
 
     def test_main_prints_the_dry_run_through_the_shared_printer(self):
         # Everything in main() before the dry-run branch needs the PDK, so
-        # what can be pinned here is that the branch calls the printer.
-        self.assertIn("print_mc_batch_dry_run", self.R.main.__code__.co_names)
+        # what can be pinned here is that main() delegates dry-run handling to
+        # mc_common.handle_mc_dry_run(), which calls batch_sim's shared printer.
+        self.assertIn("handle_mc_dry_run", self.R.main.__code__.co_names)
+        self.assertIn("print_mc_batch_dry_run", mc_common.handle_mc_dry_run.__code__.co_names)
 
     def test_no_private_copy_of_the_shared_prose_survives_in_the_runner(self):
         source = inspect.getsource(self.R)

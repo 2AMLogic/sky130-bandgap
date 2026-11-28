@@ -54,6 +54,7 @@ BUILD_DIR = SIM_DIR / "build" / "monte-carlo-untrimmed"
 
 sys.path.insert(0, str(SIM_DIR / "bin"))
 import batch_sim  # noqa: E402
+import mc_common  # noqa: E402
 from sim_common import (  # noqa: E402
     MismatchPoint,
     RATIFIED_VREF_WINDOW_V,
@@ -63,15 +64,11 @@ from sim_common import (  # noqa: E402
     mc_control_block,
     mean,
     mv,
-    parse_samples,
-    partition_by_window,
     pdk_record_fields,
     render_mc_controls,
     render_pdk_tools_repo_state,
     render_record_id_experiment,
-    run_ngspice,
     seed_stability_checks,
-    publish_run_evidence,
     setup_record_paths,
     stdev,
     write_corner_log,
@@ -1023,16 +1020,11 @@ def render_record(r: dict) -> str:
     )
     add("")
 
-    add("## Checks")
-    add("")
-    for p in r["points"]:
-        add(f"- `{p['corner_id']}` ({p['role']}, config=`{p['config']}`): **{'PASS' if p['pass'] else 'FAIL'}**")
-        for c in p["checks"]:
-            add(f"  - {'PASS' if c['pass'] else 'FAIL'} `{c['name']}` — {c['detail']}")
-    for c in r["cross_point_checks"]:
-        add(f"- {'PASS' if c['pass'] else 'FAIL'} `{c['name']}` — {c['detail']}")
-    add(f"- **Overall: {'PASS' if r['overall_pass'] else 'FAIL'}**")
-    add("")
+    L.extend(
+        mc_common.render_mc_checks(
+            r, point_label=lambda p: f"{p['role']}, config=`{p['config']}`"
+        )
+    )
 
     add("## Scope limits, stated so this record is not over-read")
     add("")
@@ -1072,7 +1064,6 @@ def render_record(r: dict) -> str:
 
     L.extend(render_klt_yield_section(r["record_id"]))
 
-    add("- **Links**:")
     # `emit_klt_yield.py` runs after this script and *folds* the klt-yield rows
     # into `record["links"]` before re-rendering the record, so on that second
     # render the dynamic rows below are already present in `r["links"]`.
@@ -1083,17 +1074,11 @@ def render_record(r: dict) -> str:
     links = dict(r["links"])
     for key, value in klt_yield_links(r["record_id"]):
         links.setdefault(key, value)
-    for key, value in links.items():
-        add(f"  - {key}: `{value}`")
-    add(f"- **Timestamp / author**: {r['timestamp']}, {r['author']}")
-    add(f"- **Supersedes**: {r['supersedes'] or '(none — first record for this claim)'}")
-    add("")
-    add(
-        "Written by `sim/monte-carlo-untrimmed/run_mc_untrimmed.py`. Append-only: never "
-        "edit this file — a correction is a new record with a `Supersedes` field (see "
-        "`sim/README.md`)."
+    L.extend(
+        mc_common.render_mc_footer(
+            r, links=links, runner_path="sim/monte-carlo-untrimmed/run_mc_untrimmed.py"
+        )
     )
-    add("")
     return "\n".join(L)
 
 
@@ -1156,54 +1141,43 @@ def main(argv: list[str]) -> int:
     netlist = cr.netlist_with_xschem(SCHEMATIC, BUILD_DIR / "xschem", pdk)
     body = cr.netlist_body(netlist)
 
-    if args.dry_run and batch:
-        groups = build_batch_groups(
-            pin, body, points, (SIM_DIR / "spiceinit").read_text(), BUILD_DIR / "batch", args
-        )
-        batch_sim.print_mc_batch_dry_run(groups, SLUG)
-        return 0
-
-    if args.dry_run:
-        print("\n-- deck head + control block for the first point --")
-        deck = build_deck(pdk, points[0], body)
-        print("\n".join(deck.splitlines()[:10]))
-        print("...")
-        print(control_block(points[0]))
-        print(f"(dry run: nothing written under sim/{SLUG}/)")
+    if mc_common.handle_mc_dry_run(
+        args,
+        slug=SLUG,
+        pin=pin,
+        pdk=pdk,
+        body=body,
+        points=points,
+        build_dir=BUILD_DIR,
+        build_batch_groups=build_batch_groups,
+        build_deck=build_deck,
+        control_block=control_block,
+        deck_head_lines=10,
+    ):
         return 0
 
     results: dict[str, dict] = {}
     ordered: list[dict] = []
-    execution: dict | None = None
-    batch_parsed: dict[str, list] = {}
-    if batch:
-        batch_parsed, execution = collect_batch(pin, pdk, body, points, args, corners_dir)
-    for i, point in enumerate(points, start=1):
-        if batch:
-            parsed = batch_parsed[point.corner_id]
-        else:
-            run_dir = BUILD_DIR / record_id / point.corner_id
-            deck = build_deck(pdk, point, body)
-            raw, rc, timed_out = run_ngspice(run_dir, point.corner_id, deck, args.timeout)
-            write_log(corners_dir, point, pdk, record_id, now, deck, raw, rc, timed_out)
-            if rc != 0 or timed_out:
-                raise cr.HarnessError(
-                    f"ngspice exit {rc}{' (timeout)' if timed_out else ''} for "
-                    f"{point.corner_id}; see "
-                    f"{(corners_dir / (point.corner_id + '.log')).relative_to(REPO_ROOT)}"
-                )
-            parsed = parse_samples(raw, VECTORS)
-        if not parsed:
-            raise cr.HarnessError(
-                f"no Monte Carlo samples parsed for {point.corner_id} — see the log"
-            )
-        samples, excluded = partition_by_window(parsed, "vout", OPERATING_VOUT_V)
-        if len(samples) < 2:
-            raise cr.HarnessError(
-                f"only {len(samples)} of {len(parsed)} draws for {point.corner_id} "
-                f"converged to the operating solution — nothing to compute a sigma from; "
-                f"see the log"
-            )
+    execution, point_samples = mc_common.collect_operating_samples(
+        points,
+        batch=batch,
+        collect_batch=lambda: collect_batch(pin, pdk, body, points, args, corners_dir),
+        run_local_point=lambda pt: mc_common.run_local_mc_point(
+            pt,
+            pdk=pdk,
+            body=body,
+            build_dir=BUILD_DIR,
+            corners_dir=corners_dir,
+            record_id=record_id,
+            stamp=now,
+            timeout=args.timeout,
+            build_deck=build_deck,
+            write_log=write_log,
+        ),
+        vectors=VECTORS,
+        operating_window=OPERATING_VOUT_V,
+    )
+    for i, point, samples, excluded in point_samples:
         res = evaluate(point, samples, excluded)
         results[point.corner_id] = res
         ordered.append(res)
@@ -1272,18 +1246,16 @@ def main(argv: list[str]) -> int:
         },
     }
 
-    publish_run_evidence(corners_dir)
-    records_dir.mkdir(parents=True, exist_ok=True)
-    record_json.write_text(json.dumps(record, indent=2) + "\n")
-    record_md.write_text(render_record(record))
-    print(f"\nrecord: {record_md.relative_to(REPO_ROOT)}")
-    print(f"        {record_json.relative_to(REPO_ROOT)}")
-    return 0 if overall else 2
+    return mc_common.write_mc_record(
+        record,
+        render_record=render_record,
+        corners_dir=corners_dir,
+        records_dir=records_dir,
+        record_json=record_json,
+        record_md=record_md,
+        overall=overall,
+    )
 
 
 if __name__ == "__main__":
-    try:
-        sys.exit(main(sys.argv[1:]))
-    except cr.HarnessError as exc:
-        print(f"error: {exc}", file=sys.stderr)
-        sys.exit(1)
+    mc_common.run_cli(main)

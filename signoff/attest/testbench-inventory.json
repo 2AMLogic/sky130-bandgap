@@ -43,6 +43,11 @@
       "content_hash": "sha256:07ec6b2782e72eac833e1a46335608c48fe92e79aee4178ac66590e94de3ac00"
     },
     {
+      "path": "sim/bin/mc_common.py",
+      "role": "harness",
+      "content_hash": "sha256:b3ff4c69390d46ebe1127ffb386000a71182ef07f5178465db385cd032203ca3"
+    },
+    {
       "path": "sim/bin/post_layout_common.py",
       "role": "harness",
       "content_hash": "sha256:28acd70924110499266cee3922e3fd88ee8cb605bf7504bcd6a93bae7e608b35"
@@ -98,7 +103,7 @@
         {
           "path": "sim/error-amp-offset-mc/run_amp_offset_mc.py",
           "role": "runner",
-          "content_hash": "sha256:aa5de22f1be15fa14d1e58b63222907f19c49c8c15d7c3b2322850e21eaa9e73"
+          "content_hash": "sha256:b5c970bcfa6180e1fadd56a879c5c9f529f7249ee0b1eed0881b9e748cafec1d"
         }
       ]
     },
@@ -136,7 +141,7 @@
         {
           "path": "sim/monte-carlo-untrimmed/run_mc_untrimmed.py",
           "role": "runner",
-          "content_hash": "sha256:8c109e017696a914a761f53ce2c3a7a9c6b86a95b971e44adae29caad2ba605d"
+          "content_hash": "sha256:aecf2ec29c3afb6cc406941f8025ced72e59e4998d344c88cafd89080b14dfe6"
         }
       ]
     },
@@ -238,7 +243,7 @@
         {
           "path": "sim/pnp-mismatch/run_pnp_mismatch.py",
           "role": "runner",
-          "content_hash": "sha256:8817220af0f15fa8dc1bba6cece3c95cdfbb1145e90e49a328a2b96dd09b8e5d"
+          "content_hash": "sha256:80b7996adda62fff1597b02e6a619d8d3aacd847f83c2b65b0a407e139fd9d63"
         }
       ]
     },
