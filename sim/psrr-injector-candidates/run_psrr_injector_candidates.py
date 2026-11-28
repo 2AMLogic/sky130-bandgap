@@ -351,6 +351,9 @@ LABEL_WIDTH = 13
 CANDIDATE = "ref3_ngclamp"
 #: Candidates whose insufficiency is itself part of the record's argument.
 INSUFFICIENT = ("base", "ref3", "ngclamp")
+#: The per-corner check `evaluate()` adds for the `MNG` mechanism; `render_record()` reads
+#: its verdicts back by this stem instead of re-deriving them.
+NG_CHECK = "ng_clamp_holds_mni_off"
 
 
 # --------------------------------------------------------------------------
@@ -601,12 +604,22 @@ def evaluate(results, points, variants) -> list[dict]:
             a = results.get((CANDIDATE, cid), {}).get("measurements", {}).get("v_ng")
             b = results.get(("ref3", cid), {}).get("measurements", {}).get("v_ng")
             ok = None not in (a, b) and a <= NG_OFF_V and a < b
-            add(f"ng_clamp_holds_mni_off[{cid}]", ok,
+            add(f"{NG_CHECK}[{cid}]", ok,
                 f"v(NG) ref3={None if b is None else round(b, 4)} V -> "
                 f"`{CANDIDATE}`={None if a is None else round(a, 4)} V "
                 f"(must be <= {NG_OFF_V} V and below `ref3`'s)")
 
     return checks
+
+
+def _join(parts: list[str]) -> str:
+    if len(parts) > 2:
+        return ", ".join(parts[:-1]) + " and " + parts[-1]
+    return " and ".join(parts)
+
+
+def _shipped_param_line(anchor: str) -> str:
+    return next((ln for ln in EXPECTED_PARAMS if ln.startswith(anchor)), anchor)
 
 
 # --------------------------------------------------------------------------
@@ -625,7 +638,9 @@ def render_record(r: dict) -> str:
     cids = [corner_id(*p) for p in points]
     cited = r["cited"]
     ceiling = r["ceiling"]
-    shown = [v for v in VARIANTS if v.name in r["variants"]]
+    shown = [VARIANTS_BY_NAME[n] for n in dict.fromkeys(r["variants"]) if n in VARIANTS_BY_NAME]
+    names = {v.name for v in shown}
+    ticks = [f"`{v.name}`" for v in shown]
 
     def band(v, cid):
         res = results.get((v, cid))
@@ -684,12 +699,24 @@ def render_record(r: dict) -> str:
     for v in shown:
         add(f"| `{v.name}` | {v.what} | {v.costs} |")
     add("")
-    add(
-        "No existing device is resized in any variant: every `W`/`L`/`mult` in the body is the "
-        "shipped value. That is deliberate -- DR-011 closed the resize-only path empirically "
-        "(every `MNI` resize that cleared PSRR either broke the `sim/startup-stability` DC "
-        "sweep's convergence or eroded its `itrav_min` floor below the ratified minimum)."
-    )
+    plain = [v.name for v in shown if all(e.set_line is None for e in v.edits)]
+    knobs = [(v.name, e) for v in shown for e in v.edits if e.set_line is not None]
+    if plain:
+        scope = _join([f"`{n}`" for n in plain]) if knobs else "any variant"
+        body = "the body" if not knobs or len(plain) == 1 else "those bodies"
+        add(
+            f"No existing device is resized in {scope}: every `W`/`L`/`mult` in {body} is the "
+            "shipped value. That is deliberate -- DR-011 closed the resize-only path empirically "
+            "(every `MNI` resize that cleared PSRR either broke the `sim/startup-stability` DC "
+            "sweep's convergence or eroded its `itrav_min` floor below the ratified minimum)."
+        )
+    if knobs:
+        add(
+            "Rewritten `.param` multiplicity lines -- these bodies do not carry the shipped "
+            "multiplicities: "
+            + "; ".join(f"`{n}` rewrites `{_shipped_param_line(e.anchor)}` -> `{e.set_line}`"
+                        for n, e in knobs) + "."
+        )
     add("")
 
     add("## Result -- `psrr_band_min` (dB) per corner, per candidate")
@@ -734,35 +761,77 @@ def render_record(r: dict) -> str:
         add(f"| `{v.name}` | `{wcid}` | {worst:.2f} dB | {n_pass}/{len(vals)} |")
     add("")
 
-    add("## Mechanism -- the operating point at the two binding corners")
-    add("")
-    add("| corner | variant | v(VREF) | v(GDRV) | v(NG) | v(NE) | v(NC1) | i(VDD) |")
-    add("|---|---|---|---|---|---|---|---|")
-    base_worst = min(((band("base", cid) or 1e9, cid) for cid in cids))[1]
-    cand_name = CANDIDATE if CANDIDATE in r["variants"] else shown[-1].name
-    ref3_worst = min(((band("ref3", cid) or 1e9, cid) for cid in cids))[1] \
-        if "ref3" in r["variants"] else base_worst
-    for cid in dict.fromkeys((base_worst, ref3_worst)):
-        for v in shown:
-            m = results[(v.name, cid)]["measurements"]
+    def worst_corner(name):
+        vals = [(band(name, cid), cid) for cid in cids if band(name, cid) is not None]
+        return min(vals) if vals else None
 
-            def f(k, scale=1.0, unit=""):
-                return "—" if k not in m else f"{m[k] * scale:.4f}{unit}"
-            add(f"| `{cid}` | `{v.name}` | {f('v_vref')} | {f('v_gdrv')} | {f('v_ng')} | "
-                f"{f('v_ne')} | {f('v_nc1')} | {f('i_vdd', 1e6, ' µA')} |")
-    add("")
-    add(
-        f"`{base_worst}` is `base`'s binding corner and `{ref3_worst}` is `ref3`'s -- they are "
-        "different corners, which is the whole reason a stack-height-only fix is not enough: "
-        "extending the reference stack closes the hot-corner failure and uncovers a cold-corner "
-        "residual. `v(NG)` is why: with `MNS` over the diode-connected `QS` as the only "
-        "pull-down, `NG` cannot fall below that stack's own floor (read `v(NE)` in the same "
-        "row), so `MNI` -- gate on `NG`, drain on GDRV -- never fully turns off, and the "
-        "residual is the SERIES path `GDRV -> stack -> NG -> MNI -> VSS` rather than either "
-        f"device alone. `MNG` in `{cand_name}` removes that floor, and `v(NG)` collapsing to a "
-        "few mV is the measured signature of it."
-    )
-    add("")
+    anchors = [n for n in ("base", "ref3") if n in names] or [v.name for v in shown]
+    binding = []
+    for n in anchors:
+        w = worst_corner(n)
+        if w is not None:
+            binding.append((n, w[0], w[1]))
+    corners = list(dict.fromkeys(cid for _n, _x, cid in binding))
+    ng = [c for c in r["checks"] if c["name"].startswith(f"{NG_CHECK}[")]
+    if CANDIDATE not in names or "ref3" not in names:
+        ng_sentence = (f"`{NG_CHECK}` was not evaluated -- it needs both `ref3` and "
+                       f"`{CANDIDATE}` in the run.")
+    elif not ng:
+        ng_sentence = f"`{NG_CHECK}`: no such check in this record."
+    else:
+        failed = [c["name"][len(NG_CHECK) + 1:-1] for c in ng if not c["pass"]]
+        if not failed:
+            ng_sentence = (
+                f"`{NG_CHECK}`: PASS at {len(ng)}/{len(ng)} corners -- `v(NG)` in "
+                f"`{CANDIDATE}` is at or below {NG_OFF_V:g} V, and below `ref3`'s, at every "
+                "corner."
+            )
+        else:
+            listed = [f"`{cid}`" for cid in failed[:5]]
+            more = len(failed) - len(listed)
+            if more > 0:
+                listed.append(f"{more} more")
+            ng_sentence = (
+                f"`{NG_CHECK}`: FAIL at {len(failed)}/{len(ng)} corners "
+                f"({_join(listed)}) -- there `v(NG)` in `{CANDIDATE}` is not at or below "
+                f"{NG_OFF_V:g} V and below `ref3`'s."
+            )
+
+    if shown:
+        if corners:
+            where = {1: "the binding corner", 2: "the two binding corners"}.get(
+                len(corners), f"the {len(corners)} binding corners")
+            add(f"## Mechanism -- the operating point at {where}")
+        else:
+            add("## Mechanism -- no binding corner")
+        add("")
+        add("| corner | variant | v(VREF) | v(GDRV) | v(NG) | v(NE) | v(NC1) | i(VDD) |")
+        add("|---|---|---|---|---|---|---|---|")
+        for cid in corners:
+            for v in shown:
+                m = results.get((v.name, cid), {}).get("measurements", {})
+
+                def f(k, scale=1.0, unit=""):
+                    return "—" if k not in m else f"{m[k] * scale:.4f}{unit}"
+                add(f"| `{cid}` | `{v.name}` | {f('v_vref')} | {f('v_gdrv')} | {f('v_ng')} | "
+                    f"{f('v_ne')} | {f('v_nc1')} | {f('i_vdd', 1e6, ' µA')} |")
+        add("")
+        if not corners:
+            add("No binding corner to show: no `psrr_band_min` measurement in any variant "
+                f"shown. {ng_sentence}")
+        else:
+            bound = _join([f"`{cid}` ({x:.2f} dB) is `{n}`'s binding corner"
+                           for n, x, cid in binding])
+            if len(binding) >= 2:
+                bound += " -- the same corner" if len(corners) == 1 else " -- different corners"
+            add(
+                bound + ". In the shipped body, with `MNS` over the diode-connected `QS` as the "
+                "only pull-down, `NG` cannot fall below that stack's own floor (read `v(NE)` in "
+                "the same row), so `MNI` -- gate on `NG`, drain on GDRV -- never fully turns "
+                "off, and the residual is the SERIES path `GDRV -> stack -> NG -> MNI -> VSS` "
+                f"rather than either device alone. {ng_sentence}"
+            )
+        add("")
 
     add("## Checks")
     add("")
@@ -773,15 +842,26 @@ def render_record(r: dict) -> str:
     add("")
     add(f"**Overall: {'PASS' if r['overall_pass'] else 'FAIL'}**")
     add("")
-    add(
-        "A PASS here means one thing only: on this body, at every one of the 45 corners, the "
-        f"`{CANDIDATE}` candidate's DC-1 kHz PSRR clears DR-006's floor and sits within "
-        f"{CEILING_TOL_DB:g} dB of the bare core's own ceiling. It says nothing about startup "
-        "margin, and it is not a report-row verdict: landing the change means drawing it in "
+    caveat = (
+        "It says nothing about startup margin, and it is not a report-row verdict: landing "
+        f"{'the change' if CANDIDATE in names else 'a candidate'} means drawing it in "
         f"`design/startup_injector.sch`, re-running `{COMPANION}` from the schematic, and "
         "re-running `sim/startup-stability/` + `sim/startup-ramp/` for the regression. See "
         "DR-012 for what that regression costs on an x86_64 Linux sweep host."
     )
+    if CANDIDATE in names:
+        add(
+            "A PASS here means one thing only: on this body, at every one of the 45 corners, the "
+            f"`{CANDIDATE}` candidate's DC-1 kHz PSRR clears DR-006's floor and sits within "
+            f"{CEILING_TOL_DB:g} dB of the bare core's own ceiling. " + caveat
+        )
+    else:
+        add(
+            f"`{CANDIDATE}` is not among this run's variants ({_join(ticks) or 'none'}), so no "
+            "`candidate_clears_floor` / `candidate_within_bare_core_ceiling` check was "
+            "evaluated and this record says nothing about whether it clears DR-006. A PASS here "
+            "means only that the checks listed above passed. " + caveat
+        )
     add("")
     add("")
     add(
