@@ -321,6 +321,17 @@ class RenderKltYieldSection(unittest.TestCase):
         self.assertIn(f"`{SOURCE_RECORD}-klt-yield-input.json` is missing", section)
         self.assertIn(f"`{SOURCE_RECORD}-klt-yield.json` is present", section)
 
+    def test_foreign_envelope_is_neither_displayed_nor_linked(self):
+        scratch = _scratch_harness(self)
+        records = scratch / "records"
+        _write_envelope(records, OTHER_RECORD)
+        _write_remint_note(records, OTHER_RECORD, SOURCE_RECORD, superseded=None)
+        section = self._render(scratch, OTHER_RECORD)
+        self.assertIn(SOURCE_RECORD, section)
+        self.assertNotIn("vout_all_27c", section)
+        with mock.patch.object(emit_klt_yield.record_mod, "HERE", scratch):
+            self.assertEqual(emit_klt_yield.record_mod.klt_yield_links(OTHER_RECORD), [])
+
 
 class RenderRemintNote(unittest.TestCase):
     """`render_remint_note` must not narrate a story it was not told."""
@@ -455,6 +466,16 @@ class LatestPriorEnvelope(unittest.TestCase):
             self._latest(scratch, SOURCE_RECORD), records / f"{SOURCE_RECORD}-klt-yield.json"
         )
 
+    def test_note_takes_precedence_over_a_colliding_source_id(self):
+        scratch = _scratch_harness(self)
+        records = scratch / "records"
+        _write_envelope(records, OTHER_RECORD)
+        _write_remint_note(records, OTHER_RECORD, SOURCE_RECORD, superseded=None)
+        self.assertEqual(
+            self._latest(scratch, SOURCE_RECORD), records / f"{OTHER_RECORD}-klt-yield.json"
+        )
+        self.assertIsNone(self._latest(scratch, OTHER_RECORD))
+
 
 class RemintMainWiring(unittest.TestCase):
     """`main` feeds `--envelope-id` re-mints the newest prior envelope and the
@@ -526,6 +547,32 @@ class RemintMainWiring(unittest.TestCase):
                     self._remint(scratch, argv)
                 self.assertEqual(cm.exception.code, 2)
                 self.assertEqual({p.name: p.read_bytes() for p in records.iterdir()}, original)
+
+    def test_another_source_reserves_its_id_before_it_has_an_envelope(self):
+        for suffixes in ((".json", ".md"), (".json",), (".md",)):
+            with self.subTest(suffixes=suffixes):
+                scratch = _scratch_harness(self)
+                records = scratch / "records"
+                names = [f"{SOURCE_RECORD}.json", f"{SOURCE_RECORD}.md"]
+                names.extend(OTHER_RECORD + suffix for suffix in suffixes)
+                for name in names:
+                    shutil.copyfile(RECORDS_DIR / name, records / name)
+                before = {p.name: p.read_bytes() for p in records.iterdir()}
+                rc = self._remint(scratch, [SOURCE_RECORD, "--envelope-id", OTHER_RECORD])
+                self.assertEqual(rc, 1)
+                self.assertEqual({p.name: p.read_bytes() for p in records.iterdir()}, before)
+
+    def test_ordinary_emission_preserves_a_foreign_remint(self):
+        scratch = _scratch_harness(self)
+        records = scratch / "records"
+        for suffix in (".json", ".md"):
+            name = OTHER_RECORD + suffix
+            shutil.copyfile(RECORDS_DIR / name, records / name)
+        _write_envelope(records, OTHER_RECORD)
+        _write_remint_note(records, OTHER_RECORD, SOURCE_RECORD, superseded=None)
+        before = {p.name: p.read_bytes() for p in records.iterdir()}
+        self.assertEqual(self._remint(scratch, [OTHER_RECORD]), 1)
+        self.assertEqual({p.name: p.read_bytes() for p in records.iterdir()}, before)
 
     def test_reason_without_envelope_id_is_a_usage_error(self):
         """Without `--envelope-id` no note is written, so a reason would be

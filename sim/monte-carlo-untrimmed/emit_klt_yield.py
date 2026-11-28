@@ -97,12 +97,6 @@ MM_SECTION = "tt_mm"
 #: is named the same way every other record in this tree is.
 RECORD_ID_RE = re.compile(r"[0-9]{8}-[0-9]{6}-[0-9a-f]+")
 
-#: The **Source record** line of a re-mint note, exactly as
-#: `render_remint_note` writes it: the one committed artifact tying a
-#: re-minted envelope to the record whose corner logs it was derived from
-#: (the envelope and sample-set JSONs carry no such field).
-SOURCE_RECORD_RE = re.compile(r"^- \*\*Source record\*\*: \[`([^`]+)`\]", re.MULTILINE)
-
 
 def corner_id_for(temp_c: float) -> str:
     return f"{MM_SECTION}_all_{temp_c:g}c_{SUPPLY_V:.2f}v"
@@ -255,17 +249,12 @@ def latest_prior_envelope(record_id: str) -> Path | None:
     than the original. ``None`` when no envelope for that source record exists.
     """
     records_dir = HERE / "records"
-    envelope_ids = {record_id}
-    for note in records_dir.glob("*-klt-yield.md"):
-        match = SOURCE_RECORD_RE.search(note.read_text())
-        if match and match.group(1) == record_id:
-            envelope_ids.add(note.name[: -len("-klt-yield.md")])
-    envelopes = []
-    for envelope_id in envelope_ids:
-        path = records_dir / f"{envelope_id}-klt-yield.json"
-        if path.is_file():
-            envelopes.append(path)
-    return max(envelopes, key=lambda path: path.name) if envelopes else None
+    envelopes = (
+        path
+        for path in records_dir.glob("*-klt-yield.json")
+        if path.is_file() and record_mod.klt_yield_source(path) == record_id
+    )
+    return max(envelopes, key=lambda path: path.name, default=None)
 
 
 def main(argv: list[str]) -> int:
@@ -308,29 +297,32 @@ def main(argv: list[str]) -> int:
     if remint and envelope_id == record_id:
         parser.error("--envelope-id must differ from the source record_id")
 
-    record_json = HERE / "records" / f"{record_id}.json"
+    records_dir = HERE / "records"
+    record_json = records_dir / f"{record_id}.json"
     if not record_json.is_file():
         print(f"error: no such record: {record_json}", file=sys.stderr)
         return 1
 
-    sample_set_path = HERE / "records" / f"{envelope_id}-klt-yield-input.json"
-    out_path = HERE / "records" / f"{envelope_id}-klt-yield.json"
-    note_path = HERE / "records" / f"{envelope_id}-klt-yield.md"
+    sample_set_path = records_dir / f"{envelope_id}-klt-yield-input.json"
+    out_path = records_dir / f"{envelope_id}-klt-yield.json"
+    note_path = records_dir / f"{envelope_id}-klt-yield.md"
+    # Even ordinary emission must preserve a re-mint previously filed under this ID.
+    reserved_paths = [note_path]
     if remint:
-        # Append-only: a re-mint adds a record, it never overwrites one. Refuse
-        # rather than clobber, including the note -- a colliding id is a caller
-        # mistake, not something to resolve silently. Checked before the `klt`
-        # probe below: a colliding id is wrong whether or not `klt` is
-        # installed, and reporting the missing tool first would hide it.
-        for path in (sample_set_path, out_path, note_path):
-            if path.exists():
-                print(
-                    f"error: {rel_to_repo(path)} already exists; "
-                    "records/* is append-only (sim/README.md) -- pick an unused "
-                    "--envelope-id",
-                    file=sys.stderr,
-                )
-                return 1
+        reserved_paths.extend([
+            records_dir / f"{envelope_id}.json",
+            records_dir / f"{envelope_id}.md",
+            sample_set_path,
+            out_path,
+        ])
+    for path in reserved_paths:
+        if path.exists():
+            print(
+                f"error: {rel_to_repo(path)} already exists; "
+                "records/* is append-only (sim/README.md) -- pick an unused --envelope-id",
+                file=sys.stderr,
+            )
+            return 1
 
     if not shutil.which("klt"):
         print(

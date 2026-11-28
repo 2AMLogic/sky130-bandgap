@@ -37,6 +37,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import shutil
 import sys
 from dataclasses import dataclass
@@ -696,10 +697,23 @@ def _klt_yield_paths(record_id: str) -> tuple[Path, Path]:
     )
 
 
+def klt_yield_source(envelope: Path) -> str | None:
+    """An original envelope takes its source ID from its filename. A re-mint's
+    note identifies the record that supplied its samples.
+    """
+    note = envelope.with_suffix(".md")
+    if not note.is_file():
+        return envelope.name.removesuffix("-klt-yield.json")
+    match = re.search(r"^- \*\*Source record\*\*: \[`([^`]+)`\]", note.read_text(), re.MULTILINE)
+    return match.group(1) if match else None
+
+
 def klt_yield_links(record_id: str) -> list[tuple[str, str]]:
     """Extra `- **Links**:` rows for the klt yield envelope, if it was emitted."""
     input_path, output_path = _klt_yield_paths(record_id)
     if not (input_path.is_file() and output_path.is_file()):
+        return []
+    if klt_yield_source(output_path) != record_id:
         return []
     return [
         ("klt_yield_input", str(input_path.relative_to(REPO_ROOT))),
@@ -733,6 +747,12 @@ def render_klt_yield_section(record_id: str) -> list[str]:
             "Both files are needed to display the `klt yield` cross-check here. "
             "The yield figures in the table above are ngspice empirical in-window fractions."
         )
+        add("")
+        return L
+    source = klt_yield_source(output_path)
+    if source != record_id:
+        attribution = f"names `{source}` as its source" if source else "has no source record attribution"
+        add(f"The re-mint note for `{output_path.name}` {attribution}.")
         add("")
         return L
     payload = json.loads(output_path.read_text())
