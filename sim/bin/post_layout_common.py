@@ -1374,10 +1374,12 @@ def parse_post_layout_args(argv: list[str], doc: str = "") -> argparse.Namespace
     a bare `--temp -40` is read as a missing argument followed by an unknown
     option.
 
-    `-j`/`--jobs` also mirrors `corner-run.py`'s flag of the same name (issue
-    #308): default `1` runs the matrix serially (today's unchanged behavior),
-    `> 1` runs that many corners concurrently via
-    `run_matrix_and_write_record()`'s shared implementation.
+    `-j`/`--jobs` is `corner-run.py`'s flag of the same name, declared by the
+    shared `sim_common.add_jobs_arg()` (issues #308, #720): default `1` runs
+    the matrix serially (today's unchanged behavior), `> 1` runs that many
+    corners concurrently via `run_matrix_and_write_record()`'s shared
+    implementation, and `--backend batch` refuses `> 1` through
+    `sim_common.reject_batch_jobs()`.
     """
     p = argparse.ArgumentParser(description=doc)
     p.add_argument("--supersedes", default="")
@@ -1404,17 +1406,7 @@ def parse_post_layout_args(argv: list[str], doc: str = "") -> argparse.Namespace
             "A failed batch submission is an error -- it never falls back to a local run"
         ),
     )
-    p.add_argument(
-        "-j",
-        "--jobs",
-        type=int,
-        default=1,
-        help=(
-            "run up to N corners concurrently (default: 1, serial -- today's "
-            "behavior). Each corner is an independent ngspice process with its "
-            "own --timeout, enforced per-process either way"
-        ),
-    )
+    sim_common.add_jobs_arg(p)
     p.add_argument("--allow-pdk-mismatch", action="store_true")
     p.add_argument("--dry-run", action="store_true")
     p.add_argument(
@@ -1650,8 +1642,7 @@ def run_post_layout_experiment(
     """
     args = parse_post_layout_args(argv)
     batch = args.backend == "batch"
-    if batch and args.jobs > 1:
-        raise cr.HarnessError("--jobs is a local-concurrency flag; --backend batch ignores it, drop it")
+    sim_common.reject_batch_jobs(args, cr.HarnessError)
     if batch:
         try:
             batch_sim.require_batch_enabled(
@@ -1785,12 +1776,7 @@ def run_post_layout_experiment(
             )
         except batch_sim.BatchError as err:
             raise cr.HarnessError(str(err)) from err
-        print("\n-- batch requests (one klt sim job per supply voltage) --")
-        for g in groups:
-            print(f"  {g.request_path}  ({len(g.corners)} corners at {g.supply_v:.2f} V)")
-        print(f"\n-- request for {groups[0].supply_v:.2f} V --")
-        print(groups[0].request_path.read_text())
-        print("(dry run: nothing submitted, nothing written under sim/<experiment>/)")
+        batch_sim.print_batch_dry_run(groups)
         return 0
 
     if args.dry_run:
@@ -1827,22 +1813,19 @@ def run_post_layout_experiment(
     }
     execute_matrix = None
     if batch:
-        local_tools = cr.tool_versions()
-        local_tools["klt"] = cr.first_line(["klt", "--version"])
-
-        def execute_matrix(matrix_, corners_dir_):
-            try:
-                return batch_sim.execute(
-                    exp, batch_pin, pdk, matrix_, body, spiceinit_text,
-                    run_dir / "batch", corners_dir_, REPO_ROOT, args.timeout,
-                    cr.evaluate_measurements, local_tools,
-                    capacity_wait_s=args.batch_capacity_wait_s,
-                    runner_version_check=args.batch_runner_version_check,
-                    gate_slug=slug,
-                    enforce_job_ceiling=True,
-                )
-            except batch_sim.BatchError as err:
-                raise cr.HarnessError(str(err)) from err
+        execute_matrix = batch_sim.make_matrix_executor(
+            cr,
+            exp=exp,
+            pin=batch_pin,
+            pdk=pdk,
+            body=body,
+            spiceinit_text=spiceinit_text,
+            work_dir=run_dir / "batch",
+            repo_root=REPO_ROOT,
+            args=args,
+            gate_slug=slug,
+            enforce_job_ceiling=True,
+        )
 
     _record, overall = sim_common.run_matrix_and_write_record(
         cr,
