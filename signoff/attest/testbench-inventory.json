@@ -303,7 +303,7 @@
         {
           "path": "sim/psrr-injector-candidates/run_psrr_injector_candidates.py",
           "role": "runner",
-          "content_hash": "sha256:60c54a2578262d4ad1991ff505c4bdd5c8bee87a3e1899b72a0e4edafd203b05"
+          "content_hash": "sha256:09557ba24d01c2d6ac0f65cf4fcb8c2930e417a5e04c67c0096166a83180d3ef"
         }
       ]
     },

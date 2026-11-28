@@ -10,6 +10,11 @@ different corners" and "`v(NG)` collapsing to a few mV" whether or not the run
 had measured any of that. These tests render records built from the bench's
 committed measurements and pin the prose to the variants in `r["variants"]`
 and the verdicts in `r["checks"]`.
+
+The `- **Claim**:` bullet is pinned the same way (issue #711): its "this
+record ..." clause is derived from the `Edit` shapes of the shown variants,
+and it no longer says "NON-RESIZE", which a `_knob` variant's `.param`
+multiplicity rewrite contradicts.
 """
 
 from __future__ import annotations
@@ -41,7 +46,7 @@ DEFAULT = ("base", "ref3", "ngclamp", "ref3_ngclamp")
 HOT = "ff_125c_3.63v"
 COLD = "sf_-40c_3.63v"
 #: A committed variant whose measurements stand in for one `COMMITTED` did not run.
-DONOR = {"mpc2_vs": "base", "ng_mref0p5": "ngclamp", "ng_mref0p25": "ngclamp",
+DONOR = {"mpc2_vs": "base", "mpc12_vs": "base", "ng_mref0p5": "ngclamp", "ng_mref0p25": "ngclamp",
          "ng_mpnp16": "ngclamp"}
 #: Lifting `ref3_ngclamp` here is what turns the committed record into an all-PASS one.
 CEILING_FIX = {"sf_125c_3.30v": 67.0, "sf_125c_3.63v": 67.0}
@@ -108,6 +113,10 @@ def _section(md: str, heading: str) -> str:
 
 def _footer(md: str) -> str:
     return md[md.index("**Overall:"):md.index("Written by")]
+
+
+def _claim(md: str) -> str:
+    return next(ln for ln in md.splitlines() if ln.startswith("- **Claim**:"))
 
 
 def _cells(line: str) -> list[str]:
@@ -310,6 +319,41 @@ class KnobVariantRecordTests(unittest.TestCase):
         self.assertIn("No existing device is resized in any variant: every `W`/`L`/`mult` in "
                       "the body is the shipped value.", cands)
         self.assertNotIn("rewrites", cands)
+
+
+class ClaimBulletTests(unittest.TestCase):
+    def test_default_record_still_says_it_adds_devices(self):
+        self.assertIn("this record adds devices and says whether the fix works.",
+                      _claim(R.render_record(record())))
+
+    def test_retarget_only_run_is_not_said_to_add_devices(self):
+        for variants in (("mpc2_vs",), ("mpc12_vs",), ("base", "mpc2_vs")):
+            with self.subTest(variants=variants):
+                claim = _claim(R.render_record(record(variants)))
+                self.assertIn("this record retargets existing gates and says whether the fix "
+                              "works.", claim)
+                self.assertNotIn("adds devices", claim)
+
+    def test_base_only_run_adds_no_device(self):
+        claim = _claim(R.render_record(record(("base",))))
+        self.assertIn("this record adds no device and says whether the fix works.", claim)
+        self.assertNotIn("adds devices", claim)
+        self.assertNotIn("retargets existing gates", claim)
+
+    def test_knob_run_inserts_the_clamp_so_it_still_says_it_adds_devices(self):
+        md = R.render_record(record(("ng_mref0p5",)))
+        self.assertIn("this record adds devices and says whether the fix works.", _claim(md))
+        self.assertIn("| `ng_mref0p5` | `MNG` clamp with `.param m_ref=0.5`",
+                      _section(md, "## Candidates"))
+
+    def test_cloned_device_in_a_mixed_set_still_says_adds_devices(self):
+        self.assertIn("this record adds devices and says whether the fix works.",
+                      _claim(R.render_record(record(("ref3", "mpc2_vs")))))
+
+    def test_claim_never_says_non_resize(self):
+        for variants in (DEFAULT, ("base",), ("mpc2_vs",), ("ng_mref0p5",)):
+            with self.subTest(variants=variants):
+                self.assertNotIn("NON-RESIZE", _claim(R.render_record(record(variants))))
 
 
 class FooterScopeTests(unittest.TestCase):
