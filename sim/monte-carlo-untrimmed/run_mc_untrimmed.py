@@ -37,6 +37,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import shutil
 import sys
 from dataclasses import dataclass
@@ -696,10 +697,23 @@ def _klt_yield_paths(record_id: str) -> tuple[Path, Path]:
     )
 
 
+def klt_yield_source(envelope: Path) -> str | None:
+    """An original envelope takes its source ID from its filename. A re-mint's
+    note identifies the record that supplied its samples.
+    """
+    note = envelope.with_suffix(".md")
+    if not note.is_file():
+        return envelope.name.removesuffix("-klt-yield.json")
+    match = re.search(r"^- \*\*Source record\*\*: \[`([^`]+)`\]", note.read_text(), re.MULTILINE)
+    return match.group(1) if match else None
+
+
 def klt_yield_links(record_id: str) -> list[tuple[str, str]]:
     """Extra `- **Links**:` rows for the klt yield envelope, if it was emitted."""
     input_path, output_path = _klt_yield_paths(record_id)
     if not (input_path.is_file() and output_path.is_file()):
+        return []
+    if klt_yield_source(output_path) != record_id:
         return []
     return [
         ("klt_yield_input", str(input_path.relative_to(REPO_ROOT))),
@@ -724,16 +738,21 @@ def render_klt_yield_section(record_id: str) -> list[str]:
     input_path, output_path = _klt_yield_paths(record_id)
     add("## klt yield envelope (klayout-tools, issue #180)")
     add("")
-    if not (input_path.is_file() and output_path.is_file()):
+    has_input = input_path.is_file()
+    has_output = output_path.is_file()
+    if not (has_input and has_output):
         add(
-            "`klt yield` (klayout-tools 0.2.0, pinned by `layout/requirements.txt`) was "
-            "**not available** when this record was written -- either `klt` is not on "
-            "PATH or its native extension could not be loaded (see "
-            "`sim/monte-carlo-untrimmed/emit_klt_yield.py`'s exit status). Stated here "
-            "per issue #180's acceptance criteria rather than silently omitted: the "
-            "yield/Cpk figures below are ngspice + this record's own Clopper-Pearson "
-            "arithmetic only, with no `klt`-native cross-check."
+            f"Beside this source record, `{input_path.name}` is {'present' if has_input else 'missing'} "
+            f"and `{output_path.name}` is {'present' if has_output else 'missing'}. "
+            "Both files are needed to display the `klt yield` cross-check here. "
+            "The yield figures in the table above are ngspice empirical in-window fractions."
         )
+        add("")
+        return L
+    source = klt_yield_source(output_path)
+    if source != record_id:
+        attribution = f"names `{source}` as its source" if source else "has no source record attribution"
+        add(f"The re-mint note for `{output_path.name}` {attribution}.")
         add("")
         return L
     payload = json.loads(output_path.read_text())

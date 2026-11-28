@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Emit a `klt yield` JSON envelope for a `run_mc_untrimmed.py` record (issue #180).
 
-`klt yield` (klayout-tools 0.2.0, pinned by `layout/requirements.txt`) turns a
+`klt yield` (klayout-tools, pinned by `layout/requirements.txt`) turns a
 Monte Carlo sample set + spec limits into a yield estimate that always
 carries its confidence interval, Cpk/sigma-to-spec, and a sample-size
 verdict -- a machine-checkable envelope alongside this experiment's own
@@ -26,7 +26,7 @@ directly comparable to the record's own table, not a re-definition of it.
 Usage
 -----
     sim/monte-carlo-untrimmed/emit_klt_yield.py <record_id>
-    sim/monte-carlo-untrimmed/emit_klt_yield.py <record_id> --envelope-id <new_id>
+    sim/monte-carlo-untrimmed/emit_klt_yield.py <record_id> --envelope-id <new_id> [--reason <why>]
 
 Writes `sim/monte-carlo-untrimmed/records/<record_id>-klt-yield.json` (the
 raw `klt yield --format json` payload) and prints a one-line summary per
@@ -56,14 +56,17 @@ Re-minting (issue #288)
 envelope is never rewritten in place. ``--envelope-id <new_id>`` re-mints the
 envelope for an already-committed record's corner logs under a *new* record
 id -- writing `<new_id>-klt-yield-input.json`, `<new_id>-klt-yield.json` and a
-`<new_id>-klt-yield.md` note that names the source record and the envelope it
-supersedes -- and leaves the source record's own `.json`/`.md` (and any
-earlier envelope) untouched. It refuses to overwrite an existing file. So
-does the bare invocation above (issue #713): a record whose
-`<record_id>-klt-yield{,-input}.json` already exists is refused rather than
-rewritten -- re-mint a committed record under `--envelope-id <new_id>`, and
-delete the uncommitted envelope first to regrade one that is not yet
-committed.
+`<new_id>-klt-yield.md` note that names the source record and the newest
+envelope already on file for it -- and leaves the source record's own
+`.json`/`.md` (and every earlier envelope) untouched. The note's **Reason**
+line is whatever ``--reason <why>`` states; the renderer invents none, because
+a re-mint's cause (a harness fix, a `klt` bump, ...) is the caller's to record,
+and the note asserts nothing about how its figures compare to the superseded
+envelope's. It refuses to overwrite an existing file. So does the bare invocation above
+(issue #713): a record whose `<record_id>-klt-yield{,-input}.json` already
+exists is refused rather than rewritten -- re-mint a committed record under
+`--envelope-id <new_id>`, and delete the uncommitted envelope first to regrade
+one that is not yet committed.
 """
 
 from __future__ import annotations
@@ -98,7 +101,7 @@ MM_SECTION = "tt_mm"
 #: `<YYYYMMDD>-<HHMMSS>-<short-sha>`, this repo's record-id shape (see
 #: `sim/README.md`). Applied to `--envelope-id` too, so a re-minted envelope
 #: is named the same way every other record in this tree is.
-RECORD_ID_RE = re.compile(r"^\d{8}-\d{6}-[0-9a-f]+$")
+RECORD_ID_RE = re.compile(r"[0-9]{8}-[0-9]{6}-[0-9a-f]+")
 
 
 def corner_id_for(temp_c: float) -> str:
@@ -187,37 +190,39 @@ def run_klt_yield(sample_set_path: Path) -> subprocess.CompletedProcess[str]:
 
 
 def render_remint_note(
-    *, envelope_id: str, record_id: str, payload: dict, superseded: Path | None
+    *,
+    envelope_id: str,
+    record_id: str,
+    payload: dict,
+    superseded: Path | None,
+    reason: str | None = None,
 ) -> str:
     """The `<envelope_id>-klt-yield.md` breadcrumb for a re-minted envelope.
 
     `sim/README.md`'s append-only rule requires a correction to mint a *new*
     record that names the prior one via **Supersedes** rather than edit it, so
-    a re-mint that writes only JSON would lose the reason it exists.
+    a re-mint that writes only JSON would lose the reason it exists. The note
+    states only what it is told: the envelope superseded, if one is on file
+    (`superseded`), and the caller's `reason`, if one was given. It assumes
+    neither -- a re-mint's cause is the caller's to record, not this
+    renderer's to narrate -- and says nothing about how the figures compare
+    to the superseded envelope's.
     """
+    reason = " ".join(reason.split()) if reason is not None else ""
     lines = [
         f"# `klt yield` envelope re-mint — `{envelope_id}`",
         "",
         f"- **Envelope record id**: `{envelope_id}`",
-        f"- **Source record**: [`{record_id}`](./{record_id}.md) — this envelope is",
-        f"  derived from that record's own committed `all`-config corner logs",
-        f"  (`corners/{record_id}/`). No new simulation was run; the sample set is",
-        "  re-parsed from those logs by `sim/monte-carlo-untrimmed/emit_klt_yield.py`.",
+        f"- **Source record**: [`{record_id}`](./{record_id}.md) — this envelope uses",
+        f"  the record's converged `all`-config samples from `corners/{record_id}/`.",
         "- **Supersedes**: "
         + (
-            f"`{superseded.name}` (same source record; re-minted, not edited)"
+            f"`{superseded.name}` (this invocation leaves it untouched)"
             if superseded is not None
-            else "(none)"
+            else "(none — no earlier `*-klt-yield.json` envelope is on file for this "
+            "source record)"
         ),
-        "- **Why re-minted**: the superseded envelope's own top-level `samples`",
-        "  field recorded an **absolute, machine-local** path, because `klt yield`",
-        "  echoes back the path it was invoked with and the harness invoked it with",
-        "  an absolute one. `klt signoff` cannot resolve such a path on any other",
-        "  machine, so that envelope could not be cited from",
-        "  `signoff/block-manifest.json` (T1 item 6). Issue #288 fixed the harness to",
-        "  invoke `klt yield` from the repo root with a repo-relative path; this",
-        "  envelope is the first minted under the fix. The superseded envelope stays",
-        "  committed and unmodified, per `sim/README.md`'s append-only rule.",
+        "- **Reason**: " + (reason or "No reason given."),
         f"- **`samples` (this envelope)**: `{payload.get('samples')}`",
         f"- **Status**: `{payload.get('status')}` — "
         f"{payload.get('measurement_count')} measurements, "
@@ -236,14 +241,26 @@ def render_remint_note(
             f"| `{m.get('name')}` | {m.get('n')} | {emp.get('estimate'):.4f} | "
             f"[{ci.get('low'):.4f}, {ci.get('high'):.4f}] | {cap.get('cpk'):.4f} |"
         )
-    lines += [
-        "",
-        "These figures are the superseded envelope's figures unchanged — the fix",
-        "was to the *path* `klt yield` was invoked with, not to the sample set or",
-        "the statistics computed from it.",
-        "",
-    ]
+    lines += ["", "The figures above are `klt yield`'s output for this invocation.", ""]
     return "\n".join(lines)
+
+
+def latest_prior_envelope(record_id: str) -> Path | None:
+    """The newest envelope on file derived from ``record_id``.
+
+    Candidates are the source record's own ``<record_id>-klt-yield.json`` and
+    every ``--envelope-id`` re-mint whose note names ``record_id`` as its
+    source record. Newest by record id wins -- its ``<YYYYMMDD>-<HHMMSS>-``
+    prefix is chronological -- so a second re-mint supersedes the first rather
+    than the original. ``None`` when no envelope for that source record exists.
+    """
+    records_dir = HERE / "records"
+    envelopes = (
+        path
+        for path in records_dir.glob("*-klt-yield.json")
+        if path.is_file() and record_mod.klt_yield_source(path) == record_id
+    )
+    return max(envelopes, key=lambda path: path.name, default=None)
 
 
 def main(argv: list[str]) -> int:
@@ -261,36 +278,53 @@ def main(argv: list[str]) -> int:
             "untouched (records/* is append-only -- see sim/README.md)"
         ),
     )
+    parser.add_argument(
+        "--reason",
+        default=None,
+        metavar="WHY",
+        help=(
+            "why the --envelope-id re-mint exists, recorded as the note's "
+            "**Reason** line; requires --envelope-id (only a re-mint writes a note)"
+        ),
+    )
     args = parser.parse_args(argv)
+    if args.reason is not None and args.envelope_id is None:
+        parser.error("--reason records why a --envelope-id re-mint exists; it needs --envelope-id")
 
     record_id = args.record_id
-    if not RECORD_ID_RE.match(record_id):
+    if not RECORD_ID_RE.fullmatch(record_id):
         parser.error(f"record_id must look like <YYYYMMDD>-<HHMMSS>-<short-sha>; got {record_id!r}")
-    envelope_id = args.envelope_id or record_id
-    if not RECORD_ID_RE.match(envelope_id):
+    remint = args.envelope_id is not None
+    envelope_id = args.envelope_id if remint else record_id
+    if not RECORD_ID_RE.fullmatch(envelope_id):
         parser.error(
             f"--envelope-id must look like <YYYYMMDD>-<HHMMSS>-<short-sha>; got {envelope_id!r}"
         )
-    remint = envelope_id != record_id
+    if remint and envelope_id == record_id:
+        parser.error("--envelope-id must differ from the source record_id")
 
-    record_json = HERE / "records" / f"{record_id}.json"
+    records_dir = HERE / "records"
+    record_json = records_dir / f"{record_id}.json"
     if not record_json.is_file():
         print(f"error: no such record: {record_json}", file=sys.stderr)
         return 1
 
-    sample_set_path = HERE / "records" / f"{envelope_id}-klt-yield-input.json"
-    out_path = HERE / "records" / f"{envelope_id}-klt-yield.json"
-    note_path = HERE / "records" / f"{envelope_id}-klt-yield.md"
+    sample_set_path = records_dir / f"{envelope_id}-klt-yield-input.json"
+    out_path = records_dir / f"{envelope_id}-klt-yield.json"
+    note_path = records_dir / f"{envelope_id}-klt-yield.md"
     # Append-only: a re-mint adds a record, it never overwrites one -- and a
-    # bare emission is no different (issue #713). `<record_id>-klt-yield{,
-    # -input}.json` already on disk means this record's envelope was minted
-    # before; rewriting it in place, then re-rendering the record pair below,
-    # is exactly the in-place edit `sim/README.md` forbids -- so refuse rather
-    # than clobber, including the note: a colliding id is a caller mistake,
-    # not something to resolve silently. Checked before the `klt` probe below:
-    # a collision is wrong whether or not `klt` is installed, and reporting
-    # the missing tool first would hide it.
-    for path in (sample_set_path, out_path, note_path):
+    # bare emission is no different (issue #713). An envelope (or note) already
+    # on disk under this ID means rewriting it in place, which `sim/README.md`
+    # forbids -- so refuse rather than clobber. Checked before the `klt` probe
+    # below: a collision is wrong whether or not `klt` is installed.
+    reserved_paths = [sample_set_path, out_path, note_path]
+    if remint:
+        # A re-mint must also not collide with a record pair filed under this ID.
+        reserved_paths.extend([
+            records_dir / f"{envelope_id}.json",
+            records_dir / f"{envelope_id}.md",
+        ])
+    for path in reserved_paths:
         if path.exists():
             remedy = (
                 "pick an unused --envelope-id"
@@ -332,13 +366,13 @@ def main(argv: list[str]) -> int:
     payload = json.loads(proc.stdout)
 
     if remint:
-        prior = HERE / "records" / f"{record_id}-klt-yield.json"
         note_path.write_text(
             render_remint_note(
                 envelope_id=envelope_id,
                 record_id=record_id,
                 payload=payload,
-                superseded=prior if prior.is_file() else None,
+                superseded=latest_prior_envelope(record_id),
+                reason=args.reason,
             )
         )
     else:
