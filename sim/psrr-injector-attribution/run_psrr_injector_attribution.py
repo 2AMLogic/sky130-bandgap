@@ -670,9 +670,7 @@ def render_record(r: dict) -> str:
     add("")
     add(
         f"Binding corner: `{bcid}`. `v(NG)` is the injector's own disengagement state: `MNI`'s "
-        "gate voltage once the core is running. It is what turns the reference stack's failure "
-        "to switch off into a supply-dependent drain current out of GDRV, and it is the one "
-        "number that moves between `base` and `ref_open`."
+        "gate voltage once the core is running."
     )
     add("")
 
