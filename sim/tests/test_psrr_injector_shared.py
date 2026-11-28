@@ -12,9 +12,16 @@ the committed ones no one can go back and fix.
 
 Issue #650 moved the option tail both `parse_args()` bodies shared (everything
 from `--corners` onward, `add_batch_args` and the variant/concurrency checks
-behind it) into `parse_injector_args()`; the last class is the recurrence
-guard keeping that tail in exactly one place, in the spirit of
-test_batch_cli_flags.NoHandRolledCopiesTests.
+behind it) into `parse_injector_args()`; the class after the record-skeleton
+one is the recurrence guard keeping that tail in exactly one place, in the
+spirit of test_batch_cli_flags.NoHandRolledCopiesTests.
+
+Issue #717 moved the three mode bodies the two runners still carried as
+byte-identical copies -- the snapshot load with its exactly-once anchor check,
+`--dry-run`'s request build and print, and `explore(args)`'s setup and
+`--dry-run` early exit -- into `injector_load_base_body()` /
+`injector_dry_run()` / `injector_explore_mode()`; InjectorModeHelpersTest
+covers them and the last class guards that single home the same way.
 """
 
 from __future__ import annotations
@@ -33,6 +40,7 @@ from unittest import mock
 SIM_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SIM_DIR / "bin"))
 sys.path.insert(0, str(SIM_DIR.parent / "scripts" / "ci"))
+import batch_sim  # noqa: E402
 import injector_common  # noqa: E402
 import sim_common  # noqa: E402
 from script_module import load_script_module  # noqa: E402
@@ -358,6 +366,179 @@ class InjectorOrchestrationTest(unittest.TestCase):
             self.assertEqual(rc, 0)
 
 
+class InjectorModeHelpersTest(unittest.TestCase):
+    """The mode-level bodies both benches carried as byte-identical copies
+    until issue #717: the snapshot load with its exactly-once anchor check
+    (`injector_load_base_body`), `--dry-run`'s request build and print
+    (`injector_dry_run`), and `explore(args)`'s setup and `--dry-run` early
+    exit (`injector_explore_mode`)."""
+
+    PREFIXES = ("XMPC1 ", "XSU ")
+
+    @staticmethod
+    def write_snapshot(tmp: Path, lines: list[str]) -> Path:
+        path = tmp / "snap.spice"
+        path.write_text("\n".join(lines) + "\n")
+        return path
+
+    def test_injector_load_base_body_strips_end_and_passes_when_each_anchor_is_there_once(self):
+        body = ["V1 VDD 0 'vsup'", ".param m_ref=1",
+                "XMPC1 NC1 NG VDD VDD sky130_fd_pr__pfet_01v8 W=1 L=0.15",
+                "XSU VREF GDRV VDD VSS startup_injector"]
+        with tempfile.TemporaryDirectory() as d:
+            snap = self.write_snapshot(Path(d), body + [".end"])
+            self.assertEqual(
+                injector_common.injector_load_base_body(snap, {".param m_ref=1"}, self.PREFIXES),
+                body)
+
+    def test_injector_load_base_body_refuses_an_anchor_that_is_not_there_exactly_once(self):
+        """0 or 2 matching cards must fail loudly rather than let a bench's
+        substitution no-op or cut twice -- with the message both runners
+        raised before #717, verbatim."""
+        cases = (
+            (["XSU b"], "XMPC1 ", 0),
+            (["XMPC1 a", "XMPC1 b", "XSU c"], "XMPC1 ", 2),
+            (["XMPC1 a", "XSU b", "XSU c"], "XSU ", 2),
+        )
+        with tempfile.TemporaryDirectory() as d:
+            for lines, prefix, n in cases:
+                snap = self.write_snapshot(Path(d), lines)
+                with self.subTest(prefix=prefix, n=n), \
+                        self.assertRaises(injector_common._cr().HarnessError) as ctx:
+                    injector_common.injector_load_base_body(snap, set(), self.PREFIXES)
+                self.assertEqual(
+                    str(ctx.exception),
+                    f"base snapshot {snap} has {n} line(s) starting '{prefix}', expected "
+                    "exactly 1 -- refusing to substitute against a body this script cannot verify")
+
+    def test_injector_load_base_body_keeps_the_canonical_snapshot_checks(self):
+        """The anchor check is layered on `sim_common.load_base_body()`, not a
+        replacement for it: a drifted `.param` still fails that way first."""
+        with tempfile.TemporaryDirectory() as d:
+            snap = self.write_snapshot(Path(d), ["XMPC1 a", ".param m_ref=2"])
+            with self.assertRaises(injector_common._cr().HarnessError) as ctx:
+                injector_common.injector_load_base_body(snap, {".param m_ref=1"}, self.PREFIXES)
+            self.assertIn("is missing expected core .param line(s) ['.param m_ref=1']",
+                          str(ctx.exception))
+
+    def test_injector_dry_run_prints_each_request_then_the_first_in_full_and_submits_nothing(self):
+        args = fake_args(backend="batch", dry_run=True)
+        variants = [fake_variant("base")]
+        points = [("tt", 27.0, 3.3), ("ss", 27.0, 3.3)]
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            groups = []
+            for kind in ("ac", "op"):
+                path = tmp / "batch" / f"base-{kind}-v3.30" / "request.json"
+                path.parent.mkdir(parents=True)
+                path.write_text(f'{{"analysis": {{"kind": "{kind}"}}}}\n')
+                groups.append(SimpleNamespace(
+                    label=f"base-{kind}-v3.30", request_path=path,
+                    request={"analysis": {"kind": kind},
+                             "corners": {"process": ["tt", "ss"], "temperature_c": [-40, 27, 125]},
+                             "measurements": [{"name": "psrr_dc"}, {"name": "f_dc"}]}))
+            seen = []
+
+            def build_groups(pin, base_body, variants_, points_, run_dir, timeout, args_):
+                seen.append((pin, base_body, variants_, points_, run_dir, timeout, args_))
+                return groups
+
+            buf = io.StringIO()
+            with mock.patch.object(batch_sim, "collect",
+                                   side_effect=AssertionError("dry run submitted a request")), \
+                 mock.patch.object(batch_sim, "run_klt",
+                                   side_effect=AssertionError("dry run invoked klt sim")), \
+                 contextlib.redirect_stdout(buf):
+                rc = injector_common.injector_dry_run(
+                    args, FAKE_PIN, ["V1 VDD 0"], variants, points,
+                    slug="a-bench", build_dir=tmp, build_groups=build_groups)
+        ac, op = (g.request_path for g in groups)
+        self.assertEqual(rc, 0)
+        self.assertEqual(buf.getvalue(),
+                         "\n-- batch requests (one klt sim request per variant x supply x "
+                         "analysis) --\n"
+                         f"  {ac}  (ac, 2 processes x 3 temperatures, 2 measurements)\n"
+                         f"  {op}  (op, 2 processes x 3 temperatures, 2 measurements)\n"
+                         "\n-- request for base-ac-v3.30 --\n"
+                         '{"analysis": {"kind": "ac"}}\n'
+                         "\n"
+                         "(dry run: 2 requests built, nothing submitted, "
+                         "nothing written under sim/a-bench/)\n")
+        # the requests are built under <build_dir>/dry-run/batch with the bench's own
+        # build_batch_groups, the run's timeout and the parsed args
+        self.assertEqual(seen, [(FAKE_PIN, ["V1 VDD 0"], variants, points,
+                                 tmp / "dry-run" / "batch", args.timeout, args)])
+
+    def test_injector_explore_mode_dry_runs_instead_of_running(self):
+        """`--dry-run` returns `dry_run()`'s exit code before any sweep helper
+        is touched, and prints nothing of its own."""
+        calls = []
+        args = fake_args(backend="batch", dry_run=True, allow_pdk_mismatch=False,
+                         variants=["ref3", "base"], corners="ff,125,3.63;ss,-40,2.97")
+        base = ["V1 VDD 0 'vsup'"]
+
+        def check_pdk(pin, allow_mismatch, *, verbose, require_ngspice):
+            calls.append(("pdk", pin, allow_mismatch, verbose, require_ngspice))
+            return FAKE_PDK
+
+        def dry_run(_args, pin, base_body, variants, points):
+            calls.append(("dry_run", pin, base_body, variants, points))
+            return 7
+
+        def forbidden(*a, **k):
+            raise AssertionError("explore reached a sweep helper under --dry-run")
+
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = injector_common.injector_explore_mode(
+                args, check_pdk_and_ngspice=check_pdk, load_base_body=lambda: base,
+                variants_by_name={"base": "VB", "ref3": "VR"}, dry_run=dry_run,
+                base_snapshot=injector_common.REPO_DIR / "sim" / "snap.spice",
+                label_width=13, run_all=forbidden, run_all_batch=forbidden)
+        pin = json.loads((SIM_DIR / "pdk.json").read_text())
+        self.assertEqual((rc, buf.getvalue()), (7, ""))
+        self.assertEqual(calls, [
+            ("pdk", pin, False, False, False),
+            ("dry_run", pin, base, ["VR", "VB"], [("ff", 125.0, 3.63), ("ss", -40.0, 2.97)]),
+        ])
+
+    def test_injector_explore_mode_requires_ngspice_only_on_the_local_backend(self):
+        """Without `--dry-run`, the resolved PDK, the selected variants in
+        `--variants` order and the parsed `--corners` go to the explore body;
+        ngspice is required on this host only for the local backend."""
+        results = {("base", "ff_125c_3.63v"): {"measurements": {"psrr_band_min": 24.8}}}
+
+        def run_all(pdk, base, variants, points, timeout, jobs, corners_dir, record_id):
+            return results
+
+        def run_all_batch(pdk, pin, base, variants, points, timeout, corners_dir, record_id, args):
+            return results, [], {"backend": "batch"}
+
+        def forbidden(*a, **k):
+            raise AssertionError("explore dry-ran without --dry-run")
+
+        for backend, require_ngspice in (("local", True), ("batch", False)):
+            calls = []
+
+            def check_pdk(pin, allow_mismatch, *, verbose, require_ngspice):
+                calls.append((allow_mismatch, verbose, require_ngspice))
+                return FAKE_PDK
+
+            buf = io.StringIO()
+            with self.subTest(backend=backend), contextlib.redirect_stdout(buf):
+                rc = injector_common.injector_explore_mode(
+                    fake_args(backend=backend, dry_run=False, allow_pdk_mismatch=True,
+                              variants=["base"], corners="ff,125,3.63"),
+                    check_pdk_and_ngspice=check_pdk, load_base_body=lambda: [],
+                    variants_by_name={"base": fake_variant("base")}, dry_run=forbidden,
+                    base_snapshot=injector_common.REPO_DIR / "sim" / "snap.spice",
+                    label_width=13, run_all=run_all, run_all_batch=run_all_batch)
+            out = buf.getvalue()
+            self.assertEqual((rc, calls), (0, [(True, False, require_ngspice)]))
+            self.assertIn("PDK: /pdk/sky130A (open_pdks deadbeef)", out)
+            self.assertIn("band_min=  24.800", out)
+
+
 class InjectorRecordSkeletonTest(unittest.TestCase):
     """`injector_record_head()` must reproduce, for EACH bench, the record key
     order that bench's committed records already carry (issue #511).
@@ -539,6 +720,72 @@ class SharedOptionTailGuard(unittest.TestCase):
                 self.registers(text, flag),
                 f"the HOME no longer registers tail flag {flag}",
             )
+
+
+class SharedModeBodyGuard(unittest.TestCase):
+    """The recurrence guard for issue #717: the snapshot load with its
+    exactly-once anchor check, `--dry-run`'s request build and print, and
+    `explore(args)`'s setup live in exactly one place, `injector_common.py`.
+    Both runners carried each as a byte-identical copy -- #572 pasted
+    `dry_run()` and the `--dry-run` branch into the candidates bench verbatim
+    -- so a change to the dry-run output or the anchor check had to be made
+    twice, and the home's own docstring went stale calling `--dry-run`
+    attribution-only.
+
+    Shaped like SharedOptionTailGuard and
+    test_batch_cli_flags.NoHandRolledCopiesTests: one signature per shared
+    body that a re-inlined copy would have to carry (quote style aside),
+    forbidden in the runners and required in the home; plus each runner's
+    module-level entry point, whose code object must name the shared helper
+    it delegates to. Docstring mentions are fine: none of the three
+    signatures is prose a runner legitimately keeps. `verify()` stays
+    per-bench with its own `require_ngspice=args.backend != "batch"` precheck,
+    which is why the explore signature is anchored on `== "local"`.
+    """
+
+    #: shared body -> regex a copy of it would have to carry
+    SIGNATURES = {
+        "load_base_body": r"refusing to substitute against a body this script cannot verify",
+        "dry_run": r"-- batch requests \(one klt sim request per variant x supply x analysis\) --",
+        "explore": r'require_ngspice=args\.backend == ["\']local["\']',
+    }
+    #: runner entry point -> the injector_common helper it must call
+    DELEGATES = {
+        "load_base_body": "injector_load_base_body",
+        "dry_run": "injector_dry_run",
+        "explore": "injector_explore_mode",
+    }
+    HOME = SIM_DIR / "bin" / "injector_common.py"
+
+    def test_neither_runner_carries_a_shared_mode_body_itself(self):
+        for name, path in RUNNERS.items():
+            text = path.read_text()
+            with self.subTest(bench=name):
+                self.assertEqual(
+                    [body for body, sig in self.SIGNATURES.items() if re.search(sig, text)],
+                    [],
+                    "this runner carries its own copy of a mode body that lives in "
+                    "injector_common.py",
+                )
+
+    def test_both_runners_delegate_their_mode_entry_points(self):
+        for name in RUNNERS:
+            R = load_runner(name)
+            for entry, helper in self.DELEGATES.items():
+                with self.subTest(bench=name, entry=entry):
+                    self.assertIn(
+                        helper, getattr(R, entry).__code__.co_names,
+                        f"the {name} runner's {entry}() no longer calls "
+                        f"injector_common.{helper}()",
+                    )
+            del R
+
+    def test_the_home_really_is_the_home(self):
+        text = self.HOME.read_text()
+        for body, sig in self.SIGNATURES.items():
+            with self.subTest(body=body):
+                self.assertIsNotNone(re.search(sig, text),
+                                     f"the HOME no longer carries the {body} body")
 
 
 if __name__ == "__main__":
