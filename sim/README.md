@@ -225,7 +225,11 @@ emit_klt_yield.py --envelope-id <new-id>` is that mode: it reads the source
 record's committed corner logs, writes `<new-id>-klt-yield{-input}.json` plus a
 `<new-id>-klt-yield.md` note carrying the **Supersedes** line and the reason,
 leaves the source record's own `.json`/`.md` untouched, and refuses outright if
-any of the three target files already exists. Worked example:
+any of the three target files already exists. The bare `emit_klt_yield.py
+<record_id>` refuses the same way when `<record_id>-klt-yield{,-input}.json`
+already exists (issue #713) — re-mint a committed record under a new id, and
+delete the uncommitted envelope first to regrade one that is not yet
+committed. Worked example:
 `records/20260923-062524-1e38c62-klt-yield.md` (issue #288 — the superseded
 envelope had leaked an absolute, machine-local `samples` path).
 

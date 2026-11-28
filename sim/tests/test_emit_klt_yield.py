@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Unit coverage for `sim/monte-carlo-untrimmed/emit_klt_yield.py` (issue #288).
 
-Two things this file guards, both of which were real defects rather than
+Three things this file guards, all of which were real defects rather than
 hypothetical ones:
 
 1. **The `klt yield` invocation must name the sample set relative to the repo
@@ -30,6 +30,11 @@ hypothetical ones:
    machine-local path", "figures unchanged") into every re-mint, including
    ones with no superseded envelope at all, and `main` only ever looked for
    the source record's own envelope, never a newer re-mint of it.
+
+4. **A bare re-run must not either (issue #713).** The collision check used to
+   guard only the `--envelope-id` path, so `emit_klt_yield.py <record_id>` on
+   a record that already had an envelope rewrote it -- and the record pair --
+   in place, exit 0, nothing on stderr.
 
 Plus a standing check on the committed evidence itself: every `*-klt-yield.json`
 in the records tree must name a repo-relative `samples` document that actually
@@ -151,6 +156,183 @@ class RemintIsAppendOnly(unittest.TestCase):
             emit_klt_yield.main(
                 ["20260817-121131-d7d85b6", "--envelope-id", "not-a-record-id"]
             )
+
+
+#: A stand-in `klt yield --format json` payload: just the fields the emitter
+#: reads back after the run (issue #713's regression fixture).
+FAKE_KLT_YIELD = json.dumps(
+    {
+        "samples": "sim/monte-carlo-untrimmed/records/-klt-yield-input.json",
+        "status": "ok",
+        "measurement_count": 1,
+        "source": {"sample_count": 4},
+        "measurements": [
+            {
+                "name": "vout_all_27c",
+                "n": 4,
+                "yield": {
+                    "empirical": {
+                        "estimate": 1.0,
+                        "confidence_interval": {"low": 1.0, "high": 1.0},
+                        "confidence": 0.95,
+                    }
+                },
+                "capability": {"cpk": 1.0},
+            }
+        ],
+    }
+)
+
+
+class BareEmissionIsAppendOnly(unittest.TestCase):
+    """A bare `emit_klt_yield.py <record_id>` must refuse to rewrite an envelope.
+
+    Issue #713: the collision check used to run only on the `--envelope-id`
+    path, so a second bare run on a record that already had an envelope
+    rewrote `<record_id>-klt-yield{-input}.json` *and* the record pair in
+    place -- exit 0, nothing on stderr. That is the in-place rewrite of
+    signoff-cited evidence that `sim/README.md`'s append-only rule exists to
+    prevent. The fixture is the signoff-cited record itself, copied into a
+    scratch tree, so the test can let a misbehaving emitter go all the way to
+    its writes without committed evidence ever being at risk.
+    """
+
+    RECORD = "20260817-121131-d7d85b6"
+    INPUT = f"{RECORD}-klt-yield-input.json"
+    ENVELOPE = f"{RECORD}-klt-yield.json"
+    NEW_ID = "20990101-000000-0000713"
+
+    def _scratch(self, root: Path, *envelope_files: str) -> Path:
+        """A scratch tree holding the real record pair plus the named envelope
+        files, and synthetic converged corner samples so that an emission
+        which *does* go ahead has everything it needs to reach its writes --
+        the regression must fail because bytes changed, not because some
+        unrelated input was missing."""
+        records = root / "records"
+        records.mkdir()
+        for name in (f"{self.RECORD}.json", f"{self.RECORD}.md", *envelope_files):
+            shutil.copy2(RECORDS_DIR / name, records / name)
+        corners = root / "corners" / self.RECORD
+        corners.mkdir(parents=True)
+        for t in emit_klt_yield.TEMPS_C:
+            (corners / f"{emit_klt_yield.corner_id_for(t)}.samples.json").write_text(
+                json.dumps({"samples": [{"vout": 1.2, "vgdrv": 2.0}] * 4})
+            )
+        return records
+
+    @staticmethod
+    def _tree(root: Path) -> dict[str, bytes]:
+        return {
+            str(p.relative_to(root)): p.read_bytes()
+            for p in sorted(root.rglob("*"))
+            if p.is_file()
+        }
+
+    def _run(self, root: Path, argv: list[str]) -> tuple[int, str, str, set[str]]:
+        """`main(argv)` against the scratch tree with `klt` present and `klt
+        yield` stubbed, so a run that is *not* refused goes all the way to
+        its writes. Returns `(rc, stdout, stderr, stages that ran)`."""
+        ran: set[str] = set()
+
+        def fake_which(name: str) -> str:
+            ran.add("which")
+            return "/fake/bin/klt"
+
+        def fake_klt_yield(sample_set_path: Path) -> subprocess.CompletedProcess[str]:
+            ran.add("klt_yield")
+            return subprocess.CompletedProcess([], 0, stdout=FAKE_KLT_YIELD + "\n", stderr="")
+
+        real_here, real_which, real_run = (
+            emit_klt_yield.HERE,
+            emit_klt_yield.shutil.which,
+            emit_klt_yield.run_klt_yield,
+        )
+        emit_klt_yield.HERE = root
+        emit_klt_yield.shutil.which = fake_which
+        emit_klt_yield.run_klt_yield = fake_klt_yield
+        out, err = io.StringIO(), io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                rc = emit_klt_yield.main(argv)
+        finally:
+            emit_klt_yield.HERE = real_here
+            emit_klt_yield.shutil.which = real_which
+            emit_klt_yield.run_klt_yield = real_run
+        return rc, out.getvalue(), err.getvalue(), ran
+
+    def test_bare_rerun_refuses_and_rewrites_nothing(self):
+        """The issue #713 regression: record plus envelope already on disk."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._scratch(root, self.INPUT, self.ENVELOPE)
+            before = self._tree(root)
+            rc, _out, err, ran = self._run(root, [self.RECORD])
+            self.assertEqual(rc, 1)
+            self.assertIn("append-only", err)
+            self.assertIn(self.INPUT, err)
+            self.assertIn("--envelope-id <new_id>", err)
+            self.assertIn("delete the uncommitted file", err)
+            # Refused before the `klt` probe and before any write -- the
+            # record pair's re-render included.
+            self.assertEqual(ran, set())
+            self.assertEqual(self._tree(root), before, "a bare re-run wrote something")
+
+    def test_envelope_alone_is_a_collision(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._scratch(root, self.ENVELOPE)
+            before = self._tree(root)
+            rc, _out, err, ran = self._run(root, [self.RECORD])
+            self.assertEqual(rc, 1)
+            self.assertIn(self.ENVELOPE, err)
+            self.assertNotIn(self.INPUT, err)
+            self.assertEqual(ran, set())
+            self.assertEqual(self._tree(root), before)
+
+    def test_input_sidecar_alone_is_a_collision(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._scratch(root, self.INPUT)
+            before = self._tree(root)
+            rc, _out, err, ran = self._run(root, [self.RECORD])
+            self.assertEqual(rc, 1)
+            self.assertIn(self.INPUT, err)
+            self.assertNotIn(self.ENVELOPE, err)
+            self.assertEqual(ran, set())
+            self.assertEqual(self._tree(root), before)
+
+    def test_first_emission_proceeds_as_before(self):
+        """No envelope on disk: the guard stays out of the way, and the bare
+        emission still writes the envelope and completes the record pair."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            records = self._scratch(root)
+            rc, out, err, ran = self._run(root, [self.RECORD])
+            self.assertEqual(rc, 0, err)
+            self.assertEqual(ran, {"which", "klt_yield"})
+            for name in (self.INPUT, self.ENVELOPE):
+                self.assertTrue((records / name).is_file(), f"{name} was not written")
+            self.assertIn("record updated:", out)
+
+    def test_the_advised_remint_under_a_new_id_succeeds(self):
+        """The refusal points at `--envelope-id <new_id>`: following it must
+        mint the new envelope beside the old one and touch nothing else."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            records = self._scratch(root, self.INPUT, self.ENVELOPE)
+            before = self._tree(root)
+            rc, _out, err, ran = self._run(root, [self.RECORD, "--envelope-id", self.NEW_ID])
+            self.assertEqual(rc, 0, err)
+            self.assertEqual(ran, {"which", "klt_yield"})
+            for name in (
+                f"{self.NEW_ID}-klt-yield-input.json",
+                f"{self.NEW_ID}-klt-yield.json",
+                f"{self.NEW_ID}-klt-yield.md",
+            ):
+                self.assertTrue((records / name).is_file(), f"{name} was not written")
+            after = self._tree(root)
+            for path, content in before.items():
+                self.assertEqual(after[path], content, f"{path} was rewritten by a re-mint")
 
 
 class CommittedEnvelopesArePortable(unittest.TestCase):
