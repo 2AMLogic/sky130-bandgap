@@ -641,6 +641,8 @@ def render_record(r: dict) -> str:
     shown = [VARIANTS_BY_NAME[n] for n in dict.fromkeys(r["variants"]) if n in VARIANTS_BY_NAME]
     names = {v.name for v in shown}
     ticks = [f"`{v.name}`" for v in shown]
+    adds_devices = any(e.clone or e.insert for v in shown for e in v.edits)
+    retargets = any(e.retarget for v in shown for e in v.edits)
 
     def band(v, cid):
         res = results.get((v, cid))
@@ -649,14 +651,20 @@ def render_record(r: dict) -> str:
     add(f"# Record {r['record_id']}")
     add("")
     L.extend(render_record_id_experiment(r["record_id"], SLUG, TITLE))
+    if adds_devices:
+        change = "adds devices"
+    elif retargets:
+        change = "retargets existing gates"
+    else:
+        change = "adds no device"
     add(
         "- **Claim**: issues #306/#315 -- measure, across the full 45-corner matrix, whether a "
-        "NON-RESIZE candidate change to `design/startup_injector.sch` clears DR-006's "
+        "candidate change to `design/startup_injector.sch` clears DR-006's "
         f"{PSRR_FLOOR_DB:g} dB DC-1 kHz `psrr_band_min` floor on the exact body "
         f"`{COMPANION}/records/{CITED_RECORD_ID}.md` records FAILing 24/45 (worst 24.78 dB at "
         "`ff / 125 degC / 3.63 V`). The attribution this builds on "
-        f"(`{ATTRIBUTION}/`) cuts branches and so can only say what to fix; this record adds "
-        "devices and says whether the fix works. It is a PSRR screen, NOT a spec verdict: "
+        f"(`{ATTRIBUTION}/`) cuts branches and so can only say what to fix; this record {change} "
+        "and says whether the fix works. It is a PSRR screen, NOT a spec verdict: "
         "`sim/startup-stability/` (eviction/traverse margin) and `sim/startup-ramp/` still gate "
         f"any landed change, and `{COMPANION}` remains the bench that certifies the row."
     )
