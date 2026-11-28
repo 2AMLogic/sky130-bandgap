@@ -7,6 +7,11 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 - [2026-09](work_log/WORK_LOG_2026-09.md)
 
+### 2026-11-28
+
+- **Issue #713** (closed): emit_klt_yield.py: a bare re-run silently clobbers a committed klt yield envelope
+- **PR #714**: fix(sim): refuse a bare emit_klt_yield re-run on an existing envelope
+
 ### 2026-11-27
 
 - **Issue #691** (closed): Remove unconditional confirmations and triplicated control prose from the Monte Carlo runners
