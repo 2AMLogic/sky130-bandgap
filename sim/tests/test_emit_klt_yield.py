@@ -20,6 +20,17 @@ hypothetical ones:
    prior one via **Supersedes**, it does not edit one. `--envelope-id` is the
    mode that does that, and it must refuse rather than clobber.
 
+3. **The renderers state only what is on file or what the caller said**
+   (issue #708). `render_klt_yield_section` used to diagnose, from nothing
+   but two absent files, that `klt` was "not available" and pinned at a
+   frozen version, and to point at "Cpk figures below" that it rendered
+   *above* -- so every `#444` batch-smoke record, written on a host where
+   `klt` *is* on PATH, carried a false claim. `render_remint_note` hardcoded
+   issue #288's one-off story ("the superseded envelope's ... absolute,
+   machine-local path", "figures unchanged") into every re-mint, including
+   ones with no superseded envelope at all, and `main` only ever looked for
+   the source record's own envelope, never a newer re-mint of it.
+
 Plus a standing check on the committed evidence itself: every `*-klt-yield.json`
 in the records tree must name a repo-relative `samples` document that actually
 exists -- except the one pre-fix envelope, which is named explicitly here so
@@ -36,6 +47,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 HARNESS_DIR = REPO_ROOT / "sim" / "monte-carlo-untrimmed"
@@ -183,6 +195,316 @@ class CommittedEnvelopesArePortable(unittest.TestCase):
                 f"{name} no longer leaks an absolute path -- drop it from "
                 "GRANDFATHERED_ABSOLUTE_SAMPLES rather than leaving a dead exemption",
             )
+
+
+#: A minimal `klt yield --format json` payload: just the fields the renderers
+#: read. Shape per the committed envelopes under records/.
+PAYLOAD = {
+    "samples": "sim/monte-carlo-untrimmed/records/20260923-062524-1e38c62-klt-yield-input.json",
+    "status": "reported",
+    "measurement_count": 1,
+    "source": {"kind": "sample-set", "sample_count": 4},
+    "measurements": [
+        {
+            "name": "vout_all_27c",
+            "n": 4,
+            "yield": {
+                "empirical": {"estimate": 0.75, "confidence_interval": {"low": 0.3, "high": 0.95}}
+            },
+            "capability": {"cpk": 0.4},
+            "sample_size": {"verdict": "insufficient"},
+            "warnings": ["only 4 samples"],
+        }
+    ],
+    "warnings": [],
+}
+
+SOURCE_RECORD = "20260817-121131-d7d85b6"
+FIRST_REMINT = "20260923-062524-1e38c62"
+SECOND_REMINT = "20261128-120000-abcdef1"
+OTHER_RECORD = "20261104-192509-4193f7c5"
+
+#: Prose `render_klt_yield_section` used to hardcode into its no-envelope
+#: branch. None of it follows from two absent files, so none may come back.
+SECTION_FROZEN_CLAIMS = (
+    "0.2.0",
+    "not on PATH",
+    "not available",
+    "figures below",
+    "Clopper-Pearson",
+    "Cpk",
+)
+
+#: Issue #288's one-off re-mint story, which `render_remint_note` used to
+#: hardcode into every note regardless of what was on file or why.
+NOTE_FROZEN_CLAIMS = (
+    "0.2.0",
+    "not on PATH",
+    "absolute, machine-local",
+    "figures unchanged",
+    "Why re-minted",
+    "#288",
+)
+
+
+def _scratch_harness(testcase: unittest.TestCase) -> Path:
+    """A stand-in for ``emit_klt_yield.HERE``: a scratch dir holding an empty
+    ``records/``, removed after the test."""
+    tmp = tempfile.TemporaryDirectory()
+    testcase.addCleanup(tmp.cleanup)
+    (Path(tmp.name) / "records").mkdir()
+    return Path(tmp.name)
+
+
+def _write_envelope(records: Path, envelope_id: str) -> None:
+    (records / f"{envelope_id}-klt-yield-input.json").write_text("{}\n")
+    (records / f"{envelope_id}-klt-yield.json").write_text(json.dumps(PAYLOAD) + "\n")
+
+
+def _write_remint_note(records: Path, envelope_id: str, source: str, **kwargs) -> str:
+    """Write ``<envelope_id>-klt-yield.md`` with the real renderer, so the
+    provenance line `latest_prior_envelope` parses is the one actually minted."""
+    note = emit_klt_yield.render_remint_note(
+        envelope_id=envelope_id, record_id=source, payload=PAYLOAD, **kwargs
+    )
+    (records / f"{envelope_id}-klt-yield.md").write_text(note)
+    return note
+
+
+class RenderKltYieldSection(unittest.TestCase):
+    """`run_mc_untrimmed.render_klt_yield_section` must not diagnose from absent files."""
+
+    def _render(self, scratch: Path, record_id: str) -> str:
+        with mock.patch.object(emit_klt_yield.record_mod, "HERE", scratch):
+            return "\n".join(emit_klt_yield.record_mod.render_klt_yield_section(record_id))
+
+    def test_no_envelope_states_what_is_missing_and_nothing_more(self):
+        section = self._render(_scratch_harness(self), SOURCE_RECORD)
+        for claim in SECTION_FROZEN_CLAIMS:
+            with self.subTest(claim=claim):
+                self.assertNotIn(claim, section)
+        self.assertIn(f"`{SOURCE_RECORD}-klt-yield.json`", section)
+        self.assertIn("has not been run for this record or exited non-zero", section)
+        # The empirical yield table is rendered above this section; the old
+        # text pointed readers "below" for figures that were never there.
+        self.assertIn("yield figures in the table above", section)
+        self.assertIn("no `klt yield` cross-check", section)
+        self.assertIn("issue #180's acceptance criteria rather than silently omitted", section)
+
+    def test_present_envelope_renders_the_klt_figures(self):
+        scratch = _scratch_harness(self)
+        _write_envelope(scratch / "records", SOURCE_RECORD)
+        section = self._render(scratch, SOURCE_RECORD)
+        self.assertIn("Machine-checkable envelope emitted by", section)
+        self.assertIn(
+            "| `vout_all_27c` | 4 | 0.7500 | [0.3000, 0.9500] | 0.4000 | insufficient |",
+            section,
+        )
+        self.assertIn("only 4 samples", section)
+        self.assertNotIn(f"No `{SOURCE_RECORD}-klt-yield.json`", section)
+
+    def test_input_without_envelope_is_still_no_envelope(self):
+        """`emit_klt_yield.py` writes the sample set before `klt yield` runs, so
+        an input file on its own means the step did not finish."""
+        scratch = _scratch_harness(self)
+        (scratch / "records" / f"{SOURCE_RECORD}-klt-yield-input.json").write_text("{}\n")
+        section = self._render(scratch, SOURCE_RECORD)
+        self.assertIn(f"No `{SOURCE_RECORD}-klt-yield.json`", section)
+
+
+class RenderRemintNote(unittest.TestCase):
+    """`render_remint_note` must not narrate a story it was not told."""
+
+    def _render(self, **kwargs) -> str:
+        return emit_klt_yield.render_remint_note(
+            envelope_id=SECOND_REMINT, record_id=SOURCE_RECORD, payload=PAYLOAD, **kwargs
+        )
+
+    def test_without_superseded_envelope_invents_neither_one_nor_a_reason(self):
+        note = self._render(superseded=None)
+        self.assertIn("- **Supersedes**: (none", note)
+        self.assertIn("- **Reason**: (none given", note)
+        for claim in NOTE_FROZEN_CLAIMS:
+            with self.subTest(claim=claim):
+                self.assertNotIn(claim, note)
+        # The old note described "the superseded envelope" two lines under
+        # "Supersedes: (none)" -- a contradiction, not a breadcrumb.
+        self.assertNotIn("superseded envelope", note)
+        self.assertIn("| `vout_all_27c` | 4 | 0.7500 | [0.3000, 0.9500] | 0.4000 |", note)
+        self.assertIn("`klt yield`'s output for this invocation", note)
+
+    def test_with_a_portable_superseded_envelope_names_it_and_asserts_nothing_else(self):
+        superseded = RECORDS_DIR / f"{FIRST_REMINT}-klt-yield.json"
+        note = self._render(superseded=superseded)
+        self.assertIn(f"- **Supersedes**: `{FIRST_REMINT}-klt-yield.json`", note)
+        self.assertIn("stays committed and unmodified", note)
+        for claim in NOTE_FROZEN_CLAIMS:
+            with self.subTest(claim=claim):
+                self.assertNotIn(claim, note)
+
+    def test_reason_is_the_callers_verbatim(self):
+        why = "klt bumped; the capability block's field set changed"
+        note = self._render(superseded=None, reason=why)
+        self.assertIn(f"- **Reason**: {why}", note)
+        self.assertNotIn("(none given", note)
+
+    def test_multiline_reason_stays_one_list_item(self):
+        note = self._render(superseded=None, reason="klt bumped,\n  re-graded")
+        self.assertIn("- **Reason**: klt bumped, re-graded\n", note)
+
+    def test_blank_reason_reads_as_none_given(self):
+        note = self._render(superseded=None, reason="  \n")
+        self.assertIn("- **Reason**: (none given", note)
+
+    def test_both_given(self):
+        superseded = RECORDS_DIR / f"{FIRST_REMINT}-klt-yield.json"
+        note = self._render(superseded=superseded, reason="klt bumped")
+        self.assertIn(f"- **Supersedes**: `{FIRST_REMINT}-klt-yield.json`", note)
+        self.assertIn("- **Reason**: klt bumped\n", note)
+
+
+class LatestPriorEnvelope(unittest.TestCase):
+    """A re-mint supersedes the newest envelope for its source record."""
+
+    def _latest(self, scratch: Path, record_id: str):
+        with mock.patch.object(emit_klt_yield, "HERE", scratch):
+            return emit_klt_yield.latest_prior_envelope(record_id)
+
+    def test_none_when_no_envelope_was_ever_minted(self):
+        self.assertIsNone(self._latest(_scratch_harness(self), SOURCE_RECORD))
+
+    def test_committed_tree_resolves_the_issue_288_remint(self):
+        """Standing check on the real records tree: the #288 re-mint is the
+        newest envelope for its source record, so a further re-mint of that
+        record must name it -- not the original, as `main` used to."""
+        self.assertEqual(
+            emit_klt_yield.latest_prior_envelope(SOURCE_RECORD),
+            RECORDS_DIR / f"{FIRST_REMINT}-klt-yield.json",
+        )
+
+    def test_falls_back_to_the_source_records_own_envelope(self):
+        scratch = _scratch_harness(self)
+        _write_envelope(scratch / "records", SOURCE_RECORD)
+        own = scratch / "records" / f"{SOURCE_RECORD}-klt-yield.json"
+        self.assertEqual(self._latest(scratch, SOURCE_RECORD), own)
+
+    def test_prefers_the_newest_remint_of_the_same_source_record(self):
+        scratch = _scratch_harness(self)
+        records = scratch / "records"
+        _write_envelope(records, SOURCE_RECORD)
+        _write_envelope(records, FIRST_REMINT)
+        _write_remint_note(
+            records,
+            FIRST_REMINT,
+            SOURCE_RECORD,
+            superseded=records / f"{SOURCE_RECORD}-klt-yield.json",
+        )
+        self.assertEqual(
+            self._latest(scratch, SOURCE_RECORD), records / f"{FIRST_REMINT}-klt-yield.json"
+        )
+
+    def test_two_remints_resolve_to_the_later(self):
+        scratch = _scratch_harness(self)
+        records = scratch / "records"
+        for envelope_id in (SOURCE_RECORD, FIRST_REMINT, SECOND_REMINT):
+            _write_envelope(records, envelope_id)
+        _write_remint_note(records, FIRST_REMINT, SOURCE_RECORD, superseded=None)
+        _write_remint_note(
+            records,
+            SECOND_REMINT,
+            SOURCE_RECORD,
+            superseded=records / f"{FIRST_REMINT}-klt-yield.json",
+        )
+        self.assertEqual(
+            self._latest(scratch, SOURCE_RECORD), records / f"{SECOND_REMINT}-klt-yield.json"
+        )
+
+    def test_ignores_remints_of_other_source_records(self):
+        scratch = _scratch_harness(self)
+        records = scratch / "records"
+        _write_envelope(records, OTHER_RECORD)
+        _write_envelope(records, FIRST_REMINT)
+        _write_remint_note(
+            records,
+            FIRST_REMINT,
+            OTHER_RECORD,
+            superseded=records / f"{OTHER_RECORD}-klt-yield.json",
+        )
+        self.assertIsNone(self._latest(scratch, SOURCE_RECORD))
+
+    def test_a_note_without_its_envelope_is_not_a_candidate(self):
+        scratch = _scratch_harness(self)
+        records = scratch / "records"
+        _write_envelope(records, SOURCE_RECORD)
+        _write_remint_note(records, FIRST_REMINT, SOURCE_RECORD, superseded=None)
+        self.assertEqual(
+            self._latest(scratch, SOURCE_RECORD), records / f"{SOURCE_RECORD}-klt-yield.json"
+        )
+
+
+class RemintMainWiring(unittest.TestCase):
+    """`main` feeds `--envelope-id` re-mints the newest prior envelope and the
+    caller's `--reason`, driving a fake `klt` so nothing touches committed
+    evidence or needs the real tool."""
+
+    def _remint(self, scratch: Path, argv: list[str]) -> int:
+        out, err = io.StringIO(), io.StringIO()
+        fake = subprocess.CompletedProcess([], 0, stdout=json.dumps(PAYLOAD) + "\n", stderr="")
+        patches = (
+            mock.patch.object(emit_klt_yield, "HERE", scratch),
+            mock.patch.object(emit_klt_yield.shutil, "which", return_value="/usr/bin/klt"),
+            mock.patch.object(
+                emit_klt_yield, "build_sample_set", return_value={"measurements": []}
+            ),
+            mock.patch.object(emit_klt_yield, "run_klt_yield", return_value=fake),
+            contextlib.redirect_stdout(out),
+            contextlib.redirect_stderr(err),
+        )
+        with contextlib.ExitStack() as stack:
+            for patch in patches:
+                stack.enter_context(patch)
+            return emit_klt_yield.main(argv)
+
+    def _scratch(self) -> Path:
+        scratch = _scratch_harness(self)
+        (scratch / "records" / f"{SOURCE_RECORD}.json").write_text("{}\n")
+        return scratch
+
+    def test_note_names_the_newest_prior_envelope_and_the_reason(self):
+        scratch = self._scratch()
+        records = scratch / "records"
+        _write_envelope(records, SOURCE_RECORD)
+        _write_envelope(records, FIRST_REMINT)
+        _write_remint_note(records, FIRST_REMINT, SOURCE_RECORD, superseded=None)
+        rc = self._remint(
+            scratch, [SOURCE_RECORD, "--envelope-id", SECOND_REMINT, "--reason", "klt bumped"]
+        )
+        self.assertEqual(rc, 0)
+        note = (records / f"{SECOND_REMINT}-klt-yield.md").read_text()
+        self.assertIn(f"- **Supersedes**: `{FIRST_REMINT}-klt-yield.json`", note)
+        self.assertIn("- **Reason**: klt bumped\n", note)
+        for claim in NOTE_FROZEN_CLAIMS:
+            with self.subTest(claim=claim):
+                self.assertNotIn(claim, note)
+        minted = (records / f"{SECOND_REMINT}-klt-yield.json").read_text()
+        self.assertEqual(minted, json.dumps(PAYLOAD) + "\n")
+
+    def test_note_without_reason_or_prior_envelope_says_so(self):
+        scratch = self._scratch()
+        rc = self._remint(scratch, [SOURCE_RECORD, "--envelope-id", SECOND_REMINT])
+        self.assertEqual(rc, 0)
+        note = (scratch / "records" / f"{SECOND_REMINT}-klt-yield.md").read_text()
+        self.assertIn("- **Supersedes**: (none", note)
+        self.assertIn("- **Reason**: (none given", note)
+
+    def test_reason_without_envelope_id_is_a_usage_error(self):
+        """Without `--envelope-id` no note is written, so a reason would be
+        silently dropped -- refuse instead."""
+        with contextlib.redirect_stderr(io.StringIO()) as err:
+            with self.assertRaises(SystemExit) as cm:
+                emit_klt_yield.main([SOURCE_RECORD, "--reason", "klt bumped"])
+        self.assertEqual(cm.exception.code, 2)
+        self.assertIn("--reason", err.getvalue())
 
 
 if __name__ == "__main__":

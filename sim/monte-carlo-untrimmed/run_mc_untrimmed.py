@@ -726,13 +726,12 @@ def render_klt_yield_section(record_id: str) -> list[str]:
     add("")
     if not (input_path.is_file() and output_path.is_file()):
         add(
-            "`klt yield` (klayout-tools 0.2.0, pinned by `layout/requirements.txt`) was "
-            "**not available** when this record was written -- either `klt` is not on "
-            "PATH or its native extension could not be loaded (see "
-            "`sim/monte-carlo-untrimmed/emit_klt_yield.py`'s exit status). Stated here "
-            "per issue #180's acceptance criteria rather than silently omitted: the "
-            "yield/Cpk figures below are ngspice + this record's own Clopper-Pearson "
-            "arithmetic only, with no `klt`-native cross-check."
+            f"No `{record_id}-klt-yield.json` envelope is on file beside this record. "
+            "`sim/monte-carlo-untrimmed/emit_klt_yield.py` runs as a separate, later step "
+            "and either has not been run for this record or exited non-zero (its stderr "
+            "names the cause). Stated here per issue #180's acceptance criteria rather "
+            "than silently omitted: the yield figures in the table above are ngspice "
+            "empirical in-window fractions only, with no `klt yield` cross-check."
         )
         add("")
         return L
