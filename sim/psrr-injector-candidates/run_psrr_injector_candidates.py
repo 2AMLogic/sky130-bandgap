@@ -99,7 +99,6 @@ from sim_common import (  # noqa: E402
     build_batch_groups as _build_batch_groups,
     check_pdk_and_ngspice,
     corner_id,
-    load_base_body as _load_base_body,
     load_corner_run,
     render_pdk_tools_repo_state,
     matrix as _matrix,
@@ -111,13 +110,14 @@ from injector_common import (  # noqa: E402
     batch_integrity_checks,
     injector_banner,
     injector_deck,
-    injector_explore,
+    injector_dry_run,
+    injector_explore_mode,
     injector_links,
+    injector_load_base_body,
     injector_record_head,
     injector_run_point,
     injector_run_variants,
     new_record_id,
-    parse_corner_spec,
     parse_injector_args,
     run_all_batch as _run_all_batch,
     run_all_variants,
@@ -363,17 +363,10 @@ NG_CHECK = "ng_clamp_holds_mni_off"
 
 def load_base_body() -> list[str]:
     """Read the cited record's netlist snapshot and assert it is the body this
-    script believes it is editing (shared `sim_common.load_base_body()` plus an
-    exactly-once check on every anchor card)."""
-    lines = _load_base_body(BASE_SNAPSHOT, EXPECTED_PARAMS)
-    for prefix in TARGET_PREFIXES:
-        n = sum(1 for ln in lines if ln.startswith(prefix))
-        if n != 1:
-            raise cr.HarnessError(
-                f"base snapshot {BASE_SNAPSHOT} has {n} line(s) starting '{prefix}', expected "
-                "exactly 1 -- refusing to substitute against a body this script cannot verify"
-            )
-    return lines
+    script believes it is editing: the shared `injector_load_base_body()`,
+    i.e. the canonical `sim_common.load_base_body()` plus an exactly-once
+    check on every anchor card (`TARGET_PREFIXES`)."""
+    return injector_load_base_body(BASE_SNAPSHOT, EXPECTED_PARAMS, TARGET_PREFIXES)
 
 
 def _split_card(line: str) -> tuple[str, list[str], str]:
@@ -481,19 +474,8 @@ def run_all_batch(pdk, pin, base_body, variants, points, timeout, corners_dir, r
 
 def dry_run(args, pin, base_body, variants, points) -> int:
     """Build and print the batch requests; submit nothing, run no ngspice."""
-    groups = build_batch_groups(
-        pin, base_body, variants, points, BUILD_DIR / "dry-run" / "batch", args.timeout, args)
-    print("\n-- batch requests (one klt sim request per variant x supply x analysis) --")
-    for g in groups:
-        r = g.request
-        print(f"  {g.request_path}  ({r['analysis']['kind']}, "
-              f"{len(r['corners']['process'])} processes x {len(r['corners']['temperature_c'])} "
-              f"temperatures, {len(r['measurements'])} measurements)")
-    print(f"\n-- request for {groups[0].label} --")
-    print(groups[0].request_path.read_text())
-    print(f"(dry run: {len(groups)} requests built, nothing submitted, "
-          f"nothing written under sim/{SLUG}/)")
-    return 0
+    return injector_dry_run(args, pin, base_body, variants, points,
+                            slug=SLUG, build_dir=BUILD_DIR, build_groups=build_batch_groups)
 
 
 # --------------------------------------------------------------------------
@@ -886,16 +868,11 @@ def render_record(r: dict) -> str:
 
 
 def explore(args) -> int:
-    pin = cr.load_pin()
-    pdk = check_pdk_and_ngspice(pin, args.allow_pdk_mismatch, verbose=False,
-                                require_ngspice=args.backend == "local")
-    base_body = load_base_body()
-    variants = [VARIANTS_BY_NAME[n] for n in args.variants]
-    points = parse_corner_spec(args.corners)
-    if args.dry_run:
-        return dry_run(args, pin, base_body, variants, points)
-    return injector_explore(
-        args, pdk, pin, base_body, variants, points, base_snapshot=BASE_SNAPSHOT,
+    """`--explore`'s entry point: the shared setup and `--dry-run` early exit,
+    then the explore print loop over this bench's own run wrappers."""
+    return injector_explore_mode(
+        args, check_pdk_and_ngspice=check_pdk_and_ngspice, load_base_body=load_base_body,
+        variants_by_name=VARIANTS_BY_NAME, dry_run=dry_run, base_snapshot=BASE_SNAPSHOT,
         label_width=LABEL_WIDTH, run_all=run_all, run_all_batch=run_all_batch)
 
 

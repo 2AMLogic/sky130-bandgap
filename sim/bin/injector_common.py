@@ -18,14 +18,20 @@ models -- device removal vs. card retarget/clone/insert), `evaluate()` and
 `render_record()` (the per-experiment judgement, as #410 specified), the head
 of `parse_args()` (its description and the `--explore`/`--variants` pair,
 whose default selection and help text are per-bench policy), and the early
-exits each `verify()`/`explore()` owns (the attribution bench's `--dry-run`,
-the candidates bench's ceiling load). The option tail from `--corners` onward
-and the variant/concurrency validation behind it are shared here as
+exit only `verify()` keeps (the candidates bench's `ceiling_band_min()` load;
+the attribution bench's `verify()` has none). The option tail from `--corners`
+onward and the variant/concurrency validation behind it are shared here as
 `parse_injector_args()` (issue #650) -- the two copies were byte-identical.
+So were the three mode bodies issue #717 moved here once #572 had given the
+candidates bench a `--dry-run` of its own: the snapshot load with its
+exactly-once anchor check (`injector_load_base_body`), `--dry-run`'s request
+build and print (`injector_dry_run`), and all of `explore(args)` -- its setup
+and its `--dry-run` early exit alike (`injector_explore_mode`, which wraps
+`injector_explore`).
 
 What this module needs from `sim_common` it imports rather than copies
-(`_cr`, `REPO_DIR`, `add_batch_args`, `corner_id`, `parse_measurements`,
-`run_ngspice`, `write_log`, `publish_run_evidence`); the generic
+(`_cr`, `REPO_DIR`, `add_batch_args`, `corner_id`, `_load_base_body`,
+`parse_measurements`, `run_ngspice`, `write_log`, `publish_run_evidence`); the generic
 batch-request builders (`batch_netlist`, `build_batch_groups`) stay in `sim_common` (issue #557
 scoped the move out) -- these two injector benches are their only callers;
 the Monte Carlo runners' same-named `batch_netlist` / `build_batch_groups`
@@ -48,6 +54,7 @@ from sim_common import (  # noqa: E402  (importers put sim/bin on sys.path first
     _cr,
     add_batch_args,
     corner_id,
+    load_base_body as _load_base_body,
     parse_measurements,
     publish_run_evidence,
     run_ngspice,
@@ -69,6 +76,33 @@ def band_min_by_corner(path: Path, label: str) -> dict[str, float]:
     if not out:
         raise cr.HarnessError(f"{path} carries no psrr_band_min values")
     return out
+
+
+def injector_load_base_body(
+    base_snapshot: Path, expected_params, target_prefixes
+) -> list[str]:
+    """Both psrr-injector benches' `load_base_body()`: the cited record's
+    netlist snapshot with `.end` stripped and `expected_params` checked for
+    drift (`sim_common.load_base_body()`), then every prefix in
+    `target_prefixes` asserted to start EXACTLY ONE line of the body.
+
+    Both benches' substitutions are keyed on those anchor cards
+    (`variant_body()` drops or retargets the line a prefix matches), so a
+    snapshot with 0 or 2+ matches must fail here rather than let a
+    substitution silently no-op or cut twice. Each runner keeps a
+    module-level `load_base_body()` that delegates here with its own
+    `BASE_SNAPSHOT` / `EXPECTED_PARAMS` / `TARGET_PREFIXES` (issue #717).
+    """
+    cr = _cr()
+    lines = _load_base_body(base_snapshot, expected_params)
+    for prefix in target_prefixes:
+        n = sum(1 for ln in lines if ln.startswith(prefix))
+        if n != 1:
+            raise cr.HarnessError(
+                f"base snapshot {base_snapshot} has {n} line(s) starting '{prefix}', expected "
+                "exactly 1 -- refusing to substitute against a body this script cannot verify"
+            )
+    return lines
 
 
 def run_all_variants(
@@ -213,6 +247,34 @@ def run_all_batch(
               + (f"psrr_band_min={band:8.3f} dB" if band is not None else "NO MEASUREMENT"),
               flush=True)
     return results, blockers, execution
+
+
+def injector_dry_run(
+    args, pin, base_body, variants, points, *, slug: str, build_dir: Path, build_groups,
+) -> int:
+    """Both psrr-injector benches' `dry_run()` (issues #398/#361; #572 gave
+    the candidates bench its own copy): build the batch requests, print one
+    line per request and the first request in full, and return 0 --
+    submitting nothing, running no ngspice, writing nothing under
+    `sim/<slug>/`.
+
+    The requests themselves are written under `build_dir / "dry-run"` by the
+    calling bench's `build_batch_groups`, which binds the bench's own netlist
+    and per-variant request list.
+    """
+    groups = build_groups(
+        pin, base_body, variants, points, build_dir / "dry-run" / "batch", args.timeout, args)
+    print("\n-- batch requests (one klt sim request per variant x supply x analysis) --")
+    for g in groups:
+        r = g.request
+        print(f"  {g.request_path}  ({r['analysis']['kind']}, "
+              f"{len(r['corners']['process'])} processes x {len(r['corners']['temperature_c'])} "
+              f"temperatures, {len(r['measurements'])} measurements)")
+    print(f"\n-- request for {groups[0].label} --")
+    print(groups[0].request_path.read_text())
+    print(f"(dry run: {len(groups)} requests built, nothing submitted, "
+          f"nothing written under sim/{slug}/)")
+    return 0
 
 
 def parse_corner_spec(spec: str) -> list[tuple[str, float, float]]:
@@ -389,6 +451,35 @@ def injector_explore(
               f"vref={m.get('v_vref', float('nan')):.5f} "
               f"ng={m.get('v_ng', float('nan')):.4f}")
     return 0
+
+
+def injector_explore_mode(
+    args, *, check_pdk_and_ngspice, load_base_body, variants_by_name, dry_run,
+    base_snapshot: Path, label_width: int, run_all, run_all_batch,
+) -> int:
+    """Both psrr-injector benches' `explore(args)`: resolve the PDK and the
+    base body, select `--variants` and parse `--corners`, and either return
+    `dry_run(...)` under `--dry-run` or run `injector_explore()` on the rest.
+
+    `check_pdk_and_ngspice`, `load_base_body` and `dry_run` are the calling
+    bench's own module-level functions, handed in by name and called late, so
+    `dry_run` still binds the bench's `BUILD_DIR` and `build_batch_groups`.
+    ngspice is required on this host only for the local backend; the batch
+    fleet runs the simulator. Returns whatever the chosen path returns -- 0
+    from both today, since neither a dry run nor explore mode makes a claim
+    to fail.
+    """
+    pin = _cr().load_pin()
+    pdk = check_pdk_and_ngspice(pin, args.allow_pdk_mismatch, verbose=False,
+                                require_ngspice=args.backend == "local")
+    base_body = load_base_body()
+    variants = [variants_by_name[n] for n in args.variants]
+    points = parse_corner_spec(args.corners)
+    if args.dry_run:
+        return dry_run(args, pin, base_body, variants, points)
+    return injector_explore(
+        args, pdk, pin, base_body, variants, points, base_snapshot=base_snapshot,
+        label_width=label_width, run_all=run_all, run_all_batch=run_all_batch)
 
 
 def new_record_id() -> tuple[str, dict, datetime]:
