@@ -32,8 +32,10 @@ Writes `sim/monte-carlo-untrimmed/records/<record_id>-klt-yield.json` (the
 raw `klt yield --format json` payload) and prints a one-line summary per
 temperature. Exit status: 0 on success, 1 if `klt` or its native extension is
 unavailable (in which case the record must say so per issue #180's
-acceptance criteria) or the expected corner logs are missing, 2 if `klt
-yield` itself reports an error.
+acceptance criteria), the expected corner logs are missing, or a file this
+run would write already exists -- `records/*` is append-only, so an envelope
+already minted for the record is never rewritten in place (see "Re-minting"
+below) -- and 2 if `klt yield` itself reports an error.
 
 Repo-relative provenance (issue #288)
 -------------------------------------
@@ -56,7 +58,12 @@ envelope for an already-committed record's corner logs under a *new* record
 id -- writing `<new_id>-klt-yield-input.json`, `<new_id>-klt-yield.json` and a
 `<new_id>-klt-yield.md` note that names the source record and the envelope it
 supersedes -- and leaves the source record's own `.json`/`.md` (and any
-earlier envelope) untouched. It refuses to overwrite an existing file.
+earlier envelope) untouched. It refuses to overwrite an existing file. So
+does the bare invocation above (issue #713): a record whose
+`<record_id>-klt-yield{,-input}.json` already exists is refused rather than
+rewritten -- re-mint a committed record under `--envelope-id <new_id>`, and
+delete the uncommitted envelope first to regrade one that is not yet
+committed.
 """
 
 from __future__ import annotations
@@ -274,21 +281,30 @@ def main(argv: list[str]) -> int:
     sample_set_path = HERE / "records" / f"{envelope_id}-klt-yield-input.json"
     out_path = HERE / "records" / f"{envelope_id}-klt-yield.json"
     note_path = HERE / "records" / f"{envelope_id}-klt-yield.md"
-    if remint:
-        # Append-only: a re-mint adds a record, it never overwrites one. Refuse
-        # rather than clobber, including the note -- a colliding id is a caller
-        # mistake, not something to resolve silently. Checked before the `klt`
-        # probe below: a colliding id is wrong whether or not `klt` is
-        # installed, and reporting the missing tool first would hide it.
-        for path in (sample_set_path, out_path, note_path):
-            if path.exists():
-                print(
-                    f"error: {rel_to_repo(path)} already exists; "
-                    "records/* is append-only (sim/README.md) -- pick an unused "
-                    "--envelope-id",
-                    file=sys.stderr,
-                )
-                return 1
+    # Append-only: a re-mint adds a record, it never overwrites one -- and a
+    # bare emission is no different (issue #713). `<record_id>-klt-yield{,
+    # -input}.json` already on disk means this record's envelope was minted
+    # before; rewriting it in place, then re-rendering the record pair below,
+    # is exactly the in-place edit `sim/README.md` forbids -- so refuse rather
+    # than clobber, including the note: a colliding id is a caller mistake,
+    # not something to resolve silently. Checked before the `klt` probe below:
+    # a collision is wrong whether or not `klt` is installed, and reporting
+    # the missing tool first would hide it.
+    for path in (sample_set_path, out_path, note_path):
+        if path.exists():
+            remedy = (
+                "pick an unused --envelope-id"
+                if remint
+                else "to re-mint a committed record's envelope, pass "
+                "--envelope-id <new_id>; to regrade a record that is not yet "
+                "committed, delete the uncommitted file and re-run"
+            )
+            print(
+                f"error: {rel_to_repo(path)} already exists; "
+                f"records/* is append-only (sim/README.md) -- {remedy}",
+                file=sys.stderr,
+            )
+            return 1
 
     if not shutil.which("klt"):
         print(
