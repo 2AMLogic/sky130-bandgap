@@ -7,6 +7,13 @@ Merged PRs and closed issues recorded by Guide. Initial history covers the
 
 - [2026-09](work_log/WORK_LOG_2026-09.md)
 
+### 2026-11-27
+
+- **Issue #691** (closed): Remove unconditional confirmations and triplicated control prose from the Monte Carlo runners
+- **PR #692**: fix(sim): derive Monte Carlo control, seed, and convergence prose from checks
+- **Issue #705** (closed): Remove dead code and unconditional pass prose from erc_supply_record.py
+- **PR #706**: fix: render ERC record tie and verdict prose from the gate outcomes
+
 ### 2026-11-26
 
 - **Issue #696** (closed): Derive the DR-005 direction and range-basis notes from measured VREF
