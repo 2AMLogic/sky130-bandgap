@@ -42,6 +42,7 @@ from __future__ import annotations
 import contextlib
 import io
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -233,6 +234,8 @@ SECTION_FROZEN_CLAIMS = (
     "figures below",
     "Clopper-Pearson",
     "Cpk",
+    "has not been run",
+    "exited non-zero",
 )
 
 #: Issue #288's one-off re-mint story, which `render_remint_note` used to
@@ -244,6 +247,7 @@ NOTE_FROZEN_CLAIMS = (
     "figures unchanged",
     "Why re-minted",
     "#288",
+    "stays committed",
 )
 
 
@@ -283,13 +287,13 @@ class RenderKltYieldSection(unittest.TestCase):
         for claim in SECTION_FROZEN_CLAIMS:
             with self.subTest(claim=claim):
                 self.assertNotIn(claim, section)
-        self.assertIn(f"`{SOURCE_RECORD}-klt-yield.json`", section)
-        self.assertIn("has not been run for this record or exited non-zero", section)
+        self.assertIn(f"`{SOURCE_RECORD}-klt-yield-input.json` is missing", section)
+        self.assertIn(f"`{SOURCE_RECORD}-klt-yield.json` is missing", section)
         # The empirical yield table is rendered above this section; the old
         # text pointed readers "below" for figures that were never there.
         self.assertIn("yield figures in the table above", section)
-        self.assertIn("no `klt yield` cross-check", section)
-        self.assertIn("issue #180's acceptance criteria rather than silently omitted", section)
+        self.assertIn("ngspice empirical in-window fractions", section)
+        self.assertIn("Both files are needed to display the `klt yield` cross-check", section)
 
     def test_present_envelope_renders_the_klt_figures(self):
         scratch = _scratch_harness(self)
@@ -301,15 +305,21 @@ class RenderKltYieldSection(unittest.TestCase):
             section,
         )
         self.assertIn("only 4 samples", section)
-        self.assertNotIn(f"No `{SOURCE_RECORD}-klt-yield.json`", section)
+        self.assertNotIn("is missing", section)
 
-    def test_input_without_envelope_is_still_no_envelope(self):
-        """`emit_klt_yield.py` writes the sample set before `klt yield` runs, so
-        an input file on its own means the step did not finish."""
+    def test_input_only_reports_the_missing_envelope(self):
         scratch = _scratch_harness(self)
         (scratch / "records" / f"{SOURCE_RECORD}-klt-yield-input.json").write_text("{}\n")
         section = self._render(scratch, SOURCE_RECORD)
-        self.assertIn(f"No `{SOURCE_RECORD}-klt-yield.json`", section)
+        self.assertIn(f"`{SOURCE_RECORD}-klt-yield-input.json` is present", section)
+        self.assertIn(f"`{SOURCE_RECORD}-klt-yield.json` is missing", section)
+
+    def test_envelope_only_reports_the_missing_input(self):
+        scratch = _scratch_harness(self)
+        (scratch / "records" / f"{SOURCE_RECORD}-klt-yield.json").write_text(json.dumps(PAYLOAD))
+        section = self._render(scratch, SOURCE_RECORD)
+        self.assertIn(f"`{SOURCE_RECORD}-klt-yield-input.json` is missing", section)
+        self.assertIn(f"`{SOURCE_RECORD}-klt-yield.json` is present", section)
 
 
 class RenderRemintNote(unittest.TestCase):
@@ -323,7 +333,7 @@ class RenderRemintNote(unittest.TestCase):
     def test_without_superseded_envelope_invents_neither_one_nor_a_reason(self):
         note = self._render(superseded=None)
         self.assertIn("- **Supersedes**: (none", note)
-        self.assertIn("- **Reason**: (none given", note)
+        self.assertIn("- **Reason**: No reason given.\n", note)
         for claim in NOTE_FROZEN_CLAIMS:
             with self.subTest(claim=claim):
                 self.assertNotIn(claim, note)
@@ -337,7 +347,7 @@ class RenderRemintNote(unittest.TestCase):
         superseded = RECORDS_DIR / f"{FIRST_REMINT}-klt-yield.json"
         note = self._render(superseded=superseded)
         self.assertIn(f"- **Supersedes**: `{FIRST_REMINT}-klt-yield.json`", note)
-        self.assertIn("stays committed and unmodified", note)
+        self.assertIn("this invocation leaves it untouched", note)
         for claim in NOTE_FROZEN_CLAIMS:
             with self.subTest(claim=claim):
                 self.assertNotIn(claim, note)
@@ -346,7 +356,7 @@ class RenderRemintNote(unittest.TestCase):
         why = "klt bumped; the capability block's field set changed"
         note = self._render(superseded=None, reason=why)
         self.assertIn(f"- **Reason**: {why}", note)
-        self.assertNotIn("(none given", note)
+        self.assertNotIn("No reason given.", note)
 
     def test_multiline_reason_stays_one_list_item(self):
         note = self._render(superseded=None, reason="klt bumped,\n  re-graded")
@@ -354,7 +364,7 @@ class RenderRemintNote(unittest.TestCase):
 
     def test_blank_reason_reads_as_none_given(self):
         note = self._render(superseded=None, reason="  \n")
-        self.assertIn("- **Reason**: (none given", note)
+        self.assertIn("- **Reason**: No reason given.\n", note)
 
     def test_both_given(self):
         superseded = RECORDS_DIR / f"{FIRST_REMINT}-klt-yield.json"
@@ -373,13 +383,17 @@ class LatestPriorEnvelope(unittest.TestCase):
     def test_none_when_no_envelope_was_ever_minted(self):
         self.assertIsNone(self._latest(_scratch_harness(self), SOURCE_RECORD))
 
-    def test_committed_tree_resolves_the_issue_288_remint(self):
-        """Standing check on the real records tree: the #288 re-mint is the
-        newest envelope for its source record, so a further re-mint of that
-        record must name it -- not the original, as `main` used to."""
+    def test_resolves_the_historical_issue_288_remint(self):
+        scratch = _scratch_harness(self)
+        records = scratch / "records"
+        for name in (
+            f"{SOURCE_RECORD}-klt-yield.json",
+            f"{FIRST_REMINT}-klt-yield.json",
+            f"{FIRST_REMINT}-klt-yield.md",
+        ):
+            shutil.copyfile(RECORDS_DIR / name, records / name)
         self.assertEqual(
-            emit_klt_yield.latest_prior_envelope(SOURCE_RECORD),
-            RECORDS_DIR / f"{FIRST_REMINT}-klt-yield.json",
+            self._latest(scratch, SOURCE_RECORD), records / f"{FIRST_REMINT}-klt-yield.json"
         )
 
     def test_falls_back_to_the_source_records_own_envelope(self):
@@ -495,7 +509,23 @@ class RemintMainWiring(unittest.TestCase):
         self.assertEqual(rc, 0)
         note = (scratch / "records" / f"{SECOND_REMINT}-klt-yield.md").read_text()
         self.assertIn("- **Supersedes**: (none", note)
-        self.assertIn("- **Reason**: (none given", note)
+        self.assertIn("- **Reason**: No reason given.\n", note)
+
+    def test_invalid_remint_leaves_source_evidence_intact(self):
+        scratch = _scratch_harness(self)
+        records = scratch / "records"
+        for suffix in (".json", ".md", "-klt-yield-input.json", "-klt-yield.json"):
+            name = f"{SOURCE_RECORD}{suffix}"
+            shutil.copyfile(RECORDS_DIR / name, records / name)
+
+        original = {p.name: p.read_bytes() for p in records.iterdir()}
+        for envelope_id in (SOURCE_RECORD, "", SECOND_REMINT + "\n"):
+            with self.subTest(envelope_id=envelope_id):
+                argv = [SOURCE_RECORD, "--envelope-id", envelope_id, "--reason", "regrade"]
+                with self.assertRaises(SystemExit) as cm:
+                    self._remint(scratch, argv)
+                self.assertEqual(cm.exception.code, 2)
+                self.assertEqual({p.name: p.read_bytes() for p in records.iterdir()}, original)
 
     def test_reason_without_envelope_id_is_a_usage_error(self):
         """Without `--envelope-id` no note is written, so a reason would be

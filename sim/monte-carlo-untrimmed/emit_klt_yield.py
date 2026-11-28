@@ -95,7 +95,7 @@ MM_SECTION = "tt_mm"
 #: `<YYYYMMDD>-<HHMMSS>-<short-sha>`, this repo's record-id shape (see
 #: `sim/README.md`). Applied to `--envelope-id` too, so a re-minted envelope
 #: is named the same way every other record in this tree is.
-RECORD_ID_RE = re.compile(r"^\d{8}-\d{6}-[0-9a-f]+$")
+RECORD_ID_RE = re.compile(r"[0-9]{8}-[0-9]{6}-[0-9a-f]+")
 
 #: The **Source record** line of a re-mint note, exactly as
 #: `render_remint_note` writes it: the one committed artifact tying a
@@ -213,18 +213,16 @@ def render_remint_note(
         f"# `klt yield` envelope re-mint — `{envelope_id}`",
         "",
         f"- **Envelope record id**: `{envelope_id}`",
-        f"- **Source record**: [`{record_id}`](./{record_id}.md) — this envelope is",
-        f"  derived from that record's own committed `all`-config corner logs",
-        f"  (`corners/{record_id}/`). No new simulation was run; the sample set is",
-        "  re-parsed from those logs by `sim/monte-carlo-untrimmed/emit_klt_yield.py`.",
+        f"- **Source record**: [`{record_id}`](./{record_id}.md) — this envelope uses",
+        f"  the record's converged `all`-config samples from `corners/{record_id}/`.",
         "- **Supersedes**: "
         + (
-            f"`{superseded.name}` (same source record; re-minted, not edited)"
+            f"`{superseded.name}` (this invocation leaves it untouched)"
             if superseded is not None
             else "(none — no earlier `*-klt-yield.json` envelope is on file for this "
             "source record)"
         ),
-        "- **Reason**: " + (reason or "(none given — re-minted without `--reason`)"),
+        "- **Reason**: " + (reason or "No reason given."),
         f"- **`samples` (this envelope)**: `{payload.get('samples')}`",
         f"- **Status**: `{payload.get('status')}` — "
         f"{payload.get('measurement_count')} measurements, "
@@ -243,21 +241,12 @@ def render_remint_note(
             f"| `{m.get('name')}` | {m.get('n')} | {emp.get('estimate'):.4f} | "
             f"[{ci.get('low'):.4f}, {ci.get('high'):.4f}] | {cap.get('cpk'):.4f} |"
         )
-    trailer = [
-        "The figures above are `klt yield`'s output for this invocation, not copied",
-        "from -- or asserted to equal -- any earlier envelope's.",
-    ]
-    if superseded is not None:
-        trailer += [
-            "The superseded envelope stays committed and unmodified, per",
-            "`sim/README.md`'s append-only rule.",
-        ]
-    lines += ["", *trailer, ""]
+    lines += ["", "The figures above are `klt yield`'s output for this invocation.", ""]
     return "\n".join(lines)
 
 
 def latest_prior_envelope(record_id: str) -> Path | None:
-    """The newest committed envelope already derived from ``record_id``.
+    """The newest envelope on file derived from ``record_id``.
 
     Candidates are the source record's own ``<record_id>-klt-yield.json`` and
     every ``--envelope-id`` re-mint whose note names ``record_id`` as its
@@ -308,14 +297,16 @@ def main(argv: list[str]) -> int:
         parser.error("--reason records why a --envelope-id re-mint exists; it needs --envelope-id")
 
     record_id = args.record_id
-    if not RECORD_ID_RE.match(record_id):
+    if not RECORD_ID_RE.fullmatch(record_id):
         parser.error(f"record_id must look like <YYYYMMDD>-<HHMMSS>-<short-sha>; got {record_id!r}")
-    envelope_id = args.envelope_id or record_id
-    if not RECORD_ID_RE.match(envelope_id):
+    remint = args.envelope_id is not None
+    envelope_id = args.envelope_id if remint else record_id
+    if not RECORD_ID_RE.fullmatch(envelope_id):
         parser.error(
             f"--envelope-id must look like <YYYYMMDD>-<HHMMSS>-<short-sha>; got {envelope_id!r}"
         )
-    remint = envelope_id != record_id
+    if remint and envelope_id == record_id:
+        parser.error("--envelope-id must differ from the source record_id")
 
     record_json = HERE / "records" / f"{record_id}.json"
     if not record_json.is_file():

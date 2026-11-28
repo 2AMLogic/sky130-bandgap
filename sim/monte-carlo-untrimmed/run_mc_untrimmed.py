@@ -724,14 +724,14 @@ def render_klt_yield_section(record_id: str) -> list[str]:
     input_path, output_path = _klt_yield_paths(record_id)
     add("## klt yield envelope (klayout-tools, issue #180)")
     add("")
-    if not (input_path.is_file() and output_path.is_file()):
+    has_input = input_path.is_file()
+    has_output = output_path.is_file()
+    if not (has_input and has_output):
         add(
-            f"No `{record_id}-klt-yield.json` envelope is on file beside this record. "
-            "`sim/monte-carlo-untrimmed/emit_klt_yield.py` runs as a separate, later step "
-            "and either has not been run for this record or exited non-zero (its stderr "
-            "names the cause). Stated here per issue #180's acceptance criteria rather "
-            "than silently omitted: the yield figures in the table above are ngspice "
-            "empirical in-window fractions only, with no `klt yield` cross-check."
+            f"Beside this source record, `{input_path.name}` is {'present' if has_input else 'missing'} "
+            f"and `{output_path.name}` is {'present' if has_output else 'missing'}. "
+            "Both files are needed to display the `klt yield` cross-check here. "
+            "The yield figures in the table above are ngspice empirical in-window fractions."
         )
         add("")
         return L
